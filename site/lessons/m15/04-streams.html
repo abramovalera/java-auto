@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Потоки ввода-вывода · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-04">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 15 · Урок 4</div>
+    <h1>Потоки ввода-вывода: как это устроено</h1>
+    <p class="lead"><code>Files.readString</code> — удобная кнопка. Заглянем под неё: там трубы, по которым текут байты, вёдра-буферы и краны, которые надо закрывать. Это нужно, чтобы читать чужой код и не терять данные.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🚰 InputStream, Reader, BufferedReader</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m15-04-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "В файле <code>log.txt</code> была одна строка <code>old</code> (с переводом строки в конце). Что выведет?",
+            "code": "Path log = Path.of(\"log.txt\");\nFiles.writeString(log, \"new\\n\", StandardOpenOption.APPEND);\nSystem.out.println(Files.readAllLines(log).size());",
+            "answer": "2", "why": "APPEND дописал строку new после old." },
+          { "type": "single", "q": "Повторим модуль 12. Когда выполняется блок <code>finally</code>?",
+            "options": ["Только если исключения не было", "Только если было исключение", "Всегда — и при успехе, и при исключении"], "answer": 2,
+            "why": "finally — «уборка после себя», она выполняется в любом случае." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "<code>Files.createDirectories</code> создаёт и все недостающие папки-родители", "a": true },
+              { "s": "Интерфейс можно реализовать в своём классе через <code>implements</code>", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Поток — это труба</h2>
+    <p>Слово <b>поток</b> (stream) в вводе-выводе значит <b>последовательность байтов, которая течёт по одному</b>, как вода по трубе. С одной стороны — <b>источник</b> (файл, сеть, клавиатура), с другой — программа. Или наоборот: программа → <b>приёмник</b> (файл, экран).</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Слева источник — файл, по трубе InputStream байты текут в программу. Справа программа по трубе OutputStream отдаёт байты в приёмник — файл">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="16" y="70" width="120" height="100" rx="14" class="d-teal"/>
+        <text x="76" y="112" text-anchor="middle" class="d-title">📄 файл</text>
+        <text x="76" y="136" text-anchor="middle" class="d-small">🌐 сеть</text>
+        <text x="76" y="156" text-anchor="middle" class="d-small">⌨️ клавиатура</text>
+        <text x="76" y="196" text-anchor="middle" class="d-small">источник</text>
+        <rect x="136" y="100" width="170" height="40" rx="6" class="d-blue"/>
+        <circle cx="166" cy="120" r="14" class="d-box"/><text x="166" y="124" text-anchor="middle" class="d-small">72</text>
+        <circle cx="206" cy="120" r="14" class="d-box"/><text x="206" y="124" text-anchor="middle" class="d-small">105</text>
+        <circle cx="246" cy="120" r="14" class="d-box"/><text x="246" y="124" text-anchor="middle" class="d-small">33</text>
+        <path d="M276 120 H300" class="d-arrow"/>
+        <text x="221" y="88" text-anchor="middle" class="d-mono-ink">InputStream</text>
+        <text x="221" y="166" text-anchor="middle" class="d-small">байты по одному</text>
+        <rect x="306" y="60" width="148" height="120" rx="16" class="d-accent"/>
+        <text x="380" y="114" text-anchor="middle" class="d-title">☕ программа</text>
+        <text x="380" y="138" text-anchor="middle" class="d-small">read() / write()</text>
+        <rect x="454" y="100" width="170" height="40" rx="6" class="d-violet"/>
+        <circle cx="494" cy="120" r="14" class="d-box"/>
+        <circle cx="534" cy="120" r="14" class="d-box"/>
+        <path d="M564 120 H618" class="d-arrow"/>
+        <text x="539" y="88" text-anchor="middle" class="d-mono-ink">OutputStream</text>
+        <text x="539" y="166" text-anchor="middle" class="d-small">байты по одному</text>
+        <rect x="624" y="70" width="120" height="100" rx="14" class="d-teal"/>
+        <text x="684" y="112" text-anchor="middle" class="d-title">📄 файл</text>
+        <text x="684" y="136" text-anchor="middle" class="d-small">🖥️ консоль</text>
+        <text x="684" y="196" text-anchor="middle" class="d-small">приёмник</text>
+        <text x="380" y="232" text-anchor="middle" class="d-small">Программе всё равно, что на том конце трубы — файл, сеть или клавиатура.</text>
+      </svg>
+      <figcaption>InputStream — труба «к программе», OutputStream — «от программы». По ним текут байты.</figcaption>
+    </figure>
+    <p>Ты уже пользовался потоками, не зная этого:</p>
+    <ul>
+      <li><code>System.in</code> — это <code>InputStream</code>: байты с клавиатуры. <code>new Scanner(System.in)</code> — создание объекта <code>Scanner</code>: конструктору передаём аргументом <code>System.in</code>, и сканер подключается к трубе как удобный «кран».</li>
+      <li><code>System.out</code> — <code>PrintStream</code>, наследник <code>OutputStream</code>: байты в консоль.</li>
+    </ul>
+    <p>Прочитаем файл <code>hi.txt</code> с текстом <code>Hi!</code> по одному байту:</p>
+<pre data-file="Bytes.java"><code class="java">try (InputStream in = Files.newInputStream(Path.of("hi.txt"))) {
+    int b;
+    while ((b = in.read()) != -1) {
+        System.out.print(b + " ");
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">72 105 33</span></pre>
+    <p>Буквы <code>H</code>, <code>i</code>, <code>!</code> на диске — просто числа 72, 105, 33. Метод <code>read()</code> возвращает следующий байт, а когда труба кончилась — <b>−1</b>. Поток <code>in</code> объявлен в скобках после <code>try</code> — это try-с-ресурсами, ниже разберём, зачем.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: почему read() возвращает int, а не byte</summary>
+      <p>Байт принимает 256 значений (0…255), и все они могут встретиться в файле. Нужен 257-й сигнал «конец» — поэтому тип шире: <code>int</code>, а конец — <code>-1</code>, которого среди байтов нет. Классический вопрос с собеседования.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Четыре семьи: байты и символы</h2>
+    <p>Байты — это хорошо для картинок, фото, архивов. Но текст удобнее читать <b>символами</b>, а кириллическая буква занимает 2 байта. Поэтому в <code>java.io</code> две пары семейств:</p>
+    <figure class="fig">
+      <svg viewBox="0 0 640 260" role="img" aria-label="Таблица два на два: байтовые потоки InputStream и OutputStream, символьные Reader и Writer; мост InputStreamReader">
+        <rect x="160" y="16" width="230" height="40" rx="10" class="d-soft"/>
+        <text x="275" y="42" text-anchor="middle" class="d-title">Чтение (in)</text>
+        <rect x="400" y="16" width="230" height="40" rx="10" class="d-soft"/>
+        <text x="515" y="42" text-anchor="middle" class="d-title">Запись (out)</text>
+        <rect x="10" y="66" width="140" height="80" rx="10" class="d-soft"/>
+        <text x="80" y="100" text-anchor="middle" class="d-title">Байты</text>
+        <text x="80" y="122" text-anchor="middle" class="d-small">картинки, zip</text>
+        <rect x="10" y="156" width="140" height="80" rx="10" class="d-soft"/>
+        <text x="80" y="190" text-anchor="middle" class="d-title">Символы</text>
+        <text x="80" y="212" text-anchor="middle" class="d-small">текст</text>
+        <rect x="160" y="66" width="230" height="80" rx="10" class="d-blue"/>
+        <text x="275" y="100" text-anchor="middle" class="d-mono-ink">InputStream</text>
+        <text x="275" y="124" text-anchor="middle" class="d-small">FileInputStream, System.in</text>
+        <rect x="400" y="66" width="230" height="80" rx="10" class="d-violet"/>
+        <text x="515" y="100" text-anchor="middle" class="d-mono-ink">OutputStream</text>
+        <text x="515" y="124" text-anchor="middle" class="d-small">FileOutputStream, System.out</text>
+        <rect x="160" y="156" width="230" height="80" rx="10" class="d-green"/>
+        <text x="275" y="190" text-anchor="middle" class="d-mono-ink">Reader</text>
+        <text x="275" y="214" text-anchor="middle" class="d-small">FileReader, BufferedReader</text>
+        <rect x="400" y="156" width="230" height="80" rx="10" class="d-yellow"/>
+        <text x="515" y="190" text-anchor="middle" class="d-mono-ink">Writer</text>
+        <text x="515" y="214" text-anchor="middle" class="d-small">FileWriter, PrintWriter</text>
+      </svg>
+      <figcaption>Имя класса подсказывает семью: …Stream — байты, …Reader/…Writer — символы.</figcaption>
+    </figure>
+    <p>Между семьями есть <b>мост</b>: <code>InputStreamReader</code> берёт трубу с байтами и по таблице кодировки собирает из них символы. Например, так Scanner превращает байты клавиатуры в буквы.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: переходники для труб</span>
+      <p>Потоки в Java собирают как сантехнику: берут основную трубу и навинчивают на неё насадки. <code>new BufferedReader(new InputStreamReader(new FileInputStream("a.txt"), UTF_8))</code> — создаём объекты изнутри наружу, и каждый передаём аргументом в конструктор следующего: труба из файла → переходник байты→символы → накопительный бак. Такой приём называется <b>обёртка</b> (декоратор): каждая насадка добавляет одну способность.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>BufferedReader: ведром, а не каплями</h2>
+    <p>Каждое обращение к диску — дорогое: это как сходить к колодцу. Если брать воду по капле, будешь ходить вечность. <b>Буфер</b> — ведро: поток зачерпывает сразу кусок (обычно 8 КБ), а программа берёт из ведра сколько нужно. Ведро кончилось — новый поход к колодцу.</p>
+    <p><code>BufferedReader</code> вдобавок умеет читать <b>строку целиком</b> — метод <code>readLine()</code>. Когда строки кончились, он возвращает <code>null</code>.</p>
+<pre data-file="ReadLines.java"><code class="java">try (BufferedReader br = Files.newBufferedReader(Path.of("users.csv"))) {
+    String line;
+    int n = 0;
+    while ((line = br.readLine()) != null) {
+        n++;
+        System.out.println(n + ": " + line);
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Files.newBufferedReader(путь)</code><div><p>Современный способ: вызов статического метода <code>newBufferedReader</code> открывает файл и возвращает объект <code>BufferedReader</code>, сразу в UTF-8. Им инициализируется переменная <code>br</code>, объявленная в скобках после <code>try</code>. Раньше объект создавали вручную: <code>new BufferedReader(new FileReader("users.csv"))</code> — результат тот же.</p></div></div>
+      <div class="annot-row"><code>(line = br.readLine()) != null</code><div><p>Два дела в одном условии: вызываем <code>br.readLine()</code>, присваиваем возвращённую строку переменной <code>line</code> и сравниваем результат присваивания с <code>null</code>. Скобки обязательны. Идиома, которую встретишь в любом старом коде.</p></div></div>
+    </div>
+    <div data-widget="trace" id="trace-readline">
+      <script type="application/json">
+      { "title": "readLine до null",
+        "intro": "В файле users.csv две строки: «anna» и «boris». Следи за line и n.",
+        "code": "try (BufferedReader br = Files.newBufferedReader(\n        Path.of(\"users.csv\"))) {\n    String line;\n    int n = 0;\n    while ((line = br.readLine()) != null) {\n        n++;\n        System.out.println(n + \": \" + line);\n    }\n}",
+        "steps": [
+          { "line": 1, "vars": { "br": "открыт" }, "note": "Объект br создан в скобках try — файл открыт, ведро-буфер пока пустое." },
+          { "line": 4, "vars": { "br": "открыт", "line": "—", "n": "0" }, "note": "Переменная line объявлена без инициализации, счётчик n инициализирован нулём." },
+          { "line": 5, "vars": { "br": "открыт", "line": "\"anna\"", "n": "0" }, "note": "readLine вернул первую строку, она присвоена line — не null, заходим в цикл." },
+          { "line": 6, "vars": { "br": "открыт", "line": "\"anna\"", "n": "1" }, "ask": ["n"], "note": "Счётчик растёт." },
+          { "line": 7, "vars": { "br": "открыт", "line": "\"anna\"", "n": "1" }, "out": "1: anna\n", "note": "Печатаем." },
+          { "line": 5, "vars": { "br": "открыт", "line": "\"boris\"", "n": "1" }, "ask": ["line"], "note": "Следующая строка из буфера." },
+          { "line": 6, "vars": { "br": "открыт", "line": "\"boris\"", "n": "2" }, "note": "n = 2." },
+          { "line": 7, "vars": { "br": "открыт", "line": "\"boris\"", "n": "2" }, "out": "2: boris\n", "note": "Печатаем." },
+          { "line": 5, "vars": { "br": "открыт", "line": "null", "n": "2" }, "ask": ["line"], "note": "Строк больше нет — readLine вернул null. Условие ложно, цикл окончен." },
+          { "line": 9, "vars": { "br": "закрыт" }, "note": "Выходим из try — Java сама вызывает br.close(). Файл закрыт, line и n исчезли вместе с блоком." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Закрывай кран</h2>
+    <p>Открытый поток держит файл: операционная система выделила под него ресурс. Пока поток не закрыт:</p>
+    <ul>
+      <li>на Windows такой файл нельзя удалить или переименовать — «файл занят другой программой»;</li>
+      <li>открытых файлов у программы ограниченное число — в программе, которая работает сутками, незакрытые копятся, и всё падает с <code>Too many open files</code>;</li>
+      <li>при <b>записи</b> через буфер данные лежат в «ведре» и попадают на диск только при <code>flush()</code> или <code>close()</code>. Не закрыл — файл может остаться <b>пустым</b>.</li>
+    </ul>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кран</span>
+      <p>Открыл кран, набрал воды — закрой. Иначе течёт вода и растёт счёт, а соседи снизу (другие программы) страдают. try-с-ресурсами (try-with-resources) — кран с датчиком: отошёл от раковины — закрылся сам, даже если ты убежал в панике (выброшено исключение).</p>
+    </div>
+<pre data-file="Forgot.java"><code class="java">BufferedWriter w = Files.newBufferedWriter(Path.of("report.txt"));
+w.write("Все заказы оплачены");
+// забыли w.close()</code></pre>
+    <div data-widget="ide" id="shot-forgot-close">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "tabs": ["report.txt", "Forgot.java"], "runConfig": "Forgot",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "Forgot", "type": "class", "depth": 2 },
+                  { "name": "report.txt", "type": "file", "depth": 1, "selected": true } ],
+        "code": "",
+        "caretLine": 1,
+        "console": { "title": "Forgot", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Forgot" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "exit", "text": "Программа отработала «успешно»: <b>exit code 0</b>, никаких исключений" },
+                   { "n": 2, "target": "tree-report.txt", "text": "Файл <code>report.txt</code> создан — <code>newBufferedWriter</code> создаёт его сразу при открытии…" },
+                   { "n": 3, "target": "line-1", "text": "…но внутри <b>пусто</b>: «Все заказы оплачены» так и осталось в ведре-буфере и на диск не попало" } ],
+        "caption": "Забыли close(): файл есть, а текста в нём нет" }
+      </script>
+    </div>
+    <p>Программа завершится, а <code>report.txt</code> окажется пустым: текст остался в буфере. Правильно — объявить ресурс в круглых скобках после <code>try</code> (try-с-ресурсами): при выходе из блока Java сама вызовет у него <code>close()</code>:</p>
+<pre data-file="Remembered.java"><code class="java">try (BufferedWriter w = Files.newBufferedWriter(Path.of("report.txt"))) {
+    w.write("Все заказы оплачены");
+    // на выходе из блока Java сама вызовет w.close():
+    // буфер сбросится на диск, файл закроется
+}</code></pre>
+    <p>В скобках после <code>try</code> можно объявить несколько ресурсов через <code>;</code>. Подойдёт любой объект, класс которого реализует интерфейс <code>AutoCloseable</code> (у него один метод <code>close()</code>). Сделаем свой «кран» и посмотрим порядок закрытия:</p>
+<pre data-file="TapDemo.java"><code class="java">class Tap implements AutoCloseable {
+    private final String name;
+    Tap(String name) { this.name = name; System.out.println("открыт " + name); }
+    @Override
+    public void close() { System.out.println("закрыт " + name); }
+}
+
+public class TapDemo {
+    public static void main(String[] args) {
+        try (Tap a = new Tap("A"); Tap b = new Tap("B")) {
+            System.out.println("работаем");
+            throw new IllegalStateException("авария");
+        } catch (IllegalStateException e) {
+            System.out.println("поймали: " + e.getMessage());
+        }
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи вывод — прежде чем открыть</summary>
+<pre class="terminal"><span class="out">открыт A
+открыт B
+работаем
+закрыт B
+закрыт A
+поймали: авария</span></pre>
+      <p>Две вещи, которые спрашивают на собеседованиях: 1) ресурсы закрываются <b>в обратном порядке</b> — последний открытый первым (как матрёшку собирают: сначала закрываешь внутреннюю); 2) закрытие происходит <b>до</b> блока <code>catch</code> — к моменту, когда исключение перехвачено в <code>catch</code>, краны уже закрыты.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Scanner для файла</h2>
+    <p>Знакомый <code>Scanner</code> умеет читать не только клавиатуру, но и файл: при создании объекта передаём конструктору аргументом объект <code>Path</code>. Удобно, когда в файле числа: <code>nextInt</code> сам разберёт их.</p>
+<pre data-file="SumFromFile.java"><code class="java">// в файле steps.txt: 340 1250 87 410
+// (шаги за четыре прогулки, через пробелы или по строкам)
+try (Scanner sc = new Scanner(Path.of("steps.txt"))) {
+    int total = 0;
+    while (sc.hasNextInt()) {
+        total += sc.nextInt();
+    }
+    System.out.println("Всего: " + total + " шагов");
+}</code></pre>
+<pre class="terminal"><span class="out">Всего: 2087 шагов</span></pre>
+    <div class="callout warn">
+      <span class="callout-title">А Scanner(System.in) закрывать не надо</span>
+      <p>Вызов <code>close()</code> у Scanner закрывает и трубу под ним. Для файла — то, что нужно. А закроешь <code>Scanner(System.in)</code> — закроется сама клавиатура для программы, и новый Scanner уже ничего не прочитает. Правило: <b>закрывай то, что сам открыл</b>. <code>System.in</code> открывал не ты.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Старое и новое</h2>
+    <p>Когда что брать, если ты пишешь код сам:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Современно (пиши так)</th><th>Встретишь в старом коде</th></tr>
+        <tr><td>Прочитать небольшой текст</td><td><code>Files.readString</code>, <code>readAllLines</code></td><td><code>BufferedReader</code> + <code>FileReader</code> в цикле</td></tr>
+        <tr><td>Большой файл построчно</td><td><code>Files.lines</code> или <code>Files.newBufferedReader</code></td><td><code>new BufferedReader(new FileReader(…))</code></td></tr>
+        <tr><td>Записать текст</td><td><code>Files.writeString</code>, <code>Files.write</code></td><td><code>FileWriter</code>, <code>PrintWriter</code></td></tr>
+        <tr><td>Картинка, фото, любые байты</td><td><code>Files.readAllBytes</code>, <code>Files.write(путь, байты)</code></td><td><code>FileInputStream</code>, <code>FileOutputStream</code></td></tr>
+        <tr><td>Данные пришли как поток (сеть, ресурс)</td><td><code>Files.copy(inputStream, путь)</code></td><td>цикл <code>read</code>/<code>write</code> с массивом-буфером</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="cool"><p>Поток встретится, например, когда файл-ресурс лежит внутри проекта: <code>getClass().getResourceAsStream("/users.csv")</code> возвращает именно <code>InputStream</code>. Теперь ты знаешь, что с ним делать: обернуть в <code>BufferedReader</code> и закрыть.</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: сериализация — объект в байты</summary>
+      <p>Есть потоки, которые пишут в файл <b>целый объект</b>: <code>ObjectOutputStream.writeObject(obj)</code> и обратно <code>ObjectInputStream.readObject()</code>. Класс должен реализовать пустой интерфейс-метку <code>Serializable</code>, а поля, которые сохранять не надо (пароль, кеш), помечают словом <code>transient</code>.</p>
+      <p>Сегодня встроенную сериализацию почти не используют (она медленная и небезопасная), объекты сохраняют в JSON. Но вопрос «что такое transient» на собеседованиях ещё бывает.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m15-04">
+      <script type="application/json">
+      { "title": "Потоки ввода-вывода — главное",
+        "items": [
+          { "type": "match", "q": "Соедини класс с тем, что по нему течёт",
+            "left": ["InputStream", "Writer", "BufferedReader", "InputStreamReader"],
+            "right": ["Байты — в программу", "Символы — из программы", "Символы с буфером, есть readLine()", "Мост: байты → символы по кодировке"],
+            "why": "…Stream — байты, …Reader/…Writer — символы, Buffered — с ведром, InputStreamReader — переходник." },
+          { "type": "predict", "q": "Что выведет программа? (класс Tap из урока печатает «закрыт имя»)",
+            "code": "try (Tap x = new Tap(\"X\"); Tap y = new Tap(\"Y\"); Tap z = new Tap(\"Z\")) {\n    System.out.println(\"ok\");\n}",
+            "answer": "открыт X\nоткрыт Y\nоткрыт Z\nok\nзакрыт Z\nзакрыт Y\nзакрыт X", "why": "Открываются по порядку, закрываются в обратном." },
+          { "type": "single", "q": "Что вернёт <code>br.readLine()</code>, когда строки в файле закончились?",
+            "options": ["Пустую строку \"\"", "null", "-1"], "answer": 1,
+            "why": "readLine возвращает null. А -1 — это конец у read() в InputStream." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Если не закрыть BufferedWriter, записанный текст может не попасть в файл", "a": true },
+              { "s": "В try-with-resources ресурс закрывается после блока catch", "a": false, "why": "до него: к catch ресурсы уже закрыты." },
+              { "s": "<code>Scanner(System.in)</code> стоит закрывать в конце каждого метода", "a": false, "why": "закроется сама клавиатура — следующий Scanner ничего не прочитает." }
+            ] },
+          { "type": "order", "q": "Собери чтение файла построчно",
+            "lines": ["try (BufferedReader br = Files.newBufferedReader(path)) {", "    String line;", "    while ((line = br.readLine()) != null) {", "        System.out.println(line);", "    }", "}"], "code": true,
+            "why": "Открыли в try, читаем до null, после скобки файл закрыт сам." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 15.4. Спроси меня, зачем закрывать потоки и в каком порядке закрывает try-with-resources»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Поток — труба с байтами: <code>InputStream</code> в программу, <code>OutputStream</code> из неё. Для текста — <code>Reader</code>/<code>Writer</code>.</li>
+        <li><code>read()</code> возвращает −1 в конце, <code>readLine()</code> — <code>null</code>.</li>
+        <li>Буфер — ведро: меньше походов к диску. <code>BufferedReader.readLine()</code> читает строку целиком.</li>
+        <li>Потоки надо закрывать: try-с-ресурсами закрывает сам, в обратном порядке и до <code>catch</code>. Не закрыл буферизованную запись — файл может остаться пустым.</li>
+        <li>Scanner читает и файлы: создаём объект <code>new Scanner(Path.of(…))</code>. <code>System.in</code> не закрывай.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

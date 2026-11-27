@@ -1,0 +1,58 @@
+## id: tr-arrays-022
+## title: Код от замка
+## file: trainer/arrays/LockCodeMatch.java
+## class: LockCodeMatch
+## level: 1
+## category: Поиск
+@@ description
+<p>Напиши класс <code>LockCodeMatch</code>. Кодовый замок открывается, только если введённые цифры совпадают с секретным кодом полностью — та же длина и тот же порядок. Ввод: в первой строке — длина кода <code>n</code>, во второй — <code>n</code> цифр секретного кода через пробел, в третьей — сколько цифр ввёл гость <code>m</code>, в четвёртой — эти <code>m</code> цифр. Напечатай <code>Открыто</code> или <code>Неверный код</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       1 9 8 4
+       4
+       1 9 8 4
+вывод: Открыто</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.equals(a, b)</code> — возвращает <code>true</code>, если у массивов одинаковая длина и одинаковые элементы на одних и тех же местах</li>
+<li><code>a == b</code> для массивов сравнивает ссылки, а не содержимое — здесь не подойдёт</li>
+</ul></div>
+@@ test: Верный код
+@@ input
+4
+1 9 8 4
+4
+1 9 8 4
+@@ expect
+Открыто
+@@ test: Одна цифра не та
+@@ input
+4
+1 9 8 4
+4
+1 9 8 5
+@@ expect
+Неверный код
+@@ test: Цифры переставлены
+@@ input
+3
+2 7 7
+3
+7 2 7
+@@ expect
+Неверный код
+@@ test: Ввёл не все цифры
+@@ input
+4
+5 5 5 5
+3
+5 5 5
+@@ expect
+Неверный код
+@@ test: Ввёл лишнюю
+@@ input
+2
+0 1
+3
+0 1 0
+@@ expect
+Неверный код
+@@ require: Arrays\s*\.\s*equals\s*\( | Сравни массивы через Arrays.equals

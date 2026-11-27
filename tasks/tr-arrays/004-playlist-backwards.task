@@ -1,0 +1,41 @@
+## id: tr-arrays-004
+## title: Плейлист задом наперёд
+## file: trainer/arrays/PrintPlaylistBackwards.java
+## class: PrintPlaylistBackwards
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>PrintPlaylistBackwards</code>. В плейлисте <code>n</code> песен, у каждой свой номер. В первой строке — <code>n</code> (n ≥ 1), во второй — <code>n</code> номеров через пробел. Напечатай номера в обратном порядке <b>в одну строку через пробел</b> — с последней песни до первой.</p>
+<p>Сам массив менять не нужно: просто обойди его с конца.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       12 7 33 1 8
+вывод: 8 1 33 7 12</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>for (int i = n - 1; i &gt;= 0; i--)</code> — цикл, где счётчик идёт от последнего индекса к нулю</li>
+<li><code>System.out.print(x + " ")</code> — печатает без перевода строки</li>
+</ul></div>
+@@ test: Пять песен
+@@ input
+5
+12 7 33 1 8
+@@ expect
+8 1 33 7 12
+@@ test: Одна песня
+@@ input
+1
+42
+@@ expect
+42
+@@ test: Две песни
+@@ input
+2
+1 2
+@@ expect
+2 1
+@@ test: Повторы
+@@ input
+4
+3 3 5 3
+@@ expect
+3 5 3 3
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

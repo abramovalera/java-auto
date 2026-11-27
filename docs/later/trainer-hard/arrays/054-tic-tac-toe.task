@@ -1,0 +1,66 @@
+## id: tr-arrays-054
+## title: Крестики-нолики: кто выиграл
+## file: trainer/arrays/TicTacToeJudge.java
+## class: TicTacToeJudge
+## level: 3
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>TicTacToeJudge</code>. Программа читает поле 3 × 3 — три строки по три символа без пробелов: <code>X</code> — крестик, <code>O</code> (латинская буква) — нолик, <code>.</code> — пустая клетка. Выигрывает тот, у кого три своих знака в ряд: по строке, по столбцу или по одной из двух диагоналей. Гарантируется, что победитель не больше одного. Напечатай:</p>
+<ul>
+<li><code>Победил X</code> или <code>Победил O</code>;</li>
+<li><code>Ничья</code> — победителя нет и пустых клеток нет;</li>
+<li><code>Игра идёт</code> — победителя нет, а пустые клетки есть.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:  XXX
+       OO.
+       ...
+вывод: Победил X</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>char[][] field = new char[3][];</code> и <code>field[i] = scanner.next().toCharArray();</code></li>
+<li>проверка линии: три клетки равны друг другу и первая не <code>'.'</code></li>
+<li>строки и столбцы проверяй в одном цикле по <code>i</code>, диагонали — отдельно</li>
+</ul></div>
+@@ test: Строка крестиков
+@@ input
+XXX
+OO.
+...
+@@ expect
+Победил X
+@@ test: Столбец ноликов
+@@ input
+XO.
+XO.
+.OX
+@@ expect
+Победил O
+@@ test: Диагональ
+@@ input
+X.O
+.XO
+..X
+@@ expect
+Победил X
+@@ test: Побочная диагональ
+@@ input
+XXO
+XO.
+O..
+@@ expect
+Победил O
+@@ test: Ничья
+@@ input
+XOX
+XOO
+OXX
+@@ expect
+Ничья
+@@ test: Игра идёт
+@@ input
+X..
+.O.
+..X
+@@ expect
+Игра идёт
+@@ require: toCharArray\s*\( | Преврати строки поля в массивы символов: toCharArray()
+@@ require: char\s*\[\s*\]\s*\[\s*\] | Сохрани поле в двумерный массив char[][]

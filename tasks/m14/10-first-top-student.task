@@ -1,0 +1,48 @@
+## id: m14-t10
+## title: Optional: первый отличник
+## file: module-14/FirstTopStudentFinder.java
+## class: FirstTopStudentFinder
+## level: 3
+@@ description
+<p>В первой строке вводится порог <code>X</code>, во второй — студенты через пробел в виде <code>имя:балл</code>. Найди <b>первого по порядку</b> студента, у которого балл <b>строго больше</b> <code>X</code>, и выведи <code>имя (балл)</code>. Если такого нет — <code>Не найден</code>.</p>
+<pre class="terminal"><span class="out">ввод:  80
+       Аня:72 Борис:91 Вика:95     →  вывод: Борис (91)
+
+ввод:  95
+       Аня:72 Борис:91 Вика:95     →  вывод: Не найден</span></pre>
+<p>Опиши студента record'ом внутри своего класса: <code>record GradedStudent(String name, int score) { }</code>. <code>findFirst()</code> вернёт <code>Optional&lt;GradedStudent&gt;</code>. Достань из него ответ «правильно»: через <code>map</code> + <code>orElse</code> (или <code>isPresent</code>/<code>ifPresentOrElse</code>). Вызов <code>get()</code> без проверки здесь <b>запрещён</b> — именно так в реальном коде появляется <code>NoSuchElementException</code>. Циклы тоже запрещены.</p>
+<p>📖 <a href="/lessons/m14/06-optional.html">Optional: вместо null</a></p>
+@@ test: Нашёлся не самый сильный, а первый
+@@ input
+80
+Аня:72 Борис:91 Вика:95
+@@ expect
+Борис (91)
+@@ test: Порог равен лучшему баллу — строго больше
+@@ input
+95
+Аня:72 Борис:91 Вика:95
+@@ expect
+Не найден
+@@ test: Подходит самый первый
+@@ input
+0
+Дима:1 Ева:100
+@@ expect
+Дима (1)
+@@ test: Отрицательный порог и ноль баллов
+@@ input
+-1
+Гоша:0
+@@ expect
+Гоша (0)
+@@ test: Подходит только последний
+@@ input
+59
+Аня:10 Борис:20 Вика:59 Гоша:60
+@@ expect
+Гоша (60)
+@@ require: \.findFirst\s*\(\s*\) | Найди первого подходящего методом findFirst()
+@@ require: \.(orElse|orElseGet|isPresent|isEmpty|ifPresentOrElse|ifPresent)\s*\( | Достань результат из Optional безопасно: orElse, isPresent или ifPresentOrElse
+@@ forbid: \.get\s*\(\s*\) | Не вызывай get() у Optional — используй orElse или isPresent
+@@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

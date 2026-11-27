@@ -1,0 +1,40 @@
+## id: tr-loops-044
+## title: Цифровой корень
+## file: trainer/loops/DigitalRootRepeat.java
+## class: DigitalRootRepeat
+## level: 2
+## category: Цифры числа
+@@ description
+<p>Напиши класс <code>DigitalRootRepeat</code>. Берём число, складываем его цифры, у суммы снова складываем цифры — и так, пока не останется одна цифра. Программа читает целое <code>n</code> (0 ≤ n ≤ 10<sup>18</sup>) и печатает всю цепочку через <code> -&gt; </code>.</p>
+<pre class="terminal"><span class="out">ввод:  9875
+вывод: 9875 -&gt; 29 -&gt; 11 -&gt; 2</span></pre>
+<p>Если число уже однозначное, цепочка состоит из него одного.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLong()</code> — число может быть больше int</li>
+<li>вложенный цикл: внешний повторяет, пока <code>n &gt;= 10</code>, внутренний считает сумму цифр</li>
+</ul></div>
+@@ test: Три шага
+@@ input
+9875
+@@ expect
+9875 -> 29 -> 11 -> 2
+@@ test: Однозначное
+@@ input
+7
+@@ expect
+7
+@@ test: Ноль
+@@ input
+0
+@@ expect
+0
+@@ test: Большое число
+@@ input
+999999999999
+@@ expect
+999999999999 -> 108 -> 9
+@@ test: Десять
+@@ input
+10
+@@ expect
+10 -> 1

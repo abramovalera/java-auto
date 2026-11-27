@@ -1,0 +1,54 @@
+## id: tr-colls-053
+## title: Калькулятор обратной записи
+## file: trainer/colls/PostfixCalculator.java
+## class: PostfixCalculator
+## level: 3
+## category: Стек и очередь
+@@ description
+<p>Напиши класс <code>PostfixCalculator</code>. В обратной польской записи знак пишут <b>после</b> чисел: <code>3 4 +</code> — это 3 + 4, а <code>3 4 + 2 *</code> — это (3 + 4) * 2. Скобки не нужны. Программа читает одну строку: целые числа (могут быть отрицательными) и знаки <code>+ - * /</code> через пробел. Деление — целочисленное. Напечатай результат или <code>Ошибка</code>, если для знака не хватает чисел, если в конце осталось больше одного числа или если делят на ноль.</p>
+<pre class="terminal"><span class="out">ввод:  3 4 + 2 *
+вывод: 14
+
+ввод:  2 +
+вывод: Ошибка</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>стек чисел: число — <code>push</code>; знак — сними два числа, посчитай, положи результат</li>
+<li>первым снимается <b>правое</b> число: для <code>8 3 -</code> снимешь 3, потом 8</li>
+<li><code>Integer.parseInt("-3")</code> понимает минус; знак <code>-</code> — это токен, равный ровно <code>"-"</code></li>
+</ul></div>
+@@ test: Пример
+@@ input
+3 4 + 2 *
+@@ expect
+14
+@@ test: Длинное выражение
+@@ input
+5 1 2 + 4 * + 3 -
+@@ expect
+14
+@@ test: Не хватает чисел
+@@ input
+2 +
+@@ expect
+Ошибка
+@@ test: Порядок важен
+@@ input
+8 3 -
+@@ expect
+5
+@@ test: Отрицательное число и деление
+@@ input
+-7 2 /
+@@ expect
+-3
+@@ test: Лишнее число
+@@ input
+1 2 3 +
+@@ expect
+Ошибка
+@@ test: Деление на ноль
+@@ input
+7 0 /
+@@ expect
+Ошибка
+@@ require: ArrayDeque | Храни числа в стеке ArrayDeque

@@ -1,0 +1,60 @@
+## id: tr-colls-051
+## title: Семьи анаграмм
+## file: trainer/colls/AnagramFamilies.java
+## class: AnagramFamilies
+## level: 3
+## category: Классика собеседований
+@@ description
+<p>Напиши класс <code>AnagramFamilies</code>. Слова из одних и тех же букв (в том же количестве) — одна «семья анаграмм»: <code>пила</code>, <code>липа</code>, <code>пали</code>. В первой строке — количество слов <code>n</code>, во второй — <code>n</code> слов маленькими буквами через пробел. Напечатай <code>Семей: X</code>, а затем каждую семью отдельной строкой — слова через пробел. Семьи идут в порядке появления их первого слова, слова в семье — в порядке ввода (повторы слов сохраняются).</p>
+<pre class="terminal"><span class="out">ввод:  7
+       пила кот липа ток сон пали нос
+вывод: Семей: 3
+       пила липа пали
+       кот ток
+       сон нос</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>ключ семьи — буквы слова, отсортированные по алфавиту: <code>char[] a = w.toCharArray(); Arrays.sort(a); new String(a)</code></li>
+<li><code>LinkedHashMap&lt;String, List&lt;String&gt;&gt;</code> — семьи в порядке появления</li>
+</ul></div>
+@@ test: Три семьи
+@@ input
+7
+пила кот липа ток сон пали нос
+@@ expect
+Семей: 3
+пила липа пали
+кот ток
+сон нос
+@@ test: Все разные
+@@ input
+3
+дом сад лес
+@@ expect
+Семей: 3
+дом
+сад
+лес
+@@ test: Одна большая семья
+@@ input
+4
+корт крот трок торк
+@@ expect
+Семей: 1
+корт крот трок торк
+@@ test: Повтор слова
+@@ input
+3
+мир мир рим
+@@ expect
+Семей: 1
+мир мир рим
+@@ test: Ловушка: те же буквы, но в другом количестве
+@@ input
+3
+аб ааб абб
+@@ expect
+Семей: 3
+аб
+ааб
+абб
+@@ require: LinkedHashMap | Собирай семьи в LinkedHashMap — он помнит порядок

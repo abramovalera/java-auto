@@ -1,0 +1,38 @@
+## id: tr-colls-010
+## title: Маршрут курьера без повторов
+## file: trainer/colls/FirstSeenOrderNumbers.java
+## class: FirstSeenOrderNumbers
+## level: 1
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>FirstSeenOrderNumbers</code>. Курьеру выдали список номеров домов, куда везти заказы, — некоторые дома повторяются. В первой строке — количество заказов <code>n</code> (хотя бы один), во второй — <code>n</code> номеров домов через пробел. Напечатай номера без повторов через пробел в том порядке, в каком каждый дом встретился впервые.</p>
+<pre class="terminal"><span class="out">ввод:  7
+       12 5 12 8 5 3 8
+вывод: 12 5 8 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>LinkedHashSet</code> — множество, которое помнит порядок добавления элементов</li>
+</ul></div>
+@@ test: Обычный маршрут
+@@ input
+7
+12 5 12 8 5 3 8
+@@ expect
+12 5 8 3
+@@ test: Без повторов
+@@ input
+4
+9 1 7 2
+@@ expect
+9 1 7 2
+@@ test: Один дом
+@@ input
+5
+4 4 4 4 4
+@@ expect
+4
+@@ test: Один заказ
+@@ input
+1
+15
+@@ expect
+15

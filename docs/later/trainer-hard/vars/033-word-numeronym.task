@@ -1,0 +1,42 @@
+## id: tr-vars-033
+## title: Сокращение i18n
+## file: trainer/vars/WordNumeronym.java
+## class: WordNumeronym
+## level: 3
+## category: Буквы и длина строки
+@@ description
+<p>Напиши класс <code>WordNumeronym</code>. Программисты сокращают длинные слова так: первая буква, потом число букв между первой и последней, потом последняя буква. Так internationalization превращается в <code>i18n</code>. Программа читает слово (не короче двух букв) и печатает его сокращение.</p>
+<pre class="terminal"><span class="out">ввод:  internationalization
+вывод: i18n</span></pre>
+<p>Подвох: <code>first + 18</code>, где <code>first</code> — <code>char</code>, сложит код буквы с числом. Склейка начнётся, только если слева уже строка.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next()</code> — возвращает одно слово (до пробела или Enter)</li>
+<li><code>s.charAt(0)</code> — возвращает символ строки <code>s</code> по индексу (счёт с нуля)</li>
+<li><code>s.length()</code> — возвращает количество символов в строке</li>
+<li><code>"" + c</code> — склейка с пустой строкой превращает символ в строку</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+internationalization
+@@ expect
+i18n
+@@ test: Ещё одно известное
+@@ input
+localization
+@@ expect
+l10n
+@@ test: Заглавная буква
+@@ input
+Kubernetes
+@@ expect
+K8s
+@@ test: Короткое слово
+@@ input
+кот
+@@ expect
+к1т
+@@ test: Две буквы — между ними ноль
+@@ input
+да
+@@ expect
+д0а

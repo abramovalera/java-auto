@@ -1,0 +1,42 @@
+## id: tr-cond-044
+## title: Зеркальный номер
+## file: trainer/cond/FourDigitMirror.java
+## class: FourDigitMirror
+## level: 2
+## category: Цифры и делимость
+@@ description
+<p>Напиши класс <code>FourDigitMirror</code>. Номер квартиры из четырёх цифр (от 1000 до 9999) называют зеркальным, если он одинаково читается слева направо и справа налево, например 1221. Программа читает номер и печатает <code>Зеркальный</code> или <code>Обычный</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1221
+вывод: Зеркальный
+
+ввод:  1231
+вывод: Обычный</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n / 1000</code> — первая цифра, <code>n % 10</code> — последняя</li>
+<li><code>n / 100 % 10</code> — вторая цифра, <code>n / 10 % 10</code> — третья</li>
+</ul></div>
+@@ test: Зеркальный
+@@ input
+1221
+@@ expect
+Зеркальный
+@@ test: Крайние совпали, средние нет
+@@ input
+1231
+@@ expect
+Обычный
+@@ test: Все цифры одинаковые
+@@ input
+7777
+@@ expect
+Зеркальный
+@@ test: Наименьший номер
+@@ input
+1000
+@@ expect
+Обычный
+@@ test: Средние совпали, крайние нет
+@@ input
+1332
+@@ expect
+Обычный

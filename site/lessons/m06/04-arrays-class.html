@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Класс Arrays: готовые инструменты · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m06-04">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 6 · Урок 4</div>
+    <h1>Класс Arrays: ящик с инструментами</h1>
+    <p class="lead">Печать, сортировка, заполнение, копирование, сравнение — всё это уже написано за тебя. Учимся пользоваться готовым и понимать, что оно делает с массивом.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>🧰 toString · sort · fill · copyOf · equals</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m06-04-review">
+      <script type="application/json">
+      { "title": "Ссылки и копии", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "После <code>int[] b = a;</code> сколько массивов в куче?",
+            "options": ["Один", "Два", "Ни одного"], "answer": 0, "why": "b инициализируется копией ссылки. Обе переменные ссылаются на один массив." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int[] a = {7, 8};\nint[] c = Arrays.copyOf(a, 3);\nSystem.out.println(c.length + \" \" + c[2]);",
+            "answer": "3 0", "why": "Вызов copyOf(a, 3) вернул ссылку на новый массив длины 3: два элемента из a и один новый — с нулём по умолчанию." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Странная печать: [I@1b6d3586</h2>
+    <p>Попробуй напечатать массив целиком:</p>
+<pre data-file="PrintArray.java"><code class="java">int[] a = {3, 1, 2};
+System.out.println(a);</code></pre>
+    <div data-widget="ide" id="shot-array-passport">
+      <script type="application/json">
+      { "tree": false, "file": "PrintArray.java", "runConfig": "PrintArray", "gutterRun": [1, 2], "statusPath": "module-06",
+        "code": "public class PrintArray {\n    public static void main(String[] args) {\n        int[] a = {3, 1, 2};\n        System.out.println(a);\n    }\n}",
+        "warnings": [ { "line": 4, "text": "a", "msg": "Implicit call to 'toString()' on array 'a'", "tip": true, "fix": "Wrap with 'Arrays.toString()'" } ],
+        "console": { "title": "PrintArray", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… PrintArray" },
+          { "t": "out", "s": "[I@1b6d3586" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Жёлтая волна — <b>предупреждение</b>, не ошибка: программа запустится, но IDEA подозревает, что ты хотел не этого" },
+                   { "n": 2, "target": "tip", "text": "Наведи мышку: «неявный вызов toString() у массива». Строчкой ниже — готовая починка: <kbd>Alt</kbd>+<kbd>Enter</kbd> обернёт <code>a</code> в <code>Arrays.toString(a)</code>" },
+                   { "n": 3, "target": "output", "text": "Вместо чисел — «паспорт» объекта. Число после <b>@</b> у тебя будет другим", "box": true },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 0</b>: никакой аварии — Java честно напечатала то, что ты попросил" } ],
+        "caption": "println(массив): предупреждение в редакторе и «паспорт» в консоли" }
+      </script>
+    </div>
+    <p>Это не ошибка и не мусор. Мы вызвали <code>println</code> и передали аргументом ссылку на массив — а метод не умеет красиво печатать массивы и выводит «паспорт» объекта:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 640 190" role="img" aria-label="Расшифровка строки [I@1b6d3586: скобка значит массив, I значит int, после собачки номер объекта">
+        <rect x="150" y="20" width="340" height="60" rx="12" class="d-code"/>
+        <text x="190" y="58" class="d-mono">[</text>
+        <text x="226" y="58" class="d-mono">I</text>
+        <text x="262" y="58" class="d-mono">@</text>
+        <text x="300" y="58" class="d-mono">1b6d3586</text>
+        <path d="M194 84 L110 130" class="d-dash"/>
+        <path d="M230 84 L250 130" class="d-dash"/>
+        <path d="M360 84 L470 130" class="d-dash"/>
+        <rect x="20" y="130" width="170" height="44" rx="8" class="d-blue"/><text x="105" y="158" text-anchor="middle" class="d-text">[ — это массив</text>
+        <rect x="205" y="130" width="140" height="44" rx="8" class="d-teal"/><text x="275" y="158" text-anchor="middle" class="d-text">I — из int</text>
+        <rect x="360" y="130" width="260" height="44" rx="8" class="d-yellow"/><text x="490" y="158" text-anchor="middle" class="d-text">@… — номер объекта (хеш)</text>
+      </svg>
+      <figcaption>У массива <code>double[]</code> будет <code>[D@…</code>, у <code>String[]</code> — <code>[Ljava.lang.String;@…</code>. Число после @ у тебя будет другим.</figcaption>
+    </figure>
+    <p>Чтобы увидеть содержимое, вызываем метод <code>Arrays.toString</code> и передаём ему массив — метод возвращает строку с элементами:</p>
+<pre data-file="PrintArray.java"><code class="java">// как import java.util.Scanner — подключаем класс из JDK
+import java.util.Arrays;
+
+public class PrintArray {
+    public static void main(String[] args) {
+        int[] a = {3, 1, 2};
+        System.out.println(Arrays.toString(a));   // [3, 1, 2]
+    }
+}</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Привычка, которая сэкономит часы</span>
+      <p>Не понимаешь, что лежит в массиве? Вставь строку <code>System.out.println(Arrays.toString(a));</code> и запусти. Так программисты «подсматривают» в данные при отладке.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Что лежит в ящике</h2>
+    <p><b>Arrays</b> — готовый класс из пакета <code>java.util</code>, как <code>Scanner</code>. Это ящик с инструментами для массивов, и каждый инструмент — <b>метод</b> класса <code>Arrays</code>. Все они вызываются одинаково: <code>Arrays.имяМетода(массив, …)</code> — в скобках передаём <b>аргументы</b>.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вызов</th><th>Что делает</th><th>Пример результата</th></tr>
+        <tr><td><code>Arrays.toString(a)</code></td><td>Возвращает строку с элементами</td><td><code>"[3, 1, 2]"</code></td></tr>
+        <tr><td><code>Arrays.sort(a)</code></td><td><b>Меняет сам массив</b>: сортирует по возрастанию</td><td><code>a</code> стал <code>[1, 2, 3]</code></td></tr>
+        <tr><td><code>Arrays.fill(a, 7)</code></td><td><b>Меняет сам массив</b>: присваивает 7 всем элементам</td><td><code>a</code> стал <code>[7, 7, 7]</code></td></tr>
+        <tr><td><code>Arrays.copyOf(a, n)</code></td><td>Возвращает <b>новый</b> массив длины n</td><td><code>[3, 1]</code> при n = 2</td></tr>
+        <tr><td><code>Arrays.copyOfRange(a, from, to)</code></td><td>Новый массив из куска: с <code>from</code> включительно до <code>to</code> не включая</td><td><code>copyOfRange(a, 1, 3)</code> → <code>[1, 2]</code></td></tr>
+        <tr><td><code>Arrays.equals(a, b)</code></td><td>Сравнивает содержимое, возвращает <code>true</code>/<code>false</code></td><td><code>true</code></td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="think"><p>Обрати внимание на два вида методов. Одни <b>меняют</b> массив, переданный аргументом (<code>sort</code>, <code>fill</code>), и ничего не возвращают. Другие массив <b>не трогают</b>, а возвращают новое значение (<code>toString</code>, <code>copyOf</code>, <code>equals</code>). Путать их — частая ошибка.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Arrays.sort — сортировка на месте</h2>
+<pre data-file="SortDemo.java"><code class="java">int[] prices = {300, 120, 990, 45};
+Arrays.sort(prices);
+System.out.println(Arrays.toString(prices));   // [45, 120, 300, 990]
+
+String[] names = {"Оля", "Борис", "Аня"};
+Arrays.sort(names);
+System.out.println(Arrays.toString(names));    // [Аня, Борис, Оля]</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 680 170" role="img" aria-label="Массив до сортировки 300, 120, 990, 45 и после 45, 120, 300, 990 — тот же объект в куче">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="20" y="30" class="d-small">до: #1</text>
+        <rect x="20" y="40" width="64" height="46" rx="6" class="d-box"/><text x="52" y="69" text-anchor="middle" class="d-title">300</text>
+        <rect x="90" y="40" width="64" height="46" rx="6" class="d-box"/><text x="122" y="69" text-anchor="middle" class="d-title">120</text>
+        <rect x="160" y="40" width="64" height="46" rx="6" class="d-box"/><text x="192" y="69" text-anchor="middle" class="d-title">990</text>
+        <rect x="230" y="40" width="64" height="46" rx="6" class="d-box"/><text x="262" y="69" text-anchor="middle" class="d-title">45</text>
+        <path d="M310 63 H370" class="d-arrow"/>
+        <text x="340" y="110" text-anchor="middle" class="d-mono-ink">Arrays.sort</text>
+        <text x="386" y="30" class="d-small">после: тот же #1</text>
+        <rect x="386" y="40" width="64" height="46" rx="6" class="d-green"/><text x="418" y="69" text-anchor="middle" class="d-title">45</text>
+        <rect x="456" y="40" width="64" height="46" rx="6" class="d-green"/><text x="488" y="69" text-anchor="middle" class="d-title">120</text>
+        <rect x="526" y="40" width="64" height="46" rx="6" class="d-green"/><text x="558" y="69" text-anchor="middle" class="d-title">300</text>
+        <rect x="596" y="40" width="64" height="46" rx="6" class="d-green"/><text x="628" y="69" text-anchor="middle" class="d-title">990</text>
+        <text x="340" y="150" text-anchor="middle" class="d-small">новый массив не создаётся — переставляются числа в старом</text>
+      </svg>
+      <figcaption>sort сортирует «на месте»: исходный порядок теряется.</figcaption>
+    </figure>
+    <div class="callout warn">
+      <span class="callout-title">Две ловушки sort</span>
+      <p>1) <code>int[] sorted = Arrays.sort(prices);</code> — <b>не скомпилируется</b>: метод sort ничего не возвращает (в Java это называется <code>void</code>), инициализировать переменную нечем — он меняет сам массив.</p>
+      <p>2) Исходный порядок пропадает. Нужен и старый, и отсортированный — сначала сделай копию и отсортируй её: <code>int[] sorted = Arrays.copyOf(prices, prices.length); Arrays.sort(sorted);</code></p>
+    </div>
+    <p>Первая ловушка в IDEA выглядит так:</p>
+    <div data-widget="ide" id="shot-sort-void">
+      <script type="application/json">
+      { "tree": false, "file": "SortDemo.java", "gutterRun": [3, 4], "statusPath": "module-06",
+        "code": "import java.util.Arrays;\n\npublic class SortDemo {\n    public static void main(String[] args) {\n        int[] prices = {300, 120, 990, 45};\n        int[] sorted = Arrays.sort(prices);\n    }\n}",
+        "errors": [ { "line": 6, "text": "Arrays.sort(prices)", "msg": "Incompatible types. Found: 'void', required: 'int[]'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-6", "side": "top", "text": "Красным подчёркнут весь вызов <code>Arrays.sort(prices)</code>: его результатом пытаются инициализировать переменную" },
+                   { "n": 2, "target": "tip", "text": "<b>Incompatible types</b> — «несовместимые типы». <b>Found: 'void'</b> — метод ничего не возвращает, <b>required: 'int[]'</b> — а переменной нужен массив. <code>javac</code> скажет: <code>incompatible types: void cannot be converted to int[]</code>" },
+                   { "n": 3, "target": "problems", "text": "❗1 — пока ошибка есть, программа не запустится" } ],
+        "caption": "Arrays.sort ничего не возвращает — ошибка компиляции" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что выведет: int[] a = {3, 1, 2}; int[] b = a; Arrays.sort(b); System.out.println(a[0]);</summary>
+      <p><b>1</b>. Вспомни урок 3: <code>b</code> и <code>a</code> — две стрелки на один массив. Вызвали <code>sort</code> и передали аргумент <code>b</code> — отсортировался общий массив, и <code>a</code> видит его отсортированным.</p>
+    </details>
+    <p><b>А по убыванию?</b> Для <code>int[]</code> простого «sort наоборот» нет. Самый понятный способ сейчас: отсортировать по возрастанию и обойти массив циклом с конца — счётчик инициализируем последним индексом: <code>for (int i = a.length - 1; i &gt;= 0; i--)</code>.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: почему «Яна» окажется раньше «аист»</summary>
+      <p>Строки сортируются по кодам символов. У всех заглавных букв коды меньше, чем у строчных, поэтому <code>{"аист", "Яна"}</code> после сортировки станет <code>[Яна, аист]</code>. А буква «Ё» стоит отдельно от алфавита — вообще перед «А». Сортировку «как в словаре» делают другими средствами — разберём в модуле про строки и коллекции.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>fill, copyOfRange и equals в деле</h2>
+    <p><b>fill</b> нужен, когда элементы нужно инициализировать не нулём. Например, кинотеатр: <code>-1</code> значит «место свободно».</p>
+<pre data-file="Cinema.java"><code class="java">int[] seats = new int[6];
+Arrays.fill(seats, -1);                        // все места свободны
+seats[2] = 1042;                               // место 2 купил билет №1042
+System.out.println(Arrays.toString(seats));    // [-1, -1, 1042, -1, -1, -1]
+
+int[] firstRow = Arrays.copyOfRange(seats, 0, 3);
+System.out.println(Arrays.toString(firstRow)); // [-1, -1, 1042]</code></pre>
+    <p>Аргументы-границы <code>copyOfRange(a, from, to)</code> устроены как в цикле <code>for (int i = from; i &lt; to; i++)</code>: левая включается, правая — нет. Поэтому длина куска всегда <code>to - from</code>. Так же устроены многие методы в Java — например, вырезание кусочка строки в модуле 8.</p>
+    <p>И сравнение, уже знакомое по уроку 3: метод <code>Arrays.equals</code> сравнивает содержимое поэлементно и возвращает <code>boolean</code>. Так проверяют, что результат совпал с ожиданием, — например, что сортировка сработала:</p>
+<pre data-file="SortCheck.java"><code class="java">int[] actual = {5, 3, 9};
+Arrays.sort(actual);
+int[] expected = {3, 5, 9};
+System.out.println(Arrays.equals(expected, actual)); // true
+System.out.println(expected == actual);              // false — разные объекты</code></pre>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Собери программу</h2>
+    <p>Программа читает N чисел и печатает их по возрастанию, а потом самое маленькое и самое большое. После сортировки минимум и максимум искать не нужно — они на краях: обращаемся к элементам по индексам <code>0</code> и <code>a.length - 1</code>. Расставь строки по порядку:</p>
+    <div data-widget="parsons" id="parsons-m06-04" data-code data-title="Сортировка и края массива" data-icon="🧩"
+         data-hint="Сначала импорт и класс, потом чтение, потом сортировка и печать. Отступы подскажут вложенность."
+         data-success="🎉 Точно! Прочитали → отсортировали → минимум в a[0], максимум в a[a.length - 1].">
+      <script type="text/plain">
+import java.util.Arrays;
+import java.util.Scanner;
+public class SortEdges {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int[] a = new int[scanner.nextInt()];
+        for (int i = 0; i < a.length; i++) {
+            a[i] = scanner.nextInt();
+        }
+        Arrays.sort(a);
+        System.out.println(Arrays.toString(a));
+        System.out.println("Мин: " + a[0] + ", макс: " + a[a.length - 1]);
+    }
+}
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что выведет эта программа на ввод «4  9 -2 7 0»?</summary>
+      <p><code>[-2, 0, 7, 9]</code> и <code>Мин: -2, макс: 9</code>. Первое число 4 — это N, размер массива, в сам массив оно не попадает.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m06-04">
+      <script type="application/json">
+      { "title": "Класс Arrays",
+        "items": [
+          { "type": "match", "q": "Соедини вызов метода с тем, что он делает",
+            "left": ["Arrays.toString(a)", "Arrays.sort(a)", "Arrays.fill(a, x)", "Arrays.copyOf(a, n)", "Arrays.equals(a, b)"],
+            "right": ["Возвращает строку вида [1, 2, 3]", "Переставляет элементы по возрастанию", "Присваивает x всем элементам", "Возвращает новый массив длины n", "Сравнивает содержимое"],
+            "why": "sort и fill меняют сам массив и ничего не возвращают (void), остальные возвращают значение и массив не трогают." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int[] a = {4, 2, 8, 6};\nArrays.sort(a);\nSystem.out.println(Arrays.toString(a));\nSystem.out.println(a[1]);",
+            "answer": "[2, 4, 6, 8]\n4", "why": "После вызова sort массив стал [2, 4, 6, 8]; обращение a[1] даёт 4." },
+          { "type": "bug", "q": "Какая строка не скомпилируется?",
+            "code": "int[] a = {3, 1, 2};\nint[] copy = Arrays.copyOf(a, a.length);\nint[] sorted = Arrays.sort(a);\nSystem.out.println(Arrays.toString(copy));",
+            "answer": [3], "why": "Метод Arrays.sort ничего не возвращает (void) — его вызовом нельзя инициализировать переменную." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "int[] a = {10, 20, 30, 40, 50};\nint[] part = Arrays.copyOfRange(a, 1, 4);\nSystem.out.println(Arrays.toString(part));",
+            "answer": "[20, 30, 40]", "why": "Аргументы 1 и 4: с индекса 1 включительно до 4 не включая — элементы с индексами 1, 2, 3." },
+          { "type": "single", "q": "Что напечатает <code>System.out.println(a)</code> для <code>int[] a = {1, 2}</code>?",
+            "options": ["[1, 2]", "Что-то вроде [I@6d06d69c", "1 2"], "answer": 1,
+            "why": "println получает аргументом ссылку и печатает «паспорт» массива: тип и номер объекта. Для содержимого — вызов Arrays.toString(a)." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Спроси меня про пять методов Arrays: какие меняют массив, а какие возвращают новое значение»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>import java.util.Arrays;</code> — и готовые методы под рукой: <code>Arrays.метод(аргументы)</code>.</li>
+        <li><code>println(a)</code> печатает «паспорт» <code>[I@…</code>; содержимое — <code>Arrays.toString(a)</code>.</li>
+        <li><code>sort</code> и <code>fill</code> меняют массив, переданный аргументом, и ничего не возвращают (<code>void</code>).</li>
+        <li><code>copyOf</code>, <code>copyOfRange</code> возвращают новый массив; у <code>copyOfRange</code> правая граница не включается.</li>
+        <li><code>Arrays.equals</code> сравнивает содержимое, <code>==</code> — ссылки.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

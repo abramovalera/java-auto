@@ -1,0 +1,44 @@
+## id: tr-methods-035
+## title: Степень рекурсией
+## file: trainer/methods/PowerRecursionMethod.java
+## class: PowerRecursionMethod
+## level: 2
+## category: Рекурсия
+@@ description
+<p>Создай класс <code>PowerRecursionMethod</code> и напиши <b>рекурсивный</b> метод <code>static long power(int base, int exp)</code>, который возвращает <code>base</code> в степени <code>exp ≥ 0</code>. Без циклов и без <code>Math.pow</code>: любое число в степени 0 равно 1, а <code>base^exp = base · base^(exp − 1)</code>.</p>
+<p>main читает основание и показатель через пробел и печатает <code>base^exp = X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2 10     вывод: 2^10 = 1024
+ввод:  -3 3     вывод: -3^3 = -27</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>базовый случай — <code>exp == 0</code></li>
+<li>метод возвращает <code>long</code>: большие степени не влезут в <code>int</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2 10
+@@ expect
+2^10 = 1024
+@@ test: Нулевая степень
+@@ input
+5 0
+@@ expect
+5^0 = 1
+@@ test: Отрицательное основание
+@@ input
+-3 3
+@@ expect
+-3^3 = -27
+@@ test: Ноль в нулевой
+@@ input
+0 0
+@@ expect
+0^0 = 1
+@@ test: Огромная степень двойки
+@@ input
+2 62
+@@ expect
+2^62 = 4611686018427387904
+@@ require: static\s+long\s+power\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static long power(int base, int exp)
+@@ require: \bpower\s*\(\s*\w+\s*,\s*\w+\s*-\s*1\s*\) | Метод должен вызывать сам себя: power(base, exp - 1)
+@@ forbid: \b(for|while)\s*\( | Здесь без циклов: повторение делает рекурсия
+@@ forbid: Math\s*\.\s*pow | Без Math.pow — напиши возведение в степень сам

@@ -1,0 +1,47 @@
+## id: tr-except-012
+## title: Цена одной штуки
+## file: trainer/except/BulkUnitPrice.java
+## class: BulkUnitPrice
+## level: 1
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>BulkUnitPrice</code>. На ценнике упаковки написана её цена и сколько в ней штук. Программа читает две строки через <code>nextLine()</code>: цену упаковки и количество штук, — превращает обе в целые числа и печатает <code>Одна штука: N руб.</code> (целочисленное деление, копейки отбрасываем).</p>
+<p>Если хоть одна строка не число или штук 0, программа печатает <code>Не получилось посчитать цену</code>. Обе ошибки перехвати <b>одним</b> блоком <code>catch</code>.</p>
+<pre class="terminal"><span class="out">ввод:  300     вывод: Одна штука: 100 руб.
+       3
+ввод:  300     вывод: Не получилось посчитать цену
+       0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>catch (NumberFormatException | ArithmeticException e)</code> — multi-catch: один блок на несколько типов исключений</li>
+</ul></div>
+@@ test: Делится ровно
+@@ input
+300
+3
+@@ expect
+Одна штука: 100 руб.
+@@ test: С остатком
+@@ input
+100
+3
+@@ expect
+Одна штука: 33 руб.
+@@ test: Ноль штук
+@@ input
+300
+0
+@@ expect
+Не получилось посчитать цену
+@@ test: Цена словом
+@@ input
+сто
+5
+@@ expect
+Не получилось посчитать цену
+@@ test: Количество словом
+@@ input
+300
+пять
+@@ expect
+Не получилось посчитать цену
+@@ require: catch\s*\(\s*\w+\s*\|\s*\w+ | Перехвати обе ошибки одним multi-catch: catch (A | B e)

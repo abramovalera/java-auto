@@ -1,0 +1,42 @@
+## id: tr-cond-024
+## title: Какой век
+## file: trainer/cond/CenturyOfYear.java
+## class: CenturyOfYear
+## level: 1
+## category: Даты и время
+@@ description
+<p>Напиши класс <code>CenturyOfYear</code>. Первый век — это годы с 1 по 100, двадцатый — с 1901 по 2000, двадцать первый начался в 2001 году. Программа читает год (целое число, не меньше 1) и печатает <code>Век: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2000
+вывод: Век: 20
+
+ввод:  2001
+вывод: Век: 21</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>year / 100</code> — сколько полных сотен в году</li>
+<li><code>year % 100</code> — остаток после них; если он не 0, начался следующий век</li>
+</ul></div>
+@@ test: 2000 — ещё двадцатый
+@@ input
+2000
+@@ expect
+Век: 20
+@@ test: 2001 — уже двадцать первый
+@@ input
+2001
+@@ expect
+Век: 21
+@@ test: Самый первый год
+@@ input
+1
+@@ expect
+Век: 1
+@@ test: Ровно 100
+@@ input
+100
+@@ expect
+Век: 1
+@@ test: 1999
+@@ input
+1999
+@@ expect
+Век: 20

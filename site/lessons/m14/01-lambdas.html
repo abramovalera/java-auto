@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>От анонимного класса к лямбде · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-01">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 14 · Урок 1</div>
+    <h1>От анонимного класса к лямбде</h1>
+    <p class="lead">Ты уже передавал в <code>sort</code> целый анонимный класс, чтобы объяснить, как сравнивать. Сегодня сожмём эти шесть строк в одну — и узнаешь, почему это вообще законно.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 2 проверки</span><span>✂️ меньше кода</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Зачем передавать в метод «поведение»</h2>
+    <div class="cheat">
+      <h3>Выпиши себе: подсказки IDEA для лямбд и стримов</h3>
+      <p>В этом модуле IDEA будет часто предлагать «переписать короче». Все эти команды живут в знакомом меню <kbd>Alt</kbd>+<kbd>Enter</kbd> — выпиши, на чём его нажимать. Ко всем пунктам вернёмся в уроках.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на <code>new Comparator&lt;…&gt;()</code> → <b>Replace with lambda</b></td><td>Сжимает анонимный класс в лямбду</td><td>IDEA подсветила заголовок анонимного класса (урок 14.1)</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на лямбде → <b>Replace lambda with method reference</b></td><td>Превращает <code>n -&gt; System.out.println(n)</code> в <code>System.out::println</code></td><td>Лямбда только передаёт параметр дальше (урок 14.3)</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на <code>::</code> → <b>Replace method reference with lambda</b></td><td>Обратно: ссылку — в обычную лямбду</td><td>Не понимаешь, что делает ссылка на метод</td></tr>
+        <tr><td>Отладчик → кнопка <b>Trace Current Stream Chain</b></td><td>Показывает, какие элементы вошли и вышли на каждом шаге стрима</td><td>Стрим выдаёт не то (урок 14.8)</td></tr>
+      </table></div>
+    </div>
+    <p>До сих пор при <b>вызове метода</b> ты передавал ему <b>аргументами</b> данные: число, строку, список. Но часто методу нужно передать <b>действие</b>: «как сравнивать», «что проверять», «что сделать с каждым элементом».</p>
+    <p>В программах это на каждом шагу. Вот типичные просьбы к программе магазина — и в каждой спрятано маленькое действие:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🔎</span><h4>«Оставь товары дешевле 1000 ₽»</h4><p>Действие: <b>проверить</b> один товар — подходит или нет.</p></div>
+      <div class="card"><span class="emoji">📋</span><h4>«Отсортируй товары по цене»</h4><p>Действие: <b>сравнить</b> два товара — кто раньше.</p></div>
+      <div class="card"><span class="emoji">🖨️</span><h4>«Напечатай каждое имя»</h4><p>Действие: <b>сделать что-то</b> с одним элементом.</p></div>
+    </div>
+    <p>Ты это уже умеешь — через <b>анонимный класс</b>. Помнишь сортировку строк по длине из модуля про коллекции?</p>
+<pre data-file="SortByLength.java"><code class="java">List&lt;String&gt; names = new ArrayList&lt;&gt;(List.of("Вика", "Ян", "Борис"));
+
+names.sort(new Comparator&lt;String&gt;() {
+    @Override
+    public int compare(String a, String b) {
+        return a.length() - b.length();
+    }
+});
+
+System.out.println(names);</code></pre>
+    <p>Набери это в IDEA и запусти. Заметь: IDEA сама намекает, что анонимный класс тут лишний:</p>
+    <div data-widget="ide" id="shot-anon-to-lambda">
+      <script type="application/json">
+      { "tree": false, "file": "SortByLength.java", "runConfig": "SortByLength", "gutterRun": [5, 6], "statusPath": "module-14",
+        "code": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\npublic class SortByLength {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(List.of(\"Вика\", \"Ян\", \"Борис\"));\n\n        names.sort(new Comparator<String>() {\n            @Override\n            public int compare(String a, String b) {\n                return a.length() - b.length();\n            }\n        });\n\n        System.out.println(names);\n    }\n}",
+        "warnings": [ { "line": 9, "text": "Comparator<String>()", "msg": "Anonymous new Comparator<String>() can be replaced with lambda", "tip": true, "fix": "Replace with lambda" } ],
+        "console": { "title": "SortByLength", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… SortByLength" },
+          { "t": "out", "s": "[Ян, Вика, Борис]" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "err-9", "side": "top", "text": "IDEA выделила заголовок анонимного класса — это <b>предупреждение</b>, не ошибка: программа работает" },
+                   { "n": 2, "target": "tip", "text": "«Анонимный <code>new Comparator&lt;String&gt;()</code> можно заменить <b>лямбдой</b>». Ниже — готовое исправление: <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Replace with lambda</b>, и IDEA сожмёт шесть строк в одну. Попробуй — а потом нажми <kbd>Ctrl</kbd>+<kbd>Z</kbd>, чтобы вернуть как было" },
+                   { "n": 3, "target": "output", "text": "Сортировка по длине: 2, 4, 5 букв" } ],
+        "caption": "Анонимный класс и подсказка IDEA «можно заменить на лямбду»" }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Посчитай: шесть строк, а полезная из них — одна, <code>a.length() - b.length()</code>. Всё остальное — «обёртка», которую компилятор и так мог бы додумать. Вот её мы и выбросим.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Сжимаем анонимный класс в лямбду</h2>
+    <p>Посмотри на обёртку глазами компилятора. Метод <code>sort</code> ждёт <code>Comparator&lt;String&gt;</code> — значит, «<code>new Comparator&lt;String&gt;()</code>» он знает и так. У интерфейса <code>Comparator</code> всего один метод, который надо написать, — значит, и «<code>public int compare</code>» понятно без слов. Типы параметров — тоже: это строки из списка.</p>
+    <p>Остаётся только то, чего компилятор знать не может: <b>имена параметров</b> и <b>что делать</b>. Это и есть <b>лямбда-выражение</b> (или просто лямбда) — метод без имени, записанный прямо там, где его передают аргументом:</p>
+<pre data-file="SortByLength.java"><code class="java">names.sort((a, b) -&gt; a.length() - b.length());</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Из анонимного класса выбрасываем всё, что компилятор знает сам, остаются параметры и тело — это лямбда">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="14" width="440" height="160" rx="14" class="d-code"/>
+        <text x="28" y="44" class="d-mono">new Comparator&lt;String&gt;() {</text>
+        <text x="28" y="70" class="d-mono">    public int compare(</text>
+        <text x="28" y="96" class="d-mono">        String a, String b) {</text>
+        <text x="28" y="122" class="d-mono">      return a.length() - b.length();</text>
+        <text x="28" y="148" class="d-mono">    }  }</text>
+        <path d="M26 39 H262" class="d-dash"/>
+        <path d="M26 65 H212" class="d-dash"/>
+        <rect x="470" y="14" width="280" height="160" rx="14" class="d-soft"/>
+        <text x="486" y="42" class="d-title">Компилятор знает сам:</text>
+        <text x="486" y="70" class="d-small">• какой интерфейс нужен sort</text>
+        <text x="486" y="94" class="d-small">• единственный метод — compare</text>
+        <text x="486" y="118" class="d-small">• типы параметров — String</text>
+        <text x="486" y="142" class="d-small">• что вернуть — int</text>
+        <path d="M230 180 V214" class="d-arrow"/>
+        <rect x="70" y="222" width="620" height="62" rx="14" class="d-accent"/>
+        <text x="96" y="260" class="d-mono-ink">(a, b)</text>
+        <text x="176" y="260" class="d-title">-&gt;</text>
+        <text x="216" y="260" class="d-mono-ink">a.length() - b.length()</text>
+        <text x="488" y="250" class="d-small">параметры  →  результат</text>
+        <text x="488" y="270" class="d-small">остальное выброшено</text>
+      </svg>
+      <figcaption>Лямбда — это анонимный класс, из которого выжали всё, что компилятор может додумать сам.</figcaption>
+    </figure>
+    <div class="annot">
+      <div class="annot-row"><code>(a, b)</code><div><p><b>Параметры</b> лямбды <code>a</code> и <code>b</code> — те же, что были у метода <code>compare</code>. Типы не пишем: компилятор берёт их из того, что ждёт <code>sort</code>.</p></div></div>
+      <div class="annot-row"><code>-&gt;</code><div><p><b>Стрелка</b> — читается «переходит в» или «даёт». Слева — что пришло, справа — что сделать.</p></div></div>
+      <div class="annot-row"><code>a.length() - b.length()</code><div><p><b>Тело</b> лямбды. Если это одно выражение, его значение и есть <b>возвращаемое значение</b> — <code>return</code> писать не нужно.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: записка в доставку</span>
+      <p>Курьерская служба (метод <code>sort</code>) говорит: «Напишите, как сравнивать посылки». Анонимный класс — это заявление на бланке со штампом, ФИО и подписью. Лямбда — стикер «сначала лёгкие». Курьер и так знает, что это за бланк, — ему нужна только суть.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Синтаксис: все формы лямбды</h2>
+    <p>У лямбда-выражения всегда три части: параметры, стрелка <code>-&gt;</code> и тело. Меняется только количество скобок:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Сколько параметров</th><th>Как выглядит</th><th>Что значит</th></tr>
+        <tr><td>один</td><td><code>x -&gt; x * 2</code></td><td>скобки вокруг одного параметра можно не писать</td></tr>
+        <tr><td>два и больше</td><td><code>(a, b) -&gt; a + b</code></td><td>скобки обязательны</td></tr>
+        <tr><td>ноль</td><td><code>() -&gt; "Привет"</code></td><td>пустые скобки обязательны</td></tr>
+        <tr><td>с типом</td><td><code>(String s) -&gt; s.length()</code></td><td>тип можно указать явно — тогда скобки нужны</td></tr>
+      </table>
+    </div>
+    <p>Если в теле нужно несколько инструкций, бери <b>блок</b> в фигурных скобках. Тогда работают обычные правила метода: точки с запятой и явный <code>return</code>.</p>
+<pre data-file="Lambdas.java"><code class="java">// короткая форма: одно выражение, return не пишем
+Comparator&lt;String&gt; byLength = (a, b) -&gt; a.length() - b.length();
+
+// блочная форма: несколько строк, return обязателен
+Comparator&lt;String&gt; byLengthLoud = (a, b) -&gt; {
+    System.out.println("Сравниваю " + a + " и " + b);
+    return a.length() - b.length();
+};</code></pre>
+    <p>Заметь: лямбда-выражением можно <b>инициализировать переменную</b>, как числом или строкой. Тип переменной — интерфейс (<code>Comparator&lt;String&gt;</code>), а значение — лямбда.</p>
+    <details class="predict">
+      <summary>Скомпилируется ли <code>Comparator&lt;String&gt; c = (a, b) -&gt; { a.length() - b.length() };</code>?</summary>
+      <p><b>Нет.</b> В фигурных скобках — обычный блок кода, как в методе. Там нужна точка с запятой и <code>return</code>: <code>{ return a.length() - b.length(); }</code>. Правило простое: <b>есть фигурные скобки — пиши return, нет скобок — не пиши</b>.</p>
+    </details>
+    <details class="predict">
+      <summary>Одинаково ли работают <code>s -&gt; s.isEmpty()</code> и <code>s -&gt; { return s.isEmpty(); }</code>?</summary>
+      <p><b>Да</b>, это одно и то же: короткая форма — просто сокращение блока с одним <code>return</code>. Короткую пишут почти всегда, блочную — когда действий несколько.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Функциональный интерфейс: куда «вставляется» лямбда</h2>
+    <p>Лямбда не живёт сама по себе: у неё всегда есть <b>тип-интерфейс</b>, и она становится реализацией его метода. Но не любого интерфейса, а только такого, в котором <b>ровно один абстрактный метод</b>. Такой интерфейс называют <b>функциональным интерфейсом</b>.</p>
+    <p>Почему один? Потому что у лямбды нет имени метода. Если бы в интерфейсе было два нереализованных метода, компилятор не понял бы, какой из них ты пишешь.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Функциональный интерфейс — розетка с одним гнездом, лямбда — вилка, которая в неё вставляется; интерфейс с двумя методами лямбду не принимает">
+        <rect x="20" y="20" width="330" height="150" rx="16" class="d-green"/>
+        <text x="185" y="50" text-anchor="middle" class="d-title">PriceRule — 1 метод</text>
+        <rect x="60" y="68" width="250" height="40" rx="10" class="d-box"/>
+        <text x="185" y="94" text-anchor="middle" class="d-mono-ink">boolean check(int price)</text>
+        <text x="185" y="136" text-anchor="middle" class="d-small">одно гнездо — лямбда понятно</text>
+        <text x="185" y="156" text-anchor="middle" class="d-small">куда вставляется</text>
+        <rect x="70" y="190" width="230" height="44" rx="12" class="d-accent"/>
+        <text x="185" y="218" text-anchor="middle" class="d-mono-ink">p -&gt; p &gt; 0</text>
+        <text x="330" y="218" class="d-c-green d-title">✓</text>
+        <rect x="410" y="20" width="330" height="150" rx="16" class="d-red"/>
+        <text x="575" y="50" text-anchor="middle" class="d-title">Calc — 2 метода</text>
+        <rect x="450" y="64" width="250" height="34" rx="10" class="d-box"/>
+        <text x="575" y="87" text-anchor="middle" class="d-mono-ink">int apply(int a, int b)</text>
+        <rect x="450" y="104" width="250" height="34" rx="10" class="d-box"/>
+        <text x="575" y="127" text-anchor="middle" class="d-mono-ink">int other()</text>
+        <text x="575" y="158" text-anchor="middle" class="d-small">два гнезда — куда вставлять?</text>
+        <rect x="460" y="190" width="230" height="44" rx="12" class="d-soft"/>
+        <text x="575" y="218" text-anchor="middle" class="d-mono-ink">(a, b) -&gt; a + b</text>
+        <text x="710" y="218" class="d-c-red d-title">✗</text>
+      </svg>
+      <figcaption>Функциональный интерфейс — розетка с одним гнездом. Лямбда — вилка, которая подходит только к такой розетке.</figcaption>
+    </figure>
+    <p>Напишем свой функциональный интерфейс — правило проверки цены — и передадим в него разные лямбды:</p>
+<pre data-file="PriceRules.java"><code class="java">@FunctionalInterface
+interface PriceRule {
+    boolean check(int price);
+}
+
+public class PriceRules {
+    static void report(String title, int price, PriceRule rule) {
+        System.out.println(title + ": " + rule.check(price));
+    }
+
+    public static void main(String[] args) {
+        PriceRule positive = p -&gt; p &gt; 0;
+        PriceRule cheap = p -&gt; p &lt; 1000;
+
+        report("Цена больше нуля", 500, positive);
+        report("Дешевле 1000", 1500, cheap);
+        report("Круглая", 2000, p -&gt; p % 100 == 0);
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-price-rules">
+      <script type="application/json">
+      { "tree": false, "file": "PriceRules.java", "runConfig": "PriceRules", "gutterRun": [6, 11], "statusPath": "module-14",
+        "code": "@FunctionalInterface\ninterface PriceRule {\n    boolean check(int price);\n}\n\npublic class PriceRules {\n    static void report(String title, int price, PriceRule rule) {\n        System.out.println(title + \": \" + rule.check(price));\n    }\n\n    public static void main(String[] args) {\n        PriceRule positive = p -> p > 0;\n        PriceRule cheap = p -> p < 1000;\n\n        report(\"Цена больше нуля\", 500, positive);\n        report(\"Дешевле 1000\", 1500, cheap);\n        report(\"Круглая\", 2000, p -> p % 100 == 0);\n    }\n}",
+        "console": { "title": "PriceRules", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… PriceRules" },
+          { "t": "out", "s": "Цена больше нуля: true" },
+          { "t": "out", "s": "Дешевле 1000: false" },
+          { "t": "out", "s": "Круглая: true" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-8", "text": "Один и тот же метод <code>report</code> — а результат каждый раз разный: решает лямбда, переданная аргументом" },
+                   { "n": 2, "target": "output-2", "text": "1500 не меньше 1000 — правило <code>cheap</code> сказало false" },
+                   { "n": 3, "target": "output-3", "text": "Лямбда передана аргументом прямо в вызове: 2000 делится на 100 нацело" } ],
+        "caption": "Три правила — три лямбды, один метод report" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>@FunctionalInterface</code><div><p><b>Аннотация-проверка.</b> Говорит компилятору: «следи, чтобы метод был ровно один». Добавишь второй абстрактный — получишь ошибку сразу в интерфейсе. Без аннотации интерфейс тоже работает, она просто страхует.</p></div></div>
+      <div class="annot-row"><code>PriceRule rule</code><div><p>У метода <code>report</code> есть <b>параметр</b> <code>rule</code> типа <code>PriceRule</code> — правило, и метод не знает, какое именно. Он просто вызывает у объекта <code>rule</code> метод <code>check</code> и передаёт аргумент <code>price</code>.</p></div></div>
+      <div class="annot-row"><code>p -&gt; p % 100 == 0</code><div><p>Лямбда-выражение можно передать аргументом <b>прямо в вызове</b> метода, без переменной. Так делают чаще всего.</p></div></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Важно: default и static не считаются</span>
+      <p>В функциональном интерфейсе могут быть <code>default</code>- и <code>static</code>-методы с готовым телом — их сколько угодно. Считаются только <b>абстрактные</b> методы (без тела). Так устроен и <code>Comparator</code>: метод <code>compare</code> один, а готовых помощников вроде <code>reversed()</code> — много.</p>
+    </div>
+    <details class="predict">
+      <summary>В <code>interface Calc</code> два абстрактных метода. Что скажет компилятор на <code>Calc c = (a, b) -&gt; a + b;</code>?</summary>
+      <p>Ошибка компиляции: <em>Calc is not a functional interface — multiple non-overriding abstract methods found</em>. Лямбда не знает, какой из двух методов она реализует.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Проверка по ходу</h2>
+    <div data-widget="check" id="check-m14-01-mid">
+      <script type="application/json">
+      {
+       "title": "Синтаксис лямбды",
+       "icon": "✂️",
+       "items": [
+        {
+         "type": "multi",
+         "q": "Какие лямбды записаны правильно?",
+         "options": [
+          "<code>x -&gt; x + 1</code>",
+          "<code>(a, b) -&gt; a * b</code>",
+          "<code>a, b -&gt; a * b</code>",
+          "<code>() -&gt; 42</code>",
+          "<code>s -&gt; { return s.trim() }</code>"
+         ],
+         "answer": [
+          0,
+          1,
+          3
+         ],
+         "why": "Два параметра — только в скобках. В блоке <code>{ }</code> после <code>return s.trim()</code> не хватает точки с запятой."
+        },
+        {
+         "type": "single",
+         "q": "Какой интерфейс можно реализовать лямбдой?",
+         "options": [
+          "Любой интерфейс",
+          "Интерфейс ровно с одним абстрактным методом",
+          "Только интерфейс с аннотацией @FunctionalInterface"
+         ],
+         "answer": 1,
+         "why": "Главное — один абстрактный метод. Аннотация только просит компилятор это проверить; без неё интерфейс всё равно функциональный."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "Comparator<String> c = (a, b) -> b.length() - a.length();\nList<String> list = new ArrayList<>(List.of(\"ab\", \"a\", \"abc\"));\nlist.sort(c);\nSystem.out.println(list);",
+         "answer": "[abc, ab, a]",
+         "why": "Вычитаем наоборот — <code>b - a</code>, значит, сортировка по убыванию длины."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Лямбда и переменные снаружи</h2>
+    <p>Лямбда видит <b>локальные переменные</b> метода, в котором её написали. Это удобно: правило можно настроить.</p>
+<pre data-file="Capture.java"><code class="java">int limit = 1000;
+PriceRule cheap = p -&gt; p &lt; limit;     // лямбда «захватила» limit
+System.out.println(cheap.check(700));  // true</code></pre>
+    <p>Но есть строгое правило: такую переменную <b>нельзя менять</b> — ни внутри лямбды, ни снаружи после её создания. Переменная должна быть <code>final</code> или <b>«фактически final»</b> (effectively final) — то есть её инициализировали один раз и больше ничего ей не присваивали.</p>
+<pre data-file="Counter.java"><code class="java">int count = 0;
+names.forEach(n -&gt; count++);   // ❌ ошибка компиляции</code></pre>
+    <div data-widget="ide" id="shot-lambda-effectively-final">
+      <script type="application/json">
+      { "tree": false, "file": "Counter.java", "gutterRun": [3, 4], "statusPath": "module-14",
+        "code": "import java.util.List;\n\npublic class Counter {\n    public static void main(String[] args) {\n        List<String> names = List.of(\"Аня\", \"Борис\");\n        int count = 0;\n        names.forEach(n -> count++);\n        System.out.println(count);\n    }\n}",
+        "errors": [ { "line": 7, "text": "count", "msg": "Variable used in lambda expression should be final or effectively final", "tip": true } ],
+        "build": { "file": "Counter.java", "path": "src/module-14", "fullPath": "C:\\Users\\Misha\\java-course\\workspace\\module-14\\Counter.java", "errors": [ { "msg": "local variables referenced from a lambda expression must be final or effectively final", "line": 7, "col": 28 } ] },
+        "marks": [ { "n": 1, "target": "err-7", "side": "top", "text": "Красным — <code>count</code> в теле лямбды: переменную пытаются изменить инкрементом <code>count++</code>" },
+                   { "n": 2, "target": "tip", "text": "Слова IDEA: «переменная, которая используется в лямбде, должна быть <b>final</b> или <b>effectively final</b>» — то есть не меняться" },
+                   { "n": 3, "target": "build-err-1", "text": "При запуске ▶ — панель Build, тут уже формулировка <code>javac</code>: «локальные переменные, на которые ссылается лямбда, должны быть final или effectively final». Смысл тот же" } ],
+        "caption": "Менять внешнюю переменную из лямбды нельзя" }
+      </script>
+    </div>
+    <div class="say" data-mood="oops"><p>Почему так строго? Лямбда может выполниться позже, в другом месте — а локальная переменная метода живёт на стеке и к тому времени может исчезнуть. Поэтому Java копирует в лямбду её <b>значение</b>. А раз это копия, менять её бессмысленно — и Java запрещает, чтобы ты не обманулся.</p></div>
+    <p>Посчитать что-то лямбдами всё равно можно — но правильным способом: вызовом метода <code>count()</code> у стрима. Это будет в уроке 14.5.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: лямбда — это не анонимный класс (можно пропустить)</summary>
+      <p>Снаружи похоже, но внутри по-разному. Для анонимного класса компилятор создаёт отдельный файл <code>Main$1.class</code>, а лямбда превращается в обычный скрытый метод, и объект для неё JVM собирает на лету (через инструкцию <code>invokedynamic</code>). Отсюда разница: внутри анонимного класса <code>this</code> — это сам анонимный объект, а внутри лямбды <code>this</code> — объект, в методе которого лямбду написали. На собеседовании иногда спрашивают именно это.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m14-01">
+      <script type="application/json">
+      { "title": "Лямбды — главное",
+        "items": [
+          { "type": "match", "q": "Соедини часть лямбды с её смыслом",
+            "left": ["(a, b)", "-&gt;", "a.length() - b.length()", "Comparator&lt;String&gt;"],
+            "right": ["параметры метода, который реализуем", "стрелка: «пришло → сделать»", "тело: возвращаемое значение метода", "функциональный интерфейс — тип лямбды"],
+            "why": "Лямбда всегда «вставляется» в функциональный интерфейс и реализует его единственный метод." },
+          { "type": "bug", "q": "В какой строке ошибка компиляции?",
+            "code": "int total = 0;\nList<Integer> prices = List.of(100, 200);\nprices.forEach(p -> System.out.println(p));\nprices.forEach(p -> total += p);",
+            "answer": [4], "why": "Внутри лямбды нельзя менять локальную переменную снаружи: она должна быть effectively final. Строка 3 законна — она ничего не меняет." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Лямбду можно сохранить в переменную типа функционального интерфейса", "a": true },
+              { "s": "В функциональном интерфейсе запрещены default-методы", "a": false, "why": "default- и static-методов может быть сколько угодно; считаются только абстрактные." },
+              { "s": "<code>() -&gt; 42</code> — лямбда без параметров", "a": true },
+              { "s": "В блочной лямбде <code>{ … }</code> можно не писать return, если результат нужен", "a": false, "why": "в блоке результат возвращается только явным return, как в обычном методе." }
+            ] },
+          { "type": "single", "q": "Что делает аннотация <code>@FunctionalInterface</code>?",
+            "options": ["Превращает любой интерфейс в функциональный", "Просит компилятор проверить, что абстрактный метод ровно один", "Ускоряет вызов лямбд"], "answer": 1,
+            "why": "Это страховка: если кто-то добавит второй абстрактный метод, ошибка появится сразу в интерфейсе, а не во всех местах с лямбдами." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "PriceRule rule = p -> p >= 100 && p <= 500;\nSystem.out.println(rule.check(100));\nSystem.out.println(rule.check(501));",
+            "answer": "true\nfalse", "why": "100 попадает в диапазон включительно, 501 — уже нет." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 14.1. Дай мне анонимный класс, а я перепишу его в лямбду и объясню, что выбросил и почему компилятор это разрешает»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Лямбда-выражение</b> — короткая запись «кусочка поведения»: <code>(параметры) -&gt; тело</code>. Его передают аргументом в метод или им инициализируют переменную.</li>
+        <li>Один параметр — скобки можно опустить; ноль или несколько — скобки нужны.</li>
+        <li>Если тело лямбды — выражение, его значение и есть возвращаемое значение; тело-блок <code>{ }</code> требует <code>return</code>.</li>
+        <li>Лямбда всегда реализует <b>функциональный интерфейс</b> — интерфейс ровно с одним абстрактным методом. <code>@FunctionalInterface</code> это проверяет.</li>
+        <li>Локальные переменные снаружи лямбда читает, но менять их нельзя: они должны быть effectively final.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

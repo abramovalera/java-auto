@@ -1,0 +1,14 @@
+## id: m01-t04
+## title: Одной строкой
+## file: module-01/OneLine.java
+## class: OneLine
+## level: 2
+@@ description
+<p>Выведи фразу</p>
+<pre class="terminal"><span class="out">Раз, два, три — Java, гори!</span></pre>
+<p>…но не одним вызовом, а <strong>минимум тремя</strong> вызовами <code>System.out.print</code> (без <code>ln</code>!), каждый печатает свой кусочек. В конце можно поставить <code>System.out.println()</code>, чтобы перевести строку.</p>
+<p>Цель — почувствовать разницу между <code>print</code> и <code>println</code>. 📖 <a href="/lessons/m01/07-console-output.html">Вывод в консоль</a></p>
+@@ test: Фраза напечатана в одну строку
+@@ expect
+Раз, два, три — Java, гори!
+@@ require: (System\.out\.print\([\s\S]*){3} | Нужно минимум три вызова System.out.print( — именно print, без ln

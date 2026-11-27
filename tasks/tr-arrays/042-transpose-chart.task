@@ -1,0 +1,59 @@
+## id: tr-arrays-042
+## title: Перевернуть таблицу
+## file: trainer/arrays/TransposeSeatingChart.java
+## class: TransposeSeatingChart
+## level: 2
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>TransposeSeatingChart</code>. Расписание дежурств хранится таблицей: строки — дни, столбцы — ученики. Учитель хочет наоборот: строки — ученики, столбцы — дни. В первой строке — <code>r</code> и <code>c</code> (оба ≥ 1), дальше <code>r</code> строк по <code>c</code> чисел. Создай новый массив <code>c × r</code>, где строки и столбцы поменялись местами (это называется <b>транспонирование</b>), и напечатай его: каждая строка — отдельной строкой, числа через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  2 3
+       1 2 3
+       4 5 6
+вывод: 1 4
+       2 5
+       3 6</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int[][] t = new int[c][r];</code> — размеры меняются местами</li>
+<li><code>t[j][i] = m[i][j];</code> — элемент из строки <code>i</code>, столбца <code>j</code> переезжает в строку <code>j</code>, столбец <code>i</code></li>
+</ul></div>
+@@ test: Два на три
+@@ input
+2 3
+1 2 3
+4 5 6
+@@ expect
+1 4
+2 5
+3 6
+@@ test: Квадрат
+@@ input
+2 2
+1 0
+0 1
+@@ expect
+1 0
+0 1
+@@ test: Одна строка
+@@ input
+1 4
+7 8 9 10
+@@ expect
+7
+8
+9
+10
+@@ test: Один столбец
+@@ input
+3 1
+5
+6
+7
+@@ expect
+5 6 7
+@@ test: Одна клетка
+@@ input
+1 1
+-3
+@@ expect
+-3
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];

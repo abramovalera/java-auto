@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: строки · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 8 · Головоломки</div>
+    <h1>Строки: что выведется? Скомпилируется ли?</h1>
+    <p class="lead">Строки — любимая тема собеседований по Java: тут и <code>==</code> против <code>equals</code>, и неизменяемость, и границы <code>substring</code>, и символы, которые внезапно складываются как числа. Пятнадцать задачек — только думать, не запускать.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>🎯 уровень собеседования</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Пять ловушек модуля</h2>
+    <p>Почти каждая задачка ниже — вариация одной из пяти ловушек. Узнаешь ловушку — решишь задачку.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 200" role="img" aria-label="Пять ловушек: == против equals, неизменяемость, границы substring, char как число, split и регулярки">
+        <rect x="10" y="20" width="136" height="160" rx="14" class="d-red"/>
+        <text x="78" y="56" text-anchor="middle" class="d-title">⚖️</text>
+        <text x="78" y="86" text-anchor="middle" class="d-title">== или</text>
+        <text x="78" y="108" text-anchor="middle" class="d-title">equals</text>
+        <text x="78" y="140" text-anchor="middle" class="d-small">номерки или</text>
+        <text x="78" y="158" text-anchor="middle" class="d-small">буквы?</text>
+
+        <rect x="156" y="20" width="136" height="160" rx="14" class="d-violet"/>
+        <text x="224" y="56" text-anchor="middle" class="d-title">🔒</text>
+        <text x="224" y="86" text-anchor="middle" class="d-title">Неизме-</text>
+        <text x="224" y="108" text-anchor="middle" class="d-title">няемость</text>
+        <text x="224" y="140" text-anchor="middle" class="d-small">результат</text>
+        <text x="224" y="158" text-anchor="middle" class="d-small">присвоили?</text>
+
+        <rect x="302" y="20" width="136" height="160" rx="14" class="d-blue"/>
+        <text x="370" y="56" text-anchor="middle" class="d-title">✂️</text>
+        <text x="370" y="86" text-anchor="middle" class="d-title">Границы</text>
+        <text x="370" y="108" text-anchor="middle" class="d-title">индексов</text>
+        <text x="370" y="140" text-anchor="middle" class="d-small">конец не</text>
+        <text x="370" y="158" text-anchor="middle" class="d-small">включается</text>
+
+        <rect x="448" y="20" width="136" height="160" rx="14" class="d-yellow"/>
+        <text x="516" y="56" text-anchor="middle" class="d-title">🔢</text>
+        <text x="516" y="86" text-anchor="middle" class="d-title">char —</text>
+        <text x="516" y="108" text-anchor="middle" class="d-title">число</text>
+        <text x="516" y="140" text-anchor="middle" class="d-small">где строка</text>
+        <text x="516" y="158" text-anchor="middle" class="d-small">в выражении?</text>
+
+        <rect x="594" y="20" width="136" height="160" rx="14" class="d-teal"/>
+        <text x="662" y="56" text-anchor="middle" class="d-title">🧶</text>
+        <text x="662" y="86" text-anchor="middle" class="d-title">split и</text>
+        <text x="662" y="108" text-anchor="middle" class="d-title">null</text>
+        <text x="662" y="140" text-anchor="middle" class="d-small">пустые куски,</text>
+        <text x="662" y="158" text-anchor="middle" class="d-small">нет объекта</text>
+      </svg>
+      <figcaption>Прежде чем отвечать, спроси себя: «какая это ловушка?» Ответ без объяснения «почему» не засчитывается.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Правило прежнее: сначала ответ вслух или на бумаге и объяснение, потом кнопка. Не уверен — набери код в IDEA и запусти. Это честно.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+    <div data-widget="check" id="check-m08-pz-out">
+      <script type="application/json">
+      { "title": "Что выведется на экран?", "icon": "🖨️",
+        "items": [
+          { "type": "predict", "q": "1. Классика собеседований. Две строки вывода — что в них?",
+            "code": "String a = \"hello\";\nString b = \"hel\" + \"lo\";\nString c = new String(\"hello\");\nSystem.out.println(a == b);\nSystem.out.println(a == c);",
+            "answer": "true\nfalse",
+            "why": "<code>\"hel\" + \"lo\"</code> — склейка двух литералов, компилятор вычисляет её заранее, и <code>b</code> инициализируется ссылкой на тот же объект из пула, что и <code>a</code>: true. Оператор <code>new</code> всегда создаёт новый объект: false. Хотя буквы везде одинаковые — поэтому строки сравнивают по содержимому, через <code>equals</code>." },
+          { "type": "predict", "q": "2. Неизменяемость. Что выведет?",
+            "code": "String s = \"java\";\ns.toUpperCase();\ns.concat(\"!\");\ns.replace('j', 'J');\nSystem.out.println(s);",
+            "answer": "java",
+            "why": "Все три вызова метода вернули новые строки, но возвращаемые значения никуда не сохранили. Сама <code>s</code> не изменилась и не может измениться: строки неизменяемы." },
+          { "type": "predict", "q": "3. Снежный ком со строкой. Две строки вывода:",
+            "code": "System.out.println(\"a\" + 1 + 2);\nSystem.out.println(1 + 2 + \"a\");",
+            "answer": "a12\n3a",
+            "why": "Выражение вычисляется слева направо. В первом левый операнд — строковый литерал, ком сразу строка: «a1», потом «a12». Во втором сначала два числа: 1 + 2 = 3, потом склейка: «3a»." },
+          { "type": "predict", "q": "4. Символ плюс число. Две строки вывода:",
+            "code": "System.out.println('a' + 1);\nSystem.out.println(\"\" + 'a' + 1);",
+            "answer": "98\na1",
+            "why": "<code>'a'</code> — символьный литерал типа char, то есть число 97. <code>97 + 1 = 98</code>, строковых операндов в выражении нет — печатается число. Во второй строке впереди пустая строка, и всё дальше склеивается: «a», потом «a1»." },
+          { "type": "predict", "q": "5. Границы substring. Что выведет?",
+            "code": "String s = \"Hello\";\nSystem.out.println(s.substring(1, 3) + s.substring(4));",
+            "answer": "elo",
+            "why": "Вызов <code>substring(1, 3)</code> возвращает символы с индексами 1 и 2: «el» (3 не включается). <code>substring(4)</code> — от 4 до конца: «o». Склейка — «elo»." },
+          { "type": "predict", "q": "6. split и пустые куски. Что выведет?",
+            "code": "String[] parts = \"a,b,,c,,\".split(\",\");\nSystem.out.println(parts.length);",
+            "answer": "4",
+            "why": "<code>[\"a\", \"b\", \"\", \"c\"]</code>. Пустой кусок между двумя запятыми в середине остаётся, а пустые хвосты в конце split отбрасывает — поле length равно 4." },
+          { "type": "predict", "q": "7. Два одинаковых черновика. Две строки вывода:",
+            "code": "StringBuilder x = new StringBuilder(\"ok\");\nStringBuilder y = new StringBuilder(\"ok\");\nSystem.out.println(x.equals(y));\nSystem.out.println(x.toString().equals(y.toString()));",
+            "answer": "false\ntrue",
+            "why": "У StringBuilder метод <code>equals</code> не сравнивает по содержимому — сравнивает по ссылке, как <code>==</code>. Два разных объекта — false. Вызовы <code>toString()</code> вернули строки, и equals сравнивает уже их содержимое — true." },
+          { "type": "predict", "q": "8. Склейка с null. Упадёт или напечатает?",
+            "code": "String s = null;\nSystem.out.println(s + \"!\");",
+            "answer": "null!",
+            "why": "Не упадёт: при склейке null превращается в текст «null». Упал бы вызов <code>s.length()</code> или <code>s.concat(\"!\")</code> — у null нельзя вызывать методы." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбор: снежный ком с символами</h2>
+    <p>Посложнее, чем задачки 3 и 4: числа, символы и строки в одном выражении. Пройди медленно и на каждом шаге впиши, каким стал ком.</p>
+    <div data-widget="trace" id="trace-m08-pz-snowball">
+      <script type="application/json">
+      { "title": "Снежный ком: 'a' + 1 + \"b\" + 'c' + 1", "icon": "☃️", "kind": "Разбор по шагам",
+        "intro": "Java вычисляет слева направо, по одному плюсу за раз. Главный вопрос на каждом шаге: есть ли уже строка слева?",
+        "code": "System.out.println('a' + 1 + \"b\" + 'c' + 1);",
+        "steps": [
+          { "line": 1, "vars": { "сейчас": "'a' + 1", "ком": "98" }, "ask": ["ком"], "note": "Строкового операнда слева пока нет — значит, оператор + складывает числа. 'a' — это код 97, плюс 1 = 98. Ком — число int." },
+          { "line": 1, "vars": { "сейчас": "98 + \"b\"", "ком": "\"98b\"" }, "ask": ["ком"], "note": "Появилась строка — дальше только склейка. Число 98 превращается в текст: «98b»." },
+          { "line": 1, "vars": { "сейчас": "\"98b\" + 'c'", "ком": "\"98bc\"" }, "ask": ["ком"], "note": "Левый операнд уже строка, правый — символ. Значит, склейка: символ приклеивается как буква — «98bc»." },
+          { "line": 1, "vars": { "сейчас": "\"98bc\" + 1", "ком": "\"98bc1\"" }, "note": "И единица приклеивается как текст." },
+          { "line": 1, "vars": { "сейчас": "println", "ком": "\"98bc1\"" }, "out": "98bc1\n", "note": "Литерал <code>'a'</code> в начале выражения стал числом, а <code>'c'</code> в середине — буквой. Решает не символ, а тип левого операнда оператора +." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Скомпилируется? Что при запуске? Найди ошибку</h2>
+    <div data-widget="check" id="check-m08-pz-compile">
+      <script type="application/json">
+      { "title": "Скомпилируется? Запустится? Где ошибка?", "icon": "🕵️",
+        "items": [
+          { "type": "single", "q": "9. Пользователь ничего не ввёл, и <code>answer</code> оказался null. Что будет?",
+            "code": "String answer = null;\nif (answer.equals(\"да\")) {\n    System.out.println(\"Принято\");\n}",
+            "options": ["Ничего не напечатает: equals вернёт false", "NullPointerException при запуске", "Ошибка компиляции"], "answer": 1,
+            "why": "У null нельзя вызвать метод — NullPointerException. Безопасный порядок: вызвать equals у литерала и передать answer аргументом — <code>\"да\".equals(answer)</code>, тогда метод просто вернёт false." },
+          { "type": "single", "q": "10. Скомпилируется? Что при запуске?",
+            "code": "String s = \"Hello\";\nSystem.out.println(s.substring(2, 6));",
+            "options": ["Выведет «llo»", "Выведет «llo» и пробел", "StringIndexOutOfBoundsException"], "answer": 2,
+            "why": "Длина строки 5, последний допустимый «разрез» — 5. Второй аргумент 6 — за краем. Компилятор длину не проверяет, ошибка случится при запуске. А вот <code>substring(2, 5)</code> — законно: «llo»." },
+          { "type": "single", "q": "11. Скомпилируется?",
+            "code": "String s = \"Java\";\nif (s.charAt(0) == \"J\") {\n    System.out.println(\"С большой J\");\n}",
+            "options": ["Да, выведет «С большой J»", "Да, но ничего не выведет: == для строк", "Нет: char нельзя сравнивать со String"], "answer": 2,
+            "why": "Вызов <code>charAt</code> возвращает char, а <code>\"J\"</code> — строковый литерал типа String. Компилятор: <em>incomparable types: char and String</em>. Нужно <code>'J'</code> в одинарных кавычках — и тогда <code>==</code> для char абсолютно правильный." },
+          { "type": "bug", "q": "12. Какая строка не скомпилируется?",
+            "code": "String s = \"abc\";\nchar[] arr = s.toCharArray();\nint a = arr.length;\nint b = s.length();\nint c = s.length;",
+            "answer": [5],
+            "why": "У строки длина — вызов метода, со скобками: <code>s.length()</code>. Поле без скобок — только у массива. Компилятор: <em>cannot find symbol</em>." },
+          { "type": "single", "q": "13. Что будет при запуске?",
+            "code": "double price = 99.9;\nSystem.out.println(String.format(\"Цена: %d руб.\", price));",
+            "options": ["Цена: 99 руб.", "Цена: 100 руб.", "Исключение: %d не для дробных чисел"], "answer": 2,
+            "why": "Шаблон проверяется только при выполнении. <code>%d</code> ждёт целое, а аргумент price — double: IllegalFormatConversionException. Для дробей — <code>%.0f</code> или <code>%.2f</code>." },
+          { "type": "bug", "q": "14. Программа должна пускать админа, но не пускает никого. Найди все ошибки (их две).",
+            "code": "Scanner sc = new Scanner(System.in);\nString login = sc.nextLine();\nlogin.trim();\nif (login == \"admin\") {\n    System.out.println(\"Добро пожаловать\");\n}",
+            "answer": [3, 4],
+            "why": "Строка 3: возвращаемое значение <code>trim()</code> потеряно, нужно присваивание <code>login = login.trim();</code>. Строка 4: сравнение по ссылке, а не по содержимому — нужно <code>login.equals(\"admin\")</code>. Обе ошибки компилятор пропускает — это логические ошибки." },
+          { "type": "single", "q": "15. ★★ Что будет при запуске?",
+            "code": "String version = \"2.10.3\";\nString[] parts = version.split(\".\");\nSystem.out.println(parts[0]);",
+            "options": ["Выведет 2", "Выведет 2.10.3", "ArrayIndexOutOfBoundsException"], "answer": 2,
+            "why": "Параметр <code>split</code> — регулярное выражение, а точка в нём — «любой символ». Вся строка стала разделителями, метод вернул пустой массив, обращение <code>parts[0]</code> — за краем. Нужно <code>split(\"\\\\.\")</code> (урок 8.8)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Головоломки проверяли, <b>что</b> делает код. Теперь — как о нём сказать: прочитай каждую строку правильными терминами модуля, как на собеседовании или код-ревью. В одних заданиях выбери описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m08-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 8", "icon": "🗣",
+        "items": [
+          {"type":"single","q":"Что происходит в строке?","code":"String upper = name.toUpperCase();","options":["Метод меняет саму строку <code>name</code> на заглавные буквы","Объявляем <code>upper</code> и присваиваем ей ссылку на <code>name</code>","Вызываем метод <code>toUpperCase</code> у объекта <code>name</code>; он возвращает новую строку, ею инициализируется <code>upper</code>","Объявляем метод <code>toUpperCase</code>","Сравниваем <code>name</code> и <code>upper</code> по содержимому"],"answer":2,"why":"Строки неизменяемы: метод не трогает <code>name</code>, а возвращает новую строку. Её ссылкой инициализируется новая переменная <code>upper</code>."},
+          {"type":"single","q":"Что делает эта строка?","code":"name.trim();","options":["Убирает пробелы по краям строки <code>name</code>","Вызывает метод <code>trim</code> у объекта <code>name</code>; возвращённая новая строка никуда не сохраняется, <code>name</code> не меняется","Присваивает <code>name</code> пустую строку","Объявляет переменную <code>trim</code>","Ошибка компиляции: результат не использован"],"answer":1,"why":"Вызов скомпилируется, но возвращаемое значение теряется. Чтобы «почистить» переменную, нужно присваивание: <code>name = name.trim();</code>."},
+          {"type":"single","q":"Как прочитать это условие?","code":"if (answer.equals(\"да\")) {","options":["Вызов метода <code>equals</code> у объекта <code>answer</code> с аргументом <code>\"да\"</code> — сравнение строк по содержимому","Сравнение ссылок: один ли это объект","Присваивание <code>answer</code> значения «да»","Объявление строки «да»","Проверка, что <code>answer</code> не <code>null</code>"],"answer":0,"why":"<code>equals</code> сравнивает строки по содержимому и возвращает <code>boolean</code> — его вызов можно сразу ставить в условие <code>if</code>. Если <code>answer</code> окажется <code>null</code>, вызов упадёт с NullPointerException."},
+          {"type":"single","q":"<code>a</code> и <code>b</code> — строки. Что сравнивается в этой строке?","code":"boolean same = (a == b);","options":["Содержимое строк, символ за символом","Длины строк","Строки без учёта регистра","Ссылки: указывают ли <code>a</code> и <code>b</code> на один и тот же объект","Первые символы строк"],"answer":3,"why":"Для объектов оператор <code>==</code> — сравнение по ссылке. Результатом инициализируется переменная <code>same</code>. По содержимому строки сравнивает вызов <code>a.equals(b)</code>."},
+          {"type":"build","q":"Собери описание строки","code":"char first = word.charAt(0);","answer":["объявляем переменную <code>first</code> типа <code>char</code>","и инициализируем её результатом вызова метода <code>charAt</code>","у объекта <code>word</code> с аргументом 0"],"extra":["обращаемся к элементу массива <code>word</code>","метод меняет строку <code>word</code>","объявляем метод <code>charAt</code>"]},
+          {"type":"build","q":"Собери описание строки","code":"s = s.replace(\" \", \"\");","answer":["вызываем метод <code>replace</code> у объекта <code>s</code>","с аргументами — пробелом и пустой строкой;","метод возвращает новую строку,","и её ссылка присваивается переменной <code>s</code>"],"extra":["метод меняет исходную строку на месте","объявляем переменную <code>s</code>","сравниваем строки по ссылке"]},
+          {"type":"single","q":"В какой строке переменной присваивается ссылка на новый объект, созданный склейкой?","code":"String s = \"кот\";\nString t = s;\ns = s + \"ик\";\nSystem.out.println(t);","options":["В строке 1","В строке 2","В строке 3","В строке 4","Ни в какой: строка дописывается на месте"],"answer":2,"why":"Строка 1 — объявление <code>s</code> с инициализацией строковым литералом. Строка 2 — <code>t</code> инициализируется копией ссылки, нового объекта нет. В строке 3 склейка создаёт новый объект «котик», и его ссылка присваивается <code>s</code>. <code>t</code> по-прежнему ссылается на «кот» — его и напечатает строка 4."},
+          {"type":"single","q":"Что происходит во второй строке?","code":"StringBuilder sb = new StringBuilder();\nsb.append(\"!\");","options":["Создаётся новая строка «!», а <code>sb</code> не меняется","Вызов метода <code>append</code> у объекта <code>sb</code> с аргументом <code>\"!\"</code>: текст дописывается в этот же объект","Объявление переменной <code>append</code>","Склейка двух строк через <code>+</code>, результат теряется","Присваивание <code>sb</code> значения «!»"],"answer":1,"why":"StringBuilder изменяемый: <code>append</code> меняет сам объект, поэтому присваивать результат не нужно. Именно этим он отличается от методов <code>String</code>, которые возвращают новую строку."}
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Хочешь ещё?</h2>
+    <div class="callout ai">
+      <span class="callout-title">Головоломки от наставника</span>
+      <p>Напиши: <em>«Дай мне 3 головоломки по строкам в стиле собеседования — про equals, substring и char. По одной, ответ не говори, пока я не объясню»</em>. На экзамене модуля они тоже будут.</p>
+    </div>
+    <div class="summary">
+      <h2>Что тренирует этот набор</h2>
+      <ul>
+        <li>Различать сравнение по ссылке («тот же объект») и по содержимому («тот же текст») — и объяснять, откуда берётся пул строк.</li>
+        <li>Видеть потерянное возвращаемое значение: вызов <code>s.trim();</code> без присваивания.</li>
+        <li>Считать границы: <code>substring(a, b)</code> не включает b, допустимые числа — от 0 до <code>length()</code>.</li>
+        <li>Понимать, когда оператор <code>+</code> складывает коды символов, а когда склеивает.</li>
+        <li>Помнить про пустые куски в <code>split</code>, точку-регулярку и null.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

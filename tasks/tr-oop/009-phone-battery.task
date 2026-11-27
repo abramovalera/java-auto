@@ -1,0 +1,72 @@
+## id: tr-oop-009
+## title: Батарейка телефона
+## file: trainer/oop/PhoneBatteryLevel.java
+## class: PhoneBatteryLevel
+## level: 1
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>PhoneBatteryLevel</code> с методом <code>main</code>, а ниже в том же файле — класс <code>PhoneBattery</code>:</p>
+<ul>
+<li>закрытое поле <code>private int charge</code> — заряд в процентах, всегда от 0 до 100;</li>
+<li>конструктор <code>PhoneBattery(int charge)</code> — если передали меньше 0, ставит 0; если больше 100 — ставит 100;</li>
+<li><code>void charge(int percent)</code> — заряжает на <code>percent</code> процентов, но не выше 100;</li>
+<li><code>boolean use(int percent)</code> — тратит заряд. Если заряда хватает, уменьшает его и возвращает <code>true</code>. Если не хватает — заряд становится 0, метод возвращает <code>false</code>;</li>
+<li>геттер <code>int getCharge()</code>.</li>
+</ul>
+<p><code>main</code> читает через пробел три целых числа: начальный заряд, сколько процентов зарядили и сколько потратила игра. Печатает:</p>
+<pre class="terminal"><span class="out">ввод:  40 30 50
+вывод: Заряд: 40%
+       После зарядки: 70%
+       После игры: 20%</span></pre>
+<p>Если игре не хватило заряда, третья строка — <code>Телефон сел</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.min(a, b)</code> — возвращает меньшее из двух чисел</li>
+<li><code>if (battery.use(x))</code> — метод, возвращающий <code>boolean</code>, можно вызвать прямо в условии</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+40 30 50
+@@ expect
+Заряд: 40%
+После зарядки: 70%
+После игры: 20%
+@@ test: Зарядка не выше 100
+@@ input
+90 50 10
+@@ expect
+Заряд: 90%
+После зарядки: 100%
+После игры: 90%
+@@ test: Телефон сел
+@@ input
+10 5 16
+@@ expect
+Заряд: 10%
+После зарядки: 15%
+Телефон сел
+@@ test: Потратили ровно весь заряд
+@@ input
+20 0 20
+@@ expect
+Заряд: 20%
+После зарядки: 20%
+После игры: 0%
+@@ test: Неправильный начальный заряд исправляется
+@@ input
+150 0 30
+@@ expect
+Заряд: 100%
+После зарядки: 100%
+После игры: 70%
+@@ test: Отрицательный начальный заряд
+@@ input
+-5 10 3
+@@ expect
+Заряд: 0%
+После зарядки: 10%
+После игры: 7%
+@@ require: \bclass\s+PhoneBattery\b | Объяви в том же файле класс PhoneBattery
+@@ require: private\s+int\s+charge\b | Поле charge должно быть private
+@@ require: PhoneBattery\s*\(\s*int\s+\w+\s*\) | Нужен конструктор PhoneBattery(int charge)
+@@ require: \bboolean\s+use\s*\(\s*int\s+\w+\s*\) | Нужен метод boolean use(int percent)
+@@ require: \bint\s+getCharge\s*\(\s*\) | Нужен геттер int getCharge()

@@ -1,0 +1,46 @@
+## id: tr-arith-020
+## title: Рубли и копейки
+## file: trainer/arith/KopecksToRubles.java
+## class: KopecksToRubles
+## level: 1
+## category: Деньги и проценты
+@@ description
+<p>Касса хранит цены в копейках, чтобы не связываться с дробными числами (в рубле 100 копеек). Создай класс <code>KopecksToRubles</code>. Программа читает два целых числа, каждое с новой строки: цену одного товара в копейках и количество. Она печатает стоимость покупки в рублях и копейках.</p>
+<pre class="terminal"><span class="out">ввод:  4999
+       3
+вывод: 149 руб. 97 коп.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>total / 100</code> — сколько целых рублей</li>
+<li><code>total % 100</code> — сколько копеек осталось</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4999
+3
+@@ expect
+149 руб. 97 коп.
+@@ test: Ровно рубли
+@@ input
+100
+5
+@@ expect
+5 руб. 0 коп.
+@@ test: Меньше рубля
+@@ input
+5
+7
+@@ expect
+0 руб. 35 коп.
+@@ test: Ничего не купили
+@@ input
+12345
+0
+@@ expect
+0 руб. 0 коп.
+@@ test: Почти сто рублей
+@@ input
+99
+101
+@@ expect
+99 руб. 99 коп.
+@@ require: % | Копейки — это остаток от деления на 100

@@ -1,0 +1,70 @@
+## id: m15-t04
+## title: Сумма платежей из CSV
+## file: module-15/CsvAmountSummer.java
+## class: CsvAmountSummer
+## level: 2
+@@ description
+<p>Тестовые данные для проверки платежей хранятся в CSV. Программа читает число <code>N</code>, потом <code>N</code> строк вида <code>id,merchant,amount</code> и записывает файл <code>payments.csv</code>: <b>первой строкой — заголовок</b> <code>id,merchant,amount</code>, дальше — введённые строки.</p>
+<p>Затем она <b>читает файл</b>, пропускает заголовок и выводит: сколько платежей, их общую сумму и самый крупный платёж (его id, мерчанта и сумму):</p>
+<pre class="terminal"><span class="out">3
+1,shop-a,1000
+2,shop-b,1000
+3,shop-b,2500</span></pre>
+<pre class="terminal"><span class="out">Записей: 3
+Сумма: 4500
+Самый крупный: 3 (shop-b, 2500)</span></pre>
+<ul>
+  <li>Вокруг значений могут быть пробелы: <code>10, cafe , 300</code> — их надо убрать.</li>
+  <li>Если самых крупных несколько — выведи <b>первый</b>. Платежей нет — <code>Самый крупный: нет</code>, сумма 0.</li>
+  <li>Один платёж бывает до 2 000 000 000. Подумай, во что положить <b>сумму</b> (модуль 2: переполнение <code>int</code>).</li>
+</ul>
+<p>📖 <a href="/lessons/m15/06-csv-properties.html">Практика: CSV и properties</a></p>
+@@ test: Три платежа
+@@ input
+3
+1,shop-a,1000
+2,shop-b,1000
+3,shop-b,2500
+@@ expect
+Записей: 3
+Сумма: 4500
+Самый крупный: 3 (shop-b, 2500)
+@@ test: Пробелы вокруг значений
+@@ input
+2
+10, cafe , 300
+11,cafe,  700
+@@ expect
+Записей: 2
+Сумма: 1000
+Самый крупный: 11 (cafe, 700)
+@@ test: Одинаковые суммы — берём первый
+@@ input
+2
+5,a,500
+6,b,500
+@@ expect
+Записей: 2
+Сумма: 1000
+Самый крупный: 5 (a, 500)
+@@ test: Большие суммы
+@@ input
+3
+1,bank,2000000000
+2,bank,1500000000
+3,shop,700000000
+@@ expect
+Записей: 3
+Сумма: 4200000000
+Самый крупный: 1 (bank, 2000000000)
+@@ test: Платежей нет
+@@ input
+0
+@@ expect
+Записей: 0
+Сумма: 0
+Самый крупный: нет
+@@ require: id,merchant,amount | Первой строкой в payments.csv запиши заголовок id,merchant,amount
+@@ require: payments\.csv | Файл должен называться payments.csv
+@@ require: Files\.(readAllLines|lines|readString|newBufferedReader)\s*\( | Посчитай по прочитанному файлу, а не по вводу
+@@ require: \.split\s*\( | Разрежь строку на ячейки методом split

@@ -1,0 +1,38 @@
+## id: tr-cond-005
+## title: Перегруз лифта
+## file: trainer/cond/ElevatorOverload.java
+## class: ElevatorOverload
+## level: 1
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>ElevatorOverload</code>. Лифт поднимает не больше 400 кг. Программа читает общий вес пассажиров в килограммах (целое число) и печатает <code>Поехали!</code>, если лифт может ехать, иначе — насколько он перегружен: <code>Перегруз на N кг</code>.</p>
+<pre class="terminal"><span class="out">ввод:  250
+вывод: Поехали!
+
+ввод:  401
+вывод: Перегруз на 1 кг</span></pre>
+@@ test: Обычная поездка
+@@ input
+250
+@@ expect
+Поехали!
+@@ test: Ровно 400 кг — ещё можно
+@@ input
+400
+@@ expect
+Поехали!
+@@ test: На 1 кг больше
+@@ input
+401
+@@ expect
+Перегруз на 1 кг
+@@ test: Сильный перегруз
+@@ input
+520
+@@ expect
+Перегруз на 120 кг
+@@ test: Пустой лифт
+@@ input
+0
+@@ expect
+Поехали!

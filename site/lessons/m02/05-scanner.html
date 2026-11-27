@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ввод с клавиатуры: Scanner · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-05">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 2 · Урок 5</div>
+    <h1>Ввод с клавиатуры: Scanner</h1>
+    <p class="lead">До сих пор программа только говорила. Теперь она научится слушать: спросит имя, возраст, число — и ответит по-разному в зависимости от того, что ты ввёл.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>⌨️ ввод в консоли IDEA</span><span>🪤 главная ловушка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m02-05-review">
+      <script type="application/json">
+      {
+       "title": "Разминка",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что лежит в переменной <code>name</code> после <code>String name = \"Аня\";</code>?",
+         "options": [
+          "Сам текст «Аня»",
+          "Ссылка на объект-строку в куче",
+          "Число 3 — длина строки"
+         ],
+         "answer": 1,
+         "why": "String — объект. Он живёт в куче, а в переменной на стеке лежит ссылка на него."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String a = \"чай\";\nString b = a;\na = \"кофе\";\nSystem.out.println(b);",
+         "answer": "чай",
+         "why": "b инициализирована копией стрелки на «чай». Потом переменной a присвоили ссылку на «кофе» — её стрелку перевесили, а b осталась на месте."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Программа, которая слушает</h2>
+    <p>Ты уже знаешь <code>System.out</code> — это выход программы, экран. У него есть пара: <code>System.in</code> — вход, клавиатура. Но <code>System.in</code> умеет отдавать только «сырые» символы, один за другим. Разбирать их вручную — мучение. Поэтому в Java есть готовый помощник — класс <code>Scanner</code>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: официант</span>
+      <p>Ты говоришь официанту длинную фразу: «Мне, пожалуйста, два капучино и чизкейк». Официант записывает в блокнот уже разобранный заказ: «капучино — 2, чизкейк — 1». <code>Scanner</code> — такой официант: слушает поток символов с клавиатуры и выдаёт программе готовые числа, слова и строки.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 170" role="img" aria-label="Клавиатура передаёт символы в System.in, Scanner разбирает их и отдаёт число или строку в переменную">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="50" width="130" height="70" rx="12" class="d-soft"/>
+        <text x="75" y="82" text-anchor="middle" class="d-title">⌨️</text>
+        <text x="75" y="106" text-anchor="middle" class="d-small">ты печатаешь</text>
+        <path d="M146 85 H190" class="d-arrow"/>
+        <rect x="196" y="50" width="140" height="70" rx="12" class="d-blue"/>
+        <text x="266" y="82" text-anchor="middle" class="d-mono-ink">System.in</text>
+        <text x="266" y="106" text-anchor="middle" class="d-small">сырые символы</text>
+        <path d="M342 85 H386" class="d-arrow"/>
+        <rect x="392" y="50" width="140" height="70" rx="12" class="d-violet"/>
+        <text x="462" y="82" text-anchor="middle" class="d-mono-ink">Scanner</text>
+        <text x="462" y="106" text-anchor="middle" class="d-small">разбирает</text>
+        <path d="M538 85 H582" class="d-arrow"/>
+        <rect x="588" y="50" width="122" height="70" rx="12" class="d-yellow"/>
+        <text x="649" y="82" text-anchor="middle" class="d-mono-ink">age = 25</text>
+        <text x="649" y="106" text-anchor="middle" class="d-small">переменная</text>
+        <text x="360" y="155" text-anchor="middle" class="d-small">«2», «5», Enter → Scanner → число 25</text>
+      </svg>
+      <figcaption>Scanner стоит между клавиатурой и твоими переменными.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Первая программа с вводом</h2>
+<pre data-file="AskName.java"><code class="java">import java.util.Scanner;
+
+public class AskName {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Как тебя зовут?");
+        String name = scanner.nextLine();
+        System.out.println("Привет, " + name + "!");
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>import java.util.Scanner;</code><div><p>«Возьми класс Scanner с полки <code>java.util</code>». Помнишь, Java — огромная библиотека готовых классов, разложенных по пакетам? <code>import</code> говорит, где взять нужный. Пишется в самом верху файла, над классом. <code>String</code> и <code>System</code> лежат в пакете <code>java.lang</code> — его Java подключает сама, поэтому для них import не нужен.</p></div></div>
+      <div class="annot-row"><code>Scanner scanner = new Scanner(System.in);</code><div><p>Объявляем переменную <code>scanner</code> типа <code>Scanner</code> и инициализируем её: <code>new</code> создаёт новый объект в <b>куче</b> — прямо как в уроке 2.4. Переменная <code>scanner</code> хранит ссылку на него. В скобках — <b>аргумент</b>, значение, которое мы передаём: откуда читать — <code>System.in</code>, с клавиатуры. Сканер создаём один раз в начале программы.</p></div></div>
+      <div class="annot-row"><code>scanner.nextLine()</code><div><p><b>Вызов метода</b> <code>nextLine()</code> у объекта <code>scanner</code>. Программа <b>останавливается и ждёт</b>, пока ты что-нибудь напечатаешь и нажмёшь <kbd>Enter</kbd>. Потом метод <b>возвращает</b> введённую строку — ею инициализируется переменная <code>name</code>.</p></div></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">IDEA допишет import сама</span>
+      <p>Начни набирать <code>Scanner</code> и выбери подсказку — import появится наверху автоматически. Если слово уже подчёркнуто красным, встань на него и нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Import class</b>. Но первый раз напиши import руками, чтобы запомнить.</p>
+    </div>
+    <p>Вот как выглядит забытый import:</p>
+    <div data-widget="ide" id="shot-scanner-import">
+      <script type="application/json">
+      { "tree": false, "file": "AskName.java", "gutterRun": [1, 2],
+        "code": "public class AskName {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.println(\"Как тебя зовут?\");\n        String name = scanner.nextLine();\n        System.out.println(\"Привет, \" + name + \"!\");\n    }\n}",
+        "errors": [ { "line": 3, "text": "Scanner", "msg": "Cannot resolve symbol 'Scanner'", "tip": true, "fix": "Import class" },
+                    { "line": 3, "col": 31, "len": 7, "msg": "Cannot resolve symbol 'Scanner'" } ],
+        "marks": [ { "n": 1, "target": "line-1", "side": "top", "text": "Наверху нет строки <code>import java.util.Scanner;</code>" },
+                   { "n": 2, "target": "err-3", "side": "left", "text": "Поэтому слово <code>Scanner</code> красное — и здесь…" },
+                   { "n": 3, "target": "err-3-2", "side": "top", "text": "…и здесь: IDEA не знает, с какой «полки» его брать" },
+                   { "n": 4, "target": "tip", "text": "<b>Cannot resolve symbol 'Scanner'</b> — «не знаю такого имени». Ниже — готовое исправление <b>Import class</b>: <kbd>Alt</kbd>+<kbd>Enter</kbd>, и import появится наверху сам" } ],
+        "caption": "Scanner без import" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Как вводить в консоли IDEA</h2>
+    <ol class="steps">
+      <li>Запусти программу зелёным треугольником ▶, как обычно.</li>
+      <li>Внизу откроется панель <b>Run</b>, в ней появится вопрос «Как тебя зовут?». Программа ждёт: кнопка ■ (стоп) красная, процесс не закончился.</li>
+      <li><b>Щёлкни мышкой в панель Run</b>, чтобы курсор оказался там, а не в редакторе кода.</li>
+      <li>Напечатай ответ и нажми <kbd>Enter</kbd>. Твой ввод IDEA показывает <b style="color:var(--green)">зелёным</b> цветом.</li>
+    </ol>
+    <div data-widget="ide" id="shot-scanner-wait">
+      <script type="application/json">
+      { "tree": false, "file": "AskName.java", "runConfig": "AskName", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class AskName {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.println(\"Как тебя зовут?\");\n        String name = scanner.nextLine();\n        System.out.println(\"Привет, \" + name + \"!\");\n    }\n}",
+        "console": { "title": "AskName", "running": true, "cursor": true, "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… AskName" },
+          { "t": "out", "s": "Как тебя зовут?" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Программа задала вопрос и остановилась на строке 7, на вызове <code>nextLine()</code>" },
+                   { "n": 2, "target": "stop", "text": "Красный квадрат ■ — программа ещё работает: ждёт тебя. Строки <b>Process finished</b> пока нет" },
+                   { "n": 3, "target": "console", "side": "top", "text": "Щёлкни мышкой сюда, в панель Run, — мигающий курсор появится под вопросом. Теперь печатай ответ" } ],
+        "caption": "Программа ждёт ввода" }
+      </script>
+    </div>
+    <p>Напечатал имя, нажал <kbd>Enter</kbd> — программа продолжила работу:</p>
+    <div data-widget="ide" id="shot-scanner-done">
+      <script type="application/json">
+      { "tree": false, "file": "AskName.java", "runConfig": "AskName", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class AskName {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.println(\"Как тебя зовут?\");\n        String name = scanner.nextLine();\n        System.out.println(\"Привет, \" + name + \"!\");\n    }\n}",
+        "console": { "title": "AskName", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… AskName" },
+          { "t": "out", "s": "Как тебя зовут?" },
+          { "t": "in", "s": "Аня" },
+          { "t": "out", "s": "Привет, Аня!" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "<b>Зелёным</b> — то, что напечатал ты. Так легко отличить свой ввод от вывода программы" },
+                   { "n": 2, "target": "output-2", "text": "Ответ программы: вызов <code>nextLine()</code> вернул «Аня», этой строкой инициализирована <code>name</code>, и строка 8 склеила приветствие" },
+                   { "n": 3, "target": "exit", "text": "Программа закончилась, кнопка ■ погасла" } ],
+        "caption": "Ввод с клавиатуры в панели Run" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Дробные числа — через запятую!</span>
+      <p>Scanner читает числа по правилам языка твоей системы. В русской Windows дробную часть он ждёт <b>через запятую</b>: <code>3,5</code>. Если ввести <code>3.5</code>, программа упадёт с ошибкой <code>InputMismatchException</code>. В коде Java дробные числа по-прежнему пишутся через точку — это разные вещи.</p>
+    </div>
+    <div class="callout try">
+      <span class="callout-title">Проверка задач на сайте</span>
+      <p>Когда ты жмёшь «Проверить» на странице задач, ввод подставляется автоматически, а в выводе он <b>не виден</b>: видно только то, что напечатала программа. Поэтому в задачах важно, <code>print</code> или <code>println</code> ты используешь для вопроса, — в условии всегда показан точный вывод.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Методы Scanner: что читать</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что возвращает</th><th>Ввод «Анна Петрова 25»</th></tr>
+        <tr><td><code>nextLine()</code></td><td><code>String</code> — всю строку до <kbd>Enter</kbd>, с пробелами</td><td>«Анна Петрова 25»</td></tr>
+        <tr><td><code>next()</code></td><td><code>String</code> — одно слово, до пробела или Enter</td><td>«Анна»</td></tr>
+        <tr><td><code>nextInt()</code></td><td><code>int</code></td><td>ошибка: «Анна» — не число</td></tr>
+        <tr><td><code>nextLong()</code></td><td><code>long</code></td><td>—</td></tr>
+        <tr><td><code>nextDouble()</code></td><td><code>double</code></td><td>—</td></tr>
+        <tr><td><code>nextBoolean()</code></td><td><code>boolean</code> — слово true или false</td><td>—</td></tr>
+      </table>
+    </div>
+    <p>Метода <code>nextChar()</code> нет. Чтобы прочитать один символ, берут слово и первый символ из него: у строки, которую вернул <code>next()</code>, вызывают метод <code>charAt(0)</code> — <code>scanner.next().charAt(0)</code>.</p>
+<pre data-file="AskAge.java"><code class="java">System.out.println("Сколько тебе лет?");
+int age = scanner.nextInt();
+System.out.println("Через 10 лет тебе будет " + (age + 10));</code></pre>
+<pre class="terminal"><span class="out">Сколько тебе лет?</span>
+<span class="cmd">19</span>
+<span class="out">Через 10 лет тебе будет 29</span></pre>
+    <p>А если на вопрос о возрасте ввести «девятнадцать»? <code>nextInt()</code> не сможет превратить слово в число, и программа упадёт с ошибкой <code>InputMismatchException</code> («ввод не подходит по типу»). Обрабатывать такие ошибки научимся в модуле 12.</p>
+    <div data-widget="ide" id="shot-input-mismatch">
+      <script type="application/json">
+      { "tree": false, "file": "AskAge.java", "runConfig": "AskAge", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class AskAge {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.println(\"Сколько тебе лет?\");\n        int age = scanner.nextInt();\n        System.out.println(\"Через 10 лет тебе будет \" + (age + 10));\n    }\n}",
+        "console": { "title": "AskAge", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… AskAge" },
+          { "t": "out", "s": "Сколько тебе лет?" },
+          { "t": "in", "s": "девятнадцать" },
+          { "t": "err", "s": "Exception in thread \"main\" java.util.InputMismatchException" },
+          { "t": "err", "s": "\tat java.base/java.util.Scanner.throwFor(Scanner.java:947)" },
+          { "t": "err", "s": "\tat java.base/java.util.Scanner.next(Scanner.java:1602)" },
+          { "t": "err", "s": "\tat java.base/java.util.Scanner.nextInt(Scanner.java:2267)" },
+          { "t": "err", "s": "\tat java.base/java.util.Scanner.nextInt(Scanner.java:2221)" },
+          { "t": "err", "s": "\tat AskAge.main(AskAge.java:7)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Ввели слово вместо числа" },
+                   { "n": 2, "target": "error", "text": "<b>InputMismatchException</b> — «ввод не подходит по типу». Пояснения после двоеточия тут нет: имя ошибки говорит само за себя" },
+                   { "n": 3, "target": "link-5", "text": "Строки <code>java.base/java.util.Scanner…</code> — внутренности Scanner. Твоя строка — последняя: <b>AskAge.java:7</b>, там <code>nextInt()</code>" },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 1</b> — аварийное завершение. «Через 10 лет…» так и не напечаталось" } ],
+        "caption": "nextInt() получил не число" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Программа читает имя через <code>scanner.next()</code> и печатает <code>"Привет, " + name + "!"</code>. Пользователь ввёл «Анна Мария». Что выведется?</summary>
+      <p><b>Привет, Анна!</b> <code>next()</code> читает только до пробела. «Мария» осталась непрочитанной и ждёт следующего вызова. Для имени с пробелами нужен <code>nextLine()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ловушка: nextInt, а за ним nextLine</h2>
+    <p>Классика, на которой спотыкаются все новички (и это популярный вопрос на Stack Overflow). Программа спрашивает возраст, потом город:</p>
+<pre data-file="Trap.java"><code class="java">System.out.println("Возраст:");
+int age = scanner.nextInt();
+System.out.println("Город:");
+String city = scanner.nextLine();
+System.out.println(age + " лет, город " + city);</code></pre>
+    <div data-widget="ide" id="shot-scanner-trap">
+      <script type="application/json">
+      { "tree": false, "file": "Trap.java", "runConfig": "Trap", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Trap {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.println(\"Возраст:\");\n        int age = scanner.nextInt();\n        System.out.println(\"Город:\");\n        String city = scanner.nextLine();\n        System.out.println(age + \" лет, город \" + city);\n    }\n}",
+        "console": { "title": "Trap", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Trap" },
+          { "t": "out", "s": "Возраст:" },
+          { "t": "in", "s": "25" },
+          { "t": "out", "s": "Город:" },
+          { "t": "out", "s": "25 лет, город " },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Ввели возраст и нажали <kbd>Enter</kbd>" },
+                   { "n": 2, "target": "output-2", "text": "Программа спросила город…" },
+                   { "n": 3, "target": "output-3", "text": "…и, не дожидаясь ответа, сразу напечатала итог. Город — пустой", "box": true },
+                   { "n": 4, "target": "exit", "text": "Программа закончилась, а ты так ничего и не ввёл. Никакой ошибки — просто неверное поведение" } ],
+        "caption": "Ловушка nextInt + nextLine в панели Run" }
+      </script>
+    </div>
+    <p>Город спросили — и не дали ввести! Программа сразу закончилась. Почему?</p>
+    <p>Всё, что ты печатаешь, попадает на «ленту ввода», включая нажатие <kbd>Enter</kbd> — это тоже символ (обозначим его ⏎). Scanner читает ленту слева направо:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Лента ввода 25 Enter Москва Enter: nextInt забирает 25 и оставляет Enter; nextLine читает до этого Enter и возвращает пустую строку">
+        <text x="20" y="44" class="d-small">лента:</text>
+        <rect x="90" y="20" width="44" height="40" rx="6" class="d-green"/><text x="112" y="46" text-anchor="middle" class="d-mono-ink">2</text>
+        <rect x="138" y="20" width="44" height="40" rx="6" class="d-green"/><text x="160" y="46" text-anchor="middle" class="d-mono-ink">5</text>
+        <rect x="186" y="20" width="44" height="40" rx="6" class="d-red"/><text x="208" y="46" text-anchor="middle" class="d-mono-ink">⏎</text>
+        <rect x="234" y="20" width="44" height="40" rx="6" class="d-box"/><text x="256" y="46" text-anchor="middle" class="d-mono-ink">М</text>
+        <rect x="282" y="20" width="44" height="40" rx="6" class="d-box"/><text x="304" y="46" text-anchor="middle" class="d-mono-ink">о</text>
+        <rect x="330" y="20" width="44" height="40" rx="6" class="d-box"/><text x="352" y="46" text-anchor="middle" class="d-mono-ink">с</text>
+        <rect x="378" y="20" width="44" height="40" rx="6" class="d-box"/><text x="400" y="46" text-anchor="middle" class="d-mono-ink">к</text>
+        <rect x="426" y="20" width="44" height="40" rx="6" class="d-box"/><text x="448" y="46" text-anchor="middle" class="d-mono-ink">в</text>
+        <rect x="474" y="20" width="44" height="40" rx="6" class="d-box"/><text x="496" y="46" text-anchor="middle" class="d-mono-ink">а</text>
+        <rect x="522" y="20" width="44" height="40" rx="6" class="d-box"/><text x="544" y="46" text-anchor="middle" class="d-mono-ink">⏎</text>
+
+        <path d="M90 76 H182" class="d-line"/>
+        <text x="136" y="100" text-anchor="middle" class="d-c-green d-text">① nextInt()</text>
+        <text x="136" y="120" text-anchor="middle" class="d-small">забрал 25</text>
+
+        <path d="M186 140 H230" class="d-line"/>
+        <text x="208" y="164" text-anchor="middle" class="d-c-red d-text">② nextLine()</text>
+        <text x="208" y="184" text-anchor="middle" class="d-small">до ⏎ — ничего: ""</text>
+
+        <rect x="300" y="130" width="400" height="104" rx="12" class="d-soft"/>
+        <text x="316" y="156" class="d-small">почему так:</text>
+        <text x="316" y="180" class="d-text">nextInt() берёт только число,</text>
+        <text x="316" y="202" class="d-text">а ⏎ оставляет на ленте.</text>
+        <text x="316" y="224" class="d-text">nextLine() читает до ближайшего ⏎.</text>
+      </svg>
+      <figcaption><code>nextInt()</code> «не доедает» Enter, и <code>nextLine()</code> натыкается на него сразу же.</figcaption>
+    </figure>
+    <p><b>Починка:</b> после <code>nextInt()</code> вызови лишний <code>scanner.nextLine();</code> — он «доест» оставшийся Enter. Посмотри по шагам — переменная <code>(ввод)</code> показывает, что осталось на ленте:</p>
+    <div data-widget="trace" id="trace-scanner">
+      <script type="application/json">
+      { "title": "Лента ввода по шагам",
+        "intro": "Пользователь ввёл 25, нажал Enter, потом Москва и Enter. На ленте: 25⏎Москва⏎. Нажимай «Шаг ▶».",
+        "code": "int age = scanner.nextInt();\nscanner.nextLine();\nString city = scanner.nextLine();\nSystem.out.println(age + \" лет, город \" + city);",
+        "steps": [
+          { "line": 1, "vars": { "(ввод)": "⏎Москва⏎", "age": "25" }, "ask": ["age"], "note": "nextInt() пропускает пробелы, забирает цифры и останавливается перед ⏎. Метод возвращает число 25 — им инициализируется age, а ⏎ остался на ленте." },
+          { "line": 2, "vars": { "(ввод)": "Москва⏎", "age": "25" }, "note": "Лишний nextLine() читает до ближайшего ⏎ — там пусто. Возвращённую пустую строку мы никуда не присваиваем, нам важно, что ⏎ съеден." },
+          { "line": 3, "vars": { "(ввод)": "(пусто)", "age": "25", "city": "\"Москва\"" }, "ask": ["city"], "note": "Теперь nextLine() читает настоящую строку до ⏎ и возвращает «Москва» — ею инициализируется city. Сам ⏎ в строку не попадает." },
+          { "line": 4, "vars": { "(ввод)": "(пусто)", "age": "25", "city": "\"Москва\"" }, "out": "25 лет, город Москва\n", "note": "Всё прочитано правильно." }
+        ] }
+      </script>
+    </div>
+    <p>Второй способ — читать всё через <code>nextLine()</code>, а число получать из строки методом <code>Integer.parseInt</code>. Его разберём в следующем уроке.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Собери программу</h2>
+    <div data-widget="parsons" id="coffee-parsons" data-code data-title="Кофейня: сколько стоит заказ" data-icon="☕"
+         data-hint="import — в самом верху. Сканер создаётся до первого чтения, вопрос печатается до чтения ответа."
+         data-success="🎉 Верно! import → класс → main → сканер → вопрос → чтение → вычисление и вывод.">
+      <script type="text/plain">
+import java.util.Scanner;
+public class Coffee {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Сколько чашек?");
+        int cups = scanner.nextInt();
+        System.out.println("С тебя " + (cups * 150) + " рублей");
+    }
+}
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: а сканер не надо закрывать?</summary>
+      <p>У Scanner есть метод <code>close()</code>, и IDEA иногда подсвечивает сканер жёлтым с советом закрыть его. Для сканера клавиатуры в маленькой программе это не обязательно: программа закончится — и всё освободится. Правильную работу с ресурсами (try-with-resources) разберём в модуле 15 про файлы. А вот чего делать не стоит — создавать несколько сканеров для <code>System.in</code> в одной программе: один сканер на всю программу.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m02-05">
+      <script type="application/json">
+      {
+       "title": "Scanner — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини метод с тем, что он прочитает из ввода «Иван Петров»",
+         "left": [
+          "nextLine()",
+          "next()",
+          "nextInt()"
+         ],
+         "right": [
+          "«Иван Петров» — всю строку",
+          "«Иван» — одно слово",
+          "Ничего: упадёт с InputMismatchException"
+         ],
+         "why": "nextLine — до Enter, next — до пробела, nextInt ждёт число."
+        },
+        {
+         "type": "single",
+         "q": "Зачем строка <code>import java.util.Scanner;</code>?",
+         "options": [
+          "Чтобы создать сканер",
+          "Чтобы сказать, в каком пакете лежит класс Scanner",
+          "Чтобы включить клавиатуру"
+         ],
+         "answer": 1,
+         "why": "import — адрес класса в библиотеке Java. Классы из java.lang (String, System) подключены всегда, остальные — через import."
+        },
+        {
+         "type": "bug",
+         "q": "Пользователь вводит возраст, потом имя из двух слов. Какая строка всё портит?",
+         "code": "Scanner sc = new Scanner(System.in);\nint age = sc.nextInt();\nString name = sc.nextLine();\nSystem.out.println(name + \", \" + age);",
+         "answer": [
+          3
+         ],
+         "why": "nextInt оставил на ленте Enter, и nextLine сразу вернул пустую строку — ею и инициализировалась name. Нужен лишний sc.nextLine() перед чтением имени."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "nextLine() возвращает строку вместе с символом Enter на конце",
+           "a": false,
+           "why": "Enter съедается, но в строку не попадает."
+          },
+          {
+           "s": "В русской Windows nextDouble() ждёт дробное число через запятую",
+           "a": true
+          },
+          {
+           "s": "У Scanner есть метод nextChar()",
+           "a": false,
+           "why": "его нет. Символ берут так: next().charAt(0)."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясни ещё раз ловушку nextInt + nextLine на другом примере, а потом я сам расскажу, почему так происходит»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>import java.util.Scanner;</code> наверху, потом <code>Scanner scanner = new Scanner(System.in);</code> — один на программу.</li>
+        <li>Что возвращают методы: <code>nextLine()</code> — строку целиком, <code>next()</code> — слово, <code>nextInt()</code>/<code>nextDouble()</code>/<code>nextLong()</code> — числа. Символ — <code>next().charAt(0)</code>.</li>
+        <li>Программа ждёт ввода; в IDEA щёлкни в панель Run, введи ответ и нажми Enter.</li>
+        <li>Дробные числа в консоли русской Windows вводят через запятую.</li>
+        <li>Ловушка: <code>nextInt()</code> оставляет Enter, и следующий <code>nextLine()</code> вернёт пустую строку. Лечится лишним <code>nextLine()</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

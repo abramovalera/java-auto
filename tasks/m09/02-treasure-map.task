@@ -1,0 +1,48 @@
+## id: m09-t02
+## title: Карта сокровищ: расстояние между точками
+## file: module-09/TreasureMapDistance.java
+## class: TreasureMapDistance
+## level: 1
+@@ description
+<p>На клетчатой карте сокровищ отмечены старт и клад. Программа читает четыре целых числа <code>x1 y1 x2 y2</code> и печатает расстояние между точками, округлённое до сотых:</p>
+<pre class="terminal"><span class="out">ввод: 0 0 3 4
+
+Расстояние от (0, 0) до (3, 4): 5.0</span></pre>
+<p>Формулу ты уже писал в модуле 3. Новое — точка теперь <b>объект</b>. В файле <code>TreasureMapDistance.java</code>:</p>
+<ul>
+<li><code>public class TreasureMapDistance</code> с <code>main</code>: читает числа, создаёт <b>две</b> точки и спрашивает у первой расстояние до второй;</li>
+<li>класс <code>TreasurePoint</code> без public: поля <code>x</code> и <code>y</code>, конструктор, метод <code>String describe()</code>, который возвращает строку вида <code>(3, 4)</code>, и метод <code>double distanceTo(TreasurePoint other)</code>.</li>
+</ul>
+<p>Внутри <code>distanceTo</code> есть координаты «этой» точки (<code>x</code>, <code>y</code>) и «другой» (<code>other.x</code>, <code>other.y</code>). Корень — <code>Math.sqrt</code>, округление до сотых — <code>Math.round(d * 100) / 100.0</code>.</p>
+<p>📖 <a href="/lessons/m09/02-instance-methods.html">Методы объекта: параметр-объект</a></p>
+@@ test: Египетский треугольник 3-4-5
+@@ input
+0 0 3 4
+@@ expect
+Расстояние от (0, 0) до (3, 4): 5.0
+@@ test: Отрицательные координаты
+@@ input
+-1 -1 2 3
+@@ expect
+Расстояние от (-1, -1) до (2, 3): 5.0
+@@ test: Диагональ клетки
+@@ input
+0 0 1 1
+@@ expect
+Расстояние от (0, 0) до (1, 1): 1.41
+@@ test: Клад прямо под ногами
+@@ input
+2 2 2 2
+@@ expect
+Расстояние от (2, 2) до (2, 2): 0.0
+@@ test: Клад левее и ниже
+@@ input
+5 5 0 0
+@@ expect
+Расстояние от (5, 5) до (0, 0): 7.07
+@@ require: \bclass\s+TreasurePoint\b | Нужен класс TreasurePoint (без public, в том же файле)
+@@ require: (?s)new\s+TreasurePoint\s*\(.*new\s+TreasurePoint\s*\( | Создай две точки: два раза new TreasurePoint(...)
+@@ require: double\s+distanceTo\s*\(\s*TreasurePoint\s+\w+\s*\) | В TreasurePoint нужен метод double distanceTo(TreasurePoint other)
+@@ require: \.distanceTo\s*\( | Спроси расстояние у точки: start.distanceTo(treasure)
+@@ require: Math\.sqrt | Для корня используй Math.sqrt
+@@ forbid: static\s+double\s+distanceTo | distanceTo — метод объекта (без static): «расстояние от этой точки до другой»

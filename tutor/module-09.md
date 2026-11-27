@@ -1,0 +1,191 @@
+# Модуль 9 «Классы и объекты» — план проверки знаний
+
+> Файл для наставника. Здесь ответы — ученику не показывать (см. CLAUDE.md).
+
+## Критерии зачёта модуля
+
+1. Все 8 задач `m09-t01…m09-t08` зелёные на сайте (`/api/status`) **и** по каждой ученик ответил на вопрос о своём коде.
+2. Закрыты цели О1–О10: по каждой ученик ответил своими словами хотя бы на один вопрос (не заученной фразой). **О7 (println под капотом) — обязательная, без неё модуль не засчитывается**: это прямая просьба автора курса.
+3. Головоломки: из 8–10 заданных решено правильно **с объяснением** не меньше 80%. Для задач на ссылки ученик **рисует** стек и кучу (в чате ASCII или на бумаге — пусть опишет словами).
+4. Практика в IDEA (ученик показывает и комментирует, ты проверяешь по описанию):
+   - Ctrl+B по `println` → открыл `PrintStream.java`, нашёл через Ctrl+F12 все `println`;
+   - отладчик: breakpoint на println, Force Step Into (Alt+Shift+F7) внутрь JDK, назвал 3–4 фрейма из панели Frames;
+   - по задаче 8 (ракета): бросил исключение в `RocketPressureSensor.measure`, прочитал stack trace **снизу вверх**, прошёл цепочку F7 и назвал число фреймов на дне (10: 9 методов + main).
+
+Экзамен можно вести за несколько занятий. Отмечай закрытые цели в `progress.md`.
+
+## Цели модуля и вопросы
+
+Формат: вопрос → **суть правильного ответа** → типичные заблуждения.
+
+### О1. Класс, объект, поле, new
+- «Чем класс отличается от объекта? Аналогия?» → **класс — чертёж/бланк, описание типа; объект — конкретная вещь в куче, созданная по нему через new.**
+- «Что делает `new Cat()` и что лежит в переменной `murzik`?» → **создаёт объект в куче, возвращает ссылку; в переменной ссылка (номерок), а не кот.**
+- «Чему равны поля нового объекта, если их не задали?» → **0, 0.0, false, null — как в новом массиве.**
+- Заблуждение: «в переменной лежит сам объект».
+
+### О2. Ссылки, ==, null, NPE
+- «`Cat b = a;` — сколько котов?» → **один: скопирована ссылка; изменение через b видно через a.**
+- «Что сравнивает `==` для объектов?» → **ссылки (тот же ли объект), не содержимое.** Содержимое — equals (модуль 10).
+- «Откуда берётся NullPointerException и как по сообщению найти причину?» → **обращение к полю/методу по ссылке null; Java 21 пишет, какая переменная null (`because "ghost" is null`); смотрим строку из stack trace, что слева от точки.**
+- «Почему компилятор не ловит NPE?» → **не знает, что будет в переменной во время работы.**
+- Заблуждение: «`murzik = null` удаляет кота» — нет, только отпускает ссылку; объект жив, пока на него есть другие ссылки.
+
+### О3. Методы объекта и this
+- «Чем метод объекта отличается от static-метода из модуля 7?» → **вызывается у объекта, работает с его полями; внутри есть this.**
+- «Код describe() один на всех котов. Откуда он знает, чьё имя печатать?» → **скрытый параметр this = объект слева от точки.**
+- «Что не так: `void setName(String name) { name = name; }`?» → **затенение: параметр загородил поле, присвоил сам себе; нужно `this.name = name`.**
+
+### О4. Конструкторы
+- «Чем конструктор отличается от метода?» → **имя = имя класса, нет типа результата (даже void), вызывается при new.**
+- «Порядок при `new`?» → **память + поля по умолчанию → инициализаторы полей → тело конструктора → ссылка в переменную.**
+- «Когда есть конструктор по умолчанию и куда он пропадает?» → **есть, пока не написан ни один свой; написал свой — пустого нет.**
+- «Что такое `this(...)` и какое правило?» → **вызов другого конструктора этого класса; только первой строкой.**
+- «`void Cat(String n)` — что это?» → **обычный метод, не конструктор.**
+
+### О5. static
+- «Чем static-поле отличается от обычного? Аналогия?» → **одно на класс (доска) против своего у каждого объекта (дневник).**
+- «Почему в static-методе нельзя обратиться к полю `name`?» → **нет this — непонятно, чей name.**
+- «Почему main — static?» → **JVM вызывает его без объектов: на старте их нет, и JVM не знает, как создать объект твоего класса.**
+- «Math.max — static или метод объекта? А name.length()? Как отличить?» → **слева класс — static; слева переменная с объектом — метод объекта.**
+- Заблуждение: «static значит «неизменяемый»». Нет, неизменяемый — final.
+
+### О6. Пакеты, import, доступ, файлы
+- «Что делает import? Загружает код?» → **нет, только сокращает имя для компилятора.**
+- «Почему String и System без import, а Scanner — с import?» → **java.lang подключён всегда; Scanner — в java.util.**
+- «Модификаторы доступа от самого закрытого?» → **private (класс) → без слова (пакет) → protected (+ наследники) → public.**
+- «Зачем private, если есть геттер и сеттер?» → **сеттер проверяет данные, а без сеттера поле вообще нельзя поменять; объект сам отвечает за правильность своих данных (инкапсуляция).**
+- «Сколько public-классов в файле? Как называется файл? Во что компилируются три класса одного файла?» → **один public, файл по его имени; три .class.**
+- «Почему в курсе даже вспомогательные классы должны иметь уникальные имена?» → **все папки — один проект в пакете по умолчанию: duplicate class.**
+
+### О7. System.out.println под капотом (ОБЯЗАТЕЛЬНО, подробно)
+Попроси рассказать **целиком, своими словами**, потом добивай вопросами:
+- «Разбери `System.out.println("Hi")` по кусочкам» → **System — класс из java.lang (поэтому без import); out — его `public static final` поле; в нём объект класса PrintStream (пакет java.io); println — метод этого объекта (не static); "Hi" — аргумент, выбран println(String) из 10 перегрузок.**
+- «Почему не нужен `import java.io.PrintStream`?» → **в коде не написано слово PrintStream; import нужен только для имён. Если написать `PrintStream p = System.out;` — нужен.**
+- «Можно ли создать `new System()`? Присвоить `System.out = null`?» → **нет: конструктор private; поле final.**
+- «Что происходит после вызова println?» → **println → writeln → символы в буфер BufferedWriter → OutputStreamWriter/StreamEncoder кодирует в байты UTF-8 → обратно в PrintStream.write(byte[]) → BufferedOutputStream копит → autoFlush → flush → FileOutputStream.write → native writeBytes → ОС (WriteFile/write) → IDEA рисует буквы.** Достаточно назвать ≥4 этажа в правильном порядке и объяснить, зачем буфер и зачем кодировка.
+- «Сколько байт уйдёт для "Hi"? А для "Привет"?» → **3 (H, i, \n); «Привет» — 12 байт + 1 (кириллица в UTF-8 по 2 байта).**
+- «Зачем столько классов?» → **у каждого одна работа: удобство/типы, кодировка, буферизация, запись в файл; можно подменить нижний этаж (файл вместо консоли).**
+- «Что такое native?» → **метод без тела на Java, реализован на C внутри JVM; мост к ОС.**
+- «Как самому провалиться внутрь?» → **Ctrl+клик / Ctrl+B; назад Ctrl+Alt+←; Ctrl+F12 список методов; Ctrl+Q документация; отладчик: F7 не заходит в JDK (фильтр Stepping), Alt+Shift+F7 — заходит; Frames — стек; Shift+F8 — наверх.**
+- «println(Object) — что делает с объектом?» → **String.valueOf → toString().**
+- Заблуждения: «println — static-метод System», «out — метод», «буквы появляются сразу при write в буфер», «import подгружает код».
+
+Настоящий стек JDK 21 (снят на Temurin 21.0.13) — для сверки, если ученик показывает свой из отладчика:
+`FileOutputStream.writeBytes ← FileOutputStream.write ← BufferedOutputStream.flushBuffer ← BufferedOutputStream.implFlush ← BufferedOutputStream.flush ← PrintStream.implWrite ← PrintStream.write ← StreamEncoder.writeBytes ← StreamEncoder.implFlushBuffer ← StreamEncoder.lockedFlushBuffer ← StreamEncoder.flushBuffer ← OutputStreamWriter.flushBuffer ← PrintStream.implWriteln ← PrintStream.writeln ← PrintStream.println ← main` (16 фреймов).
+
+### О8. Цепочка вызовов и stack trace
+- «Как читать stack trace?» → **сверху — место аварии (вершина стека), снизу — main; снизу вверх — порядок вызовов.**
+- «Где в stack trace твой код, а где JDK?» → **строки с `java.base/` (и пакеты библиотек, например `org.junit`) — чужие; ищи первую сверху строку своего кода.**
+- «Почему после исключения на дне не печатаются строки «готово»?» → **исключение пролетает через все фреймы, ни один метод не продолжается.**
+- «Почему в выводе «лесенка»: вход вниз, выход вверх в обратном порядке?» → **LIFO стека.**
+- «Почему красный stack trace иногда влезает в середину чёрного вывода?» → **System.err и System.out — два разных PrintStream со своими буферами.**
+
+### О9. toString и record
+- «Что печатает println(объект) без своего toString?» → **ИмяКласса@хеш (шестнадцатерично).**
+- «Какой заголовок у своего toString?» → **`public String toString()`, лучше с @Override.**
+- «Что даёт record бесплатно?» → **private final поля, канонический конструктор, методы доступа `name()` (без get), toString `Имя[поле=…]`, equals/hashCode.**
+- «Когда record, когда class?» → **данные, которые создали и читают — record; поведение и изменяемое состояние — class.**
+- Заблуждение: «у record есть сеттеры/getName()».
+
+### О10. Отладчик и навигация как привычка
+- «Код не работает, непонятно почему. Твои действия?» → **breakpoint, Debug, F8/F7, смотреть Variables и Frames, сравнить с ожиданием.**
+- «Чем отличается F7 от F8, Shift+F8, F9?»
+- «Щёлкнул по нижнему фрейму в Frames — программа вернулась в main?» → **нет, только показывает переменные того фрейма.**
+
+## Банк головоломок
+
+Давай по одной. Сначала ответ и «почему», потом разбор. Для задач на ссылки проси нарисовать стек/кучу. ★★★ — честно предупреждай, что на опережение.
+
+### Что выведется?
+1. ```java
+   Cat a = new Cat("Мурзик"); Cat b = a; b.name = "Барсик";
+   a = new Cat("Пушок");
+   System.out.println(a.name + " " + b.name);
+   ```
+   → `Пушок Барсик`
+2. Счётчик: `class V { static int count; int id; V() { count++; id = count; } }`; `V v1 = new V(); V v2 = new V(); V v3 = v2; System.out.println(V.count + " " + v3.id);` → `2 2` (v3 = v2 — не new)
+3. Затенение локальной: поле `int points = 10;`, метод `void add() { int points = 5; points += 1; }` → после `s.add()` поле `10`
+4. `class Robot { String name = "R2"; void Robot() { name = "C3PO"; } }` → `new Robot().name` = `R2` (void — не конструктор)
+5. `Point p1 = new Point(1,2), p2 = new Point(1,2), p3 = p1;` → `(p1 == p2) + " " + (p1 == p3)` = `false true`
+6. `class Car { Engine e = new Engine(); Car() { print("Car"); } }`, Engine печатает «Engine» → `Engine`, `Car`
+7. `Lamp() { this("белый"); print("1"); } Lamp(String c) { print("2 " + c); }` → `2 белый`, `1`
+8. `Tea` с полем `sort = "чёрный"`, `Tea() { this("зелёный"); print("B " + sort); }`, `Tea(String s) { print("A " + this.sort); this.sort = s; }` → `A чёрный`, `B зелёный` (инициализатор до тела)
+9. `static void rename(Cat c) { c.name = "Тигр"; c = new Cat("Лев"); }` → после `rename(cat)` имя `Тигр` (копия ссылки, модуль 7)
+10. `record Point(int x, int y) {}` → `System.out.println(new Point(3, 4));` → `Point[x=3, y=4]`
+11. `class Dog {}` → `System.out.println(new Dog());` → `Dog@…` (хеш, у каждого свой)
+12. `Box[] boxes = new Box[5]; Box f = new Box(); boxes[0] = f; boxes[1] = f;` — сколько объектов Box? → **1** (+ сам массив). Сколько null в массиве? → **3**
+13. ★★★ Цепочка из трёх классов с печатью «A start / B / A end» — порядок вывода (LIFO)
+
+### Скомпилируется ли?
+14. `private int code;` в классе Safe, обращение `s.code` из другого класса → **нет**, `code has private access in Safe`
+15. `static void hello() { System.out.println(nick); }` при нестатическом поле nick → **нет**, `non-static variable nick cannot be referenced from a static context`
+16. Только конструктор `Dog(String name)`, вызов `new Dog()` → **нет**, `constructor Dog in class Dog cannot be applied to given types`
+17. `System.out.println(null);` → **нет**, `reference to println is ambiguous` (char[] и String). А `String s = null; System.out.println(s);` → **да**, печатает `null`
+18. `Lamp() { System.out.println("x"); this("белый"); }` → **нет**, `call to this must be first statement in constructor`
+19. `new System()` → **нет**, конструктор private. `System.out = null;` → **нет**, `cannot assign a value to final variable out`
+20. Файл `Zoo.java` с `public class Zoo` и `public class Lion` → **нет**, `class Lion is public, should be declared in a file named Lion.java`
+21. `record Book(String title, int pages) {}` → `b.getPages()` → **нет** (метод `pages()`); `b.pages = 600;` → **нет** (final)
+22. `java.lang.System.out.println("Hi");` → **да**, полное имя класса
+23. `PrintStream p = System.out;` без `import java.io.PrintStream` → **нет**, `cannot find symbol: class PrintStream`
+
+### Скомпилируется, но что при запуске?
+24. `Cat[] cats = new Cat[3]; cats[0].name = "Мурзик";` → **NullPointerException** (в массиве null, котов нет)
+25. `class Car { Engine engine; void drive() { engine.start(); } }` → `new Car().drive()` → **NPE**: `Cannot invoke "Engine.start()" because "this.engine" is null`
+26. ★★★ Класс A в поле создаёт B, B в поле создаёт A → **StackOverflowError** при первом `new A()` (бесконечная цепочка конструкторов)
+
+### Найди ошибку / почему ошибка?
+27. ```java
+    class Account {
+        private int balance;
+        void Account(int start) { balance = start; }
+        void deposit(int amount) { balance =+ amount; }
+    }
+    ```
+    → `void` у «конструктора» (это метод; new Account(100) не скомпилируется); `=+` вместо `+=` (присваивает +amount, а не прибавляет).
+28. ```java
+    class Player {
+        String name;
+        Player(String name) { name = name; }
+    }
+    ```
+    → затенение: имя всегда null.
+29. Stack trace для разбора (спроси: где авария, кто кого вызвал, где JDK):
+    ```
+    Exception in thread "main" java.lang.NullPointerException: Cannot invoke "String.length()" because "this.name" is null
+        at Pet.toString(Clinic.java:14)
+        at java.base/java.lang.String.valueOf(String.java:4454)
+        at java.base/java.io.PrintStream.println(PrintStream.java:1187)
+        at Clinic.main(Clinic.java:6)
+    ```
+    → main напечатал объект → println(Object) → String.valueOf → toString; в toString name == null; виноват, скорее всего, конструктор (не записал имя).
+
+## Задачи модуля: на что смотреть в /check
+
+| Задача | Класс | Вопросы на понимание |
+|---|---|---|
+| m09-t01 Грядка ★ | `GardenBedPlanner` + `GardenBed` | Почему area() без static? Что будет, если поля сделать static и создать две грядки? |
+| m09-t02 Карта сокровищ ★ | `TreasureMapDistance` + `TreasurePoint` | Внутри distanceTo — чьи x и other.x? Почему `/ 100.0`, а не `/ 100`? |
+| m09-t03 Почини ветклинику ★★ | `PetClinicFix` + `ClinicPet` (заготовка в starter) | Три ошибки: `void` у конструктора, `name = name`, `static int age`. Пусть объяснит, как каждая проявлялась (ошибка компиляции / null / одинаковый возраст). |
+| m09-t04 Талоны ★★ | `QueueTicketMachine` + `QueueTicket` | Почему number не static, а issued static? Можно ли вызвать nextNumber() до первого new? |
+| m09-t05 Банковская карта ★★ | `CardTerminalApp` + `DebitCard` | Что сломается, если убрать private? Где лучше держать проверку суммы — в main или в карте? |
+| m09-t06 Ведомость ★★ | `ExamGradeReport` + `ExamStudent` | Почему N = 0 — отдельная ветка? Что будет с average() без приведения к double? |
+| m09-t07 Корзина на record ★★ | `ShopCartTotal` + `record CartProduct` | Откуда взялся вид `CartProduct[title=…]`? Почему `p.price()`, а не `p.getPrice()`? Почему при равной стоимости — первая (`>` а не `>=`)? |
+| m09-t08 Ракетный старт ★★★ | `RocketLaunchChain` + 9 классов `Rocket…` | **Мастерская.** Спроси план до кода (роли: точка входа, звенья, дно). Попроси бросить исключение в датчике и прочитать stack trace снизу вверх; сколько фреймов в Frames на дне (10). Почему соседи в полях, а не `new` в методе? |
+
+Подсказки по лестнице для t08: (1) «Что одинакового у всех звеньев?» (2) аналогия с кофейней из урока 9.7 (3) «посмотри, где у тебя теряется `return ok`» (4) пример звена на другом материале (кофейня) (5) план словами: печать → вызов соседа → печать → return.
+
+## Задачи Мастерской (устно / на бумаге, без кода)
+
+- «Спроектируй цепочку из 6 классов для отправки письма: от кнопки «Отправить» до сервера почты. Назови классы, методы и что каждый передаёт вниз и возвращает наверх».
+- «Нарисуй стек в момент, когда датчик ракеты бросил исключение. Сколько фреймов? Какие строки уже напечатаны?»
+- «Опиши словами, как бы ты сделал, чтобы println писал не в консоль, а в файл» (ответ: подменить нижний этаж — `new PrintStream(new FileOutputStream(...))` или `System.setOut`; код — модуль 15).
+
+## Дополнительные задачи (для быстрых, не на сайте)
+
+Код ученик пишет сам, ты проверяешь глазами или по выводу.
+- «Термометр»: класс с private-полем температуры, сеттером, который не пускает ниже −273, и методом `isFreezing()`.
+- «Лифт»: класс с текущим этажом, методами `up()`, `down()` (не ниже 1 и не выше 9) и static-счётчиком всех поездок всех лифтов.
+- «Своя мини-System»: класс `MyConsole` с private-конструктором и static-полем `out` типа своего класса `MyPrinter`, у которого метод `say(String)` печатает через System.out с префиксом. Вызов `MyConsole.out.say("Hi")` — ученик сам повторяет устройство `System.out.println`.
+- «Провались в String»: Ctrl+B по `length()` и `equals` у строки; рассказать, что увидел внутри (поле `value` — массив байтов, проверка `this == anObject` в equals).
+- «Ракета-2»: добавить в цепочку задачи 8 ещё один класс посередине и убедиться, что глубина Frames выросла на 1.

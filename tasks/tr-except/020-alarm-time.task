@@ -1,0 +1,57 @@
+## id: tr-except-020
+## title: Время будильника
+## file: trainer/except/AlarmClockTime.java
+## class: AlarmClockTime
+## level: 2
+## category: throw и свои исключения
+@@ description
+<p>Напиши класс <code>AlarmClockTime</code>. Будильник принимает время в виде <code>чч:мм</code> и печатает, сколько минут прошло от полуночи до этого времени: <code>Минут от полуночи: N</code>. Программа читает строку через <code>nextLine()</code> и делит её по двоеточию. Ошибки:</p>
+<ul>
+<li>частей не две — выброси <code>IllegalArgumentException</code> с сообщением <code>Нужен формат чч:мм</code>;</li>
+<li>часы или минуты не число — напечатай <code>Часы и минуты пишут цифрами</code>;</li>
+<li>часы не от 0 до 23 или минуты не от 0 до 59 — выброси <code>IllegalArgumentException</code> с сообщением <code>Нет такого времени: строка</code>.</li>
+</ul>
+<p>Свои исключения перехвати и напечатай их сообщение.</p>
+<pre class="terminal"><span class="out">ввод:  07:30    вывод: Минут от полуночи: 450
+ввод:  24:00    вывод: Нет такого времени: 24:00</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.split(":")</code> — режет строку по двоеточию; у <code>"7:"</code> получится всего одна часть</li>
+<li><code>NumberFormatException</code> — потомок <code>IllegalArgumentException</code>: его <code>catch</code> пиши первым</li>
+</ul></div>
+@@ test: Утро
+@@ input
+07:30
+@@ expect
+Минут от полуночи: 450
+@@ test: Последняя минута суток
+@@ input
+23:59
+@@ expect
+Минут от полуночи: 1439
+@@ test: Полночь
+@@ input
+0:00
+@@ expect
+Минут от полуночи: 0
+@@ test: Без двоеточия
+@@ input
+0730
+@@ expect
+Нужен формат чч:мм
+@@ test: Нет минут
+@@ input
+7:
+@@ expect
+Нужен формат чч:мм
+@@ test: Буква вместо нуля
+@@ input
+7:3o
+@@ expect
+Часы и минуты пишут цифрами
+@@ test: 24 часа и 60 минут
+@@ input
+12:60
+@@ expect
+Нет такого времени: 12:60
+@@ require: throw\s+new\s+IllegalArgumentException | Выбрасывай IllegalArgumentException через throw new
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException

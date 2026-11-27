@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тестирование и JUnit 5 · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-05">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 17 · Урок 5</div>
+    <h1>Тестирование и JUnit 5</h1>
+    <p class="lead">Ради этого урока и затевался весь курс: код, который проверяет другой код. Нажал кнопку — и через секунду знаешь, работает программа или нет. Зелёная полоса — можно спать спокойно.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🧪 первый тест</span><span>🟢🔴 зелёный и красный</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-05-review">
+      <script type="application/json">
+      { "title": "Вспомним Gradle", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Где в Gradle-проекте лежат тесты?",
+            "options": ["src/main/java", "src/test/java", "build/test"], "answer": 1,
+            "why": "Код — в src/main/java, тесты — в src/test/java." },
+          { "type": "single", "q": "Что значит <code>testImplementation</code> у JUnit в build.gradle.kts?",
+            "options": ["Библиотека нужна только тестам", "Библиотека тестовая, нестабильная версия", "Тесты запускаются в отдельной JVM"], "answer": 0,
+            "why": "Test-зависимость видна только в src/test/java и не попадает в итоговую программу." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШПАРГАЛКА -->
+  <section class="step">
+    <h2>Выпиши себе: тесты в IDEA</h2>
+    <p>Тесты ты будешь запускать сотни раз в день — эти клавиши окупятся в первую же неделю. <b>Выпиши таблицу руками</b>. Запуск открытого файла (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>) у тебя уже есть со времён урока 1.4 — для тестов он работает так же.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: запуск тестов JUnit</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td>▶ на полях у класса / у метода</td><td>Запустить все тесты класса / один тест</td><td>Пишешь тест и проверяешь его</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F10</kbd></td><td>Повторить последний запуск</td><td>Поправил код — гоняешь те же тесты</td></tr>
+        <tr><td>Кнопка <b>Rerun Failed Tests</b> в окне результатов</td><td>Перезапустить только упавшие</td><td>Чинишь красные, зелёные не трогаешь</td></tr>
+        <tr><td>🐞 на полях или <kbd>Shift</kbd>+<kbd>F9</kbd></td><td>Запустить тест под отладчиком</td><td>Тест красный, непонятно почему</td></tr>
+        <tr><td>Правый клик по папке → <b>Run 'Tests in …'</b></td><td>Все тесты в папке или пакете</td><td>Перед коммитом</td></tr>
+        <tr><td>Двойной щелчок по тесту в результатах</td><td>Перейти к коду теста</td><td>Разбираешь падение</td></tr>
+        <tr><td><b>&lt;Click to see difference&gt;</b></td><td>Окно сравнения: ожидаемое и фактическое рядом</td><td>Длинные строки и списки не совпали</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></td><td>Перейти от класса к его тесту и обратно (или создать тест)</td><td>Код и тесты в разных файлах</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Insert</kbd> в тестовом классе → <b>Test Method</b></td><td>Заготовка тестового метода с аннотацией <code>@Test</code></td><td>Новый тест</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Project Structure: библиотеки, JDK, модули</td><td>Подключить JUnit и AssertJ</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что такое тест</h2>
+    <p>Как ты проверял свои программы до сих пор? Запускал <code>main</code>, смотрел вывод глазами, сравнивал с ожидаемым в голове. Поменял код — повторил. А если проверок сто? Если код поменял коллега, а ты даже не знаешь, что проверять?</p>
+    <p><b>Автотест</b> — маленький метод (<b>тестовый метод</b>), который вызывает твой код, передаёт ему известные аргументы и <b>сам</b> сравнивает возвращаемое значение с ожидаемым. Человек нужен только чтобы написать тест один раз. Дальше его гоняют тысячи раз: после каждой правки, на каждом merge request, каждую ночь.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: краш-тест</span>
+      <p>Автозавод не ждёт, пока машина попадёт в аварию у покупателя. Он заранее разбивает её о стену с датчиками и сравнивает показания с нормой. Тест — это стена с датчиками для кода: ошибка обнаруживается у тебя, а не у пользователя.</p>
+    </div>
+    <dl class="terms">
+      <dt>Юнит-тест (unit test, модульный)</dt><dd>Проверяет одну маленькую единицу кода — обычно один метод одного класса — отдельно от всего остального. Быстрый: тысячи за секунды.</dd>
+      <dt>JUnit 5</dt><dd>Главная библиотека для тестов на Java. Находит тестовые методы, запускает их и показывает, какие прошли. Ею же пользуются и для более крупных тестов — интеграционных и сквозных.</dd>
+      <dt>Assertion (проверка, ассерт)</dt><dd>Вызов метода-проверки, «убедись, что…»: <code>assertEquals(199, fee)</code> — вызываем метод <code>assertEquals</code> и передаём два аргумента: <b>ожидаемое значение</b> (expected) 199 и <b>фактическое</b> (actual) — значение переменной <code>fee</code>. Не равны — тест падает.</dd>
+    </dl>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 270" role="img" aria-label="Пирамида тестирования: внизу много быстрых юнит-тестов, посередине интеграционные, наверху немного медленных сквозных тестов всей программы">
+        <path d="M360 20 L470 110 L250 110 Z" class="d-red"/>
+        <text x="360" y="88" text-anchor="middle" class="d-title">Сквозные</text>
+        <path d="M250 116 L470 116 L560 190 L160 190 Z" class="d-yellow"/>
+        <text x="360" y="160" text-anchor="middle" class="d-title">Интеграционные</text>
+        <path d="M160 196 L560 196 L640 260 L80 260 Z" class="d-green"/>
+        <text x="360" y="234" text-anchor="middle" class="d-title">Юнит-тесты</text>
+        <text x="490" y="60" class="d-small">мало, медленные,</text>
+        <text x="490" y="78" class="d-small">вся программа целиком</text>
+        <text x="40" y="150" class="d-small">код вместе с базой,</text>
+        <text x="40" y="168" class="d-small">файлами, сервером</text>
+        <text x="620" y="214" class="d-small">много,</text>
+        <text x="620" y="232" class="d-small">быстрые</text>
+      </svg>
+      <figcaption>Пирамида тестирования. Разработчик больше всего пишет нижний этаж — юнит-тесты, им и посвящён этот модуль. Инструмент у всех этажей один — JUnit.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Подключаем JUnit и AssertJ к проекту курса</h2>
+    <p>Папка курса — обычный проект IDEA без Gradle. Библиотеки подключим через настройки проекта — по тем же координатам, что в build.gradle.kts (пункт меню называется <b>From Maven…</b>: IDEA качает с того же склада Maven Central). <b>Сделай это до того, как создавать файлы с тестами</b>: пока библиотеки нет, файл с <code>import org.junit…</code> не компилируется, а с ним не запустится и ни одна другая программа проекта.</p>
+    <ol class="steps">
+      <li>Открой <b>File → Project Structure</b> (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) → слева <b>Libraries</b>.</li>
+      <li>Нажми <b>+</b> → <b>From Maven…</b> и впиши координаты <code>org.junit.jupiter:junit-jupiter:5.11.4</code>. Галочку <b>Transitive dependencies</b> оставь — нужны и зависимости. <b>OK</b>.</li>
+      <li>IDEA спросит, к какому модулю подключить, — выбери свой модуль (он один) → <b>OK</b>.</li>
+      <li>Ещё раз <b>+ → From Maven…</b>: <code>org.assertj:assertj-core:3.27.3</code> — понадобится в следующем уроке.</li>
+      <li><b>Apply → OK</b>. В дереве проекта внизу, в <b>External Libraries</b>, появятся jar-файлы JUnit и AssertJ.</li>
+    </ol>
+    <div data-widget="ide" id="shot-junit-from-maven">
+      <script type="application/json">
+      { "tree": false, "statusPath": "module-17",
+        "dialog": { "title": "Download Library from Maven Repository",
+                    "rows": [ { "label": "Coordinates", "value": "org.junit.jupiter:junit-jupiter:5.11.4", "hl": true },
+                              { "label": "Download to", "value": "☐", "type": "text" },
+                              { "label": "Options", "value": "☑ Transitive dependencies    ☐ Sources    ☐ JavaDocs", "type": "text" } ],
+                    "buttons": ["OK", "Cancel"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "field-Coordinates", "text": "Координаты библиотеки <code>groupId:artifactId:version</code> — те же три части, что в строке build.gradle.kts. Можно начать вводить и нажать кнопку поиска справа от поля" },
+                   { "n": 2, "target": "field-Options", "text": "<b>Transitive dependencies</b> оставь включённой: JUnit не работает без своих «зависимостей зависимостей»" },
+                   { "n": 3, "target": "btn-OK", "side": "bottom", "text": "OK → IDEA спросит модуль → снова OK. Потом в окне Project Structure — <b>Apply</b> и <b>OK</b>" } ],
+        "caption": "Project Structure → Libraries → + → From Maven… (окно упрощено: в настоящем у поля нет подписи)" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Быстрый путь</span>
+      <p>Если написать <code>@Test</code> в классе без библиотеки, слово подчеркнётся красным. <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Add 'JUnit5.x' to classpath</b> — IDEA подключит JUnit сама. Для AssertJ так не получится — его добавляй через Project Structure.</p>
+    </div>
+    <div data-widget="ide" id="shot-junit-not-found">
+      <script type="application/json">
+      { "tree": false, "file": "DeliveryFeeTest.java", "statusPath": "module-17",
+        "code": "public class DeliveryFeeTest {\n    @Test\n    void smallOrderPaysFee() {\n    }\n}",
+        "errors": [ { "line": 2, "text": "Test", "msg": "Cannot resolve symbol 'Test'", "tip": true, "fix": "Add 'JUnit5.x' to classpath" } ],
+        "marks": [ { "n": 1, "target": "err-2", "side": "left", "text": "<code>@Test</code> красное: IDEA не знает такой аннотации — библиотеки JUnit в проекте нет" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot resolve symbol 'Test'</b>. Ниже — исправление: <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Add 'JUnit5.x' to classpath</b> (вместо x IDEA пишет точную версию)" },
+                   { "n": 3, "target": "problems", "text": "Пока ошибка есть, не запустится ни этот файл, ни остальные программы проекта" } ],
+        "caption": "JUnit ещё не подключён" }
+      </script>
+    </div>
+    <p>Сайт курса проверяет задачи модуля 17 на тех же версиях: JUnit 5.11 и AssertJ 3.27. Если при первом запуске теста IDEA предложит докачать <code>junit-platform-launcher</code> — соглашайся: это «пульт», которым IDEA запускает тесты.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Первый тест</h2>
+    <p>Тестировать будем расчёт доставки: заказ от 2000 ₽ — бесплатно, иначе 199 ₽, сумма 0 и меньше — ошибка. В задачах курса тестируемый класс лежит в том же файле, что и тесты, — без <code>public</code>, ведь public-класс в файле может быть только один:</p>
+<pre data-file="DeliveryFeeTest.java"><code class="java">import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class DeliveryFee {
+    static int feeFor(int orderSum) {
+        if (orderSum &lt;= 0) {
+            throw new IllegalArgumentException(
+                    "Сумма заказа должна быть больше нуля");
+        }
+        if (orderSum &gt;= 2000) {
+            return 0;
+        }
+        return 199;
+    }
+}
+
+public class DeliveryFeeTest {
+
+    @Test
+    void smallOrderPaysFee() {
+        // Arrange — подготовка
+        int orderSum = 500;
+        // Act — действие
+        int fee = DeliveryFee.feeFor(orderSum);
+        // Assert — проверка
+        assertEquals(199, fee);
+    }
+
+    @Test
+    void bigOrderIsFree() {
+        assertEquals(0, DeliveryFee.feeFor(2500),
+                "от 2000 ₽ доставка бесплатная");
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>import static org.junit.jupiter.api.Assertions.assertEquals;</code><div><p><b>Статический импорт</b>: можно писать просто <code>assertEquals(…)</code> вместо <code>Assertions.assertEquals(…)</code>. Все проверки JUnit — статические методы класса <code>Assertions</code>.</p></div></div>
+      <div class="annot-row"><code>@Test</code><div><p><b>Аннотация</b> — метка со знаком <code>@</code> перед объявлением метода. <code>@Test</code> помечает метод как <b>тестовый</b>: «JUnit, это тест, запусти его». Без аннотации метод — просто метод, и JUnit его не тронет.</p></div></div>
+      <div class="annot-row"><code>void smallOrderPaysFee()</code><div><p>Объявление тестового метода: тип возвращаемого значения <code>void</code> (ничего не возвращает), параметров нет. <code>public</code> в JUnit 5 не нужен. Имя — описание проверки: «маленький заказ платит за доставку».</p></div></div>
+      <div class="annot-row"><code>assertEquals(199, fee);</code><div><p>Вызов проверки <code>assertEquals</code>: первый аргумент — <b>ожидаемое значение</b> (expected), второй — <b>фактическое</b> (actual). Равны — молча идём дальше. Не равны — тест падает с сообщением.</p></div></div>
+      <div class="annot-row"><code>"от 2000 ₽ доставка бесплатная"</code><div><p>Необязательное <b>сообщение</b> — третий аргумент, строковый литерал. Его покажут, если проверка упадёт: сразу понятно, какое правило нарушено.</p></div></div>
+    </div>
+    <div class="say" data-mood="think"><p>Заметь: <code>main</code> здесь нет! Тест запускает не JVM по точке входа, а JUnit: он сам находит класс, создаёт его объект и вызывает каждый метод с <code>@Test</code>. Причём для каждого теста — <b>новый объект</b> тестового класса. Это важно, вернёмся к этому в следующем уроке.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Запуск: зелёная и красная полоса</h2>
+    <p>Слева от объявления класса <code>public class DeliveryFeeTest</code> и от каждого тестового метода появились зелёные ▶. У класса — запустить все тесты, у метода — только этот. Или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>, стоя в файле. Внизу откроется окно с результатами:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 260" role="img" aria-label="Окно результатов тестов в IDEA: дерево тестов с зелёными и красными значками, справа сообщение об ошибке expected but was">
+        <rect x="10" y="10" width="720" height="240" rx="14" class="d-box"/>
+        <rect x="22" y="22" width="696" height="34" rx="8" class="d-red"/>
+        <text x="36" y="44" class="d-text">✕ Tests failed: 1, passed: 2 of 3 tests – 48 ms</text>
+        <rect x="22" y="66" width="290" height="174" rx="8" class="d-soft"/>
+        <text x="36" y="92" class="d-text">✕ DeliveryFeeTest</text>
+        <text x="56" y="122" class="d-mono-ink">✓ bigOrderIsFree</text>
+        <rect x="50" y="134" width="254" height="26" rx="5" class="d-red"/>
+        <text x="56" y="152" class="d-mono-ink">✕ smallOrderPaysFee</text>
+        <text x="56" y="182" class="d-mono-ink">✓ zeroSumIsRejected</text>
+        <text x="36" y="222" class="d-small">щелчок по тесту — его вывод справа</text>
+        <rect x="324" y="66" width="394" height="174" rx="8" class="d-code"/>
+        <text x="338" y="94" class="d-mono">org.opentest4j.AssertionFailedError:</text>
+        <text x="338" y="120" class="d-mono">expected: &lt;199&gt; but was: &lt;0&gt;</text>
+        <text x="338" y="146" class="d-mono">&lt;Click to see difference&gt;</text>
+        <text x="338" y="180" class="d-mono">at DeliveryFeeTest.smallOrder…</text>
+        <text x="338" y="200" class="d-mono">   (DeliveryFeeTest.java:26)</text>
+      </svg>
+      <figcaption>Один тест упал: ждали 199, а метод вернул 0. Ссылка на строку теста кликабельна.</figcaption>
+    </figure>
+    <p>А вот то же в настоящей IDEA. Допустим, в <code>DeliveryFee</code> опечатка: в строке 10 написано <code>200</code> вместо <code>2000</code>:</p>
+    <div data-widget="ide" id="shot-junit-red">
+      <script type="application/json">
+      { "tree": false, "file": "DeliveryFeeTest.java", "runConfig": "DeliveryFeeTest", "statusPath": "module-17", "gutterRun": [17, 20, 30],
+        "code": "import org.junit.jupiter.api.Test;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\n\nclass DeliveryFee {\n    static int feeFor(int orderSum) {\n        if (orderSum <= 0) {\n            throw new IllegalArgumentException(\"Сумма заказа должна быть больше нуля\");\n        }\n        if (orderSum >= 200) {\n            return 0;\n        }\n        return 199;\n    }\n}\n\npublic class DeliveryFeeTest {\n\n    @Test\n    void smallOrderPaysFee() {\n        // Arrange — подготовка\n        int orderSum = 500;\n        // Act — действие\n        int fee = DeliveryFee.feeFor(orderSum);\n        // Assert — проверка\n        assertEquals(199, fee);\n    }\n\n    @Test\n    void bigOrderIsFree() {\n        assertEquals(0, DeliveryFee.feeFor(2500), \"от 2000 ₽ доставка бесплатная\");\n    }\n}",
+        "tests": { "title": "DeliveryFeeTest",
+                   "tree": [ { "name": "DeliveryFeeTest", "status": "fail", "time": "48 ms" },
+                             { "name": "smallOrderPaysFee()", "status": "fail", "depth": 1, "sel": true, "time": "41 ms" },
+                             { "name": "bigOrderIsFree()", "status": "pass", "depth": 1, "time": "2 ms" } ],
+                   "out": [ { "t": "err", "s": "org.opentest4j.AssertionFailedError: expected: <199> but was: <0>" },
+                            "Expected :199",
+                            "Actual   :0",
+                            "<Click to see difference>",
+                            { "t": "err", "s": "\tat DeliveryFeeTest.smallOrderPaysFee(DeliveryFeeTest.java:26)" } ] },
+        "marks": [ { "n": 1, "target": "gutter-17", "side": "left", "text": "▶ у класса — запустить все его тесты; ▶ у метода — только этот" },
+                   { "n": 2, "target": "test-summary", "text": "Итог прогона: 1 упал, 1 прошёл из 2. Красная полоса — есть упавшие" },
+                   { "n": 3, "target": "test-2", "text": "Красный ✗ — упавший тест. Выделен — значит, справа его вывод" },
+                   { "n": 4, "target": "test-out", "text": "Главное: <b>expected: &lt;199&gt; but was: &lt;0&gt;</b> — «ждали 199, а было 0». IDEA повторяет это столбиком <b>Expected / Actual</b>, а по ссылке <b>&lt;Click to see difference&gt;</b> показывает их рядом" },
+                   { "n": 5, "target": "link-1", "text": "Синяя ссылка — строка 26, где упала проверка. Щелчок — и курсор там" } ],
+        "caption": "Окно результатов тестов: один красный, один зелёный (служебные строки JUnit в stack trace опущены)" }
+      </script>
+    </div>
+    <ul>
+      <li><b>Зелёный ✓</b> — все проверки в тесте прошли. <b>Красный ✕</b> — проверка не совпала или вылетело исключение.</li>
+      <li>Сообщение <code>expected: &lt;199&gt; but was: &lt;0&gt;</code> — «ждали 199, а было 0». Это главное, что читают у упавшего теста.</li>
+      <li>Кнопка <b>Rerun Failed Tests</b> перезапускает только упавшие. А через жучок 🐞 у теста — запустить его <b>под отладчиком</b>, с брейкпоинтом внутри тестируемого метода.</li>
+    </ul>
+    <details class="predict">
+      <summary>Ты по ошибке поменял аргументы местами: <code>assertEquals(fee, 199)</code>, а метод вернул 0. Что напишет JUnit?</summary>
+      <p><code>expected: &lt;0&gt; but was: &lt;199&gt;</code> — наоборот! Тест упадёт правильно, но сообщение будет врать: «ждали 0», хотя ждали мы 199. Через полгода коллега будет чинить не то. Порядок важен: <b>сначала ожидаемое, потом фактическое</b>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Набор проверок</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Проверка</th><th>Тест проходит, если…</th></tr>
+        <tr><td><code>assertEquals(ожид, факт)</code></td><td>значения равны (для объектов — через <code>equals</code>)</td></tr>
+        <tr><td><code>assertNotEquals(a, b)</code></td><td>значения не равны</td></tr>
+        <tr><td><code>assertTrue(условие)</code> / <code>assertFalse(условие)</code></td><td>условие истинно / ложно</td></tr>
+        <tr><td><code>assertNull(x)</code> / <code>assertNotNull(x)</code></td><td><code>x</code> равен / не равен <code>null</code></td></tr>
+        <tr><td><code>assertThrows(Тип.class, () -&gt; …)</code></td><td>код в лямбде бросил исключение этого типа</td></tr>
+        <tr><td><code>assertArrayEquals(ожид, факт)</code></td><td>массивы равны поэлементно</td></tr>
+      </table>
+    </div>
+    <p>Проверка исключения — частый гость в тестах. Код, который должен бросить исключение, передаём вторым аргументом — <b>лямбда-выражением</b> без параметров <code>() -&gt; …</code> (модуль 14): JUnit сам вызовет её и перехватит исключение. А ещё <code>assertThrows</code> возвращает пойманный объект исключения — им инициализируем переменную <code>e</code> и проверяем сообщение:</p>
+<pre data-file="DeliveryFeeTest.java"><code class="java">@Test
+void zeroSumIsRejected() {
+    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+            () -&gt; DeliveryFee.feeFor(0));
+    assertEquals("Сумма заказа должна быть больше нуля", e.getMessage());
+}</code></pre>
+    <details class="predict">
+      <summary>Что будет, если метод <code>feeFor(0)</code> <b>не</b> бросит исключение, а вернёт 199?</summary>
+      <p>Тест упадёт: <em>Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown.</em> <code>assertThrows</code> требует, чтобы исключение было. Нет исключения — это тоже ошибка.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка с дробными числами</span>
+      <p><code>assertEquals(0.3, 0.1 + 0.2)</code> <b>упадёт</b>: <code>0.1 + 0.2</code> в double — это <code>0.30000000000000004</code>. Для дробных чисел есть третий аргумент — допустимая погрешность: <code>assertEquals(0.3, 0.1 + 0.2, 0.0001)</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>AAA и хорошие имена</h2>
+    <p>Почти любой тест состоит из трёх частей — <b>Arrange, Act, Assert</b> («подготовь, сделай, проверь»):</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🧰</span><h4>Arrange</h4><p>Подготовить данные и объекты: сумму заказа, корзину, пользователя.</p></div>
+      <div class="card"><span class="emoji">▶️</span><h4>Act</h4><p>Одно действие, которое проверяем: вызвать тестируемый метод и сохранить возвращаемое значение.</p></div>
+      <div class="card"><span class="emoji">✅</span><h4>Assert</h4><p>Проверка (assertion): сравнить фактическое значение с ожидаемым.</p></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: опыт в школьной лаборатории</span>
+      <p>Налил в пробирку раствор (arrange), капнул реактив (act), посмотрел, посинело ли (assert). Если делать три опыта в одной пробирке подряд — непонятно, какой реактив что сделал. Так и тест: <b>один тест — одно поведение</b>.</p>
+    </div>
+    <p>Собери тест по схеме AAA:</p>
+    <div data-widget="parsons" id="aaa-parsons" data-code data-title="Тест: заказ ровно на 2000 ₽ — бесплатно" data-icon="🧪"
+         data-hint="Сверху аннотация и заголовок метода, внутри — подготовка, действие, проверка."
+         data-success="🎉 Arrange → Act → Assert. Тест на границе 2000 — один из самых важных: здесь чаще всего путают &gt; и &gt;=.">
+      <script type="text/plain">
+@Test
+void orderOfExactlyTwoThousandIsFree() {
+    int orderSum = 2000;
+    int fee = DeliveryFee.feeFor(orderSum);
+    assertEquals(0, fee);
+}
+      </script>
+    </div>
+    <p><b>Имена тестов</b> читают чаще, чем код: в отчёте о прогоне видны только они. Имя должно говорить, <b>что</b> проверяется и <b>что ожидается</b>:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Плохо</th><th>Хорошо</th></tr>
+        <tr><td><code>test1</code>, <code>testFee</code></td><td><code>smallOrderPaysFee</code></td></tr>
+        <tr><td><code>check</code></td><td><code>zeroSumIsRejected</code></td></tr>
+        <tr><td><code>test2000</code></td><td><code>orderOfExactlyTwoThousandIsFree</code></td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Вот тест без единой проверки. Он зелёный или красный? <code>@Test void feeWorks() { DeliveryFee.feeFor(500); }</code></summary>
+      <p><b>Всегда зелёный</b> — если метод не бросил исключение. Тест без assert ничего не проверяет: метод может вернуть хоть −1000, тест промолчит. Это самая коварная ошибка новичков в тестах: «тесты зелёные» не значит «всё работает».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-05">
+      <script type="application/json">
+      {
+       "title": "JUnit — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Метод вернул 5, а тест такой. Какое сообщение покажет JUnit после названия ошибки AssertionFailedError? Впиши его точно.",
+         "code": "assertEquals(7, Calc.add(2, 3));",
+         "answer": "expected: <7> but was: <5>",
+         "why": "expected — первый аргумент (ожидаемое значение), was — фактическое значение, которое вернул метод."
+        },
+        {
+         "type": "single",
+         "q": "Как проверить, что метод бросает исключение на отрицательной сумме?",
+         "options": [
+          "assertEquals(IllegalArgumentException.class, feeFor(-1))",
+          "assertThrows(IllegalArgumentException.class, () -> feeFor(-1))",
+          "assertFalse(feeFor(-1))"
+         ],
+         "answer": 1,
+         "why": "Код передаётся лямбда-выражением, чтобы JUnit сам его вызвал и перехватил исключение. В первом варианте feeFor(-1) вызывается ещё при вычислении аргумента — исключение вылетит раньше, чем assertEquals что-то сравнит."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Тест без assert зелёный, если код не бросил исключение",
+           "a": true
+          },
+          {
+           "s": "Для запуска тестов в тестовом классе нужен метод main",
+           "a": false,
+           "why": "тесты запускает JUnit: он сам находит методы с аннотацией @Test."
+          },
+          {
+           "s": "assertEquals(0.3, 0.1 + 0.2) пройдёт",
+           "a": false,
+           "why": "0.1 + 0.2 = 0.30000000000000004; нужна погрешность — третий аргумент."
+          },
+          {
+           "s": "Методы-тесты в JUnit 5 не обязаны быть public",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "match",
+         "q": "Соедини часть теста и строку кода",
+         "left": [
+          "Arrange",
+          "Act",
+          "Assert"
+         ],
+         "right": [
+          "int orderSum = 500;",
+          "int fee = DeliveryFee.feeFor(orderSum);",
+          "assertEquals(199, fee);"
+         ],
+         "why": "Подготовка → действие → проверка."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Покажи наставнику</span>
+      <p>Реши задачи <a href="/tasks.html?module=m17">«Первые тесты: скидка в магазине»</a> и «Тесты для правил пароля». Потом напиши: <em>«/check m17-t03 — и спроси меня, почему порядок аргументов в assertEquals важен»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Тест — тестовый метод с аннотацией <code>@Test</code>: вызывает код и проверяет возвращаемое значение; запускает его JUnit, <code>main</code> не нужен.</li>
+        <li>JUnit и AssertJ в проект курса — через Project Structure → Libraries → From Maven.</li>
+        <li>Проверка <code>assertEquals(ожидаемое, фактическое, "сообщение")</code> — порядок аргументов важен; ещё <code>assertTrue/False</code>, <code>assertNull</code>, <code>assertThrows</code>.</li>
+        <li>Зелёный — прошёл, красный — читай <code>expected … but was …</code>; под отладчиком тест тоже можно запустить.</li>
+        <li>AAA, одно поведение на тест, имя = что проверяем. Тест без assert всегда зелёный — и бесполезен.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

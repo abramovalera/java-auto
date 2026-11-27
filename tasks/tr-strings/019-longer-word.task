@@ -1,0 +1,43 @@
+## id: tr-strings-019
+## title: Какое слово длиннее
+## file: trainer/strings/LongerWordPick.java
+## class: LongerWordPick
+## level: 1
+## category: Слова и разбор
+@@ description
+<p>Напиши класс <code>LongerWordPick</code>. Для игры в слова нужно выбрать более длинное слово. Программа читает два слова, каждое с новой строки, и печатает то, в котором больше букв. Если длина одинаковая — печатает <code>одинаковой длины</code>.</p>
+<pre class="terminal"><span class="out">ввод:  кошка
+       кот
+вывод: кошка
+
+ввод:  сок
+       чай
+вывод: одинаковой длины</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.length()</code> — количество символов</li>
+<li><code>if … else if … else</code> — три ветки на три случая</li>
+</ul></div>
+@@ test: Первое длиннее
+@@ input
+кошка
+кот
+@@ expect
+кошка
+@@ test: Второе длиннее
+@@ input
+дом
+квартира
+@@ expect
+квартира
+@@ test: Одинаковые
+@@ input
+сок
+чай
+@@ expect
+одинаковой длины
+@@ test: Разница в одну букву
+@@ input
+Ёж
+ёжик
+@@ expect
+ёжик

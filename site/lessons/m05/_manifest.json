@@ -1,0 +1,14 @@
+{ "id": "m05", "num": "5", "title": "Циклы",
+  "summary": "while, for, do-while, break и continue; вложенные циклы и ёлочка любой высоты; Мастерская: роли переменных и работа с цифрами числа.",
+  "lessons": [
+    { "id": "m05-01", "title": "Зачем циклы. Цикл while", "url": "/lessons/m05/01-while.html" },
+    { "id": "m05-02", "title": "Цикл for", "url": "/lessons/m05/02-for.html" },
+    { "id": "m05-03", "title": "do-while, break и continue", "url": "/lessons/m05/03-do-while-break-continue.html" },
+    { "id": "m05-04", "title": "Вложенные циклы", "url": "/lessons/m05/04-nested-loops.html" },
+    { "id": "m05-05", "title": "Мастерская: роли переменных", "url": "/lessons/m05/05-workshop-roles.html" },
+    { "id": "m05-06", "title": "Мастерская: цифры числа", "url": "/lessons/m05/06-workshop-digits.html" },
+    { "id": "m05-07", "title": "Типичные ошибки в циклах", "url": "/lessons/m05/07-loop-mistakes.html" },
+    { "id": "m05-pz", "title": "Головоломки: сколько раз и что выведется?", "url": "/lessons/m05/08-puzzles.html" },
+    { "id": "m05-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m05/09-summary.html" }
+  ],
+  "taskCount": 10 }

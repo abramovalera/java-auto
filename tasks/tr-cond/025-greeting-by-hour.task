@@ -1,0 +1,48 @@
+## id: tr-cond-025
+## title: Приветствие по часам
+## file: trainer/cond/GreetingByHour.java
+## class: GreetingByHour
+## level: 2
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>GreetingByHour</code>. Умная колонка здоровается по-разному в зависимости от часа. Программа читает час (целое число) и печатает:</p>
+<ul><li>с 5 до 11 — <code>Доброе утро</code>;</li><li>с 12 до 17 — <code>Добрый день</code>;</li><li>с 18 до 22 — <code>Добрый вечер</code>;</li><li>23 и с 0 до 4 — <code>Доброй ночи</code>;</li><li>если часа такого нет (меньше 0 или больше 23) — <code>Нет такого часа</code>.</li></ul>
+<pre class="terminal"><span class="out">ввод:  8
+вывод: Доброе утро
+
+ввод:  24
+вывод: Нет такого часа</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>сначала отсей неверный ввод, потом проверяй диапазоны по порядку</li>
+<li><code>a || b</code> — истинно, если истинно хотя бы одно из условий</li>
+</ul></div>
+@@ test: Утро
+@@ input
+8
+@@ expect
+Доброе утро
+@@ test: Ровно полдень
+@@ input
+12
+@@ expect
+Добрый день
+@@ test: Ровно 18 — вечер
+@@ input
+18
+@@ expect
+Добрый вечер
+@@ test: 23 — уже ночь
+@@ input
+23
+@@ expect
+Доброй ночи
+@@ test: 4 утра — ещё ночь
+@@ input
+4
+@@ expect
+Доброй ночи
+@@ test: 24 — такого часа нет
+@@ input
+24
+@@ expect
+Нет такого часа

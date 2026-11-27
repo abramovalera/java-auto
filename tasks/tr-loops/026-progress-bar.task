@@ -1,0 +1,39 @@
+## id: tr-loops-026
+## title: Полоска загрузки
+## file: trainer/loops/ProgressBarDraw.java
+## class: ProgressBarDraw
+## level: 1
+## category: Символы и узоры
+@@ description
+<p>Напиши класс <code>ProgressBarDraw</code>. Программа читает процент загрузки <code>p</code> (от 0 до 100) и рисует полоску из 10 клеток в квадратных скобках: каждые полные 10% — клетка <code>#</code>, остальные клетки — <code>.</code>. После полоски через пробел — сам процент со знаком <code>%</code>.</p>
+<pre class="terminal"><span class="out">ввод:  45
+вывод: [####......] 45%</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>p / 10</code> — деление целых: сколько полных десятков</li>
+<li>два цикла подряд: сначала печатают <code>#</code>, потом <code>.</code> — вместе ровно 10 клеток</li>
+</ul></div>
+@@ test: Сорок пять процентов
+@@ input
+45
+@@ expect
+[####......] 45%
+@@ test: Ноль
+@@ input
+0
+@@ expect
+[..........] 0%
+@@ test: Готово
+@@ input
+100
+@@ expect
+[##########] 100%
+@@ test: Почти готово
+@@ input
+99
+@@ expect
+[#########.] 99%
+@@ test: Ровно десять
+@@ input
+10
+@@ expect
+[#.........] 10%

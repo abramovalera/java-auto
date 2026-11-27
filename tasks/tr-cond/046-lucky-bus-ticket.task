@@ -1,0 +1,42 @@
+## id: tr-cond-046
+## title: Счастливый билет
+## file: trainer/cond/LuckyBusTicket.java
+## class: LuckyBusTicket
+## level: 2
+## category: Цифры и делимость
+@@ description
+<p>Напиши класс <code>LuckyBusTicket</code>. Номер автобусного билета — шесть цифр, билет счастливый, если сумма первых трёх цифр равна сумме последних трёх. Программа читает номер как целое число от 0 до 999999. Ведущие нули при вводе пропадают: число <code>1010</code> — это билет <code>001010</code>. Напечатай <code>Счастливый</code> или <code>Обычный</code>.</p>
+<pre class="terminal"><span class="out">ввод:  123321
+вывод: Счастливый
+
+ввод:  123456
+вывод: Обычный</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n / 1000</code> — число из первых трёх цифр, <code>n % 1000</code> — из последних трёх</li>
+<li>цифры трёхзначного числа: <code>x / 100</code>, <code>x / 10 % 10</code>, <code>x % 10</code></li>
+</ul></div>
+@@ test: Счастливый
+@@ input
+123321
+@@ expect
+Счастливый
+@@ test: Обычный
+@@ input
+123456
+@@ expect
+Обычный
+@@ test: С ведущими нулями
+@@ input
+1010
+@@ expect
+Счастливый
+@@ test: Билет 000000
+@@ input
+0
+@@ expect
+Счастливый
+@@ test: Почти счастливый
+@@ input
+100002
+@@ expect
+Обычный

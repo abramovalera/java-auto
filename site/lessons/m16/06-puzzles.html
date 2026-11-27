@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: многопоточность · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m16-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 16 · Головоломки</div>
+    <h1>Многопоточность: что выведется? Что будет при запуске?</h1>
+    <p class="lead">Вопросы про потоки на собеседованиях почти всегда такие: короткий код и «что произойдёт?». Запускать нельзя — только думать и объяснять. Ответ «не знаю заранее» здесь тоже бывает правильным, если объяснишь почему.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — со звёздочкой</span></div>
+  </header>
+
+  <div class="callout tip">
+    <span class="callout-title">Как решать</span>
+    <p>Сначала <strong>скажи ответ вслух и объясни почему</strong>, потом кликай. Для каждого кода спроси себя: сколько тут потоков? Кто кого ждёт? Есть ли общие данные, которые меняют несколько потоков?</p>
+  </div>
+
+  <h2>Что выведется на экран?</h2>
+
+  <div class="quiz">
+    <p class="q">1. run() вместо start(). Что напечатает программа?</p>
+<pre><code class="java">Thread t = new Thread(() -&gt;
+        System.out.println(Thread.currentThread().getName()));
+t.run();</code></pre>
+    <ul>
+      <li data-why="Thread-0 — это имя объекта t, но код выполнял не он: поток так и не был запущен.">Thread-0</li>
+      <li data-correct data-why="Вызов run() — обычный вызов метода. Тело лямбды выполняет текущий поток — main. Новый поток запускает только вызов start().">main</li>
+      <li data-why="run() не проверяет, запущен ли поток: он просто вызывает задачу. Вывод будет.">Ничего: поток не запущен</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. С join. Что напечатает программа?</p>
+<pre><code class="java">Thread t = new Thread(() -&gt; System.out.print("A"));
+t.start();
+t.join();
+System.out.print("B");</code></pre>
+    <ul>
+      <li data-correct data-why="Вызов join() — ожидание завершения потока: main не пойдёт дальше, пока t не закончит. Поэтому A всегда раньше B — вывод детерминирован.">AB, всегда</li>
+      <li data-why="Порядок был бы случайным без join. С join главный поток ждёт.">AB или BA — как повезёт</li>
+      <li data-why="main печатает B только после того, как t закончился.">BA</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. Без join. Что напечатает программа?</p>
+<pre><code class="java">static int x = 0;
+
+public static void main(String[] args) {
+    new Thread(() -&gt; x = 5).start();
+    System.out.println(x);
+}</code></pre>
+    <ul>
+      <li data-why="Поток только что запущен — успел ли он записать 5, заранее неизвестно.">Всегда 5</li>
+      <li data-why="Чаще всего действительно 0: поток стартует дольше, чем main доходит до печати. Но «всегда» — неверно.">Всегда 0</li>
+      <li data-correct data-why="Никто никого не ждёт: результат зависит от того, кто успеет первым. Чаще 0, иногда 5. Это гонка. Лечение — join() перед печатью.">0 или 5 — заранее неизвестно</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Счётчик без synchronized. Что напечатает программа?</p>
+<pre><code class="java">static int count = 0;
+
+public static void main(String[] args) throws InterruptedException {
+    Runnable r = () -&gt; { for (int i = 0; i &lt; 50_000; i++) count++; };
+    Thread a = new Thread(r), b = new Thread(r);
+    a.start(); b.start();
+    a.join();  b.join();
+    System.out.println(count);
+}</code></pre>
+    <ul>
+      <li data-why="join на месте, но он решает только «дождаться». Потерю обновлений он не лечит.">Всегда 100000</li>
+      <li data-correct data-why="count++ — три действия, обновления теряются. Каждый запуск даёт своё число, обычно меньше 100000, а иногда и ровно 100000. Лечение — AtomicInteger или synchronized.">Число не больше 100000, каждый раз разное</li>
+      <li data-why="Оба потока работают и оба добавляют — просто часть добавлений теряется.">Всегда 50000</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Future. Что напечатает программа?</p>
+<pre><code class="java">ExecutorService pool = Executors.newFixedThreadPool(2);
+Future&lt;Integer&gt; f = pool.submit(() -&gt; {
+    Thread.sleep(200);
+    return 10;
+});
+System.out.print("Ждём ");
+System.out.print(f.get() * 2);
+pool.shutdown();</code></pre>
+    <ul>
+      <li data-why="submit не ждёт задачу — «Ждём » печатается сразу. Но get() потом дождётся результата.">20 Ждём</li>
+      <li data-correct data-why="submit сразу возвращает Future, main печатает «Ждём ». Затем get() блокирует main на ~200 мс и возвращает 10. 10 * 2 = 20.">Ждём 20</li>
+      <li data-why="get() не возвращает null: он ждёт, пока задача не вернёт значение.">Ждём null</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">6. Сначала заканчивается main. Что напечатает программа и завершится ли она?</p>
+<pre><code class="java">public static void main(String[] args) {
+    new Thread(() -&gt; {
+        try { Thread.sleep(500); } catch (InterruptedException e) { }
+        System.out.println("Помощник закончил");
+    }).start();
+    System.out.println("main закончил");
+}</code></pre>
+    <ul>
+      <li data-why="Программа не обрывает обычные потоки, когда заканчивается main.">«main закончил», и программа сразу завершается</li>
+      <li data-correct data-why="main закончился первым, но JVM ждёт все обычные (не daemon) потоки. Через полсекунды напечатается «Помощник закончил», и только потом программа завершится.">«main закончил», через полсекунды «Помощник закончил»</li>
+      <li data-why="main не ждёт помощника (нет join), поэтому его строка почти наверняка первая.">«Помощник закончил», потом «main закончил»</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется ли?</h2>
+
+  <div class="quiz">
+    <p class="q">7. Переменная цикла в лямбде. Скомпилируется?</p>
+<pre><code class="java">for (int i = 0; i &lt; 3; i++) {
+    new Thread(() -&gt; System.out.println(i)).start();
+}</code></pre>
+    <ul>
+      <li data-why="Хочется, но i меняется (i++), а лямбда-выражение может использовать только «фактически final» локальные переменные.">Да, напечатает 0 1 2 в каком-то порядке</li>
+      <li data-correct data-why="Ошибка: local variables referenced from a lambda expression must be final or effectively final. Починка: объявить внутри цикла переменную int n = i; и в теле лямбды печатать n.">Нет: i не «фактически final»</li>
+      <li data-why="Ошибка не при запуске, а раньше — компилятор не пропустит лямбду с изменяемой переменной.">Да, но упадёт при запуске</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">8. sleep в main. Скомпилируется?</p>
+<pre><code class="java">public static void main(String[] args) {
+    Thread.sleep(1000);
+    System.out.println("Выспался");
+}</code></pre>
+    <ul>
+      <li data-why="sleep бросает проверяемое исключение — компилятор требует его обработать.">Да, через секунду напечатает «Выспался»</li>
+      <li data-correct data-why="unreported exception InterruptedException; must be caught or declared to be thrown. Нужен try-catch или throws InterruptedException у main.">Нет: не обработано InterruptedException</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">9. Runnable с результатом. Скомпилируется?</p>
+<pre><code class="java">Runnable task = () -&gt; {
+    return 42;
+};</code></pre>
+    <ul>
+      <li data-correct data-why="У Runnable метод void run() — тело лямбды не может вернуть значение. Задача с результатом — это Callable&lt;Integer&gt;.">Нет: run() ничего не возвращает</li>
+      <li data-why="Java не превращает Runnable в Callable сама: тип переменной указан явно.">Да, это Callable</li>
+      <li data-why="Возвращаемое значение не отбрасывается молча — компилятор выдаст ошибку.">Да, 42 просто потеряется</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется, но что будет при запуске?</h2>
+
+  <div class="quiz">
+    <p class="q">10. Дважды start(). Что будет при запуске?</p>
+<pre><code class="java">Thread t = new Thread(() -&gt; System.out.println("Работаю"));
+t.start();
+t.start();</code></pre>
+    <ul>
+      <li data-why="Поток запускается только один раз. Второй раз Java не позволит.">«Работаю» напечатается два раза</li>
+      <li data-correct data-why="Первый start() запустит поток, второй бросит IllegalThreadStateException: этот поток уже запускали. Нужен новый объект Thread.">Один раз «Работаю» и исключение IllegalThreadStateException</li>
+      <li data-why="Компилятор не следит, сколько раз вызван метод — ошибка будет при запуске.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">11. Забыли shutdown. Что будет при запуске?</p>
+<pre><code class="java">public static void main(String[] args) throws Exception {
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    Future&lt;String&gt; f = pool.submit(() -&gt; "готово");
+    System.out.println(f.get());
+}</code></pre>
+    <ul>
+      <li data-why="Напечатает — да. Но вот завершится ли программа?">Напечатает «готово» и завершится</li>
+      <li data-correct data-why="«готово» напечатается, но потоки пула продолжают ждать задачи, и программа не завершится. Нужен pool.shutdown().">Напечатает «готово» и не завершится</li>
+      <li data-why="get() дождётся задачи — она выполнится в пуле без всяких дополнительных команд.">Зависнет на get(), ничего не напечатав</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">12. ★★★ Daemon — для любопытных. Что будет при запуске?</p>
+<pre><code class="java">public static void main(String[] args) {
+    Thread t = new Thread(() -&gt; {
+        while (true) { }
+    });
+    t.setDaemon(true);
+    t.start();
+    System.out.println("Пока!");
+}</code></pre>
+    <ul>
+      <li data-why="Так было бы с обычным потоком. Но этот помечен как daemon.">Напечатает «Пока!» и будет работать вечно</li>
+      <li data-correct data-why="Daemon («фоновый») поток не держит программу: когда закончились все обычные потоки (здесь main), JVM завершается и обрывает daemon-потоки. Напечатает «Пока!» и выйдет.">Напечатает «Пока!» и завершится</li>
+      <li data-why="setDaemon до start() разрешён. Исключение было бы, если вызвать его после start().">Исключение: нельзя менять поток до запуска</li>
+    </ul>
+  </div>
+
+  <h2>Найди ошибку</h2>
+
+  <div class="quiz">
+    <p class="q">13. Программа иногда зависает навсегда. Какая строка виновата?</p>
+<pre><code class="java">1  void payment() {
+2      synchronized (wallet) {
+3          synchronized (basket) { pay(); }
+4      }
+5  }
+6  void refund() {
+7      synchronized (basket) {
+8          synchronized (wallet) { giveBack(); }
+9      }
+10 }</code></pre>
+    <ul>
+      <li data-why="payment берёт замки в «правильном» порядке: wallet, потом basket. Проблема в том, что другой метод делает наоборот.">Строка 2</li>
+      <li data-correct data-why="refund берёт замки в обратном порядке: сначала basket. Если payment взял wallet, а refund — basket, каждый ждёт второй замок вечно: deadlock. Починка: в refund тоже сначала wallet, потом basket.">Строка 7</li>
+      <li data-why="Вложенный synchronized сам по себе не ошибка — опасен разный порядок замков в разных потоках.">Строка 3</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">14. Новичок «починил» гонку так. Помогло?</p>
+<pre><code class="java">static volatile int count = 0;
+
+// в каждом из 4 потоков:
+for (int i = 0; i &lt; 100_000; i++) {
+    count++;
+}</code></pre>
+    <ul>
+      <li data-why="volatile гарантирует только видимость свежего значения. Он не делает три действия одним.">Да, volatile делает count++ безопасным</li>
+      <li data-correct data-why="Нет: count++ по-прежнему «прочитать, увеличить, записать», потоки вклиниваются между шагами. Нужен AtomicInteger.incrementAndGet() или synchronized.">Нет, обновления всё равно теряются</li>
+      <li data-why="volatile никак не влияет на компиляцию count++.">Не скомпилируется: volatile нельзя увеличивать</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">15. ★★ Замок есть, а гонка осталась. Почему?</p>
+<pre><code class="java">static int count = 0;
+
+static void click() {
+    synchronized (new Object()) {
+        count++;
+    }
+}</code></pre>
+    <ul>
+      <li data-why="synchronized как раз работает с любыми объектами. Дело в том, какой это объект.">synchronized не работает с Object</li>
+      <li data-correct data-why="Каждый вызов создаёт новый объект-замок. У каждого потока своя «дверь», никто никого не ждёт. Замок должен быть общим: static final Object lock = new Object(); или synchronized у самого метода.">Каждый раз новый замок — потоки не ждут друг друга</li>
+      <li data-why="Метод static тут ни при чём: static synchronized-метод работает нормально, его замок — сам класс.">static-методы нельзя синхронизировать</li>
+    </ul>
+  </div>
+
+  <section class="pz-reading">
+    <h2>Читаем код</h2>
+    <p>Теперь не «что выведется», а «что происходит в строке». Прочитай каждую строку вслух правильными словами: создание объекта потока, запуск потока, задача, ожидание завершения, синхронизированный блок. В одних заданиях выбери описание из пяти, в других собери его из квадратиков — лишние оставь.</p>
+    <div data-widget="check" id="check-m16-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 16", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в этой строке?", "code": "Thread t = new Thread(task);",
+            "options": ["Создание и запуск нового потока: задача <code>task</code> сразу начинает выполняться", "Объявление переменной <code>t</code> типа <code>Thread</code> и её инициализация новым объектом потока; конструктору передаётся аргументом задача <code>task</code>, поток ещё не запущен", "Вызов метода <code>run()</code> у задачи <code>task</code> в текущем потоке", "Объявление переменной <code>t</code> без инициализации", "Создание новой задачи <code>Runnable</code> с именем <code>task</code>"],
+            "answer": 1, "why": "<code>new Thread(task)</code> — только создание объекта потока: конструктор получает аргументом задачу. Пока не вызван <code>start()</code>, ни одна строка задачи не выполняется." },
+          { "type": "single", "q": "А здесь?", "code": "Runnable task = () -> System.out.println(\"Готово\");",
+            "options": ["Объявление переменной <code>task</code> и немедленная печать «Готово»", "Создание и запуск нового потока, который печатает «Готово»", "Объявление переменной <code>task</code> типа <code>Runnable</code> и её инициализация лямбда-выражением без параметров; тело лямбды выполнится, только когда задачу запустят", "Вызов метода <code>println</code>, которому аргументом передаётся лямбда", "Объявление метода <code>task</code>, который возвращает строку"],
+            "answer": 2, "why": "Справа — лямбда-выражение: пустые скобки — нет параметров, после стрелки — тело. Оно реализует единственный метод <code>run()</code> интерфейса <code>Runnable</code> и пока не выполняется." },
+          { "type": "single", "q": "Переменная <code>t</code> — объект <code>Thread</code>. Что делает строка?", "code": "t.start();",
+            "options": ["Запускает поток: вызов метода <code>start()</code> у объекта <code>t</code> — новый поток начнёт выполнять задачу, а текущий сразу пойдёт дальше", "Текущий поток сам выполняет задачу и ждёт, пока она закончится", "Ждёт завершения потока <code>t</code>", "Создаёт новый объект потока", "Вызывает статический метод класса <code>Thread</code> без объекта"],
+            "answer": 0, "why": "<code>start()</code> — запуск потока: задачу выполнит новый поток. Выполнение в текущем потоке — это вызов <code>run()</code>, ожидание — <code>join()</code>." },
+          { "type": "single", "q": "Что происходит?", "code": "t.join();",
+            "options": ["Запуск потока <code>t</code>", "Объединение потока <code>t</code> с текущим в один поток", "Поток <code>t</code> ждёт, пока закончится текущий поток", "Вызов метода <code>join()</code> у потока <code>t</code>: текущий поток ждёт, пока <code>t</code> завершится", "Усыпление потока <code>t</code> на секунду"],
+            "answer": 3, "why": "<code>join()</code> — ожидание завершения потока. Ждёт тот поток, который вызвал метод, а ждут потока <code>t</code>. Метод может выбросить проверяемое <code>InterruptedException</code>." },
+          { "type": "single", "q": "Что происходит?", "code": "Future<Integer> f = pool.submit(() -> 6 * 7);",
+            "options": ["Переменная <code>f</code> сразу инициализируется числом 42", "В пул отправляется задача <code>Runnable</code>, результат 42 теряется", "Создание нового пула потоков с аргументом 42", "Объявление переменной <code>f</code> типа <code>Future&lt;Integer&gt;</code> и её инициализация результатом вызова метода <code>submit</code>; аргумент — лямбда-выражение, которое возвращает значение, то есть задача <code>Callable</code>", "Метод <code>submit</code> ждёт выполнения задачи и только потом возвращает управление"],
+            "answer": 3, "why": "Тело лямбды <code>6 * 7</code> возвращает значение — значит, это <code>Callable</code>. <code>submit</code> не ждёт: сразу возвращает «чек» <code>Future</code>, а число 42 потом вернёт вызов <code>f.get()</code>." },
+          { "type": "single", "q": "<code>counter</code> — объект <code>AtomicInteger</code> со значением 5. Что делает строка?", "code": "int n = counter.incrementAndGet();",
+            "options": ["Объявление <code>n</code> и её инициализация старым значением 5, после чего счётчик увеличивается", "Объявление переменной <code>n</code> и её инициализация возвращаемым значением вызова <code>incrementAndGet()</code>: счётчик неделимо увеличивается до 6, и это 6 попадает в <code>n</code>", "Создание нового объекта <code>AtomicInteger</code> со значением 6", "Обычный <code>count++</code>: из нескольких потоков теряет обновления", "Синхронизированный блок с замком <code>counter</code>"],
+            "answer": 1, "why": "<code>incrementAndGet</code> — «увеличить и вернуть новое» (как <code>++count</code>), одним атомарным действием. Старое значение вернул бы <code>getAndIncrement()</code>." },
+          { "type": "build", "q": "Собери описание строки (<code>lock</code> — общий для всех потоков объект)", "code": "synchronized (lock) { count++; }",
+            "answer": ["синхронизированный блок", "с замком <code>lock</code>:", "его тело <code>count++</code>", "одновременно выполняет только один поток"],
+            "extra": ["создаём новый объект-замок", "запускаем новый поток", "у каждого потока свой замок"] },
+          { "type": "build", "q": "Собери описание строки (<code>future</code> — объект <code>Future&lt;Integer&gt;</code>)", "code": "int total = future.get();",
+            "answer": ["объявляем переменную <code>total</code> типа <code>int</code>", "и инициализируем её значением,", "которое возвращает вызов метода <code>get()</code> у <code>future</code>", "— метод ждёт окончания задачи"],
+            "extra": ["запускаем задачу методом <code>get()</code>", "присваиваем объект <code>future</code> переменной <code>total</code>", "не дожидаясь задачи"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <div class="callout ai">
+    <span class="callout-title">Хочешь ещё?</span>
+    <p>Напиши наставнику: <em>«Дай мне 3 головоломки по потокам, по одной. Для каждой я скажу, сколько там потоков, кто кого ждёт и есть ли общие данные»</em>.</p>
+  </div>
+
+  <section class="summary">
+    <h2>Что тренирует этот набор</h2>
+    <ul>
+      <li><code>start</code> против <code>run</code>, одноразовость потока, имя текущего потока.</li>
+      <li>Кто кого ждёт: <code>join</code>, <code>Future.get</code>, программа живёт, пока жив хоть один обычный поток.</li>
+      <li>Гонки: <code>count++</code>, <code>volatile</code> — не лекарство, замок должен быть общим.</li>
+      <li>Deadlock: разный порядок замков.</li>
+      <li>Правила компилятора: «фактически final» в лямбдах, <code>InterruptedException</code>, <code>Runnable</code> не возвращает значение.</li>
+    </ul>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,38 @@
+## id: tr-colls-011
+## title: Теги к фотографиям
+## file: trainer/colls/PhotoTagsSorted.java
+## class: PhotoTagsSorted
+## level: 1
+## category: Сортировка
+@@ description
+<p>Напиши класс <code>PhotoTagsSorted</code>. К фотографиям из поездки поставили теги, многие повторяются. В первой строке — количество тегов <code>n</code>, во второй — <code>n</code> тегов через пробел (маленькими буквами). Напечатай <code>Теги: </code> и все разные теги по алфавиту через запятую с пробелом. Если тегов нет, напечатай <code>Теги: нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       море закат море кот пляж закат
+вывод: Теги: закат, кот, море, пляж</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>TreeSet</code> — множество, которое само держит элементы отсортированными</li>
+<li><code>String.join(", ", set)</code> — склеивает строки множества через разделитель</li>
+</ul></div>
+@@ test: Фото с моря
+@@ input
+6
+море закат море кот пляж закат
+@@ expect
+Теги: закат, кот, море, пляж
+@@ test: Один тег
+@@ input
+1
+горы
+@@ expect
+Теги: горы
+@@ test: Все одинаковые
+@@ input
+3
+кот кот кот
+@@ expect
+Теги: кот
+@@ test: Без тегов
+@@ input
+0
+@@ expect
+Теги: нет

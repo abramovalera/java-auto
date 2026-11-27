@@ -1,0 +1,40 @@
+## id: tr-vars-031
+## title: Длительность фильма
+## file: trainer/vars/MovieRuntimeSplit.java
+## class: MovieRuntimeSplit
+## level: 3
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>MovieRuntimeSplit</code>. На афише длительность фильма пишут в часах и минутах. Программа читает целое число — длительность в минутах — и печатает <code>2 ч 15 мин</code>: сколько полных часов и сколько минут останется сверх них.</p>
+<pre class="terminal"><span class="out">ввод:  135
+вывод: 2 ч 15 мин</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>135 / 60</code> — деление двух <code>int</code> даёт <code>int</code>: дробная часть отбрасывается, получится 2</li>
+<li>сколько минут осталось: из всех минут вычти минуты, ушедшие на полные часы</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+135
+@@ expect
+2 ч 15 мин
+@@ test: Меньше часа
+@@ input
+59
+@@ expect
+0 ч 59 мин
+@@ test: Ровно час
+@@ input
+60
+@@ expect
+1 ч 0 мин
+@@ test: Ноль минут
+@@ input
+0
+@@ expect
+0 ч 0 мин
+@@ test: Целые сутки
+@@ input
+1440
+@@ expect
+24 ч 0 мин

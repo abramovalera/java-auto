@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stream API: конвейер · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-04">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 14 · Урок 4</div>
+    <h1>Stream API: конвейер для данных</h1>
+    <p class="lead">Отфильтровать, преобразовать, отсортировать, взять первые три — раньше на это уходил цикл с кучей переменных. Стрим делает то же самое цепочкой из понятных шагов, которая читается как рецепт.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🏭 конвейер</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m14-04-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним лямбды и ссылки",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Какой интерфейс у лямбды <code>p -&gt; p.price() &gt; 0</code>, если p — товар?",
+         "options": [
+          "Function&lt;Product, Integer&gt;",
+          "Predicate&lt;Product&gt;",
+          "Consumer&lt;Product&gt;"
+         ],
+         "answer": 1,
+         "why": "Возвращает true/false — это Predicate, проверка «подходит или нет»."
+        },
+        {
+         "type": "single",
+         "q": "Модуль 13: что напечатает <code>System.out.println(List.of(1, 2))</code>?",
+         "options": [
+          "[1, 2]",
+          "1 2",
+          "адрес объекта вроде List@1b6d3586"
+         ],
+         "answer": 0,
+         "why": "У коллекций есть свой toString — элементы в квадратных скобках через запятую."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Одна задача — два способа</h2>
+    <p>Задача из интернет-магазина: есть товары из каталога. Нужны <b>названия товаров в наличии дешевле 1000 ₽, по алфавиту</b>. Сначала — как ты бы написал раньше, циклом:</p>
+<pre data-file="CatalogLoop.java"><code class="java">record Product(String title, int price, boolean inStock) { }
+
+List&lt;Product&gt; catalog = List.of(
+        new Product("Чай", 200, true),
+        new Product("Кофе", 900, true),
+        new Product("Торт", 1500, true),
+        new Product("Сок", 150, false),
+        new Product("Вафли", 300, true));
+
+List&lt;String&gt; result = new ArrayList&lt;&gt;();
+for (Product p : catalog) {
+    if (p.inStock() &amp;&amp; p.price() &lt; 1000) {
+        result.add(p.title());
+    }
+}
+Collections.sort(result);
+System.out.println(result);</code></pre>
+    <p>А теперь то же самое стримом:</p>
+<pre data-file="CatalogStream.java"><code class="java">List&lt;String&gt; result = catalog.stream()
+        .filter(p -&gt; p.inStock())
+        .filter(p -&gt; p.price() &lt; 1000)
+        .map(Product::title)
+        .sorted()
+        .toList();
+System.out.println(result);</code></pre>
+    <div data-widget="ide" id="shot-stream-chain">
+      <script type="application/json">
+      { "tree": false, "file": "CatalogStream.java", "runConfig": "CatalogStream", "gutterRun": [5, 6], "statusPath": "module-14",
+        "code": "import java.util.List;\n\nrecord Product(String title, int price, boolean inStock) { }\n\npublic class CatalogStream {\n    public static void main(String[] args) {\n        List<Product> catalog = List.of(\n                new Product(\"Чай\", 200, true),\n                new Product(\"Кофе\", 900, true),\n                new Product(\"Торт\", 1500, true),\n                new Product(\"Сок\", 150, false),\n                new Product(\"Вафли\", 300, true));\n\n        List<String> result = catalog.stream()\n                .filter(p -> p.inStock())\n                .filter(p -> p.price() < 1000)\n                .map(Product::title)\n                .sorted()\n                .toList();\n        System.out.println(result);\n    }\n}",
+        "warnings": [ { "line": 15, "text": "p -> p.inStock()", "msg": "Lambda can be replaced with method reference" } ],
+        "vals": { "14": "Stream<Product>", "15": "Stream<Product>", "16": "Stream<Product>", "17": "Stream<String>", "18": "Stream<String>", "19": "List<String>" },
+        "console": { "title": "CatalogStream", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… CatalogStream" },
+          { "t": "out", "s": "[Вафли, Кофе, Чай]" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-14", "side": "left", "text": "Серые надписи справа от цепочки — подсказки IDEA: <b>какой тип возвращает вызов в этой строке</b>. Сам ты их не пишешь, их рисует IDEA" },
+                   { "n": 2, "target": "line-17", "side": "left", "text": "После вызова <code>map</code> со ссылкой на метод <code>Product::title</code> поток товаров стал потоком строк: <code>Stream&lt;Product&gt;</code> → <code>Stream&lt;String&gt;</code>" },
+                   { "n": 3, "target": "line-19", "side": "left", "text": "<code>toList()</code> — терминальная операция: на выходе уже не поток, а <code>List&lt;String&gt;</code>" },
+                   { "n": 4, "target": "err-15", "side": "top", "text": "Жёлтое — знакомый совет из урока 14.3: лямбду можно заменить ссылкой <code>Product::inStock</code>" },
+                   { "n": 5, "target": "output", "text": "Результат: в наличии и дешевле 1000, по алфавиту" } ],
+        "caption": "Стрим в IDEA: типы после каждого шага видны справа" }
+      </script>
+    </div>
+    <div class="say" data-mood="wow"><p>Прочитай стрим вслух: «возьми каталог, оставь те, что в наличии, оставь дешевле тысячи, возьми названия, отсортируй, собери в список». Это <b>что</b> нужно сделать. А цикл — это <b>как</b>: заведи список, пройди, проверь, добавь… Стрим описывает результат, а не процесс.</p><p>А правильными словами так: у списка <code>catalog</code> вызываем метод <code>stream()</code>, дальше идут <b>промежуточные операции</b> <code>filter</code>, <code>filter</code>, <code>map</code>, <code>sorted</code>, а <b>терминальная операция</b> <code>toList()</code> собирает результат в список — им инициализируется переменная <code>result</code>. Что значат эти слова, разберём в следующем шаге.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Три части конвейера</h2>
+    <p><b>Stream</b> (поток) — это не коллекция и не хранилище. Это <b>конвейер</b>, по которому элементы из источника едут один за другим через станки-операции. У любого стрима три части:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 270" role="img" aria-label="Конвейер стрима: источник, промежуточные операции filter, map, sorted и терминальная операция toList">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="40" width="130" height="120" rx="14" class="d-blue"/>
+        <text x="75" y="68" text-anchor="middle" class="d-title">Источник</text>
+        <circle cx="45" cy="100" r="13" class="d-box"/><text x="45" y="105" text-anchor="middle" class="d-small">5</text>
+        <circle cx="75" cy="100" r="13" class="d-box"/><text x="75" y="105" text-anchor="middle" class="d-small">2</text>
+        <circle cx="105" cy="100" r="13" class="d-box"/><text x="105" y="105" text-anchor="middle" class="d-small">8</text>
+        <text x="75" y="142" text-anchor="middle" class="d-small">list.stream()</text>
+
+        <path d="M144 100 H170" class="d-arrow"/>
+        <path d="M176 60 H286 L250 116 V146 H212 V116 Z" class="d-violet"/>
+        <text x="231" y="88" text-anchor="middle" class="d-title">filter</text>
+        <text x="231" y="174" text-anchor="middle" class="d-small">отсеять</text>
+
+        <path d="M292 100 H318" class="d-arrow"/>
+        <rect x="324" y="60" width="110" height="86" rx="14" class="d-teal"/>
+        <text x="379" y="96" text-anchor="middle" class="d-title">map</text>
+        <text x="379" y="120" text-anchor="middle" class="d-small">x → x * 10</text>
+        <text x="379" y="174" text-anchor="middle" class="d-small">превратить</text>
+
+        <path d="M438 100 H464" class="d-arrow"/>
+        <rect x="470" y="60" width="110" height="86" rx="14" class="d-yellow"/>
+        <text x="525" y="96" text-anchor="middle" class="d-title">sorted</text>
+        <text x="525" y="120" text-anchor="middle" class="d-small">↑ по порядку</text>
+        <text x="525" y="174" text-anchor="middle" class="d-small">упорядочить</text>
+
+        <path d="M584 100 H610" class="d-arrow"/>
+        <rect x="616" y="40" width="134" height="120" rx="14" class="d-green"/>
+        <text x="683" y="68" text-anchor="middle" class="d-title">Терминал</text>
+        <text x="683" y="100" text-anchor="middle" class="d-mono-ink">[50, 80]</text>
+        <text x="683" y="142" text-anchor="middle" class="d-small">toList()</text>
+
+        <path d="M176 200 H580" class="d-dash"/>
+        <text x="378" y="226" text-anchor="middle" class="d-small">промежуточные: каждая возвращает новый Stream</text>
+        <text x="683" y="200" text-anchor="middle" class="d-small">запускает всё</text>
+        <text x="683" y="220" text-anchor="middle" class="d-small">и выдаёт итог</text>
+        <text x="75" y="200" text-anchor="middle" class="d-small">откуда едут</text>
+        <text x="75" y="220" text-anchor="middle" class="d-small">элементы</text>
+      </svg>
+      <figcaption>Фильтр «больше 3» пропустит 5 и 8, map умножит на 10, sorted расставит: [50, 80]. Двойку отсеял фильтр.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Источник</dt><dd>Откуда берутся элементы: список, массив, набор значений. Сам источник стрим <b>не меняет</b>.</dd>
+      <dt>Промежуточная операция</dt><dd><code>filter</code>, <code>map</code>, <code>sorted</code>, <code>distinct</code>, <code>limit</code>, <code>skip</code>… Каждая возвращает <b>новый Stream</b>, поэтому их можно писать цепочкой вызовов через точку. Аргументом им обычно передают лямбда-выражение или ссылку на метод.</dd>
+      <dt>Терминальная операция</dt><dd><code>toList</code>, <code>count</code>, <code>forEach</code>… Завершает конвейер и возвращает результат — уже не Stream. Она <b>одна</b> и всегда <b>последняя</b>.</dd>
+    </dl>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: завод по разливу сока</span>
+      <p>Яблоки (источник) едут по ленте. Сортировщик выбрасывает гнилые (<code>filter</code>), пресс делает из яблока сок (<code>map</code>), упаковщик разливает в коробки (терминальная операция). Пока упаковщик не пришёл на смену, лента <b>стоит</b>: никто не будет давить сок, который некуда налить.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Откуда берутся стримы</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Источник</th><th>Как получить стрим</th><th>Пример</th></tr>
+        <tr><td>коллекция</td><td><code>list.stream()</code>, <code>set.stream()</code></td><td><code>names.stream()</code></td></tr>
+        <tr><td>Map</td><td>через его «виды»</td><td><code>map.keySet().stream()</code>, <code>map.values().stream()</code>, <code>map.entrySet().stream()</code></td></tr>
+        <tr><td>массив</td><td><code>Arrays.stream(массив)</code></td><td><code>Arrays.stream(new int[]{3, 1, 2})</code></td></tr>
+        <tr><td>несколько значений</td><td><code>Stream.of(…)</code></td><td><code>Stream.of("a", "b", "c")</code></td></tr>
+        <tr><td>диапазон чисел</td><td><code>IntStream.range(от, до)</code></td><td><code>IntStream.range(0, 5)</code> → 0 1 2 3 4 (без 5!)</td></tr>
+        <tr><td>строка со словами</td><td>разрезать и в стрим</td><td><code>Arrays.stream(line.trim().split("\\s+"))</code></td></tr>
+      </table>
+    </div>
+    <p>Последняя строка пригодится в задачах: ввод с клавиатуры приходит одной строкой, а нужно поработать с каждым числом или словом.</p>
+<pre data-file="FromLine.java"><code class="java">Scanner sc = new Scanner(System.in);
+String line = sc.nextLine();               // "  3 10   7 "
+
+List&lt;Integer&gt; numbers = Arrays.stream(line.trim().split("\\s+"))
+        .map(Integer::parseInt)
+        .toList();
+System.out.println(numbers);               // [3, 10, 7]</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>line.trim()</code><div><p>Вызов <code>trim()</code> возвращает новую строку без пробелов по краям. Без него <code>split</code> вернул бы в начале пустую строку, и вызов <code>parseInt("")</code> выбросил бы исключение.</p></div></div>
+      <div class="annot-row"><code>.split("\\s+")</code><div><p>Вызов <code>split</code> возвращает массив кусков: режет по «одному или нескольким пробельным символам» — даже если между числами три пробела, лишних кусков не будет.</p></div></div>
+      <div class="annot-row"><code>.map(Integer::parseInt)</code><div><p>Промежуточная операция <code>map</code> со ссылкой на метод <code>Integer::parseInt</code>: каждую строку-кусочек превращает в число.</p></div></div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Пустая строка</span>
+      <p><code>"".split("\\s+")</code> возвращает <b>не пустой массив</b>, а массив из одной пустой строки <code>[""]</code>. Если ввод может быть пустым, добавь перед <code>map</code> промежуточную операцию <code>filter</code> с лямбда-выражением: <code>.filter(s -&gt; !s.isEmpty())</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Шесть главных промежуточных операций</h2>
+<pre data-file="Intermediate.java"><code class="java">List&lt;Integer&gt; nums = List.of(5, 3, 8, 3, 1, 9, 5);
+
+// оставить подходящие: [5, 8, 9, 5]
+nums.stream().filter(n -&gt; n &gt; 4).toList();
+// превратить каждый: [50, 30, 80, 30, 10, 90, 50]
+nums.stream().map(n -&gt; n * 10).toList();
+// по возрастанию: [1, 3, 3, 5, 5, 8, 9]
+nums.stream().sorted().toList();
+// по убыванию: [9, 8, 5, 5, 3, 3, 1]
+nums.stream().sorted(Comparator.reverseOrder()).toList();
+// без повторов: [5, 3, 8, 1, 9]
+nums.stream().distinct().toList();
+// первые 3: [5, 3, 8]
+nums.stream().limit(3).toList();
+// пропустить 5: [9, 5]
+nums.stream().skip(5).toList();</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Операция</th><th>Аргумент</th><th>Что делает</th></tr>
+        <tr><td><code>filter</code></td><td><code>Predicate</code></td><td>пропускает только элементы, для которых условие <code>true</code></td></tr>
+        <tr><td><code>map</code></td><td><code>Function</code></td><td>превращает каждый элемент в другой (можно в другой тип: товар → название)</td></tr>
+        <tr><td><code>sorted</code></td><td>ничего или <code>Comparator</code></td><td>естественный порядок или по твоему правилу</td></tr>
+        <tr><td><code>distinct</code></td><td>—</td><td>убирает повторы (сравнивает через <code>equals</code>)</td></tr>
+        <tr><td><code>limit(n)</code></td><td>число</td><td>пропускает только первые n элементов</td></tr>
+        <tr><td><code>skip(n)</code></td><td>число</td><td>выбрасывает первые n элементов</td></tr>
+      </table>
+    </div>
+    <p><b>skip + limit = страница.</b> Таблица на сайте магазина показывает по 10 строк; вторая страница — это <code>skip(10).limit(10)</code>. Так программа и выбирает, какие записи показать на странице N.</p>
+    <details class="predict">
+      <summary>Что даст <code>Stream.of(3, 1, 3, 2, 1).distinct().sorted().toList()</code>?</summary>
+      <p><code>[1, 2, 3]</code>. distinct оставит 3, 1, 2 (первые появления), sorted расставит по возрастанию.</p>
+    </details>
+    <details class="predict">
+      <summary>А что даст <code>IntStream.rangeClosed(1, 10).skip(2).limit(3)</code>, если собрать в список?</summary>
+      <p><code>[3, 4, 5]</code>. <code>rangeClosed</code> включает обе границы: 1…10. Пропускаем 1 и 2, берём три следующих.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ленивость: конвейер работает по одному элементу</h2>
+    <p>Две вещи, о которых спрашивают на собеседованиях:</p>
+    <ol class="steps">
+      <li><b>Пока нет терминальной операции, не происходит ничего.</b> Промежуточные операции только <b>описывают</b> конвейер. Это называется <b>ленивость</b> (lazy evaluation).</li>
+      <li><b>Элементы идут «вертикально»</b>: первый элемент проходит все станки до конца, потом второй, потом третий. А не «сначала все через filter, потом все через map».</li>
+    </ol>
+    <p>Пройди конвейер по шагам и угадывай, что происходит с каждым элементом:</p>
+    <div data-widget="trace" id="trace-m14-04-lazy">
+      <script type="application/json">
+      { "title": "Элементы едут по одному", "icon": "🏭", "kind": "Конвейер по шагам",
+        "intro": "Три имени едут по конвейеру: filter оставляет имена длиннее двух букв, map переводит в верхний регистр, forEach печатает. Жми «Шаг ▶».",
+        "code": "List<String> names = List.of(\"Ян\", \"Вика\", \"Борис\");\nnames.stream()\n     .filter(n -> n.length() > 2)\n     .map(n -> n.toUpperCase())\n     .forEach(n -> System.out.println(n));",
+        "steps": [
+          { "line": 1, "vars": { "names": "[Ян, Вика, Борис]" }, "note": "Обычный список — источник. Пока это просто данные." },
+          { "line": 2, "vars": { "names": "[Ян, Вика, Борис]", "элемент": "—" }, "note": "Стрим создан, но ни один элемент ещё никуда не поехал. Строки 3–4 — только описание промежуточных операций, станков конвейера." },
+          { "line": 5, "vars": { "names": "[Ян, Вика, Борис]", "элемент": "—" }, "note": "Терминальная операция forEach запускает конвейер: «дайте мне первый элемент». Только сейчас всё начинает работать." },
+          { "line": 3, "vars": { "элемент": "Ян", "прошёл filter": "нет" }, "ask": ["прошёл filter"], "note": "Сравни длину имени с условием фильтра. Длина «Ян» — 2, а нужно больше 2: фильтр выбрасывает элемент, до map и forEach он не доедет." },
+          { "line": 3, "vars": { "элемент": "Вика", "прошёл filter": "да" }, "ask": ["прошёл filter"], "note": "Посчитай буквы. Длина «Вика» — 4, это больше 2: элемент едет дальше, к map." },
+          { "line": 4, "vars": { "элемент": "Вика", "прошёл filter": "да", "после map": "ВИКА" }, "ask": ["после map"], "note": "Вспомни, что делает toUpperCase. map заменяет элемент возвращаемым значением лямбды: «ВИКА»." },
+          { "line": 5, "vars": { "элемент": "ВИКА" }, "out": "ВИКА\n", "note": "forEach печатает. Обрати внимание: «Борис» ещё даже не проверен фильтром!" },
+          { "line": 3, "vars": { "элемент": "Борис", "прошёл filter": "да" }, "note": "Только теперь на ленту выезжает третий элемент." },
+          { "line": 4, "vars": { "элемент": "Борис", "прошёл filter": "да", "после map": "БОРИС" }, "ask": ["после map"], "note": "Путь такой же, как у Вики. map переводит в верхний регистр: «БОРИС»." },
+          { "line": 5, "vars": { "элемент": "БОРИС" }, "out": "БОРИС\n", "note": "Элементы кончились — конвейер остановился. Каждый элемент прошёл весь путь целиком, прежде чем поехал следующий." }
+        ] }
+      </script>
+    </div>
+    <p>Из «вертикальности» следует приятный бонус: <code>limit</code>, <code>findFirst</code>, <code>anyMatch</code> могут <b>остановить конвейер раньше</b> — остальные элементы даже не будут проверяться.</p>
+<pre data-file="EarlyStop.java"><code class="java">List&lt;Integer&gt; result = Stream.of(1, 2, 3, 4, 5)
+        .peek(x -&gt; System.out.println("взял " + x))  // «подглядеть», не меняя
+        .filter(x -&gt; x &gt; 1)
+        .limit(2)
+        .toList();
+System.out.println(result);</code></pre>
+<pre class="terminal"><span class="out">взял 1
+взял 2
+взял 3
+[2, 3]</span></pre>
+    <p>Элементы 4 и 5 не понадобились — конвейер их даже не взял. (<code>peek</code> — промежуточная операция для отладки, о ней подробнее в Мастерской.)</p>
+    <div class="callout warn">
+      <span class="callout-title">sorted — «стоп-кран»</span>
+      <p>Исключение из вертикального правила — <code>sorted</code>. Нельзя отдать первый по порядку элемент, пока не увидел все. Поэтому <code>sorted</code> сначала собирает <b>все</b> элементы, сортирует, а уже потом пускает их дальше по одному.</p>
+    </div>
+    <details class="predict">
+      <summary>Что выведет <code>Stream.of(1, 2, 3).peek(System.out::println).map(x -&gt; x * 2);</code> — и больше ничего?</summary>
+      <p><b>Ничего.</b> Терминальной операции нет — значит, конвейер не запускается и <code>peek</code> ни разу не вызывается. Это самая частая ловушка: «я написал map, почему ничего не произошло?»</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Поток одноразовый и не трогает источник</h2>
+    <p>Ещё два свойства, которые надо помнить:</p>
+<pre data-file="OneShot.java"><code class="java">List&lt;String&gt; names = new ArrayList&lt;&gt;(List.of("Вика", "Ян"));
+
+List&lt;String&gt; upper = names.stream().map(String::toUpperCase).toList();
+System.out.println(names);   // [Вика, Ян]   — источник не изменился
+System.out.println(upper);   // [ВИКА, ЯН]   — результат — новый список
+
+Stream&lt;String&gt; s = names.stream();
+System.out.println(s.count());   // 2
+System.out.println(s.count());   // 💥 IllegalStateException</code></pre>
+    <div data-widget="ide" id="shot-stream-reuse">
+      <script type="application/json">
+      { "tree": false, "file": "OneShot.java", "runConfig": "OneShot", "gutterRun": [5, 6], "statusPath": "module-14",
+        "code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.stream.Stream;\n\npublic class OneShot {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(List.of(\"Вика\", \"Ян\"));\n\n        List<String> upper = names.stream().map(String::toUpperCase).toList();\n        System.out.println(names);\n        System.out.println(upper);\n\n        Stream<String> s = names.stream();\n        System.out.println(s.count());\n        System.out.println(s.count());\n    }\n}",
+        "console": { "title": "OneShot", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… OneShot" },
+          { "t": "out", "s": "[Вика, Ян]" },
+          { "t": "out", "s": "[ВИКА, ЯН]" },
+          { "t": "out", "s": "2" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.IllegalStateException: stream has already been operated upon or closed" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:229)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.ReferencePipeline.count(ReferencePipeline.java:709)" },
+          { "t": "err", "s": "\tat OneShot.main(OneShot.java:15)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Источник не изменился — конвейер с <code>map</code> собрал новый список терминальной операцией <code>toList()</code>" },
+                   { "n": 2, "target": "output-3", "text": "Первый <code>count()</code> отработал: 2" },
+                   { "n": 3, "target": "error", "side": "bottom", "text": "<b>IllegalStateException</b> — «недопустимое состояние»: <i>stream has already been operated upon or closed</i> — «стрим уже использован или закрыт»" },
+                   { "n": 4, "target": "link-3", "text": "Строка <b>15</b> — второй <code>count()</code> на том же <code>s</code>" } ],
+        "caption": "Стрим одноразовый: второй терминальный вызов падает" }
+      </script>
+    </div>
+    <div class="say" data-mood="oops"><p>Стрим — как билет на один проезд: прокомпостировал (вызвал терминальную операцию) — и он больше не действует. Нужно ещё раз — возьми новый: снова <code>names.stream()</code>. Поэтому стримом почти никогда не инициализируют переменную, а пишут цепочку вызовов от источника до результата.</p></div>
+    <div class="callout tip">
+      <span class="callout-title">Как записывать цепочку</span>
+      <p>Каждую операцию — на новой строке, точкой в начале. Так видно каждый шаг, и IDEA подскажет справа, какой тип у потока после каждой строки.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m14-04">
+      <script type="application/json">
+      {
+       "title": "Конвейер стрима — главное",
+       "items": [
+        {
+         "type": "multi",
+         "q": "Какие операции — промежуточные (возвращают Stream)?",
+         "options": [
+          "filter",
+          "toList",
+          "map",
+          "count",
+          "sorted",
+          "limit"
+         ],
+         "answer": [
+          0,
+          2,
+          4,
+          5
+         ],
+         "why": "toList и count завершают конвейер и возвращают результат — это терминальные операции."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "List<Integer> r = List.of(4, 7, 2, 9, 6).stream()\n        .filter(n -> n % 2 == 0)\n        .map(n -> n / 2)\n        .sorted()\n        .toList();\nSystem.out.println(r);",
+         "answer": "[1, 2, 3]",
+         "why": "Чётные: 4, 2, 6. Пополам: 2, 1, 3. По возрастанию: 1, 2, 3."
+        },
+        {
+         "type": "order",
+         "q": "Собери стрим: имена товаров дороже 100, без повторов, первые 5",
+         "lines": [
+          "products.stream()",
+          "    .filter(p -> p.price() > 100)",
+          "    .map(Product::title)",
+          "    .distinct()",
+          "    .limit(5)",
+          "    .toList();"
+         ],
+         "code": true,
+         "why": "Источник → отбор → превращение → без повторов → первые 5 → терминальная. distinct перед limit, иначе в пятёрку попадут повторы."
+        },
+        {
+         "type": "single",
+         "q": "Что выведет этот код?",
+         "code": "Stream.of(\"a\", \"b\").map(s -> {\n    System.out.println(s);\n    return s.toUpperCase();\n});",
+         "options": [
+          "a и b",
+          "A и B",
+          "Ничего"
+         ],
+         "answer": 2,
+         "why": "Нет терминальной операции — конвейер не запускается, лямбда в map ни разу не вызвана."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>list.stream().map(…)</code> меняет элементы в самом list",
+           "a": false,
+           "why": "стрим создаёт новый результат, источник не трогает."
+          },
+          {
+           "s": "Один и тот же объект Stream можно использовать для двух терминальных операций",
+           "a": false,
+           "why": "поток одноразовый: второй раз — IllegalStateException."
+          },
+          {
+           "s": "<code>IntStream.range(0, 3)</code> даёт числа 0, 1, 2",
+           "a": true
+          },
+          {
+           "s": "Элементы проходят конвейер по одному: первый доходит до конца раньше, чем начнёт второй",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Урок 14.4. Дай мне цикл, который фильтрует и преобразует список, а я перепишу его стримом и объясню, что такое ленивость»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Конвейер</b> стрима = источник → промежуточные операции → одна терминальная операция.</li>
+        <li>Источники: <code>list.stream()</code>, <code>Arrays.stream(arr)</code>, <code>Stream.of(…)</code>, <code>IntStream.range</code>.</li>
+        <li>Промежуточные: <code>filter</code>, <code>map</code>, <code>sorted</code>, <code>distinct</code>, <code>limit</code>, <code>skip</code> — возвращают новый Stream.</li>
+        <li>Ленивость: без терминальной операции ничего не выполняется. Элементы едут по одному; <code>limit</code> может остановить конвейер раньше, <code>sorted</code> ждёт все элементы.</li>
+        <li>Поток одноразовый и не меняет источник.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

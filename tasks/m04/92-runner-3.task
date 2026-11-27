@@ -1,0 +1,13 @@
+## id: m04-r3
+## title: «Раннер», уровень 3: ускорение ★★★
+## file: module-04/Javik.java
+## class: Javik
+## level: 3
+## mode: runner
+## map: runner/levels/level-3.txt
+## seeds: 21,22,23
+@@ description
+<p>С середины трассы Джавик разгоняется: <b>2 клетки за ход</b> (<code>radar.speed()</code> вернёт 2). Решение с прошлого уровня вдруг начинает врезаться. Почему?</p>
+<p>Подсказка: выведи расстояние на каждом ходу — <code>System.out.println(radar.distance());</code> — и посмотри в забеге, какие числа видит радар на скорости 2. Код пишется в уроке <a href="/lessons/m04/50-runner.html">«Игра „Раннер“»</a>.</p>
+@@ require: String\s+decide\s*\(\s*Radar | Нужен метод public String decide(Radar radar)
+@@ require: \bif\b | Без if Джавик не сможет решать

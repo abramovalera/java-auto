@@ -1,0 +1,44 @@
+## id: tr-colls-005
+## title: Сколько раз выпала шестёрка
+## file: trainer/colls/DiceRollFrequency.java
+## class: DiceRollFrequency
+## level: 1
+## category: Списки
+@@ description
+<p>Напиши класс <code>DiceRollFrequency</code>. Ты много раз бросал кубик и записывал результаты. В первой строке — количество бросков <code>n</code>, во второй — <code>n</code> результатов через пробел, в третьей — число <code>k</code>. Сохрани броски в список и напечатай <code>Сколько раз выпало k: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  8
+       6 2 6 3 1 6 5 4
+       6
+вывод: Сколько раз выпало 6: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Collections.frequency(list, x)</code> — возвращает, сколько раз элемент <code>x</code> встречается в списке</li>
+</ul></div>
+@@ test: Обычная игра
+@@ input
+8
+6 2 6 3 1 6 5 4
+6
+@@ expect
+Сколько раз выпало 6: 3
+@@ test: Ни разу
+@@ input
+5
+1 2 3 4 5
+6
+@@ expect
+Сколько раз выпало 6: 0
+@@ test: Всё время одно и то же
+@@ input
+4
+3 3 3 3
+3
+@@ expect
+Сколько раз выпало 3: 4
+@@ test: Не бросали
+@@ input
+0
+
+1
+@@ expect
+Сколько раз выпало 1: 0
+@@ require: Collections\s*\.\s*frequency | Посчитай методом Collections.frequency

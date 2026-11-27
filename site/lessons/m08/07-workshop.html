@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская: задачи на строки · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-07">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 8 · Урок 7 · Мастерская алгоритмов</div>
+    <h1>Мастерская: задачи на строки</h1>
+    <p class="lead">«Разверни строку» — та самая задача с LeetCode, на которой когда-то застрял автор этого курса. Не из-за сложного кода, а из-за пустого экрана: с чего начать? Сегодня разберём её по шаблону шаг за шагом, а потом так же — палиндром, гласные и «каждое слово с заглавной».</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🛠 шаблон решения</span><span>🔍 трассировка</span><span>👉👈 два указателя</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-07-review">
+      <script type="application/json">
+      { "title": "Инструменты для Мастерской", "icon": "🔁",
+        "items": [
+          { "type": "match", "q": "Соедини роль переменной и пример",
+            "left": ["Шагающая", "Накопитель", "Счётчик", "Флаг"],
+            "right": ["i идёт 0, 1, 2… или с конца", "result = result + c", "count++ при выполнении условия", "boolean found = false → true"],
+            "why": "Роли — словарь для плана. Сегодня понадобятся все четыре." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "String s = \"abc\";\nfor (int i = s.length() - 1; i >= 0; i--) {\n    System.out.print(s.charAt(i));\n}",
+            "answer": "cba", "why": "Счётчик инициализирован последним индексом, шаг i-- : i = 2, 1, 0. Это уже почти решение первой задачи — осталось не печатать, а собрать в строку." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Шаблон решения</h2>
+    <p>Шесть шагов — те же, что в Мастерских модулей 5 и 6. Не прыгай сразу к коду: код — это пятый шаг, а не первый.</p>
+    <ol class="steps">
+      <li><b>Пойми задачу.</b> Что на входе, что на выходе? 2–3 примера, обязательно граничные: пустая строка, одна буква, пробелы, разный регистр.</li>
+      <li><b>Реши руками</b> и запиши, что делал. Какие действия повторялись?</li>
+      <li><b>Найди роли переменных:</b> шагающая, накопитель, счётчик, максимум, флаг, временная.</li>
+      <li><b>Псевдокод на русском</b> — план без синтаксиса.</li>
+      <li><b>Код</b> — перевод псевдокода строка в строку.</li>
+      <li><b>Трассировка:</b> таблица «шаг | переменные» руками или отладчиком IDEA. Потом — граничные случаи.</li>
+    </ol>
+    <div class="say" data-mood="cool"><p>Строки — идеальный полигон для этого шаблона: задачи короткие, примеры легко придумать, а граничных случаев полно. Первая задача — по всем шести шагам, подробно. Остальные — быстрее, но по тому же плану.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Задача 1. Разворот строки: понять, руками, роли</h2>
+    <p><b>Задача.</b> Дана строка. Получить строку, в которой символы идут в обратном порядке. Готовый <code>reverse()</code> не использовать — на собеседовании просят именно «руками».</p>
+    <p><b>Шаг 1. Вход и выход, примеры:</b></p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вход</th><th>Выход</th><th>Зачем этот пример</th></tr>
+        <tr><td><code>"кот"</code></td><td><code>"ток"</code></td><td>обычный, короткий — на нём будем решать руками</td></tr>
+        <tr><td><code>"Hello, Java!"</code></td><td><code>"!avaJ ,olleH"</code></td><td>пробелы и знаки — тоже символы, тоже разворачиваются</td></tr>
+        <tr><td><code>"a"</code></td><td><code>"a"</code></td><td>граничный: одна буква</td></tr>
+        <tr><td><code>""</code></td><td><code>""</code></td><td>граничный: пустая строка — код не должен упасть</td></tr>
+      </table>
+    </div>
+    <p><b>Шаг 2. Руками.</b> Возьми бумажку и напиши «кот» по буквам в клеточках. Как получить «ток»? Читаешь буквы <b>с конца</b> и выписываешь их по порядку на новую строчку: сначала «т», потом приписываешь «о», потом «к».</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 270" role="img" aria-label="Слово кот в клетках с индексами 0, 1, 2. Указатель i идёт с индекса 2 к 0, а result накапливает т, то, ток">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="20" y="62" class="d-small">s</text>
+        <rect x="60" y="30" width="60" height="50" rx="8" class="d-box"/><text x="90" y="63" text-anchor="middle" class="d-title" style="font-size:24px">к</text>
+        <rect x="130" y="30" width="60" height="50" rx="8" class="d-box"/><text x="160" y="63" text-anchor="middle" class="d-title" style="font-size:24px">о</text>
+        <rect x="200" y="30" width="60" height="50" rx="8" class="d-accent"/><text x="230" y="63" text-anchor="middle" class="d-title" style="font-size:24px">т</text>
+        <text x="90" y="100" text-anchor="middle" class="d-mono-ink">0</text>
+        <text x="160" y="100" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="230" y="100" text-anchor="middle" class="d-mono-ink">2</text>
+        <path d="M230 120 C200 140 120 140 90 120" class="d-arrow"/>
+        <text x="160" y="160" text-anchor="middle" class="d-c-blue d-small">i шагает с конца: 2 → 1 → 0</text>
+
+        <rect x="330" y="20" width="370" height="230" rx="14" class="d-soft"/>
+        <text x="515" y="48" text-anchor="middle" class="d-title">result — накопитель</text>
+        <text x="350" y="92" class="d-mono-ink">старт:</text><rect x="450" y="70" width="40" height="34" rx="6" class="d-dash"/><text x="510" y="92" class="d-small">пустая ""</text>
+        <text x="350" y="138" class="d-mono-ink">i = 2:</text>
+        <rect x="450" y="116" width="40" height="34" rx="6" class="d-green"/><text x="470" y="139" text-anchor="middle" class="d-mono-ink">т</text>
+        <text x="350" y="184" class="d-mono-ink">i = 1:</text>
+        <rect x="450" y="162" width="40" height="34" rx="6" class="d-green"/><text x="470" y="185" text-anchor="middle" class="d-mono-ink">т</text>
+        <rect x="494" y="162" width="40" height="34" rx="6" class="d-green"/><text x="514" y="185" text-anchor="middle" class="d-mono-ink">о</text>
+        <text x="350" y="230" class="d-mono-ink">i = 0:</text>
+        <rect x="450" y="208" width="40" height="34" rx="6" class="d-green"/><text x="470" y="231" text-anchor="middle" class="d-mono-ink">т</text>
+        <rect x="494" y="208" width="40" height="34" rx="6" class="d-green"/><text x="514" y="231" text-anchor="middle" class="d-mono-ink">о</text>
+        <rect x="538" y="208" width="40" height="34" rx="6" class="d-green"/><text x="558" y="231" text-anchor="middle" class="d-mono-ink">к</text>
+        <text x="600" y="231" class="d-text">готово</text>
+      </svg>
+      <figcaption>Повторяется одно действие: «взять букву с позиции i и приписать в конец результата», а i каждый раз на один меньше.</figcaption>
+    </figure>
+    <p><b>Шаг 3. Роли переменных.</b> Что менялось, пока ты работал руками?</p>
+    <dl class="terms">
+      <dt>i</dt><dd><b>Шагающая</b> (счётчик цикла) от конца к началу: инициализируем значением <code>s.length() - 1</code>, потом на один меньше… до 0 включительно. Это палец, который скользит по исходной строке справа налево.</dd>
+      <dt>result</dt><dd><b>Накопитель</b>: инициализируем пустой строкой <code>""</code>, на каждой итерации к нему приписывается одна буква. В конце в нём ответ.</dd>
+    </dl>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: разобрать стопку тарелок</span>
+      <p>Тарелки ставили в стопку по одной: к, о, т (т сверху). Снимаешь сверху и ставишь в новую стопку рядом — первой окажется т, последней к. Чтобы получить обратный порядок, достаточно брать «с конца».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Разворот: псевдокод, код, трассировка</h2>
+    <p><b>Шаг 4. Псевдокод:</b></p>
+<pre class="terminal"><span class="out">result ← пустая строка
+для i от последней позиции до 0 (включительно):
+    приписать к result символ s[i]
+напечатать result</span></pre>
+    <p><b>Шаг 5. Код</b> — строка в строку:</p>
+<pre data-file="ReverseDemo.java"><code class="java">String s = "кот";
+String result = "";
+for (int i = s.length() - 1; i &gt;= 0; i--) {
+    result = result + s.charAt(i);
+}
+System.out.println(result);</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>int i = s.length() - 1</code><div><p>Инициализация счётчика: последняя позиция — длина минус один. Самая частая ошибка — инициализировать <code>s.length()</code>: первая же итерация бросит StringIndexOutOfBoundsException.</p></div></div>
+      <div class="annot-row"><code>i &gt;= 0</code><div><p>Условие цикла: включительно до нуля — первая буква тоже нужна. С <code>i &gt; 0</code> потеряется «к» и выйдет «то».</p></div></div>
+      <div class="annot-row"><code>result + s.charAt(i)</code><div><p>Левый операнд — строка, значит оператор <code>+</code> склеивает (а не складывает коды, как <code>char + char</code>), и результат присваивается <code>result</code>.</p></div></div>
+    </div>
+    <p><b>Шаг 6. Трассировка.</b> Пройди сам и предскажи значения:</p>
+    <div data-widget="trace" id="trace-m08-07-reverse">
+      <script type="application/json">
+      { "title": "Разворот «кот»",
+        "intro": "Таблица переменных — как на бумажке: i и result после каждой строки. Впиши значения, где спросят.",
+        "code": "String s = \"кот\";\nString result = \"\";\nfor (int i = s.length() - 1; i >= 0; i--) {\n    result = result + s.charAt(i);\n}\nSystem.out.println(result);",
+        "steps": [
+          { "line": 1, "vars": { "s": "\"кот\"" }, "note": "Объявляем s и инициализируем строковым литералом: три символа, индексы 0, 1, 2." },
+          { "line": 2, "vars": { "s": "\"кот\"", "result": "\"\"" }, "note": "Объявляем накопитель result и инициализируем пустой строкой." },
+          { "line": 3, "vars": { "s": "\"кот\"", "result": "\"\"", "i": "2" }, "ask": ["i"], "note": "Инициализация счётчика — последней позицией. Длина 3, значит i = 3 − 1 = 2. Условие 2 &gt;= 0 — true, первая итерация." },
+          { "line": 4, "vars": { "s": "\"кот\"", "result": "\"т\"", "i": "2" }, "ask": ["result"], "note": "Вызов charAt(i) возвращает символ на позиции i — 'т'; результат склейки присваиваем result: «т»." },
+          { "line": 3, "vars": { "s": "\"кот\"", "result": "\"т\"", "i": "1" }, "note": "Шаг i-- → 1. 1 &gt;= 0 — следующая итерация." },
+          { "line": 4, "vars": { "s": "\"кот\"", "result": "\"то\"", "i": "1" }, "ask": ["result"], "note": "Символ на позиции 1 приписываем в конец. Это 'о': «то»." },
+          { "line": 3, "vars": { "s": "\"кот\"", "result": "\"то\"", "i": "0" }, "note": "i = 0. 0 &gt;= 0 — true, ещё одна итерация." },
+          { "line": 4, "vars": { "s": "\"кот\"", "result": "\"ток\"", "i": "0" }, "ask": ["result"], "note": "Остался символ на позиции 0. Это 'к' → «ток»." },
+          { "line": 3, "vars": { "s": "\"кот\"", "result": "\"ток\"", "i": "-1" }, "ask": ["i"], "note": "Ещё раз декремент i--. Теперь i = −1, а −1 &gt;= 0 — false, цикл окончен." },
+          { "line": 6, "vars": { "s": "\"кот\"", "result": "\"ток\"" }, "out": "ток\n", "note": "Готово. Исходная s не изменилась — мы собрали новую строку в накопителе." }
+        ] }
+      </script>
+    </div>
+    <p><b>Граничные случаи — в голове:</b> <code>"a"</code>: i = 0, одна итерация, result = «a» ✓. Пустая <code>""</code>: i инициализируется значением −1, условие <code>-1 &gt;= 0</code> ложно сразу, тело цикла не выполнится, напечатается пустая строка ✓. Ничего не падает.</p>
+
+    <h3>Тот же алгоритм — через StringBuilder</h3>
+    <p>Склейка в теле цикла создаёт новую строку на каждой итерации (урок 8.5). Для длинного текста правильно собирать в черновик. Алгоритм тот же, меняется только накопитель: вместо присваивания — вызов <code>append</code>:</p>
+<pre data-file="ReverseBuilder.java"><code class="java">StringBuilder result = new StringBuilder();
+for (int i = s.length() - 1; i &gt;= 0; i--) {
+    result.append(s.charAt(i));
+}
+System.out.println(result.toString());</code></pre>
+
+    <h3>Версия с LeetCode: массив символов и два указателя</h3>
+    <p>На LeetCode (задача 344 «Reverse String») строку дают сразу <b>массивом</b> <code>char[]</code> и просят развернуть <b>на месте</b> — без второй строки. Это ровно разворот массива из Мастерской модуля 6: два «пальца» с краёв меняют символы и идут навстречу.</p>
+<pre data-file="ReverseChars.java"><code class="java">char[] chars = s.toCharArray();
+int left = 0;
+int right = chars.length - 1;
+while (left &lt; right) {
+    char tmp = chars[left];         // временная — «третий стакан»
+    chars[left] = chars[right];
+    chars[right] = tmp;
+    left++;
+    right--;
+}
+String reversed = new String(chars);   // из массива обратно в строку</code></pre>
+    <div class="say" data-mood="wow"><p>Видишь? Задача, которая пугала пустым экраном, — это две уже знакомые вещи: обход с конца + накопитель или разворот массива + <code>toCharArray</code>. Новое в программировании почти всегда собирается из старых кирпичиков. Найти, из каких, — и есть шаги 1–3.</p></div>
+    <details class="predict">
+      <summary>Новичок написал for (int i = s.length(); i &gt;= 0; i--). Что произойдёт?</summary>
+      <p>На первой же итерации выполнится вызов <code>s.charAt(s.length())</code> — это за краем строки: <b>StringIndexOutOfBoundsException</b>. Последний индекс — <code>length() - 1</code>. Трассировка на бумаге поймала бы это на первой строке таблицы.</p>
+      <div data-widget="ide" id="shot-charat-oob">
+        <script type="application/json">
+        { "tree": false, "file": "ReverseDemo.java", "runConfig": "ReverseDemo", "gutterRun": [1, 2],
+          "code": "public class ReverseDemo {\n    public static void main(String[] args) {\n        String s = \"кот\";\n        String result = \"\";\n        for (int i = s.length(); i >= 0; i--) {\n            result = result + s.charAt(i);\n        }\n        System.out.println(result);\n    }\n}",
+          "console": { "title": "ReverseDemo", "lines": [
+            { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ReverseDemo" },
+            { "t": "err", "s": "Exception in thread \"main\" java.lang.StringIndexOutOfBoundsException: Index 3 out of bounds for length 3" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$1.apply(Preconditions.java:55)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$1.apply(Preconditions.java:52)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:213)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:210)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.outOfBounds(Preconditions.java:98)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.outOfBoundsCheckIndex(Preconditions.java:106)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.checkIndex(Preconditions.java:302)" },
+            { "t": "err", "s": "\tat java.base/java.lang.String.checkIndex(String.java:4832)" },
+            { "t": "err", "s": "\tat java.base/java.lang.StringUTF16.checkIndex(StringUTF16.java:1613)" },
+            { "t": "err", "s": "\tat java.base/java.lang.StringUTF16.charAt(StringUTF16.java:1418)" },
+            { "t": "err", "s": "\tat java.base/java.lang.String.charAt(String.java:1557)" },
+            { "t": "err", "s": "\tat ReverseDemo.main(ReverseDemo.java:6)" },
+            { "t": "exit", "s": "Process finished with exit code 1" } ] },
+          "marks": [ { "n": 1, "target": "line-5", "side": "top", "text": "Ошибка здесь: счётчик инициализирован значением <code>s.length()</code>, то есть 3" },
+                     { "n": 2, "target": "error", "text": "<b>Index 3 out of bounds for length 3</b> — «индекс 3 за пределами строки длиной 3». Допустимы только 0, 1, 2" },
+                     { "n": 3, "target": "link-12", "text": "Своя строка — последняя в списке: <b>ReverseDemo.java:6</b>, там <code>charAt(i)</code>. Всё выше — код JDK, его пропускай" } ],
+          "caption": "Так выглядит выход за край строки в консоли" }
+        </script>
+      </div>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Задача 2. Палиндром: два указателя</h2>
+    <p><b>Задача.</b> Палиндром — строка, которая одинаково читается слева направо и справа налево: «шалаш», «казак». Проверить, палиндром ли строка, <b>не обращая внимания на регистр, пробелы и знаки препинания</b>: «А роза упала на лапу Азора» — палиндром.</p>
+    <p><b>Шаг 1. Примеры:</b></p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вход</th><th>Ответ</th><th>Зачем</th></tr>
+        <tr><td><code>"казак"</code></td><td>да</td><td>простой, нечётная длина</td></tr>
+        <tr><td><code>"abba"</code></td><td>да</td><td>чётная длина — середины нет</td></tr>
+        <tr><td><code>"Казак!"</code></td><td>да</td><td>регистр и знак не учитываем</td></tr>
+        <tr><td><code>"А роза упала на лапу Азора"</code></td><td>да</td><td>пробелы не учитываем</td></tr>
+        <tr><td><code>"кошка"</code></td><td>нет</td><td>обычное «нет»</td></tr>
+        <tr><td><code>"я"</code>, <code>""</code></td><td>да</td><td>граничные: одна буква и пустая строка — тоже палиндромы</td></tr>
+      </table>
+    </div>
+    <p><b>Шаг 2. Руками.</b> Задачу удобно разбить на две части — как в модуле 7, на два метода:</p>
+    <ol>
+      <li><b>Почистить</b>: оставить только буквы и цифры, всё в нижнем регистре. «А роза упала…» → «арозаупаланалапуазора».</li>
+      <li><b>Проверить</b> чистую строку: смотрю на первую и последнюю букву — равны? Тогда на вторую и предпоследнюю… Пальцы идут навстречу. Нашёл разные — сразу «нет». Пальцы встретились — «да».</li>
+    </ol>
+    <p><b>Шаг 3. Роли.</b> Для чистки — накопитель <code>clean</code> (в коде — <code>StringBuilder sb</code>). Для проверки — две шагающие <code>left</code> (слева направо) и <code>right</code> (справа налево) и флаг <code>ok</code> («пока всё совпадает»).</p>
+    <p><b>Шаг 4. Псевдокод:</b></p>
+<pre class="terminal"><span class="out">clean ← пустая строка
+для каждого символа c строки:
+    если c — буква или цифра: приписать к clean маленькую c
+left ← 0, right ← последняя позиция clean, ok ← да
+пока left левее right:
+    если clean[left] ≠ clean[right]: ok ← нет, выйти из цикла
+    left вправо, right влево
+напечатать ok</span></pre>
+    <p><b>Шаг 5. Код:</b></p>
+<pre data-file="PalindromeDemo.java"><code class="java">public static String clean(String s) {
+    StringBuilder sb = new StringBuilder();
+    for (char c : s.toCharArray()) {
+        if (Character.isLetterOrDigit(c)) {
+            sb.append(Character.toLowerCase(c));
+        }
+    }
+    return sb.toString();
+}
+
+public static boolean isPalindrome(String w) {
+    int left = 0;
+    int right = w.length() - 1;
+    while (left &lt; right) {
+        if (w.charAt(left) != w.charAt(right)) {
+            return false;            // несовпадение — дальше смотреть незачем
+        }
+        left++;
+        right--;
+    }
+    return true;                     // пальцы встретились, всё совпало
+}
+
+// в main (выведет true):
+// System.out.println(isPalindrome(clean("А роза упала на лапу Азора")));</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">return вместо флага</span>
+      <p>В методе флаг <code>ok</code> и <code>break</code> можно заменить на <code>return false</code>: метод сразу возвращает значение и завершается. Это тот же «флаг», только Java хранит его за нас. А <code>return true</code> после цикла — «проверил всё, несовпадений нет».</p>
+    </div>
+    <p><b>Шаг 6. Трассировка</b> проверки для уже чистого слова «казак»:</p>
+    <div data-widget="trace" id="trace-m08-07-palindrome">
+      <script type="application/json">
+      { "title": "Два указателя: «казак»",
+        "intro": "Следи за left и right. Угадай, где они остановятся.",
+        "code": "String w = \"казак\";\nint left = 0;\nint right = w.length() - 1;\nboolean ok = true;\nwhile (left < right) {\n    if (w.charAt(left) != w.charAt(right)) {\n        ok = false;\n        break;\n    }\n    left++;\n    right--;\n}\nSystem.out.println(ok);",
+        "steps": [
+          { "line": 1, "vars": { "w": "\"казак\"" }, "note": "Параметр w — строка «казак»: пять букв, индексы 0…4." },
+          { "line": 2, "vars": { "w": "\"казак\"", "left": "0" }, "note": "Объявляем left и инициализируем нулём: левый палец — на первой букве." },
+          { "line": 3, "vars": { "w": "\"казак\"", "left": "0", "right": "4" }, "ask": ["right"], "note": "right инициализируем выражением w.length() - 1: правый палец — на последней букве, 5 − 1 = 4." },
+          { "line": 4, "vars": { "w": "\"казак\"", "left": "0", "right": "4", "ok": "true" }, "note": "Пока несовпадений не видели — считаем, что палиндром." },
+          { "line": 5, "vars": { "w": "\"казак\"", "left": "0", "right": "4", "ok": "true" }, "note": "Условие 0 &lt; 4 — true, первая итерация." },
+          { "line": 6, "vars": { "w": "\"казак\"", "left": "0", "right": "4", "ok": "true" }, "note": "Вызовы charAt(0) и charAt(4) возвращают 'к' и 'к'. Равны — условие if false, тело if не выполняется." },
+          { "line": 10, "vars": { "w": "\"казак\"", "left": "1", "right": "4", "ok": "true" }, "note": "Инкремент left++: левый палец вправо." },
+          { "line": 11, "vars": { "w": "\"казак\"", "left": "1", "right": "3", "ok": "true" }, "ask": ["right"], "note": "Правый палец сдвигается влево. right = 3." },
+          { "line": 5, "vars": { "w": "\"казак\"", "left": "1", "right": "3", "ok": "true" }, "note": "1 &lt; 3 — продолжаем." },
+          { "line": 6, "vars": { "w": "\"казак\"", "left": "1", "right": "3", "ok": "true" }, "note": "'а' и 'а' — равны." },
+          { "line": 10, "vars": { "w": "\"казак\"", "left": "2", "right": "3", "ok": "true" }, "ask": ["left"], "note": "Левый палец сдвигается вправо. left = 2." },
+          { "line": 11, "vars": { "w": "\"казак\"", "left": "2", "right": "2", "ok": "true" }, "note": "right = 2. Пальцы встретились на средней букве «з»." },
+          { "line": 5, "vars": { "w": "\"казак\"", "left": "2", "right": "2", "ok": "true" }, "note": "2 &lt; 2 — false. Середину сравнивать не с чем, цикл окончен." },
+          { "line": 13, "vars": { "w": "\"казак\"", "left": "2", "right": "2", "ok": "true" }, "out": "true\n", "note": "Две проверки для пяти букв. Для «кошка» уже первая проверка (к ≠ а) поставила бы ok = false и break." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Граничный случай: что сделает isPalindrome для пустой строки ""? А для "я"?</summary>
+      <p>Для <code>""</code>: right инициализируется значением −1, условие <code>0 &lt; -1</code> ложно, тело цикла не выполнится, метод вернёт <b>true</b>. Для <code>"я"</code>: left = right = 0, <code>0 &lt; 0</code> ложно — тоже <b>true</b>. Без единого лишнего <code>if</code>. Хороший алгоритм часто сам правильно обрабатывает края — но проверить это надо обязательно.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Задача 3. Сколько гласных</h2>
+    <p><b>Задача.</b> Посчитать гласные в тексте — русские и английские, регистр не важен. «Привет, мир!» → 3 (и, е, и).</p>
+    <ol>
+      <li><b>Примеры:</b> «Java» → 2; «ОКНО» → 2 (заглавные тоже); «ртуть» → 1; «Xyz» → 0; «» → 0.</li>
+      <li><b>Руками:</b> иду по буквам и для каждой спрашиваю «гласная?» — да: загибаю палец.</li>
+      <li><b>Роли:</b> шагающая по символам, <b>счётчик</b> <code>count</code>, инициализированный нулём.</li>
+      <li><b>Хитрость для «гласная?»:</b> вместо десяти <code>||</code> держим все гласные в одной строке и вызываем у неё <code>indexOf</code>, передав символ аргументом: метод вернул не −1 — значит, гласная.</li>
+    </ol>
+    <div data-widget="parsons" id="parsons-m08-07-vowels" data-code data-title="Счётчик гласных" data-icon="🔤"
+         data-hint="Объявления строки гласных и счётчика — до цикла. В теле цикла — проверка вызовом indexOf. Печать — после."
+         data-success="🎉 Верно! toLowerCase вызывается один раз, в заголовке цикла; indexOf(c) != -1 — «символ есть среди гласных».">
+      <script type="text/plain">
+String text = "Привет, мир!";
+String vowels = "аеёиоуыэюяaeiou";
+int count = 0;
+for (char c : text.toLowerCase().toCharArray()) {
+    if (vowels.indexOf(c) != -1) {
+        count++;
+    }
+}
+System.out.println(count);
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что посчитает программа, если забыть toLowerCase() и подать «ОКНО»?</summary>
+      <p><b>0</b>. В строке <code>vowels</code> только маленькие буквы, а 'О' и 'о' — разные символы с разными кодами. Поэтому приводим текст к одному регистру <b>до</b> проверки. Это граничный случай «другой регистр» из шага 1 — вот зачем его придумывать заранее.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Задача 4. Каждое слово с заглавной</h2>
+    <p><b>Задача.</b> «привет   java мир» → «Привет Java Мир»: первая буква каждого слова — заглавная, остальные — строчные, между словами один пробел.</p>
+    <p><b>Шаг 1. Граничные случаи</b> — их тут больше, чем кажется: лишние пробелы в начале, в конце и между словами; слово из одной буквы («я»); «КРИК» → «Крик»; <b>пустая строка</b>.</p>
+    <p><b>Шаги 2–4.</b> Руками: делю на слова → у каждого слова первую букву делаю большой, остальное маленьким → склеиваю через пробел. Роли: шагающая по словам (переменная <code>w</code> в for-each), накопитель-StringBuilder.</p>
+<pre class="terminal"><span class="out">если строка пустая или из пробелов: результат — пустая строка, конец
+слова ← разбить обрезанную строку по пробелам
+для каждого слова w:
+    если это не первое слово: приписать пробел
+    приписать заглавную первую букву w
+    приписать остаток w маленькими</span></pre>
+    <p><b>Шаг 5. Код:</b></p>
+<pre data-file="CapitalizeDemo.java"><code class="java">String line = "  привет   java мир ";
+StringBuilder sb = new StringBuilder();
+if (!line.isBlank()) {
+    String[] words = line.trim().split("\\s+");
+    for (String w : words) {
+        if (sb.length() &gt; 0) {
+            sb.append(' ');
+        }
+        sb.append(w.substring(0, 1).toUpperCase());
+        sb.append(w.substring(1).toLowerCase());
+    }
+}
+System.out.println(sb);    // Привет Java Мир</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>if (!line.isBlank())</code><div><p>Защита от пустой строки. Без неё цепочка вызовов <code>"".trim().split(...)</code> вернёт массив с одной пустой строкой, и вызов <code>w.substring(0, 1)</code> упадёт. Граничный случай из шага 1 спас программу.</p></div></div>
+      <div class="annot-row"><code>w.substring(1)</code><div><p>Метод возвращает всё, кроме первой буквы. Для «я» это пустая строка — не ошибка: вызов <code>substring(1)</code> у строки длины 1 законно возвращает <code>""</code>.</p></div></div>
+      <div class="annot-row"><code>sb.length() &gt; 0</code><div><p>Пробел — перед каждым словом, кроме первого. Знакомый приём против лишнего разделителя.</p></div></div>
+    </div>
+    <details class="curious">
+      <summary>🔎 Другой способ: флаг «начало слова» без split</summary>
+      <p>Можно идти по символам и держать <b>флаг</b> <code>newWord</code>: «следующая буква — начало слова». Встретил пробел — присвоил флагу true. Встретил букву при поднятом флаге — сделал её заглавной и опустил флаг. Такой вариант сохраняет пробелы как были (не схлопывает их) — смотря что нужно по условию.</p>
+<pre data-file="CapitalizeFlag.java"><code class="java">boolean newWord = true;
+StringBuilder sb = new StringBuilder();
+for (char c : line.toCharArray()) {
+    if (c == ' ') {
+        newWord = true;
+        sb.append(c);
+    } else if (newWord) {
+        sb.append(Character.toUpperCase(c));
+        newWord = false;
+    } else {
+        sb.append(Character.toLowerCase(c));
+    }
+}</code></pre>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-07">
+      <script type="application/json">
+      {
+       "title": "Мастерская: строки",
+       "items": [
+        {
+         "type": "order",
+         "q": "Расставь псевдокод разворота строки по порядку",
+         "code": true,
+         "lines": [
+          "result ← пустая строка",
+          "для i от последней позиции до 0:",
+          "    приписать к result символ s[i]",
+          "напечатать result"
+         ],
+         "why": "Накопитель объявляем и инициализируем до цикла, шагающую i — последним индексом, печать — после цикла."
+        },
+        {
+         "type": "bug",
+         "q": "Разворот печатает «то» вместо «ток». Где ошибка?",
+         "code": "String s = \"кот\";\nString result = \"\";\nfor (int i = s.length() - 1; i > 0; i--) {\n    result = result + s.charAt(i);\n}\nSystem.out.println(result);",
+         "answer": [
+          3
+         ],
+         "why": "Условие <code>i &gt; 0</code> не пускает в тело цикла i = 0 — первая буква теряется. Нужно <code>i &gt;= 0</code>."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "String s = \"abc\";\nString r = \"\";\nfor (int i = 0; i < s.length(); i++) {\n    r = s.charAt(i) + r;\n}\nSystem.out.println(r);",
+         "answer": "cba",
+         "why": "Идём с начала, но приклеиваем в <b>начало</b> результата — тоже разворот. Левый операнд <code>+</code> — char, правый — String, значит это склейка."
+        },
+        {
+         "type": "single",
+         "q": "Какие роли переменных нужны для подсчёта гласных?",
+         "options": [
+          "Шагающая и накопитель-строка",
+          "Шагающая и счётчик",
+          "Два указателя и флаг"
+         ],
+         "answer": 1,
+         "why": "Идём по символам (шагающая) и выполняем инкремент, когда символ — гласная (счётчик)."
+        },
+        {
+         "type": "tf",
+         "q": "Граничные случаи: верно или нет?",
+         "statements": [
+          {
+           "s": "Разворот через цикл с конца не падает на пустой строке",
+           "a": true
+          },
+          {
+           "s": "<code>\"\".trim().split(\"\\\\s+\")</code> возвращает пустой массив",
+           "a": false,
+           "why": "метод вернёт массив из одной пустой строки — поэтому нужна проверка isBlank."
+          },
+          {
+           "s": "<code>\"я\".substring(1)</code> бросает исключение",
+           "a": false,
+           "why": "возвращает пустую строку: индекс 1 — это «разрез» сразу после последней буквы."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Тренируй план, а не код</span>
+      <p>Напиши наставнику: <em>«Дай задачу на строки уровня собеседования. Я сначала напишу примеры с граничными случаями, роли переменных и псевдокод — проверь план, прежде чем я начну кодить»</em>. Задачи на сайте — «Разворот строки», «Палиндром», «Гласные», «Каждое слово с заглавной» — решай по тому же шаблону.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Шаблон: примеры с краями → руками → роли → псевдокод → код → трассировка.</li>
+        <li>Разворот: шагающая <code>i</code>, инициализированная значением <code>length() - 1</code>, до 0 включительно + накопитель. Или два указателя на <code>char[]</code>.</li>
+        <li>Палиндром: сначала почистить (буквы/цифры, нижний регистр), потом два указателя навстречу; несовпадение — сразу «нет».</li>
+        <li>Подсчёт: счётчик + условие; «символ из набора?» — <code>набор.indexOf(c) != -1</code>.</li>
+        <li>Слова: защита от пустой строки, <code>trim().split("\\s+")</code>, первая буква — <code>substring(0, 1).toUpperCase()</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

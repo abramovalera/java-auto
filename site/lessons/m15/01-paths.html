@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Файлы и пути · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-01">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 15 · Урок 1</div>
+    <h1>Файлы и пути</h1>
+    <p class="lead">До сих пор всё, что знала программа, исчезало, как только она завершалась. Файлы — это память, которая переживает запуск. Но сначала научимся объяснять Java, <b>где</b> файл лежит.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🗺️ пути и папки</span><span>🎮 1 мини-игра</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Зачем программе файлы</h2>
+    <div class="cheat">
+      <h3>Выпиши себе: файлы в IntelliJ IDEA</h3>
+      <p>В этом модуле программы создают файлы, и главный вопрос — «где он?». Выпиши, как это быстро выяснить. Ко всем пунктам вернёмся в уроках.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd> (<b>File → Reload All from Disk</b>)</td><td>Перечитать папки с диска и показать новые файлы в дереве проекта</td><td>Программа создала файл, а в дереве его не видно</td></tr>
+        <tr><td><b>Run → Edit Configurations…</b> → поле <b>Working directory</b></td><td>Показывает рабочую папку, от которой считаются относительные пути</td><td>Файл «не находится» или появился не там</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> на файле в дереве</td><td>Копирует полный (абсолютный) путь к файлу</td><td>Нужно вставить точный путь в код или сравнить с тем, что печатает программа</td></tr>
+        <tr><td>Правый клик по файлу → <b>Open In → Explorer</b></td><td>Открывает папку с файлом в проводнике Windows</td><td>Хочешь посмотреть на файл «глазами системы»</td></tr>
+        <tr><td>Правый клик по папке → <b>New → File</b></td><td>Создаёт обычный (не Java) файл: <code>users.txt</code>, <code>config.properties</code></td><td>Нужны данные для программы</td></tr>
+      </table></div>
+    </div>
+    <p>Переменные, списки, объекты живут в <b>оперативной памяти</b>. Программа завершилась — память освободилась, всё пропало. А <b>файл</b> лежит на диске: его можно закрыть, выключить компьютер, открыть завтра — данные на месте.</p>
+    <p>В настоящих программах файлы встречаются на каждом шагу:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">📊</span><h4>Данные</h4><p>Файл <code>users.csv</code> со списком пользователей: программа читает его и работает с каждой строкой.</p></div>
+      <div class="card"><span class="emoji">⚙️</span><h4>Настройки</h4><p><code>config.properties</code> с настройками: <code>language=ru</code>. Поменял строчку на <code>en</code> — программа заговорила по-английски.</p></div>
+      <div class="card"><span class="emoji">📸</span><h4>Картинки и сохранения</h4><p>Фоторедактор кладёт снимки в папку <code>photos</code>, игра — сохранения в папку <code>saves</code>.</p></div>
+      <div class="card"><span class="emoji">📄</span><h4>Отчёты</h4><p>Программа магазина в конце дня пишет файл-отчёт: сколько пришло заказов, сколько оплачено, какие отменены.</p></div>
+    </div>
+    <div class="say" data-mood="think"><p>Чтобы что-то прочитать или записать, Java должна знать, <b>где</b> лежит файл. Адрес файла называется <b>путь</b> (path). С него и начнём — на путях спотыкаются почти все новички.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Путь — адрес файла</h2>
+    <p>Файлы на диске разложены по <b>папкам</b> (их ещё называют <b>каталогами</b>, directory), папки лежат в папках — получается дерево. <b>Путь</b> — это список папок, через которые надо пройти, чтобы добраться до файла.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="Дерево папок: от диска C до файла notes.txt. Абсолютный путь начинается от диска, относительный — от рабочей папки workspace">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="20" width="110" height="40" rx="10" class="d-violet"/>
+        <text x="75" y="46" text-anchor="middle" class="d-title">💽 C:\</text>
+        <rect x="60" y="80" width="130" height="36" rx="10" class="d-box"/>
+        <text x="125" y="104" text-anchor="middle" class="d-text">📁 Users</text>
+        <rect x="100" y="134" width="130" height="36" rx="10" class="d-box"/>
+        <text x="165" y="158" text-anchor="middle" class="d-text">📁 V</text>
+        <rect x="140" y="188" width="160" height="36" rx="10" class="d-box"/>
+        <text x="220" y="212" text-anchor="middle" class="d-text">📁 IdeaProjects</text>
+        <rect x="180" y="242" width="170" height="40" rx="10" class="d-accent"/>
+        <text x="265" y="267" text-anchor="middle" class="d-title">📁 workspace</text>
+        <path d="M40 60 V98 H60" class="d-line"/>
+        <path d="M80 116 V152 H100" class="d-line"/>
+        <path d="M120 170 V206 H140" class="d-line"/>
+        <path d="M160 224 V262 H180" class="d-line"/>
+        <rect x="420" y="200" width="170" height="36" rx="10" class="d-box"/>
+        <text x="505" y="224" text-anchor="middle" class="d-text">📁 module-15</text>
+        <rect x="420" y="250" width="170" height="36" rx="10" class="d-teal"/>
+        <text x="505" y="274" text-anchor="middle" class="d-text">📄 notes.txt</text>
+        <rect x="610" y="200" width="140" height="36" rx="10" class="d-box"/>
+        <text x="680" y="224" text-anchor="middle" class="d-small">FileDemo.java</text>
+        <path d="M350 262 H385 V218 H420" class="d-line"/>
+        <path d="M385 262 V268 H420" class="d-line"/>
+        <path d="M590 218 H610" class="d-line"/>
+        <text x="395" y="40" class="d-small">Абсолютный путь — от самого корня:</text>
+        <rect x="395" y="50" width="360" height="34" rx="8" class="d-code"/>
+        <text x="404" y="72" class="d-mono">C:\Users\Misha\IdeaProjects\workspace\notes.txt</text>
+        <text x="395" y="118" class="d-small">Относительный — от рабочей папки:</text>
+        <rect x="395" y="128" width="150" height="34" rx="8" class="d-code"/>
+        <text x="404" y="150" class="d-mono">notes.txt</text>
+        <path d="M300 300 C380 316 470 312 500 290" class="d-arrow"/>
+        <text x="300" y="322" class="d-small">«я стою здесь» → шаг к файлу</text>
+      </svg>
+      <figcaption>Абсолютный путь идёт от корня диска, относительный — от папки, в которой «стоит» программа.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Абсолютный путь</dt><dd>Полный адрес от самого корня: на Windows начинается с буквы диска (<code>C:\…</code>), на Linux и macOS — с косой черты (<code>/home/…</code>). Работает откуда угодно.</dd>
+      <dt>Относительный путь</dt><dd>Адрес «от того места, где я стою»: <code>notes.txt</code>, <code>data/users.csv</code>. Без диска и без косой черты в начале.</dd>
+      <dt>Рабочая папка</dt><dd>То самое «место, где стоит программа» (working directory). Относительные пути Java отсчитывает от неё.</dd>
+    </dl>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: как объяснить дорогу</span>
+      <p><b>Абсолютный путь</b> — полный почтовый адрес: «Россия, Москва, ул. Ленина, д. 5, кв. 12». Письмо дойдёт, откуда бы его ни отправили.</p>
+      <p><b>Относительный</b> — «вторая дверь налево». Удобно и коротко, но работает, только если ты знаешь, <b>откуда</b> считать. Встанешь в другом коридоре — попадёшь не туда.</p>
+    </div>
+    <p>Разделитель папок на Windows — обратный слэш <code>\</code>, на Linux и macOS — прямой <code>/</code>. Хорошая новость: <b>Java понимает прямой слэш <code>/</code> на всех системах</b>, так что пиши <code>data/users.csv</code> и не думай.</p>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>System.out.println("C:\new\table.txt");</code>?</summary>
+      <p>Вспомни модуль 1: внутри строки <code>\n</code> — перевод строки, а <code>\t</code> — табуляция. Напечатается <code>C:</code>, новая строка, <code>ew</code>, табуляция, <code>able.txt</code>. Обратный слэш в Java-строке нужно удваивать: <code>"C:\\new\\table.txt"</code>. Или просто писать <code>"C:/new/table.txt"</code> — так проще.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Где «стоит» твоя программа</h2>
+    <p>Самый частый вопрос новичка: «Я записал файл <code>notes.txt</code> — где он?». Ответ: в <b>рабочей папке</b>. Узнать её можно прямо из программы:</p>
+<pre data-file="WhereAmI.java"><code class="java">import java.nio.file.Path;
+
+public class WhereAmI {
+    public static void main(String[] args) {
+        Path here = Path.of("").toAbsolutePath();
+        System.out.println("Рабочая папка: " + here);
+        System.out.println("Файл будет тут: "
+                + Path.of("notes.txt").toAbsolutePath());
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-where-am-i">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "file": "WhereAmI.java", "runConfig": "WhereAmI", "gutterRun": [3, 4],
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true, "note": "C:\\Users\\Misha\\IdeaProjects\\workspace" },
+                  { "name": "module-01", "type": "src", "depth": 1 },
+                  { "name": "module-14", "type": "src", "depth": 1 },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "WhereAmI", "type": "class", "depth": 2, "selected": true } ],
+        "code": "import java.nio.file.Path;\n\npublic class WhereAmI {\n    public static void main(String[] args) {\n        Path here = Path.of(\"\").toAbsolutePath();\n        System.out.println(\"Рабочая папка: \" + here);\n        System.out.println(\"Файл будет тут: \" + Path.of(\"notes.txt\").toAbsolutePath());\n    }\n}",
+        "console": { "title": "WhereAmI", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… WhereAmI" },
+          { "t": "out", "s": "Рабочая папка: C:\\Users\\Misha\\IdeaProjects\\workspace" },
+          { "t": "out", "s": "Файл будет тут: C:\\Users\\Misha\\IdeaProjects\\workspace\\notes.txt" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tree-WhereAmI", "text": "Класс лежит в папке <b>module-15</b>…" },
+                   { "n": 2, "target": "output", "text": "…а рабочая папка — <b>workspace</b>, корень проекта. Модуля в пути нет!" },
+                   { "n": 3, "target": "output-2", "text": "Значит, <code>notes.txt</code> появится в <b>workspace</b>, рядом с папками модулей", "box": true } ],
+        "caption": "Где «стоит» программа при запуске из IDEA" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>import java.nio.file.Path;</code><div><p>Всё современное про файлы живёт в пакете <code>java.nio.file</code> (nio — «new input/output», новый ввод-вывод). Его надо импортировать, как <code>Scanner</code> из <code>java.util</code>.</p></div></div>
+      <div class="annot-row"><code>Path.of("")</code><div><p><b>Вызов статического метода</b> <code>of</code> у класса <code>Path</code> (статический — значит, вызываем у самого класса, а не у объекта) с аргументом — пустой строкой. Метод возвращает объект <code>Path</code> с пустым путём — «прямо здесь», то есть рабочая папка.</p></div></div>
+      <div class="annot-row"><code>.toAbsolutePath()</code><div><p>Вызываем метод <code>toAbsolutePath</code> у полученного объекта <code>Path</code>. Он возвращает новый, абсолютный путь: приклеивает впереди рабочую папку. Этим результатом инициализируется переменная <code>here</code>. Отличный способ узнать, куда на самом деле смотрит программа.</p></div></div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка IDEA: файл не в папке модуля!</span>
+      <p>Класс лежит в <code>module-15</code>, но рабочая папка при запуске из IDEA — <b>корень проекта</b> (<code>workspace</code>). Поэтому <code>notes.txt</code> появится рядом с папками <code>module-01</code>…<code>module-15</code>, а не внутри <code>module-15</code>.</p>
+      <p>Посмотреть и поменять рабочую папку: меню <b>Run → Edit Configurations…</b> → твой класс → поле <b>Working directory</b>. Обычно там <code>$MODULE_WORKING_DIR$</code> или путь к проекту — оставь как есть.</p>
+    </div>
+    <div data-widget="ide" id="shot-working-dir">
+      <script type="application/json">
+      { "tree": false, "file": "WhereAmI.java", "runConfig": "WhereAmI", "statusPath": "module-15",
+        "code": "import java.nio.file.Path;\n\npublic class WhereAmI {\n    public static void main(String[] args) {\n        Path here = Path.of(\"\").toAbsolutePath();\n        System.out.println(\"Рабочая папка: \" + here);\n    }\n}",
+        "dialog": { "title": "Run/Debug Configurations", "side": ["Application", "WhereAmI", "ReadUsers"], "sideHl": "WhereAmI",
+          "rows": [ { "label": "Name", "value": "WhereAmI" },
+                    { "label": "Build and run", "value": "java 21   -cp module-15", "type": "select" },
+                    { "label": "Main class", "value": "WhereAmI" },
+                    { "label": "Program arguments", "value": "" },
+                    { "label": "Working directory", "value": "C:\\Users\\Misha\\IdeaProjects\\workspace", "hl": true },
+                    { "label": "Environment variables", "value": "" } ],
+          "buttons": ["OK", "Cancel", "Apply"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "config", "text": "Открыть окно: щёлкни по имени конфигурации сверху → <b>Edit Configurations…</b> (или меню <b>Run → Edit Configurations…</b>)" },
+                   { "n": 2, "target": "dialog", "side": "left", "text": "Слева — список конфигураций запуска: IDEA заводит свою на каждый класс, который ты запускал ▶" },
+                   { "n": 3, "target": "field-Working directory", "text": "<b>Working directory</b> — рабочая папка. От неё Java отсчитывает все относительные пути" },
+                   { "n": 4, "target": "btn-Cancel", "text": "Просто посмотреть — закрой через <b>Cancel</b>, ничего не меняя" } ],
+        "caption": "Окно Run/Debug Configurations: где задаётся рабочая папка" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Не видно нового файла?</span>
+      <p>IDEA иногда не замечает файл, созданный программой. Нажми <b>File → Reload All from Disk</b> (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd>) — и он появится в дереве проекта. Текстовый файл можно открыть двойным кликом прямо в IDEA.</p>
+    </div>
+    <div class="say" data-mood="cool"><p>А сайт курса запускает твою программу в <b>пустой временной папке</b>. Поэтому в задачах модуля программа сначала сама создаёт нужный файл, а потом с ним работает. И мусор после проверки не остаётся.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Path.of — делаем путь</h2>
+    <p>Путь в Java — объект класса <code>Path</code>. <b>Создание объекта <code>Path</code></b> идёт не через <code>new</code>, а через вызов статического метода <code>Path.of(…)</code>: этот метод-«фабрика» сам создаёт объект и возвращает его. Аргументом можно передать строку целиком или по кусочкам — Java сама вставит нужный разделитель:</p>
+<pre data-file="PathDemo.java"><code class="java">Path config = Path.of("config.properties");             // файл в рабочей папке
+Path users  = Path.of("data/users.csv");                // в подпапке data
+Path photo  = Path.of("photos", "summer", "sea.png");   // по частям
+Path abs    = Path.of("C:/Users/Misha/report.txt");     // абсолютный
+
+System.out.println(photo);
+System.out.println(photo.isAbsolute() + " " + abs.isAbsolute());</code></pre>
+<pre class="terminal"><span class="out">photos\summer\sea.png
+false true</span></pre>
+    <p>На Windows путь печатается с <code>\</code>, на Linux — с <code>/</code>. Сам объект один и тот же.</p>
+    <div class="callout fact">
+      <span class="callout-title">Важно: Path — только адрес</span>
+      <p>Создать объект <code>Path.of("nope.txt")</code> можно, даже если такого файла нет и никогда не было. Path — это <b>бумажка с адресом</b>, а не сам дом. Ошибка случится позже — когда попробуешь по этому адресу что-то прочитать.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: Paths.get и класс File</summary>
+      <p>В старом коде и в статьях (в том числе на metanit) встречаются два «предка»:</p>
+      <ul>
+        <li><code>Paths.get("a", "b")</code> — то же самое, что <code>Path.of("a", "b")</code>. <code>Path.of</code> появился в Java 11 и короче, поэтому пишем его.</li>
+        <li><code>new File("notes.txt")</code> — класс <code>java.io.File</code>, старейший способ (с Java 1.0). Умеет меньше и сообщает об ошибках хуже: например, метод <code>delete()</code> просто возвращает <code>false</code>, не объясняя причину. Встретишь <code>File</code> — знай, что <code>file.toPath()</code> превращает его в <code>Path</code>, а <code>path.toFile()</code> — обратно.</li>
+      </ul>
+    </details>
+    <p>Разомнись: какие из этих путей абсолютные, а какие — относительные?</p>
+    <div data-widget="buckets" id="abs-or-rel">
+      <script type="application/json">
+      { "title": "Абсолютный или относительный?", "icon": "🗺️",
+        "buckets": [ { "id": "abs", "label": "📍 Абсолютный", "style": "indigo" }, { "id": "rel", "label": "👣 Относительный", "style": "green" } ],
+        "items": [
+          { "emoji": "💽", "text": "C:\\Users\\Misha\\report.txt", "bucket": "abs", "why": "Начинается с буквы диска — полный адрес на Windows." },
+          { "emoji": "🐧", "text": "/home/v/report.txt", "bucket": "abs", "why": "На Linux и macOS абсолютный путь начинается с / — от корня диска." },
+          { "emoji": "📄", "text": "notes.txt", "bucket": "rel", "why": "Просто имя файла — ищем в рабочей папке." },
+          { "emoji": "📊", "text": "data/users.csv", "bucket": "rel", "why": "Подпапка data внутри рабочей папки." },
+          { "emoji": "⬆️", "text": "../shared/config.properties", "bucket": "rel", "why": ".. — «на папку выше». Отсчёт всё равно от рабочей папки." },
+          { "emoji": "🧭", "text": "Path.of(\"\").toAbsolutePath()", "bucket": "abs", "why": "toAbsolutePath всегда возвращает абсолютный путь — в нём уже есть диск." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Что умеет Path</h2>
+    <p>У объекта <code>Path</code> есть методы, чтобы разбирать и собирать адреса. Они <b>не трогают диск</b> — просто работают с текстом адреса. Вызываем такой метод у объекта <code>Path</code>, и он возвращает новый объект <code>Path</code>; исходный не меняется (<code>Path</code>, как и строка, неизменяемый).</p>
+<pre data-file="PathParts.java"><code class="java">Path save = Path.of("games/saves/slot1/save.dat");
+
+System.out.println(save.getFileName());   // имя последней части
+System.out.println(save.getParent());     // всё, кроме последней части
+System.out.println(save.getNameCount());  // сколько частей
+
+Path photos = Path.of("photos", "summer");
+Path photo = photos.resolve("sea.png");                   // приклеить к папке
+System.out.println(photo);
+System.out.println(photo.resolveSibling("beach.png"));     // сосед по папке
+
+Path messy = Path.of("data/../config/./app.properties");
+System.out.println(messy.normalize());                    // убрать . и ..</code></pre>
+<pre class="terminal"><span class="out">save.dat
+games\saves\slot1
+4
+photos\summer\sea.png
+photos\summer\beach.png
+config\app.properties</span></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает</th><th>Пример из жизни</th></tr>
+        <tr><td><code>getFileName()</code></td><td>последняя часть пути — имя файла или папки</td><td>напечатать имя фото в списке</td></tr>
+        <tr><td><code>getParent()</code></td><td>папка, в которой лежит файл; у <code>Path.of("a.txt")</code> — <code>null</code></td><td>создать папку перед записью файла</td></tr>
+        <tr><td><code>resolve("x")</code></td><td>«зайти» в папку: <code>папка/x</code></td><td><code>photos.resolve(name + ".png")</code></td></tr>
+        <tr><td><code>resolveSibling("x")</code></td><td>заменить имя файла на другое в той же папке</td><td>рядом с <code>report.html</code> положить <code>report.json</code></td></tr>
+        <tr><td><code>toAbsolutePath()</code></td><td>сделать абсолютным от рабочей папки</td><td>напечатать, куда на самом деле лёг файл</td></tr>
+        <tr><td><code>normalize()</code></td><td>убрать <code>.</code> («здесь») и <code>..</code> («папкой выше»)</td><td>привести путь к нормальному виду</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что вернёт <code>Path.of("notes.txt").getParent()</code>?</summary>
+      <p><code>null</code>! В пути всего одна часть, «родителя» в самом адресе не записано. Это не значит, что у файла нет папки на диске — просто Path работает только с текстом адреса. Если вызвать метод у результата — получишь <code>NullPointerException</code>. Нужна настоящая папка — сначала <code>toAbsolutePath()</code>.</p>
+    </details>
+    <details class="predict">
+      <summary>Предскажи: на Windows <code>Path.of("photos").resolve("C:/tmp/x.png")</code> — что получится?</summary>
+      <p>Просто <code>C:\tmp\x.png</code>. Если передать в метод <code>resolve</code> аргументом <b>абсолютный</b> путь, он побеждает: «зайти в папку» по полному адресу нельзя, поэтому метод возвращает сам этот адрес.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m15-01">
+      <script type="application/json">
+      {
+       "title": "Файлы и пути — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Программа запущена из IDEA, класс лежит в <code>module-15</code>. Она создаёт <code>Path.of(\"notes.txt\")</code> и пишет в него. Где появится файл?",
+         "options": [
+          "В папке module-15, рядом с классом",
+          "В рабочей папке — обычно это корень проекта workspace",
+          "В папке out, рядом с .class-файлами"
+         ],
+         "answer": 1,
+         "why": "Относительный путь отсчитывается от рабочей папки, а не от места, где лежит .java-файл. В IDEA это корень проекта."
+        },
+        {
+         "type": "match",
+         "q": "Соедини метод Path с результатом для <code>Path.of(\"photos/summer/sea.png\")</code>",
+         "left": [
+          "getFileName()",
+          "getParent()",
+          "resolveSibling(\"beach.png\")",
+          "getNameCount()"
+         ],
+         "right": [
+          "sea.png",
+          "photos/summer",
+          "photos/summer/beach.png",
+          "3"
+         ],
+         "why": "Имя — последняя часть, родитель — всё до неё, sibling — замена имени, частей три: photos, summer, sea.png."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>Path.of(\"nope.txt\")</code> упадёт с ошибкой, если файла нет",
+           "a": false,
+           "why": "Path — только адрес. Ошибка будет при попытке читать по нему."
+          },
+          {
+           "s": "Java понимает прямой слэш <code>/</code> в путях и на Windows",
+           "a": true
+          },
+          {
+           "s": "Относительный путь <code>data/users.csv</code> всегда указывает на один и тот же файл, откуда бы ни запускали программу",
+           "a": false,
+           "why": "он зависит от рабочей папки: сменил её — путь ведёт в другое место."
+          }
+         ]
+        },
+        {
+         "type": "predict",
+         "q": "Что напечатает программа на Linux (там разделитель /)?",
+         "code": "Path p = Path.of(\"data/../config/app.properties\");\nSystem.out.println(p.normalize());\nSystem.out.println(p.normalize().getFileName());",
+         "answer": "config/app.properties\napp.properties",
+         "why": "data/.. — зашли в data и вышли обратно, normalize убирает эту пару."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 15.1. Объясню своими словами, чем абсолютный путь отличается от относительного и где моя программа ищет notes.txt, — поправь меня»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Файл живёт на диске и переживает завершение программы. В программах это данные, настройки, картинки, отчёты, сохранения игр.</li>
+        <li>Абсолютный путь — от корня диска, относительный — от <b>рабочей папки</b>. В IDEA рабочая папка — корень проекта, а не папка модуля.</li>
+        <li>Вызов статического метода <code>Path.of("a", "b.txt")</code> создаёт объект <code>Path</code>. Это только адрес: файла может и не быть.</li>
+        <li>Прямой слэш <code>/</code> работает везде; обратный в строке надо удваивать <code>\\</code>.</li>
+        <li><code>getFileName</code>, <code>getParent</code>, <code>resolve</code>, <code>toAbsolutePath</code>, <code>normalize</code> — методы объекта <code>Path</code>: возвращают новый путь, не трогая диск.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

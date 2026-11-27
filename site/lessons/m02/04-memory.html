@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Память: стек и куча · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-04">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 2 · Урок 4</div>
+    <h1>Память изнутри: стек и куча</h1>
+    <p class="lead">Где на самом деле лежат твои переменные? Почему число хранится прямо в коробке, а строка — где-то далеко, и в коробке только стрелка? Заглянем в память JVM — это один из любимых вопросов на собеседованиях.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧠 под капотом</span><span>🔍 память по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m02-04-review">
+      <script type="application/json">
+      { "title": "Разминка", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Почему <code>String</code> пишется с большой буквы, а <code>int</code> — с маленькой?", "options": ["Так исторически сложилось, разницы нет", "String — класс, строки — объекты; int — примитивный тип", "String длиннее, поэтому важнее"], "answer": 1, "why": "Классы в Java называют с большой буквы. Каждая строка — объект, сделанный по чертежу String." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "String word = \"Кофе\";\nSystem.out.println(word.length() + \" \" + word.charAt(0));", "answer": "4 К", "why": "Длина 4, символ под номером 0 — первая буква." },
+          { "type": "tf", "q": "Вспомни урок 1.1 про сборщик мусора. Верно или нет?", "statements": [
+            { "s": "Сборщик мусора убирает объект, к которому не ведёт ни одна ниточка (ссылка)", "a": true },
+            { "s": "<code>null</code> означает «ни на кого не указывает»", "a": true }
+          ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Две части памяти: стек и куча</h2>
+    <p>Когда программа запускается, JVM получает от операционной системы кусок оперативной памяти и делит его на области. Нам важны две:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🗂️</span><h4>Стек (stack)</h4><p>Рабочий стол с ящичками. Здесь лежат <b>переменные методов</b> — например, всё, что ты объявил в <code>main</code>. Маленький, очень быстрый, всё по порядку.</p></div>
+      <div class="card"><span class="emoji">🏭</span><h4>Куча (heap)</h4><p>Большой склад. Здесь живут <b>объекты</b> — строки, сканеры, а потом и твои собственные. Места много, порядок свободный, убирает сборщик мусора.</p></div>
+    </div>
+    <p>Слово «стек» по-английски значит «стопка». Представь стопку тарелок: новую кладут сверху, и снимают тоже сверху. Каждый запущенный метод получает свою «тарелку» — <b>фрейм</b> (англ. <i>frame</i> — рамка) со своими переменными. Сейчас у нас один метод — <code>main</code>, значит, и фрейм один. Когда начнём писать свои методы (модуль 7), тарелок станет больше.</p>
+    <div class="say" data-mood="think"><p>Правило, которое стоит выучить наизусть: <b>примитивы лежат прямо в переменной, а объекты — в куче, и в переменной лежит только ссылка на объект</b>. Дальше разберём, что это значит.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Примитивы: значение прямо в коробке</h2>
+<pre data-file="Memory.java"><code class="java">int age = 25;
+double price = 9.99;
+boolean ok = true;</code></pre>
+    <p>У каждого примитивного типа точный размер: int — 4 байта, double — 8, и так далее. JVM заранее знает, сколько места нужно, поэтому при инициализации кладёт значение прямо в ячейку на стеке. Заглянул в коробку — увидел число.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 220" role="img" aria-label="Фрейм main на стеке: age = 25, price = 9.99, ok = true. Куча пустая.">
+        <text x="40" y="26" class="d-small">СТЕК</text>
+        <rect x="30" y="36" width="300" height="170" rx="14" class="d-blue"/>
+        <text x="50" y="62" class="d-title">main()</text>
+        <rect x="50" y="76" width="260" height="36" rx="8" class="d-box"/>
+        <text x="66" y="100" class="d-mono-ink">age</text><text x="294" y="100" text-anchor="end" class="d-title">25</text>
+        <rect x="50" y="118" width="260" height="36" rx="8" class="d-box"/>
+        <text x="66" y="142" class="d-mono-ink">price</text><text x="294" y="142" text-anchor="end" class="d-title">9.99</text>
+        <rect x="50" y="160" width="260" height="36" rx="8" class="d-box"/>
+        <text x="66" y="184" class="d-mono-ink">ok</text><text x="294" y="184" text-anchor="end" class="d-title">true</text>
+
+        <text x="390" y="26" class="d-small">КУЧА</text>
+        <rect x="380" y="36" width="300" height="170" rx="14" class="d-soft"/>
+        <text x="530" y="126" text-anchor="middle" class="d-small">пока пусто</text>
+      </svg>
+      <figcaption>Примитивы целиком помещаются в ячейку на стеке. В кучу ничего не попало.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Объекты: в коробке — номерок</h2>
+<pre data-file="Memory.java"><code class="java">int age = 25;
+String name = "Аня";</code></pre>
+    <p>Строка — объект. Объекты бывают любого размера: строка может быть из трёх букв, а может хранить текст целой книги. Таскать такое по стеку неудобно, поэтому объект создаётся в <b>куче</b>, а переменная инициализируется <b>ссылкой</b> — адресом, по которому этот объект можно найти.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: гардероб в театре</span>
+      <p>Ты сдаёшь пальто в гардероб и получаешь номерок. Пальто (объект) висит на вешалке (в куче), а у тебя в руке только номерок (ссылка). Номерок маленький и всегда одного размера — неважно, сдал ты лёгкую куртку или огромную шубу. Захотел пальто — показал номерок и получил его.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 200" role="img" aria-label="На стеке age = 25 и name со ссылкой; стрелка от name ведёт к объекту String «Аня» в куче">
+        <defs><marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker></defs>
+        <text x="40" y="26" class="d-small">СТЕК</text>
+        <rect x="30" y="36" width="300" height="140" rx="14" class="d-blue"/>
+        <text x="50" y="62" class="d-title">main()</text>
+        <rect x="50" y="76" width="260" height="36" rx="8" class="d-box"/>
+        <text x="66" y="100" class="d-mono-ink">age</text><text x="294" y="100" text-anchor="end" class="d-title">25</text>
+        <rect x="50" y="122" width="260" height="36" rx="8" class="d-box"/>
+        <text x="66" y="146" class="d-mono-ink">name</text><text x="294" y="146" text-anchor="end" class="d-c-accent d-title">● ссылка</text>
+
+        <text x="390" y="26" class="d-small">КУЧА</text>
+        <rect x="380" y="36" width="300" height="140" rx="14" class="d-soft"/>
+        <rect x="450" y="80" width="180" height="70" rx="10" class="d-violet"/>
+        <text x="540" y="104" text-anchor="middle" class="d-small">объект String</text>
+        <text x="540" y="134" text-anchor="middle" class="d-title">"Аня"</text>
+
+        <path d="M318 140 C380 140 390 116 444 116" class="d-arrow-accent"/>
+      </svg>
+      <figcaption>В переменной <code>name</code> лежит не текст, а ссылка — «номерок» к объекту в куче.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Стек</dt><dd>Область памяти для переменных методов. У каждого метода свой фрейм.</dd>
+      <dt>Куча</dt><dd>Область памяти для объектов.</dd>
+      <dt>Ссылка</dt><dd>Адрес объекта в куче. Переменная типа String хранит ссылку, а не сам текст. Типы, переменные которых хранят ссылки, называют <b>ссылочными</b>.</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Копируем: значение или стрелку?</h2>
+    <p>Разница между примитивами и объектами сильнее всего видна при копировании. <code>int b = a;</code> инициализирует b <b>копией числа</b>, как ксерокопией записки. <code>String s2 = s1;</code> инициализирует s2 <b>копией ссылки</b>: теперь две стрелки ведут к одному и тому же объекту. Посмотри по шагам — слева стек, справа куча, стрелки — ссылки.</p>
+    <div data-widget="trace" id="trace-memory">
+      <script type="application/json">
+      { "title": "Стек и куча по шагам",
+        "intro": "Нажимай «Шаг ▶». Слева — переменные main на стеке, справа — объекты в куче. Где спросят — впиши значение сам.",
+        "code": "int a = 5;\nint b = a;\nb = 10;\nString s1 = \"Аня\";\nString s2 = s1;\ns2 = \"Боб\";\ns1 = null;",
+        "steps": [
+          { "line": 1, "vars": { "a": "5" }, "stack": [ { "frame": "main", "vars": { "a": "5" } } ], "heap": [], "note": "Объявляем a и инициализируем литералом 5. Примитив: число лежит прямо в ячейке a на стеке." },
+          { "line": 2, "vars": { "a": "5", "b": "5" }, "stack": [ { "frame": "main", "vars": { "a": "5", "b": "5" } } ], "heap": [], "ask": ["b"], "note": "Объявляем b и инициализируем копией значения a. Теперь у b своя пятёрка, независимая от a." },
+          { "line": 3, "vars": { "a": "5", "b": "10" }, "stack": [ { "frame": "main", "vars": { "a": "5", "b": "10" } } ], "heap": [], "ask": ["a"], "note": "Присвоили b новое значение 10. Что стало с a? Ничего: a = 5, у каждой коробки своё число." },
+          { "line": 4, "vars": { "a": "5", "b": "10", "s1": "→#1" }, "stack": [ { "frame": "main", "vars": { "a": "5", "b": "10", "s1": "→#1" } } ], "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Аня\"" } } ], "note": "Строка — объект. Он появился в куче под номером #1, а переменная s1 инициализирована только ссылкой на него." },
+          { "line": 5, "vars": { "a": "5", "b": "10", "s1": "→#1", "s2": "→#1" }, "stack": [ { "frame": "main", "vars": { "a": "5", "b": "10", "s1": "→#1", "s2": "→#1" } } ], "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Аня\"" } } ], "note": "s2 инициализируется копией ссылки из s1, а не копией объекта! Обе стрелки ведут к одной и той же «Ане». Объект в куче по-прежнему один." },
+          { "line": 6, "vars": { "a": "5", "b": "10", "s1": "→#1", "s2": "→#2" }, "stack": [ { "frame": "main", "vars": { "a": "5", "b": "10", "s1": "→#1", "s2": "→#2" } } ], "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Аня\"" } }, { "id": "#2", "label": "String", "fields": { "текст": "\"Боб\"" } } ], "note": "В куче появился новый объект #2 «Боб», и переменной s2 присвоили ссылку на него — стрелку перевесили. «Аня» не изменилась, s1 всё так же смотрит на неё." },
+          { "line": 7, "vars": { "a": "5", "b": "10", "s1": "null", "s2": "→#2" }, "stack": [ { "frame": "main", "vars": { "a": "5", "b": "10", "s1": "null", "s2": "→#2" } } ], "heap": [ { "id": "#1", "label": "String · ничья!", "fields": { "текст": "\"Аня\"" } }, { "id": "#2", "label": "String", "fields": { "текст": "\"Боб\"" } } ], "note": "Переменной s1 присвоили null — стрелку отпустили. К «Ане» не ведёт ни одна ссылка: до неё больше никак не добраться. Это мусор." },
+          { "line": 7, "vars": { "a": "5", "b": "10", "s1": "null", "s2": "→#2" }, "stack": [ { "frame": "main", "vars": { "a": "5", "b": "10", "s1": "null", "s2": "→#2" } } ], "heap": [ { "id": "#2", "label": "String", "fields": { "текст": "\"Боб\"" } } ], "note": "Когда-нибудь (JVM сама решает когда) придёт сборщик мусора и уберёт #1. Как в игре из урока 1.1." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что выведет программа?<br><code>String city = "Москва";</code><br><code>String home = city;</code><br><code>city = "Казань";</code><br><code>System.out.println(home);</code></summary>
+      <p><b>Москва.</b> Инициализация <code>home = city</code> скопировала стрелку на объект «Москва». Потом переменной <code>city</code> присвоили ссылку на новый объект «Казань» — её стрелку перевесили, но стрелка <code>home</code> осталась на месте. Перевесить одну стрелку — не значит перевесить другую.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: а можно ли поменять сам объект «Аня»?</summary>
+      <p>У строк — нет: объекты String <b>неизменяемые</b> (англ. <i>immutable</i>). Любой метод, который будто бы меняет строку (<code>toUpperCase()</code> и другие), на самом деле создаёт <b>новый</b> объект. Поэтому с двумя стрелками на одну строку ничего плохого случиться не может.</p>
+      <p>А вот объекты, которые можно менять, бывают: например, массивы (модуль 6) и твои собственные классы (модуль 9). Там две стрелки на один объект — источник сюрпризов: поменял через одну переменную — изменилось и «у другой». Картинка со стрелками тебе тогда очень пригодится.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>null — номерок без пальто</h2>
+    <p><code>null</code> — особое значение для ссылочных переменных: «ни на что не указывает». Коробка есть, а стрелки нет. Это не то же самое, что пустая строка:</p>
+<pre data-file="Nulls.java"><code class="java">String empty = "";       // объект есть, в нём 0 символов
+String nothing = null;   // объекта нет вообще
+int zero = 0;            // примитив: просто число 0
+
+System.out.println(empty.length());    // 0
+System.out.println(nothing.length());  // программа падает!</code></pre>
+    <div data-widget="ide" id="shot-npe">
+      <script type="application/json">
+      { "tree": false, "file": "Nulls.java", "runConfig": "Nulls", "gutterRun": [1, 2],
+        "code": "public class Nulls {\n    public static void main(String[] args) {\n        String empty = \"\";\n        String nothing = null;\n        System.out.println(empty.length());\n        System.out.println(nothing.length());\n    }\n}",
+        "warnings": [ { "line": 6, "text": "length", "msg": "Method invocation 'length' will produce 'NullPointerException'" } ],
+        "console": { "title": "Nulls", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Nulls" },
+          { "t": "out", "s": "0" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke \"String.length()\" because \"nothing\" is null" },
+          { "t": "err", "s": "\tat Nulls.main(Nulls.java:6)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "err-6", "side": "top", "text": "Жёлтым — <b>предупреждение</b>: IDEA заранее подозревает беду — <i>Method invocation 'length' will produce 'NullPointerException'</i>. Но компилировать не мешает" },
+                   { "n": 2, "target": "output", "text": "У пустой строки длина 0 — это сработало" },
+                   { "n": 3, "target": "error", "text": "<b>NullPointerException</b>, и Java 21 объясняет по-человечески: «не могу вызвать <code>String.length()</code>, потому что <code>nothing</code> — null»" },
+                   { "n": 4, "target": "link-1", "text": "Где упало: файл <b>Nulls.java</b>, строка <b>6</b>. Щелчок по ссылке — и IDEA покажет эту строку" } ],
+        "caption": "NullPointerException в панели Run" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 200" role="img" aria-label="empty указывает на объект String длины 0, nothing равно null и никуда не указывает, zero хранит число 0">
+        <text x="40" y="26" class="d-small">СТЕК</text>
+        <rect x="30" y="36" width="300" height="150" rx="14" class="d-blue"/>
+        <text x="50" y="62" class="d-title">main()</text>
+        <rect x="50" y="74" width="260" height="32" rx="8" class="d-box"/>
+        <text x="66" y="96" class="d-mono-ink">empty</text><text x="294" y="96" text-anchor="end" class="d-c-accent d-title">● ссылка</text>
+        <rect x="50" y="112" width="260" height="32" rx="8" class="d-box"/>
+        <text x="66" y="134" class="d-mono-ink">nothing</text><text x="294" y="134" text-anchor="end" class="d-c-red d-title">null</text>
+        <rect x="50" y="150" width="260" height="32" rx="8" class="d-box"/>
+        <text x="66" y="172" class="d-mono-ink">zero</text><text x="294" y="172" text-anchor="end" class="d-title">0</text>
+
+        <text x="390" y="26" class="d-small">КУЧА</text>
+        <rect x="380" y="36" width="300" height="150" rx="14" class="d-soft"/>
+        <rect x="450" y="62" width="180" height="62" rx="10" class="d-violet"/>
+        <text x="540" y="86" text-anchor="middle" class="d-small">объект String</text>
+        <text x="540" y="112" text-anchor="middle" class="d-title">"" (0 символов)</text>
+        <path d="M318 90 C370 90 400 92 444 92" class="d-arrow-accent"/>
+        <text x="530" y="160" text-anchor="middle" class="d-small">для nothing объекта нет</text>
+      </svg>
+      <figcaption>Пустая строка — это объект. null — отсутствие объекта.</figcaption>
+    </figure>
+    <p>Вызвать метод у объекта, которого нет, нельзя: <code>nothing.length()</code> — это как прийти в гардероб с пустой рукой и требовать пальто. JVM бросает ошибку <code>NullPointerException</code> (сокращённо NPE). Это <b>самая частая ошибка в Java</b>: например, когда ждали, что программа что-то найдёт и вернёт (скажем, клиента по номеру карты), а она вернула null.</p>
+    <div class="callout warn">
+      <span class="callout-title">Примитив не бывает null</span>
+      <p><code>int x = null;</code> — ошибка компиляции. В примитивной коробке всегда лежит число (или true/false, или символ), стрелок там нет, поэтому и «нет стрелки» быть не может.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Кто убирает память</h2>
+    <p>Стек и кучу убирают по-разному:</p>
+    <ul>
+      <li><b>Стек убирается сам и мгновенно.</b> Метод закончился — его фрейм снимается со стопки целиком, со всеми переменными. Закончился <code>main</code> — исчезли <code>a</code>, <code>b</code>, <code>s1</code>, <code>s2</code>.</li>
+      <li><b>Кучу убирает сборщик мусора</b> (англ. <i>garbage collector</i>, GC). Время от времени он проходит по куче и ищет объекты, до которых не ведёт ни одна стрелка — ни со стека, ни из других объектов. Их память освобождается. Именно это ты делал в игре в уроке 1.1, только теперь знаешь, что «ниточки» — это ссылки из переменных на стеке.</li>
+    </ul>
+    <div class="callout fact">
+      <span class="callout-title">Две знаменитые ошибки</span>
+      <p><code>StackOverflowError</code> — стопка тарелок выросла до потолка: методов вызвано слишком много одновременно (встретишь в модуле 7 про рекурсию). Отсюда, кстати, название сайта Stack Overflow. <code>OutOfMemoryError</code> — склад забит: объектов столько, что даже после уборки места не хватает.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: пул строк — вопрос с собеседований</summary>
+      <p>Если написать <code>String x = "Аня";</code> и <code>String y = "Аня";</code>, объект в куче будет <b>один</b>, и обе стрелки укажут на него. Java хранит строки, написанные прямо в коде (литералы), в особом месте кучи — <b>пуле строк</b> — и не создаёт одинаковые дважды: зачем, если строки всё равно не меняются? Из-за этого сравнение строк в Java полно ловушек. Разберём в модуле 8.</p>
+      <p>Честное уточнение к трассировке выше: строки-литералы из пула на практике живут, пока загружен класс, — на них ссылается сам пул. Мы упростили картинку, чтобы показать главное правило: объект, до которого не дотянуться ни по одной ссылке, — мусор. Для обычных объектов, которые ты будешь создавать сам, оно работает ровно так.</p>
+      <p>И ещё уточнение для собеседований: «примитивы — на стеке» верно для переменных внутри методов. Если примитив — часть объекта (поле класса, модуль 9), он живёт внутри этого объекта, в куче.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m02-04">
+      <script type="application/json">
+      { "title": "Стек и куча — главное",
+        "items": [
+          { "type": "match", "q": "Где что лежит?", "left": ["int age = 25", "String name = \"Аня\" — объект «Аня»", "String name = \"Аня\" — переменная name", "Строка, на которую никто не ссылается"], "right": ["Число 25 прямо в ячейке на стеке", "В куче", "На стеке, внутри неё ссылка", "В куче, ждёт сборщика мусора"], "why": "Примитив — значение прямо в переменной. Объект — в куче, а в переменной — ссылка на него." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "int x = 1;\nint y = x;\ny = 2;\nString p = \"кот\";\nString q = p;\nq = \"пёс\";\nSystem.out.println(x + \" \" + p);", "answer": "1 кот", "why": "y инициализирована копией числа, q — копией стрелки. Когда переменной q присвоили ссылку на «пёс», p осталась смотреть на «кот»." },
+          { "type": "single", "q": "Что произойдёт при запуске?", "code": "String title = null;\nSystem.out.println(title.length());", "options": ["Напечатается 0", "Напечатается null", "Программа упадёт с NullPointerException", "Ошибка компиляции"], "answer": 2, "why": "Компилятор пропустит: тип String, у него есть length(). Но при запуске объекта нет — вызвать метод у null нельзя." },
+          { "type": "tf", "q": "Верно или нет?", "statements": [
+            { "s": "<code>String s2 = s1;</code> создаёт в куче копию строки", "a": false, "why": "копируется только ссылка — обе переменные смотрят на один объект." },
+            { "s": "Пустая строка \"\" и null — одно и то же", "a": false, "why": "\"\" — объект с 0 символов, null — объекта нет вообще." },
+            { "s": "Когда main закончился, его переменные со стека исчезают сразу", "a": true },
+            { "s": "<code>int count = null;</code> скомпилируется", "a": false, "why": "примитив не может быть null — в нём всегда значение." }
+          ] },
+          { "type": "single", "q": "После каких строк объект «Аня» станет мусором?", "code": "String a = \"Аня\";\nString b = a;\na = null;\nb = \"Боб\";", "options": ["После строки 3", "После строки 4", "Он не станет мусором"], "answer": 1, "why": "После строки 3 на «Аню» ещё смотрит b. Только когда и переменной b присвоили ссылку на «Боб», ссылок не осталось." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Спроси меня как на собеседовании: где хранятся примитивы и объекты в Java? Я отвечу и нарисую схему стека и кучи в ASCII»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Память JVM: <b>стек</b> — переменные методов (у каждого метода свой фрейм), <b>куча</b> — объекты.</li>
+        <li>Примитив хранит значение прямо в переменной. Объектная переменная хранит <b>ссылку</b> на объект в куче.</li>
+        <li>Присваивание <code>b = a</code> для примитивов копирует число, для объектов — стрелку: две переменные смотрят на один объект.</li>
+        <li><code>null</code> — «стрелки нет». Вызов метода у null — <code>NullPointerException</code>. Примитив не бывает null.</li>
+        <li>Стек чистится сам, когда метод заканчивается. Объекты без ссылок убирает сборщик мусора.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 17 и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 17 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Теперь у тебя рабочее место Java-разработчика: отладчик, Git, Gradle и JUnit с AssertJ. С этим набором приходят на первую работу. Это финал курса: соберём всё вместе, проверим себя — и к наставнику на последний экзамен.</span><span class="free-only">Теперь у тебя рабочее место Java-разработчика: отладчик, Git, Gradle и JUnit с AssertJ. С этим набором приходят на первую работу. Это финал курса: соберём всё вместе, проверим себя — и к <span class="ai-name">DeepSeek</span> на последний экзамен.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш курса</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 17: отладчик, Git, Git в команде, Gradle, JUnit, AssertJ и тест-дизайн вокруг рабочего места разработчика">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-red"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">🐞 Отладчик</text>
+        <text x="56" y="80" class="d-small">брейкпоинт, Debug</text>
+        <text x="56" y="100" class="d-small">F8 / F7 / Shift+F8 / F9</text>
+        <text x="56" y="120" class="d-small">Evaluate, Frames</text>
+
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🕰️ Git</text>
+        <text x="526" y="80" class="d-small">add → commit → log</text>
+        <text x="526" y="100" class="d-small">ветки, merge</text>
+        <text x="526" y="120" class="d-small">.gitignore</text>
+
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">👥 Команда</text>
+        <text x="26" y="230" class="d-small">clone, pull, push</text>
+        <text x="26" y="250" class="d-small">MR, ревью, конфликты</text>
+
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-yellow"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🐘 Gradle</text>
+        <text x="556" y="230" class="d-small">build.gradle.kts, wrapper</text>
+        <text x="556" y="250" class="d-small">gradle test, Central</text>
+
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-green"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">🧪 JUnit 5</text>
+        <text x="56" y="370" class="d-small">@Test, assertEquals</text>
+        <text x="56" y="390" class="d-small">@BeforeEach, AAA</text>
+        <text x="56" y="410" class="d-small">@ParameterizedTest</text>
+
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🎯 Что проверять</text>
+        <text x="526" y="370" class="d-small">AssertJ: assertThat(…)</text>
+        <text x="526" y="390" class="d-small">классы эквивалентности</text>
+        <text x="526" y="410" class="d-small">граничные значения</text>
+
+        <ellipse cx="380" cy="220" rx="122" ry="52" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 17</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Инструменты</text>
+      </svg>
+      <figcaption>Если про какой-то блок сказать нечего — вернись к уроку в меню слева.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Посмотри, как всё связано: тест падает в CI на merge request → ты делаешь pull, запускаешь тест под отладчиком, находишь баг на границе, пишешь красный тест, чинишь, коммитишь маленьким коммитом и пушишь. Это обычный рабочий день разработчика — и ты уже умеешь каждый его шаг.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>поставить брейкпоинт (и условный), запустить Debug, шагать F8/F7/Shift+F8, читать Variables и Frames, вычислять Evaluate Expression;</li>
+        <li>объяснить, чем Step Over отличается от Step Into, и как Frames связан со stack trace;</li>
+        <li>создать репозиторий, сделать коммит в IDEA и командами <code>add</code>/<code>commit</code>, посмотреть Log и Diff;</li>
+        <li>создать ветку, переключиться, слить её; объяснить, зачем <code>.gitignore</code> и почему пароли не коммитят;</li>
+        <li>сделать clone, pull, push; рассказать путь задачи через merge request; решить конфликт в трёхпанельном окне;</li>
+        <li>объяснить структуру Gradle-проекта и части <code>build.gradle.kts</code>, что значит объявление зависимости <code>testImplementation(…)</code>, зачем wrapper и что делает <code>gradle test</code>; найти в дереве зависимостей конфликт версий; узнать то же в <code>pom.xml</code> Maven;</li>
+        <li>написать тестовый метод с аннотацией <code>@Test</code> и правильным порядком аргументов в проверке <code>assertEquals</code> (сначала ожидаемое значение, потом фактическое), проверить исключение через <code>assertThrows</code> и лямбда-выражение;</li>
+        <li>использовать аннотации <code>@BeforeEach</code>, <code>@ParameterizedTest</code> с <code>@CsvSource</code>, <code>@DisplayName</code>, <code>@Disabled</code>;</li>
+        <li>писать проверки на AssertJ — <code>assertThat(фактическое)</code> и метод-проверка после точки: <code>isEqualTo</code>, <code>containsExactly</code>, <code>hasSize</code>, <code>assertThatThrownBy</code>;</li>
+        <li>составить план тестов: классы эквивалентности, граничные значения, таблица «вход → ожидаем».</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <div data-widget="check" id="check-m17-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 17: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини инструмент и задачу",
+         "left": [
+          "Отладчик",
+          "Git",
+          "Gradle",
+          "JUnit",
+          "AssertJ"
+         ],
+         "right": [
+          "Остановить программу и посмотреть переменные",
+          "Хранить историю кода и работать в команде",
+          "Скачать библиотеки, собрать проект, запустить все тесты",
+          "Найти и запустить тесты, показать зелёные и красные",
+          "Читаемые проверки assertThat(…) с подробными сообщениями"
+         ],
+         "why": "Пять инструментов — одно рабочее место."
+        },
+        {
+         "type": "single",
+         "q": "Отладчик стоит на строке <code>int fee = feeFor(sum);</code>, где <code>feeFor</code> — твой метод. Ты хочешь увидеть его изнутри. Какая клавиша?",
+         "options": [
+          "F8",
+          "F7",
+          "F9"
+         ],
+         "answer": 1,
+         "why": "F7 — Step Into: зайти в вызываемый метод."
+        },
+        {
+         "type": "order",
+         "q": "Расставь шаги исправления бага, о котором сообщил пользователь",
+         "lines": [
+          "git pull и новая ветка",
+          "Написать тест, который ловит баг (красный)",
+          "Найти причину отладчиком и исправить код",
+          "Тест зелёный — коммит",
+          "Push и merge request"
+         ],
+         "why": "Свежий код → красный тест → исправление → зелёный → коммит → MR."
+        },
+        {
+         "type": "single",
+         "q": "Где в Gradle-проекте лежат тесты и как подключают JUnit?",
+         "options": [
+          "src/main/java, implementation",
+          "src/test/java, testImplementation",
+          "build/test, runtimeOnly"
+         ],
+         "answer": 1,
+         "why": "Тесты — в src/test/java, тестовые библиотеки — через testImplementation (в Maven — scope test)."
+        },
+        {
+         "type": "single",
+         "q": "JUnit запустил сначала first, потом second. Что напечатает second?",
+         "code": "int clicks = 0;\n@Test void first() { clicks += 2; System.out.println(clicks); }\n@Test void second() { clicks += 3; System.out.println(clicks); }",
+         "options": [
+          "5",
+          "3",
+          "Зависит от того, сколько раз запускали класс"
+         ],
+         "answer": 1,
+         "why": "На каждый тестовый метод — новый объект тестового класса, и поле clicks снова инициализируется нулём. Значение из first до second не доживает."
+        },
+        {
+         "type": "single",
+         "q": "Метод вернул 0, проверка <code>assertEquals(fee, 199)</code>. Что напишет JUnit?",
+         "options": [
+          "expected: &lt;199&gt; but was: &lt;0&gt;",
+          "expected: &lt;0&gt; but was: &lt;199&gt;",
+          "Тест пройдёт"
+         ],
+         "answer": 1,
+         "why": "Аргументы перепутаны, и сообщение врёт. Первый аргумент — ожидаемое значение, второй — фактическое."
+        },
+        {
+         "type": "multi",
+         "q": "Цена билета: до 18 лет — 250 ₽, с 18 — 400 ₽. Какие значения возраста — граничные? Отметь все",
+         "options": [
+          "10",
+          "17",
+          "18",
+          "40"
+         ],
+         "answer": [
+          1,
+          2
+         ],
+         "why": "Стык классов — между 17 и 18: проверяем значение по обе стороны. 10 и 40 — представители классов, полезны, но не границы."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Тест без assert всегда зелёный, если код не бросил исключение",
+           "a": true
+          },
+          {
+           "s": "assertThat(list.isEmpty()); проверяет, что список пуст",
+           "a": false,
+           "why": "без вызова метода-проверки после точки AssertJ ничего не проверяет; нужно assertThat(list).isEmpty()."
+          },
+          {
+           "s": "Конфликт слияния возникает, когда двое по-разному изменили одни и те же строки",
+           "a": true
+          },
+          {
+           "s": "Если файл уже закоммичен, добавление его в .gitignore удалит его из репозитория",
+           "a": false,
+           "why": ".gitignore действует только на неотслеживаемые файлы; нужен git rm --cached."
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Тест упал только на ночном прогоне на сервере сборки. Что смотришь первым?",
+         "options": [
+          "Ставишь брейкпоинт на сервере",
+          "Читаешь лог и отчёт прогона, потом воспроизводишь у себя",
+          "Помечаешь тест @Disabled без причины"
+         ],
+         "answer": 1,
+         "why": "К ночному прогону отладчик не подключишь — сначала логи и отчёт, потом воспроизведение локально и уже там отладчик."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m17">странице практики</a> должны быть решены все семь задач:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Отладчик: неверный чек · 2. Отладчик: средний балл врёт</td><td>поиск багов отладчиком — <a href="/lessons/m17/01-debugger.html">урок 17.1</a></td></tr>
+        <tr><td>3. Первые тесты: скидка в магазине · 4. Тесты для правил пароля</td><td><code>@Test</code>, <code>assertEquals</code>, <code>assertTrue/False</code>, <code>assertThrows</code> — <a href="/lessons/m17/05-junit.html">урок 17.5</a></td></tr>
+        <tr><td>5. Билеты в кино: параметризованный тест</td><td><code>@ParameterizedTest</code>, классы и границы — <a href="/lessons/m17/06-junit-deeper.html">17.6</a>, <a href="/lessons/m17/07-workshop-tests.html">17.7</a></td></tr>
+        <tr><td>6. Каталог книг: AssertJ и @BeforeEach ★★★</td><td>подготовка тестов, AssertJ — <a href="/lessons/m17/06-junit-deeper.html">урок 17.6</a></td></tr>
+        <tr><td>7. Охота на баг: бонусы кофейни ★★★</td><td>всё вместе: требования → тесты → отладчик → исправление</td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">Плюс <b>практика Git и Gradle у наставника</b>: репозиторий с коммитами и ветками, специально устроенный конфликт, свой Gradle-проект с <code>gradle test</code>. Сайт это проверить не может — покажешь наставнику вывод <code>git log --oneline --graph --all</code> и результат <code>gradle test</code>.</span><span class="free-only">Плюс <b>практика Git и Gradle</b>: репозиторий с коммитами и ветками, специально устроенный конфликт, свой Gradle-проект с <code>gradle test</code>. Сайт это проверить не может — вставь в <span class="ai-name">DeepSeek</span> вывод <code>git log --oneline --graph --all</code> и результат <code>gradle test</code> и попроси разобрать, всё ли получилось.</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> в папке курса и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><strong>Пройди экзамен.</strong> Будут вопросы «зелёный или красный и почему», «что напишет JUnit», «что будет, если в Git…», а ещё живая практика: найти баг отладчиком, написать параметризованный тест по требованиям, решить конфликт.</li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить. Вернёшься, когда будешь готов.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить. Вернёшься, когда будешь готов.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p><span class="ai-only">На экзамене не подглядывай в уроки. Особенно в тест-дизайне: наставнику важно увидеть, как <b>ты сам</b> находишь границы.</span><span class="free-only">На экзамене не подглядывай в уроки. Особенно в тест-дизайне: <span class="ai-name">DeepSeek</span> важно увидеть, как <b>ты сам</b> находишь границы.</span></p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Размяться: <em>«Давай пробный экзамен по модулю 17 без отметок в progress.md»</em>. Готов — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">🏦</span><h4>МиниБанк — твой проект</h4><p>Развивай МиниБанк дальше сам: покрой его тестами на JUnit, сохраняй счета в файл, добавь историю операций. Ошибся — отладчик и Git тебя страхуют.</p></div>
+      <div class="card"><span class="emoji">🏋️</span><h4>Тренинг код</h4><p>Набивай руку на задачах раздела <a href="/training.html">«Тренинг код»</a>. По 20–30 минут в день — и синтаксис перестанет быть препятствием.</p></div>
+      <div class="card"><span class="emoji">🌱</span><h4>Следующие шаги</h4><p>Spring Boot — чтобы писать серверы и веб-приложения, SQL и базы данных — чтобы хранить данные по-настоящему. Классы, коллекции, исключения, потоки и JUnit из этого курса там нужны каждый день.</p></div>
+      <div class="card"><span class="emoji">🕰️</span><h4>Git — каждый день</h4><p>Дальше храни свои проекты в Git и пушь на GitHub: это и тренировка, и портфолио для собеседования.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай все семь задач до зелёного, разбери их через <code>/check</code> и покажи наставнику Git- и Gradle-практику.</span><span class="free-only">Сделай все семь задач до зелёного, разбери их с <span class="ai-name">DeepSeek</span> (промпт «Проверь решение» (кнопка внизу страницы)) и покажи ему вывод Git- и Gradle-практики.</span></li>
+        <li><span class="ai-only">Напиши <code>/exam</code> — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в своих проектах и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в своих проектах и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m17">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>toString и record · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-08">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 9 · Урок 8</div>
+    <h1>toString и record</h1>
+    <p class="lead">Почему <code>println(cat)</code> печатает какую-то абракадабру <code>Cat@1b6d3586</code> и как это починить. И record — класс для данных, который пишется в одну строку.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>🧾 Java 16+</span><span>🛒 корзина товаров</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m09-08-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Какой из десяти println вызовется для <code>System.out.println(cat)</code>, где cat — объект класса Cat?",
+            "options": ["println(String)", "println(Object)", "println(char[])"], "answer": 1,
+            "why": "Для любого объекта, кроме String и char[], подходит println(Object)." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "println(Object) внутри вызывает String.valueOf, а тот — toString() объекта", "a": true, "why": "это было видно в stack trace с «бомбой» в уроке 9.6." },
+              { "s": "private-поле можно прочитать из другого класса через точку", "a": false, "why": "ошибка компиляции: has private access. Нужен геттер." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что печатает println(объект)</h2>
+<pre data-file="CatDemo.java"><code class="java">Cat murzik = new Cat("Мурзик", 3);
+System.out.println(murzik);</code></pre>
+    <div data-widget="ide" id="shot-cat-hash">
+      <script type="application/json">
+      { "tree": false, "file": "CatDemo.java", "runConfig": "CatDemo", "gutterRun": [1, 2],
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat murzik = new Cat(\"Мурзик\", 3);\n        System.out.println(murzik);\n    }\n}",
+        "console": { "title": "CatDemo", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… CatDemo" },
+          { "t": "out", "s": "Cat@1b6d3586" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-4", "side": "top", "text": "Передаём в println ссылку на сам объект, а не значение его поля" },
+                   { "n": 2, "target": "output", "text": "Вместо «Мурзик, 3 года» — <b>Cat@1b6d3586</b>: имя класса, <code>@</code> и номер объекта", "box": true },
+                   { "n": 3, "target": "exit", "text": "<b>exit code 0</b> — никакой ошибки нет: Java сделала ровно то, что умеет по умолчанию" } ],
+        "caption": "println(объект) без своего toString" }
+      </script>
+    </div>
+    <p>Что за абракадабра? Вспомни урок 9.6: <code>println(Object)</code> вызывает <code>String.valueOf(x)</code>, а тот вызывает метод <code>toString()</code> у объекта. Мы такой метод не писали — но он есть у <b>любого</b> объекта в Java «от рождения». Как именно он появляется — тема модуля 10 (класс <code>Object</code>, общий предок всех классов). Стандартный toString возвращает:</p>
+    <ul>
+      <li><code>Cat</code> — имя класса;</li>
+      <li><code>@</code> — разделитель;</li>
+      <li><code>1b6d3586</code> — шестнадцатеричный «номер» объекта (хеш-код). У тебя будет другой, и меняется от запуска к запуску.</li>
+    </ul>
+    <p>Для человека это бесполезно. Но toString можно написать свой — и тогда println, склейка строк и отладчик начнут показывать объект по-человечески.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Свой toString</h2>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    private String name;
+    private int age;
+
+    Cat(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Кот " + name + ", " + age + " г.";
+    }
+}</code></pre>
+<pre data-file="CatDemo.java"><code class="java">Cat murzik = new Cat("Мурзик", 3);
+System.out.println(murzik);                 // Кот Мурзик, 3 г.
+String line = "Сегодня у врача: " + murzik; // склейка тоже зовёт toString
+System.out.println(line);                   // Сегодня у врача: Кот Мурзик, 3 г.</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>public String toString()</code><div><p>Заголовок метода должен быть <b>ровно таким</b>: <code>public</code>, тип возвращаемого значения <code>String</code>, имя <code>toString</code>, без параметров. Ошибёшься (например, <code>tostring</code> или без public) — получится другой метод, и println его не вызовет.</p></div></div>
+      <div class="annot-row"><code>@Override</code><div><p>Аннотация: «этот метод <b>переопределяет</b> метод, который уже есть» — заменяет готовый toString своим. Необязательна, но полезна: если ошибёшься в имени, компилятор скажет об этом. Подробно — модуль 10.</p></div></div>
+      <div class="annot-row"><code>"…" + murzik</code><div><p>Склейка строки с объектом тоже вызывает toString. И отладчик IDEA показывает объекты в Variables через toString.</p></div></div>
+    </div>
+    <div class="callout fact">
+      <span class="callout-title">Где это пригодится</span>
+      <p>Когда программа пишет объект в журнал ошибок или тест JUnit сообщает «ожидали <i>такой-то</i> объект, а получили <i>такой-то</i>», объекты печатаются через toString. С <code>User@4e25154f</code> ничего не понять, а с <code>User[login=admin, role=ADMIN]</code> ошибка видна сразу. Хороший toString экономит часы поиска ошибок.</p>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Alt+Insert → toString()</span>
+      <p>IDEA генерирует toString сама: <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>toString()</b>, отметь поля. Получится что-то вроде <code>Cat{name='Мурзик', age=3}</code>.</p>
+    </div>
+    <div data-widget="ide" id="shot-generated-tostring">
+      <script type="application/json">
+      { "tree": false, "file": "Cat.java", "caretLine": 11,
+        "code": "class Cat {\n    private String name;\n    private int age;\n\n    Cat(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n\n    @Override\n    public String toString() {\n        return \"Cat{\" +\n                \"name='\" + name + '\\'' +\n                \", age=\" + age +\n                '}';\n    }\n}",
+        "marks": [ { "n": 1, "target": "line-10", "side": "top", "text": "После <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>toString()</b> → выбрать поля → <b>OK</b> IDEA вставила метод целиком — вместе с <code>@Override</code>" },
+                   { "n": 2, "target": "line-12", "text": "Имя класса и фигурная скобка" },
+                   { "n": 3, "target": "line-13", "text": "<code>'\\''</code> — символ-кавычка: так IDEA обрамляет строковые поля, чтобы были видны пробелы в начале и конце" },
+                   { "n": 4, "target": "line-14", "text": "Числа — без кавычек. Итог для Мурзика: <code>Cat{name='Мурзик', age=3}</code>" } ],
+        "caption": "toString(), который сгенерировала IDEA" }
+      </script>
+    </div>
+    <p>Свой toString виден и в отладчике: в панели Variables рядом с номером объекта появляется его текст. Объект теперь можно «прочитать», не раскрывая:</p>
+    <div data-widget="ide" id="shot-debug-tostring">
+      <script type="application/json">
+      { "tree": false, "file": "CatDemo.java", "runConfig": "CatDemo", "gutterRun": [1, 2], "breakpoints": [4], "execLine": 4,
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat murzik = new Cat(\"Мурзик\", 3);\n        System.out.println(murzik);\n    }\n}",
+        "debug": { "title": "CatDemo", "frames": ["main:4, CatDemo"], "sel": 0,
+                   "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]", "open": false },
+                             { "name": "murzik", "type": "Cat@815", "value": "\"Cat{name='Мурзик', age=3}\"", "open": true },
+                             { "name": "name", "value": "\"Мурзик\"", "depth": 1 },
+                             { "name": "age", "value": "3", "depth": 1 } ] },
+        "marks": [ { "n": 1, "target": "bp-4", "side": "left", "text": "Остановились перед <code>println</code>" },
+                   { "n": 2, "target": "var-murzik", "text": "После <b>{Cat@815}</b> — текст из нашего toString. Без него тут был бы только номер объекта" },
+                   { "n": 3, "target": "var-name", "text": "Раскрыв объект, видишь поля по отдельности — даже <code>private</code>: отладчику можно всё" } ],
+        "caption": "Отладчик показывает объект через toString" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Класс для данных: сколько кода?</h2>
+    <p>Часто класс нужен просто чтобы <b>носить данные</b>: товар (название, цена), пользователь (логин, email), точка (x, y). Чтобы сделать такой класс «как положено», нужно написать: private final поля, конструктор, геттеры, toString, а ещё equals и hashCode (модуль 10). Для товара из двух полей это около 30 строк:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 290" role="img" aria-label="Слева класс Product на 30 строк, справа record Product в одну строку — делают одно и то же">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="10" width="360" height="270" rx="14" class="d-code"/>
+        <text x="26" y="36" class="d-mono">final class Product {</text>
+        <text x="26" y="58" class="d-mono">  private final String title;</text>
+        <text x="26" y="80" class="d-mono">  private final int price;</text>
+        <text x="26" y="102" class="d-mono">  Product(String title, int price) {…}</text>
+        <text x="26" y="124" class="d-mono">  String title() { return title; }</text>
+        <text x="26" y="146" class="d-mono">  int price() { return price; }</text>
+        <text x="26" y="168" class="d-mono">  public String toString() {…}</text>
+        <text x="26" y="190" class="d-mono">  public boolean equals(Object o) {…}</text>
+        <text x="26" y="212" class="d-mono">  public int hashCode() {…}</text>
+        <text x="26" y="234" class="d-mono">}</text>
+        <text x="190" y="266" text-anchor="middle" class="d-small">≈ 30 строк, если расписать все {…}</text>
+
+        <path d="M374 145 H 404" class="d-arrow"/>
+        <text x="389" y="132" text-anchor="middle" class="d-small">то же</text>
+
+        <rect x="408" y="112" width="346" height="66" rx="14" class="d-accent"/>
+        <text x="581" y="150" text-anchor="middle" class="d-mono-ink">record Product(String title, int price) { }</text>
+        <text x="601" y="220" text-anchor="middle" class="d-small">одна строка — всё остальное</text>
+        <text x="601" y="240" text-anchor="middle" class="d-small">компилятор допишет сам</text>
+      </svg>
+      <figcaption>record — короткая запись класса для данных. Компилятор генерирует поля, конструктор, методы доступа, toString, equals и hashCode.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>record: класс в одну строку</h2>
+    <p>С Java 16 для таких случаев есть <b>record</b> (по-английски «запись»):</p>
+<pre data-file="Shop.java"><code class="java">public class Shop {
+    public static void main(String[] args) {
+        Product bread = new Product("Хлеб", 45);
+
+        System.out.println(bread.title());   // Хлеб
+        System.out.println(bread.price());   // 45
+        System.out.println(bread);           // Product[title=Хлеб, price=45]
+    }
+}
+
+record Product(String title, int price) { }</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>record Product(String title, int price)</code><div><p>Объявление record: имя и в скобках — <b>компоненты</b>, то есть поля. Компилятор создаёт для каждого <code>private final</code> поле.</p></div></div>
+      <div class="annot-row"><code>new Product("Хлеб", 45)</code><div><p>Создаём объект оператором <code>new</code> и вызываем конструктор, который компилятор написал сам: аргументы передаются по порядку компонентов.</p></div></div>
+      <div class="annot-row"><code>bread.title()</code><div><p>Методы доступа называются <b>как поле, без get</b>: <code>title()</code>, а не <code>getTitle()</code>. Это частая ошибка — <code>bread.getTitle()</code> не скомпилируется.</p></div></div>
+      <div class="annot-row"><code>Product[title=Хлеб, price=45]</code><div><p>Готовый понятный toString. Ничего писать не нужно.</p></div></div>
+    </div>
+    <div data-widget="ide" id="shot-record-gettitle">
+      <script type="application/json">
+      { "tree": false, "file": "Shop.java", "gutterRun": [1, 2],
+        "code": "public class Shop {\n    public static void main(String[] args) {\n        Product bread = new Product(\"Хлеб\", 45);\n        System.out.println(bread.getTitle());\n        System.out.println(bread.title());\n    }\n}\n\nrecord Product(String title, int price) { }",
+        "errors": [ { "line": 4, "text": "getTitle", "msg": "Cannot resolve method 'getTitle' in 'Product'", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Привычка из обычных классов: <code>getTitle()</code>. У record такого метода нет — красное" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot resolve method 'getTitle' in 'Product'</b> — «в Product нет метода getTitle»" },
+                   { "n": 3, "target": "line-5", "side": "top", "text": "Правильно — имя компонента со скобками: <code>title()</code>" } ],
+        "caption": "У record методы доступа — без get" }
+      </script>
+    </div>
+    <p><b>record неизменяемый.</b> Поля <code>final</code>, сеттеров нет. Цена хлеба после создания не меняется: <code>bread.price = 50;</code> — ошибка компиляции. Нужна другая цена — создай новый объект: <code>new Product("Хлеб", 50)</code>.</p>
+    <p>В record можно добавлять свои методы и static-методы, а проверку данных — в «компактный» конструктор, без списка параметров:</p>
+<pre data-file="Shop.java"><code class="java">record Product(String title, int price) {
+    Product {                                       // компактный конструктор
+        if (price &lt; 0) {
+            throw new IllegalArgumentException(
+                    "Цена не может быть отрицательной");
+        }
+    }
+
+    int cost(int quantity) {                        // свой метод
+        return price * quantity;
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>System.out.println(new Product("Сок", 120).cost(3));</code>?</summary>
+      <p><b>360.</b> cost — обычный метод объекта: у этого товара price = 120, умножаем на 3. А при <code>new Product("Сок", -5)</code> компактный конструктор выбросит IllegalArgumentException прямо при создании — некорректный товар просто не появится на свет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Корзина из record'ов</h2>
+    <p>Соберём всё вместе: массив товаров (модуль 6) и подсчёт суммы. Обрати внимание: в элементах массива хранятся не сами объекты-товары, а <b>ссылки</b> на них.</p>
+    <div data-widget="trace" id="trace-m09-08-cart">
+      <script type="application/json">
+      { "title": "Корзина в памяти",
+        "intro": "Массив объектов — это массив ссылок. Каждая ячейка указывает на свой Product в куче.",
+        "code": "public class Cart {\n    public static void main(String[] args) {\n        Product[] items = {\n            new Product(\"Хлеб\", 45),\n            new Product(\"Молоко\", 89)\n        };\n        int total = 0;\n        for (Product p : items) {\n            total += p.price();\n        }\n        System.out.println(\"Итого: \" + total);\n    }\n}\n\nrecord Product(String title, int price) { }",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "items": "→#1" } } ], "heap": [ { "id": "#1", "label": "Product[2]", "fields": { "[0]": "→ #2", "[1]": "→ #3" } }, { "id": "#2", "label": "Product", "fields": { "title": "\"Хлеб\"", "price": "45" } }, { "id": "#3", "label": "Product", "fields": { "title": "\"Молоко\"", "price": "89" } } ], "note": "Три объекта: массив #1 и два товара. В ячейках массива — ссылки на товары." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": { "items": "→#1", "total": "0" } } ], "heap": [ { "id": "#1", "label": "Product[2]", "fields": { "[0]": "→ #2", "[1]": "→ #3" } }, { "id": "#2", "label": "Product", "fields": { "title": "\"Хлеб\"", "price": "45" } }, { "id": "#3", "label": "Product", "fields": { "title": "\"Молоко\"", "price": "89" } } ], "note": "Объявляем переменную-накопитель total и инициализируем её нулём." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": { "items": "→#1", "total": "45", "p": "→#2" } } ], "vars": { "total": "45" }, "ask": ["total"], "heap": [ { "id": "#1", "label": "Product[2]", "fields": { "[0]": "→ #2", "[1]": "→ #3" } }, { "id": "#2", "label": "Product", "fields": { "title": "\"Хлеб\"", "price": "45" } }, { "id": "#3", "label": "Product", "fields": { "title": "\"Молоко\"", "price": "89" } } ], "note": "p ссылается на хлеб (#2). Вызов метода <code>p.price()</code> возвращает 45, total присваивается 0 + 45." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": { "items": "→#1", "total": "134", "p": "→#3" } } ], "vars": { "total": "134" }, "ask": ["total"], "heap": [ { "id": "#1", "label": "Product[2]", "fields": { "[0]": "→ #2", "[1]": "→ #3" } }, { "id": "#2", "label": "Product", "fields": { "title": "\"Хлеб\"", "price": "45" } }, { "id": "#3", "label": "Product", "fields": { "title": "\"Молоко\"", "price": "89" } } ], "note": "Теперь p → молоко (#3). total = 45 + 89 = 134." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": { "items": "→#1", "total": "134" } } ], "heap": [ { "id": "#1", "label": "Product[2]", "fields": { "[0]": "→ #2", "[1]": "→ #3" } }, { "id": "#2", "label": "Product", "fields": { "title": "\"Хлеб\"", "price": "45" } }, { "id": "#3", "label": "Product", "fields": { "title": "\"Молоко\"", "price": "89" } } ], "out": "Итого: 134\n", "note": "Цикл закончился, p исчезла (её область видимости — тело цикла). Печатаем сумму." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Когда record, а когда class</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>record</th><th>обычный class</th></tr>
+        <tr><td>Для чего</td><td>носить данные: товар, точка, пользователь, ответ сервера</td><td>объект с поведением и меняющимся состоянием: счёт, корзина, игровой персонаж</td></tr>
+        <tr><td>Изменяемость</td><td>неизменяемый, поля final</td><td>как напишешь</td></tr>
+        <tr><td>Методы доступа</td><td><code>title()</code></td><td>обычно <code>getTitle()</code></td></tr>
+        <tr><td>toString, equals</td><td>готовые</td><td>пишешь сам (или Alt+Insert)</td></tr>
+        <tr><td>Пример</td><td><code>record Product(String title, int price)</code> — товар в каталоге</td><td><code>class BankAccount</code> — счёт с пополнением и снятием</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="cool"><p>Правило большого пальца: если объект — это «карточка с данными», которую создали и только читают, бери record. Если у объекта есть жизнь — пополнения, снятия, клики — пиши class. Подробнее о record и его соседях (enum, интерфейсы) — в модуле 11.</p></div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m09-08">
+      <script type="application/json">
+      {
+       "title": "toString и record — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "record Point(int x, int y) { }\n\n// в main:\nPoint p = new Point(3, 4);\nSystem.out.println(p);\nSystem.out.println(p.x() + p.y());",
+         "answer": "Point[x=3, y=4]\n7",
+         "why": "Готовый toString record'а: Имя[поле=значение, …]. x() и y() — методы доступа."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "record Item(String name, int price) { }\n\n// в main:\nItem a = new Item(\"Чай\", 70);\nSystem.out.println(a.name());\nSystem.out.println(a.getPrice());",
+         "answer": [
+          6
+         ],
+         "why": "У record методы доступа без get: price(), а не getPrice()."
+        },
+        {
+         "type": "single",
+         "q": "Класс <code>Dog</code> без своего toString. Что напечатает <code>System.out.println(new Dog())</code>?",
+         "options": [
+          "Ошибка компиляции",
+          "Что-то вроде Dog@7a81197d",
+          "Пустую строку",
+          "Все поля собаки"
+         ],
+         "answer": 1,
+         "why": "Стандартный toString: имя класса + @ + хеш-код в шестнадцатеричном виде."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Поля record после создания можно поменять сеттером",
+           "a": false,
+           "why": "record неизменяемый: поля final, сеттеров нет."
+          },
+          {
+           "s": "\"Итог: \" + obj вызывает obj.toString()",
+           "a": true
+          },
+          {
+           "s": "В record можно добавить свой метод",
+           "a": true
+          },
+          {
+           "s": "record появился в Java 16",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Придумай мне три объекта из жизни, а я скажу, какой сделать record, а какой — обычным классом, и объясню почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>println(obj)</code> и <code>"…" + obj</code> вызывают <code>toString()</code>. Без своего — <code>Cat@1b6d3586</code>.</li>
+        <li>Свой: <code>@Override public String toString() { return …; }</code> — заголовок строго такой.</li>
+        <li><code>record Product(String title, int price) { }</code> — класс для данных: final-поля, конструктор, методы <code>title()</code>/<code>price()</code>, toString, equals/hashCode.</li>
+        <li>record неизменяемый; можно добавлять методы и проверки в компактный конструктор.</li>
+        <li>Данные — record, поведение и изменяемое состояние — class.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Что такое поток · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m16-01">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 16 · Урок 1</div>
+    <h1>Что такое поток (thread)</h1>
+    <p class="lead">До сих пор твоя программа делала всё строго по очереди: строка за строкой. Сегодня на кухне появится второй повар — и программа начнёт делать два дела одновременно.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧵 Thread · Runnable</span><span>🎤 start vs run — классика собеседований</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение: лямбды и исключения</h2>
+    <p>Сегодня понадобятся две вещи из прошлых модулей: лямбда-выражения (модуль 14) и проверяемые исключения (модуль 12). Освежим.</p>
+    <div data-widget="check" id="check-m16-01-review">
+      <script type="application/json">
+      { "title": "Вспомним лямбды и исключения", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Лямбду можно записать в переменную интерфейса, у которого…",
+            "options": ["ровно один абстрактный метод", "хотя бы два метода", "нет ни одного метода"], "answer": 0,
+            "why": "Такой интерфейс называется функциональным. Лямбда-выражение — это короткая реализация его единственного абстрактного метода." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Supplier<String> s = () -> \"чай\";\nSystem.out.println(\"Пьём \" + s.get());",
+            "answer": "Пьём чай", "why": "Тело лямбды выполняется, только когда вызвали метод интерфейса — здесь get(). Метод возвращает строку «чай»." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Проверяемое (checked) исключение нужно либо поймать в try-catch, либо объявить в throws", "a": true },
+              { "s": "Внутри лямбды можно менять обычную локальную переменную из внешнего метода", "a": false, "why": "лямбда видит только «фактически final» локальные переменные — те, что не меняются после присваивания." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Несколько поваров на одной кухне</h2>
+    <p>Представь кухню ресторана. Один повар варит суп, потом режет салат, потом жарит котлеты — строго по очереди. Если суп варится 20 минут, салат ждёт. Наймём ещё двух поваров — и три блюда готовятся <b>одновременно</b>. Кухня та же, холодильник общий, плита общая.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кухня</span>
+      <p><b>Программа</b> (процесс) — это кухня: своё помещение, свои продукты (память). <b>Поток</b> — это повар: он выполняет свой рецепт шаг за шагом. Поваров на кухне может быть несколько, и все они берут продукты из <b>одного</b> холодильника. Отсюда и вся польза, и все проблемы многопоточности.</p>
+    </div>
+    <dl class="terms">
+      <dt>Процесс</dt><dd>Запущенная программа. Операционная система выдаёт ей собственную память. Две программы — два процесса, в чужую память они не залезают.</dd>
+      <dt>Поток (thread)</dt><dd>«Исполнитель» внутри процесса: идёт по коду строка за строкой. У каждого потока свой стек вызовов (свои локальные переменные), а объекты в куче — <b>общие</b> для всех потоков процесса.</dd>
+      <dt>Многопоточность</dt><dd>Когда в одной программе работают несколько потоков одновременно.</dd>
+    </dl>
+    <p>Сюрприз: потоком ты пользовался с первого урока. Метод <code>main</code> выполняет поток, который так и называется — <b>main</b>. Спросим его имя:</p>
+<pre data-file="WhoAmI.java"><code class="java">public class WhoAmI {
+    public static void main(String[] args) {
+        System.out.println(Thread.currentThread().getName());
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-whoami">
+      <script type="application/json">
+      { "tree": false, "file": "WhoAmI.java", "runConfig": "WhoAmI", "statusPath": "module-16", "gutterRun": [1, 2],
+        "code": "public class WhoAmI {\n    public static void main(String[] args) {\n        System.out.println(Thread.currentThread().getName());\n    }\n}",
+        "console": { "title": "WhoAmI", "lines": [ { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… WhoAmI" }, { "t": "out", "s": "main" }, { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-3", "side": "top", "text": "Вызов статического метода <code>Thread.currentThread()</code> возвращает поток, который выполняет эту строку прямо сейчас; у него вызываем метод <code>getName()</code> — он возвращает имя потока" },
+                   { "n": 2, "target": "output", "text": "Ответ: <b>main</b>. Метод <code>main</code> всегда выполняет поток с таким же именем", "box": true } ],
+        "caption": "Имя потока, который выполняет main" }
+      </script>
+    </div>
+    <div class="callout fact">
+      <span class="callout-title">Зачем это в настоящих программах</span>
+      <p>Обработать 300 фотографий по очереди — 40 минут. Если раздать их 8 потокам — около 6 минут. Поэтому почти любая серьёзная программа работает <b>параллельно</b>: сервер банка обслуживает тысячи клиентов сразу, игра одновременно рисует кадр и загружает уровень. И почти в каждой команде встречаются «плавающие» ошибки — то есть, то нет, — которые рождаются из-за многопоточности. Этот модуль — про то, как их понимать.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Создаём второй поток</h2>
+    <p>Поток в Java — объект класса <code>Thread</code>. При <b>создании объекта потока</b> (<code>new Thread(…)</code>) конструктору передаётся аргументом <b>задача</b> — объект, реализующий интерфейс <code>Runnable</code>: что поток должен сделать. У этого функционального интерфейса один абстрактный метод <code>void run()</code> (ничего не возвращает), значит, задачу удобно записать <b>лямбда-выражением</b> без параметров:</p>
+<pre data-file="TwoCooks.java"><code class="java">public class TwoCooks {
+    public static void main(String[] args) {
+        Runnable soup = () -&gt; {
+            for (int i = 1; i &lt;= 3; i++) {
+                System.out.println("Помощник: суп, шаг " + i);
+            }
+        };
+        Thread helper = new Thread(soup);
+        helper.start();
+
+        for (int i = 1; i &lt;= 3; i++) {
+            System.out.println("Главный: салат, шаг " + i);
+        }
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Runnable soup = () -&gt; { … };</code><div><p>Объявляем переменную <code>soup</code> типа <code>Runnable</code> и инициализируем её лямбда-выражением — это рецепт, <b>что</b> делать. Пока это просто объект, тело лямбды не выполняется.</p></div></div>
+      <div class="annot-row"><code>new Thread(soup)</code><div><p>Создание объекта потока: вызываем конструктор <code>Thread</code> и передаём ему аргументом задачу <code>soup</code> — наняли повара и дали ему рецепт. Поток создан, но ещё <b>не работает</b>.</p></div></div>
+      <div class="annot-row"><code>helper.start();</code><div><p><b>Запуск потока</b>: вызываем метод <code>start()</code> у объекта <code>helper</code> — команда «начинай!». Java запускает новый поток, и уже <b>он</b> вызывает <code>soup.run()</code>. А главный поток, не дожидаясь, идёт дальше — к своему циклу.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Сколько всего строк напечатает программа и в каком порядке?</summary>
+      <p>Строк точно шесть: три от помощника, три от главного. А вот <b>порядок</b> заранее неизвестен! Внутри каждого потока порядок соблюдается (шаг 1 → 2 → 3), но как строки двух потоков перемешаются — решает операционная система. Смотри следующий шаг.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: второй способ — наследник Thread</summary>
+      <p>Можно унаследоваться от <code>Thread</code> и переопределить <code>run()</code>:</p>
+<pre data-file="SoupCook.java"><code class="java">class SoupCook extends Thread {
+    @Override
+    public void run() {
+        System.out.println("Варю суп в потоке " + getName());
+    }
+}
+// где-то в main:
+new SoupCook().start();</code></pre>
+      <p>Так тоже работает, но обычно предпочитают <code>Runnable</code>: задача отдельно, исполнитель отдельно, и класс не тратит свою единственную возможность наследования. На собеседовании спрашивают «назови способы создать поток» — ответ: наследник <code>Thread</code>, <code>Runnable</code> (часто лямбдой), а в реальных проектах — пул потоков <code>ExecutorService</code> (урок 3).</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Порядок вывода непредсказуем</h2>
+    <p>Процессор переключается между потоками сам, кусочками по долям миллисекунды. Нарисуем время слева направо: каждая полоса — один поток, закрашенные куски — когда он реально работал.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Таймлайн двух потоков: main и Thread-0 работают кусками, их вывод перемешивается">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="20" y="66" class="d-text">main</text>
+        <text x="20" y="146" class="d-text">Thread-0</text>
+        <path d="M110 60 H740" class="d-dash"/>
+        <path d="M110 140 H740" class="d-dash"/>
+        <rect x="110" y="42" width="120" height="36" rx="8" class="d-blue"/>
+        <text x="170" y="65" text-anchor="middle" class="d-small">start()</text>
+        <rect x="290" y="42" width="110" height="36" rx="8" class="d-blue"/>
+        <text x="345" y="65" text-anchor="middle" class="d-small">салат 1</text>
+        <rect x="520" y="42" width="160" height="36" rx="8" class="d-blue"/>
+        <text x="600" y="65" text-anchor="middle" class="d-small">салат 2, салат 3</text>
+        <rect x="230" y="122" width="60" height="36" rx="8" class="d-soft"/>
+        <text x="260" y="145" text-anchor="middle" class="d-small">запуск</text>
+        <rect x="400" y="122" width="120" height="36" rx="8" class="d-teal"/>
+        <text x="460" y="145" text-anchor="middle" class="d-small">суп 1, суп 2</text>
+        <rect x="680" y="122" width="60" height="36" rx="8" class="d-teal"/>
+        <text x="710" y="145" text-anchor="middle" class="d-small">суп 3</text>
+        <path d="M170 80 C170 104 240 100 252 118" class="d-arrow"/>
+        <path d="M110 200 H740" class="d-arrow"/>
+        <text x="740" y="222" text-anchor="end" class="d-small">время →</text>
+        <rect x="110" y="236" width="630" height="50" rx="10" class="d-code"/>
+        <text x="126" y="257" class="d-mono">вывод: салат 1 · суп 1 · суп 2 · салат 2 · салат 3 · суп 3</text>
+        <text x="126" y="277" class="d-mono">следующий запуск может дать совсем другой порядок</text>
+      </svg>
+      <figcaption>Один из возможных запусков. Кусками управляет планировщик операционной системы, а не ты.</figcaption>
+    </figure>
+    <p>Запусти <code>TwoCooks</code> несколько раз подряд. Вот два настоящих запуска — код один и тот же, а вывод в панели Run разный:</p>
+    <div data-widget="ide" id="shot-twocooks-1">
+      <script type="application/json">
+      { "tree": false, "file": "TwoCooks.java", "runConfig": "TwoCooks", "statusPath": "module-16", "gutterRun": [1, 2],
+        "code": "public class TwoCooks {\n    public static void main(String[] args) {\n        Runnable soup = () -> {\n            for (int i = 1; i <= 3; i++) {\n                System.out.println(\"Помощник: суп, шаг \" + i);\n            }\n        };\n        Thread helper = new Thread(soup);\n        helper.start();\n\n        for (int i = 1; i <= 3; i++) {\n            System.out.println(\"Главный: салат, шаг \" + i);\n        }\n    }\n}",
+        "console": { "title": "TwoCooks", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… TwoCooks" },
+          { "t": "out", "s": "Главный: салат, шаг 1" }, { "t": "out", "s": "Главный: салат, шаг 2" }, { "t": "out", "s": "Главный: салат, шаг 3" },
+          { "t": "out", "s": "Помощник: суп, шаг 1" }, { "t": "out", "s": "Помощник: суп, шаг 2" }, { "t": "out", "s": "Помощник: суп, шаг 3" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-9", "text": "Вызов <code>start()</code> запускает поток <code>helper</code>: помощник начинает работу, а главный поток, не дожидаясь, идёт к своему циклу" },
+                   { "n": 2, "target": "output", "text": "Запуск 1: главный успел напечатать все три шага…" },
+                   { "n": 3, "target": "output-4", "text": "…и только потом «проснулся» помощник" } ],
+        "caption": "Запуск 1" }
+      </script>
+    </div>
+    <div data-widget="ide" id="shot-twocooks-2">
+      <script type="application/json">
+      { "tree": false, "file": "TwoCooks.java", "runConfig": "TwoCooks", "statusPath": "module-16", "gutterRun": [1, 2],
+        "code": "public class TwoCooks {\n    public static void main(String[] args) {\n        Runnable soup = () -> {\n            for (int i = 1; i <= 3; i++) {\n                System.out.println(\"Помощник: суп, шаг \" + i);\n            }\n        };\n        Thread helper = new Thread(soup);\n        helper.start();\n\n        for (int i = 1; i <= 3; i++) {\n            System.out.println(\"Главный: салат, шаг \" + i);\n        }\n    }\n}",
+        "console": { "title": "TwoCooks", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… TwoCooks" },
+          { "t": "out", "s": "Главный: салат, шаг 1" }, { "t": "out", "s": "Помощник: суп, шаг 1" }, { "t": "out", "s": "Помощник: суп, шаг 2" },
+          { "t": "out", "s": "Главный: салат, шаг 2" }, { "t": "out", "s": "Главный: салат, шаг 3" }, { "t": "out", "s": "Помощник: суп, шаг 3" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "config", "text": "Тот же код, просто запустили ещё раз (▶ сверху или <kbd>Shift</kbd>+<kbd>F10</kbd> — повторить последний запуск)" },
+                   { "n": 2, "target": "output-2", "text": "Теперь помощник вклинился сразу после первого шага главного" },
+                   { "n": 3, "target": "output-6", "text": "Внутри каждого потока порядок соблюдён (шаг 1 → 2 → 3), а между потоками — как повезёт" } ],
+        "caption": "Запуск 2: строки двух потоков перемешались по-другому" }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Главное правило модуля: <b>между потоками порядок не гарантирован</b>. Если программе важен порядок — его нужно <b>обеспечить</b> явно: дождаться потока, собрать результаты и отсортировать. Как раз этим займёмся в задачах — у них вывод должен быть одинаковым при любом запуске.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>start() или run()? Вопрос с собеседования</h2>
+    <p>У потока есть метод <code>run()</code> — он выполняет задачу, которую мы описали лямбда-выражением. Почему бы не вызвать его напрямую? Проверим, <b>какой поток</b> выполняет задачу:</p>
+<pre data-file="StartVsRun.java"><code class="java">Runnable task = () -&gt; System.out.println(
+        "Работает: " + Thread.currentThread().getName());
+
+Thread t1 = new Thread(task);
+t1.run();      // просто вызов метода
+
+Thread t2 = new Thread(task);
+t2.start();    // запуск нового потока</code></pre>
+    <div data-widget="ide" id="shot-start-vs-run">
+      <script type="application/json">
+      { "tree": false, "file": "StartVsRun.java", "runConfig": "StartVsRun", "statusPath": "module-16", "gutterRun": [1, 2],
+        "code": "public class StartVsRun {\n    public static void main(String[] args) {\n        Runnable task = () -> System.out.println(\"Работает: \" + Thread.currentThread().getName());\n\n        Thread t1 = new Thread(task);\n        t1.run();      // просто вызов метода\n\n        Thread t2 = new Thread(task);\n        t2.start();    // запуск нового потока\n    }\n}",
+        "console": { "title": "StartVsRun", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… StartVsRun" },
+          { "t": "out", "s": "Работает: main" }, { "t": "out", "s": "Работает: Thread-1" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Это <code>t1.run()</code>: задачу выполнил сам <b>main</b> — никакого нового потока не появилось" },
+                   { "n": 2, "target": "output-2", "text": "Это <code>t2.start()</code>: задачу выполнил новый поток <b>Thread-1</b>" } ],
+        "caption": "start() и run(): кто на самом деле выполнил задачу" }
+      </script>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th><code>start()</code></th><th><code>run()</code></th></tr>
+        <tr><td>Новый поток</td><td>создаётся, задача выполняется в нём</td><td><b>не</b> создаётся</td></tr>
+        <tr><td>Кто выполняет</td><td>новый поток (<code>Thread-1</code>)</td><td>тот, кто вызвал (<code>main</code>)</td></tr>
+        <tr><td>Главный поток</td><td>сразу идёт дальше</td><td>ждёт, пока <code>run()</code> закончится</td></tr>
+        <tr><td>Вызвать дважды</td><td>второй раз — <code>IllegalThreadStateException</code></td><td>можно сколько угодно: это обычный метод</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка</span>
+      <p><code>run()</code> компилируется и даже работает — только без всякой многопоточности. Ошибку не видно, пока не заметишь, что «параллельные» задачи почему-то идут по очереди. Запускай потоки только через <code>start()</code>, и только <b>один раз</b>: отработавший поток заново не запустить, нужен новый объект <code>Thread</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Почему второй поток в выводе называется Thread-1, а не Thread-0?</summary>
+      <p>Номер получает каждый <b>созданный</b> объект <code>Thread</code>, по порядку. <code>t1</code> стал <code>Thread-0</code> — хоть мы его и не запустили, а лишь вызвали <code>run()</code>. Поэтому <code>t2</code> — <code>Thread-1</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>sleep и join: подождать</h2>
+    <p>Вызов статического метода <code>Thread.sleep(500)</code> с аргументом 500 усыпляет <b>текущий</b> поток на 500 миллисекунд. Вызов <code>helper.join()</code> — <b>ожидание завершения потока</b>: текущий поток говорит «я подожду, пока <code>helper</code> закончит работу». Оба метода могут выбросить проверяемое <code>InterruptedException</code> — «тебя разбудили раньше времени», поэтому <code>main</code> объявляет <code>throws</code>.</p>
+    <p>Забудешь про это — IDEA сразу подчеркнёт вызов красным, а программа не скомпилируется:</p>
+    <div data-widget="ide" id="shot-unhandled-interrupted">
+      <script type="application/json">
+      { "tree": false, "file": "JoinDemo.java", "statusPath": "module-16", "gutterRun": [1, 2],
+        "code": "public class JoinDemo {\n    public static void main(String[] args) {\n        Thread helper = new Thread(() -> System.out.println(\"Варю суп\"));\n        helper.start();\n        helper.join();\n    }\n}",
+        "errors": [ { "line": 5, "text": "helper.join()", "msg": "Unhandled exception: java.lang.InterruptedException", "tip": true, "fix": "Add exception to method signature" } ],
+        "marks": [ { "n": 1, "target": "err-5", "side": "left", "text": "Красная волна под вызовом <code>join()</code>: этот метод может бросить проверяемое исключение, а мы его никак не обработали" },
+                   { "n": 2, "target": "tip", "text": "<b>Unhandled exception</b> — «необработанное исключение». <kbd>Alt</kbd>+<kbd>Enter</kbd> предложит два выхода: дописать <code>throws InterruptedException</code> к <code>main</code> или обернуть вызов в try-catch. (<code>javac</code> скажет то же другими словами: <code>unreported exception InterruptedException; must be caught or declared to be thrown</code>)" },
+                   { "n": 3, "target": "problems", "text": "❗1 — одна ошибка в файле. Пока она есть, запустить программу нельзя" } ],
+        "caption": "Забыли про InterruptedException — ошибка компиляции" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">А внутри лямбды — только try-catch</span>
+      <p>Если тот же <code>sleep</code> вызвать в теле лямбды-<code>Runnable</code>, IDEA покажет ту же ошибку, но <code>throws</code> там не допишешь: метод <code>run()</code> у <code>Runnable</code> не разрешает бросать проверяемые исключения. Поэтому в примере ниже <code>sleep</code> обёрнут в try-catch прямо в лямбде.</p>
+    </div>
+<pre data-file="JoinDemo.java"><code class="java">public class JoinDemo {
+    static int soupBowls = 0;
+
+    public static void main(String[] args) throws InterruptedException {
+        Thread helper = new Thread(() -&gt; {
+            try {
+                Thread.sleep(500);          // суп варится полсекунды
+            } catch (InterruptedException e) {
+                return;
+            }
+            soupBowls = 4;
+        });
+        helper.start();
+        helper.join();                      // главный ждёт помощника
+        System.out.println("Тарелок супа: " + soupBowls);
+    }
+}</code></pre>
+    <p>Пройди программу по шагам. Обрати внимание, что делает главный поток, пока работает помощник.</p>
+    <div data-widget="trace" id="trace-m16-01-join">
+      <script type="application/json">
+      { "title": "Главный поток ждёт помощника", "icon": "🧵",
+        "intro": "В таблице — состояние двух потоков и общей переменной soupBowls. Строка, подсвеченная в коде, — то, что выполняется сейчас.",
+        "code": "static int soupBowls = 0;\n\nThread helper = new Thread(() -> {\n    Thread.sleep(500);\n    soupBowls = 4;\n});\nhelper.start();\nhelper.join();\nSystem.out.println(\"Тарелок супа: \" + soupBowls);",
+        "steps": [
+          { "line": 1, "vars": { "soupBowls": "0", "main": "работает" }, "note": "Общая переменная: её видят оба потока." },
+          { "line": 3, "vars": { "soupBowls": "0", "main": "работает", "helper": "создан (NEW)" }, "note": "Создали объект потока и передали конструктору лямбда-выражение, но поток ещё не запущен. Тело лямбды не выполняется." },
+          { "line": 7, "vars": { "soupBowls": "0", "main": "работает", "helper": "запущен" }, "note": "Вызов start() запускает поток — и у нас два потока. Главный сразу идёт к следующей строке." },
+          { "line": 8, "vars": { "soupBowls": "0", "main": "ждёт helper", "helper": "спит 500 мс" }, "note": "join(): главный поток замирает, пока helper не закончит. Помощник в это время спит в sleep." },
+          { "line": 5, "vars": { "soupBowls": "4", "main": "ждёт helper", "helper": "работает" }, "ask": ["soupBowls"], "note": "Помощник проснулся и записал в общую переменную 4." },
+          { "line": 6, "vars": { "soupBowls": "4", "main": "ждёт helper", "helper": "завершён" }, "note": "Тело лямбды выполнено до конца — поток helper завершён навсегда (TERMINATED)." },
+          { "line": 9, "vars": { "soupBowls": "4", "main": "работает", "helper": "завершён" }, "out": "Тарелок супа: 4\n", "note": "join() вернул управление, главный поток печатает. Благодаря join результат всегда 4." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что напечатает программа, если убрать строку helper.join()?</summary>
+      <p>Почти наверняка <code>Тарелок супа: 0</code>. Главный поток не ждёт и печатает сразу, а помощник ещё спит. Ошибки нет — просто ответ неправильный. Именно так рождаются «плавающие» ошибки: программа прочитала результат раньше, чем данные успели появиться.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: состояния потока и interrupt()</summary>
+      <p>У потока есть состояния (<code>t.getState()</code>): <b>NEW</b> — создан, не запущен; <b>RUNNABLE</b> — работает или готов работать; <b>BLOCKED</b> — ждёт замок (урок 2); <b>WAITING</b> / <b>TIMED_WAITING</b> — ждёт в <code>join()</code> или <code>sleep()</code>; <b>TERMINATED</b> — закончил.</p>
+      <p>Остановить поток силой в Java нельзя (старый метод <code>stop()</code> давно запрещён). Можно только <b>вежливо попросить</b>: <code>t.interrupt()</code>. Если поток спит в <code>sleep</code> или ждёт в <code>join</code>, он получит <code>InterruptedException</code> и сам решит, как закончить работу. Если просто считает — пусть сам проверяет <code>Thread.currentThread().isInterrupted()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m16-01">
+      <script type="application/json">
+      {
+       "title": "Потоки: главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что выведет программа?",
+         "code": "Thread t = new Thread(() ->\n    System.out.println(Thread.currentThread().getName()));\nt.run();",
+         "options": [
+          "Thread-0",
+          "main",
+          "Ничего: поток не запущен"
+         ],
+         "answer": 1,
+         "why": "run() — обычный вызов метода: код выполняет текущий поток, то есть main. Новый поток запустил бы только start()."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Метод main выполняется в потоке с именем main",
+           "a": true
+          },
+          {
+           "s": "Если запустить два потока, их вывод всегда идёт в порядке вызова start()",
+           "a": false,
+           "why": "порядок решает планировщик операционной системы, от запуска к запуску он разный."
+          },
+          {
+           "s": "У каждого потока свои локальные переменные, а объекты в куче общие",
+           "a": true
+          },
+          {
+           "s": "Отработавший поток можно запустить заново ещё одним start()",
+           "a": false,
+           "why": "повторный start() бросит IllegalThreadStateException. Нужен новый объект Thread."
+          }
+         ]
+        },
+        {
+         "type": "match",
+         "q": "Соедини метод с тем, что он делает",
+         "left": [
+          "start()",
+          "run()",
+          "join()",
+          "Thread.sleep(1000)"
+         ],
+         "right": [
+          "Запускает новый поток",
+          "Выполняет задачу в текущем потоке",
+          "Ждёт, пока другой поток закончит",
+          "Усыпляет текущий поток на секунду"
+         ],
+         "why": "start — запуск, run — просто метод, join — ждать другого, sleep — поспать самому."
+        },
+        {
+         "type": "bug",
+         "q": "Программа не компилируется. Где ошибка?",
+         "code": "public class Nap {\n    public static void main(String[] args) {\n        Thread.sleep(1000);\n        System.out.println(\"Выспался\");\n    }\n}",
+         "answer": [
+          3
+         ],
+         "why": "sleep бросает проверяемое InterruptedException. Его нужно поймать в try-catch или добавить throws InterruptedException к main."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 16.1. Спроси меня, чем start() отличается от run(), как на собеседовании, и поправь, если я отвечу неточно»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Процесс — кухня, поток — повар. Потоки одной программы делят общие объекты в куче, а локальные переменные у каждого свои.</li>
+        <li><code>main</code> — тоже поток. Создание объекта потока: <code>new Thread(runnable)</code> — задача (<code>Runnable</code>) передаётся аргументом конструктора, удобно — лямбда-выражением.</li>
+        <li><code>start()</code> запускает новый поток, <code>run()</code> — просто вызов метода в текущем. Повторный <code>start()</code> — <code>IllegalThreadStateException</code>.</li>
+        <li>Порядок работы потоков не гарантирован. Нужен порядок — обеспечь его сам.</li>
+        <li><code>join()</code> — дождаться потока, <code>Thread.sleep(ms)</code> — поспать. Оба бросают <code>InterruptedException</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

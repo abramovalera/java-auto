@@ -1,0 +1,50 @@
+## id: m17-t06
+## title: Каталог книг: AssertJ и @BeforeEach
+## file: module-17/BookShelfCatalogTest.java
+## class: BookShelfCatalogTest
+## level: 3
+## mode: junit
+@@ description
+<p>Протестируем маленький каталог книг. Создай <code>module-17/BookShelfCatalogTest.java</code> и набери класс (без <code>public</code>; импорты <code>java.util.ArrayList</code> и <code>java.util.List</code> — в начало файла):</p>
+<pre><code class="java">class BookShelfCatalog {
+    private final List&lt;String&gt; titles = new ArrayList&lt;&gt;();
+
+    void add(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Название книги не может быть пустым");
+        }
+        titles.add(title.strip());
+    }
+
+    int size() {
+        return titles.size();
+    }
+
+    // все книги, в названии которых есть слово (без учёта регистра), в порядке добавления
+    List&lt;String&gt; findByWord(String word) {
+        List&lt;String&gt; found = new ArrayList&lt;&gt;();
+        for (String t : titles) {
+            if (t.toLowerCase().contains(word.toLowerCase())) {
+                found.add(t);
+            }
+        }
+        return found;
+    }
+}</code></pre>
+<p>Требования к тестам:</p>
+<ul>
+<li>В тестовом классе поле <code>catalog</code> и метод с <code>@BeforeEach</code>: перед <b>каждым</b> тестом создаёт новый каталог и кладёт в него 3 книги. Так тесты не мешают друг другу.</li>
+<li><b>Минимум 5 тестов</b>, все проверки — на <b>AssertJ</b> (<code>assertThat(…)</code>), без <code>assertEquals</code>/<code>assertTrue</code>.</li>
+<li>Проверь: размер каталога (<code>isEqualTo</code>); поиск находит нужные книги в нужном порядке (<code>containsExactly</code>); поиск не зависит от регистра; по незнакомому слову — пустой список (<code>isEmpty</code>); пробелы по краям названия обрезаются.</li>
+<li>Пустое название → исключение: <code>assertThatThrownBy(() -&gt; …).isInstanceOf(…).hasMessageContaining(…)</code>.</li>
+</ul>
+<p>Импорт AssertJ: <code>import static org.assertj.core.api.Assertions.*;</code> — как подключить библиотеку в IDEA, написано в уроке.</p>
+<p>📖 <a href="/lessons/m17/06-junit-deeper.html">JUnit 5 глубже и AssertJ</a></p>
+@@ require: @BeforeEach | Нужен метод с @BeforeEach, который готовит свежий каталог перед каждым тестом
+@@ require: (@Test[\s\S]*){5} | Нужно минимум 5 тестов с @Test
+@@ require: assertThat\s*\( | Проверки пиши на AssertJ: assertThat(фактическое).isEqualTo(ожидаемое)
+@@ require: containsExactly\s*\( | Проверь результат поиска целиком через containsExactly — и состав, и порядок
+@@ require: assertThatThrownBy|assertThatExceptionOfType|assertThatIllegalArgumentException | Проверь исключение для пустого названия средствами AssertJ (assertThatThrownBy)
+@@ require: class\s+BookShelfCatalog\b | Набери в файл класс BookShelfCatalog из условия
+@@ forbid: \b(assertEquals|assertTrue|assertFalse)\s*\( | В этой задаче все проверки — на AssertJ, без assertEquals/assertTrue/assertFalse
+@@ forbid: @Disabled | Выключенный тест — не тест. Убери @Disabled

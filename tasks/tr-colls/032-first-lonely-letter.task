@@ -1,0 +1,43 @@
+## id: tr-colls-032
+## title: Первая неповторяющаяся буква
+## file: trainer/colls/FirstLonelyLetter.java
+## class: FirstLonelyLetter
+## level: 2
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>FirstLonelyLetter</code>. Программа читает одно слово из маленьких букв и ищет первую букву, которая встречается в слове ровно один раз. Напечатай <code>Первая уникальная: буква</code> или <code>Все буквы повторяются</code>.</p>
+<pre class="terminal"><span class="out">ввод:  ракета
+вывод: Первая уникальная: р
+
+ввод:  колокол
+вывод: Все буквы повторяются</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>LinkedHashMap</code> — словарь, который помнит порядок добавления ключей</li>
+<li>сначала посчитай все буквы, потом пройди по словарю и найди первую с количеством 1</li>
+</ul></div>
+@@ test: Ракета
+@@ input
+ракета
+@@ expect
+Первая уникальная: р
+@@ test: Все повторяются
+@@ input
+колокол
+@@ expect
+Все буквы повторяются
+@@ test: Одна буква
+@@ input
+я
+@@ expect
+Первая уникальная: я
+@@ test: Уникальная в конце
+@@ input
+ааббв
+@@ expect
+Первая уникальная: в
+@@ test: Ловушка: первая буква слова повторяется позже
+@@ input
+абвгба
+@@ expect
+Первая уникальная: в
+@@ require: LinkedHashMap | Считай буквы в LinkedHashMap — он помнит порядок

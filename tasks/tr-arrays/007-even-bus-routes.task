@@ -1,0 +1,40 @@
+## id: tr-arrays-007
+## title: Чётные маршруты
+## file: trainer/arrays/EvenBusNumbers.java
+## class: EvenBusNumbers
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>EvenBusNumbers</code>. Сегодня по городу ходят только автобусы с чётными номерами маршрутов. В первой строке — количество маршрутов <code>n</code> (n ≥ 1), во второй — <code>n</code> номеров. Напечатай чётные номера в том же порядке, в одну строку через пробел. Если чётных нет — напечатай <code>Нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       12 7 40 33 8 1
+вывод: 12 40 8</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>x % 2 == 0</code> — условие «число чётное»</li>
+<li><code>boolean found = false;</code> — флаг: станет <code>true</code>, когда напечатаешь первый подходящий номер</li>
+</ul></div>
+@@ test: Смешанные
+@@ input
+6
+12 7 40 33 8 1
+@@ expect
+12 40 8
+@@ test: Нет чётных
+@@ input
+3
+5 17 91
+@@ expect
+Нет
+@@ test: Все чётные
+@@ input
+3
+2 4 6
+@@ expect
+2 4 6
+@@ test: Один маршрут
+@@ input
+1
+100
+@@ expect
+100
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

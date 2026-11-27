@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Стек вызовов · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-03">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 7 · Урок 3</div>
+    <h1>Стек вызовов</h1>
+    <p class="lead">Метод вызывает метод, тот — ещё один, а тот — ещё… Как Java не теряется и всегда знает, куда вернуться? Знакомься: стек вызовов — одна из самых важных идей в программировании.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧠 память по шагам</span><span>🐞 stack trace</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m07-03-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "static int plusOne(int n) {\n    return n + 1;\n}\n\n// в main:\nSystem.out.println(plusOne(plusOne(5)));",
+            "answer": "7", "why": "Сначала выполняется внутренний вызов: plusOne(5) возвращает 6, это значение становится аргументом внешнего вызова — plusOne(6) возвращает 7." },
+          { "type": "single", "q": "Что значит ошибка missing return statement?",
+            "options": ["После return стоит лишний код", "Метод обещал вернуть значение, но на каком-то пути return нет", "Метод вызван без аргументов"], "answer": 1,
+            "why": "Компилятор требует return на каждом пути выполнения, если тип возвращаемого значения не void." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Переменные из модуля 2 хранятся в стеке, а массивы — в куче", "a": true },
+              { "s": "Аргументы передаются в параметры по именам, а не по порядку", "a": false, "why": "строго по порядку: первый аргумент инициализирует первый параметр." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: отладчик, часть 2, и прыжки по коду</h3>
+      <p>Сегодня заглянем внутрь методов — и своих, и чужих. Базовые клавиши отладчика (точка останова <kbd>Ctrl</kbd>+<kbd>F8</kbd>, запуск 🐞 <kbd>Shift</kbd>+<kbd>F9</kbd>, шаг <kbd>F8</kbd>, дальше <kbd>F9</kbd>, стоп <kbd>Ctrl</kbd>+<kbd>F2</kbd>) — в шпаргалке урока 6.5. Допиши к ним новые:</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>F7</kbd> (Step Into)</td><td>Зайти <b>внутрь</b> метода, который вызывается на текущей строке</td><td>Хочешь посмотреть, что делает твой метод</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F8</kbd> (Step Out)</td><td>Доработать текущий метод до конца и вернуться к тому, кто его вызвал</td><td>Зашёл в метод, а там всё ясно</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd> (Force Step Into)</td><td>Зайти даже в метод JDK — например, в <code>println</code></td><td>Любопытно, что внутри у Java</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>B</kbd> или <kbd>Ctrl</kbd>+клик</td><td>Перейти к объявлению метода (в том числе в код JDK)</td><td>Видишь вызов — хочешь открыть объявление метода</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd></td><td>Вернуться туда, откуда прыгнул</td><td>Насмотрелся — назад в свой файл</td></tr>
+      </table></div>
+      <p style="margin-top:10px">Разница <kbd>F8</kbd> и <kbd>F7</kbd> на строке с вызовом метода: <kbd>F8</kbd> выполнит вызов целиком и встанет на следующую строку, <kbd>F7</kbd> провалится внутрь метода.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Метод вызывает метод</h2>
+    <p>В теле метода можно вызывать другие методы — так же, как из main. Настоящие программы так и устроены: большая задача делится на маленькие, а те — на ещё меньшие. Вот касса магазина:</p>
+<pre data-file="Shop.java"><code class="java">public class Shop {
+    public static void main(String[] args) {
+        int total = calculateTotal(300, 4);
+        System.out.println("К оплате: " + total);
+    }
+
+    static int calculateTotal(int price, int count) {
+        int sum = price * count;
+        int discount = calculateDiscount(sum);
+        return sum - discount;
+    }
+
+    static int calculateDiscount(int sum) {
+        if (sum &gt; 1000) {
+            return percentOf(sum, 10);
+        }
+        return 0;
+    }
+
+    static int percentOf(int value, int percent) {
+        return value * percent / 100;
+    }
+}</code></pre>
+    <p>Цепочка: <b>main</b> → <b>calculateTotal</b> → <b>calculateDiscount</b> → <b>percentOf</b>. Пока <code>percentOf</code> считает, три метода под ним <b>ждут</b>: каждый остановился посреди своей строки и ждёт возвращаемого значения. Как Java помнит, кто кого ждёт и в каком месте?</p>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа?</summary>
+      <p><b>К оплате: 1080.</b> main вызывает <code>calculateTotal</code> и передаёт аргументы 300 и 4: сумма 300 × 4 = 1200. Она больше 1000, значит <code>calculateDiscount</code> вернёт 10% от 1200 = 120. Итог 1200 − 120 = 1080. Сейчас пройдём это по шагам и посмотрим, что творится в памяти.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Стопка рабочих столов</h2>
+    <p>Помнишь из модуля 2: переменные живут в области памяти под названием <b>стек</b>. Теперь узнаем, почему она так называется.</p>
+    <p>Каждый раз, когда вызывается метод, Java кладёт на стек новый <b>фрейм</b> (кадр) — «рабочий стол» этого метода. На нём лежат:</p>
+    <ul>
+      <li>параметры метода (инициализированные значениями аргументов);</li>
+      <li>его <b>локальные переменные</b> — те, что объявлены в теле метода;</li>
+      <li>закладка: в какое место вернуться, когда метод закончит.</li>
+    </ul>
+    <p>Новый фрейм всегда кладётся <b>сверху</b>. Работает всегда <b>верхний</b>. Когда метод делает <code>return</code> (или доходит до закрывающей скобки), его фрейм <b>снимают</b>, и работа продолжается в фрейме под ним — ровно с той закладки.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: стопка тарелок</span>
+      <p>Тарелку кладут только сверху и берут только сверху. Последней положили — первой взяли. По-английски это LIFO: <i>Last In, First Out</i>. Метод, который вызвали последним, закончится первым — иначе и быть не может: те, кто ниже, ждут его ответа.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Стек вызовов растёт при вызовах и уменьшается при возвратах: пять снимков">
+        <path d="M10 252 H750" class="d-line"/>
+        <!-- 1 -->
+        <rect x="12" y="212" width="136" height="36" rx="8" class="d-accent"/><text x="80" y="235" text-anchor="middle" class="d-mono-ink">main</text>
+        <!-- 2 -->
+        <rect x="162" y="212" width="136" height="36" rx="8" class="d-soft"/><text x="230" y="235" text-anchor="middle" class="d-mono-ink">main</text>
+        <rect x="162" y="172" width="136" height="36" rx="8" class="d-accent"/><text x="230" y="195" text-anchor="middle" class="d-mono-ink" style="font-size:12px">calculateTotal</text>
+        <!-- 3 -->
+        <rect x="312" y="212" width="136" height="36" rx="8" class="d-soft"/><text x="380" y="235" text-anchor="middle" class="d-mono-ink">main</text>
+        <rect x="312" y="172" width="136" height="36" rx="8" class="d-soft"/><text x="380" y="195" text-anchor="middle" class="d-mono-ink" style="font-size:12px">calculateTotal</text>
+        <rect x="312" y="132" width="136" height="36" rx="8" class="d-accent"/><text x="380" y="155" text-anchor="middle" class="d-mono-ink" style="font-size:12px">calculateDiscount</text>
+        <!-- 4 -->
+        <rect x="462" y="212" width="136" height="36" rx="8" class="d-soft"/><text x="530" y="235" text-anchor="middle" class="d-mono-ink">main</text>
+        <rect x="462" y="172" width="136" height="36" rx="8" class="d-soft"/><text x="530" y="195" text-anchor="middle" class="d-mono-ink" style="font-size:12px">calculateTotal</text>
+        <rect x="462" y="132" width="136" height="36" rx="8" class="d-soft"/><text x="530" y="155" text-anchor="middle" class="d-mono-ink" style="font-size:12px">calculateDiscount</text>
+        <rect x="462" y="92" width="136" height="36" rx="8" class="d-accent"/><text x="530" y="115" text-anchor="middle" class="d-mono-ink">percentOf</text>
+        <!-- 5 -->
+        <rect x="612" y="212" width="136" height="36" rx="8" class="d-green"/><text x="680" y="235" text-anchor="middle" class="d-mono-ink">main</text>
+        <path d="M680 92 V200" class="d-dash"/>
+        <text x="680" y="80" text-anchor="middle" class="d-small">return, return, return</text>
+        <!-- подписи -->
+        <text x="80" y="275" text-anchor="middle" class="d-small">① старт</text>
+        <text x="230" y="275" text-anchor="middle" class="d-small">② вызов</text>
+        <text x="380" y="275" text-anchor="middle" class="d-small">③ ещё вызов</text>
+        <text x="530" y="275" text-anchor="middle" class="d-small">④ вершина: 4 фрейма</text>
+        <text x="680" y="275" text-anchor="middle" class="d-small">⑤ всё вернулось</text>
+        <text x="530" y="40" text-anchor="middle" class="d-title">работает только верхний</text>
+        <text x="530" y="62" text-anchor="middle" class="d-small">остальные ждут ответа</text>
+      </svg>
+      <figcaption>Стек растёт вверх с каждым вызовом и уменьшается с каждым return. Подсвечен фрейм, который работает прямо сейчас.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Стек вызовов (call stack)</dt><dd>Стопка фреймов всех методов, которые начали работу, но ещё не закончили. Внизу — main, сверху — тот, кто работает сейчас.</dd>
+      <dt>Фрейм (кадр стека)</dt><dd>«Рабочий стол» одного вызова: параметры, локальные переменные, место возврата.</dd>
+      <dt>Глубина стека</dt><dd>Сколько фреймов в стопке сейчас. В нашем магазине максимум — 4.</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Пройди кассу по шагам</h2>
+    <p>Теперь смотри на настоящий стек. Каждый вызов кладёт фрейм, каждый <code>return</code> его снимает. Там, где спросят, впиши значение сам.</p>
+    <div data-widget="trace" id="trace-m07-03-shop">
+      <script type="application/json">
+      { "title": "Стек вызовов кассы магазина",
+        "intro": "Справа стек: верхний фрейм — метод, который работает сейчас. Следи, как стопка растёт до четырёх фреймов и снова уменьшается.",
+        "code": "public class Shop {\n    public static void main(String[] args) {\n        int total = calculateTotal(300, 4);\n        System.out.println(\"К оплате: \" + total);\n    }\n\n    static int calculateTotal(int price, int count) {\n        int sum = price * count;\n        int discount = calculateDiscount(sum);\n        return sum - discount;\n    }\n\n    static int calculateDiscount(int sum) {\n        if (sum > 1000) {\n            return percentOf(sum, 10);\n        }\n        return 0;\n    }\n\n    static int percentOf(int value, int percent) {\n        return value * percent / 100;\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "note": "Чтобы инициализировать total, main вызывает <code>calculateTotal</code> и передаёт аргументы 300 и 4. Сам main замирает на строке 3." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4" } } ], "note": "На стек лёг фрейм <code>calculateTotal</code>. Параметры price и count инициализированы аргументами 300 и 4." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } } ], "vars": { "sum": "1200" }, "ask": ["sum"], "note": "Перемножь параметры этого фрейма: локальная переменная sum инициализируется значением 300 * 4 = 1200." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } } ], "note": "Нужна скидка — вызываем <code>calculateDiscount</code> и передаём аргумент sum. Теперь ждут уже двое: main и calculateTotal." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } }, { "frame": "calculateDiscount", "vars": { "sum": "1200" } } ], "note": "Третий фрейм. У него свой параметр <code>sum</code> — имя совпало с переменной в calculateTotal, но это <b>другая</b> переменная на другом столе." },
+          { "line": 14, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } }, { "frame": "calculateDiscount", "vars": { "sum": "1200" } } ], "note": "Условие 1200 &gt; 1000 — true, выполняется тело if." },
+          { "line": 15, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } }, { "frame": "calculateDiscount", "vars": { "sum": "1200" } } ], "note": "Чтобы вернуть ответ, нужно значение вызова <code>percentOf(sum, 10)</code> — передаём два аргумента. Ещё один вызов!" },
+          { "line": 20, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } }, { "frame": "calculateDiscount", "vars": { "sum": "1200" } }, { "frame": "percentOf", "vars": { "value": "1200", "percent": "10" } } ], "note": "Вершина: <b>четыре</b> фрейма. Работает только верхний, трое под ним ждут." },
+          { "line": 21, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } }, { "frame": "calculateDiscount", "vars": { "sum": "1200" } }, { "frame": "percentOf", "vars": { "value": "1200", "percent": "10" } } ], "note": "Выражение 1200 * 10 / 100 = 120. <code>return</code> возвращает 120, фрейм percentOf снимают." },
+          { "line": 15, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200" } }, { "frame": "calculateDiscount", "vars": { "sum": "1200" } } ], "note": "Вернулись в calculateDiscount, на ту же строку 15. Вызов заменился возвращённым значением 120, и метод сразу возвращает его дальше: <code>return 120</code>." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200", "discount": "120" } } ], "vars": { "discount": "120" }, "ask": ["discount"], "note": "Какое число вернул calculateDiscount? Скидка — 120, ею инициализирована локальная переменная discount." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": {} }, { "frame": "calculateTotal", "vars": { "price": "300", "count": "4", "sum": "1200", "discount": "120" } } ], "note": "<code>return sum - discount</code> = 1200 − 120 = 1080. Фрейм calculateTotal снимают вместе с price, count, sum и discount." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "total": "1080" } } ], "vars": { "total": "1080" }, "ask": ["total"], "note": "Что вернул calculateTotal? Его возвращаемым значением инициализирована total = 1080. На стеке снова один main." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "total": "1080" } } ], "vars": { "total": "1080" }, "out": "К оплате: 1080\n", "note": "Вызов println печатает строку. Потом main закончится, стек опустеет — программа завершена." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p>Заметь: переменная <code>sum</code> была на двух столах сразу, и они друг другу не мешали. Каждый вызов получает <b>свой</b> фрейм со <b>своими</b> переменными. Это пригодится через три урока — в рекурсии один и тот же метод будет лежать на стеке много раз.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>println — тоже метод. И не один</h2>
+    <p>Ты сто раз писал <code>System.out.println("Привет")</code>. Это вызов метода <code>println</code> у объекта <code>System.out</code> с аргументом <code>"Привет"</code>. Метод объявлен не в твоём классе, а в стандартной библиотеке Java — в готовом коде, который пришёл вместе с JDK. И внутри <code>println</code> — не волшебство, а обычные методы, которые вызывают другие методы.</p>
+    <p>Если остановить программу в момент, когда буквы уходят на экран, стек вызовов будет примерно таким (упрощённо, точные имена зависят от версии JDK):</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 430" role="img" aria-label="Стек вызовов внутри println: от main до операционной системы">
+        <rect x="30" y="380" width="420" height="34" rx="8" class="d-accent"/><text x="46" y="402" class="d-mono-ink">Hello.main</text><text x="470" y="402" class="d-small">твой код — всего один фрейм</text>
+        <rect x="30" y="342" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="364" class="d-mono-ink">PrintStream.println</text>
+        <rect x="30" y="304" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="326" class="d-mono-ink">PrintStream.writeln</text>
+        <rect x="30" y="266" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="288" class="d-mono-ink">BufferedWriter.write</text>
+        <rect x="30" y="228" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="250" class="d-mono-ink">OutputStreamWriter.flushBuffer</text>
+        <rect x="30" y="190" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="212" class="d-mono-ink">StreamEncoder.writeBytes</text>
+        <rect x="30" y="152" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="174" class="d-mono-ink">PrintStream.write</text>
+        <rect x="30" y="114" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="136" class="d-mono-ink">BufferedOutputStream.flush</text>
+        <rect x="30" y="76" width="420" height="34" rx="8" class="d-blue"/><text x="46" y="98" class="d-mono-ink">FileOutputStream.write</text>
+        <rect x="30" y="38" width="420" height="34" rx="8" class="d-violet"/><text x="46" y="60" class="d-mono-ink">FileOutputStream.writeBytes</text><text x="470" y="60" class="d-small">native: дальше уже не Java,</text>
+        <text x="470" y="78" class="d-small">а операционная система → консоль</text>
+        <path d="M462 342 V112" class="d-dash"/>
+        <text x="470" y="230" class="d-small">код JDK — около десятка фреймов,</text>
+        <text x="470" y="250" class="d-small">каждый метод вызывает следующий</text>
+        <text x="30" y="24" class="d-small">вершина стека ↑</text>
+      </svg>
+      <figcaption>Одна строка <code>System.out.println("Hi")</code> — это целая лестница вызовов. Ты видишь только нижнюю ступеньку.</figcaption>
+    </figure>
+    <p>Эту лестницу можно увидеть своими глазами в отладчике IDEA — как, покажем в шаге 7. Не нужно запоминать эти имена. Важна сама идея: <b>Java — это гора готового кода</b>, и твоя программа стоит на её вершине. Каждая твоя «простая» строчка запускает методы, которые вызывают методы, которые вызывают методы…</p>
+    <div class="callout try">
+      <span class="callout-title">Попробуй в IDEA: провались внутрь println</span>
+      <p>1. Зажми <kbd>Ctrl</kbd> и щёлкни по слову <code>println</code> (или поставь на него курсор и нажми <kbd>Ctrl</kbd>+<kbd>B</kbd>). Откроется исходный код JDK — объявление метода <code>println</code>, написанное людьми. Внутри увидишь вызов следующего метода — щёлкни и по нему.</p>
+      <p>2. Чтобы вернуться обратно в свой файл, нажми <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd>.</p>
+    </div>
+    <div class="say" data-mood="think"><p>А что такое <code>System</code> и <code>out</code>, почему между ними точки и где «живёт» сам <code>println</code>? Это вопрос про классы и объекты. В модуле 9 мы разберём эту строку по кусочкам и сами построим цепочку из десятка классов — как кофейня, где заказ проходит через баристу, кофемашину, бойлер и насос.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Stack trace: стек, напечатанный при аварии</h2>
+    <p>Когда программа падает с ошибкой, Java печатает <b>stack trace</b> — «след стека»: снимок стопки фреймов в момент аварии. Это лучший друг программиста. Смотри:</p>
+<pre data-file="Report.java"><code class="java">public class Report {
+    public static void main(String[] args) {
+        printReport(0);
+    }
+
+    static void printReport(int days) {
+        System.out.println("Среднее: " + average(700, days));
+    }
+
+    static int average(int total, int count) {
+        return total / count;
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-stack-trace">
+      <script type="application/json">
+      { "tree": false, "file": "Report.java", "runConfig": "Report", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class Report {\n    public static void main(String[] args) {\n        printReport(0);\n    }\n\n    static void printReport(int days) {\n        System.out.println(\"Среднее: \" + average(700, days));\n    }\n\n    static int average(int total, int count) {\n        return total / count;\n    }\n}",
+        "console": { "title": "Report", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Report" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ArithmeticException: / by zero" },
+          { "t": "err", "s": "\tat Report.average(Report.java:11)" },
+          { "t": "err", "s": "\tat Report.printReport(Report.java:7)" },
+          { "t": "err", "s": "\tat Report.main(Report.java:3)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "<b>Что случилось</b>: исключение <code>ArithmeticException</code>, причина после двоеточия — <code>/ by zero</code>, деление на ноль" },
+                   { "n": 2, "target": "link-1", "text": "<b>Где упало</b> — верхний фрейм стека: метод <code>average</code>, строка 11. Щёлкни по синей ссылке — IDEA откроет эту строку" },
+                   { "n": 3, "target": "link-2", "text": "Кто вызвал <code>average</code>: <code>printReport</code>, со строки 7" },
+                   { "n": 4, "target": "link-3", "text": "А его вызвал <code>main</code> со строки 3 — дно стека. Отсюда и пришёл ноль" },
+                   { "n": 5, "target": "exit", "text": "«Среднее:» так и не напечаталось, программа завершилась аварийно — <b>exit code 1</b>" } ],
+        "caption": "Stack trace в консоли Run: сверху — где упало, ниже — кто вызывал" }
+      </script>
+    </div>
+    <p>Читаем сверху вниз — это стек от вершины ко дну:</p>
+    <ol class="steps">
+      <li><b>Первая строка</b> — что случилось: <code>ArithmeticException: / by zero</code>, деление на ноль.</li>
+      <li><b>at Report.average(Report.java:11)</b> — где именно упало: метод <code>average</code>, строка 11. Это верхний фрейм.</li>
+      <li><b>at Report.printReport(Report.java:7)</b> — кто вызвал average: метод printReport, со строки 7 — там average передали аргументы 700 и days.</li>
+      <li><b>at Report.main(Report.java:3)</b> — а его вызвал main со строки 3. Дно стека.</li>
+    </ol>
+    <p>Деление сломалось в <code>average</code>, но <b>виноват</b>, скорее всего, тот, кто передал ноль: main вызвал <code>printReport</code> с аргументом 0, им инициализировался параметр <code>days</code>. Stack trace показывает весь путь — и ты идёшь по нему вниз, пока не найдёшь, откуда пришло плохое значение. В IDEA имена файлов со строками в stack trace — синие ссылки: щёлкни, и редактор откроет нужную строку.</p>
+    <details class="predict">
+      <summary>Предскажи: успеет ли напечататься слово «Среднее:»?</summary>
+      <p><b>Нет.</b> Чтобы вызвать <code>println</code>, Java сначала должна вычислить аргумент — всё выражение <code>"Среднее: " + average(700, days)</code>. Вычисление упало внутри average, и до println дело не дошло. Аргументы всегда вычисляются <b>до</b> вызова метода.</p>
+    </details>
+    <div class="callout fact">
+      <span class="callout-title">Где это пригодится</span>
+      <p>Упавшая программа — это всегда stack trace. В большом проекте сверху могут оказаться десятки строк чужих библиотек, а ниже — твои методы. Умение быстро найти в нём <b>свою</b> строку — ежедневный навык любого программиста.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Стек в отладчике IDEA</h2>
+    <p>Стек вызовов можно увидеть вживую. Набери программу <code>Shop</code> из этого урока и:</p>
+    <ol class="steps">
+      <li>Щёлкни слева от номера строки <code>return value * percent / 100;</code> — появится красная точка. Это <b>точка останова</b> (breakpoint): «остановись здесь».</li>
+      <li>Запусти не ▶, а <b>жука 🐞</b> рядом (Debug). Программа остановится на красной строке.</li>
+      <li>Внизу откроется панель Debug. Слева в ней — список <b>Frames</b>: <code>percentOf</code>, <code>calculateDiscount</code>, <code>calculateTotal</code>, <code>main</code>. Это и есть стек! Щёлкай по фреймам — справа будут меняться переменные: у каждого фрейма свои.</li>
+      <li>Нажимай <kbd>F8</kbd> (Step Over — «шаг через»): программа пойдёт дальше по строчкам, методы будут возвращать значения, а фреймы — сниматься.</li>
+      <li>В другой раз попробуй <kbd>F7</kbd> (Step Into — «шаг внутрь»): на строке с вызовом метода отладчик зайдёт внутрь него. В методы JDK вроде println он по умолчанию не заходит — для этого есть <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd> (Force Step Into).</li>
+    </ol>
+    <p>Вот что ты увидишь, когда программа остановится на точке останова:</p>
+    <div data-widget="ide" id="shot-debug-frames">
+      <script type="application/json">
+      { "tree": false, "file": "Shop.java", "runConfig": "Shop", "statusPath": "module-07",
+        "code": "public class Shop {\n    public static void main(String[] args) {\n        int total = calculateTotal(300, 4);\n        System.out.println(\"К оплате: \" + total);\n    }\n\n    static int calculateTotal(int price, int count) {\n        int sum = price * count;\n        int discount = calculateDiscount(sum);\n        return sum - discount;\n    }\n\n    static int calculateDiscount(int sum) {\n        if (sum > 1000) {\n            return percentOf(sum, 10);\n        }\n        return 0;\n    }\n\n    static int percentOf(int value, int percent) {\n        return value * percent / 100;\n    }\n}",
+        "breakpoints": [21], "execLine": 21, "vals": { "20": "value: 1200   percent: 10" },
+        "debug": { "title": "Shop", "frames": ["percentOf:21, Shop", "calculateDiscount:15, Shop", "calculateTotal:9, Shop", "main:3, Shop"], "sel": 0,
+          "vars": [ { "name": "value", "value": "1200" }, { "name": "percent", "value": "10" } ] },
+        "marks": [ { "n": 1, "target": "bp-21", "side": "left", "text": "<b>Точка останова</b> — красный кружок у номера строки. Синяя полоса — программа стоит здесь, строка ещё не выполнена" },
+                   { "n": 2, "target": "debug-btn", "text": "Запускали жуком 🐞 (Debug), а не ▶ — иначе точки останова не сработают" },
+                   { "n": 3, "target": "frames", "text": "<b>Frames</b> — это и есть стек вызовов! Сверху <code>percentOf</code> (работает сейчас), снизу <code>main</code>. Через двоеточие — строка, на которой каждый метод стоит и ждёт: main — на 3, calculateTotal — на 9, calculateDiscount — на 15" },
+                   { "n": 4, "target": "vars", "text": "<b>Variables</b> — переменные выбранного фрейма. У <code>percentOf</code> только свои: <code>value</code> и <code>percent</code>" },
+                   { "n": 5, "target": "step-over", "text": "Кнопки шагов: <b>↷ Step Over</b> (<kbd>F8</kbd>), <b>↘ Step Into</b> (<kbd>F7</kbd>), <b>↗ Step Out</b> (<kbd>Shift</kbd>+<kbd>F8</kbd>). Левее — <b>▶ Resume</b> (<kbd>F9</kbd>) и красный квадрат «стоп»" } ],
+        "caption": "Отладчик остановился в percentOf: в панели Frames — четыре фрейма" }
+      </script>
+    </div>
+    <p>Щёлкни в Frames по <code>calculateTotal</code> — программа никуда не сдвинется, но отладчик покажет, где этот метод ждёт и что лежит на <b>его</b> рабочем столе:</p>
+    <div data-widget="ide" id="shot-debug-frame-select">
+      <script type="application/json">
+      { "tree": false, "file": "Shop.java", "runConfig": "Shop", "statusPath": "module-07",
+        "code": "public class Shop {\n    public static void main(String[] args) {\n        int total = calculateTotal(300, 4);\n        System.out.println(\"К оплате: \" + total);\n    }\n\n    static int calculateTotal(int price, int count) {\n        int sum = price * count;\n        int discount = calculateDiscount(sum);\n        return sum - discount;\n    }\n\n    static int calculateDiscount(int sum) {\n        if (sum > 1000) {\n            return percentOf(sum, 10);\n        }\n        return 0;\n    }\n\n    static int percentOf(int value, int percent) {\n        return value * percent / 100;\n    }\n}",
+        "breakpoints": [21], "execLine": 9, "vals": { "7": "price: 300   count: 4", "8": "sum: 1200" },
+        "debug": { "title": "Shop", "frames": ["percentOf:21, Shop", "calculateDiscount:15, Shop", "calculateTotal:9, Shop", "main:3, Shop"], "sel": 2,
+          "vars": [ { "name": "price", "value": "300" }, { "name": "count", "value": "4" }, { "name": "sum", "value": "1200" } ] },
+        "marks": [ { "n": 1, "target": "frame-3", "text": "Выбран фрейм <code>calculateTotal</code> — он третий сверху" },
+                   { "n": 2, "target": "line-9", "text": "Редактор показывает строку, где этот метод ждёт: вызов <code>calculateDiscount(sum)</code> ещё не вернул значение" },
+                   { "n": 3, "target": "vars", "text": "Переменные <b>этого</b> фрейма: <code>price</code>, <code>count</code>, <code>sum</code>. А <code>discount</code> ещё нет — её инициализируют, когда вызов вернёт значение" } ],
+        "caption": "У каждого фрейма — свои переменные" }
+      </script>
+    </div>
+    <p>А теперь — обещанный взгляд внутрь <code>println</code>. Поставь точку останова на строку 4 (<code>System.out.println(…)</code>), запусти 🐞 и несколько раз нажми <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd>. Стопка в Frames начнёт расти — это те самые методы JDK со схемы из шага 5:</p>
+    <div data-widget="ide" id="shot-debug-println">
+      <script type="application/json">
+      { "tree": false, "file": "Shop.java", "runConfig": "Shop", "statusPath": "module-07",
+        "code": "public class Shop {\n    public static void main(String[] args) {\n        int total = calculateTotal(300, 4);\n        System.out.println(\"К оплате: \" + total);\n    }\n\n    static int calculateTotal(int price, int count) {\n        int sum = price * count;\n        int discount = calculateDiscount(sum);\n        return sum - discount;\n    }\n\n    static int calculateDiscount(int sum) {\n        if (sum > 1000) {\n            return percentOf(sum, 10);\n        }\n        return 0;\n    }\n\n    static int percentOf(int value, int percent) {\n        return value * percent / 100;\n    }\n}",
+        "breakpoints": [4], "execLine": 4, "vals": { "2": "args: []", "3": "total: 1080" },
+        "debug": { "title": "Shop", "sel": 10,
+          "frames": ["write:367, FileOutputStream (java.io)", "flush:142, BufferedOutputStream (java.io)", "implWrite:566, PrintStream (java.io)", "write:544, PrintStream (java.io)", "writeBytes:234, StreamEncoder (sun.nio.cs)", "implFlushBuffer:334, StreamEncoder (sun.nio.cs)", "flushBuffer:160, OutputStreamWriter (java.io)", "implWriteln:848, PrintStream (java.io)", "writeln:826, PrintStream (java.io)", "println:1168, PrintStream (java.io)", "main:4, Shop"],
+          "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]" }, { "name": "total", "value": "1080" } ] },
+        "marks": [ { "n": 1, "target": "frame-11", "text": "Внизу — твой <code>main</code>, всего один фрейм. Он выбран, поэтому редактор показывает твой файл" },
+                   { "n": 2, "target": "frame-10", "text": "Над ним — <code>println</code> из класса <code>PrintStream</code>. В скобках — пакет, где живёт класс: <code>java.io</code>" },
+                   { "n": 3, "target": "frame-1", "text": "Вершина: <code>FileOutputStream.write</code> — последний шаг перед операционной системой, которая выведет буквы в консоль" },
+                   { "n": 4, "target": "frames", "text": "Около десятка фреймов JDK — и всё это одна твоя строчка <code>println</code>" } ],
+        "caption": "Внутри println: стек вызовов JDK в панели Frames. Точные имена методов и номера строк зависят от версии JDK — у тебя они будут другими" }
+      </script>
+    </div>
+    <div class="say" data-mood="happy"><p>Отладчик — это тот же трассировщик, что на сайте, только для любой твоей программы. Если не понимаешь, почему код работает не так, — поставь точку останова и пройди по шагам. Так делают все профессионалы.</p></div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m07-03">
+      <script type="application/json">
+      { "title": "Стек вызовов — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "public class Calls {\n    public static void main(String[] args) {\n        a();\n        System.out.println(\"main: конец\");\n    }\n\n    static void a() {\n        System.out.println(\"a: начало\");\n        b();\n        System.out.println(\"a: конец\");\n    }\n\n    static void b() {\n        System.out.println(\"b\");\n    }\n}",
+            "answer": "a: начало\nb\na: конец\nmain: конец", "why": "Метод a вызвал b и ждёт, пока b закончится, и только потом печатает «a: конец». main ждёт, пока закончится вызов a." },
+          { "type": "order", "q": "main вызывает x(), x вызывает y(). Расставь события по порядку",
+            "lines": ["фрейм main на стеке", "кладём фрейм x", "кладём фрейм y", "снимаем фрейм y", "снимаем фрейм x", "main заканчивается, стек пуст"],
+            "why": "LIFO: последним положили y — первым его и сняли." },
+          { "type": "single", "q": "Программа упала, stack trace такой. В каком методе произошла ошибка?",
+            "code": "Exception in thread \"main\" java.lang.ArithmeticException: / by zero\n\tat Game.score(Game.java:20)\n\tat Game.level(Game.java:12)\n\tat Game.main(Game.java:4)",
+            "options": ["main", "level", "score"], "answer": 2,
+            "why": "Верхняя строка at — верхний фрейм, где всё и сломалось. Ниже — кто его вызвал." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Работает всегда верхний фрейм стека", "a": true },
+              { "s": "После return фрейм метода остаётся на стеке до конца программы", "a": false, "why": "фрейм снимают сразу, вместе со всеми его переменными." },
+              { "s": "Две переменные с одинаковым именем в разных методах — это одна и та же переменная", "a": false, "why": "у каждого вызова свой фрейм и свои переменные." },
+              { "s": "System.out.println внутри тоже вызывает другие методы", "a": true }
+            ] },
+          { "type": "single", "q": "Какая максимальная глубина стека будет у кассы магазина из урока?",
+            "options": ["2", "3", "4", "5"], "answer": 2,
+            "why": "main → calculateTotal → calculateDiscount → percentOf: четыре фрейма одновременно (если не считать методы JDK внутри println)." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 7.3 про стек вызовов. Дай мне stack trace из трёх-четырёх методов, а я расскажу, что случилось и в каком порядке вызывались методы»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Каждый вызов метода кладёт на стек фрейм: параметры, <b>локальные переменные</b>, место возврата.</li>
+        <li>Работает только верхний фрейм; те, кто ниже, ждут ответа. return снимает фрейм, и выполнение продолжается в вызвавшем методе с того же места.</li>
+        <li>Стек — LIFO: последним вызван — первым закончится.</li>
+        <li><code>println</code> — тоже метод, а под ним десяток методов JDK. Ctrl+клик открывает их код.</li>
+        <li>Stack trace — снимок стека при аварии: сверху — где упало, ниже — кто вызвал. Отладчик показывает стек в панели Frames.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

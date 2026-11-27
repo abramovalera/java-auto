@@ -1,0 +1,39 @@
+## id: tr-strings-029
+## title: Робот вернулся домой?
+## file: trainer/strings/RobotBackHome.java
+## class: RobotBackHome
+## level: 2
+## category: Подсчёт символов
+@@ description
+<p>Напиши класс <code>RobotBackHome</code>. Робот-пылесос стартует в точке (0, 0) и получает строку команд: <code>U</code> — шаг вверх (y + 1), <code>D</code> — вниз (y − 1), <code>L</code> — влево (x − 1), <code>R</code> — вправо (x + 1). Программа читает строку команд (может быть пустой) и печатает <code>дома</code>, если робот вернулся в (0, 0), иначе — <code>координаты: x y</code>.</p>
+<pre class="terminal"><span class="out">ввод:  UD    вывод: дома
+ввод:  LL    вывод: координаты: -2 0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Две переменные-счётчика <code>x</code> и <code>y</code>, начальное значение — 0</li>
+<li><code>switch (c) { case 'U' -> y++; … }</code> — ветка на каждую команду</li>
+</ul></div>
+@@ test: Вверх и вниз
+@@ input
+UD
+@@ expect
+дома
+@@ test: Два шага влево
+@@ input
+LL
+@@ expect
+координаты: -2 0
+@@ test: Квадрат
+@@ input
+URDL
+@@ expect
+дома
+@@ test: Далеко от дома
+@@ input
+UUURRD
+@@ expect
+координаты: 2 2
+@@ test: Нет команд
+@@ input
+
+@@ expect
+дома

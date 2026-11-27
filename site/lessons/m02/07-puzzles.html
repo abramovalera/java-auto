@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки модуля 2 · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 2 · Головоломки</div>
+    <h1>Что выведется? Скомпилируется ли?</h1>
+    <p class="lead">Переменные, типы, ссылки, преобразования — на этом строится добрая половина вопросов «что будет?» на собеседованиях. Запускать нельзя, только думать.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 16 задачек</span><span>★★★ — на опережение</span></div>
+  </header>
+
+  <section class="step">
+    <h2>Как решать</h2>
+    <div class="callout tip">
+      <span class="callout-title">Сначала ответ — потом клик</span>
+      <p>Не кликай сразу. <b>Скажи ответ вслух или запиши</b> и объясни себе, почему так. Для задач с несколькими переменными нарисуй табличку трассировки, а для строк — стрелки на кучу. Не уверен — набери код в IDEA и проверь: так тоже честно.</p>
+    </div>
+    <div class="say" data-mood="cool"><p>На собеседовании ценят не угаданный ответ, а объяснение. «Будет 131, потому что char + char — это сложение кодов» звучит куда сильнее, чем просто «131».</p></div>
+  </section>
+
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+
+    <div class="quiz">
+      <p class="q">1. Разминка. Что напечатает программа?</p>
+<pre><code class="java">int a = 5;
+int b = a;
+a = 10;
+System.out.println(b);</code></pre>
+      <ul>
+        <li data-why="b не следит за a. В момент b = a переменную b инициализировали копией числа.">10</li>
+        <li data-correct data-why="int b = a объявляет b и инициализирует её копией значения a — пятёркой. Дальнейшие присваивания a на b не влияют: у каждой переменной своя коробка.">5</li>
+        <li data-why="Значения не складываются: присваивание заменяет, а не добавляет.">15</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">2. Классика. Что напечатает?</p>
+<pre><code class="java">System.out.println('A' + 'B' + "C");</code></pre>
+      <ul>
+        <li data-why="Склейка начинается только со строки. А первые два операнда — char.">ABC</li>
+        <li data-correct data-why="Выражение вычисляется слева направо: 'A' + 'B' — это два символа, то есть два числа: 65 + 66 = 131. Потом 131 + &quot;C&quot; — склейка: «131C».">131C</li>
+        <li data-why="Пробелов здесь неоткуда взяться.">A B C</li>
+        <li data-why="Складывать char можно — это же числа.">Ошибка компиляции</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">3. А так?</p>
+<pre><code class="java">System.out.println("" + 'A' + 'B' + 1);</code></pre>
+      <ul>
+        <li data-why="Пустая строка в начале превращает всё дальнейшее в склейку.">131</li>
+        <li data-why="Числа складывались бы, только если бы стояли до строки.">AB + 1</li>
+        <li data-correct data-why="&quot;&quot; + 'A' — уже строка «A». Дальше всё приклеивается: «AB», «AB1». Пустая строка в начале — известный трюк, чтобы превратить что угодно в текст.">AB1</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">4. Что окажется в <code>d</code>?</p>
+<pre><code class="java">double d = 10 / 4;
+System.out.println(d);</code></pre>
+      <ul>
+        <li data-why="Хочется, но 10 и 4 — оба int, и деление целочисленное.">2.5</li>
+        <li data-correct data-why="Выражение справа вычисляется первым и по правилам int: 10 / 4 = 2 (дробь отброшена). Потом 2 расширяется до double — 2.0. Чтобы получить 2.5, нужно 10 / 4.0 или (double) 10 / 4.">2.0</li>
+        <li data-why="Переменная double, поэтому печатается с точкой: 2.0.">2</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">5. ★★ Ловушка переполнения. Что напечатает?</p>
+<pre><code class="java">long big = Integer.MAX_VALUE + 1;
+System.out.println(big);</code></pre>
+      <ul>
+        <li data-why="Логично было бы, но long спасает только то, что уже в него попало.">2147483648</li>
+        <li data-correct data-why="Справа оба операнда int, и сложение идёт в int: переполнение, −2147483648. Только потом испорченное число расширяется до long. Починка: Integer.MAX_VALUE + 1L.">-2147483648</li>
+        <li data-why="Ошибки не будет: переполнение в Java происходит молча.">Ошибка компиляции</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">6. Строки и стрелки. Что напечатает?</p>
+<pre><code class="java">String s1 = "Кот";
+String s2 = s1;
+s1 = s1 + "ик";
+System.out.println(s2);</code></pre>
+      <ul>
+        <li data-why="s1 + &quot;ик&quot; не меняет объект «Кот», а создаёт новый. Переменной s1 присвоили ссылку на него — стрелку перевесили, s2 осталась на месте.">Котик</li>
+        <li data-correct data-why="Инициализация s2 = s1 копирует стрелку на «Кот». Строки неизменяемы: s1 + &quot;ик&quot; создаёт в куче новый объект «Котик», и ссылка на него присваивается только s1. s2 по-прежнему смотрит на «Кот».">Кот</li>
+        <li data-why="Обе переменные в порядке, null тут неоткуда взяться.">null</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">7. Что напечатает?</p>
+<pre><code class="java">char c = 'a';
+System.out.println(c + 1);</code></pre>
+      <ul>
+        <li data-why="Чтобы получить букву, результат нужно привести обратно: (char) (c + 1).">b</li>
+        <li data-why="Склейки нет: ни одной строки в выражении.">a1</li>
+        <li data-correct data-why="char + int = int: код 'a' (97) плюс 1 — это 98. Печатается число. Чтобы увидеть букву b, нужно (char) (c + 1).">98</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Скомпилируется ли?</h2>
+
+    <div class="quiz">
+      <p class="q">8. Скомпилируется?</p>
+<pre><code class="java">long stars = 3000000000;</code></pre>
+      <ul>
+        <li data-why="Коробка long большая, но проблема не в коробке, а в литерале.">Да, в long помещается</li>
+        <li data-correct data-why="Целый литерал без L — это int, а 3 миллиарда в int не влезает: integer number too large. Нужно 3000000000L (или 3_000_000_000L).">Нет: литерал без L считается int и слишком велик</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">9. Скомпилируется?</p>
+<pre><code class="java">float price = 9.99;</code></pre>
+      <ul>
+        <li data-why="Дробное число без f — это double, а значение double переменной float без приведения не присваивают.">Да</li>
+        <li data-correct data-why="9.99 — литерал double (8 байт), а float — 4 байта. Это сужение, оно не бывает автоматическим: possible lossy conversion from double to float. Нужно 9.99f.">Нет: 9.99 — это double, нужно 9.99f</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">10. ★★ Вопрос с подвохом. Скомпилируется? Если да, что напечатает?</p>
+<pre><code class="java">char c = 65;
+System.out.println(c);</code></pre>
+      <ul>
+        <li data-why="Обычно значение int переменной char не присваивают, но для постоянного числа, которое помещается в char, Java делает исключение.">Не скомпилируется: int в char нельзя</li>
+        <li data-why="c — это char, а char печатается как символ.">Скомпилируется, напечатает 65</li>
+        <li data-correct data-why="Если справа постоянное число (литерал), которое точно помещается в char, компилятор разрешает. c инициализирована кодом 65, а println печатает char как символ — A.">Скомпилируется, напечатает A</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">11. Скомпилируется?</p>
+<pre><code class="java">var data = null;</code></pre>
+      <ul>
+        <li data-why="var должен угадать тип по инициализатору справа, а у null типа нет.">Да, data будет пустой</li>
+        <li data-correct data-why="var выводит тип из инициализатора справа. null подходит к любой ссылке, но не говорит, к какой. Компилятор: cannot infer type for local variable data.">Нет: по null нельзя угадать тип</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">12. Найди строку с ошибкой.</p>
+<pre><code class="java">final int LIMIT;          // строка 1
+LIMIT = 10;               // строка 2
+LIMIT = 20;               // строка 3</code></pre>
+      <ul>
+        <li data-why="Объявить final-переменную без инициализации можно — главное, присвоить значение ровно один раз.">Строка 1: final без значения нельзя</li>
+        <li data-why="Это первое и единственное законное присваивание.">Строка 2</li>
+        <li data-correct data-why="Первое присваивание final-переменной — её инициализация — законно (строка 2). Второе — нет: variable LIMIT might already have been assigned.">Строка 3: значение уже было присвоено</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Скомпилируется, но что будет при запуске?</h2>
+
+    <div class="quiz">
+      <p class="q">13. Что будет при запуске?</p>
+<pre><code class="java">String title = null;
+System.out.println(title.length());</code></pre>
+      <ul>
+        <li data-why="У null нет длины, потому что нет самого объекта.">Напечатается 0</li>
+        <li data-why="Компилятор видит тип String, а у String есть length(). Проблема обнаружится только при запуске.">Ошибка компиляции</li>
+        <li data-correct data-why="Компиляция проходит, а при запуске выясняется, что объекта нет — стрелка никуда не ведёт. JVM бросает NullPointerException — самую частую ошибку в Java.">NullPointerException</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">14. Пользователь ввёл <code>20</code>, нажал Enter, потом ввёл <code>Анна</code>. Что напечатает программа?</p>
+<pre><code class="java">int age = scanner.nextInt();
+String name = scanner.nextLine();
+System.out.println(name + ": " + age);</code></pre>
+      <ul>
+        <li data-why="Так было бы, если бы после nextInt стоял ещё один nextLine.">Анна: 20</li>
+        <li data-correct data-why="nextInt забрал 20 и оставил на ленте Enter. nextLine прочитал до этого Enter и вернул пустую строку — ею инициализирована name. Программа даже не дождалась «Анны» и напечатала «: 20». Это ловушка nextInt + nextLine.">: 20</li>
+        <li data-why="Ввод не сломан, nextLine честно вернул строку — только пустую.">InputMismatchException</li>
+      </ul>
+    </div>
+
+    <div class="quiz">
+      <p class="q">15. ★★★ На опережение (модуль 3). Что будет при запуске?</p>
+<pre><code class="java">System.out.println(1 / 0.0);
+System.out.println(1 / 0);</code></pre>
+      <ul>
+        <li data-why="Делить на ноль в целых числах действительно нельзя, но с double всё иначе.">Обе строки упадут с ошибкой</li>
+        <li data-correct data-why="Для double деление на 0.0 по стандарту даёт особое значение Infinity — первая строка его напечатает. А целочисленное деление на 0 невозможно: вторая строка бросит ArithmeticException: / by zero.">Напечатается Infinity, потом ArithmeticException</li>
+        <li data-why="Результат деления — не ноль: в математике его просто нет.">0.0 и 0</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Найди ошибки</h2>
+    <div class="quiz">
+      <p class="q">16. Сколько ошибок компиляции в этом коде?</p>
+<pre><code class="java">int age = "25";
+String name = 'Аня';
+boolean ok = True;
+double price = 9.99;</code></pre>
+      <ul>
+        <li data-why="Проверь каждую строку на тип и кавычки.">Одна</li>
+        <li data-why="Ещё одна прячется в регистре букв.">Две</li>
+        <li data-correct data-why="1) &quot;25&quot; — строковый литерал, им нельзя инициализировать int (нужно 25 без кавычек). 2) Строки — только в двойных кавычках. 3) True с большой буквы Java не знает — только true. Четвёртая строка правильная.">Три</li>
+        <li data-why="Строка с price правильная.">Четыре</li>
+      </ul>
+    </div>
+
+    <div class="callout ai">
+      <span class="callout-title">Хочешь ещё?</span>
+      <p>Напиши наставнику: <em>«Дай мне 3 головоломки по модулю 2 про типы и преобразования, по одной, ответ не говори, пока я не объясню»</em>. На экзамене модуля они тоже будут.</p>
+    </div>
+    <div class="summary">
+      <h2>Что тренируем</h2>
+      <ul>
+        <li>Тип литерала решает всё: <code>3000000000</code> без L — int, <code>9.99</code> без f — double.</li>
+        <li>Выражение справа вычисляется первым и в «своём» типе: <code>10 / 4</code> — это 2 даже в double-переменной.</li>
+        <li>char — это число: <code>'A' + 'B'</code> = 131, пока в выражении не появилась строка.</li>
+        <li>Ссылки: копируем стрелку, а не объект; null — нет стрелки, у него нельзя вызвать метод.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

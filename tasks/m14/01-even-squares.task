@@ -1,0 +1,42 @@
+## id: m14-t01
+## title: Квадраты чётных
+## file: module-14/EvenSquaresStream.java
+## class: EvenSquaresStream
+## level: 1
+@@ description
+<p>Первый конвейер. В одной строке вводятся целые числа через пробел. Оставь только <b>чётные</b>, возведи каждое <b>в квадрат</b> и выведи получившийся список целиком — как его печатает <code>println</code>:</p>
+<pre class="terminal"><span class="out">ввод:  1 2 3 4 5 6     →  вывод: [4, 16, 36]
+ввод:  -4 0 7          →  вывод: [16, 0]
+ввод:  1 3 5           →  вывод: []</span></pre>
+<p>Порядок — как во вводе. Ноль — чётное число, у отрицательного чётного квадрат положительный.</p>
+<p>Как превратить строку в поток чисел: <code>Arrays.stream(line.trim().split("\\s+")).map(Integer::parseInt)</code> — дальше твои <code>filter</code> и <code>map</code>, а в конце <code>toList()</code>. Циклы <code>for</code>/<code>while</code> не нужны — в этой задаче они запрещены.</p>
+<p>⚠️ Выведи только список — без «Введите числа:».</p>
+<p>📖 <a href="/lessons/m14/04-stream-pipeline.html">Stream API: конвейер, filter и map</a></p>
+@@ test: Обычный случай
+@@ input
+1 2 3 4 5 6
+@@ expect
+[4, 16, 36]
+@@ test: Отрицательные и ноль
+@@ input
+-4 0 7
+@@ expect
+[16, 0]
+@@ test: Чётных нет
+@@ input
+1 3 5
+@@ expect
+[]
+@@ test: Одно число
+@@ input
+10
+@@ expect
+[100]
+@@ test: Лишние пробелы по краям
+@@ input
+  2   9   8
+@@ expect
+[4, 64]
+@@ require: \.filter\s*\( | Отбери чётные числа методом filter
+@@ require: \.map\s*\( | Возведи числа в квадрат методом map
+@@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

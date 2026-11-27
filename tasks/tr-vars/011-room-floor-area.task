@@ -1,0 +1,41 @@
+## id: tr-vars-011
+## title: Площадь комнаты
+## file: trainer/vars/RoomFloorArea.java
+## class: RoomFloorArea
+## level: 1
+## category: Дроби и приведение
+@@ description
+<p>Напиши класс <code>RoomFloorArea</code>. Перед покупкой ламината нужно знать площадь пола. Программа читает два дробных числа, каждое с новой строки: длину и ширину комнаты в метрах. Напечатай <code>Площадь комнаты: X кв. м</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4.5
+       3
+вывод: Площадь комнаты: 13.5 кв. м</span></pre>
+<p>Площадь — тоже <code>double</code>, поэтому даже ровное число печатается с <code>.0</code>: 5 × 4 даст <code>20.0</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextDouble()</code> — читает и возвращает дробное число <code>double</code></li>
+<li><code>double area = a * b;</code> — объявляем переменную и инициализируем её результатом выражения</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4.5
+3
+@@ expect
+Площадь комнаты: 13.5 кв. м
+@@ test: Целые размеры — ответ всё равно с .0
+@@ input
+5
+4
+@@ expect
+Площадь комнаты: 20.0 кв. м
+@@ test: Квадратная комната
+@@ input
+2.5
+2.5
+@@ expect
+Площадь комнаты: 6.25 кв. м
+@@ test: Кладовка
+@@ input
+0.5
+1.5
+@@ expect
+Площадь комнаты: 0.75 кв. м

@@ -1,0 +1,56 @@
+## id: tr-loops-040
+## title: Улитка в колодце
+## file: trainer/loops/SnailWellClimb.java
+## class: SnailWellClimb
+## level: 2
+## category: Последовательности
+@@ description
+<p>Напиши класс <code>SnailWellClimb</code>. Улитка сидит на дне колодца глубиной <code>H</code> метров. Днём она поднимается на <code>A</code> метров, а ночью сползает на <code>B</code> метров. В какой по счёту день она выберется? Улитка выбралась, как только днём добралась до края (высота стала не меньше <code>H</code>) — ночью она уже не сползает. Ввод: <code>H</code>, <code>A</code>, <code>B</code> — каждое с новой строки (H ≥ 1, A ≥ 1, B ≥ 0).</p>
+<pre class="terminal"><span class="out">ввод:  10
+       3
+       2
+вывод: 8</span></pre>
+<p>Если улитка никогда не выберется, напечатай <code>Никогда</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10
+       2
+       2
+вывод: Никогда</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>сначала проверь «никогда», иначе цикл станет бесконечным</li>
+<li><code>while (true) { … if (…) break; … }</code> — выход из середины цикла</li>
+</ul></div>
+@@ test: Классика
+@@ input
+10
+3
+2
+@@ expect
+8
+@@ test: За один день
+@@ input
+5
+5
+1
+@@ expect
+1
+@@ test: Стоит на месте
+@@ input
+10
+2
+2
+@@ expect
+Никогда
+@@ test: Глубокий колодец
+@@ input
+20
+7
+3
+@@ expect
+5
+@@ test: Сползает сильнее, но выпрыгивает сразу
+@@ input
+1
+10
+20
+@@ expect
+1

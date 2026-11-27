@@ -1,0 +1,45 @@
+## id: tr-loops-011
+## title: Бактерии в пробирке
+## file: trainer/loops/BacteriaDoubling.java
+## class: BacteriaDoubling
+## level: 1
+## category: Последовательности
+@@ description
+<p>Напиши класс <code>BacteriaDoubling</code>. В пробирке живут бактерии, и каждый час их становится вдвое больше. В первой строке — сколько бактерий было в начале, во второй — сколько прошло часов <code>h</code> (h ≥ 0). Напечатай, сколько бактерий стало. Ответ всегда помещается в <code>long</code>, но в <code>int</code> — не всегда.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       3
+вывод: 40</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLong()</code> — читает целое число типа long</li>
+<li><code>count *= 2;</code> — составное присваивание: умножить переменную на 2</li>
+</ul></div>
+@@ test: Одна бактерия за 40 часов
+@@ input
+1
+40
+@@ expect
+1099511627776
+@@ test: Пять бактерий, три часа
+@@ input
+5
+3
+@@ expect
+40
+@@ test: Ноль часов
+@@ input
+7
+0
+@@ expect
+7
+@@ test: Тысяча за 10 часов
+@@ input
+1000
+10
+@@ expect
+1024000
+@@ test: Очень много
+@@ input
+3
+50
+@@ expect
+3377699720527872

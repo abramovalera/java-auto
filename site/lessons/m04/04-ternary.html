@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тернарный оператор ? : · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-04">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 4 · Урок 4</div>
+    <h1>Тернарный оператор ? :</h1>
+    <p class="lead">Иногда if-else нужен только для того, чтобы выбрать одно из двух значений. Для этого в Java есть короткая запись в одну строку. Разберёмся, как она работает и когда ей лучше не пользоваться.</p>
+    <div class="meta"><span>⏱ 12 минут</span><span>❓ выбор в одну строку</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m04-04-review">
+      <script type="application/json">
+      { "title": "Вспомним уроки 4.2 и 4.3",
+        "items": [
+          { "type": "bug", "q": "Какая строка делает так, что «Победа!» печатается всегда?", "code": "int score = 3;\nif (score >= 10); {\n    System.out.println(\"Победа!\");\n}", "answer": [2],
+            "why": "Точка с запятой после if — пустое тело. Блок стал отдельным и выполняется всегда." },
+          { "type": "single", "q": "Как надёжно проверить, что в строке <code>cmd</code> лежит текст «stop»?", "options": ["cmd == \"stop\"", "\"stop\".equals(cmd)", "cmd = \"stop\""], "answer": 1,
+            "why": "Текст строк сравнивают через equals; <code>==</code> сравнивает ссылки." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>if-else, который выбирает значение</h2>
+    <p>Частая ситуация: переменной нужно присвоить одно значение или другое — в зависимости от условия.</p>
+<pre data-file="Ticket.java"><code class="java">int age = 15;
+int price;
+if (age &lt; 18) {
+    price = 150;
+} else {
+    price = 300;
+}</code></pre>
+    <p>Пять строк ради одного выбора. <b>Тернарный оператор</b> <code>? :</code> — это выражение, которое возвращает одно из двух значений. Он делает то же самое в одну строку:</p>
+<pre data-file="Ticket.java"><code class="java">int price = age &lt; 18 ? 150 : 300;</code></pre>
+    <p>Читается так: «<b>возраст меньше 18? Тогда</b> 150, <b>иначе</b> 300». Схема всегда одна: <code>условие ? значение_если_да : значение_если_нет</code>. А целиком строка читается так: «объявляем переменную <code>price</code> типа <code>int</code> и инициализируем её результатом тернарного оператора: если условие <code>age &lt; 18</code> истинно — 150, иначе — 300».</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 220" role="img" aria-label="Тернарный оператор как железнодорожная стрелка: условие переводит стрелку, и в переменную приезжает одно из двух значений">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="80" width="190" height="56" rx="14" class="d-accent"/>
+        <text x="115" y="106" text-anchor="middle" class="d-mono-ink">age &lt; 18</text>
+        <text x="115" y="126" text-anchor="middle" class="d-small">условие</text>
+        <text x="232" y="113" text-anchor="middle" class="d-title">?</text>
+        <path d="M252 108 L330 52" class="d-arrow"/>
+        <path d="M252 108 L330 164" class="d-arrow"/>
+        <text x="282" y="66" class="d-c-green d-text">true</text>
+        <text x="282" y="162" class="d-c-red d-text">false</text>
+        <rect x="336" y="26" width="140" height="50" rx="12" class="d-green"/>
+        <text x="406" y="57" text-anchor="middle" class="d-mono-ink">150</text>
+        <text x="406" y="112" text-anchor="middle" class="d-title">:</text>
+        <rect x="336" y="140" width="140" height="50" rx="12" class="d-red"/>
+        <text x="406" y="171" text-anchor="middle" class="d-mono-ink">300</text>
+        <path d="M478 51 L560 100" class="d-arrow"/>
+        <path d="M478 165 L560 116" class="d-dash"/>
+        <rect x="566" y="80" width="120" height="56" rx="14" class="d-blue"/>
+        <text x="626" y="106" text-anchor="middle" class="d-mono-ink">price</text>
+        <text x="626" y="126" text-anchor="middle" class="d-small">= 150</text>
+      </svg>
+      <figcaption>Как железнодорожная стрелка: условие переводит её, и в переменную «приезжает» только одно из двух значений.</figcaption>
+    </figure>
+    <p>Слово «тернарный» значит «тройной»: у этого оператора три операнда — условие и два значения. Это единственный такой оператор в Java, поэтому его так и зовут.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Где он хорош</h2>
+<pre data-file="TernaryExamples.java"><code class="java">int a = 7, b = 12;
+int max = a &gt; b ? a : b;                          // 12 — большее из двух
+
+int n = 9;
+String parity = n % 2 == 0 ? "чётное" : "нечётное";
+
+boolean isVip = true;
+System.out.println("Пропуск: " + (isVip ? "VIP" : "обычный"));</code></pre>
+<pre class="terminal"><span class="out">Пропуск: VIP</span></pre>
+    <p>В последней строке тернарный стоит прямо внутри выражения склейки строк, а результат всего выражения передаётся аргументом в <code>println</code>. Обрати внимание на <b>скобки</b> вокруг него — без них не обойтись.</p>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли строка без скобок? <code>System.out.println("Возраст: " + age &gt;= 18 ? "взрослый" : "ребёнок");</code></summary>
+      <p><b>Нет.</b> У <code>+</code> приоритет выше, чем у <code>&gt;=</code>, а у тернарного — ниже, чем у них обоих. Java сначала склеит <code>"Возраст: " + age</code> — получится строка, потом попробует сравнить строку с 18: <code>bad operand types for binary operator '&gt;='</code>. Правило: тернарный внутри println или склейки — <b>всегда в скобках</b>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Тернарный — это выражение, а не инструкция</h2>
+    <p>Главное отличие от if: тернарный оператор <b>возвращает значение</b>. Его нельзя использовать, чтобы просто «сделать одно или другое»:</p>
+<pre data-file="NotAStatement.java"><code class="java">// не скомпилируется
+age &gt;= 18 ? System.out.println("Можно") : System.out.println("Нельзя");
+// правильно
+System.out.println(age &gt;= 18 ? "Можно" : "Нельзя");</code></pre>
+    <div data-widget="ide" id="shot-ternary-statement">
+      <script type="application/json">
+      { "tree": false, "file": "NotAStatement.java", "gutterRun": [1, 2],
+        "code": "public class NotAStatement {\n    public static void main(String[] args) {\n        int age = 20;\n        age >= 18 ? System.out.println(\"Можно\") : System.out.println(\"Нельзя\");\n    }\n}",
+        "errors": [ { "line": 4, "text": "age >= 18 ? System.out.println(\"Можно\") : System.out.println(\"Нельзя\")", "msg": "Not a statement", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Красным подчёркнута вся строка: тернарный оператор стоит сам по себе, его значение никуда не идёт" },
+                   { "n": 2, "target": "tip", "text": "<b>Not a statement</b> — «это не инструкция». Значение выражения должно куда-то деваться: присваиваться переменной, передаваться аргументом в <code>println</code>…" } ],
+        "caption": "Тернарный оператор вместо if — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Метод <code>println</code> ничего не возвращает: у его вызова нет значения, которое можно куда-то положить, — это действие. Поэтому тернарный должен выбирать <b>что</b> напечатать, а печатать будет один <code>println</code> снаружи.</p>
+    <div class="callout warn">
+      <span class="callout-title">Оба варианта — одного типа</span>
+      <p><code>String s = ok ? "да" : 0;</code> не скомпилируется: результат тернарного должен поместиться в переменную, а <code>0</code> — не строка. Если ветки — числа разных типов, Java приводит их к общему: <code>true ? 1 : 2.0</code> даёт <code>1.0</code>, а не <code>1</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Когда тернарный не нужен</h2>
+    <p>Тернарные можно вкладывать друг в друга. Технически это работает:</p>
+<pre data-file="Unreadable.java"><code class="java">String grade = score &gt;= 90 ? "Отлично" : score &gt;= 75 ? "Хорошо"
+        : score &gt;= 60 ? "Удовл." : "Пересдача";</code></pre>
+    <p>Но через неделю ты сам не поймёшь эту конструкцию с первого взгляда. Цепочка <code>else if</code> из урока 4.2 длиннее, зато читается как список.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">👍</span><h4>Бери тернарный</h4><p>Выбор одного значения из двух, и всё помещается в короткую понятную строку.</p></div>
+      <div class="card"><span class="emoji">👎</span><h4>Бери if-else</h4><p>Вариантов больше двух; в ветках нужно что-то <b>сделать</b>, а не выбрать; условие длинное.</p></div>
+    </div>
+    <div class="say" data-mood="think"><p>Код читают в десять раз чаще, чем пишут. Короче — не значит лучше. Лучше — значит понятнее.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m04-04">
+      <script type="application/json">
+      {
+       "title": "Тернарный оператор — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int x = -4;\nint abs = x < 0 ? -x : x;\nSystem.out.println(abs);",
+         "answer": "4",
+         "why": "−4 &lt; 0 — true, берём <code>-x</code>, то есть −(−4) = 4. Это модуль числа своими руками."
+        },
+        {
+         "type": "single",
+         "q": "Что будет при компиляции?",
+         "code": "int hp = 0;\nSystem.out.println(\"Герой \" + hp > 0 ? \"жив\" : \"повержен\");",
+         "options": [
+          "Напечатает «Герой повержен»",
+          "Напечатает «Герой жив»",
+          "Ошибка компиляции"
+         ],
+         "answer": 2,
+         "why": "Сначала склеится <code>\"Герой \" + hp</code> — строка, а строку с нулём сравнить нельзя. Нужны скобки вокруг тернарного."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int items = 1;\nSystem.out.println(items + \" \" + (items == 1 ? \"товар\" : \"товаров\"));",
+         "answer": "1 товар",
+         "why": "1 == 1 — true, выбираем «товар». Скобки на месте — всё компилируется."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Тернарный оператор возвращает значение",
+           "a": true
+          },
+          {
+           "s": "Им удобно заменять любую цепочку else if",
+           "a": false,
+           "why": "вложенные тернарные плохо читаются; для трёх и больше вариантов лучше else if."
+          },
+          {
+           "s": "<code>ok ? println(\"a\") : println(\"b\")</code> — нормальная отдельная инструкция",
+           "a": false,
+           "why": "тернарный выбирает значение, а метод println ничего не возвращает."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Покажи мне 3 if-else, а я решу, какие из них стоит переписать тернарным оператором, и объясню почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>условие ? a : b</code> — если условие true, значение a, иначе b.</li>
+        <li>Это выражение: его результат присваивают переменной или передают аргументом в println. Делать «действия» им нельзя.</li>
+        <li>Внутри склейки строк — всегда в скобках: у тернарного оператора приоритет ниже, чем у <code>+</code> и сравнений.</li>
+        <li>Хорош для выбора одного из двух коротких значений. Больше вариантов — бери else if.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Перебор строки по символам · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-04">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 8 · Урок 4</div>
+    <h1>Перебор строки по символам</h1>
+    <p class="lead">Почти любая задача на строки — «пройди по символам и что-то с каждым сделай». Научимся обходить строку циклом, узнаем, что <code>char</code> — это на самом деле число, и познакомимся с помощником <code>Character</code>.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔢 char — это число</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-04-review">
+      <script type="application/json">
+      { "title": "Методы строк", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "String s = \"Привет\";\nSystem.out.println(s.charAt(s.length() - 1));",
+            "answer": "т", "why": "length() возвращает 6, последний индекс 5 — вызов charAt(5) возвращает букву «т»." },
+          { "type": "single", "q": "Модуль 6: какой цикл обходит массив <code>a</code> от конца к началу?",
+            "options": ["<code>for (int i = a.length; i &gt; 0; i--)</code>", "<code>for (int i = a.length - 1; i &gt;= 0; i--)</code>", "<code>for (int i = 0; i &lt; a.length; i--)</code>"], "answer": 1,
+            "why": "Счётчик инициализируем последним индексом <code>length - 1</code> и идём, пока условие <code>i &gt;= 0</code> истинно. Со строками будет то же самое." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Два способа обойти строку</h2>
+    <h3>Способ 1: for + charAt — когда нужен номер</h3>
+<pre data-file="Walk.java"><code class="java">String s = "Java";
+for (int i = 0; i &lt; s.length(); i++) {
+    char c = s.charAt(i);
+    System.out.println(i + ": " + c);
+}</code></pre>
+<pre class="terminal"><span class="out">0: J
+1: a
+2: v
+3: a</span></pre>
+    <p>Это главный цикл модуля 6, только вместо поля <code>a.length</code> — вызов метода <code>s.length()</code>, а вместо обращения по индексу <code>a[i]</code> — вызов <code>s.charAt(i)</code>: на каждой итерации объявляем <code>c</code> и инициализируем символом, который вернул метод. Индекс <code>i</code> нужен, когда важно <b>где</b> символ: идти с конца, смотреть на соседа <code>charAt(i + 1)</code>, сравнивать первую и последнюю букву.</p>
+    <h3>Способ 2: toCharArray + for-each — когда номер не нужен</h3>
+<pre data-file="Walk.java"><code class="java">for (char c : s.toCharArray()) {
+    System.out.println(c);
+}</code></pre>
+    <p>Вызов <code>toCharArray()</code> возвращает обычный массив <code>char[]</code> (копию — строка, как всегда, не меняется). По массиву удобно идти for-each: на каждой итерации переменной <code>c</code> присваивается очередной символ.</p>
+    <div class="callout tip">
+      <span class="callout-title">Какой выбрать</span>
+      <p>Нужен только сам символ — for-each. Нужна позиция, обратный порядок или сосед — обычный <code>for</code> с <code>charAt</code>. Изменить символ «на месте» в строке нельзя ни так, ни так. А вот элементу массива из <code>toCharArray()</code> — можно присвоить новый символ, и потом собрать новую строку: <code>new String(chars)</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>char — это число в маскировке</h2>
+    <p>Компьютер хранит только числа. Каждой букве, цифре и знаку в таблице <b>Юникод</b> (Unicode) присвоен свой номер — <b>код</b>. Переменная <code>char</code> хранит именно его, а на экран выводится картинка буквы.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 230" role="img" aria-label="Фрагменты таблицы Юникод: цифры 0..9 с кодами 48..57, латиница A..Z с кодами 65..90, строчные a..z с кодами 97..122, кириллица а..я с кодами 1072..1103">
+        <rect x="10" y="20" width="170" height="190" rx="12" class="d-yellow"/>
+        <text x="95" y="48" text-anchor="middle" class="d-title">Цифры</text>
+        <text x="30" y="84" class="d-mono-ink">'0' → 48</text>
+        <text x="30" y="110" class="d-mono-ink">'1' → 49</text>
+        <text x="30" y="136" class="d-mono-ink">…</text>
+        <text x="30" y="162" class="d-mono-ink">'9' → 57</text>
+        <text x="30" y="194" class="d-small">идут подряд</text>
+
+        <rect x="192" y="20" width="170" height="190" rx="12" class="d-blue"/>
+        <text x="277" y="48" text-anchor="middle" class="d-title">A–Z</text>
+        <text x="212" y="84" class="d-mono-ink">'A' → 65</text>
+        <text x="212" y="110" class="d-mono-ink">'B' → 66</text>
+        <text x="212" y="136" class="d-mono-ink">…</text>
+        <text x="212" y="162" class="d-mono-ink">'Z' → 90</text>
+        <text x="212" y="194" class="d-small">заглавные</text>
+
+        <rect x="374" y="20" width="170" height="190" rx="12" class="d-teal"/>
+        <text x="459" y="48" text-anchor="middle" class="d-title">a–z</text>
+        <text x="394" y="84" class="d-mono-ink">'a' → 97</text>
+        <text x="394" y="110" class="d-mono-ink">'b' → 98</text>
+        <text x="394" y="136" class="d-mono-ink">…</text>
+        <text x="394" y="162" class="d-mono-ink">'z' → 122</text>
+        <text x="394" y="194" class="d-small">на 32 дальше</text>
+
+        <rect x="556" y="20" width="174" height="190" rx="12" class="d-violet"/>
+        <text x="643" y="48" text-anchor="middle" class="d-title">а–я</text>
+        <text x="572" y="84" class="d-mono-ink">'а' → 1072</text>
+        <text x="572" y="110" class="d-mono-ink">'б' → 1073</text>
+        <text x="572" y="136" class="d-mono-ink">…</text>
+        <text x="572" y="162" class="d-mono-ink">'я' → 1103</text>
+        <text x="572" y="194" class="d-small">'ё' → 1105, отдельно!</text>
+      </svg>
+      <figcaption>Внутри каждой группы символы идут подряд. Поэтому с ними можно считать.</figcaption>
+    </figure>
+    <p>Раз <code>char</code> — число, с ним работает арифметика:</p>
+<pre data-file="CharMath.java"><code class="java">char c = 'a';
+System.out.println(c + 1);          // 98   — char + int = int, это число!
+System.out.println((char) (c + 1)); // b    — обратно к char: следующая буква
+c++;                                // ++ сам оставляет тип char
+System.out.println(c);              // b
+
+char digit = '7';
+int value = digit - '0';            // 55 - 48 = 7 — настоящая цифра из символа
+System.out.println(value * 2);      // 14
+
+System.out.println('a' &lt; 'z');      // true — символы сравниваются как числа</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>c + 1</code><div><p>Как только символ — операнд арифметического оператора, Java превращает его в <code>int</code> (помнишь расширение типов из модуля 3?). Значение выражения — число 98, его передают аргументом, и <code>println</code> печатает число.</p></div></div>
+      <div class="annot-row"><code>(char) (c + 1)</code><div><p>Приведение типа обратно к <code>char</code>: «число 98 покажи как символ» — это <code>b</code>.</p></div></div>
+      <div class="annot-row"><code>digit - '0'</code><div><p>Классический приём: выражение «код символа минус код нуля» = значение цифры. <code>'7' - '0'</code> → 7. Работает, потому что цифры в таблице идут подряд.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Что выведет System.out.println("Java".charAt(1) + "Java".charAt(2)); ?</summary>
+      <p><b>215</b>, а не «av»! Оба вызова <code>charAt</code> возвращают <code>char</code>, строковых операндов в выражении нет. Значит, оператор <code>+</code> — сложение кодов: 'a' (97) + 'v' (118) = 215. Чтобы получилась склейка, нужна строка в начале: <code>"" + s.charAt(1) + s.charAt(2)</code> → «av». Это снежный ком из модуля 1, только с символами.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">'a' и "a" — разные вещи</span>
+      <p><code>'a'</code> — символьный литерал, примитив <code>char</code>, сравнивается через <code>==</code> — и это правильно. <code>"a"</code> — строковый литерал, объект, сравнивается по содержимому через <code>equals</code>. А <code>"a" == 'a'</code> даже не скомпилируется: <em>incomparable types: String and char</em>. Частая ошибка: <code>if (s.charAt(0) == "a")</code> — справа должна быть одинарная кавычка.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Помощник Character</h2>
+    <p>Проверять «это буква?» через коды — неудобно и опасно (кириллица, ё, другие алфавиты). В Java для этого есть класс <code>Character</code> с готовыми статическими методами — их вызывают, как <code>Math.abs</code>, через имя класса и передают символ аргументом:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Вопрос</th><th>Пример</th></tr>
+        <tr><td><code>Character.isDigit(c)</code></td><td>цифра?</td><td><code>'7'</code> → true, <code>'a'</code> → false</td></tr>
+        <tr><td><code>Character.isLetter(c)</code></td><td>буква (любого алфавита)?</td><td><code>'ё'</code> → true, <code>'5'</code> → false</td></tr>
+        <tr><td><code>Character.isLetterOrDigit(c)</code></td><td>буква или цифра?</td><td><code>'!'</code> → false</td></tr>
+        <tr><td><code>Character.isUpperCase(c)</code> / <code>isLowerCase(c)</code></td><td>заглавная / строчная?</td><td><code>'Ж'</code> → true / false</td></tr>
+        <tr><td><code>Character.isWhitespace(c)</code></td><td>пробел, табуляция, перевод строки?</td><td><code>' '</code> → true</td></tr>
+        <tr><td><code>Character.toUpperCase(c)</code> / <code>toLowerCase(c)</code></td><td>вернуть букву в другом регистре</td><td><code>'ё'</code> → <code>'Ё'</code></td></tr>
+      </table>
+    </div>
+    <p>Это <b>статические методы</b> — такие же, какие ты объявлял в модуле 7, только объявленные авторами Java. Символ передаётся аргументом и попадает в параметр, ответ метод возвращает через <code>return</code>.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: почему с ё вечные проблемы</summary>
+      <p>Буква «ё» добавлена в Юникод отдельно от остального алфавита: <code>'а'</code>…<code>'я'</code> — коды 1072…1103 подряд, а <code>'ё'</code> — 1105, за пределами этого диапазона. Поэтому проверка «буква ли это» через <code>c &gt;= 'а' &amp;&amp; c &lt;= 'я'</code> пропустит ё. А <code>Character.isLetter('ё')</code> — не пропустит. Ещё одна причина пользоваться готовыми методами.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Шаблон «счётчик по символам»</h2>
+    <p>Сколько в пароле цифр? Сколько в тексте заглавных? Это знакомая роль <b>счётчик</b> из модулей 5–6: пройти по всем символам и выполнять инкремент, когда условие истинно.</p>
+    <div data-widget="trace" id="trace-m08-04-count">
+      <script type="application/json">
+      { "title": "Сколько цифр в пароле?",
+        "intro": "Пароль «a1b22». Следи за c и count и угадывай значение count.",
+        "code": "String pass = \"a1b22\";\nint count = 0;\nfor (int i = 0; i < pass.length(); i++) {\n    char c = pass.charAt(i);\n    if (Character.isDigit(c)) {\n        count++;\n    }\n}\nSystem.out.println(\"Цифр: \" + count);",
+        "steps": [
+          { "line": 1, "vars": { "pass": "\"a1b22\"" }, "note": "Объявляем pass и инициализируем строковым литералом: пять символов, индексы 0…4." },
+          { "line": 2, "vars": { "pass": "\"a1b22\"", "count": "0" }, "note": "Объявляем счётчик count и инициализируем нулём: пока ни одной цифры не видели." },
+          { "line": 4, "vars": { "pass": "\"a1b22\"", "count": "0", "i": "0", "c": "'a'" }, "note": "i = 0: объявляем c и инициализируем результатом вызова pass.charAt(i) — это 'a'." },
+          { "line": 5, "vars": { "pass": "\"a1b22\"", "count": "0", "i": "0", "c": "'a'" }, "note": "Вызов Character.isDigit(c) вернул false — 'a' не цифра, count не трогаем." },
+          { "line": 4, "vars": { "pass": "\"a1b22\"", "count": "0", "i": "1", "c": "'1'" }, "note": "i = 1, c = '1'." },
+          { "line": 6, "vars": { "pass": "\"a1b22\"", "count": "1", "i": "1", "c": "'1'" }, "ask": ["count"], "note": "Вызываем isDigit и передаём аргумент c. '1' — цифра, метод вернул true, инкремент count++ → 1." },
+          { "line": 4, "vars": { "pass": "\"a1b22\"", "count": "1", "i": "2", "c": "'b'" }, "note": "i = 2, c = 'b' — не цифра, пропускаем." },
+          { "line": 4, "vars": { "pass": "\"a1b22\"", "count": "1", "i": "3", "c": "'2'" }, "note": "i = 3, c = '2'." },
+          { "line": 6, "vars": { "pass": "\"a1b22\"", "count": "2", "i": "3", "c": "'2'" }, "ask": ["count"], "note": "Снова спрашиваем isDigit. '2' — цифра, count = 2." },
+          { "line": 4, "vars": { "pass": "\"a1b22\"", "count": "2", "i": "4", "c": "'2'" }, "note": "i = 4, снова '2'." },
+          { "line": 6, "vars": { "pass": "\"a1b22\"", "count": "3", "i": "4", "c": "'2'" }, "ask": ["count"], "note": "Одинаковые цифры считаются каждая отдельно. count = 3." },
+          { "line": 3, "vars": { "pass": "\"a1b22\"", "count": "3", "i": "5" }, "note": "i = 5, условие 5 &lt; 5 — false, цикл окончен." },
+          { "line": 9, "vars": { "pass": "\"a1b22\"", "count": "3" }, "out": "Цифр: 3\n", "note": "Поменяй вызов isDigit на isUpperCase — и это уже «сколько заглавных». Шаблон тот же, меняется только условие." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Шаблон «собрать новую строку»</h2>
+    <p>Строку поменять нельзя — значит, новую строку <b>собирают</b> символ за символом. Роль — <b>накопитель</b>: инициализируем его пустой строкой <code>""</code> и на каждой итерации присваиваем результат склейки.</p>
+    <p>Пример из жизни: в логах нельзя хранить номер карты целиком. Нужно заменить все цифры, кроме последних четырёх, на звёздочки:</p>
+<pre data-file="MaskCard.java"><code class="java">String card = "4276 1234 5678 9012";
+String result = "";
+for (int i = 0; i &lt; card.length(); i++) {
+    char c = card.charAt(i);
+    if (Character.isDigit(c) &amp;&amp; i &lt; card.length() - 4) {
+        result = result + '*';      // цифра не из последних четырёх — прячем
+    } else {
+        result = result + c;        // пробелы и последние 4 цифры — как есть
+    }
+}
+System.out.println(result);</code></pre>
+<pre class="terminal"><span class="out">**** **** **** 9012</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>String result = "";</code><div><p>Накопитель инициализируют <b>пустой строкой</b>, а не <code>null</code>: иначе в начале результата окажется слово «null».</p></div></div>
+      <div class="annot-row"><code>i &lt; card.length() - 4</code><div><p>Последние 4 символа — индексы от <code>length() - 4</code> до конца. Всё, что левее, маскируем. Строка длиной 19: прячем цифры с индексами 0…14.</p></div></div>
+      <div class="annot-row"><code>result = result + c;</code><div><p>Каждая склейка создаёт новую строку, и её присваивают переменной <code>result</code> (урок 8.1). Для 19 символов — не страшно. Для 100 000 — уже да. Как правильно — следующий урок.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Что будет, если в теле цикла написать result = c + result; вместо result = result + c; ?</summary>
+      <p>Каждый новый символ будет приклеиваться <b>в начало</b>, и строка соберётся задом наперёд! Для «кот»: «к» → «ок» → «ток». Это один из способов развернуть строку — разберём в Мастерской (урок 8.7).</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Собери сам</h2>
+    <p>Программа делает из «привет мир» строку «ПрИвЕт мИр»: буквы на чётных позициях — заглавные, на нечётных — как были. Собери её из строк.</p>
+    <div data-widget="parsons" id="parsons-m08-04-zigzag" data-code data-title="Заглавная через одну" data-icon="🔠"
+         data-hint="Объявление накопителя — до цикла. В теле цикла: взять символ, решить по чётности индекса, приклеить. Печать — после цикла."
+         data-success="🎉 Верно! Накопитель result объявлен до цикла, проверка i % 2 — в теле, печать после.">
+      <script type="text/plain">
+String s = "привет мир";
+String result = "";
+for (int i = 0; i < s.length(); i++) {
+    char c = s.charAt(i);
+    if (i % 2 == 0) {
+        c = Character.toUpperCase(c);
+    }
+    result = result + c;
+}
+System.out.println(result);
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-04">
+      <script type="application/json">
+      {
+       "title": "Символы и перебор строки",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "char c = 'a';\nSystem.out.println(c + 2);\nSystem.out.println((char) (c + 2));",
+         "answer": "99\nc",
+         "why": "Выражение <code>c + 2</code> имеет тип int: 97 + 2 = 99. После приведения типа к char — буква c."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "String s = \"a7b3\";\nint sum = 0;\nfor (char c : s.toCharArray()) {\n    if (Character.isDigit(c)) {\n        sum += c - '0';\n    }\n}\nSystem.out.println(sum);",
+         "answer": "10",
+         "why": "Цифры 7 и 3. Выражение <code>c - '0'</code> превращает символ в число: 7 + 3 = 10. Без <code>- '0'</code> получилось бы 55 + 51 = 106."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "String s = \"abc\";\nchar first = s.charAt(0);\nif (first == 'a') {\n    System.out.println(\"на a\");\n}\nif (first == \"a\") {\n    System.out.println(\"тоже на a\");\n}",
+         "answer": [
+          6
+         ],
+         "why": "Сравнивать char со String нельзя: <em>incomparable types</em>. Символьный литерал пишется в одинарных кавычках: <code>'a'</code>."
+        },
+        {
+         "type": "single",
+         "q": "Как проще всего проверить, что символ <code>c</code> — буква (включая русские и ё)?",
+         "options": [
+          "<code>c &gt;= 'a' &amp;&amp; c &lt;= 'z'</code>",
+          "<code>Character.isLetter(c)</code>",
+          "<code>c != ' '</code>"
+         ],
+         "answer": 1,
+         "why": "<code>isLetter</code> знает все алфавиты Юникода. Диапазон a–z пропустит кириллицу, а «не пробел» пропустит цифры и знаки."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>toCharArray()</code> меняет саму строку",
+           "a": false,
+           "why": "метод возвращает новый массив-копию, строка неизменна."
+          },
+          {
+           "s": "Символы <code>char</code> можно сравнивать через <code>==</code>",
+           "a": true
+          },
+          {
+           "s": "Накопитель для новой строки инициализируют пустой строкой <code>\"\"</code>",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясни, почему 'a' + 'b' даёт число, а "" + 'a' + 'b' — строку. Я сначала скажу свою версию»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Обход: <code>for</code> + вызов <code>charAt(i)</code>, если нужен индекс; <code>for (char c : s.toCharArray())</code>, если нет.</li>
+        <li><code>char</code> — число (код в Юникоде). <code>'a' + 1</code> → 98, <code>(char) ('a' + 1)</code> → 'b', <code>'7' - '0'</code> → 7.</li>
+        <li><code>char + char</code> — сложение чисел, не склейка. Для склейки нужен строковый операнд в начале.</li>
+        <li><code>Character.isDigit / isLetter / isUpperCase / toUpperCase…</code> — готовые проверки и преобразования.</li>
+        <li>Символы сравнивают через <code>==</code>, строки — по содержимому, через <code>equals</code>.</li>
+        <li>Новая строка собирается накопителем, инициализированным пустой строкой <code>""</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

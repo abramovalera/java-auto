@@ -1,0 +1,45 @@
+## id: tr-loops-030
+## title: Средний балл
+## file: trainer/loops/AverageMarkRounded.java
+## class: AverageMarkRounded
+## level: 2
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>AverageMarkRounded</code>. В первой строке — число оценок <code>n</code> (n ≥ 0), во второй — <code>n</code> оценок от 1 до 5 через пробел. Напечатай средний балл, округлённый до десятых: <code>Math.round(average * 10) / 10.0</code>. Если оценок нет, напечатай <code>Оценок нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       5 4 4 3 5
+вывод: 4.2</span></pre>
+<p>Осторожно с делением целых: <code>9 / 2</code> даёт <code>4</code>, а не <code>4.5</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>(double) sum / n</code> — приведение к double до деления: деление получится дробным</li>
+<li><code>Math.round(x * 10) / 10.0</code> — округление до одного знака после точки</li>
+</ul></div>
+@@ test: Пять оценок
+@@ input
+5
+5 4 4 3 5
+@@ expect
+4.2
+@@ test: Округление вверх
+@@ input
+3
+5 5 4
+@@ expect
+4.7
+@@ test: Одна оценка
+@@ input
+1
+3
+@@ expect
+3.0
+@@ test: Оценок нет
+@@ input
+0
+@@ expect
+Оценок нет
+@@ test: Ровно посередине
+@@ input
+4
+2 3 3 3
+@@ expect
+2.8

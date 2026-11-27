@@ -1,0 +1,43 @@
+## id: tr-methods-034
+## title: Факториал рекурсией
+## file: trainer/methods/FactorialRecursionMethod.java
+## class: FactorialRecursionMethod
+## level: 2
+## category: Рекурсия
+@@ description
+<p>Факториал <code>n!</code> — произведение чисел от 1 до <code>n</code>; по определению <code>0! = 1</code>. Создай класс <code>FactorialRecursionMethod</code> и напиши <b>рекурсивный</b> метод <code>static long factorial(int n)</code>, без циклов: <code>n! = n · (n − 1)!</code>.</p>
+<p>main читает целое <code>n</code> от 0 до 20 и печатает <code>n! = X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5      вывод: 5! = 120
+ввод:  20     вывод: 20! = 2432902008176640000</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>базовый случай: для 0 и 1 ответ — 1</li>
+<li>факториал растёт очень быстро: уже <code>13!</code> не влезает в <code>int</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+5
+@@ expect
+5! = 120
+@@ test: Ноль факториал
+@@ input
+0
+@@ expect
+0! = 1
+@@ test: Единица
+@@ input
+1
+@@ expect
+1! = 1
+@@ test: Больше int
+@@ input
+13
+@@ expect
+13! = 6227020800
+@@ test: Максимум для long
+@@ input
+20
+@@ expect
+20! = 2432902008176640000
+@@ require: static\s+long\s+factorial\s*\(\s*int\s+\w+\s*\) | Нужен метод static long factorial(int n)
+@@ require: \bfactorial\s*\(\s*\w+\s*-\s*1\s*\) | Метод должен вызывать сам себя: factorial(n - 1)
+@@ forbid: \b(for|while)\s*\( | Здесь без циклов: повторение делает рекурсия

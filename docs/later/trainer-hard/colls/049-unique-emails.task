@@ -1,0 +1,68 @@
+## id: tr-colls-049
+## title: Сколько разных почтовых ящиков
+## file: trainer/colls/UniqueEmailInbox.java
+## class: UniqueEmailInbox
+## level: 3
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>UniqueEmailInbox</code>. Почтовый сервис по-особому читает часть адреса <b>до</b> <code>@</code>: точки в ней игнорируются, а всё, что после первого <code>+</code>, отбрасывается. Часть после <code>@</code> (домен) не меняется. Регистр букв во всём адресе не важен. Так, <code>Ivan.Petrov+shop@mail.ru</code> и <code>ivanpetrov@MAIL.ru</code> — один и тот же ящик <code>ivanpetrov@mail.ru</code>.</p>
+<p>В первой строке — количество адресов <code>n</code>, дальше <code>n</code> строк по одному адресу. Напечатай <code>Ящиков: X</code>, а затем настоящие адреса ящиков (в нижнем регистре) по алфавиту, каждый с новой строки.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       Ivan.Petrov+shop@mail.ru
+       ivanpetrov@MAIL.ru
+       ivan.petrov@yandex.ru
+       olga+news+promo@mail.ru
+вывод: Ящиков: 3
+       ivanpetrov@mail.ru
+       ivanpetrov@yandex.ru
+       olga@mail.ru</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.indexOf('@')</code> и <code>s.substring(…)</code> — разрезать адрес на две части</li>
+<li><code>s.replace(".", "")</code> — убирает все точки</li>
+<li><code>TreeSet&lt;String&gt;</code> — уникальные адреса сразу по алфавиту</li>
+</ul></div>
+@@ test: Обычный набор
+@@ input
+4
+Ivan.Petrov+shop@mail.ru
+ivanpetrov@MAIL.ru
+ivan.petrov@yandex.ru
+olga+news+promo@mail.ru
+@@ expect
+Ящиков: 3
+ivanpetrov@mail.ru
+ivanpetrov@yandex.ru
+olga@mail.ru
+@@ test: Все разные
+@@ input
+2
+anna@a.ru
+boris@b.ru
+@@ expect
+Ящиков: 2
+anna@a.ru
+boris@b.ru
+@@ test: Точки в домене не трогаем
+@@ input
+2
+max@my.site.com
+max@mysite.com
+@@ expect
+Ящиков: 2
+max@my.site.com
+max@mysite.com
+@@ test: Плюс в самом начале
+@@ input
+2
++spam@mail.ru
+@mail.ru
+@@ expect
+Ящиков: 1
+@mail.ru
+@@ test: Один адрес
+@@ input
+1
+A.B.C@X.RU
+@@ expect
+Ящиков: 1
+abc@x.ru

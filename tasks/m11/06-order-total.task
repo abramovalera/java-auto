@@ -1,0 +1,82 @@
+## id: m11-t06
+## title: Заказ из record-позиций
+## file: module-11/OrderTotal.java
+## class: OrderTotal
+## level: 2
+@@ description
+<p>Позиция заказа — классические «просто данные»: название, цена, количество. Опиши её одной строкой через <b>record</b> и пусть Java сама сделает <code>toString</code> и <code>equals</code>.</p>
+<p>В файле <code>OrderTotal.java</code> объяви (без <code>public</code>) <code>record OrderItem(String title, int price, int qty)</code>. Внутри:</p>
+<ul>
+  <li><b>компактный конструктор</b> (без круглых скобок: <code>OrderItem { … }</code>), который исправляет плохие данные: отрицательную цену превращает в 0, количество меньше 1 — в 1;</li>
+  <li>метод <code>int total()</code> — стоимость позиции (цена × количество).</li>
+</ul>
+<p><b>Ввод:</b> число N, потом N строк <code>название цена количество</code> (название — одно слово). Каждую позицию сразу напечатай через <code>System.out.println(позиция)</code> — формат <code>OrderItem[title=…, price=…, qty=…]</code> Java придумает сама. В конце — сумма заказа и количество <b>повторов</b>: позиция — повтор, если точно такая же (все три поля, <b>после</b> исправления) уже встречалась выше.</p>
+<pre class="terminal"><span class="out">ввод:              вывод:
+3                  OrderItem[title=Чай, price=120, qty=2]
+Чай 120 2          OrderItem[title=Сахар, price=80, qty=1]
+Сахар 80 1         OrderItem[title=Чай, price=120, qty=2]
+Чай 120 2          Сумма заказа: 560
+                   Повторов: 1</span></pre>
+<p>Сравнивай позиции через <code>equals</code> — его тоже написал record. Свои <code>toString</code> и <code>equals</code> писать <b>не нужно</b>, в этом весь смысл.</p>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/06-records.html">record подробно</a></p>
+@@ test: Обычный заказ с повтором
+@@ input
+3
+Чай 120 2
+Сахар 80 1
+Чай 120 2
+@@ expect
+OrderItem[title=Чай, price=120, qty=2]
+OrderItem[title=Сахар, price=80, qty=1]
+OrderItem[title=Чай, price=120, qty=2]
+Сумма заказа: 560
+Повторов: 1
+@@ test: Плохие данные исправляются в конструкторе
+@@ input
+2
+Хлеб -50 3
+Молоко 90 0
+@@ expect
+OrderItem[title=Хлеб, price=0, qty=3]
+OrderItem[title=Молоко, price=90, qty=1]
+Сумма заказа: 90
+Повторов: 0
+@@ test: Повтор видно только после исправления
+@@ input
+4
+Чай 120 2
+Чай 120 3
+Чай 100 -1
+Чай 100 1
+@@ expect
+OrderItem[title=Чай, price=120, qty=2]
+OrderItem[title=Чай, price=120, qty=3]
+OrderItem[title=Чай, price=100, qty=1]
+OrderItem[title=Чай, price=100, qty=1]
+Сумма заказа: 800
+Повторов: 1
+@@ test: Три одинаковые позиции — два повтора
+@@ input
+3
+Кофе 300 1
+Кофе 300 1
+Кофе 300 1
+@@ expect
+OrderItem[title=Кофе, price=300, qty=1]
+OrderItem[title=Кофе, price=300, qty=1]
+OrderItem[title=Кофе, price=300, qty=1]
+Сумма заказа: 900
+Повторов: 2
+@@ test: Пустой заказ
+@@ input
+0
+@@ expect
+Сумма заказа: 0
+Повторов: 0
+@@ require: record\s+OrderItem\s*\( | Нужен record OrderItem(String title, int price, int qty)
+@@ require: OrderItem\s*\{ | Проверку данных сделай в компактном конструкторе: OrderItem { … } — без круглых скобок
+@@ require: \.equals\s*\( | Сравнивай позиции через equals — его написал record
+@@ forbid: class\s+OrderItem | OrderItem должен быть record, а не class
+@@ forbid: String\s+toString\s*\( | Не пиши свой toString — record делает его сам
+@@ forbid: boolean\s+equals\s*\( | Не пиши свой equals — record делает его сам

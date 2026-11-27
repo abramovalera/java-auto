@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тренинг код · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-page="training" data-wide>
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">🏋️ Тренинг код</div>
+    <h1>Набей руку: задачи по темам</h1>
+    <p class="lead">Отдельный от уроков тренажёр: сотни коротких задач «напиши код сам» — разверни строку, найди максимум, проверь, простое ли число. Выбирай тему и решай в IntelliJ IDEA по нарастающей: сначала 🟢 лёгкие, потом 🟡 средние. Перед задачей — подсказка «🧰 Пригодится»: какие методы могут понадобиться.</p>
+    <div class="progress" style="margin-top:16px"><span id="bar" style="width:0%"></span></div>
+    <p class="meta" style="margin-top:8px"><span class="tr-total" id="total">…</span></p>
+  </header>
+
+  <div class="callout tip">
+    <span class="callout-title">Как это устроено</span>
+    <ul>
+      <li>Каждая тема — папка <code>trainer/…</code> в проекте <code>workspace</code>, она уже синяя. Каждая задача — новый класс в этой папке с именем из условия.</li>
+      <li>У темы написано, после какого модуля курса она по силам. Открыть можно и раньше — но где-то встретится то, чего ты ещё не проходил.</li>
+      <li>Проверка — та же кнопка «Проверить»: сайт запустит твою программу на нескольких тестах, включая неудобные случаи (ноль, пустой ввод, отрицательные числа).</li>
+      <li>Не обязательно решать всё подряд. Застрял — переходи к следующей и вернись позже.</li>
+    </ul>
+  </div>
+
+  <div id="topics"></div>
+</main>
+<script>
+document.addEventListener("jc:ready", async () => {
+  const esc = window.JC.esc;
+  const topics = window.TRAINING || [];
+  const mods = window.COURSE.modules || [];
+  let statuses = {};
+  try { statuses = await (await fetch("/api/status")).json(); } catch (e) { /* без сервера — просто без прогресса */ }
+  const read = window.JC.readLessons();
+  let all = 0, done = 0;
+  const box = document.getElementById("topics");
+  // категории тем — по порядку курса
+  const groups = [
+    { title: "🧱 Основы: вычисления и логика", note: "Переменные, арифметика, условия и циклы — то, из чего состоит любая программа.", test: (o) => o <= 4 },
+    { title: "🧰 Данные: массивы, методы, строки", note: "Работа с наборами чисел и текстом, свои методы — классика задач с собеседований.", test: (o) => o >= 5 && o <= 7 },
+    { title: "🏗 Объекты, коллекции и стримы", note: "Свои классы, исключения, List/Set/Map и решение задач конвейером.", test: (o) => o >= 8 }
+  ];
+  const card = (t) => {
+    const after = t.after && mods.find((m) => m.id === t.after);
+    const ready = !after || after.lessons.every((l) => read.has(l.id) || /★|Итоги|Головоломки/.test(l.title));
+    const solved = Object.entries(statuses).filter(([id, s]) => id.startsWith(t.id + "-") && s && s.status === "PASSED").length;
+    all += t.taskCount; done += solved;
+    const pct = t.taskCount ? Math.round(100 * solved / t.taskCount) : 0;
+    return `<a class="tr-card ${ready ? "" : "locked"}" href="/tasks.html?module=${esc(t.id)}">
+      <div class="tr-ico">${t.icon}</div>
+      <h3>${esc(t.title)}</h3>
+      <div class="tr-after">${after ? (ready ? "✓ " : "🔒 ") + "после модуля " + after.num + " «" + esc(after.title) + "»" : "можно сразу"}</div>
+      <div class="tr-lv"><span>🟢 ${t.levels[1] || 0} лёгких</span><span>🟡 ${t.levels[2] || 0} средних</span></div>
+      <div class="progress"><span style="width:${pct}%"></span></div>
+      <div class="tr-after">решено ${solved} из ${t.taskCount}</div>
+    </a>`;
+  };
+  box.innerHTML = groups.map((g) => {
+    const list = topics.filter((t) => g.test(t.order || 0));
+    if (!list.length) return "";
+    return `<section class="trn-group"><h2>${g.title}</h2><p>${g.note}</p><div class="trn-grid">${list.map(card).join("")}</div></section>`;
+  }).join("");
+  document.getElementById("total").textContent = `Всего задач: ${all} · решено: ${done}`;
+  document.getElementById("bar").style.width = all ? (100 * done / all) + "%" : "0%";
+});
+</script>
+</body>
+</html>

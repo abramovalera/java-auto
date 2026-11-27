@@ -1,0 +1,35 @@
+## id: tr-vars-009
+## title: Значок с первой буквой
+## file: trainer/vars/FirstLetterBadge.java
+## class: FirstLetterBadge
+## level: 1
+## category: Буквы и длина строки
+@@ description
+<p>Напиши класс <code>FirstLetterBadge</code>. В лагере каждому делают значок с первой буквой имени. Программа читает имя и печатает <code>Значок: [Б]</code> — первая буква в квадратных скобках, такая же, как во вводе (маленькая так и остаётся маленькой).</p>
+<pre class="terminal"><span class="out">ввод:  Борис
+вывод: Значок: [Б]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.next()</code> — возвращает одно слово (до пробела или Enter)</li>
+<li><code>s.charAt(0)</code> — возвращает символ строки <code>s</code> по индексу (счёт с нуля)</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Борис
+@@ expect
+Значок: [Б]
+@@ test: Маленькая буква
+@@ input
+аня
+@@ expect
+Значок: [а]
+@@ test: Буква Ё
+@@ input
+Ёжик
+@@ expect
+Значок: [Ё]
+@@ test: Имя из одной буквы
+@@ input
+Z
+@@ expect
+Значок: [Z]

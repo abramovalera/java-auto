@@ -1,0 +1,47 @@
+## id: m02-t05
+## title: Конвертер температуры
+## file: module-02/CelsiusToFahrenheit.java
+## class: CelsiusToFahrenheit
+## level: 2
+@@ description
+<p>В американском прогнозе погоды +77 — это не адская жара, а приятные +25. Создай класс <code>CelsiusToFahrenheit</code>: программа спрашивает температуру в градусах Цельсия и переводит её в градусы Фаренгейта по формуле</p>
+<pre class="terminal"><span class="out">F = C × 9 / 5 + 32</span></pre>
+<p>Температуру читай как <code>double</code> и результат тоже храни в <code>double</code>.</p>
+<pre class="terminal"><span class="out">Температура в °C:</span>
+<span class="cmd">25</span>
+<span class="out">25.0 °C = 77.0 °F</span></pre>
+<p>⚠️ Ловушка: в Java <code>9 / 5</code> — это 1, а не 1.8 (урок 2.6, «деление целых»). Подумай, в каком порядке записать формулу или какие числа сделать дробными.</p>
+<p>Если пробуешь дробную температуру в консоли IDEA, вводи её через запятую: <code>36,6</code>.</p>
+<p>📖 Уроки: <a href="/lessons/m02/05-scanner.html">Scanner</a>, <a href="/lessons/m02/06-type-casting.html">Преобразования типов</a></p>
+@@ test: Комнатная температура
+@@ input
+25
+@@ expect
+Температура в °C:
+25.0 °C = 77.0 °F
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Температура в °C:
+0.0 °C = 32.0 °F
+@@ test: Кипение воды
+@@ input
+100
+@@ expect
+Температура в °C:
+100.0 °C = 212.0 °F
+@@ test: Мороз −40 (шкалы совпадают)
+@@ input
+-40
+@@ expect
+Температура в °C:
+-40.0 °C = -40.0 °F
+@@ test: Температура тела
+@@ input
+37
+@@ expect
+Температура в °C:
+37.0 °C = 98.6 °F
+@@ require: nextDouble\s*\( | Читай температуру методом nextDouble()
+@@ forbid: 1\.8 | Не подставляй готовое 1.8 — пусть в коде будет формула с 9 и 5

@@ -1,0 +1,39 @@
+## id: tr-loops-009
+## title: Робот туда-обратно
+## file: trainer/loops/AlternatingSignSum.java
+## class: AlternatingSignSum
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>AlternatingSignSum</code>. Робот стоит в точке 0 и делает <code>n</code> шагов. На шаге с номером <code>i</code> он проходит <code>i</code> метров: вперёд, если <code>i</code> нечётное, и назад, если чётное. То есть его путь: +1 −2 +3 −4 … Программа читает <code>n</code> (n ≥ 0) и печатает, в какой точке робот окажется.</p>
+<pre class="terminal"><span class="out">ввод:  4
+вывод: -2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>i % 2 == 1</code> — проверка, что i нечётное (для положительных i)</li>
+<li><code>position -= i;</code> — уменьшить значение переменной на i</li>
+</ul></div>
+@@ test: Один шаг
+@@ input
+1
+@@ expect
+1
+@@ test: Четыре шага — ушёл назад
+@@ input
+4
+@@ expect
+-2
+@@ test: Пять шагов
+@@ input
+5
+@@ expect
+3
+@@ test: Ноль шагов
+@@ input
+0
+@@ expect
+0
+@@ test: Тысяча шагов
+@@ input
+1000
+@@ expect
+-500

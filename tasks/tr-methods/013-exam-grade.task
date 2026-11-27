@@ -1,0 +1,36 @@
+## id: tr-methods-013
+## title: Буквенные оценки
+## file: trainer/methods/ExamGradeLetter.java
+## class: ExamGradeLetter
+## level: 1
+## category: Строки и печать
+@@ description
+<p>В международной школе баллы за экзамен (0–100) переводят в букву: 90 и выше — <code>A</code>, от 75 — <code>B</code>, от 60 — <code>C</code>, меньше 60 — <code>F</code>. Создай класс <code>ExamGradeLetter</code> и напиши метод <code>static char grade(int points)</code>, который возвращает букву.</p>
+<p>main читает три целых числа через пробел — баллы ученика по трём предметам — и печатает три буквы через пробел, вызвав метод для каждого числа.</p>
+<pre class="terminal"><span class="out">ввод:  95 80 40    вывод: A B F</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>литерал типа <code>char</code> пишут в одинарных кавычках: <code>'A'</code></li>
+<li><code>a + " " + b</code> — если в выражении есть строка, символы приклеятся к ней как текст</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+95 80 40
+@@ expect
+A B F
+@@ test: Ровно на границах
+@@ input
+90 75 60
+@@ expect
+A B C
+@@ test: На балл ниже границ
+@@ input
+89 74 59
+@@ expect
+B C F
+@@ test: Максимум и ноль
+@@ input
+100 0 60
+@@ expect
+A F C
+@@ require: static\s+char\s+grade\s*\(\s*int\s+\w+\s*\) | Нужен метод static char grade(int points)
+@@ require: \Wgrade\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать grade(...) для каждого предмета

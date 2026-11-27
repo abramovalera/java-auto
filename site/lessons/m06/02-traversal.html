@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Обход массива: for и for-each · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m06-02">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 6 · Урок 2</div>
+    <h1>Обход массива: for и for-each</h1>
+    <p class="lead">Массив без цикла — как камера хранения без смотрителя. Учимся проходить по всем ячейкам, читать массив с клавиатуры и не вылетать за его край.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔁 for · for-each</span><span>💥 ArrayIndexOutOfBoundsException</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m06-02-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним урок 6.1",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Как обратиться к последнему элементу массива <code>a</code> любой длины?",
+         "options": [
+          "a[a.length]",
+          "a[a.length - 1]",
+          "a[-1]"
+         ],
+         "answer": 1,
+         "why": "Индексы идут от 0 до length - 1. Обращения a[-1] в Java нет — это ошибка при запуске."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "double[] d = new double[2];\nSystem.out.println(d[1]);",
+         "answer": "0.0",
+         "why": "Обращаемся к элементу с индексом 1: элементы нового double-массива по умолчанию равны 0.0."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: шаблоны циклов в IDEA</h3>
+      <p>В этом уроке циклов по массиву будет много. Чтобы не набирать их каждый раз руками, у IDEA есть шаблоны — как <code>sout</code> и <code>psvm</code> из урока 1.4. Набираешь сокращение внутри метода и жмёшь <kbd>Tab</kbd>. IDEA вставит цикл и поставит курсор туда, где нужно вписать имя массива или условие.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что набрать</th><th>Что вставит</th><th>Когда</th></tr>
+        <tr><td><code>fori</code> + <kbd>Tab</kbd></td><td>Пустой цикл со счётчиком: <code>for (int i = 0; i &lt; ; i++) { }</code> — правую часть условия впишешь сам</td><td>Нужен обычный for: по числам, по индексам</td></tr>
+        <tr><td><code>itar</code> + <kbd>Tab</kbd></td><td>Цикл по индексам массива: <code>for (int i = 0; i &lt; a.length; i++)</code> и в теле сразу обращается к элементу <code>a[i]</code></td><td>Нужен и индекс, и элемент</td></tr>
+        <tr><td><code>iter</code> + <kbd>Tab</kbd></td><td>Цикл for-each: <code>for (int x : a) { }</code></td><td>Нужны только значения</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>J</kbd></td><td>Список всех шаблонов IDEA</td><td>Забыл, как называется шаблон</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Главный цикл модуля</h2>
+    <p><b>Обойти массив</b> — значит обратиться к каждому элементу по очереди. Для этого берут обычный <code>for</code>, а счётчик цикла используют как индекс:</p>
+<pre data-file="PrintGrades.java"><code class="java">int[] grades = {5, 4, 3, 5, 4};
+for (int i = 0; i &lt; grades.length; i++) {
+    System.out.println("Ученик " + i + ": " + grades[i]);
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>int i = 0</code><div><p>Инициализация счётчика: начинаем с индекса 0 — с первого элемента.</p></div></div>
+      <div class="annot-row"><code>i &lt; grades.length</code><div><p>Условие: идём, пока индекс <b>строго меньше</b> длины. Длина 5 — значит последняя итерация будет с <code>i = 4</code>. Не пиши здесь число 5: если массив станет длиннее, цикл сам подстроится.</p></div></div>
+      <div class="annot-row"><code>i++</code><div><p>Шаг: переходим к следующему индексу.</p></div></div>
+      <div class="annot-row"><code>grades[i]</code><div><p>Обращение к элементу по индексу <code>i</code>. На каждой итерации — новый элемент.</p></div></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Запомни как скороговорку</span>
+      <p><code>for (int i = 0; i &lt; a.length; i++)</code> — «от нуля, пока меньше длины». В IDEA есть шаблон: набери <code>fori</code> и нажми <kbd>Tab</kbd>, или <code>itar</code> + <kbd>Tab</kbd> — сразу цикл по массиву.</p>
+    </div>
+    <p>Сумма элементов — тот же накопитель из модуля 5, только прибавляем не счётчик <code>i</code>, а элемент <code>a[i]</code>. Пройди программу по шагам и предскажи значения:</p>
+    <div data-widget="trace" id="trace-m06-02-sum">
+      <script type="application/json">
+      { "title": "Сумма элементов массива",
+        "code": "int[] a = {4, 7, 2};\nint sum = 0;\nfor (int i = 0; i < a.length; i++) {\n    sum += a[i];\n}\nSystem.out.println(\"Сумма: \" + sum);",
+        "steps": [
+          { "line": 1, "vars": { "a": "[4, 7, 2]" }, "note": "Объявляем a и инициализируем литералом массива из трёх элементов. a.length = 3." },
+          { "line": 2, "vars": { "a": "[4, 7, 2]", "sum": "0" }, "note": "Объявляем накопитель sum и инициализируем нулём." },
+          { "line": 3, "vars": { "a": "[4, 7, 2]", "sum": "0", "i": "0" }, "note": "Инициализация счётчика i = 0, проверяем условие 0 &lt; 3 — true, первая итерация." },
+          { "line": 4, "vars": { "a": "[4, 7, 2]", "sum": "4", "i": "0" }, "ask": ["sum"], "note": "Обращаемся к элементу a[0] — там 4. Составное присваивание: sum = 0 + 4 = 4." },
+          { "line": 3, "vars": { "a": "[4, 7, 2]", "sum": "4", "i": "1" }, "note": "Шаг i++ → 1, 1 &lt; 3 — следующая итерация." },
+          { "line": 4, "vars": { "a": "[4, 7, 2]", "sum": "11", "i": "1" }, "ask": ["sum"], "note": "Прибавляем a[1]. Там 7, sum = 4 + 7 = 11." },
+          { "line": 3, "vars": { "a": "[4, 7, 2]", "sum": "11", "i": "2" }, "note": "i = 2, 2 &lt; 3 — ещё одна итерация." },
+          { "line": 4, "vars": { "a": "[4, 7, 2]", "sum": "13", "i": "2" }, "ask": ["sum"], "note": "Прибавляем a[2]. Там 2, sum = 11 + 2 = 13." },
+          { "line": 3, "vars": { "a": "[4, 7, 2]", "sum": "13", "i": "3" }, "ask": ["i"], "note": "Сначала шаг i++, потом проверка условия. i = 3, а 3 &lt; 3 — false, цикл закончен. До обращения a[3] дело не дошло — и хорошо: такого элемента нет." },
+          { "line": 6, "vars": { "a": "[4, 7, 2]", "sum": "13" }, "out": "Сумма: 13\n", "note": "Счётчик i объявлен в заголовке цикла и после цикла не виден. Вызываем println и печатаем сумму." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Заполняем массив с клавиатуры</h2>
+    <p>Самый частый сценарий в задачах этого модуля: сначала вводят <b>N</b> — сколько будет чисел, потом сами <b>N чисел</b>. Шаблон: объявляем <code>n</code> и инициализируем результатом вызова <code>nextInt()</code>, создаём массив на <code>n</code> элементов, а в цикле присваиваем каждому элементу <code>numbers[i]</code> результат очередного вызова <code>nextInt()</code>:</p>
+<pre data-file="ReadNumbers.java"><code class="java">import java.util.Scanner;
+
+public class ReadNumbers {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();          // 1. узнали размер
+        int[] numbers = new int[n];         // 2. создали массив на n ячеек
+        for (int i = 0; i &lt; n; i++) {
+            numbers[i] = scanner.nextInt(); // 3. по очереди заполнили ячейки
+        }
+        // 4. дальше работаем с массивом: считаем, ищем, печатаем…
+        System.out.println("Первое: " + numbers[0]
+                + ", последнее: " + numbers[n - 1]);
+    }
+}</code></pre>
+    <p>В консоли Run набери числа через пробел или каждое с новой строки — <code>nextInt()</code> всё равно прочитает их по одному:</p>
+    <div data-widget="ide" id="shot-read-input">
+      <script type="application/json">
+      { "tree": false, "file": "ReadNumbers.java", "runConfig": "ReadNumbers", "gutterRun": [3, 4], "statusPath": "module-06",
+        "code": "import java.util.Scanner;\n\npublic class ReadNumbers {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int n = scanner.nextInt();\n        int[] numbers = new int[n];\n        for (int i = 0; i < n; i++) {\n            numbers[i] = scanner.nextInt();\n        }\n        System.out.println(\"Первое: \" + numbers[0] + \", последнее: \" + numbers[n - 1]);\n    }\n}",
+        "console": { "title": "ReadNumbers", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ReadNumbers" },
+          { "t": "in", "s": "4" },
+          { "t": "in", "s": "10 20 30 40" },
+          { "t": "out", "s": "Первое: 10, последнее: 40" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Зелёным — то, что ты набрал сам. Сначала <b>4</b> (это N — сколько будет чисел) и <kbd>Enter</kbd>, потом сами числа. Программа в это время молча ждёт: никаких «Введите…» она не печатает" },
+                   { "n": 2, "target": "output", "text": "Когда все 4 числа прочитаны, программа печатает ответ — уже обычным, белым цветом" },
+                   { "n": 3, "target": "exit", "text": "<b>exit code 0</b> — всё прошло без ошибок" } ],
+        "caption": "Ввод массива с клавиатуры в консоли Run" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Подсказки «Введите число» не нужны</span>
+      <p>В задачах на сайте вывод сравнивается с ожидаемым символ в символ. Строка «Введите N:» попадёт в вывод — и проверка не пройдёт. Читай молча, печатай только ответ.</p>
+    </div>
+    <details class="predict">
+      <summary>Почему в цикле чтения можно писать и i &lt; n, и i &lt; numbers.length?</summary>
+      <p>Массив создан как <code>new int[n]</code>, поэтому <code>numbers.length</code> равно <code>n</code>. Оба варианта верны. Но <code>numbers.length</code> надёжнее: условие цикла всегда привязано к длине самого массива.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>for-each: «для каждого элемента»</h2>
+    <p>Часто индекс вообще не нужен: просто пройти по всем элементам и с каждым что-то сделать. Для этого есть короткая форма — <b>for-each</b> (по-русски «для каждого»):</p>
+<pre data-file="PrintGrades.java"><code class="java">int[] grades = {5, 4, 3, 5, 4};
+int sum = 0;
+for (int g : grades) {     // читается: «для каждого g из grades»
+    sum += g;
+}
+System.out.println(sum);   // 21</code></pre>
+    <p>Двоеточие читай как «из». В заголовке объявлена переменная <code>g</code>; на каждой итерации ей присваивается <b>копия</b> очередного элемента: сначала 5, потом 4, потом 3… Ни индекса, ни <code>length</code>, ни риска ошибиться на единицу.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кассир в магазине</span>
+      <p>Кассир берёт товары с ленты по одному и пробивает. Номер товара на ленте ему не нужен — «для каждого товара на ленте: пробить». Это for-each. А вот кладовщик, который раскладывает коробки «на полку 3 — сюда, на полку 4 — туда», работает с номерами — это for по индексам.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 240" role="img" aria-label="Слева for по индексам видит номера ячеек, справа for-each получает только значения по очереди">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="10" width="330" height="220" rx="14" class="d-soft"/>
+        <text x="175" y="40" text-anchor="middle" class="d-title">for (int i = 0; …)</text>
+        <rect x="40" y="70" width="60" height="50" rx="6" class="d-blue"/><text x="70" y="102" text-anchor="middle" class="d-title">5</text>
+        <rect x="105" y="70" width="60" height="50" rx="6" class="d-blue"/><text x="135" y="102" text-anchor="middle" class="d-title">4</text>
+        <rect x="170" y="70" width="60" height="50" rx="6" class="d-accent"/><text x="200" y="102" text-anchor="middle" class="d-title">3</text>
+        <rect x="235" y="70" width="60" height="50" rx="6" class="d-blue"/><text x="265" y="102" text-anchor="middle" class="d-title">5</text>
+        <text x="70" y="140" text-anchor="middle" class="d-mono-ink">0</text><text x="135" y="140" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="200" y="140" text-anchor="middle" class="d-mono-ink">2</text><text x="265" y="140" text-anchor="middle" class="d-mono-ink">3</text>
+        <path d="M200 190 V150" class="d-arrow"/>
+        <text x="200" y="210" text-anchor="middle" class="d-mono-ink">i = 2 → a[2]</text>
+        <rect x="360" y="10" width="330" height="220" rx="14" class="d-soft"/>
+        <text x="525" y="40" text-anchor="middle" class="d-title">for (int g : a)</text>
+        <rect x="390" y="70" width="60" height="50" rx="6" class="d-teal"/><text x="420" y="102" text-anchor="middle" class="d-title">5</text>
+        <rect x="455" y="70" width="60" height="50" rx="6" class="d-teal"/><text x="485" y="102" text-anchor="middle" class="d-title">4</text>
+        <rect x="520" y="70" width="60" height="50" rx="6" class="d-accent"/><text x="550" y="102" text-anchor="middle" class="d-title">3</text>
+        <rect x="585" y="70" width="60" height="50" rx="6" class="d-teal"/><text x="615" y="102" text-anchor="middle" class="d-title">5</text>
+        <text x="525" y="145" text-anchor="middle" class="d-small">номеров не видно</text>
+        <path d="M550 122 V170" class="d-arrow"/>
+        <text x="550" y="200" text-anchor="middle" class="d-mono-ink">g = 3 (копия)</text>
+      </svg>
+      <figcaption>for по индексам знает номер ячейки. for-each получает только значения, по очереди, слева направо.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Когда какой цикл</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Цикл</th><th>Почему</th></tr>
+        <tr><td>Сумма, печать всех, подсчёт по условию</td><td>for-each</td><td>Нужны только значения</td></tr>
+        <tr><td>Присвоить значения элементам (заполнить с клавиатуры, обнулить)</td><td>for по индексам</td><td>for-each даёт копию, присвоить элементу массива через неё нельзя</td></tr>
+        <tr><td>Узнать позицию: «на каком месте максимум»</td><td>for по индексам</td><td>Позиция и есть индекс</td></tr>
+        <tr><td>Идти с конца, через один, сравнивать соседей <code>a[i]</code> и <code>a[i + 1]</code></td><td>for по индексам</td><td>for-each умеет только подряд слева направо</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Что выведет? int[] a = {1, 2, 3}; for (int x : a) { x = x * 10; } System.out.println(a[0]);</summary>
+      <p><b>1</b>. <code>x</code> — копия элемента, отдельная переменная. Присвоили копии новое значение — массив не изменился. Чтобы изменить элементы, нужен for по индексам — присваивание через обращение по индексу: <code>a[i] = a[i] * 10;</code>. Это любимый вопрос на собеседованиях.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Вылет за край: ArrayIndexOutOfBoundsException</h2>
+    <p>Самая частая ошибка с массивами — одна лишняя единица. Посмотри на условие цикла:</p>
+<pre data-file="Oops.java"><code class="java">public class Oops {
+    public static void main(String[] args) {
+        int[] grades = {5, 4, 3, 5, 4};
+        for (int i = 0; i &lt;= grades.length; i++) {   // &lt;= вместо &lt;
+            System.out.println(grades[i]);
+        }
+    }
+}</code></pre>
+    <p>Компилятор молчит: синтаксически всё правильно. Программа печатает 5, 4, 3, 5, 4 — и на шестой итерации, когда <code>i = 5</code>, падает при обращении <code>grades[5]</code>:</p>
+    <div data-widget="ide" id="shot-aioobe">
+      <script type="application/json">
+      { "tree": false, "file": "Oops.java", "runConfig": "Oops", "gutterRun": [1, 2], "statusPath": "module-06",
+        "code": "public class Oops {\n    public static void main(String[] args) {\n        int[] grades = {5, 4, 3, 5, 4};\n        for (int i = 0; i <= grades.length; i++) {\n            System.out.println(grades[i]);\n        }\n    }\n}",
+        "console": { "title": "Oops", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Oops" },
+          { "t": "out", "s": "5" },
+          { "t": "out", "s": "4" },
+          { "t": "out", "s": "3" },
+          { "t": "out", "s": "5" },
+          { "t": "out", "s": "4" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5" },
+          { "t": "err", "s": "\tat Oops.main(Oops.java:5)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "line-4", "text": "Виновник — <code>&lt;=</code> в условии: цикл пустит <code>i</code> до 5 включительно. Редактор молчит — для компилятора тут всё правильно" },
+                   { "n": 2, "target": "output-5", "text": "Пять итераций (i от 0 до 4) прошли нормально — все оценки напечатаны" },
+                   { "n": 3, "target": "error", "text": "Красным — исключение: <b>ArrayIndexOutOfBoundsException</b>, а после двоеточия — подробности: попросили индекс 5, а длина массива 5" },
+                   { "n": 4, "target": "link-1", "text": "Где упало: файл <b>Oops.java</b>, строка <b>5</b>. Синяя ссылка — щёлкни, и IDEA поставит курсор на эту строку" },
+                   { "n": 5, "target": "exit", "text": "<b>exit code 1</b> — программа завершилась аварийно" } ],
+        "caption": "Вылет за край массива в консоли Run" }
+      </script>
+    </div>
+    <p>Читаем сообщение по кусочкам — оно говорит почти всё:</p>
+    <div class="annot">
+      <div class="annot-row"><code>ArrayIndexOutOfBoundsException</code><div><p><b>Что случилось</b>: «индекс массива вне границ». Это <b>исключение</b> — ошибка во время работы программы (не компиляции).</p></div></div>
+      <div class="annot-row"><code>Index 5</code><div><p><b>Какой индекс</b> ты попросил.</p></div></div>
+      <div class="annot-row"><code>for length 5</code><div><p><b>Какая длина</b> у массива. Индексы допустимы от 0 до 4 — пятёрка не влезла.</p></div></div>
+      <div class="annot-row"><code>at Oops.main(Oops.java:5)</code><div><p><b>Где</b>: файл <code>Oops.java</code>, строка 5. В IDEA это ссылка — кликни, и курсор встанет на нужную строку.</p></div></div>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 680 170" role="img" aria-label="Индексы от 0 до 4 внутри массива, индексы 5 и минус 1 за его пределами">
+        <rect x="120" y="40" width="440" height="70" rx="12" class="d-soft"/>
+        <rect x="130" y="50" width="76" height="50" rx="6" class="d-blue"/><text x="168" y="81" text-anchor="middle" class="d-mono-ink">[0]</text>
+        <rect x="216" y="50" width="76" height="50" rx="6" class="d-blue"/><text x="254" y="81" text-anchor="middle" class="d-mono-ink">[1]</text>
+        <rect x="302" y="50" width="76" height="50" rx="6" class="d-blue"/><text x="340" y="81" text-anchor="middle" class="d-mono-ink">[2]</text>
+        <rect x="388" y="50" width="76" height="50" rx="6" class="d-blue"/><text x="426" y="81" text-anchor="middle" class="d-mono-ink">[3]</text>
+        <rect x="474" y="50" width="76" height="50" rx="6" class="d-blue"/><text x="512" y="81" text-anchor="middle" class="d-mono-ink">[4]</text>
+        <rect x="580" y="50" width="76" height="50" rx="6" class="d-red"/><text x="618" y="81" text-anchor="middle" class="d-mono-ink">[5]</text>
+        <rect x="24" y="50" width="76" height="50" rx="6" class="d-red"/><text x="62" y="81" text-anchor="middle" class="d-mono-ink">[-1]</text>
+        <text x="340" y="140" text-anchor="middle" class="d-small">length = 5: можно 0…4</text>
+        <text x="618" y="140" text-anchor="middle" class="d-c-red d-small">💥 нет ячейки</text>
+        <text x="62" y="140" text-anchor="middle" class="d-c-red d-small">💥 нет ячейки</text>
+      </svg>
+      <figcaption>Всё, что левее нуля или правее length − 1, — за краем массива. Java проверяет это при каждом обращении к элементу по индексу.</figcaption>
+    </figure>
+    <div class="say" data-mood="cool"><p>Хорошая новость: Java <b>не даёт</b> тихо прочитать мусор за краем массива (в языке C это возможно — и это источник страшных уязвимостей). Программа падает громко и сразу говорит, где. Увидел <code>Index … out of bounds</code> — первым делом проверь <code>&lt;=</code> в условии цикла и <code>i + 1</code> внутри.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m06-02">
+      <script type="application/json">
+      {
+       "title": "Обход массива",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int[] a = {2, 5, 8, 1};\nint count = 0;\nfor (int x : a) {\n    if (x > 3) {\n        count++;\n    }\n}\nSystem.out.println(count);",
+         "answer": "2",
+         "why": "Больше трёх только 5 и 8. count — счётчик: инкремент count++ выполняется только когда условие true."
+        },
+        {
+         "type": "bug",
+         "q": "Эта программа падает с ArrayIndexOutOfBoundsException. В какой строке причина?",
+         "code": "int[] a = {1, 2, 3, 4};\nfor (int i = 0; i < a.length; i++) {\n    System.out.println(a[i] + a[i + 1]);\n}",
+         "answer": [
+          3
+         ],
+         "why": "Когда i = 3 (последняя итерация), обращение a[i + 1] — это a[4], а такого элемента нет. Для соседей условие должно быть i &lt; a.length - 1."
+        },
+        {
+         "type": "single",
+         "q": "Нужно заменить все отрицательные элементы массива на 0. Какой цикл подойдёт?",
+         "options": [
+          "for-each: for (int x : a) { if (x &lt; 0) x = 0; }",
+          "for по индексам: if (a[i] &lt; 0) a[i] = 0;",
+          "Оба подойдут"
+         ],
+         "answer": 1,
+         "why": "В for-each x — копия, присваивание копии не трогает массив. Присвоить элементу можно только через обращение по индексу."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "ArrayIndexOutOfBoundsException — ошибка компиляции",
+           "a": false,
+           "why": "это ошибка при запуске (исключение): компилятор не знает, какой индекс получится."
+          },
+          {
+           "s": "for-each проходит по элементам слева направо",
+           "a": true
+          },
+          {
+           "s": "Сообщение «Index 5 out of bounds for length 5» значит, что в массиве 5 ячеек, а попросили шестую",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне три коротких кода с массивами — я скажу, где будет ArrayIndexOutOfBoundsException и почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Обход по индексам: <code>for (int i = 0; i &lt; a.length; i++)</code> — «от нуля, пока меньше длины».</li>
+        <li>Ввод массива: прочитать <code>n</code> → создать массив <code>new int[n]</code> → в цикле присвоить каждому элементу результат вызова <code>nextInt()</code>.</li>
+        <li>for-each <code>for (int x : a)</code> — когда нужны только значения. <code>x</code> — копия элемента, изменить массив через неё нельзя.</li>
+        <li>Индекс, позиция, соседи, обратный порядок, присваивание элементам — for по индексам.</li>
+        <li><code>ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5</code> — вылет за край; ищи <code>&lt;=</code> или <code>i + 1</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

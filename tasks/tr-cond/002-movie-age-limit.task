@@ -1,0 +1,36 @@
+## id: tr-cond-002
+## title: Фильм 16+
+## file: trainer/cond/MovieAgeLimit.java
+## class: MovieAgeLimit
+## level: 1
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>MovieAgeLimit</code>. На фильм с пометкой «16+» пускают зрителей от 16 лет. Программа читает возраст зрителя (целое число) и печатает <code>true</code>, если ему можно на фильм, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  16
+вывод: true
+
+ввод:  15
+вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>age >= 16</code> — сравнение, его результат — значение типа <code>boolean</code>; его можно сразу напечатать</li>
+</ul></div>
+@@ test: Ровно 16 — уже можно
+@@ input
+16
+@@ expect
+true
+@@ test: 15 — ещё нельзя
+@@ input
+15
+@@ expect
+false
+@@ test: Младенец
+@@ input
+0
+@@ expect
+false
+@@ test: Взрослый зритель
+@@ input
+70
+@@ expect
+true

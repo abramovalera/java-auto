@@ -1,0 +1,29 @@
+## id: m17-t01
+## title: Отладчик: неверный чек
+## file: module-17/DebugShoppingCart.java
+## class: DebugShoppingCart
+## level: 1
+@@ description
+<p>Файл <code>workspace/module-17/DebugShoppingCart.java</code> уже лежит в папке. Программа печатает чек из магазина: строки товаров у неё получаются правильные, а вот <b>итог и скидка — нет</b>. В коде <b>два бага</b>.</p>
+<p>Правило задачи: <b>не добавляй <code>println</code> для поиска</b> — ищи отладчиком. Поставь брейкпоинт на строку с циклом, запусти <b>Debug</b> и смотри в панели <b>Variables</b>, как меняется <code>total</code> на каждом круге (<kbd>F8</kbd>). Потом шагни внутрь метода <code>discount</code> (<kbd>F7</kbd>) и выдели кусок выражения → <b>Evaluate Expression</b> (<kbd>Alt</kbd>+<kbd>F8</kbd>).</p>
+<p>После исправления программа печатает:</p>
+<pre class="terminal"><span class="out">Хлеб: 2 x 45 = 90
+Молоко: 1 x 89 = 89
+Сыр: 1 x 320 = 320
+Яблоки: 3 x 150 = 450
+Итого: 949
+Скидка 10%: 94
+К оплате: 855</span></pre>
+<p>Наставнику при <code>/check</code> расскажи: на каком шаге отладчика ты увидел первую ошибку и что показал Evaluate Expression.</p>
+<p>📖 <a href="/lessons/m17/01-debugger.html">Отладчик IntelliJ IDEA</a></p>
+@@ test: Чек считается правильно
+@@ expect
+Хлеб: 2 x 45 = 90
+Молоко: 1 x 89 = 89
+Сыр: 1 x 320 = 320
+Яблоки: 3 x 150 = 450
+Итого: 949
+Скидка 10%: 94
+К оплате: 855
+@@ forbid: \b(949|855|94)\b | Не пиши ответ руками — итог и скидку должна посчитать программа
+@@ require: static\s+int\s+discount\s*\( | Метод discount должен остаться — почини его, а не удаляй

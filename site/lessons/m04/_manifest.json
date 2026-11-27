@@ -1,0 +1,14 @@
+{ "id": "m04", "num": "4", "title": "Условия: if и switch",
+  "summary": "Учим программу принимать решения: if, else if, вложенные условия, частые ловушки, тернарный оператор, switch старый и новый, мастерская условий и игра «Раннер».",
+  "lessons": [
+    { "id": "m04-01", "title": "Программа принимает решения: if", "url": "/lessons/m04/01-if.html" },
+    { "id": "m04-02", "title": "else, else if и вложенные условия", "url": "/lessons/m04/02-else-if.html" },
+    { "id": "m04-03", "title": "Частые ошибки в условиях", "url": "/lessons/m04/03-if-pitfalls.html" },
+    { "id": "m04-04", "title": "Тернарный оператор ? :", "url": "/lessons/m04/04-ternary.html" },
+    { "id": "m04-05", "title": "switch: выбор из многих", "url": "/lessons/m04/05-switch.html" },
+    { "id": "m04-06", "title": "Мастерская: решения с условиями", "url": "/lessons/m04/06-workshop.html" },
+    { "id": "m04-runner", "title": "Игра «Раннер»: научи Джавика прыгать", "url": "/lessons/m04/50-runner.html" },
+    { "id": "m04-pz", "title": "Головоломки: что выведется?", "url": "/lessons/m04/08-puzzles.html" },
+    { "id": "m04-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m04/09-summary.html" }
+  ],
+  "taskCount": 11 }

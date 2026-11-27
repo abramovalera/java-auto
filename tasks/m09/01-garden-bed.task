@@ -1,0 +1,53 @@
+## id: m09-t01
+## title: Грядка: площадь и забор
+## file: module-09/GardenBedPlanner.java
+## class: GardenBedPlanner
+## level: 1
+@@ description
+<p>Дачник планирует прямоугольную грядку. Программа читает два целых числа — ширину и длину в метрах — и печатает размеры, площадь грядки и длину забора вокруг неё (периметр):</p>
+<pre class="terminal"><span class="out">ввод: 3 4
+
+Грядка 3 x 4
+Площадь: 12
+Забор: 14</span></pre>
+<p>Главное здесь — не формулы, а <b>свой класс</b>. Всё пишем в одном файле <code>GardenBedPlanner.java</code>:</p>
+<ul>
+<li>сверху <code>public class GardenBedPlanner</code> с методом <code>main</code> — он читает числа через <code>Scanner</code>, создаёт грядку через <code>new</code> и печатает результат;</li>
+<li>ниже — класс <code>GardenBed</code> <b>без</b> слова <code>public</code>: поля ширина и длина, конструктор с двумя параметрами и два метода объекта (не static!) — <code>int area()</code> и <code>int perimeter()</code>.</li>
+</ul>
+<p>Площадь и забор считает сама грядка, а <code>main</code> только спрашивает её: <code>bed.area()</code>.</p>
+<p>📖 <a href="/lessons/m09/02-instance-methods.html">Методы объекта</a> · <a href="/lessons/m09/03-constructors.html">Конструкторы</a></p>
+@@ test: Грядка 3 на 4
+@@ input
+3 4
+@@ expect
+Грядка 3 x 4
+Площадь: 12
+Забор: 14
+@@ test: Квадратная клетка 1 на 1
+@@ input
+1 1
+@@ expect
+Грядка 1 x 1
+Площадь: 1
+Забор: 4
+@@ test: Длинная узкая грядка
+@@ input
+2 10
+@@ expect
+Грядка 2 x 10
+Площадь: 20
+Забор: 24
+@@ test: Нулевая ширина (граничный случай)
+@@ input
+0 5
+@@ expect
+Грядка 0 x 5
+Площадь: 0
+Забор: 10
+@@ require: \bclass\s+GardenBed\b | Нужен класс GardenBed (без public, в том же файле)
+@@ require: new\s+GardenBed\s*\( | Создай грядку через new GardenBed(...)
+@@ require: \bint\s+area\s*\(\s*\) | В классе GardenBed нужен метод int area()
+@@ require: \bint\s+perimeter\s*\(\s*\) | В классе GardenBed нужен метод int perimeter()
+@@ require: \.area\s*\(\s*\) | Спроси площадь у грядки: bed.area()
+@@ forbid: static\s+int\s+(area|perimeter)\s*\( | area и perimeter — методы объекта, без static: они берут ширину и длину конкретной грядки

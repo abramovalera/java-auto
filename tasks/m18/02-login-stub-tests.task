@@ -1,0 +1,35 @@
+## id: m18-t02
+## title: Тесты для страницы входа (заглушка)
+## file: module-18/NookLoginStubTest.java
+## class: NookLoginStubTest
+## level: 1
+## mode: junit
+@@ description
+<p>Браузера у сервера курса нет, поэтому «страница входа» здесь — обычный Java-класс <code>NookFakeLoginPage</code>, который <b>имитирует</b> поведение настоящей формы. Файл с ним уже лежит в <code>workspace/module-18/NookLoginStubTest.java</code>. Класс-заглушку внизу файла <b>не меняй</b> — ты тестировщик, а не разработчик этой страницы.</p>
+<p>Что умеет страница:</p>
+<ul>
+<li><code>login(user, password)</code> — ввести логин и пароль и нажать «Войти»;</li>
+<li><code>getError()</code> — текст ошибки под формой (пустая строка, если ошибки нет);</li>
+<li><code>isLoggedIn()</code> — вошёл ли пользователь.</li>
+</ul>
+<p>Правильные данные: логин <code>anna</code>, пароль <code>qwerty123</code>. Пустой логин → «Введите логин», пустой пароль → «Введите пароль», неверная пара → «Неверный логин или пароль». После трёх неудачных попыток страница блокирует вход: «Слишком много попыток…» — даже с правильным паролем.</p>
+<p><b>Напиши в классе <code>NookLoginStubTest</code>:</b></p>
+<ol>
+<li>поле <code>NookFakeLoginPage page</code> и метод с <code>@BeforeEach</code>, который перед каждым тестом создаёт <b>новую</b> страницу;</li>
+<li>минимум <b>пять</b> тестов с <code>@Test</code>: успешный вход, неверный пароль, пустой логин, пустой пароль, блокировка после трёх ошибок;</li>
+<li>в каждом тесте — проверки AssertJ: <code>assertThat(...).isTrue()</code> / <code>isFalse()</code> / <code>isEqualTo(...)</code> / <code>isEmpty()</code> / <code>startsWith(...)</code>. Проверяй и состояние входа, и текст ошибки.</li>
+</ol>
+<p>Нажми «Проверить»: сервер запустит твои тесты. Задача решена, когда все тесты зелёные. Потом проверь, что тест умеет падать: поменяй в одной проверке ожидаемый текст и запусти снова — должен покраснеть именно он.</p>
+<div class="callout tip"><span class="callout-title">IDEA подчёркивает @Test красным?</span><p>Поставь курсор на <code>@Test</code> → <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Add 'JUnit 5' to classpath</b>. Для AssertJ: <b>File → Project Structure → Libraries → + → From Maven…</b> → <code>org.assertj:assertj-core:3.27.3</code>. Запуск тестов — зелёный треугольник ▶ у имени класса.</p></div>
+<p>📖 Уроки: <a href="/lessons/m18/01-what-is-autotest.html">Что такое автотесты</a>, <a href="/lessons/m18/05-page-object.html">Page Object</a></p>
+@@ test: JUnit-тесты ученика
+@@ require: @BeforeEach | Нужен метод с @BeforeEach, который создаёт новую страницу перед каждым тестом
+@@ require: (@Test\b[\s\S]*){5} | Нужно минимум пять тестов с @Test
+@@ require: assertThat\s*\( | Проверки пишем через AssertJ: assertThat(...)
+@@ require: \.getError\s*\(\s*\) | Проверь текст ошибки через getError()
+@@ require: \.isLoggedIn\s*\(\s*\) | Проверь состояние входа через isLoggedIn()
+@@ require: (isEqualTo|startsWith|contains)\s*\(\s*"Слишком много попыток | Нужен тест на блокировку после трёх неудачных попыток
+@@ require: failedAttempts >= 3 | Не меняй класс-заглушку NookFakeLoginPage: верни его как было
+@@ require: user\.equals\("anna"\) && password\.equals\("qwerty123"\) | Не меняй класс-заглушку NookFakeLoginPage: верни его как было
+@@ forbid: static\s+NookFakeLoginPage | Страница не должна быть static: каждому тесту нужна своя, свежая страница
+@@ forbid: assertTrue\s*\(\s*true\s*\)|assertThat\s*\(\s*true\s*\) | Проверка «true равно true» ничего не проверяет — проверяй поведение страницы

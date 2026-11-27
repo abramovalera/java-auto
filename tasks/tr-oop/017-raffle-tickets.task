@@ -1,0 +1,62 @@
+## id: tr-oop-017
+## title: Билеты лотереи — static-счётчик
+## file: trainer/oop/RaffleTicketDesk.java
+## class: RaffleTicketDesk
+## level: 2
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>RaffleTicketDesk</code> с методом <code>main</code>, а ниже в том же файле — класс <code>RaffleTicket</code> (лотерейный билет). Номера билетам раздаёт сам класс, по порядку: 1, 2, 3…</p>
+<ul>
+<li>статическое поле <code>private static int issued</code> — сколько билетов уже выдано (одно на весь класс, а не у каждого билета своё);</li>
+<li>поля объекта <code>private final int number</code> и <code>private final String owner</code>;</li>
+<li>конструктор <code>RaffleTicket(String owner)</code> — увеличивает <code>issued</code> и даёт билету номер, равный новому значению <code>issued</code>;</li>
+<li>статический метод <code>static int getIssued()</code>;</li>
+<li><code>toString()</code> — возвращает <code>Билет №N — Имя</code>.</li>
+</ul>
+<p>Ввод: в первой строке — количество покупателей <code>n</code>, дальше <code>n</code> имён через пробел. Для каждого покупателя создай билет и сразу напечатай его. В конце — <code>Всего билетов: N</code> (возьми из <code>RaffleTicket.getIssued()</code>).</p>
+<pre class="terminal"><span class="out">ввод:  3
+       Аня Боря Вика
+вывод: Билет №1 — Аня
+       Билет №2 — Боря
+       Билет №3 — Вика
+       Всего билетов: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>static</code> — поле принадлежит классу; все объекты видят одно и то же значение</li>
+<li><code>RaffleTicket.getIssued()</code> — статический метод вызывается через имя класса</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+Аня Боря Вика
+@@ expect
+Билет №1 — Аня
+Билет №2 — Боря
+Билет №3 — Вика
+Всего билетов: 3
+@@ test: Покупателей нет
+@@ input
+0
+@@ expect
+Всего билетов: 0
+@@ test: Одинаковые имена — разные билеты
+@@ input
+4
+Петя Петя Оля Петя
+@@ expect
+Билет №1 — Петя
+Билет №2 — Петя
+Билет №3 — Оля
+Билет №4 — Петя
+Всего билетов: 4
+@@ test: Один покупатель
+@@ input
+1
+Дима
+@@ expect
+Билет №1 — Дима
+Всего билетов: 1
+@@ require: \bclass\s+RaffleTicket\b | Объяви в том же файле класс RaffleTicket
+@@ require: private\s+static\s+int\s+issued\b | Нужно статическое поле private static int issued
+@@ require: \bstatic\s+int\s+getIssued\s*\(\s*\) | Нужен статический метод static int getIssued()
+@@ require: RaffleTicket\.getIssued\s*\(\s*\) | Количество билетов возьми из RaffleTicket.getIssued()
+@@ require: private\s+final\s+int\s+number\b | Номер билета — поле private final int number

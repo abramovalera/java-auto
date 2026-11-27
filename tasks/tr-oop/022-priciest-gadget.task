@@ -1,0 +1,66 @@
+## id: tr-oop-022
+## title: Самый дорогой гаджет
+## file: trainer/oop/PriciestGadget.java
+## class: PriciestGadget
+## level: 2
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>PriciestGadget</code> с методом <code>main</code>, а ниже в том же файле — класс <code>StoreGadget</code>:</p>
+<ul>
+<li>поля <code>private final String name</code> и <code>private final int price</code>;</li>
+<li>конструктор <code>StoreGadget(String name, int price)</code>;</li>
+<li>геттеры <code>getName()</code> и <code>getPrice()</code>;</li>
+<li><code>toString()</code> — <code>Название за N руб.</code></li>
+</ul>
+<p>Ввод: в первой строке — количество гаджетов <code>n</code> (не меньше 1), дальше <code>n</code> строк «название цена». Сложи все гаджеты в массив <code>StoreGadget[]</code>, потом найди самый дорогой и самый дешёвый. Если цена совпадает, побеждает тот, кто раньше в списке.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       Наушники 3500
+       Смартфон 24990
+       Чехол 700
+вывод: Самый дорогой: Смартфон за 24990 руб.
+       Самый дешёвый: Чехол за 700 руб.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>StoreGadget[] gadgets = new StoreGadget[n];</code> — массив ссылок, сначала все элементы <code>null</code></li>
+<li><code>gadgets[i] = new StoreGadget(…);</code> — кладём в ячейку ссылку на новый объект</li>
+<li>для максимума храни не число, а ссылку на лучший объект: <code>StoreGadget best = gadgets[0];</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+Наушники 3500
+Смартфон 24990
+Чехол 700
+@@ expect
+Самый дорогой: Смартфон за 24990 руб.
+Самый дешёвый: Чехол за 700 руб.
+@@ test: Один гаджет — он и дорогой, и дешёвый
+@@ input
+1
+Флешка 450
+@@ expect
+Самый дорогой: Флешка за 450 руб.
+Самый дешёвый: Флешка за 450 руб.
+@@ test: Равные цены — побеждает первый
+@@ input
+4
+Мышь 990
+Коврик 300
+Клавиатура 990
+Кабель 300
+@@ expect
+Самый дорогой: Мышь за 990 руб.
+Самый дешёвый: Коврик за 300 руб.
+@@ test: Самый дорогой последний
+@@ input
+3
+Зарядка 1200
+Пауэрбанк 2500
+Ноутбук 89990
+@@ expect
+Самый дорогой: Ноутбук за 89990 руб.
+Самый дешёвый: Зарядка за 1200 руб.
+@@ require: \bclass\s+StoreGadget\b | Объяви в том же файле класс StoreGadget
+@@ require: StoreGadget\s*\[\s*\]\s*\w+\s*=\s*new\s+StoreGadget\s*\[ | Сложи гаджеты в массив: StoreGadget[] gadgets = new StoreGadget[n]
+@@ require: private\s+final\s+int\s+price\b | Цена — поле private final int price
+@@ require: \bint\s+getPrice\s*\(\s*\) | Нужен геттер int getPrice()
+@@ require: public\s+String\s+toString\s*\(\s*\) | Переопредели метод public String toString()

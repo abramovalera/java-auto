@@ -1,0 +1,51 @@
+## id: tr-colls-017
+## title: Номер по имени
+## file: trainer/colls/PhoneLookupByName.java
+## class: PhoneLookupByName
+## level: 1
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>PhoneLookupByName</code>. В первой строке — количество записей <code>n</code>, дальше <code>n</code> строк вида <code>имя номер</code>. В последней строке — имя, номер которого ищем. Сохрани записи в словарь <code>HashMap</code> и напечатай номер или <code>Контакт не найден</code>. Если одно имя записано несколько раз, действует последний записанный номер.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       мама 89001112233
+       папа 89004445566
+       бабушка 89007778899
+       папа
+вывод: 89004445566</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>map.put(key, value)</code> — кладёт пару в словарь; если ключ уже был, значение заменяется</li>
+<li><code>map.containsKey(key)</code> — есть ли такой ключ; <code>map.get(key)</code> — значение по ключу</li>
+</ul></div>
+@@ test: Нашли
+@@ input
+3
+мама 89001112233
+папа 89004445566
+бабушка 89007778899
+папа
+@@ expect
+89004445566
+@@ test: Не нашли
+@@ input
+2
+мама 89001112233
+папа 89004445566
+тётя
+@@ expect
+Контакт не найден
+@@ test: Номер сменился
+@@ input
+3
+Ваня 111
+Петя 222
+Ваня 333
+Ваня
+@@ expect
+333
+@@ test: Пустая книжка
+@@ input
+0
+мама
+@@ expect
+Контакт не найден
+@@ require: Map\s*< | Сохрани записи в словарь Map

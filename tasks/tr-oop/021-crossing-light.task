@@ -1,0 +1,66 @@
+## id: tr-oop-021
+## title: Светофор на переходе
+## file: trainer/oop/CrossingLightCycle.java
+## class: CrossingLightCycle
+## level: 2
+## category: enum и record
+@@ description
+<p>Создай класс <code>CrossingLightCycle</code> с методом <code>main</code>, а ниже в том же файле — перечисление <code>enum CrossingLight</code> с константами <code>RED(30), GREEN(25), YELLOW(5)</code>. Число в скобках — сколько секунд горит этот сигнал.</p>
+<ul>
+<li>поле <code>private final int seconds</code> и конструктор перечисления <code>CrossingLight(int seconds)</code>;</li>
+<li>геттер <code>int getSeconds()</code>;</li>
+<li><code>CrossingLight next()</code> — возвращает следующий сигнал по кругу: после <code>RED</code> — <code>GREEN</code>, после <code>GREEN</code> — <code>YELLOW</code>, после <code>YELLOW</code> — снова <code>RED</code>.</li>
+</ul>
+<p>Ввод через пробел: начальный сигнал (в любом регистре) и сколько раз светофор переключится. Напечатай все сигналы по порядку — начальный и каждый следующий — в формате <code>RED — 30 с</code>, а в конце сумму секунд всех напечатанных сигналов.</p>
+<pre class="terminal"><span class="out">ввод:  red 3
+вывод: RED — 30 с
+       GREEN — 25 с
+       YELLOW — 5 с
+       RED — 30 с
+       Всего: 90 с</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>у константы enum могут быть свои данные: <code>RED(30)</code> вызывает конструктор перечисления</li>
+<li><code>return switch (this) { case RED -&gt; GREEN; … };</code> — switch-выражение по текущей константе</li>
+<li><code>light = light.next();</code> — переменная начинает ссылаться на следующую константу</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+red 3
+@@ expect
+RED — 30 с
+GREEN — 25 с
+YELLOW — 5 с
+RED — 30 с
+Всего: 90 с
+@@ test: Без переключений
+@@ input
+GREEN 0
+@@ expect
+GREEN — 25 с
+Всего: 25 с
+@@ test: С жёлтого по кругу
+@@ input
+Yellow 4
+@@ expect
+YELLOW — 5 с
+RED — 30 с
+GREEN — 25 с
+YELLOW — 5 с
+RED — 30 с
+Всего: 95 с
+@@ test: Два полных круга
+@@ input
+red 5
+@@ expect
+RED — 30 с
+GREEN — 25 с
+YELLOW — 5 с
+RED — 30 с
+GREEN — 25 с
+YELLOW — 5 с
+Всего: 120 с
+@@ require: \benum\s+CrossingLight\b | Объяви в том же файле перечисление enum CrossingLight
+@@ require: RED\s*\(\s*30\s*\) | Константа RED должна хранить 30 секунд: RED(30)
+@@ require: private\s+final\s+int\s+seconds\b | Нужно поле private final int seconds
+@@ require: \bCrossingLight\s+next\s*\(\s*\) | Объяви в перечислении метод CrossingLight next()
+@@ require: \.next\s*\(\s*\)\s*; | Переключай сигнал вызовом next() у константы

@@ -1,0 +1,66 @@
+## id: m11-t05
+## title: Тарифы доставки
+## file: module-11/DeliveryCalculator.java
+## class: DeliveryCalculator
+## level: 2
+@@ description
+<p>У службы доставки три тарифа. У каждого есть русское название, цена за килограмм и срок:</p>
+<div class="table-wrap"><table>
+  <tr><th>Константа</th><th>Название</th><th>Руб. за кг</th><th>Дней в пути</th></tr>
+  <tr><td><code>ECONOMY</code></td><td>Эконом</td><td>50</td><td>7</td></tr>
+  <tr><td><code>STANDARD</code></td><td>Стандарт</td><td>80</td><td>3</td></tr>
+  <tr><td><code>EXPRESS</code></td><td>Экспресс</td><td>150</td><td>1</td></tr>
+</table></div>
+<p>Объяви в файле <code>DeliveryCalculator.java</code> (без <code>public</code>) <code>enum DeliveryTariff</code>, где эти данные — <b>поля константы</b>: константы с аргументами <code>EXPRESS("Экспресс", 150, 1)</code>, приватные final-поля, конструктор, геттеры и метод <code>int cost(int kg)</code>, который считает цену посылки.</p>
+<p><b>Ввод:</b> число N, потом N строк <code>ТАРИФ вес</code> (вес — целые кг, может быть 0). Для каждой посылки выведи строку, в конце — сумму и за сколько дней приедет <b>всё</b> (самый долгий срок среди посылок; если посылок нет — 0):</p>
+<pre class="terminal"><span class="out">ввод:          вывод:
+3              Экспресс: 2 кг * 150 = 300 руб., 1 дн.
+EXPRESS 2      Эконом: 10 кг * 50 = 500 руб., 7 дн.
+ECONOMY 10     Стандарт: 1 кг * 80 = 80 руб., 3 дн.
+STANDARD 1     Итого: 880 руб.
+               Всё приедет за 7 дн.</span></pre>
+<p>Главное правило задачи: цены и сроки написаны в коде <b>один раз</b> — в константах enum. Никаких <code>if (tariff == EXPRESS) price = 150</code>: спроси цену у самой константы.</p>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/05-enum.html">enum с полями и методами</a></p>
+@@ test: Три посылки
+@@ input
+3
+EXPRESS 2
+ECONOMY 10
+STANDARD 1
+@@ expect
+Экспресс: 2 кг * 150 = 300 руб., 1 дн.
+Эконом: 10 кг * 50 = 500 руб., 7 дн.
+Стандарт: 1 кг * 80 = 80 руб., 3 дн.
+Итого: 880 руб.
+Всё приедет за 7 дн.
+@@ test: Пустая коробка
+@@ input
+1
+EXPRESS 0
+@@ expect
+Экспресс: 0 кг * 150 = 0 руб., 1 дн.
+Итого: 0 руб.
+Всё приедет за 1 дн.
+@@ test: Посылок нет
+@@ input
+0
+@@ expect
+Итого: 0 руб.
+Всё приедет за 0 дн.
+@@ test: Две одинаковые посылки
+@@ input
+2
+STANDARD 5
+STANDARD 5
+@@ expect
+Стандарт: 5 кг * 80 = 400 руб., 3 дн.
+Стандарт: 5 кг * 80 = 400 руб., 3 дн.
+Итого: 800 руб.
+Всё приедет за 3 дн.
+@@ require: enum\s+DeliveryTariff | Нужен enum DeliveryTariff
+@@ require: EXPRESS\s*\( | Константы должны нести данные в скобках: EXPRESS("Экспресс", 150, 1)
+@@ require: DeliveryTariff\s*\(\s*String | Нужен конструктор enum: DeliveryTariff(String title, int pricePerKg, int days)
+@@ require: \bcost\s*\( | Цену посылки должен считать метод cost(int kg) внутри enum
+@@ forbid: "(ECONOMY|STANDARD|EXPRESS)" | Не сравнивай строки с названиями тарифов — превращай текст в константу через valueOf
+@@ forbid: \bswitch\b | Без switch: цены и сроки хранятся в полях констант, спрашивай их у самой константы

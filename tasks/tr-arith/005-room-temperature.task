@@ -1,0 +1,46 @@
+## id: tr-arith-005
+## title: Комфортно ли в комнате?
+## file: trainer/arith/RoomComfortTemperature.java
+## class: RoomComfortTemperature
+## level: 1
+## category: Логика: true/false
+@@ description
+<p>Умный термостат считает температуру комфортной, если она от 18 до 24 градусов <b>включительно</b>. Создай класс <code>RoomComfortTemperature</code>. Программа читает одно целое число — температуру — и печатает <code>true</code>, если она комфортная, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  21      вывод: true
+ввод:  26      вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a &amp;&amp; b</code> — «и»: <code>true</code>, только если верны оба условия</li>
+<li>Двойное сравнение <code>18 &lt;= t &lt;= 24</code> в Java не работает — его записывают как два сравнения через <code>&amp;&amp;</code></li>
+</ul></div>
+@@ test: Комфортно
+@@ input
+21
+@@ expect
+true
+@@ test: Нижняя граница
+@@ input
+18
+@@ expect
+true
+@@ test: Верхняя граница
+@@ input
+24
+@@ expect
+true
+@@ test: Чуть жарче
+@@ input
+25
+@@ expect
+false
+@@ test: Чуть холоднее
+@@ input
+17
+@@ expect
+false
+@@ test: Мороз
+@@ input
+-5
+@@ expect
+false
+@@ require: && | Нужны два сравнения, соединённые оператором &&
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

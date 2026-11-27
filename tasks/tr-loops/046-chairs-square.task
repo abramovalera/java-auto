@@ -1,0 +1,41 @@
+## id: tr-loops-046
+## title: Квадрат из стульев
+## file: trainer/loops/IntegerSqrtByLoop.java
+## class: IntegerSqrtByLoop
+## level: 2
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>IntegerSqrtByLoop</code>. В зале <code>n</code> стульев (0 ≤ n ≤ 2 147 483 647). Их расставляют квадратом — сколько рядов, столько и стульев в ряду, — и квадрат должен быть как можно больше. Напечатай <code>Сторона: k, лишних: r</code>, где k — сторона квадрата, r — сколько стульев осталось. Без <code>Math.sqrt</code>, циклом.</p>
+<pre class="terminal"><span class="out">ввод:  30
+вывод: Сторона: 5, лишних: 5</span></pre>
+<p>Подвох: при n около 2 миллиардов <code>k * k</code> в <code>int</code> переполняется.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>while ((k + 1) * (k + 1) &lt;= n) k++;</code> — растим сторону, пока следующий квадрат помещается</li>
+<li><code>long k</code> — вычисления в long не переполнятся</li>
+</ul></div>
+@@ test: Тридцать стульев
+@@ input
+30
+@@ expect
+Сторона: 5, лишних: 5
+@@ test: Стульев нет
+@@ input
+0
+@@ expect
+Сторона: 0, лишних: 0
+@@ test: Один стул
+@@ input
+1
+@@ expect
+Сторона: 1, лишних: 0
+@@ test: Ровный квадрат
+@@ input
+100
+@@ expect
+Сторона: 10, лишних: 0
+@@ test: Огромный зал
+@@ input
+2147483647
+@@ expect
+Сторона: 46340, лишних: 88047
+@@ forbid: Math\.sqrt|Math\.pow | Найди сторону циклом, без Math.sqrt

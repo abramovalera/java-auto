@@ -1,0 +1,47 @@
+## id: tr-colls-033
+## title: Свободные места в зале
+## file: trainer/colls/MissingSeatNumbers.java
+## class: MissingSeatNumbers
+## level: 2
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>MissingSeatNumbers</code>. В маленьком кинозале места пронумерованы от 1 до <code>m</code>. В первой строке — <code>m</code>, во второй — количество проданных билетов <code>n</code>, в третьей — <code>n</code> номеров проданных мест через пробел (в любом порядке, без повторов). Напечатай <code>Свободны: </code> и номера свободных мест по возрастанию через пробел. Если свободных нет — <code>Мест нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  8
+       5
+       3 8 1 6 2
+вывод: Свободны: 4 5 7
+
+ввод:  3
+       3
+       2 3 1
+вывод: Мест нет</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>проданные места удобно сложить в <code>Set&lt;Integer&gt;</code>, а потом пройти циклом от 1 до <code>m</code></li>
+</ul></div>
+@@ test: Несколько свободных
+@@ input
+8
+5
+3 8 1 6 2
+@@ expect
+Свободны: 4 5 7
+@@ test: Ни одного билета
+@@ input
+4
+0
+@@ expect
+Свободны: 1 2 3 4
+@@ test: Всё продано
+@@ input
+3
+3
+2 3 1
+@@ expect
+Мест нет
+@@ test: Свободно только последнее
+@@ input
+5
+4
+4 3 2 1
+@@ expect
+Свободны: 5

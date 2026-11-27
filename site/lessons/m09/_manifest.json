@@ -1,0 +1,15 @@
+{ "id": "m09", "num": "9", "title": "Классы и объекты",
+  "summary": "Свои типы данных: поля, new, ссылки и null, методы объекта и this, конструкторы, static, пакеты и private, разбор System.out.println до операционной системы, цепочка из 10 классов и record.",
+  "lessons": [
+    { "id": "m09-01", "title": "От чертежа к коду: класс и объект", "url": "/lessons/m09/01-class-object.html" },
+    { "id": "m09-02", "title": "Методы объекта и this", "url": "/lessons/m09/02-instance-methods.html" },
+    { "id": "m09-03", "title": "Конструкторы", "url": "/lessons/m09/03-constructors.html" },
+    { "id": "m09-04", "title": "static: общее для всех", "url": "/lessons/m09/04-static.html" },
+    { "id": "m09-05", "title": "Пакеты, import и доступ", "url": "/lessons/m09/05-packages-access.html" },
+    { "id": "m09-06", "title": "Что под капотом у System.out.println", "url": "/lessons/m09/06-println-under-the-hood.html" },
+    { "id": "m09-07", "title": "Мастерская: своя иерархия вызовов", "url": "/lessons/m09/07-call-chain-workshop.html" },
+    { "id": "m09-08", "title": "toString и record", "url": "/lessons/m09/08-record-tostring.html" },
+    { "id": "m09-pz", "title": "Головоломки: классы и объекты", "url": "/lessons/m09/09-puzzles.html" },
+    { "id": "m09-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m09/10-summary.html" }
+  ],
+  "taskCount": 8 }

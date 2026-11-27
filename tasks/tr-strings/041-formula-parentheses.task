@@ -1,0 +1,46 @@
+## id: tr-strings-041
+## title: Скобки в формуле
+## file: trainer/strings/FormulaParenthesesCheck.java
+## class: FormulaParenthesesCheck
+## level: 2
+## category: Проверка формата
+@@ description
+<p>Напиши класс <code>FormulaParenthesesCheck</code>. Калькулятор проверяет круглые скобки в формуле. Скобки в порядке, если каждой открывающей <code>(</code> соответствует закрывающая <code>)</code> <b>после</b> неё. Программа читает формулу (другие символы тоже бывают, их не трогай) и печатает <code>скобки в порядке</code> или <code>ошибка в скобках</code>.</p>
+<pre class="terminal"><span class="out">ввод:  (a+b)*(c-d)    вывод: скобки в порядке
+ввод:  ((x)           вывод: ошибка в скобках
+ввод:  )(             вывод: ошибка в скобках</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Счётчик открытых скобок: <code>(</code> — плюс один, <code>)</code> — минус один</li>
+<li>Если счётчик стал меньше нуля — закрыли то, что не открывали, это сразу ошибка</li>
+<li>В конце счётчик должен быть равен нулю</li>
+</ul></div>
+@@ test: Две пары
+@@ input
+(a+b)*(c-d)
+@@ expect
+скобки в порядке
+@@ test: Не закрыли
+@@ input
+((x)
+@@ expect
+ошибка в скобках
+@@ test: Закрыли раньше, чем открыли
+@@ input
+)(
+@@ expect
+ошибка в скобках
+@@ test: Вложенные
+@@ input
+f(g(h(x)))
+@@ expect
+скобки в порядке
+@@ test: Скобок нет
+@@ input
+2+2
+@@ expect
+скобки в порядке
+@@ test: Количество равно, порядок нет
+@@ input
+())(()
+@@ expect
+ошибка в скобках

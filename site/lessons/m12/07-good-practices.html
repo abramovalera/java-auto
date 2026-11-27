@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Хорошие практики и исключения в тестах · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-07">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 12 · Урок 7</div>
+    <h1>Хорошие практики и исключения в тестах</h1>
+    <p class="lead">Перехватить (поймать) исключение просто. Сложнее — не навредить: не спрятать настоящую ошибку, не потерять причину, не сделать тест, который зелёный всегда. Соберём правила, по которым пишут профессионалы, и заглянем, как JUnit превращает исключения в красные и зелёные галочки.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>✅ правила</span><span>🧪 тизер JUnit</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m12-07-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним прошлое",
+       "kind": "Повторение",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Какое из сообщений исключения полезнее?",
+         "options": [
+          "«Ошибка данных»",
+          "«цена не может быть отрицательной: -100 (товар «Чайник»)»",
+          "«Произошла непредвиденная ошибка, пожалуйста, обратитесь к администратору»"
+         ],
+         "answer": 1,
+         "why": "Хорошее сообщение: что не так, какое значение пришло и где."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Правило 1. Не глотай исключения</h2>
+    <p>Самая вредная привычка — пустой catch: «перехватил и ничего не сделал». Это называют «проглотить исключение»:</p>
+<pre data-file="Settings.java"><code class="java">static int readTimeout(String text) {
+    try {
+        return Integer.parseInt(text);
+    } catch (NumberFormatException e) {
+        // ничего, авось обойдётся
+    }
+    return 0;
+}</code></pre>
+    <p>Кто-то написал в настройках <code>timeout=10s</code>. Программа не упала — она молча решила, что таймаут 0 секунд. Дальше каждый запрос к серверу обрывается мгновенно, заказы падают с <code>SocketTimeoutException</code> в совершенно другом месте, и ты час ищешь, почему. А настоящая причина — одна опечатка, о которой никто не сообщил.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: батарейка из пожарной сигнализации</span>
+      <p>Сигнализация пищит — раздражает. Вынул батарейку — стало тихо. Но пожар от этого не исчез, ты просто узнаешь о нём позже и в худший момент. Пустой catch — вынутая батарейка.</p>
+    </div>
+    <p>Что делать вместо этого? Смотря по ситуации — вот схема, которой пользуются опытные программисты:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 280" role="img" aria-label="Схема решения: можешь здесь осмысленно обработать — catch и обработай; можешь добавить контекст — заверни с причиной; иначе не перехватывай. Пустой catch — никогда">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="20" width="300" height="60" rx="12" class="d-violet"/>
+        <text x="170" y="45" text-anchor="middle" class="d-text">Могу здесь осмысленно</text>
+        <text x="170" y="67" text-anchor="middle" class="d-text">справиться с проблемой?</text>
+        <rect x="400" y="20" width="340" height="60" rx="12" class="d-green"/>
+        <text x="416" y="45" class="d-text">catch и обработай</text>
+        <text x="416" y="67" class="d-small">переспроси или значение по умолчанию</text>
+        <rect x="20" y="114" width="300" height="60" rx="12" class="d-violet"/>
+        <text x="170" y="139" text-anchor="middle" class="d-text">Могу добавить полезный</text>
+        <text x="170" y="161" text-anchor="middle" class="d-text">контекст (где, что делали)?</text>
+        <rect x="400" y="114" width="340" height="60" rx="12" class="d-yellow"/>
+        <text x="416" y="139" class="d-text">заверни с причиной</text>
+        <text x="416" y="161" class="d-mono-ink" style="font-size:12px">throw new XxxException("…", e)</text>
+        <rect x="20" y="208" width="300" height="60" rx="12" class="d-blue"/>
+        <text x="170" y="233" text-anchor="middle" class="d-text">Не перехватывай — пусть летит</text>
+        <text x="170" y="255" text-anchor="middle" class="d-small">для checked — throws в сигнатуре</text>
+        <rect x="400" y="208" width="340" height="60" rx="12" class="d-red"/>
+        <text x="570" y="233" text-anchor="middle" class="d-text">❌ никогда</text>
+        <text x="570" y="255" text-anchor="middle" class="d-mono-ink" style="font-size:12px">catch (…) { }</text>
+        <path d="M322 50 H396" class="d-arrow"/>
+        <path d="M170 82 V110" class="d-arrow"/>
+        <path d="M322 144 H396" class="d-arrow"/>
+        <path d="M170 176 V204" class="d-arrow"/>
+        <text x="359" y="42" text-anchor="middle" class="d-small">да</text>
+        <text x="359" y="136" text-anchor="middle" class="d-small">да</text>
+        <text x="186" y="100" class="d-small">нет</text>
+        <text x="186" y="194" class="d-small">нет</text>
+      </svg>
+      <figcaption>Три честных варианта. Четвёртый — промолчать — не вариант вообще.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Правило 2. Не перехватывай Exception без нужды</h2>
+    <p><code>catch (Exception e)</code> выглядит надёжно: «поймаю всё». Но «всё» — это и <b>твои баги</b>:</p>
+<pre data-file="AgeReader.java"><code class="java">try {
+    int age = Integer.parseInt(text.trim());
+    System.out.println("Возраст: " + age);
+} catch (Exception e) {
+    System.out.println("Это не число, попробуй ещё раз");
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа, если из-за бага в другом месте <code>text</code> оказался <code>null</code>?</summary>
+      <p>«Это не число, попробуй ещё раз». На самом деле вызов <code>text.trim()</code> выбросил NullPointerException — баг в коде, а не ошибка пользователя. Общий catch перехватил его и выдал за «не число». Пользователь будет вводить правильные числа снова и снова, а программа будет отвечать одно и то же. С <code>catch (NumberFormatException e)</code> NPE пролетел бы мимо со stack trace — и ты сразу увидел бы настоящую причину.</p>
+    </details>
+    <p>Перехватывай <b>конкретный</b> тип — тот, который ожидаешь и знаешь, как обработать. Общий <code>catch (Exception e)</code> уместен в одном месте — на самом верху программы, как «последний рубеж»: чтобы сервер не упал из-за одного плохого запроса или чтобы прогон тестов продолжился после одного сломанного. И даже там исключение обязательно записывают в лог целиком.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Правило 3. Сохраняй информацию</h2>
+    <p>Перехватил — не теряй, что именно случилось и где.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Как</th><th>Что останется</th></tr>
+        <tr><td><code>System.out.println("Ошибка");</code></td><td>ничего: ни типа, ни сообщения, ни места</td></tr>
+        <tr><td><code>System.out.println(e.getMessage());</code></td><td>только сообщение. Для пользователя — нормально, для поиска бага — мало</td></tr>
+        <tr><td><code>e.printStackTrace();</code></td><td>всё: тип, сообщение, stack trace, Caused by. Печатает в поток ошибок (красным)</td></tr>
+        <tr><td><code>throw new X("контекст", e);</code></td><td>всё + твой контекст сверху; исходное — в Caused by</td></tr>
+        <tr><td><code>throw new X("контекст");</code> — без <code>e</code></td><td>⚠️ причина потеряна: в trace не будет Caused by, корень проблемы не найти</td></tr>
+      </table>
+    </div>
+    <p>Как выглядит <code>e.printStackTrace()</code> в консоли: тот же красный stack trace, что при падении, но программа продолжает работу:</p>
+    <div data-widget="ide" id="shot-print-stack-trace">
+      <script type="application/json">
+      { "tree": false, "file": "Report.java", "runConfig": "Report", "statusPath": "module-12", "gutterRun": [1, 2],
+        "code": "public class Report {\n    public static void main(String[] args) {\n        String text = \"10s\";\n        try {\n            int timeout = Integer.parseInt(text);\n            System.out.println(\"Таймаут: \" + timeout);\n        } catch (NumberFormatException e) {\n            e.printStackTrace();\n        }\n        System.out.println(\"Программа работает дальше\");\n    }\n}",
+        "console": { "title": "Report", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Report" },
+          { "t": "err", "s": "java.lang.NumberFormatException: For input string: \"10s\"" },
+          { "t": "err", "s": "\tat java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)" },
+          { "t": "err", "s": "\tat java.base/java.lang.Integer.parseInt(Integer.java:662)" },
+          { "t": "err", "s": "\tat java.base/java.lang.Integer.parseInt(Integer.java:778)" },
+          { "t": "err", "s": "\tat Report.main(Report.java:5)" },
+          { "t": "out", "s": "Программа работает дальше" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "Нет слов <code>Exception in thread \"main\"</code>: это не авария, а распечатка перехваченного исключения. Тип и сообщение — на месте" },
+                   { "n": 2, "target": "link-4", "text": "Место тоже не потерялось: Report.java, строка 5" },
+                   { "n": 3, "target": "output", "text": "Программа поехала дальше" },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 0</b> — исключение перехвачено, но вся информация о нём сохранилась" } ],
+        "caption": "e.printStackTrace(): всё видно, программа не упала" }
+      </script>
+    </div>
+    <p>В настоящих проектах вместо <code>println</code> и <code>printStackTrace</code> пишут в <b>лог</b> — журнал работы программы, через библиотеки вроде Logback или Log4j. Например, <code>log.error("Не удалось загрузить заказ " + id, e)</code>: в журнал попадут и сообщение, и полный stack trace. Когда на сервере что-то сломалось, лог и stack trace — первое, что смотрят при разборе.</p>
+    <div class="callout tip">
+      <span class="callout-title">Правило 4. Исключения — не для обычной логики</span>
+      <p>Если проблему легко проверить заранее — проверь через <code>if</code>. Не надо перехватывать ArrayIndexOutOfBoundsException, когда можно написать <code>if (index &gt;= 0 &amp;&amp; index &lt; arr.length)</code>. Исключения — для исключительных ситуаций. А вот у <code>parseInt</code> нет удобного «можно ли превратить?», поэтому там try/catch — нормальный путь.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Как JUnit видит исключения</h2>
+    <p>Заглянем вперёд, в модуль 17. JUnit — программа, которая запускает твои тесты. Тест — обычный метод с аннотацией <code>@Test</code>. JUnit вызывает его внутри своего try/catch — примерно как ты в уроке 3 — и смотрит, не выбросил ли тест исключение:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 240" role="img" aria-label="JUnit вызывает тест внутри try/catch: без исключения тест пройден, AssertionError — проверка не прошла, другое исключение — тест упал">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="88" width="160" height="64" rx="12" class="d-violet"/>
+        <text x="100" y="115" text-anchor="middle" class="d-title">JUnit</text>
+        <text x="100" y="137" text-anchor="middle" class="d-small">запускает тест</text>
+        <rect x="220" y="70" width="250" height="100" rx="12" class="d-code"/>
+        <text x="236" y="100" class="d-mono">try {</text>
+        <text x="236" y="122" class="d-mono">    твойТест();</text>
+        <text x="236" y="144" class="d-mono">} catch (Throwable t) {…}</text>
+        <rect x="520" y="14" width="220" height="60" rx="12" class="d-green"/>
+        <text x="536" y="39" class="d-text">✅ ничего не вылетело</text>
+        <text x="536" y="61" class="d-small">тест пройден</text>
+        <rect x="520" y="90" width="220" height="60" rx="12" class="d-red"/>
+        <text x="536" y="115" class="d-text">❌ AssertionError</text>
+        <text x="536" y="137" class="d-small">проверка не прошла</text>
+        <rect x="520" y="166" width="220" height="60" rx="12" class="d-yellow"/>
+        <text x="536" y="191" class="d-text">❌ другое исключение</text>
+        <text x="536" y="213" class="d-small">NPE, Timeout… — тест упал</text>
+        <path d="M182 120 H216" class="d-arrow"/>
+        <path d="M472 104 C 495 104, 495 44, 516 44" class="d-arrow"/>
+        <path d="M472 120 H516" class="d-arrow"/>
+        <path d="M472 136 C 495 136, 495 196, 516 196" class="d-arrow"/>
+      </svg>
+      <figcaption>Для JUnit «тест упал» и «из теста вылетело исключение» — одно и то же. Его stack trace и попадает в отчёт.</figcaption>
+    </figure>
+    <p>Отсюда опасный антипаттерн — <b>вечнозелёный тест</b>. Новичок «защищает» тест от падений:</p>
+<pre data-file="SettingsTest.java"><code class="java">@Test
+void readsTimeout() {
+    try {
+        int timeout = SettingsLoader.readTimeout("timeout=10s");
+        assertEquals(10, timeout);
+    } catch (Exception e) {
+        System.out.println("что-то пошло не так");
+    }
+}</code></pre>
+    <p><code>readTimeout</code> выбрасывает IllegalStateException — catch его перехватывает и проглатывает — до JUnit ничего не долетает — тест <b>зелёный</b>. Баг в программе есть, а тест говорит «всё отлично». Такой тест хуже, чем никакого: он врёт. <b>В тестах исключения не перехватывают</b> — пусть летят в JUnit, для этого он и нужен.</p>
+    <p>Вот как этот обман выглядит в IDEA (запускать тесты сам будешь в модуле 17):</p>
+    <div data-widget="ide" id="shot-evergreen-test">
+      <script type="application/json">
+      { "tree": false, "file": "SettingsTest.java", "runConfig": "SettingsTest", "statusPath": "module-12", "gutterRun": [5, 7],
+        "code": "import org.junit.jupiter.api.Test;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\n\nclass SettingsTest {\n    @Test\n    void readsTimeout() {\n        try {\n            int timeout = SettingsLoader.readTimeout(\"timeout=10s\");\n            assertEquals(10, timeout);\n        } catch (Exception e) {\n            System.out.println(\"что-то пошло не так\");\n        }\n    }\n}",
+        "tests": { "title": "SettingsTest", "summary": "Tests passed: 1 of 1 test – 31 ms",
+                   "tree": [ { "name": "SettingsTest", "status": "pass", "time": "31 ms" }, { "name": "readsTimeout()", "status": "pass", "depth": 1, "sel": true, "time": "31 ms" } ],
+                   "out": [ "что-то пошло не так" ] },
+        "marks": [ { "n": 1, "target": "test-2", "text": "Зелёная галочка: для JUnit тест пройден" },
+                   { "n": 2, "target": "test-summary", "text": "<b>Tests passed</b> — в отчёте всё прекрасно" },
+                   { "n": 3, "target": "test-out", "text": "А в выводе — «что-то пошло не так». Исключение было, его проглотил catch на строке 11, и до JUnit оно не долетело" } ],
+        "caption": "«Вечнозелёный» тест: бага не видно" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Тизер: assertThrows</h2>
+    <p>А как проверить, что метод <b>правильно</b> выбрасывает исключение? Например, что <code>validateAge(-5)</code> из задачи m12-t04 отказывается? В JUnit для этого есть <code>assertThrows</code>:</p>
+<pre data-file="AgeValidationGateTest.java"><code class="java">@Test
+void negativeAgeIsRejected() {
+    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+            () -&gt; AgeValidationGate.validateAge(-5));
+    assertEquals("возраст не может быть отрицательным: -5", e.getMessage());
+}</code></pre>
+    <ul>
+      <li><code>() -&gt; …</code> — «кусок кода, который JUnit запустит сам» (это лямбда, подробно — модуль 14). JUnit выполнит его внутри своего try/catch.</li>
+      <li>Код выбросил IllegalArgumentException — assertThrows вернёт ссылку на этот объект исключения, и можно проверить сообщение. Не вылетело ничего или вылетело другое — тест упадёт.</li>
+      <li><code>IllegalArgumentException.class</code> — сам класс как значение: «ожидаю исключение вот этого типа».</li>
+    </ul>
+    <p>Этим займёмся по-настоящему в модуле 17 — там ты будешь писать тесты сам. А пока важно понять идею: исключения — не враги тестов, а их основной язык. Тест сообщает о проблеме исключением, а ты читаешь его stack trace.</p>
+    <div class="callout fact">
+      <span class="callout-title">Что ты теперь понимаешь в отчётах</span>
+      <p><code>AssertionFailedError: expected: &lt;10&gt; but was: &lt;0&gt;</code> — проверка ожидала 10, получила 0 (это потомок AssertionError из JUnit). <code>IllegalStateException</code> с понятным сообщением — твоя программа сама сообщила, что пошло не так. <code>NullPointerException</code> в своём классе — баг в твоём коде. По первой строке ты уже знаешь, куда смотреть.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m12-07">
+      <script type="application/json">
+      { "title": "Хорошие практики — главное",
+        "items": [
+          { "type": "bug", "q": "Найди строку, которая прячет ошибку",
+            "code": "try {\n    int n = Integer.parseInt(text);\n    total += n;\n} catch (NumberFormatException e) {\n}\nSystem.out.println(total);",
+            "answer": [4], "why": "Пустой catch: «abc» во вводе молча пропускается, сумма выходит неверной, и никто не знает почему." },
+          { "type": "single", "q": "В тесте все проверки обёрнуты в try, а исключения перехватывает catch (Exception e). Чем это плохо?",
+            "options": ["Тест будет падать чаще", "Тест останется зелёным даже при баге", "Ничем: так тест защищён от случайных падений и безопаснее"], "answer": 1,
+            "why": "Исключение не долетит до JUnit, и он посчитает тест пройденным. В тестах исключения не перехватывают." },
+          { "type": "multi", "q": "Отметь хорошие практики",
+            "options": ["Перехватывать конкретный тип исключения", "Пустой catch, чтобы программа не падала", "Передавать перехваченное как причину: new X(\"…\", e)", "Писать в сообщение конкретное значение", "Перехватывать ArrayIndexOutOfBoundsException вместо проверки индекса"], "answer": [0, 2, 3],
+            "why": "Пустой catch прячет ошибки, а то, что легко проверить if-ом, проверяют заранее." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Для JUnit тест упал = из него вылетело исключение", "a": true },
+              { "s": "assertThrows проверяет, что код выбросил исключение нужного типа", "a": true },
+              { "s": "throw new X(\"контекст\") без e сохраняет исходную причину", "a": false, "why": "без второго аргумента Caused by не будет — корень потерян." },
+              { "s": "catch (Exception e) уместен на самом верху программы, если там же исключение пишут в лог", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 12.7. Покажи мне кусок кода с плохой обработкой исключений, а я найду все проблемы и объясню, как исправить»</em>. Потом реши задачу <a href="/tasks.html?module=m12">m12-t07 «Почини обработку ошибок датчиков»</a>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пустой catch — никогда. Либо обработай по-настоящему, либо заверни с причиной, либо не перехватывай — пусть летит дальше.</li>
+        <li>Перехватывай конкретный тип. <code>catch (Exception e)</code> — только «последний рубеж» на самом верху и с логом.</li>
+        <li>Не теряй информацию: <code>printStackTrace</code>, лог, <code>new X("контекст", e)</code>.</li>
+        <li>Что легко проверить заранее — проверяй <code>if</code>-ом; исключения — для исключительного.</li>
+        <li>JUnit: тест упал = из него вылетело исключение. В тестах исключения не перехватывают. <code>assertThrows</code> проверяет, что исключение было (модуль 17).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

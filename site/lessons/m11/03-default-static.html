@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>default, static и «когда что» · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-03">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 11 · Урок 3</div>
+    <h1>default и static в интерфейсах. Интерфейс или абстрактный класс?</h1>
+    <p class="lead">Интерфейсы умеют больше, чем просто перечислять заголовки: в них бывают методы с телом и константы. Разберёмся, зачем это придумали, где ловушка «ромба» — и как выбирать между интерфейсом и абстрактным классом.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>💎 проблема ромба</span><span>🎮 1 мини-игра</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m11-03-review">
+      <script type="application/json">
+      { "title": "Вспомним интерфейсы", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Почему этот код не компилируется?",
+            "code": "interface Swimmable { void swim(); }\nclass Fish implements Swimmable {\n    void swim() { System.out.println(\"Плыву\"); }\n}",
+            "options": ["Не хватает @Override", "swim() в Fish должен быть public", "Интерфейс нельзя реализовать в классе без extends"], "answer": 1,
+            "why": "Методы интерфейса публичные, а реализация не может сузить доступ. @Override желателен, но не обязателен." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Класс может реализовать несколько интерфейсов", "a": true },
+              { "s": "Через переменную типа интерфейса можно вызвать любой метод объекта", "a": false, "why": "вызвать можно только методы, объявленные в интерфейсе." }
+            ] },
+          { "type": "single", "q": "Модуль 10: что напечатает <code>a.voice()</code>, если <code>Animal a = new Dog();</code> и Dog переопределил voice()?",
+            "options": ["voice() из Animal", "voice() из Dog", "Ошибка компиляции"], "answer": 1,
+            "why": "Переменная <code>a</code> хранит ссылку на объект Dog, и вызывается его переопределённый voice(). Это полиморфизм." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Проблема: интерфейс уже все используют</h2>
+    <p>Представь: интерфейс <code>Flyable</code> реализуют сто классов в десяти проектах. Однажды понадобилось, чтобы каждый летун ещё и умел приземляться. Добавляем в интерфейс <code>void land();</code> — и <b>все сто классов перестают компилироваться</b>: никто из них не написал <code>land()</code>.</p>
+    <p>Ровно с такой бедой столкнулись авторы самой Java, когда захотели добавить новые методы в старые интерфейсы JDK. Решение появилось в Java 8 — <b>default-методы</b>: метод интерфейса <b>с телом</b>, который наследуют все классы, реализующие интерфейс, — «по умолчанию».</p>
+<pre data-file="Flyable.java"><code class="java">interface Flyable {
+    void fly();                              // обычный абстрактный метод
+
+    default void land() {                    // метод с телом прямо в интерфейсе
+        System.out.println("Мягкая посадка");
+    }
+}
+
+class Bird implements Flyable {
+    public void fly() { System.out.println("Птица взлетает"); }
+    // land() не пишем — достанется готовый
+}
+
+class Plane implements Flyable {
+    public void fly() { System.out.println("Самолёт взлетает"); }
+
+    @Override
+    public void land() {                     // а здесь своя посадка
+        System.out.println("Выпускаю шасси");
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>default void land() { … }</code><div><p>Слово <code>default</code> + тело. Классы-реализации могут унаследовать его как есть или переопределить (<code>@Override</code>), как обычный метод родителя.</p></div></div>
+      <div class="annot-row"><code>public void land()</code><div><p>При переопределении — снова <code>public</code>: в интерфейсе всё публичное.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что напечатают <code>new Bird().land()</code> и <code>new Plane().land()</code>?</summary>
+      <p>«Мягкая посадка» — у <code>Bird</code> вызывается унаследованный default-метод. «Выпускаю шасси» — в <code>Plane</code> метод переопределён. Старые классы не сломались, а новым есть что настроить.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">default — не повод тащить всё в интерфейс</span>
+      <p>У интерфейса нет полей объекта, поэтому default-метод может пользоваться только другими методами интерфейса. Это «удобная надстройка над контрактом», а не замена абстрактному классу.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Вызвать default из своей реализации. И проблема ромба</h2>
+    <p>Иногда хочется не заменить метод по умолчанию, а <b>дополнить</b> его. Для этого есть особая запись <code>ИмяИнтерфейса.super.метод()</code> — вызов default-версии метода из интерфейса:</p>
+<pre data-file="Plane.java"><code class="java">class Plane implements Flyable {
+    public void fly() { System.out.println("Самолёт взлетает"); }
+
+    @Override
+    public void land() {
+        System.out.println("Выпускаю шасси");
+        Flyable.super.land();                // и ещё посадка «по умолчанию»
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Выпускаю шасси
+Мягкая посадка</span></pre>
+    <p>А теперь ловушка, которую обожают на собеседованиях. Класс реализует <b>два</b> интерфейса, и в обоих есть default-метод с одинаковым заголовком:</p>
+<pre data-file="Android.java"><code class="java">interface Robot {
+    default String hello() { return "Бип-буп"; }
+}
+interface Human {
+    default String hello() { return "Привет"; }
+}
+
+class Android implements Robot, Human { }      // ✗ какой hello() взять?</code></pre>
+<pre class="terminal"><span class="err">error: types Robot and Human are incompatible;
+  class Android inherits unrelated defaults for hello() from types Robot and Human</span></pre>
+    <div data-widget="ide" id="shot-diamond">
+      <script type="application/json">
+      { "tree": false, "file": "Android.java", "statusPath": "module-11",
+        "code": "interface Robot {\n    default String hello() { return \"Бип-буп\"; }\n}\ninterface Human {\n    default String hello() { return \"Привет\"; }\n}\n\nclass Android implements Robot, Human { }",
+        "errors": [ { "line": 8, "text": "class Android implements Robot, Human", "msg": "" } ],
+        "build": { "file": "Android.java", "path": "module-11", "errors": [ { "msg": "types Robot and Human are incompatible;", "line": 8, "col": 1 } ],
+                   "out": [ "C:\\Users\\Misha\\java-course\\workspace\\module-11\\Android.java:8:1", "java: types Robot and Human are incompatible;", "  class Android inherits unrelated defaults for hello() from types Robot and Human" ] },
+        "marks": [ { "n": 1, "target": "err-8", "side": "top", "text": "Красным — заголовок класса Android. Наведи мышь: IDEA объяснит то же самое своими словами — Android наследует два разных default-метода <code>hello()</code>" },
+                   { "n": 2, "target": "build-err-1", "text": "После ▶ — панель Build: <b>types Robot and Human are incompatible</b> — «типы Robot и Human несовместимы»" },
+                   { "n": 3, "target": "build-out", "text": "Вторая строка — причина: <b>inherits unrelated defaults for hello()</b> — «наследует два несвязанных default-варианта hello()». Решать, какой брать, должен ты" } ],
+        "caption": "Проблема ромба: редактор и панель Build" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg viewBox="0 0 640 270" role="img" aria-label="Ромб: класс Android получает два разных hello() от Robot и Human и должен выбрать сам">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="30" y="20" width="230" height="80" rx="14" class="d-blue"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">🤖 Robot</text>
+        <text x="145" y="78" text-anchor="middle" class="d-mono-ink">hello() → "Бип-буп"</text>
+        <rect x="380" y="20" width="230" height="80" rx="14" class="d-violet"/>
+        <text x="495" y="50" text-anchor="middle" class="d-title">🙂 Human</text>
+        <text x="495" y="78" text-anchor="middle" class="d-mono-ink">hello() → "Привет"</text>
+        <rect x="200" y="170" width="240" height="84" rx="14" class="d-red"/>
+        <text x="320" y="202" text-anchor="middle" class="d-title">Android</text>
+        <text x="320" y="230" text-anchor="middle" class="d-small">чей hello()? ✗ не решу сам</text>
+        <path d="M280 168 L170 104" class="d-arrow"/>
+        <path d="M360 168 L470 104" class="d-arrow"/>
+        <text x="320" y="120" text-anchor="middle" font-size="30">💎</text>
+      </svg>
+      <figcaption>Два пути наверх — два разных ответа. Java не угадывает: выбирать должен программист.</figcaption>
+    </figure>
+    <p>Починка — переопределить метод в классе и решить самому. Можно вызвать один из вариантов или оба через <code>Интерфейс.super.hello()</code>:</p>
+<pre data-file="Android.java"><code class="java">class Android implements Robot, Human {
+    @Override
+    public String hello() {
+        return Human.super.hello() + " / " + Robot.super.hello();
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Привет / Бип-буп</span></pre>
+    <div class="say" data-mood="wow"><p>Ромбом (diamond) это называют из-за формы схемы: сверху два «родителя», снизу один класс. С классами Java эту проблему отрезала на корню — родитель только один. А с интерфейсами она возможна, но компилятор не даст её проглядеть.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>static-методы и константы</h2>
+    <p>В интерфейсе можно объявлять <b>статические методы</b> (<code>static</code> — член интерфейса, а не объекта) — помощников, связанных с контрактом. Вызываются они <b>только через имя интерфейса</b>: реализации их не наследуют.</p>
+<pre data-file="Flyable.java"><code class="java">interface Flyable {
+    void fly();
+
+    static int maxHeightMeters() {
+        return 10000;
+    }
+}
+
+// ✓ через имя интерфейса
+int h = Flyable.maxHeightMeters();
+// ✗ ошибка: static-методы интерфейса не наследуются
+int x = Bird.maxHeightMeters();</code></pre>
+    <p>А любое поле интерфейса — это <b>константа</b>. Даже если ты не написал ни одного слова, Java добавит <code>public static final</code>:</p>
+<pre data-file="Limits.java"><code class="java">interface Limits {
+    // на самом деле: public static final int MAX_RETRIES = 3;
+    int MAX_RETRIES = 3;
+}
+
+System.out.println(Limits.MAX_RETRIES);  // 3
+// ✗ cannot assign a value to final variable
+Limits.MAX_RETRIES = 5;</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Интерфейс — не склад констант</span>
+      <p>Раньше программисты заводили интерфейсы, в которых были только константы. Сейчас так не делают: константы объявляют в классе, а <b>набор вариантов</b> вроде статусов PASSED/FAILED — в <code>enum</code>, его разберём через урок.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: private-методы в интерфейсе</summary>
+      <p>С Java 9 в интерфейсе можно писать и <code>private</code>-методы с телом. Их видят только default- и static-методы этого же интерфейса — чтобы не копировать общий кусок кода между ними. Реализации о них не знают.</p>
+      <p>В JDK default и static-методов полно. Например, у <code>Comparator</code> (следующий урок) есть default-метод <code>reversed()</code> — «тот же порядок, только наоборот». С ним мы встретимся в модуле про лямбды.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Интерфейс или абстрактный класс?</h2>
+    <p>Оба — «заготовки»: создать объект ни абстрактного класса, ни интерфейса через <code>new</code> нельзя. Но задумывались они для разного.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>abstract class</th><th>interface</th></tr>
+        <tr><td>Смысл</td><td>«<b>кто ты</b>»: общая основа для родственников</td><td>«<b>что умеешь</b>»: контракт для кого угодно</td></tr>
+        <tr><td>Сколько можно унаследовать / реализовать</td><td>один (<code>extends</code>)</td><td>сколько угодно (<code>implements</code>)</td></tr>
+        <tr><td>Поля объекта (состояние)</td><td>✓ любые</td><td>✗ только константы</td></tr>
+        <tr><td>Конструктор</td><td>✓ есть</td><td>✗ нет</td></tr>
+        <tr><td>Методы с телом</td><td>✓ любые</td><td>✓ default, static, private</td></tr>
+        <tr><td>Доступ методов</td><td>любой: private, protected…</td><td>всё public (кроме private-помощников)</td></tr>
+        <tr><td>Пример из жизни</td><td>Delivery с полем «номер заказа» и общим методом deliver()</td><td>Payment, Comparator, Runnable</td></tr>
+      </table>
+    </div>
+    <ol class="steps">
+      <li><b>Нужно общее состояние</b> (поля) и конструктор для родственных классов → абстрактный класс.</li>
+      <li><b>Нужно умение</b>, которое может появиться у совсем разных классов → интерфейс.</li>
+      <li><b>Сомневаешься</b> → начни с интерфейса: он не занимает единственное место «родителя».</li>
+      <li>Часто используют <b>оба</b>: интерфейс как контракт + абстрактный класс, который реализует его общую часть. Так устроена задача «Умный дом».</li>
+    </ol>
+    <p>Потренируйся: куда бы ты отнёс каждую ситуацию?</p>
+    <div data-widget="buckets" id="iface-or-abstract">
+      <script type="application/json">
+      { "title": "Интерфейс или абстрактный класс?", "icon": "⚖️",
+        "buckets": [ { "id": "i", "label": "🔌 Интерфейс", "style": "indigo" }, { "id": "a", "label": "🍕 Абстрактный класс", "style": "green" } ],
+        "items": [
+          { "emoji": "🦅", "text": "Птица, самолёт и дрон умеют летать", "bucket": "i", "why": "Родства нет, общее только умение. Это контракт." },
+          { "emoji": "📦", "text": "У всех видов доставки есть поле «номер заказа» и одинаковый deliver(), а адрес у каждой свой", "bucket": "a", "why": "Общее состояние (поле) и общий код + своя деталь — классика абстрактного класса." },
+          { "emoji": "⚖️", "text": "Сортировщику нужно знать, как сравнить два объекта — любых", "bucket": "i", "why": "Это Comparator: контракт «умею сравнивать», подходит для чего угодно." },
+          { "emoji": "🐾", "text": "Кошка, собака и хомяк: у всех имя, возраст и метод «покормить», а голос свой", "bucket": "a", "why": "Родственники с общими полями и общим кодом. Голос — абстрактный метод." },
+          { "emoji": "💳", "text": "Кассе нужен «какой-то способ оплаты»: карта, QR-код или кошелёк", "bucket": "i", "why": "Так и устроен Payment из урока 11.2: кассу пишут против интерфейса." },
+          { "emoji": "🏦", "text": "Счета в банке: общий баланс и снятие денег, но комиссия у каждого вида счёта своя", "bucket": "a", "why": "Поле «баланс» — состояние. Его не положишь в интерфейс." },
+          { "emoji": "🖨️", "text": "Класс должен уметь и «сохраняться в файл», и «печататься», и при этом у него уже есть родитель", "bucket": "i", "why": "Родитель занят, умений несколько — значит, несколько интерфейсов." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m11-03">
+      <script type="application/json">
+      { "title": "default, static и выбор — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "interface Greeter {\n    default String hello() { return \"Привет\"; }\n}\nclass Polite implements Greeter {\n    public String hello() {\n        return Greeter.super.hello() + \", пожалуйста\";\n    }\n}\n\nSystem.out.println(new Polite().hello());",
+            "answer": "Привет, пожалуйста", "why": "Greeter.super.hello() вызывает версию по умолчанию из интерфейса, а Polite дописывает свой хвост." },
+          { "type": "single", "q": "Класс реализует A и B, в обоих есть <code>default void go()</code>. Класс go() не переопределил. Что будет?",
+            "options": ["Возьмётся go() из A — он записан первым", "Ошибка компиляции", "Ошибка при запуске"], "answer": 1,
+            "why": "Проблема ромба: Java не выбирает за программиста. Надо переопределить go() и при желании вызвать A.super.go() или B.super.go()." },
+          { "type": "bug", "q": "Какая строка не скомпилируется?",
+            "code": "interface Limits {\n    int MAX = 3;\n    static int twice() { return MAX * 2; }\n}\nSystem.out.println(Limits.MAX);\nSystem.out.println(Limits.twice());\nLimits.MAX = 10;",
+            "answer": [7], "why": "Поле интерфейса — public static final, то есть константа. Изменить её нельзя." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "default-метод можно переопределить в реализации", "a": true },
+              { "s": "static-метод интерфейса можно вызвать через имя класса-реализации", "a": false, "why": "static-методы интерфейса не наследуются: только Интерфейс.метод()." },
+              { "s": "В интерфейсе можно хранить состояние объекта в обычных полях", "a": false, "why": "поля интерфейса — всегда константы. Для состояния нужен класс." },
+              { "s": "У абстрактного класса есть конструктор, у интерфейса — нет", "a": true }
+            ] },
+          { "type": "match", "q": "Соедини задачу с инструментом",
+            "left": ["Добавить метод в старый интерфейс, не сломав реализации", "Общие поля и конструктор у родственных классов", "Умение, которое нужно совсем разным классам", "Помощник, который вызывают через имя интерфейса"],
+            "right": ["default-метод", "абстрактный класс", "интерфейс", "static-метод интерфейса"],
+            "why": "default спасает старый код, abstract class — про общее состояние, interface — про умение, static — помощник." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Задай мне три ситуации, а я скажу, что там лучше — интерфейс или абстрактный класс, и объясню почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>default</code>-метод — метод интерфейса с телом; классы-реализации наследуют его готовым или переопределяют.</li>
+        <li>Вызвать версию по умолчанию из своей реализации: <code>Интерфейс.super.метод()</code>.</li>
+        <li>Ромб: два интерфейса с одинаковым default → ошибка компиляции, пока класс не переопределит метод сам.</li>
+        <li><code>static</code>-методы интерфейса вызываются только через его имя; поля интерфейса — всегда <code>public static final</code>.</li>
+        <li>Абстрактный класс — «кто ты» + общее состояние; интерфейс — «что умеешь», можно много. Сомневаешься — интерфейс.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

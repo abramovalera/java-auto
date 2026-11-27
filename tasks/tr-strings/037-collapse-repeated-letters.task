@@ -1,0 +1,40 @@
+## id: tr-strings-037
+## title: Залипшая клавиша
+## file: trainer/strings/CollapseRepeatedLetters.java
+## class: CollapseRepeatedLetters
+## level: 2
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>CollapseRepeatedLetters</code>. У клавиатуры залипают клавиши, и буквы иногда печатаются по нескольку раз подряд: <code>приивеет</code>. Программа читает строку (хотя бы один символ) и печатает её, оставив из каждой группы одинаковых символов <b>подряд</b> только один. Регистр важен: <code>A</code> и <code>a</code> — разные символы.</p>
+<pre class="terminal"><span class="out">ввод:  приивеет     вывод: привет
+ввод:  aaabbbaaa    вывод: aba</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Сравнивай символ с предыдущим: <code>s.charAt(i) != s.charAt(i - 1)</code></li>
+<li>Первый символ добавляй всегда — у него нет предыдущего</li>
+<li><code>StringBuilder</code> и <code>append(c)</code> — собирают ответ</li>
+</ul></div>
+@@ test: Пример
+@@ input
+приивеет
+@@ expect
+привет
+@@ test: Одинаковые буквы не подряд остаются
+@@ input
+aaabbbaaa
+@@ expect
+aba
+@@ test: Без повторов
+@@ input
+Ok
+@@ expect
+Ok
+@@ test: Регистр важен
+@@ input
+AaaA
+@@ expect
+AaA
+@@ test: Пробелы тоже залипают
+@@ input
+кк   оот
+@@ expect
+к от

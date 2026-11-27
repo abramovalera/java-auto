@@ -1,0 +1,40 @@
+## id: tr-vars-022
+## title: Расстояние между буквами
+## file: trainer/vars/LetterDistance.java
+## class: LetterDistance
+## level: 2
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>LetterDistance</code>. Программа читает одну строку, в которой два символа через пробел, и печатает, на сколько позиций в таблице Unicode второй символ дальше первого: <code>От a до z: 25</code>.</p>
+<pre class="terminal"><span class="out">ввод:  a z
+вывод: От a до z: 25</span></pre>
+<p>Если второй символ стоит в таблице раньше первого, ответ отрицательный.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next().charAt(0)</code> — так читают один символ: метода <code>nextChar()</code> нет</li>
+<li><code>second - first</code> — разность двух <code>char</code> — это <code>int</code>, разность их кодов</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+a z
+@@ expect
+От a до z: 25
+@@ test: Большая и маленькая
+@@ input
+A a
+@@ expect
+От A до a: 32
+@@ test: Одна и та же буква
+@@ input
+м м
+@@ expect
+От м до м: 0
+@@ test: Обратный порядок
+@@ input
+z a
+@@ expect
+От z до a: -25
+@@ test: Русский алфавит
+@@ input
+А Я
+@@ expect
+От А до Я: 31

@@ -1,0 +1,44 @@
+## id: tr-strings-015
+## title: Гудок машины
+## file: trainer/strings/HornSoundRepeat.java
+## class: HornSoundRepeat
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>HornSoundRepeat</code>. В комиксе гудок рисуют так: <code>Би-би-би</code>. Программа читает две строки: звук (одно слово) и число <code>n</code> (1 или больше). Напечатай звук <code>n</code> раз через дефис. Первый раз — как ввели, а все повторы — маленькими буквами.</p>
+<pre class="terminal"><span class="out">ввод:  Би
+       3
+вывод: Би-би-би
+
+ввод:  Ку
+       1
+вывод: Ку</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>"ab".repeat(3)</code> — возвращает <code>"ababab"</code></li>
+<li><code>s.toLowerCase()</code> — строка маленькими буквами</li>
+<li>Подумай, сколько раз повторяется кусок <code>"-би"</code>, если всего звуков <code>n</code></li>
+</ul></div>
+@@ test: Три гудка
+@@ input
+Би
+3
+@@ expect
+Би-би-би
+@@ test: Один раз — без дефиса
+@@ input
+Ку
+1
+@@ expect
+Ку
+@@ test: Английский звук
+@@ input
+Beep
+2
+@@ expect
+Beep-beep
+@@ test: Много раз
+@@ input
+Ту
+6
+@@ expect
+Ту-ту-ту-ту-ту-ту

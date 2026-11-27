@@ -1,0 +1,35 @@
+## id: tr-strings-035
+## title: Слова в обратном порядке
+## file: trainer/strings/WordsReversedOrder.java
+## class: WordsReversedOrder
+## level: 2
+## category: Переворот и палиндромы
+@@ description
+<p>Напиши класс <code>WordsReversedOrder</code>. Программа читает фразу (хотя бы одно слово) и печатает её слова в обратном порядке. Буквы внутри слов не переворачивай. По краям и между словами во вводе могут быть лишние пробелы, а в ответе слова разделены ровно одним пробелом.</p>
+<pre class="terminal"><span class="out">ввод:  я люблю java         вывод: java люблю я
+ввод:    hello   world      вывод: world hello</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.strip().split("\\s+")</code> — массив слов без пустых строк, сколько бы пробелов ни стояло</li>
+<li>Цикл <code>for</code> по массиву с конца: от <code>words.length - 1</code> до <code>0</code></li>
+<li><code>String.join(" ", array)</code> — склеивает элементы массива через пробел</li>
+</ul></div>
+@@ test: Три слова
+@@ input
+я люблю java
+@@ expect
+java люблю я
+@@ test: Лишние пробелы
+@@ input
+  hello   world  
+@@ expect
+world hello
+@@ test: Одно слово
+@@ input
+один
+@@ expect
+один
+@@ test: Четыре слова
+@@ input
+a good   example here
+@@ expect
+here example good a

@@ -1,0 +1,40 @@
+## id: tr-colls-015
+## title: Драгоценные камни в сундуке
+## file: trainer/colls/TreasureGemsCount.java
+## class: TreasureGemsCount
+## level: 1
+## category: Классика собеседований
+@@ description
+<p>Напиши класс <code>TreasureGemsCount</code>. Каждый камень обозначен латинской буквой. В первой строке — буквы драгоценных камней (без пробелов), во второй — все камни из сундука (тоже строка без пробелов). Посчитай, сколько камней из сундука драгоценные, и напечатай <code>Драгоценных камней: X</code>. Регистр важен: <code>a</code> и <code>A</code> — разные камни.</p>
+<pre class="terminal"><span class="out">ввод:  aA
+       aAAbbbb
+вывод: Драгоценных камней: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Set&lt;Character&gt;</code> — множество символов; проверка <code>contains</code> работает мгновенно</li>
+<li><code>s.charAt(i)</code> — возвращает символ строки по индексу</li>
+</ul></div>
+@@ test: Обычный сундук
+@@ input
+aA
+aAAbbbb
+@@ expect
+Драгоценных камней: 3
+@@ test: Ни одного драгоценного
+@@ input
+z
+ZZ
+@@ expect
+Драгоценных камней: 0
+@@ test: Буквы повторяются в первой строке
+@@ input
+rrg
+rgbgr
+@@ expect
+Драгоценных камней: 4
+@@ test: Всё драгоценное
+@@ input
+xyz
+zzyx
+@@ expect
+Драгоценных камней: 4
+@@ require: Set\s*<\s*Character | Сложи буквы драгоценных камней в Set<Character>

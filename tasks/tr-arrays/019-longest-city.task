@@ -1,0 +1,41 @@
+## id: tr-arrays-019
+## title: Самое длинное название
+## file: trainer/arrays/LongestCityName.java
+## class: LongestCityName
+## level: 1
+## category: Максимум и минимум
+@@ description
+<p>Напиши класс <code>LongestCityName</code>. Турист записал города, через которые проехал. В первой строке — количество городов <code>n</code> (n ≥ 1), во второй — <code>n</code> названий через пробел (каждое — одно слово). Сохрани их в массив <code>String[]</code> и напечатай самое длинное название. Если таких несколько — первое из них.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       Тверь Новгород Москва Псков
+вывод: Новгород</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>String[] a = new String[n];</code> — массив строк</li>
+<li><code>scanner.next()</code> — читает одно слово</li>
+<li><code>s.length()</code> — длина строки (у строки — метод со скобками, у массива — поле <code>length</code>)</li>
+</ul></div>
+@@ test: Путешествие
+@@ input
+4
+Тверь Новгород Москва Псков
+@@ expect
+Новгород
+@@ test: Одинаковая длина
+@@ input
+3
+Омск Сочи Тула
+@@ expect
+Омск
+@@ test: Один город
+@@ input
+1
+Казань
+@@ expect
+Казань
+@@ test: Самый длинный в конце
+@@ input
+3
+Уфа Пермь Екатеринбург
+@@ expect
+Екатеринбург
+@@ require: String\s*\[\s*\] | Сохрани названия в массив String[]

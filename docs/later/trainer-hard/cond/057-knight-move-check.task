@@ -1,0 +1,48 @@
+## id: tr-cond-057
+## title: Ход конём
+## file: trainer/cond/KnightMoveCheck.java
+## class: KnightMoveCheck
+## level: 3
+## category: Игры и правила
+@@ description
+<p>Напиши класс <code>KnightMoveCheck</code>. Клетки шахматной доски записывают буквой столбца (от <code>a</code> до <code>h</code>) и цифрой строки (от 1 до 8): <code>e2</code>, <code>g1</code>. Конь ходит буквой «Г»: на две клетки в одну сторону и на одну в другую. Программа читает две клетки через пробел (начальную и конечную, всегда правильные) и печатает <code>Можно</code>, если конь попадёт туда за один ход, иначе <code>Нельзя</code>.</p>
+<pre class="terminal"><span class="out">ввод:  g1 f3
+вывод: Можно
+
+ввод:  e2 e4
+вывод: Нельзя</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>cell.charAt(0) - 'a'</code> — номер столбца числом (a → 0, b → 1, …)</li>
+<li><code>cell.charAt(1) - '0'</code> — цифра строки числом</li>
+<li>ход конём — когда разница по столбцам и по строкам (по модулю) равна 1 и 2 или 2 и 1</li>
+</ul></div>
+@@ test: Классический ход
+@@ input
+g1 f3
+@@ expect
+Можно
+@@ test: Пешечный ход — не конём
+@@ input
+e2 e4
+@@ expect
+Нельзя
+@@ test: Ход вбок
+@@ input
+b1 d2
+@@ expect
+Можно
+@@ test: Через всю доску
+@@ input
+a1 h8
+@@ expect
+Нельзя
+@@ test: Та же клетка
+@@ input
+d4 d4
+@@ expect
+Нельзя
+@@ test: Ход назад
+@@ input
+h8 f7
+@@ expect
+Можно

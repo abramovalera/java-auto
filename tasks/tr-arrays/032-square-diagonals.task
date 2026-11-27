@@ -1,0 +1,54 @@
+## id: tr-arrays-032
+## title: Диагонали квадрата
+## file: trainer/arrays/DiagonalSumsOfSquare.java
+## class: DiagonalSumsOfSquare
+## level: 2
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>DiagonalSumsOfSquare</code>. Плитка на полу выложена квадратом <code>n × n</code>, на каждой плитке — число. В первой строке — <code>n</code> (n ≥ 1), дальше <code>n</code> строк по <code>n</code> чисел. Напечатай две строки: <code>Главная: X</code> — сумму на диагонали из левого верхнего угла в правый нижний, и <code>Побочная: Y</code> — из правого верхнего в левый нижний.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       1 2 3
+       4 5 6
+       7 8 9
+вывод: Главная: 15
+       Побочная: 15</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>на главной диагонали номер строки равен номеру столбца: <code>m[i][i]</code></li>
+<li>на побочной: <code>m[i][n - 1 - i]</code></li>
+<li>для диагонали хватит одного цикла, не вложенных</li>
+</ul></div>
+@@ test: Три на три
+@@ input
+3
+1 2 3
+4 5 6
+7 8 9
+@@ expect
+Главная: 15
+Побочная: 15
+@@ test: Одна плитка
+@@ input
+1
+5
+@@ expect
+Главная: 5
+Побочная: 5
+@@ test: Два на два
+@@ input
+2
+1 2
+3 4
+@@ expect
+Главная: 5
+Побочная: 5
+@@ test: С минусами
+@@ input
+4
+1 0 0 -1
+0 2 -2 0
+0 -3 3 0
+-4 0 0 4
+@@ expect
+Главная: 10
+Побочная: -10
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];

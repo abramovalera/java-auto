@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Наследование: extends и super · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m10-02">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 10 · Урок 2</div>
+    <h1>Наследование: extends и super</h1>
+    <p class="lead">Кот и собака — оба животные: у обоих есть имя, возраст, оба едят и спят. Писать это дважды? Нет: опишем общее один раз в классе-родителе, а коту и собаке дадим только их особенности.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧬 extends, super(...), protected</span><span>🧠 память по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m10-02-review">
+      <script type="application/json">
+      { "title": "Вспомним инкапсуляцию", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Зачем методу <code>withdraw</code> проверка <code>amount &gt; balance</code>, если можно проверять перед каждым вызовом?",
+            "options": ["Так программа работает быстрее", "Правило записано в одном месте, и его невозможно обойти снаружи", "Без проверки код не скомпилируется"], "answer": 1,
+            "why": "Объект сам охраняет свой инвариант — это и есть инкапсуляция." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Сеттер без проверки защищает поле так же надёжно, как метод с проверкой", "a": false, "why": "через такой сеттер можно записать любое значение." },
+              { "s": "Если геттер возвращает внутренний массив, снаружи можно поменять его элементы", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Копипаст — снова враг</h2>
+    <p>Объявим классы <code>Cat</code> и <code>Dog</code> так, как умеем после модуля 9:</p>
+<pre data-file="CopyPaste.java"><code class="java">class Cat {
+    String name;
+    int age;
+    void eat()   { System.out.println(name + " ест"); }
+    void sleep() { System.out.println(name + " спит"); }
+    void meow()  { System.out.println(name + ": Мяу!"); }
+}
+
+class Dog {
+    String name;
+    int age;
+    void eat()   { System.out.println(name + " ест"); }
+    void sleep() { System.out.println(name + " спит"); }
+    void bark()  { System.out.println(name + ": Гав!"); }
+}</code></pre>
+    <p>Четыре строки из шести — одинаковые. Добавим попугая, хомяка, черепаху — и каждую правку («пусть <code>eat</code> печатает ещё и время») придётся вносить в пять мест. Забудешь одно — получишь баг. В модуле 7 мы избавлялись от копипаста <b>методами</b>. Для классов есть свой инструмент — <b>наследование</b>: новый класс получает поля и методы готового класса-родителя.</p>
+    <div class="say" data-mood="think"><p>В играх та же история. У каждого персонажа есть имя, здоровье, умение ходить. Писать это в <code>Warrior</code>, <code>Mage</code>, <code>Archer</code> по отдельности? Нет — делают общий класс <code>Hero</code>, а персонажи от него наследуют. Так же и в магазине: у любого товара есть название и цена, а книга, телефон и футболка добавляют каждый своё.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>extends: «возьми всё у родителя»</h2>
+    <p>Вынесем общее в класс <code>Animal</code>, а <code>Cat</code> и <code>Dog</code> объявим его наследниками ключевым словом <b><code>extends</code></b> («расширяет»):</p>
+<pre data-file="Zoo.java"><code class="java">public class Zoo {
+    public static void main(String[] args) {
+        Cat cat = new Cat();
+        cat.name = "Мурка";
+        cat.eat();      // метод родителя
+        cat.meow();     // свой метод
+    }
+}
+
+class Animal {
+    String name;
+    int age;
+    void eat()   { System.out.println(name + " ест"); }
+    void sleep() { System.out.println(name + " спит"); }
+}
+
+class Cat extends Animal {
+    void meow() { System.out.println(name + ": Мяу!"); }
+}
+
+class Dog extends Animal {
+    void bark() { System.out.println(name + ": Гав!"); }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что выведет программа? В классе Cat ведь нет ни поля name, ни метода eat…</summary>
+      <p><b>«Мурка ест», потом «Мурка: Мяу!».</b> Класс <code>Cat</code> <b>унаследовал</b> от класса <code>Animal</code> поля <code>name</code>, <code>age</code> и методы <code>eat</code>, <code>sleep</code>. В объекте класса <code>Cat</code> они есть, как будто объявлены в самом <code>Cat</code>. А <code>meow</code> — его собственный метод.</p>
+    </details>
+    <dl class="terms">
+      <dt>Родитель (суперкласс, базовый класс)</dt><dd>Класс, от которого наследуют: <code>Animal</code>.</dd>
+      <dt>Наследник (подкласс, дочерний класс)</dt><dd>Класс, который наследует: <code>Cat</code>, <code>Dog</code>. Получает всё, что есть у родителя, и добавляет своё.</dd>
+      <dt>extends</dt><dd>Ключевое слово: <code>class Cat extends Animal</code> — класс <code>Cat</code> <b>наследует</b> класс <code>Animal</code> (дословно — «кот расширяет животное»).</dd>
+    </dl>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 330" role="img" aria-label="Иерархия: Animal сверху с полями name, age и методами eat, sleep. Cat и Dog снизу, стрелки от них к Animal. У Cat свой метод meow, у Dog — bark">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="250" y="16" width="220" height="132" rx="12" class="d-violet"/>
+        <text x="360" y="44" text-anchor="middle" class="d-title">Animal</text>
+        <path d="M250 56 H470" class="d-line"/>
+        <text x="268" y="80" class="d-mono-ink">String name</text>
+        <text x="268" y="100" class="d-mono-ink">int age</text>
+        <path d="M250 110 H470" class="d-line"/>
+        <text x="268" y="132" class="d-mono-ink">eat()  sleep()</text>
+        <rect x="60" y="210" width="220" height="104" rx="12" class="d-blue"/>
+        <text x="170" y="238" text-anchor="middle" class="d-title">Cat</text>
+        <path d="M60 250 H280" class="d-line"/>
+        <text x="78" y="276" class="d-mono-ink">meow()</text>
+        <text x="78" y="300" class="d-small">+ всё от Animal</text>
+        <rect x="440" y="210" width="220" height="104" rx="12" class="d-teal"/>
+        <text x="550" y="238" text-anchor="middle" class="d-title">Dog</text>
+        <path d="M440 250 H660" class="d-line"/>
+        <text x="458" y="276" class="d-mono-ink">bark()</text>
+        <text x="458" y="300" class="d-small">+ всё от Animal</text>
+        <path d="M170 208 L300 152" class="d-arrow"/>
+        <path d="M550 208 L420 152" class="d-arrow"/>
+        <text x="160" y="176" class="d-small">extends</text>
+        <text x="500" y="176" class="d-small">extends</text>
+      </svg>
+      <figcaption>Стрелка наследования по традиции рисуется от наследника к родителю: «Cat → является → Animal».</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Проверка «является»</h2>
+    <p>Наследование описывает отношение <b>«является»</b> (по-английски <i>is-a</i>). Перед тем как написать <code>class A extends B</code>, произнеси вслух: «A является B». Звучит правдой — наследуй. Звучит странно — наследование тут не подходит.</p>
+    <ul>
+      <li>«Кот является животным» ✔ → <code>Cat extends Animal</code></li>
+      <li>«Сберегательный счёт является счётом» ✔ → <code>SavingsAccount extends BankAccount</code></li>
+      <li>«Машина является двигателем» ✘ — машина <b>имеет</b> двигатель. Для «имеет» есть другой приём, о нём урок 7.</li>
+    </ul>
+    <div data-widget="buckets" id="m10-02-is-a">
+      <script type="application/json">
+      { "title": "Можно ли тут extends?", "icon": "🧬",
+        "buckets": [ { "id": "yes", "label": "✔ является — extends", "style": "green" }, { "id": "no", "label": "✘ не является", "style": "indigo" } ],
+        "items": [
+          { "emoji": "🐕", "text": "Овчарка → Собака", "bucket": "yes", "why": "Овчарка является собакой — классическое наследование." },
+          { "emoji": "🚗", "text": "Машина → Колесо", "bucket": "no", "why": "Машина имеет колёса, но не является колесом." },
+          { "emoji": "🧙", "text": "Маг → Герой игры", "bucket": "yes", "why": "Маг является героем — получает от Hero имя, здоровье и умение ходить." },
+          { "emoji": "📚", "text": "Библиотека → Книга", "bucket": "no", "why": "Библиотека содержит книги, но сама книгой не является." },
+          { "emoji": "🟥", "text": "Квадрат → Прямоугольник", "bucket": "yes", "why": "Квадрат — прямоугольник с равными сторонами. (Есть тонкость, обсудим в уроке 7, но для фигур, которые не меняют размеры, это нормально.)" },
+          { "emoji": "👤", "text": "Сотрудник → Компания", "bucket": "no", "why": "Компания состоит из сотрудников; сотрудник не является компанией." }
+        ] }
+      </script>
+    </div>
+    <div class="callout fact">
+      <span class="callout-title">Только один родитель</span>
+      <p>В Java у класса может быть <b>только один</b> прямой родитель: <code>class Cat extends Animal, Pet</code> не скомпилируется. Зато цепочка может быть длинной: <code>Kitten extends Cat</code>, <code>Cat extends Animal</code> — котёнок получит всё и от кота, и от животного.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Конструкторы и super(...)</h2>
+    <p>Хорошо бы, чтобы имя задавалось в конструкторе (и поле было <code>private</code> — урок 1 не забываем). Объявим конструктор в классе-родителе:</p>
+<pre data-file="Zoo2.java"><code class="java">class Animal {
+    private String name;
+    private int age;
+
+    Animal(String name, int age) {
+        this.name = name;
+        this.age = age;
+        System.out.println("Создано животное " + name);
+    }
+
+    String getName() { return name; }
+}
+
+class Cat extends Animal {
+    private boolean indoor;
+
+    Cat(String name, int age, boolean indoor) {
+        super(name, age);            // сначала — часть родителя
+        this.indoor = indoor;        // потом — своё
+        System.out.println("Это кот, домашний: " + indoor);
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>super(name, age);</code><div><p><b>Вызов конструктора родителя</b> через <code>super</code>. Поля <code>name</code> и <code>age</code> — приватные поля Animal, конструктор Cat не может присвоить им значения сам. Он передаёт аргументы <code>name</code> и <code>age</code> конструктору родителя: «заполни свою часть, вот данные».</p></div></div>
+      <div class="annot-row"><code>первая строка</code><div><p>Вызов <code>super(...)</code> должен стоять <b>самой первой</b> строкой (инструкцией) конструктора. Сначала строится «животная» часть объекта, потом «кошачья» — как дом: сначала фундамент, потом этажи.</p></div></div>
+    </div>
+    <p>Что будет при <code>new Cat("Мурка", 3, true)</code>? Пройди по шагам — следи за стеком вызовов слева.</p>
+    <div data-widget="trace" id="trace-m10-02-ctor">
+      <script type="application/json">
+      { "title": "Как строится объект-наследник",
+        "intro": "Один объект в куче, но строят его два конструктора: сначала родитель, потом наследник.",
+        "code": "Cat cat = new Cat(\"Мурка\", 3, true);\n\nCat(String name, int age, boolean indoor) {\n    super(name, age);\n    this.indoor = indoor;\n    System.out.println(\"Это кот, домашний: \" + indoor);\n}\nAnimal(String name, int age) {\n    this.name = name; this.age = age;\n    System.out.println(\"Создано животное \" + name);\n}",
+        "steps": [
+          { "line": 1, "stack": [ { "frame": "main", "vars": { "cat": "?" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0", "indoor": "false" } } ], "note": "<code>new</code> выделяет память под объект сразу со всеми полями — и унаследованными, и своими. Пока там значения по умолчанию." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "cat": "?" } }, { "frame": "Cat", "vars": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0", "indoor": "false" } } ], "note": "Вызван конструктор Cat с аргументами \"Мурка\", 3, true. Его первая строка — <code>super(name, age)</code>." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "cat": "?" } }, { "frame": "Cat", "vars": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } }, { "frame": "Animal", "vars": { "name": "\"Мурка\"", "age": "3" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0", "indoor": "false" } } ], "note": "Вызов super(name, age) передал управление конструктору Animal вместе с аргументами. В стеке теперь три фрейма: main → Cat → Animal." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": { "cat": "?" } }, { "frame": "Cat", "vars": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } }, { "frame": "Animal", "vars": { "name": "\"Мурка\"", "age": "3" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурка\"", "age": "3", "indoor": "false" } } ], "out": "Создано животное Мурка\n", "note": "Конструктор Animal присвоил значения полям name и age и напечатал строку. Это первая строка вывода!" },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "cat": "?" } }, { "frame": "Cat", "vars": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } } ], "note": "Вернулись в конструктор Cat. Теперь полю <code>indoor</code> присваивается значение параметра <code>indoor</code>." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": { "cat": "?" } }, { "frame": "Cat", "vars": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } } ], "out": "Это кот, домашний: true\n", "note": "Вторая строка вывода — от наследника." },
+          { "line": 1, "stack": [ { "frame": "main", "vars": { "cat": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурка\"", "age": "3", "indoor": "true" } } ], "note": "Объект создан, переменная <code>cat</code> инициализирована ссылкой на него. Порядок запомни: <b>сначала родитель, потом наследник</b>." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Если super(...) не написать</h2>
+    <p>Java подставит за тебя вызов <b>без аргументов</b> — <code>super();</code>. Если у родителя есть конструктор без параметров (или вообще нет конструкторов — тогда Java сама создаёт пустой <b>конструктор по умолчанию</b>), всё скомпилируется. А если у родителя есть только конструктор с параметрами:</p>
+<pre data-file="Broken.java"><code class="java">class Dog extends Animal {
+    Dog(String name) {
+        // super(...) забыли — Java вставит super();
+        System.out.println("Гав");
+    }
+}</code></pre>
+<pre class="terminal"><span class="err">error: constructor Animal in class Animal cannot be applied to given types;
+    Dog(String name) {
+                     ^
+  required: String,int
+  found:    no arguments</span></pre>
+    <p>Читаем как в модуле 1: «конструктор Animal нельзя применить: требуется <code>String,int</code>, а найдено — <b>без аргументов</b>». Компилятор подставил невидимый <code>super()</code>, а у Animal такого нет. Починка — вызвать нужный конструктор явно: <code>super(name, 1);</code></p>
+    <p>В IDEA та же ошибка видна сразу в редакторе, и формулировка там другая, попроще. А при запуске ▶ панель Build покажет текст <code>javac</code>, как выше:</p>
+    <div data-widget="ide" id="shot-no-super">
+      <script type="application/json">
+      { "tree": false, "file": "Zoo.java", "statusPath": "module-10",
+        "code": "class Animal {\n    private String name;\n    private int age;\n\n    Animal(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n}\n\nclass Dog extends Animal {\n    Dog(String name) {\n        // super(...) забыли — Java вставит super();\n        System.out.println(\"Гав\");\n    }\n}",
+        "errors": [ { "line": 12, "text": "Dog(String name)", "msg": "There is no parameterless constructor available in 'Animal'", "tip": true } ],
+        "build": { "file": "Zoo.java", "path": "module-10", "errors": [ { "msg": "constructor Animal in class Animal cannot be applied to given types;", "line": 12, "col": 22 } ],
+                   "out": [ "C:\\Users\\Misha\\java-course\\workspace\\module-10\\Zoo.java:12:22", "java: constructor Animal in class Animal cannot be applied to given types;", "  required: String,int", "  found:    no arguments", "  reason: actual and formal argument lists differ in length" ] },
+        "marks": [ { "n": 1, "target": "line-5", "text": "У Animal единственный конструктор — с двумя параметрами" },
+                   { "n": 2, "target": "err-12", "side": "top", "text": "Красным подчёркнут заголовок конструктора Dog: в нём нет <code>super(...)</code>, и Java пытается вставить невидимый <code>super()</code>" },
+                   { "n": 3, "target": "tip", "text": "IDEA говорит по-своему: <b>There is no parameterless constructor available in 'Animal'</b> — «у Animal нет конструктора без параметров»" },
+                   { "n": 4, "target": "build-out", "text": "Панель Build после ▶: тот же текст, что у <code>javac</code> на сайте, — <code>required</code> (что нужно) и <code>found</code> (что нашлось)" } ],
+        "caption": "Забытый super(...): редактор и панель Build" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли <code>Cat(String n) { this.indoor = true; super(n, 1); }</code>?</summary>
+      <p><b>Нет</b> (в Java 21, которую мы используем). <code>super(...)</code> обязан быть первым — родительская часть объекта должна быть готова раньше, чем наследник начнёт с ним работать. Ошибка: <code>call to super must be first statement in constructor</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Что видит наследник: private и protected</h2>
+    <p>Вот неожиданность: у кота <b>есть</b> поле <code>name</code> (оно в объекте), но обратиться к полю <code>name</code> напрямую в методе класса <code>Cat</code> нельзя, если поле в Animal <code>private</code>. <code>private</code> — это «только для самого класса», даже дети не исключение.</p>
+<pre data-file="Cat.java"><code class="java">class Cat extends Animal {
+    void meow() {
+        // ✗ name has private access in Animal
+        System.out.println(name + ": Мяу!");
+        // ✔ через геттер родителя
+        System.out.println(getName() + ": Мяу!");
+    }
+}</code></pre>
+    <p>Два честных пути: вызвать метод родителя (геттер) или ослабить доступ до <code>protected</code> — «для своих и для наследников».</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Модификатор</th><th>Сам класс</th><th>Тот же пакет</th><th>Наследник в другом пакете</th><th>Все остальные</th></tr>
+        <tr><td><code>private</code></td><td>✔</td><td>✘</td><td>✘</td><td>✘</td></tr>
+        <tr><td>без модификатора</td><td>✔</td><td>✔</td><td>✘</td><td>✘</td></tr>
+        <tr><td><code>protected</code></td><td>✔</td><td>✔</td><td>✔</td><td>✘</td></tr>
+        <tr><td><code>public</code></td><td>✔</td><td>✔</td><td>✔</td><td>✔</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Подвох protected</span>
+      <p><code>protected</code> открывает доступ не только наследникам, но и <b>всем классам того же пакета</b>. Поэтому поля всё равно лучше держать <code>private</code>, а наследникам давать <code>protected</code>-методы или геттеры. Например, в <code>BankAccount</code> служебный метод «записать операцию в историю» — <code>protected</code>: его вызывают счета-наследники, а остальная программа — нет.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: а у Animal есть родитель?</summary>
+      <p>Есть! Если не написать <code>extends</code>, Java считает, что класс наследует <code>Object</code> — общего прародителя всех классов. Поэтому у любого объекта есть методы <code>toString()</code> и <code>equals()</code>, которых ты не писал. Подробно — в уроке 5.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m10-02">
+      <script type="application/json">
+      { "title": "Наследование — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет <code>new Kitten();</code>?",
+            "code": "class Animal {\n    Animal() { System.out.println(\"A\"); }\n}\nclass Cat extends Animal {\n    Cat() { System.out.println(\"C\"); }\n}\nclass Kitten extends Cat {\n    Kitten() { System.out.println(\"K\"); }\n}",
+            "answer": "A\nC\nK", "why": "Каждый конструктор первым делом (невидимым super()) вызывает конструктор родителя. Объект строится от фундамента: Animal → Cat → Kitten." },
+          { "type": "bug", "q": "У Animal есть только конструктор <code>Animal(String name)</code>. Какая строка не скомпилируется?",
+            "code": "class Bird extends Animal {\n    private boolean canFly;\n    Bird(String name, boolean canFly) {\n        this.canFly = canFly;\n    }\n}",
+            "answer": [3], "why": "В конструкторе нет super(name), Java вставит super() — а такого конструктора у Animal нет. Ошибку компилятор покажет на строке с конструктором Bird." },
+          { "type": "single", "q": "Поле <code>name</code> в Animal — <code>private</code>. Что из этого верно для объекта Cat?",
+            "options": ["У кота нет поля name — private не наследуется", "Поле name в объекте кота есть, но из кода Cat к нему нельзя обратиться напрямую", "Кот может обращаться к name напрямую, ведь это его родитель"], "answer": 1,
+            "why": "Объект кота содержит всю «животную» часть, но private-поле видно только внутри Animal. Кот работает с ним через методы родителя." },
+          { "type": "match", "q": "Соедини слово и смысл",
+            "left": ["extends", "super(...)", "protected", "is-a"],
+            "right": ["объявить родителя класса", "вызвать конструктор родителя", "доступ для наследников и пакета", "проверка «A является B»"],
+            "why": "Это четыре главных слова урока." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "У класса в Java может быть два родителя через запятую", "a": false, "why": "у класса только один прямой родитель." },
+              { "s": "super(...) должен быть первой строкой конструктора", "a": true },
+              { "s": "Машина с двигателем — хороший повод написать Car extends Engine", "a": false, "why": "машина имеет двигатель, а не является им." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 10.2. Дай мне 5 пар классов, а я скажу, где уместно наследование, а где нет, и объясню почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>class Cat extends Animal</code> — класс <code>Cat</code> наследует класс <code>Animal</code>: получает все его поля и методы и добавляет свои.</li>
+        <li>Наследуй только при отношении «является» (is-a). «Имеет» — это не наследование.</li>
+        <li>У класса один прямой родитель; цепочки любой длины разрешены.</li>
+        <li>Конструктор наследника первой строкой вызывает <code>super(...)</code>. Не написал — Java вставит <code>super()</code> без аргументов.</li>
+        <li>Объект строится от родителя к наследнику.</li>
+        <li><code>private</code> родителя наследнику не виден напрямую; <code>protected</code> — виден (и всему пакету).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

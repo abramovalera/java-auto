@@ -1,0 +1,74 @@
+## id: tr-arrays-058
+## title: Сапёр: подсказки
+## file: trainer/arrays/MinesweeperHints.java
+## class: MinesweeperHints
+## level: 3
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>MinesweeperHints</code>. Поле игры «Сапёр»: <code>*</code> — мина, <code>.</code> — пустая клетка. Для каждой пустой клетки посчитай, сколько мин в восьми соседних клетках (по сторонам и по диагоналям), и замени точку этой цифрой — даже если это 0. Мины оставь звёздочками. В первой строке — число строк <code>r</code> и столбцов <code>c</code> (оба ≥ 1), дальше <code>r</code> строк по <code>c</code> символов без пробелов. Напечатай готовое поле в том же виде.</p>
+<pre class="terminal"><span class="out">ввод:  3 4
+       *...
+       ..*.
+       ....
+вывод: *211
+       12*1
+       0111</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>char[][] g = new char[r][];</code> и <code>g[i] = scanner.next().toCharArray();</code> — каждая строка поля становится массивом символов</li>
+<li>соседи клетки <code>(i, j)</code> — все <code>(i + di, j + dj)</code>, где <code>di</code> и <code>dj</code> от -1 до 1, кроме самой клетки</li>
+<li>перед обращением проверяй, что сосед не за краем поля: <code>0 &lt;= ni &lt; r</code> и <code>0 &lt;= nj &lt; c</code></li>
+<li><code>(char) ('0' + k)</code> — символ цифры <code>k</code></li>
+</ul></div>
+@@ test: Поле 3 на 4
+@@ input
+3 4
+*...
+..*.
+....
+@@ expect
+*211
+12*1
+0111
+@@ test: Без мин
+@@ input
+2 2
+..
+..
+@@ expect
+00
+00
+@@ test: Одни мины
+@@ input
+2 3
+***
+***
+@@ expect
+***
+***
+@@ test: Мина в центре
+@@ input
+3 3
+...
+.*.
+...
+@@ expect
+111
+1*1
+111
+@@ test: Окружённая клетка
+@@ input
+3 3
+***
+*.*
+***
+@@ expect
+***
+*8*
+***
+@@ test: Одна клетка
+@@ input
+1 1
+.
+@@ expect
+0
+@@ require: toCharArray\s*\( | Преврати строки поля в массивы символов: toCharArray()

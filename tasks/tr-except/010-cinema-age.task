@@ -1,0 +1,44 @@
+## id: tr-except-010
+## title: Возраст зрителя
+## file: trainer/except/CinemaAgeValidator.java
+## class: CinemaAgeValidator
+## level: 1
+## category: throw и свои исключения
+@@ description
+<p>Напиши класс <code>CinemaAgeValidator</code>. Кассир кинотеатра вводит возраст зрителя, и программа проверяет, что такой возраст бывает.</p>
+<p>Напиши метод <code>static void checkAge(int age)</code>. Если возраст меньше 0, метод выбрасывает <code>IllegalArgumentException</code> с сообщением <code>возраст не может быть отрицательным</code>; если больше 120 — с сообщением <code>столько не живут</code>. Иначе метод просто заканчивается.</p>
+<p>В <code>main</code> прочитай целое число, вызови <code>checkAge</code> и напечатай <code>Возраст принят: N</code>. Если метод выбросил исключение, перехвати его и напечатай <code>Ошибка: </code> и сообщение исключения.</p>
+<pre class="terminal"><span class="out">ввод:  25     вывод: Возраст принят: 25
+ввод:  -1     вывод: Ошибка: возраст не может быть отрицательным</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>throw new IllegalArgumentException("текст");</code> — создаёт объект исключения с сообщением и выбрасывает его</li>
+<li><code>e.getMessage()</code> — возвращает сообщение, с которым создали исключение</li>
+</ul></div>
+@@ test: Обычный возраст
+@@ input
+25
+@@ expect
+Возраст принят: 25
+@@ test: Отрицательный
+@@ input
+-1
+@@ expect
+Ошибка: возраст не может быть отрицательным
+@@ test: Слишком большой
+@@ input
+121
+@@ expect
+Ошибка: столько не живут
+@@ test: Младенец — ноль лет
+@@ input
+0
+@@ expect
+Возраст принят: 0
+@@ test: Ровно 120
+@@ input
+120
+@@ expect
+Возраст принят: 120
+@@ require: static\s+void\s+checkAge\s*\(\s*int | Объяви метод static void checkAge(int age)
+@@ require: throw\s+new\s+IllegalArgumentException | Выбрасывай IllegalArgumentException через throw new
+@@ require: getMessage\s*\( | Печатай сообщение исключения через getMessage()

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Терминальные операции · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-05">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 14 · Урок 5</div>
+    <h1>Терминальные операции: чем закончить конвейер</h1>
+    <p class="lead">Конвейер запускается только тогда, когда в конце стоит «упаковщик». Упаковщики бывают разные: один собирает список, другой считает, третий отвечает «да/нет», четвёртый сворачивает всё в одно число.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>📦 12 операций</span><span>🔍 трассировка reduce</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m14-05-review">
+      <script type="application/json">
+      { "title": "Вспомним конвейер", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Что выведет <code>Stream.of(1, 2, 3).filter(x -&gt; x &gt; 1);</code> само по себе?",
+            "options": ["2 3", "[2, 3]", "Ничего"], "answer": 2,
+            "why": "Нет терминальной операции — конвейер не запускается. Да и печатать здесь некому." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "System.out.println(Stream.of(5, 1, 5, 3)\n        .distinct()\n        .sorted()\n        .limit(2)\n        .toList());",
+            "answer": "[1, 3]", "why": "Без повторов: 5, 1, 3. По порядку: 1, 3, 5. Первые два: 1, 3." },
+          { "type": "single", "q": "Модуль 12: что такое <code>NoSuchElementException</code>?",
+            "options": ["Ошибка компиляции", "Исключение при запуске: попросили элемент, которого нет", "Предупреждение IDEA"], "answer": 1,
+            "why": "Это unchecked-исключение. Оно нам сегодня ещё встретится — у Optional." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Карта терминальных операций</h2>
+    <p>Терминальная операция завершает конвейер и возвращает уже <b>не Stream</b>, а результат: список, число, <code>boolean</code>, Optional — или вообще ничего. Удобно делить их по тому, <b>что получаешь на выходе</b>:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Один стрим и пять видов результата: коллекция, число, да или нет, Optional, ничего (действие)">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="110" width="150" height="80" rx="14" class="d-accent"/>
+        <text x="85" y="145" text-anchor="middle" class="d-title">Stream</text>
+        <text x="85" y="168" text-anchor="middle" class="d-small">после filter/map…</text>
+        <path d="M164 150 L300 40" class="d-arrow"/>
+        <path d="M164 150 L300 95" class="d-arrow"/>
+        <path d="M164 150 L300 150" class="d-arrow"/>
+        <path d="M164 150 L300 205" class="d-arrow"/>
+        <path d="M164 150 L300 260" class="d-arrow"/>
+
+        <rect x="306" y="18" width="444" height="44" rx="12" class="d-blue"/>
+        <text x="322" y="45" class="d-title">📋 коллекция</text>
+        <text x="470" y="45" class="d-mono-ink">toList(), collect(…)</text>
+
+        <rect x="306" y="73" width="444" height="44" rx="12" class="d-violet"/>
+        <text x="322" y="100" class="d-title">🔢 число</text>
+        <text x="470" y="100" class="d-mono-ink">count(), sum(), reduce(…)</text>
+
+        <rect x="306" y="128" width="444" height="44" rx="12" class="d-teal"/>
+        <text x="322" y="155" class="d-title">✅ да / нет</text>
+        <text x="470" y="155" class="d-mono-ink">anyMatch, allMatch, noneMatch</text>
+
+        <rect x="306" y="183" width="444" height="44" rx="12" class="d-yellow"/>
+        <text x="322" y="210" class="d-title">📦 Optional</text>
+        <text x="470" y="210" class="d-mono-ink">findFirst(), min(…), max(…)</text>
+
+        <rect x="306" y="238" width="444" height="44" rx="12" class="d-green"/>
+        <text x="322" y="265" class="d-title">🖨️ действие</text>
+        <text x="470" y="265" class="d-mono-ink">forEach(…)</text>
+      </svg>
+      <figcaption>Один и тот же конвейер можно закончить по-разному — смотря что тебе нужно в итоге.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Собрать, посчитать, сделать с каждым</h2>
+<pre data-file="Basic.java"><code class="java">List&lt;String&gt; titles = List.of("Чай", "Кофе", "Торт", "Сок");
+
+List&lt;String&gt; longOnes = titles.stream()
+        .filter(t -&gt; t.length() &gt; 3)
+        .toList();  // [Кофе, Торт]
+
+long count = titles.stream().filter(t -&gt; t.length() &gt; 3).count();  // 2
+
+titles.stream()
+        .map(String::toUpperCase)
+        .forEach(System.out::println);  // ЧАЙ, КОФЕ, ТОРТ, СОК — по строке</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>toList()</code><div><p>Терминальная операция: собирает элементы в список и возвращает его. Появилась в Java 16. Возвращает <b>неизменяемый</b> список — добавить в него ничего нельзя.</p></div></div>
+      <div class="annot-row"><code>count()</code><div><p>Сколько элементов доехало до конца. Тип возвращаемого значения — <code>long</code>, а не <code>int</code>.</p></div></div>
+      <div class="annot-row"><code>forEach(…)</code><div><p>Принимает аргументом <code>Consumer</code> (обычно лямбда-выражение) и делает что-то с каждым элементом. Ничего не возвращает (<code>void</code>).</p></div></div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">toList() или collect(Collectors.toList())?</span>
+      <p>В старом коде (до Java 16) встретишь <code>.collect(Collectors.toList())</code>. Разница: он возвращает обычный изменяемый список (на практике <code>ArrayList</code>), а <code>toList()</code> — неизменяемый. Попробуешь вызвать <code>add</code> у списка, который вернул <code>toList()</code>, — метод выбросит <code>UnsupportedOperationException</code>. Если список нужно менять дальше — бери <code>collect(Collectors.toList())</code> или <code>new ArrayList&lt;&gt;(…)</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Можно ли написать <code>int n = list.stream().count();</code>?</summary>
+      <p><b>Нет</b>, ошибка компиляции: <code>count()</code> возвращает <code>long</code>, а <code>long</code> в <code>int</code> автоматически не влезает — возможна потеря данных (модуль 2). Объявляй переменную типа <code>long</code>: <code>long n = …</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Проверки: anyMatch, allMatch, noneMatch</h2>
+    <p>Это любимые операции для проверок: узнать что-то про <b>все</b> элементы сразу. Все три принимают аргументом <code>Predicate</code> (лямбда-выражение с условием) и возвращают <code>boolean</code>.</p>
+<pre data-file="CartChecks.java"><code class="java">List&lt;Integer&gt; prices = List.of(500, 1200, 90);
+
+// true: все цены &gt; 0
+boolean allPositive = prices.stream().allMatch(p -&gt; p &gt; 0);
+// true: хотя бы одна &gt; 1000
+boolean anyExpensive = prices.stream().anyMatch(p -&gt; p &gt; 1000);
+// true: ни одной бесплатной
+boolean noneFree = prices.stream().noneMatch(p -&gt; p == 0);
+
+List&lt;String&gt; messages = List.of("OK", "OK", "ERROR: timeout");
+if (messages.stream().anyMatch(m -&gt; m.startsWith("ERROR"))) {
+    System.out.println("Внимание: в журнале есть ошибка");
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Операция</th><th>Вопрос</th><th>Как в жизни</th><th>Останавливается, когда…</th></tr>
+        <tr><td><code>anyMatch</code></td><td>есть ли <b>хоть один</b> подходящий?</td><td>«есть кто-нибудь старше 18?»</td><td>нашёл первый подходящий → <code>true</code></td></tr>
+        <tr><td><code>allMatch</code></td><td><b>все</b> подходят?</td><td>«все пристегнулись?»</td><td>нашёл первый неподходящий → <code>false</code></td></tr>
+        <tr><td><code>noneMatch</code></td><td><b>ни один</b> не подходит?</td><td>«никто не опоздал?»</td><td>нашёл первый подходящий → <code>false</code></td></tr>
+      </table>
+    </div>
+    <p>Все три — «короткого замыкания»: как <code>&amp;&amp;</code> и <code>||</code> из модуля 3, они не смотрят дальше, если ответ уже ясен.</p>
+    <div class="callout fact">
+      <span class="callout-title">Пустой стрим: allMatch → true</span>
+      <p>Для <b>пустого</b> стрима <code>anyMatch</code> вернёт <code>false</code> (подходящих нет), а <code>allMatch</code> и <code>noneMatch</code> — <code>true</code>. Логика: «все драконы в этой комнате зелёные» — правда, потому что нет ни одного незелёного дракона. Это ловушка: проверка «все цены &gt; 0» <b>пройдёт</b>, даже если список товаров вообще не загрузился и цен ноль. Поэтому хорошая проверка сначала убеждается, что список не пустой.</p>
+    </div>
+    <details class="predict">
+      <summary>Что вернёт <code>List.of().stream().allMatch(x -&gt; false)</code>?</summary>
+      <p><code>true</code>. Условие ни разу не проверялось — элементов нет. А нарушителей нет, значит, «все подходят».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Найти один: findFirst, min, max</h2>
+    <p>Иногда нужен не список, а <b>один</b> элемент: первый подходящий, самый дешёвый, самый длинный. Но что вернуть, если элементов нет? <code>null</code> — источник <code>NullPointerException</code>. Поэтому эти операции возвращают <b>Optional</b> — объект-обёртку («коробку»), в которой элемент может быть, а может и не быть.</p>
+<pre data-file="FindOne.java"><code class="java">List&lt;Integer&gt; prices = List.of(500, 1200, 90);
+
+// Optional[1200]
+System.out.println(prices.stream().filter(p -&gt; p &gt; 1000).findFirst());
+// Optional.empty
+System.out.println(prices.stream().filter(p -&gt; p &gt; 5000).findFirst());
+// Optional[90]
+System.out.println(prices.stream().min(Comparator.naturalOrder()));
+// Optional[1200]
+System.out.println(prices.stream().max(Integer::compare));</code></pre>
+    <p><code>min</code> и <code>max</code> принимают аргументом <code>Comparator</code> — тот же, что и <code>sort</code>. Например, самый дорогой товар: <code>products.stream().max(Comparator.comparing(Product::price))</code>.</p>
+    <p>Как достать значение из коробки правильно — тема следующего урока. Пока запомни: <b>Optional печатается как <code>Optional[…]</code> или <code>Optional.empty</code></b>.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Числовые стримы: sum, average, max</h2>
+    <p>Посчитать сумму цен хочется так: <code>prices.stream().sum()</code>. Но такого метода у <code>Stream&lt;Integer&gt;</code> <b>нет</b>: Stream не знает, что внутри числа (там мог бы быть и <code>Stream&lt;String&gt;</code>). Для чисел есть специальные стримы: <code>IntStream</code>, <code>LongStream</code>, <code>DoubleStream</code>. Перейти к ним — через промежуточную операцию <code>mapToInt</code>:</p>
+<pre data-file="Numbers.java"><code class="java">record Product(String title, int price) { }
+
+List&lt;Product&gt; cart = List.of(
+        new Product("Чай", 200),
+        new Product("Торт", 1500),
+        new Product("Сок", 150));
+
+// 1850
+int total = cart.stream().mapToInt(Product::price).sum();
+// OptionalDouble[616.666…]
+OptionalDouble avg = cart.stream().mapToInt(Product::price).average();
+// OptionalInt[1500]
+OptionalInt max = cart.stream().mapToInt(Product::price).max();
+
+System.out.println(total);
+System.out.println(avg.getAsDouble());
+System.out.println(IntStream.rangeClosed(1, 100).sum());  // 5050</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>mapToInt(Product::price)</code><div><p>Промежуточная операция, как <code>map</code>, но возвращает <code>IntStream</code> с примитивными <code>int</code>. У него есть «числовые» методы.</p></div></div>
+      <div class="annot-row"><code>sum()</code><div><p>Терминальная операция: сумма. Для пустого стрима — 0. Возвращает просто <code>int</code>.</p></div></div>
+      <div class="annot-row"><code>average()</code><div><p>Среднее — <code>OptionalDouble</code>: у пустого стрима среднего нет, делить на ноль нельзя. Достать число — вызвать <code>getAsDouble()</code> (только если не пусто!) или <code>orElse(0)</code>.</p></div></div>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: всё сразу — summaryStatistics() (можно пропустить)</summary>
+      <p><code>IntSummaryStatistics st = cart.stream().mapToInt(Product::price).summaryStatistics();</code> за один проход считает и количество, и сумму, и минимум, и максимум, и среднее: <code>st.getMax()</code>, <code>st.getAverage()</code>… Удобно, когда нужно всё и сразу. А обратно из <code>IntStream</code> в <code>Stream&lt;Integer&gt;</code> переходят через <code>boxed()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>reduce: свернуть всё в одно</h2>
+    <p><code>sum</code>, <code>max</code>, <code>count</code> — частные случаи общей идеи: взять все элементы и <b>свернуть</b> их в один результат. Общий инструмент для этого — <code>reduce</code> («уменьшить», «свести»).</p>
+<pre data-file="Reduce.java"><code class="java">int total = prices.stream().reduce(0, (acc, p) -&gt; acc + p);
+//                                  ↑  └── как добавить следующий к накопленному
+//                                  начальное значение (identity)</code></pre>
+    <p>Узнаёшь? Это роль <b>накопителя</b> из Мастерской: <code>int sum = 0; for (…) sum = sum + x;</code> Только цикл пишет за тебя Java. Пройди сам:</p>
+    <div data-widget="trace" id="trace-m14-05-reduce">
+      <script type="application/json">
+      { "title": "reduce: накопитель внутри стрима", "icon": "🧮", "kind": "Трассировка reduce",
+        "intro": "reduce берёт начальное значение и по очереди «доливает» в него каждый элемент: лямбда-выражение с параметрами acc и p возвращает новое значение накопителя. Впиши, каким станет накопитель acc.",
+        "code": "List<Integer> prices = List.of(300, 150, 50);\nint total = prices.stream()\n        .reduce(0, (acc, p) -> acc + p);\nSystem.out.println(total);",
+        "steps": [
+          { "line": 1, "vars": { "prices": "[300, 150, 50]" }, "note": "Три цены в корзине." },
+          { "line": 3, "vars": { "acc (было)": "0", "p": "300", "acc (стало)": "300" }, "ask": ["acc (стало)"], "note": "Начинаем с начального значения 0. Лямбда вызывается с аргументами acc = 0 и p = 300 (первый элемент) и возвращает 0 + 300 = 300." },
+          { "line": 3, "vars": { "acc (было)": "300", "p": "150", "acc (стало)": "450" }, "ask": ["acc (стало)"], "note": "Возвращаемое значение лямбды на прошлом шаге стало новым acc. 300 + 150 = 450." },
+          { "line": 3, "vars": { "acc (было)": "450", "p": "50", "acc (стало)": "500" }, "ask": ["acc (стало)"], "note": "Последний элемент тоже прибавляется к накопленному. 450 + 50 = 500 — элементы кончились, это и есть ответ reduce." },
+          { "line": 4, "vars": { "total": "500" }, "out": "500\n", "note": "Пустой список дал бы просто начальное значение 0 — потому его и называют identity: «ничего не меняющее»." }
+        ] }
+      </script>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>reduce</th><th>Почему такое начальное значение</th></tr>
+        <tr><td>сумма</td><td><code>reduce(0, Integer::sum)</code></td><td>x + 0 = x</td></tr>
+        <tr><td>произведение</td><td><code>reduce(1, (a, b) -&gt; a * b)</code></td><td>x · 1 = x (с нулём всё стало бы 0!)</td></tr>
+        <tr><td>склейка строк</td><td><code>reduce("", (a, b) -&gt; a + b)</code></td><td>"" + s = s</td></tr>
+        <tr><td>максимум</td><td><code>reduce(Integer::max)</code></td><td>без начального — результат Optional: у пустого стрима максимума нет</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Что вернёт <code>Stream.of(1, 2, 3).reduce(10, Integer::sum)</code>?</summary>
+      <p><b>16</b>, а не 6. Начальное значение участвует в сумме: 10 + 1 + 2 + 3. Поэтому для суммы identity — строго 0.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Когда брать reduce</span>
+      <p>Для суммы, среднего, максимума есть готовые <code>sum()</code>, <code>average()</code>, <code>max()</code> — они понятнее. <code>reduce</code> бери, когда готового нет: перемножить, склеить по особому правилу, найти «лучший» элемент по хитрому условию. И знай его для собеседований.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m14-05">
+      <script type="application/json">
+      {
+       "title": "Терминальные операции — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Что возвращает операция?",
+         "left": [
+          "count()",
+          "anyMatch(…)",
+          "findFirst()",
+          "toList()",
+          "forEach(…)"
+         ],
+         "right": [
+          "long",
+          "boolean",
+          "Optional",
+          "List",
+          "ничего (void)"
+         ],
+         "why": "Тип возвращаемого значения подсказывает, переменную какого типа им можно инициализировать."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "List<String> names = List.of(\"Аня\", \"Борис\", \"Вика\");\nSystem.out.println(names.stream().allMatch(n -> n.length() > 2));\nSystem.out.println(names.stream().anyMatch(n -> n.startsWith(\"Б\")));\nSystem.out.println(names.stream().noneMatch(n -> n.isEmpty()));",
+         "answer": "true\ntrue\ntrue",
+         "why": "Все имена длиннее двух букв, «Борис» начинается с Б, пустых имён нет."
+        },
+        {
+         "type": "single",
+         "q": "Почему не компилируется <code>List.of(1, 2, 3).stream().sum()</code>?",
+         "options": [
+          "В списке должно быть больше трёх чисел",
+          "У Stream&lt;Integer&gt; нет метода sum — нужен mapToInt",
+          "sum возвращает Optional"
+         ],
+         "answer": 1,
+         "why": "Числовые методы есть только у IntStream/LongStream/DoubleStream. Правильно: <code>.mapToInt(Integer::intValue).sum()</code> или <code>.mapToInt(x -&gt; x).sum()</code>."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Для пустого стрима <code>allMatch</code> возвращает <code>true</code>",
+           "a": true
+          },
+          {
+           "s": "<code>average()</code> у IntStream возвращает обычный double",
+           "a": false,
+           "why": "возвращает OptionalDouble: у пустого стрима среднего нет."
+          },
+          {
+           "s": "В список из <code>toList()</code> можно добавить элемент через add",
+           "a": false,
+           "why": "toList() возвращает неизменяемый список — вызов add выбросит UnsupportedOperationException."
+          },
+          {
+           "s": "<code>anyMatch</code> может закончить работу, не просмотрев все элементы",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "System.out.println(Stream.of(4, 9, 2).max(Integer::compare));\nSystem.out.println(Stream.of(4, 9, 2).filter(x -> x > 10).findFirst());",
+         "answer": "Optional[9]\nOptional.empty",
+         "why": "min/max/findFirst возвращают Optional. Нет подходящих — пустая коробка."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Урок 14.5. Спроси меня, какую терминальную операцию взять в пяти ситуациях из жизни (магазин, школа, игра), и почему allMatch на пустом списке — опасная проверка»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Собрать: <code>toList()</code> (неизменяемый) или <code>collect(Collectors.toList())</code>. Посчитать: <code>count()</code> → <code>long</code>. Сделать с каждым: <code>forEach</code>.</li>
+        <li>Проверить: <code>anyMatch</code>, <code>allMatch</code>, <code>noneMatch</code>. На пустом стриме <code>allMatch</code> = <code>true</code>!</li>
+        <li>Найти один: <code>findFirst</code>, <code>min</code>, <code>max</code> → <code>Optional</code>.</li>
+        <li>Числа: <code>mapToInt</code> → <code>sum()</code>, <code>average()</code> (OptionalDouble), <code>max()</code>.</li>
+        <li><code>reduce(identity, (acc, x) -&gt; …)</code> — накопитель в одну строку; identity — значение, которое ничего не меняет.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

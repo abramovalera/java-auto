@@ -1,0 +1,47 @@
+## id: tr-methods-023
+## title: Календарь на год
+## file: trainer/methods/MonthDaysMethod.java
+## class: MonthDaysMethod
+## level: 2
+## category: Вычисления
+@@ description
+<p>Создай класс <code>MonthDaysMethod</code> и напиши два метода:</p>
+<ul>
+<li><code>static boolean isLeap(int year)</code> — високосный ли год (делится на 4 и не делится на 100, или делится на 400);</li>
+<li><code>static int daysInMonth(int month, int year)</code> — сколько дней в месяце с номером от 1 до 12. Для февраля он вызывает <code>isLeap</code>.</li>
+</ul>
+<p>main читает год и печатает в первой строке число дней каждого месяца через пробел, а во второй — <code>Всего: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2023
+вывод: 31 28 31 30 31 30 31 31 30 31 30 31
+       Всего: 365</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>по 30 дней в апреле, июне, сентябре и ноябре; в феврале 28 или 29; в остальных — 31</li>
+<li>в <code>switch</code> одна ветка может ловить несколько значений: <code>case 4, 6, 9, 11:</code></li>
+</ul></div>
+@@ test: Обычный год
+@@ input
+2023
+@@ expect
+31 28 31 30 31 30 31 31 30 31 30 31
+Всего: 365
+@@ test: Високосный год
+@@ input
+2024
+@@ expect
+31 29 31 30 31 30 31 31 30 31 30 31
+Всего: 366
+@@ test: 1900 — не високосный
+@@ input
+1900
+@@ expect
+31 28 31 30 31 30 31 31 30 31 30 31
+Всего: 365
+@@ test: 2000 — високосный
+@@ input
+2000
+@@ expect
+31 29 31 30 31 30 31 31 30 31 30 31
+Всего: 366
+@@ require: static\s+boolean\s+isLeap\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isLeap(int year)
+@@ require: static\s+int\s+daysInMonth\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int daysInMonth(int month, int year)
+@@ require: \WisLeap\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | daysInMonth должен вызывать isLeap(...) для февраля

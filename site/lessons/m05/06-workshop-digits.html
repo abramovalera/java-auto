@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская: цифры числа · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m05-06">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 5 · Урок 6 · 🛠 Мастерская алгоритмов</div>
+    <h1>Мастерская: цифры числа</h1>
+    <p class="lead">Два простых выражения с операторами <code>%</code> и <code>/</code> — <code>n % 10</code> и <code>n / 10</code> — и цикл, который разбирает число по цифрам. Решим классику собеседований — число задом наперёд — медленно, по шаблону, от «не знаю, с чего начать» до работающего кода.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🛠 мастерская</span><span>🔍 2 трассировки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m05-06-review">
+      <script type="application/json">
+      { "title": "Разминка: роли и остаток",
+        "items": [
+          { "type": "match", "q": "Соедини роль со значением, которым её инициализируют",
+            "left": ["Накопитель суммы", "Накопитель произведения", "Флаг «нашёл»", "Рекордсмен"],
+            "right": ["0", "1", "false", "первое значение"],
+            "why": "0 и 1 не меняют сумму и произведение, флаг опущен, рекорд — первое увиденное." },
+          { "type": "predict", "q": "Модуль 3: что выведет код?", "code": "System.out.println(17 % 5);\nSystem.out.println(17 / 5);",
+            "answer": "2\n3", "why": "17 = 5 · 3 + 2. Целочисленное деление даёт 3, остаток — 2." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Два инструмента: % 10 и / 10</h2>
+    <p>Вспомни модуль 3: оператор <code>%</code> — остаток от деления, а оператор <code>/</code> для целых операндов отбрасывает дробную часть. Если делить на 10, получаются два волшебных действия:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">👀</span><h4>n % 10</h4><p><b>Посмотреть</b> на последнюю цифру. <code>1234 % 10 = 4</code></p></div>
+      <div class="card"><span class="emoji">✂️</span><h4>n / 10</h4><p><b>Отрезать</b> последнюю цифру. <code>1234 / 10 = 123</code></p></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: поезд из вагонов-цифр</span>
+      <p>Число 1234 — поезд из четырёх вагонов. <code>% 10</code> — заглянуть в последний вагон: там 4. <code>/ 10</code> — отцепить последний вагон: остался поезд 123. Отцеплять можно, пока поезд не кончится — то есть пока число не станет 0.</p>
+    </div>
+    <figure class="fig">
+      <svg viewBox="0 0 640 250" role="img" aria-label="Число 1234 как четыре вагона. Остаток от деления на 10 даёт последнюю цифру 4, деление на 10 отрезает её и оставляет 123">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="40" y="58" class="d-title">n = </text>
+        <rect x="90" y="30" width="56" height="44" rx="8" class="d-blue"/><text x="118" y="59" text-anchor="middle" class="d-title">1</text>
+        <rect x="152" y="30" width="56" height="44" rx="8" class="d-blue"/><text x="180" y="59" text-anchor="middle" class="d-title">2</text>
+        <rect x="214" y="30" width="56" height="44" rx="8" class="d-blue"/><text x="242" y="59" text-anchor="middle" class="d-title">3</text>
+        <rect x="276" y="30" width="56" height="44" rx="8" class="d-accent"/><text x="304" y="59" text-anchor="middle" class="d-title">4</text>
+        <path d="M304 76 C 330 120, 420 120, 446 110" class="d-arrow"/>
+        <rect x="450" y="88" width="170" height="44" rx="10" class="d-accent"/>
+        <text x="535" y="116" text-anchor="middle" class="d-mono-ink">n % 10 → 4</text>
+        <path d="M180 76 V150" class="d-arrow"/>
+        <rect x="90" y="156" width="56" height="44" rx="8" class="d-teal"/><text x="118" y="185" text-anchor="middle" class="d-title">1</text>
+        <rect x="152" y="156" width="56" height="44" rx="8" class="d-teal"/><text x="180" y="185" text-anchor="middle" class="d-title">2</text>
+        <rect x="214" y="156" width="56" height="44" rx="8" class="d-teal"/><text x="242" y="185" text-anchor="middle" class="d-title">3</text>
+        <rect x="276" y="156" width="56" height="44" rx="8" class="d-dash"/>
+        <text x="350" y="185" class="d-mono-ink">n / 10 → 123</text>
+        <text x="320" y="232" text-anchor="middle" class="d-small">последняя цифра ушла — число стало на одну цифру короче</text>
+      </svg>
+      <figcaption>% 10 смотрит на последнюю цифру, / 10 её отрезает.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Чему равны <code>7 % 10</code> и <code>7 / 10</code>?</summary>
+      <p><b>7 и 0</b>. У однозначного числа последняя цифра — оно само, а после отрезания не остаётся ничего: 0. Вот почему «число стало 0» значит «цифры кончились».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Скелет «пока есть цифры» и сумма цифр</h2>
+    <p>Соединим два инструмента с циклом. Сколько цифр в числе, заранее неизвестно, — значит, <code>while</code>:</p>
+<pre data-file="Skeleton.java"><code class="java">while (n &gt; 0) {
+    int digit = n % 10;   // посмотреть на последнюю цифру
+    // … что-то сделать с digit …
+    n = n / 10;           // отрезать её
+}</code></pre>
+    <p>Этот скелет — основа всех задач про цифры. Меняется только тело цикла — строка «что-то сделать». Пример: <b>сумма цифр</b>. 507 → 5 + 0 + 7 = 12.</p>
+    <ul>
+      <li><code>n</code> — <b>шагающая</b>: идёт к нулю, теряя по цифре;</li>
+      <li><code>digit</code> — <b>временная</b>: объявлена в теле цикла и живёт одну итерацию;</li>
+      <li><code>sum</code> — <b>накопитель</b>.</li>
+    </ul>
+<pre data-file="DigitSum.java"><code class="java">int n = 507;
+int sum = 0;
+while (n &gt; 0) {
+    int digit = n % 10;
+    sum += digit;
+    n = n / 10;
+}
+System.out.println(sum);</code></pre>
+    <div data-widget="trace" id="trace-digit-sum">
+      <script type="application/json">
+      { "title": "Сумма цифр числа 507",
+        "intro": "На каждой итерации: посмотреть цифру → добавить в сумму → отрезать. Цифры идут с конца: 7, 0, 5.",
+        "code": "int n = 507;\nint sum = 0;\nwhile (n > 0) {\n    int digit = n % 10;\n    sum += digit;\n    n = n / 10;\n}\nSystem.out.println(sum);",
+        "steps": [
+          { "line": 2, "vars": { "n": "507", "sum": "0" }, "note": "Объявляем накопитель sum и инициализируем нулём." },
+          { "line": 3, "vars": { "n": "507", "sum": "0" }, "note": "Условие 507 > 0 — true, цифры есть. Первая итерация." },
+          { "line": 4, "vars": { "n": "507", "sum": "0", "digit": "7" }, "ask": ["digit"], "note": "Объявляем digit и инициализируем результатом выражения 507 % 10 — последней цифрой. Это 7." },
+          { "line": 5, "vars": { "n": "507", "sum": "7", "digit": "7" }, "note": "Составное присваивание sum += digit: 0 + 7 = 7." },
+          { "line": 6, "vars": { "n": "50", "sum": "7", "digit": "7" }, "ask": ["n"], "note": "Отрезаем цифру: результат выражения 507 / 10 присваивается n. Получается 50." },
+          { "line": 4, "vars": { "n": "50", "sum": "7", "digit": "0" }, "ask": ["digit"], "note": "50 > 0, новая итерация. Последняя цифра 50 % 10 — это 0." },
+          { "line": 5, "vars": { "n": "50", "sum": "7", "digit": "0" }, "note": "Прибавили 0 — сумма не изменилась. Нули тоже честно обрабатываются." },
+          { "line": 6, "vars": { "n": "5", "sum": "7", "digit": "0" }, "note": "50 / 10 = 5." },
+          { "line": 4, "vars": { "n": "5", "sum": "7", "digit": "5" }, "note": "5 > 0. Последняя цифра — 5." },
+          { "line": 5, "vars": { "n": "5", "sum": "12", "digit": "5" }, "ask": ["sum"], "note": "Прибавляем цифру к сумме: 7 + 5. Итого 12." },
+          { "line": 6, "vars": { "n": "0", "sum": "12", "digit": "5" }, "ask": ["n"], "note": "Отрезаем: 5 / 10. Целое деление даёт 0." },
+          { "line": 3, "vars": { "n": "0", "sum": "12" }, "note": "0 > 0 — false. Цифры кончились, выходим из цикла." },
+          { "line": 8, "vars": { "n": "0", "sum": "12" }, "out": "12\n", "note": "Ответ 12. Цикл сделал ровно столько итераций, сколько цифр в числе, — три." }
+        ] }
+      </script>
+    </div>
+    <div class="callout try">
+      <span class="callout-title">Количество цифр — твоя задача</span>
+      <p>Тем же скелетом можно посчитать, <b>сколько</b> цифр в числе: вместо накопителя нужен счётчик. Это задача <b>m05-t07</b>. Перед кодом протрассируй руками число 0: сколько раз выполнится <code>while (n &gt; 0)</code>, и сколько цифр у нуля на самом деле? Вспомни, какой цикл из урока 5.3 выполняет тело хотя бы один раз.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Большая задача: число задом наперёд</h2>
+    <div class="say" data-mood="think">
+      <p>История от автора курса. Когда-то он открыл на сайте задачек LeetCode простую задачу «разверни строку» — и просидел над ней, не понимая, <b>с чего вообще начать</b>. Синтаксис знал, а как из задачи получить код — нет. Этот урок — ровно о том, как начинать. Возьмём родственницу той задачи — развернём <b>число</b> — и пройдём все шесть шагов шаблона медленно.</p>
+    </div>
+
+    <h3>Шаг 1. Пойми задачу</h3>
+    <p>На входе — целое число. На выходе — число из тех же цифр в обратном порядке. Не строка, а именно число: с ним потом можно считать. Примеры — обязательно с граничными:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вход</th><th>Выход</th><th>Что проверяет пример</th></tr>
+        <tr><td><code>1234</code></td><td><code>4321</code></td><td>обычный случай</td></tr>
+        <tr><td><code>1200</code></td><td><code>21</code></td><td>нули в конце: у числа не бывает «0021»</td></tr>
+        <tr><td><code>7</code></td><td><code>7</code></td><td>одна цифра</td></tr>
+        <tr><td><code>0</code></td><td><code>0</code></td><td>ноль — самое коварное число</td></tr>
+      </table>
+    </div>
+    <p>Отрицательные числа сегодня не трогаем — это бонус в задаче m05-t10.</p>
+
+    <h3>Шаг 2. Реши руками и запиши, что делал</h3>
+    <p>Возьми листок и разверни 1234 руками, наблюдая за собой. Получится примерно так: «Беру <b>последнюю</b> цифру — 4, записываю. Беру следующую с конца — 3, пишу <b>справа</b>: 43. Потом 2 — 432. Потом 1 — 4321». Запишем это табличкой:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Итерация</th><th>Осталось от числа</th><th>Взял цифру</th><th>Ответ пока что</th></tr>
+        <tr><td>—</td><td>1234</td><td>—</td><td>0 (ничего)</td></tr>
+        <tr><td>1</td><td>123</td><td>4</td><td>4</td></tr>
+        <tr><td>2</td><td>12</td><td>3</td><td>43</td></tr>
+        <tr><td>3</td><td>1</td><td>2</td><td>432</td></tr>
+        <tr><td>4</td><td>0</td><td>1</td><td>4321</td></tr>
+      </table>
+    </div>
+    <p>Что повторялось? «Взять последнюю цифру, отрезать её, приписать справа к ответу». Первые два действия мы уже умеем: <code>% 10</code> и <code>/ 10</code>. А вот третье…</p>
+
+    <h3>Ключевой вопрос: как приписать цифру справа?</h3>
+    <p>На бумаге — просто дописал. А в числе? Из 43 нужно сделать 432. Посмотри: 432 = 430 + 2, а 430 = 43 · 10. Умножение на 10 <b>сдвигает все цифры влево</b> и освобождает справа место (там появляется 0). Потом прибавляем цифру — она встаёт на это место.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 640 210" role="img" aria-label="Приписать цифру 2 к числу 43: умножение на 10 даёт 430, сдвигая цифры влево, затем прибавление 2 даёт 432">
+        <defs><marker id="arrow-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="30" y="70" width="50" height="44" rx="8" class="d-violet"/><text x="55" y="99" text-anchor="middle" class="d-title">4</text>
+        <rect x="86" y="70" width="50" height="44" rx="8" class="d-violet"/><text x="111" y="99" text-anchor="middle" class="d-title">3</text>
+        <text x="83" y="140" text-anchor="middle" class="d-small">result = 43</text>
+        <path d="M146 92 H206" class="d-line" marker-end="url(#arrow-r)"/>
+        <text x="176" y="80" text-anchor="middle" class="d-mono-ink">· 10</text>
+        <rect x="216" y="70" width="50" height="44" rx="8" class="d-violet"/><text x="241" y="99" text-anchor="middle" class="d-title">4</text>
+        <rect x="272" y="70" width="50" height="44" rx="8" class="d-violet"/><text x="297" y="99" text-anchor="middle" class="d-title">3</text>
+        <rect x="328" y="70" width="50" height="44" rx="8" class="d-dash"/><text x="353" y="99" text-anchor="middle" class="d-small">0</text>
+        <text x="297" y="140" text-anchor="middle" class="d-small">430: место справа свободно</text>
+        <path d="M388 92 H448" class="d-line" marker-end="url(#arrow-r)"/>
+        <text x="418" y="80" text-anchor="middle" class="d-mono-ink">+ 2</text>
+        <rect x="458" y="70" width="50" height="44" rx="8" class="d-violet"/><text x="483" y="99" text-anchor="middle" class="d-title">4</text>
+        <rect x="514" y="70" width="50" height="44" rx="8" class="d-violet"/><text x="539" y="99" text-anchor="middle" class="d-title">3</text>
+        <rect x="570" y="70" width="50" height="44" rx="8" class="d-accent"/><text x="595" y="99" text-anchor="middle" class="d-title">2</text>
+        <text x="539" y="140" text-anchor="middle" class="d-small">432</text>
+        <text x="320" y="188" text-anchor="middle" class="d-text">result = result · 10 + digit</text>
+      </svg>
+      <figcaption>Умножить на 10 — сдвинуть влево и освободить место. Прибавить цифру — поставить её на это место.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: полка с книгами</span>
+      <p>На полке стоят книги «4» и «3», прижатые вправо. Чтобы поставить новую книгу справа, сдвигаешь все на одно место влево (×10) и ставишь новую в освободившуюся ячейку (+ digit).</p>
+    </div>
+    <details class="predict">
+      <summary>Проверь формулу на первой итерации: result = 0, digit = 4. Что получится?</summary>
+      <p><b>4</b>: 0 · 10 + 4 = 4. Формула работает с самого начала, если накопитель инициализирован нулём. Никакой особой обработки первой цифры не нужно.</p>
+    </details>
+
+    <h3>Шаг 3. Роли переменных</h3>
+    <ul>
+      <li><code>n</code> — <b>шагающая</b>: теряет по цифре и идёт к нулю, как в сумме цифр;</li>
+      <li><code>digit</code> — <b>временная</b>: последняя цифра на этой итерации;</li>
+      <li><code>result</code> — <b>накопитель</b>. Он копит не сумму, а «приписывание»: <code>result · 10 + digit</code>.</li>
+    </ul>
+    <p>Заметь: скелет тот же, что у суммы цифр! Отличается одна строка — присваивание накопителю. В этом и сила шаблона: новые задачи часто оказываются старыми с другой «начинкой».</p>
+
+    <h3>Шаг 4. Псевдокод</h3>
+<pre class="terminal"><span class="out">result = 0
+пока n больше 0:
+    digit = последняя цифра n
+    приписать digit справа к result
+    отрезать последнюю цифру у n
+вывести result</span></pre>
+
+    <h3>Шаг 5. Код — перевод строка в строку</h3>
+<pre data-file="ReverseNumber.java"><code class="java">int n = 1200;
+int result = 0;
+while (n &gt; 0) {
+    int digit = n % 10;
+    result = result * 10 + digit;
+    n = n / 10;
+}
+System.out.println(result);</code></pre>
+    <p>Сравни с псевдокодом: каждая строка плана стала одной строкой кода. Если бы ты сразу начал с кода, пришлось бы думать обо всём одновременно. А так думал по очереди: что делать → как это сказать на Java.</p>
+
+    <h3>Шаг 6. Трассировка</h3>
+    <p>Самый коварный пример из нашей таблицы — 1200, с нулями. Проверим на нём.</p>
+    <div data-widget="trace" id="trace-reverse">
+      <script type="application/json">
+      { "title": "Разворот числа 1200",
+        "intro": "Главный вопрос: что станет с нулями? Вписывай result и n сам.",
+        "code": "int n = 1200;\nint result = 0;\nwhile (n > 0) {\n    int digit = n % 10;\n    result = result * 10 + digit;\n    n = n / 10;\n}\nSystem.out.println(result);",
+        "steps": [
+          { "line": 2, "vars": { "n": "1200", "result": "0" }, "note": "Объявляем накопитель result и инициализируем нулём." },
+          { "line": 4, "vars": { "n": "1200", "result": "0", "digit": "0" }, "note": "1200 > 0. Последняя цифра — 0." },
+          { "line": 5, "vars": { "n": "1200", "result": "0", "digit": "0" }, "ask": ["result"], "note": "Вычисляем выражение result · 10 + digit: 0 · 10 + 0 — и присваиваем его result. Так и остаётся 0." },
+          { "line": 6, "vars": { "n": "120", "result": "0", "digit": "0" }, "ask": ["n"], "note": "Отрезаем последнюю цифру: 1200 / 10 = 120." },
+          { "line": 4, "vars": { "n": "120", "result": "0", "digit": "0" }, "note": "120 > 0. Последняя цифра снова 0." },
+          { "line": 5, "vars": { "n": "120", "result": "0", "digit": "0" }, "note": "0 · 10 + 0 = 0. Ведущие нули «растворились» — у числа их не бывает." },
+          { "line": 6, "vars": { "n": "12", "result": "0", "digit": "0" }, "note": "120 / 10 = 12." },
+          { "line": 4, "vars": { "n": "12", "result": "0", "digit": "2" }, "ask": ["digit"], "note": "12 > 0. Последняя цифра: 12 % 10 = 2." },
+          { "line": 5, "vars": { "n": "12", "result": "2", "digit": "2" }, "ask": ["result"], "note": "Приписываем двойку: 0 · 10 + 2 = 2." },
+          { "line": 6, "vars": { "n": "1", "result": "2", "digit": "2" }, "note": "12 / 10 = 1." },
+          { "line": 4, "vars": { "n": "1", "result": "2", "digit": "1" }, "note": "1 > 0. Последняя цифра 1." },
+          { "line": 5, "vars": { "n": "1", "result": "21", "digit": "1" }, "ask": ["result"], "note": "Приписываем единицу справа: 2 · 10 + 1 = 21." },
+          { "line": 6, "vars": { "n": "0", "result": "21", "digit": "1" }, "ask": ["n"], "note": "Отрезаем последнюю цифру у однозначного числа. 1 / 10 = 0." },
+          { "line": 3, "vars": { "n": "0", "result": "21" }, "note": "0 > 0 — false. Цифры кончились, цикл завершён." },
+          { "line": 8, "vars": { "n": "0", "result": "21" }, "out": "21\n", "note": "Ответ 21 — совпал с таблицей из шага 1." }
+        ] }
+      </script>
+    </div>
+    <p>И остальные граничные случаи — устно, по коду:</p>
+    <ul>
+      <li><b>7</b>: одна итерация, result = 0 · 10 + 7 = 7 ✓.</li>
+      <li><b>0</b>: условие <code>0 &gt; 0</code> ложно сразу, тело цикла не выполнится ни разу, result останется 0 ✓. Повезло: здесь «ни разу» даёт правильный ответ. В задаче про количество цифр так не повезёт.</li>
+      <li><b>−123</b>: <code>-123 &gt; 0</code> ложно — тело цикла не выполнится, ответ 0 ✗. Как это починить, разберёшься в задаче m05-t10. Подсказка — вспомни, чему равно <code>-123 % 10</code> в Java.</li>
+    </ul>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>А как же строка с LeetCode?</h2>
+    <p>Строки по-настоящему будут в модуле 8. Но план «разверни строку» ты можешь составить уже сейчас — по тому же шаблону:</p>
+    <ol class="steps">
+      <li><b>Вход/выход:</b> «кот» → «ток»; «а» → «а»; пустая строка → пустая строка.</li>
+      <li><b>Руками:</b> беру буквы с конца: т, о, к — и приписываю каждую справа к ответу.</li>
+      <li><b>Роли:</b> <code>i</code> — шагающая, идёт от последней буквы к первой; <code>result</code> — накопитель, собирает буквы.</li>
+      <li><b>Псевдокод:</b> result = "" (инициализируем пустой строкой); для i от последней позиции до первой: result = result + буква номер i.</li>
+    </ol>
+    <div class="say" data-mood="cool">
+      <p>Видишь? Это <b>та же самая</b> задача, что и с числом: идём с конца, приписываем справа. Изменились только инструменты: вместо <code>% 10</code> будет «взять букву номер i», вместо <code>· 10 +</code> — склейка строк <code>+</code>. Когда в модуле 8 узнаешь, как достать букву из строки, код напишется за минуту. Задача, которая когда-то казалась непонятной, решается за один урок, если начинать не с кода, а с рук и ролей.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: переполнение и палиндромы</summary>
+      <p><b>Переполнение.</b> Разверни 1 999 999 999 — получится 9 999 999 991, а это больше максимального <code>int</code> (2 147 483 647, модуль 2). Результат «перевалит» через край и станет мусором. Если числа большие, накопитель объявляют с типом <code>long</code>. На собеседованиях про это любят спросить.</p>
+      <p><b>Палиндром</b> — число, которое читается одинаково с обеих сторон: 12321, 4554. Проверка в одну строку после цикла: сохрани исходное число до цикла и сравни его с перевёрнутым через <code>==</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m05-06">
+      <script type="application/json">
+      {
+       "title": "Быстрая проверка: цифры числа",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет код?",
+         "code": "int n = 9051;\nSystem.out.println(n % 10);\nSystem.out.println(n / 10);\nSystem.out.println(n / 100 % 10);",
+         "answer": "1\n905\n0",
+         "why": "Последняя цифра 1; без неё 905; 9051 / 100 = 90, а 90 % 10 = 0 — это цифра сотен."
+        },
+        {
+         "type": "single",
+         "q": "Сколько итераций сделает while (n > 0) { n = n / 10; } при n = 40500?",
+         "options": [
+          "3",
+          "5",
+          "4"
+         ],
+         "answer": 1,
+         "why": "По итерации на каждую цифру: 40500 → 4050 → 405 → 40 → 4 → 0. Пять цифр — пять итераций, нули тоже считаются."
+        },
+        {
+         "type": "order",
+         "q": "Собери тело цикла разворота числа",
+         "lines": [
+          "while (n > 0) {",
+          "    int digit = n % 10;",
+          "    result = result * 10 + digit;",
+          "    n = n / 10;",
+          "}"
+         ],
+         "code": true,
+         "accept": [ ["while (n > 0) {", "    int digit = n % 10;", "    n = n / 10;", "    result = result * 10 + digit;", "}"] ],
+         "why": "Посмотреть цифру → приписать к результату → отрезать. Строки «приписать» и «отрезать» можно поменять местами: цифра уже сохранена в digit. А вот отрезать раньше, чем посмотрел цифру, нельзя — потеряешь её."
+        },
+        {
+         "type": "bug",
+         "q": "Сумма цифр 345 должна быть 12, а программа выводит 7. Какая строка стоит не на своём месте?",
+         "code": "int n = 345;\nint sum = 0;\nwhile (n > 0) {\n    n = n / 10;\n    int digit = n % 10;\n    sum += digit;\n}\nSystem.out.println(sum);",
+         "answer": [
+          4
+         ],
+         "why": "Цифру отрезают раньше, чем на неё посмотрели: 5 теряется сразу, дальше складываются 4, 3 и 0. Сначала посмотри (% 10), потом отрежь (/ 10)."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Задачи «сумма цифр» и «разворот числа» отличаются в основном присваиванием накопителю",
+           "a": true
+          },
+          {
+           "s": "При n = 0 цикл while (n > 0) выполнится один раз",
+           "a": false,
+           "why": "0 > 0 — false, тело цикла не выполнится ни разу."
+          },
+          {
+           "s": "1200 задом наперёд как число — это 21",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне задачу про цифры числа (например, самая большая цифра или есть ли в числе семёрка). Я пройду все шесть шагов шаблона письменно, а ты проверь каждый шаг до кода»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Выражение <code>n % 10</code> — последняя цифра, <code>n / 10</code> — число без последней цифры.</li>
+        <li>Скелет: <code>while (n &gt; 0) { digit = n % 10; …; n = n / 10; }</code>. Итераций столько, сколько цифр.</li>
+        <li>Приписать цифру справа: <code>result = result * 10 + digit</code>.</li>
+        <li>Шаблон: вход/выход с граничными → руками с табличкой → роли → псевдокод → код → трассировка. Так решается и «разверни строку».</li>
+        <li>Всегда проверяй 0 и отрицательные: <code>while (n &gt; 0)</code> их не обрабатывает.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

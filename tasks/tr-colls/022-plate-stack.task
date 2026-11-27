@@ -1,0 +1,54 @@
+## id: tr-colls-022
+## title: Стопка тарелок
+## file: trainer/colls/PlateStackTop.java
+## class: PlateStackTop
+## level: 1
+## category: Стек и очередь
+@@ description
+<p>Напиши класс <code>PlateStackTop</code>. Ты моешь тарелки и ставишь их стопкой — каждую новую сверху. В первой строке — количество тарелок <code>n</code>, во второй — <code>n</code> цветов через пробел в порядке мытья. В третьей — сколько тарелок <code>k</code> потом взяли сверху (<code>k ≤ n</code>). Напечатай <code>Наверху: цвет</code> и <code>Осталось: X</code>, а если тарелок не осталось — <code>Тарелок не осталось</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       белая синяя красная зелёная
+       2
+вывод: Наверху: синяя
+       Осталось: 2
+
+ввод:  2
+       красная синяя
+       2
+вывод: Тарелок не осталось</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Deque&lt;String&gt; stack = new ArrayDeque&lt;&gt;();</code> — стек</li>
+<li><code>push(x)</code> кладёт наверх, <code>pop()</code> снимает верхний, <code>peek()</code> смотрит на верхний, не снимая</li>
+</ul></div>
+@@ test: Взяли две
+@@ input
+4
+белая синяя красная зелёная
+2
+@@ expect
+Наверху: синяя
+Осталось: 2
+@@ test: Ничего не взяли
+@@ input
+3
+белая белая синяя
+0
+@@ expect
+Наверху: синяя
+Осталось: 3
+@@ test: Взяли все
+@@ input
+2
+красная синяя
+2
+@@ expect
+Тарелок не осталось
+@@ test: Одинаковые тарелки
+@@ input
+3
+белая белая белая
+1
+@@ expect
+Наверху: белая
+Осталось: 2
+@@ require: ArrayDeque | Используй ArrayDeque как стек

@@ -1,0 +1,43 @@
+## id: tr-arrays-016
+## title: Подсчёт голосов
+## file: trainer/arrays/CountVotesForCandidate.java
+## class: CountVotesForCandidate
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>CountVotesForCandidate</code>. На выборах старосты каждый голос — это номер кандидата. В первой строке — количество голосов <code>n</code>, во второй — <code>n</code> номеров, в третьей — номер кандидата, чьи голоса считаем. Напечатай <code>Голосов за кандидата K: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  8
+       1 2 2 3 1 2 4 2
+       2
+вывод: Голосов за кандидата 2: 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>счётчик + условие <code>if (v == k)</code> внутри обхода массива</li>
+</ul></div>
+@@ test: Выборы
+@@ input
+8
+1 2 2 3 1 2 4 2
+2
+@@ expect
+Голосов за кандидата 2: 4
+@@ test: Никто не голосовал
+@@ input
+4
+1 1 3 3
+2
+@@ expect
+Голосов за кандидата 2: 0
+@@ test: Все за одного
+@@ input
+3
+5 5 5
+5
+@@ expect
+Голосов за кандидата 5: 3
+@@ test: Голосов нет
+@@ input
+0
+1
+@@ expect
+Голосов за кандидата 1: 0
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

@@ -1,0 +1,15 @@
+{ "id": "m08", "num": "8", "title": "Строки",
+  "summary": "String в памяти и неизменяемость, == против equals, методы строк, символы и Character, StringBuilder, printf, Мастерская: разворот, палиндром и другие задачи; регулярки для любопытных.",
+  "lessons": [
+    { "id": "m08-01", "title": "String — это объект, и он не меняется", "url": "/lessons/m08/01-string-object.html" },
+    { "id": "m08-02", "title": "Сравнение строк: == против equals", "url": "/lessons/m08/02-equals.html" },
+    { "id": "m08-03", "title": "Методы строк: искать, резать, чистить", "url": "/lessons/m08/03-methods.html" },
+    { "id": "m08-04", "title": "Перебор строки по символам", "url": "/lessons/m08/04-chars.html" },
+    { "id": "m08-05", "title": "StringBuilder: изменяемая строка", "url": "/lessons/m08/05-stringbuilder.html" },
+    { "id": "m08-06", "title": "Форматирование: printf и text blocks", "url": "/lessons/m08/06-format.html" },
+    { "id": "m08-07", "title": "Мастерская: задачи на строки", "url": "/lessons/m08/07-workshop.html" },
+    { "id": "m08-08", "title": "Регулярные выражения (для любопытных)", "url": "/lessons/m08/08-regex.html" },
+    { "id": "m08-pz", "title": "Головоломки: что выведется?", "url": "/lessons/m08/09-puzzles.html" },
+    { "id": "m08-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m08/10-summary.html" }
+  ],
+  "taskCount": 10 }

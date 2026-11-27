@@ -1,0 +1,42 @@
+## id: tr-strings-034
+## title: Двоичное число
+## file: trainer/strings/BinaryStringToNumber.java
+## class: BinaryStringToNumber
+## level: 2
+## category: Шифры и коды
+@@ description
+<p>Напиши класс <code>BinaryStringToNumber</code>. Компьютер хранит числа нулями и единицами. Напиши метод <code>static int binaryToInt(String bits)</code>, который переводит строку из нулей и единиц (не длиннее 30 символов) в обычное десятичное число. В <code>main</code> прочитай строку, вызови метод и напечатай результат. Готовые методы перевода (<code>Integer.parseInt(s, 2)</code>) не используй — посчитай сам.</p>
+<pre class="terminal"><span class="out">ввод:  1011        вывод: 11
+ввод:  11111111    вывод: 255</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Читай цифры слева направо: <code>result = result * 2 + digit;</code></li>
+<li><code>c - '0'</code> — превращает символ <code>'1'</code> в число 1</li>
+</ul></div>
+@@ test: Пример
+@@ input
+1011
+@@ expect
+11
+@@ test: Ноль
+@@ input
+0
+@@ expect
+0
+@@ test: Восемь единиц
+@@ input
+11111111
+@@ expect
+255
+@@ test: Нули впереди
+@@ input
+0001
+@@ expect
+1
+@@ test: Тридцать единиц
+@@ input
+111111111111111111111111111111
+@@ expect
+1073741823
+@@ require: static\s+int\s+binaryToInt\s*\(\s*String | Напиши метод static int binaryToInt(String bits)
+@@ forbid: parse(Int|Long)\s*\([^;]*,\s*2\s*\) | Не используй готовый перевод parseInt(s, 2) — посчитай число сам в цикле
+@@ forbid: valueOf\s*\([^;]*,\s*2\s*\) | Не используй готовый перевод valueOf(s, 2) — посчитай число сам в цикле

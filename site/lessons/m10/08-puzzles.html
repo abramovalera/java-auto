@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки по ООП · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m10-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 10 · Головоломки</div>
+    <h1>Головоломки: какой метод вызовется?</h1>
+    <p class="lead">ООП — любимая тема собеседований. Вопросы почти всегда одни и те же: чья версия метода выполнится, что будет с полями, static и private, что напечатает конструктор, сломается ли HashMap. Тренируемся думать, а не запускать.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧩 18 задачек</span><span>★★★ — с подвохом</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Шпаргалка перед стартом</h2>
+    <p>Почти все головоломки этой страницы решаются одним вопросом: <b>что выбирается по ярлыку (типу переменной), а что — по объекту?</b></p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Слева: что решается по типу переменной при компиляции — доступные методы, поля, static-методы, private-методы, выбор перегрузки. Справа: что решается по объекту при запуске — версия переопределённого метода, getClass, instanceof">
+        <rect x="20" y="16" width="330" height="220" rx="16" class="d-yellow"/>
+        <text x="185" y="46" text-anchor="middle" class="d-title">🏷 По ярлыку (компиляция)</text>
+        <text x="40" y="82" class="d-text">• какие методы можно вызвать</text>
+        <text x="40" y="112" class="d-text">• поля (a.name)</text>
+        <text x="40" y="142" class="d-text">• static-методы</text>
+        <text x="40" y="172" class="d-text">• private-методы</text>
+        <text x="40" y="202" class="d-text">• какая перегрузка подойдёт</text>
+        <rect x="370" y="16" width="330" height="220" rx="16" class="d-accent"/>
+        <text x="535" y="46" text-anchor="middle" class="d-title">📦 По объекту (запуск)</text>
+        <text x="390" y="82" class="d-text">• версия переопределённого</text>
+        <text x="408" y="104" class="d-text">метода — даже если его</text>
+        <text x="408" y="126" class="d-text">вызвал родитель или</text>
+        <text x="408" y="148" class="d-text">конструктор родителя</text>
+        <text x="390" y="178" class="d-text">• getClass()</text>
+        <text x="390" y="208" class="d-text">• instanceof и приведение</text>
+      </svg>
+      <figcaption>Распечатай в голове эту табличку — и половина вопросов с собеседования решится сама.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Не жми «Проверить» сразу. Сначала скажи ответ вслух и объясни <b>почему</b>. Не уверен — набери код в IDEA в пакете <code>lesson10</code> и запусти: это честный способ проверить догадку.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+    <div data-widget="check" id="check-m10-pz-out">
+      <script type="application/json">
+      { "title": "Что выведется?", "icon": "🖨️",
+        "items": [
+          { "type": "predict", "q": "1. Родитель вызывает метод, который переопределён в наследнике. Что выведет <code>new B().run();</code>?",
+            "code": "class A {\n    void run() {\n        System.out.print(\"A.run \");\n        step();\n    }\n    void step() { System.out.println(\"A.step\"); }\n}\nclass B extends A {\n    @Override\n    void step() { System.out.println(\"B.step\"); }\n}",
+            "answer": "A.run B.step",
+            "why": "run() есть только у A, он и выполняется. Но внутри run() вызов step() — это this.step(), а this — объект B. Динамическая диспетчеризация выбирает B.step(). Так устроен «шаблонный метод» — например, cook() в Recipe из урока 10.3." },
+          { "type": "predict", "q": "2. ★★★ Поля не полиморфны. Что выведет?",
+            "code": "class A { String name = \"A\"; }\nclass B extends A { String name = \"B\"; }\n\nA x = new B();\nSystem.out.println(x.name);\nSystem.out.println(((B) x).name);",
+            "answer": "A\nB",
+            "why": "В объекте B два поля name: от A и своё (поле наследника не переопределяет, а прячет поле родителя). Какое читать, компилятор решает по ярлыку: A → «A», после приведения к B → «B». Мораль: поля — private, доступ через методы." },
+          { "type": "predict", "q": "3. ★★★ static-методы не переопределяются. Что выведет?",
+            "code": "class A {\n    static void who() { System.out.println(\"A\"); }\n}\nclass B extends A {\n    static void who() { System.out.println(\"B\"); }\n}\n\nA x = new B();\nx.who();",
+            "answer": "A",
+            "why": "static-метод принадлежит классу, а не объекту. Вызов через переменную компилятор заменяет на A.who() по типу ярлыка. B.who() не переопределяет, а прячет метод A (hiding). IDEA подчеркнёт x.who() жёлтым: static-метод лучше вызывать через имя класса." },
+          { "type": "predict", "q": "4. private-метод не переопределяется. Что выведет <code>new B().call();</code>?",
+            "code": "class A {\n    private void secret() { System.out.println(\"A.secret\"); }\n    void call() { secret(); }\n}\nclass B extends A {\n    void secret() { System.out.println(\"B.secret\"); }\n}",
+            "answer": "A.secret",
+            "why": "B не видит private-метод A, поэтому его secret() — отдельный новый метод, а не переопределение (@Override тут дал бы ошибку). call() внутри A вызывает свой private secret()." },
+          { "type": "predict", "q": "5. Порядок конструкторов. Что выведет <code>new C();</code>?",
+            "code": "class A {\n    A(int x) { System.out.print(\"A\" + x); }\n}\nclass B extends A {\n    B() { super(1); System.out.print(\"B\"); }\n}\nclass C extends B {\n    C() { System.out.print(\"C\"); }\n}",
+            "answer": "A1BC",
+            "why": "C() неявно вызывает super() → B(), тот явно super(1) → A(1). Печать идёт от самого старшего родителя к младшему: A1, B, C." },
+          { "type": "single", "q": "6. В Point переопределён <b>только equals</b> (по x и y), hashCode — нет. Что выведется (почти наверняка)?",
+            "code": "Point a = new Point(1, 2);\nPoint b = new Point(1, 2);\nSystem.out.println(a.equals(b));\nSystem.out.println(a.hashCode() == b.hashCode());",
+            "options": ["true и true", "true и false", "false и false"], "answer": 1,
+            "why": "equals свой — точки равны. hashCode от Object, у разных объектов почти всегда разный. Контракт нарушен: равные объекты, разные hashCode. В HashMap/HashSet такие точки «потеряются»." },
+          { "type": "predict", "q": "7. ★★★ Ловушка перегрузки в equals. Что выведет?",
+            "code": "class P {\n    int x;\n    P(int x) { this.x = x; }\n    public boolean equals(P o) { return o != null && x == o.x; }\n}\n\nP a = new P(1);\nP b = new P(1);\nObject ob = b;\nSystem.out.println(a.equals(b));\nSystem.out.println(a.equals(ob));",
+            "answer": "true\nfalse",
+            "why": "equals(P) — перегрузка, а не переопределение. a.equals(b): аргумент типа P — компилятор выбирает equals(P) → true. a.equals(ob): аргумент типа Object — выбирается equals(Object) из класса Object, а он сравнивает ссылки → false. Коллекции всегда вызывают equals(Object). Лечение — параметр Object и @Override." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбор: конструктор родителя вызывает переопределённый метод</h2>
+    <p>Самая коварная головоломка модуля. Сначала подумай, потом жми «Шаг».</p>
+<pre data-file="Trap.java"><code class="java">class Base {
+    Base() {
+        show();
+    }
+    void show() { System.out.println("Base"); }
+}
+
+class Child extends Base {
+    private String name = "Child";
+
+    @Override
+    void show() { System.out.println("Hi, " + name); }
+}
+
+// в main:
+new Child();</code></pre>
+    <details class="predict">
+      <summary>8. Предскажи: «Base», «Hi, Child» или «Hi, null»?</summary>
+      <p><b>«Hi, null».</b> Пройди трассировку ниже, чтобы увидеть почему.</p>
+    </details>
+    <div data-widget="trace" id="trace-m10-pz-ctor">
+      <script type="application/json">
+      { "title": "Hi, null: откуда?", "icon": "🪤", "kind": "Разбор по шагам",
+        "intro": "Запомни два правила: (1) конструктор наследника первым делом вызывает конструктор родителя; (2) поля наследника получают свои начальные значения <b>после</b> того, как родитель закончил.",
+        "code": "new Child();\n\nBase() {\n    show();\n}\nvoid show() { System.out.println(\"Base\"); }      // Base\n\nprivate String name = \"Child\";                    // Child\nvoid show() { System.out.println(\"Hi, \" + name); } // Child",
+        "steps": [
+          { "line": 1, "stack": [ { "frame": "main", "vars": {} } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "name": "null" } } ], "note": "new выделил память под объект Child. Все поля пока по умолчанию: строка name = null." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Child", "vars": { "this": "→#1" } }, { "frame": "Base", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "name": "null" } } ], "note": "Конструктор Child первым делом вызывает конструктор родителя: super() → Base(). До инициализации поля name значением \"Child\" ещё не дошли!" },
+          { "line": 4, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Child", "vars": { "this": "→#1" } }, { "frame": "Base", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "name": "null" } } ], "note": "Base() вызывает show(). Это this.show(), а this — объект Child. Динамическая диспетчеризация работает и в конструкторе: выбирается Child.show()." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Child", "vars": { "this": "→#1" } }, { "frame": "Base", "vars": { "this": "→#1" } }, { "frame": "show", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "name": "null" } } ], "out": "Hi, null\n", "note": "Child.show() читает name — а там ещё null: поле наследника не инициализировано. Печатается «Hi, null»." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Child", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "name": "\"Child\"" } } ], "note": "Base() закончился, вернулись в конструктор Child. Только теперь поле name инициализируется значением \"Child\". Поздно — печать уже была." },
+          { "line": 1, "stack": [ { "frame": "main", "vars": {} } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "name": "\"Child\"" } } ], "note": "Объект готов. Вывод программы — одна строка «Hi, null». Мораль: <b>не вызывай из конструктора методы, которые можно переопределить</b> (делай их private или final)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Скомпилируется ли?</h2>
+    <div data-widget="check" id="check-m10-pz-compile">
+      <script type="application/json">
+      { "title": "Скомпилируется ли?", "icon": "🕵️",
+        "items": [
+          { "type": "single", "q": "9. У Animal единственный конструктор <code>Animal(String name)</code>. Скомпилируется ли Dog?",
+            "code": "class Dog extends Animal {\n    Dog() {\n        System.out.println(\"Гав\");\n    }\n}",
+            "options": ["Да", "Нет: Java вставит super(), а у Animal нет конструктора без параметров", "Нет: в конструкторе нельзя печатать"], "answer": 1,
+            "why": "Если не написать super(...), компилятор подставит super() без аргументов. Ошибка: constructor Animal in class Animal cannot be applied to given types." },
+          { "type": "single", "q": "10. Скомпилируется ли?",
+            "code": "class Animal {\n    public void speak() { System.out.println(\"...\"); }\n}\nclass Cat extends Animal {\n    @Override\n    void speak() { System.out.println(\"Мяу\"); }\n}",
+            "options": ["Да", "Нет: нельзя сужать доступ при переопределении", "Нет: @Override тут лишний"], "answer": 1,
+            "why": "У родителя public, у наследника — доступ пакета (строже). Ошибка: attempting to assign weaker access privileges; was public." },
+          { "type": "single", "q": "11. Скомпилируется ли?",
+            "code": "class Animal {\n    void speak() { }\n}\nclass Cat extends Animal {\n    @Override\n    void speak(String to) { System.out.println(\"Мяу, \" + to); }\n}",
+            "options": ["Да, это переопределение с параметром", "Нет: method does not override or implement a method from a supertype", "Да, но @Override проигнорируется"], "answer": 1,
+            "why": "speak(String) — другой список параметров, это перегрузка. @Override требует, чтобы у родителя был такой же метод — компилятор возражает." },
+          { "type": "multi", "q": "12. Какие строки скомпилируются? (Cat и Dog наследуют Animal)",
+            "code": "Animal a = new Cat();\nCat c = new Cat();",
+            "options": ["Dog d1 = (Dog) a;", "Dog d2 = (Dog) c;", "Cat c2 = a;", "Animal a2 = c;"], "answer": [0, 3],
+            "why": "(Dog) a — компилируется (животное может быть собакой), но упадёт при запуске. (Dog) c — нет: кот никогда не собака. Cat c2 = a — нет: вниз только явно. Animal a2 = c — да, вверх автоматически." },
+          { "type": "single", "q": "13. Скомпилируется ли?",
+            "code": "class SafeString extends String {\n}",
+            "options": ["Да", "Нет: cannot inherit from final String", "Нет: у класса пустое тело"], "answer": 1,
+            "why": "String — final-класс, наследников у него быть не может. Это защищает неизменяемость строк." },
+          { "type": "bug", "q": "14. Найди обе строки с ошибками компиляции",
+            "code": "class Book {\n    private String title;\n    Book(String title) { this.title = title; }\n}\nclass Comic extends Book {\n    Comic() {\n        System.out.println(\"Создаю комикс\");\n        super(\"Супергерой\");\n    }\n    @Override\n    public String toString() { return title; }\n}",
+            "answer": [8, 11],
+            "why": "Строка 8: super(...) обязан быть первой строкой конструктора (в Java 21). Строка 11: title — private в Book, наследник его не видит; нужен геттер или protected." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Скомпилируется, но что будет при запуске?</h2>
+    <div data-widget="check" id="check-m10-pz-run">
+      <script type="application/json">
+      { "title": "Что при запуске?", "icon": "💥",
+        "items": [
+          { "type": "single", "q": "15. Что произойдёт?",
+            "code": "Animal[] zoo = { new Cat(), new Dog(), new Cat() };\nfor (int i = 0; i < zoo.length; i++) {\n    Cat c = (Cat) zoo[i];\n    c.meow();\n}",
+            "options": ["Три раза «Мяу»", "Один «Мяу», потом ClassCastException", "Ошибка компиляции"], "answer": 1,
+            "why": "Первый элемент — кот, приведение проходит. Второй — собака: Dog cannot be cast to class Cat. Нужен instanceof перед приведением." },
+          { "type": "single", "q": "16. В equals забыли проверку на null у поля. Что будет при <code>new User(null).equals(new User(\"Ann\"))</code>?",
+            "code": "class User {\n    private String name;\n    User(String name) { this.name = name; }\n    @Override\n    public boolean equals(Object o) {\n        User other = (User) o;\n        return name.equals(other.name);\n    }\n}",
+            "options": ["false", "NullPointerException", "ClassCastException"], "answer": 1,
+            "why": "У первого пользователя name = null, а null.equals(…) — NullPointerException. Безопасно: Objects.equals(name, other.name). И да, этот equals ещё и нарушает контракт: без проверки класса упадёт на equals(\"строка\")." },
+          { "type": "single", "q": "17. ★★★ Что будет при <code>System.out.println(new Cat());</code>?",
+            "code": "class Cat {\n    @Override\n    public String toString() {\n        return \"Cat: \" + this;\n    }\n}",
+            "options": ["Cat: Cat@1b6d3586", "StackOverflowError", "Ошибка компиляции"], "answer": 1,
+            "why": "Склейка \"Cat: \" + this снова вызывает toString() у этого же объекта, тот — снова… Бесконечная рекурсия (модуль 7) переполняет стек вызовов." },
+          { "type": "predict", "q": "18. ★★★ на опережение (HashSet — модуль 13: набор без повторов). В Point переопределён только equals. Что выведет?",
+            "code": "Set<Point> set = new HashSet<>();\nset.add(new Point(1, 2));\nset.add(new Point(1, 2));\nSystem.out.println(set.size());",
+            "answer": "2",
+            "why": "HashSet сначала смотрит на hashCode, чтобы выбрать полку. У двух равных точек hashCode от Object разные — они попадают на разные полки, equals даже не вызывается. «Набор без повторов» хранит повтор. Переопредели hashCode — будет 1." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Перед собеседованием потренируйся читать строки модуля 10 вслух правильными словами: «наследует», «вызывает конструктор родителя», «переопределяет», «ссылается на объект». В одних заданиях выбери описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m10-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 10", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке?", "code": "class Dog extends Animal {",
+            "options": ["Создание объекта класса <code>Dog</code> с вызовом конструктора <code>Animal</code>", "Объявление класса <code>Dog</code>, который наследует класс <code>Animal</code>", "Объявление класса <code>Animal</code>, который наследует класс <code>Dog</code>", "Класс <code>Dog</code> реализует интерфейс <code>Animal</code>", "Приведение типа <code>Dog</code> к типу <code>Animal</code>"],
+            "answer": 1, "why": "<code>extends</code> — наследование: <code>Dog</code> — наследник, <code>Animal</code> — родитель. Объект здесь не создаётся, это только объявление класса. Слово для интерфейсов — <code>implements</code> (модуль 11)." },
+          { "type": "single", "q": "Это первая строка конструктора класса <code>Cat extends Animal</code>. Что происходит?", "code": "super(name, age);",
+            "options": ["Вызов метода <code>super</code> с аргументами <code>name</code> и <code>age</code>", "Создание второго объекта — класса <code>Animal</code>", "Вызов конструктора родителя с аргументами <code>name</code> и <code>age</code>", "Объявление полей <code>name</code> и <code>age</code> в классе <code>Cat</code>", "Вызов переопределённого метода родителя"],
+            "answer": 2, "why": "<code>super(...)</code> в первой строке конструктора — вызов конструктора родителя. Аргументы передаются его параметрам, и он инициализирует «родительскую» часть того же объекта. Второй объект не создаётся." },
+          { "type": "single", "q": "Что делают эти две строки в классе <code>Cat</code>?", "code": "@Override\npublic String toString() {",
+            "options": ["Перегружают <code>toString</code>: добавляют вторую версию метода с другими параметрами", "Вызывают метод <code>toString</code> у объекта и возвращают строку", "Объявляют поле <code>toString</code> типа <code>String</code> с модификатором <code>public</code>", "Запрещают наследникам класса <code>Cat</code> переопределять <code>toString</code>", "Объявляют метод <code>toString</code>, переопределяющий метод класса <code>Object</code>"],
+            "answer": 4, "why": "Это объявление метода с той же сигнатурой, что у <code>Object.toString()</code>, — переопределение. Аннотация <code>@Override</code> просит компилятор проверить, что метод у родителя действительно есть. Запрещает переопределение <code>final</code>, а не <code>@Override</code>." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "Animal a = new Dog();",
+            "options": ["Объявляем переменную <code>a</code> типа <code>Animal</code> и инициализируем её ссылкой на новый объект <code>Dog</code>", "Создаём объект класса <code>Animal</code>, вызываем конструктор <code>Dog</code> и приводим результат к типу <code>Dog</code>", "Объявляем класс <code>Dog</code>, который наследует класс <code>Animal</code>, и создаём его экземпляр <code>a</code>", "Объявляем переменную <code>a</code> типа <code>Dog</code> и вызываем у неё метод <code>Animal</code>", "Присваиваем полю <code>a</code> класса <code>Animal</code> новый объект"],
+            "answer": 0, "why": "Слева — объявление переменной родительского типа, справа — создание объекта наследника оператором <code>new</code> с вызовом конструктора <code>Dog</code>. Так можно, потому что собака является животным. Через <code>a</code> компилятор разрешит вызывать только методы <code>Animal</code>, а выполняться будут версии <code>Dog</code>." },
+          { "type": "single", "q": "Переменная <code>a</code> объявлена с типом <code>Animal</code>. Что происходит?", "code": "Cat c = (Cat) a;",
+            "options": ["Создаётся новый объект класса <code>Cat</code> — копия объекта <code>a</code>", "Вызывается конструктор <code>Cat</code> с аргументом <code>a</code>", "Проверяется, является ли объект <code>a</code> котом; результат — <code>true</code> или <code>false</code>", "Объявляется <code>c</code> типа <code>Cat</code> и инициализируется ссылкой <code>a</code>, приведённой к <code>Cat</code>", "Объект, на который ссылается <code>a</code>, навсегда превращается в объект класса <code>Cat</code>"],
+            "answer": 3, "why": "<code>(Cat)</code> — нисходящее приведение типа ссылки. Объект не меняется и не копируется: <code>c</code> и <code>a</code> ссылаются на один и тот же объект. Если там не кот — при запуске <code>ClassCastException</code>. Проверку делает <code>instanceof</code>." },
+          { "type": "build", "q": "Собери описание строки", "code": "if (a instanceof Dog d) {",
+            "answer": ["проверяем оператором <code>instanceof</code>,", "ссылается ли <code>a</code> на объект класса <code>Dog</code>,", "и если да — объявляем переменную <code>d</code> типа <code>Dog</code> с приведённой ссылкой"],
+            "extra": ["создаём новый объект <code>Dog</code>", "вызываем конструктор <code>d</code>", "приводим <code>Dog</code> к <code>Animal</code>"] },
+          { "type": "build", "q": "Собери описание строки из класса <code>Car</code>", "code": "private final Engine engine = new Engine();",
+            "answer": ["объявляем private-поле <code>engine</code> типа <code>Engine</code>", "и инициализируем его", "ссылкой на новый объект класса <code>Engine</code>"],
+            "extra": ["объявляем локальную переменную <code>engine</code>", "класс <code>Car</code> наследует класс <code>Engine</code>", "вызываем метод <code>Engine</code>"] },
+          { "type": "single", "q": "В какой строке вызывается конструктор родителя?", "code": "class Cat extends Animal {\n    private boolean indoor;\n    Cat(String name, boolean indoor) {\n        super(name);\n        this.indoor = indoor;\n    }\n}",
+            "options": ["В строке 1", "В строке 2", "В строке 3", "В строке 4", "В строке 5"],
+            "answer": 3, "why": "Строка 1 — объявление класса-наследника, 2 — объявление поля, 3 — объявление конструктора <code>Cat</code> с двумя параметрами, 4 — вызов конструктора родителя <code>super(name)</code>, 5 — полю <code>this.indoor</code> присваивается значение параметра <code>indoor</code>." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Хочешь ещё?</h2>
+    <div class="callout ai">
+      <span class="callout-title">Головоломки от наставника</span>
+      <p>Напиши: <em>«Дай мне 3 головоломки по ООП из модуля 10 — про полиморфизм, конструкторы и equals/hashCode, по одной, ответ не говори, пока я не объясню»</em>. На экзамене модуля такие тоже будут.</p>
+    </div>
+    <div class="summary">
+      <h2>Что запомнить</h2>
+      <ul>
+        <li>По объекту выбирается только версия <b>переопределённого</b> метода — даже если её вызывает родитель или конструктор родителя.</li>
+        <li>Поля, static- и private-методы, выбор перегрузки — по ярлыку, при компиляции.</li>
+        <li>Конструкторы: от старшего родителя к младшему; поля наследника инициализируются после конструктора родителя.</li>
+        <li>equals — с параметром Object и вместе с hashCode; проверяй null.</li>
+        <li>Приведение вниз без instanceof — риск ClassCastException; между неродственными классами — ошибка компиляции.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

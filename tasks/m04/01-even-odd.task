@@ -1,0 +1,42 @@
+## id: m04-t01
+## title: Чётное или нечётное
+## file: module-04/EvenOddMessage.java
+## class: EvenOddMessage
+## level: 1
+@@ description
+<p>В модуле 3 программа печатала про чётность сухое <code>true</code> или <code>false</code>. Теперь, с <code>if</code> и <code>else</code>, она может говорить по-человечески.</p>
+<p>Программа читает одно целое число и печатает одну строку:</p>
+<pre class="terminal"><span class="out">14
+Число 14 чётное</span></pre>
+<pre class="terminal"><span class="out">-7
+Число -7 нечётное</span></pre>
+<p>Выведи <b>только эту строку</b>, без «Введите число:» — проверка сравнивает вывод символ в символ. Проверка подаёт и ноль, и отрицательные числа: вспомни, чему равен <code>-7 % 2</code>, и выбери условие, которое от этого не сломается.</p>
+<p>📖 Уроки: <a href="/lessons/m04/01-if.html">if</a>, <a href="/lessons/m04/02-else-if.html">else и else if</a></p>
+@@ test: 14 — чётное
+@@ input
+14
+@@ expect
+Число 14 чётное
+@@ test: 7 — нечётное
+@@ input
+7
+@@ expect
+Число 7 нечётное
+@@ test: Ноль — тоже чётное
+@@ input
+0
+@@ expect
+Число 0 чётное
+@@ test: Отрицательное нечётное
+@@ input
+-7
+@@ expect
+Число -7 нечётное
+@@ test: Отрицательное чётное
+@@ input
+-10
+@@ expect
+Число -10 чётное
+@@ require: \bif\s*\( | Здесь нужна развилка if
+@@ require: \belse\b | Две дороги — if и else
+@@ require: % | Чётность проверяется остатком от деления — оператором %

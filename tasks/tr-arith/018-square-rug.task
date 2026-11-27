@@ -1,0 +1,40 @@
+## id: tr-arith-018
+## title: Квадратный ковёр
+## file: trainer/arith/SquareRugSide.java
+## class: SquareRugSide
+## level: 1
+## category: Math и округление
+@@ description
+<p>В магазине ковров известна только площадь квадратного ковра. Создай класс <code>SquareRugSide</code>. Программа читает площадь в квадратных метрах (дробное число) и печатает длину стороны ковра, округлённую до двух знаков после точки.</p>
+<pre class="terminal"><span class="out">ввод:  16      вывод: Сторона: 4.0 м
+ввод:  2       вывод: Сторона: 1.41 м</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.sqrt(x)</code> — возвращает квадратный корень из <code>x</code> (тип <code>double</code>)</li>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет до двух знаков после точки</li>
+</ul></div>
+@@ test: Ровный корень
+@@ input
+16
+@@ expect
+Сторона: 4.0 м
+@@ test: Корень из двух
+@@ input
+2
+@@ expect
+Сторона: 1.41 м
+@@ test: Дробная площадь
+@@ input
+6.25
+@@ expect
+Сторона: 2.5 м
+@@ test: Десять метров
+@@ input
+10
+@@ expect
+Сторона: 3.16 м
+@@ test: Нулевая площадь
+@@ input
+0
+@@ expect
+Сторона: 0.0 м
+@@ require: Math\.sqrt | Корень считается методом Math.sqrt

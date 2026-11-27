@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Set: множество уникальных значений · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-04">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 13 · Урок 4</div>
+    <h1>Set: только уникальные</h1>
+    <p class="lead">Множество хранит каждое значение один раз и умеет мгновенно отвечать «есть такое или нет?». Разберём HashSet, LinkedHashSet и TreeSet — и наконец увидим, зачем в модуле 10 ты писал <code>equals</code> и <code>hashCode</code>.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🗂 корзины хеш-таблицы</span><span>🔗 связь с модулем 10</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-04-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Почему этот код падает с ConcurrentModificationException?",
+            "code": "for (String s : list) {\n    if (s.isEmpty()) list.remove(s);\n}",
+            "options": ["Нельзя вызывать isEmpty в цикле", "Список изменили в обход итератора, который скрыт в for-each", "remove не умеет удалять строки"], "answer": 1,
+            "why": "for-each — это итератор. Удалять надо через it.remove()." },
+          { "type": "tf", "q": "Верно или нет? (модуль 10)",
+            "statements": [
+              { "s": "Если a.equals(b) == true, то a.hashCode() обязан быть равен b.hashCode()", "a": true },
+              { "s": "Если хеш-коды равны, то объекты обязательно равны по equals", "a": false, "why": "разные объекты могут случайно получить одинаковый хеш-код — это называется коллизией." },
+              { "s": "Если не переопределить equals, он сравнивает ссылки, как ==", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем множество</h2>
+    <p><b>Множество</b> (<code>Set</code>) — коллекция, где каждое значение встречается <b>не больше одного раза</b>. Положил дубликат — его просто не добавят. Метод <code>add</code> честно скажет, получилось ли: вернёт <code>true</code> или <code>false</code>.</p>
+<pre data-file="Guests.java"><code class="java">Set&lt;String&gt; guests = new HashSet&lt;&gt;();
+System.out.println(guests.add("Аня"));     // true — добавили
+System.out.println(guests.add("Борис"));   // true
+System.out.println(guests.add("Аня"));     // false — Аня уже есть
+System.out.println(guests.size());         // 2
+System.out.println(guests.contains("Борис")); // true — и очень быстро</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: список гостей на вечеринку</span>
+      <p>Охранник на входе вычёркивает пришедших. Второй раз один и тот же человек в зал «не войдёт» — он уже там. А вопрос «Аня пришла?» охранник решает за секунду, не перебирая всех гостей по одному.</p>
+    </div>
+    <p>Где это нужно в реальных программах:</p>
+    <ul>
+      <li><b>Проверить уникальность</b>: у всех заказов в выгрузке разные номера? Сложи номера в список и в множество — если размеры не совпали, есть дубликат: <code>new HashSet&lt;&gt;(ids).size() == ids.size()</code>.</li>
+      <li><b>Убрать повторы</b>: собрать все разные категории товаров из каталога.</li>
+      <li><b>Быстро проверять «было ли»</b>: уже обработанные заказы, уже занятые логины при регистрации.</li>
+    </ul>
+    <details class="predict">
+      <summary>В списке [5, 3, 5, 5, 1] пять чисел. Какой будет размер new HashSet&lt;&gt;(список)?</summary>
+      <p><b>3</b> — различных чисел три: 5, 3, 1. Конструктор множества принимает любую коллекцию и складывает её элементы, выкидывая повторы.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Три множества — три порядка</h2>
+    <p>У интерфейса <code>Set</code> три главных реализации. Они одинаково отвергают дубликаты, но <b>по-разному хранят порядок</b>:</p>
+<pre data-file="SetOrder.java"><code class="java">List&lt;String&gt; words = List.of("груша", "яблоко", "банан", "груша", "арбуз");
+
+Set&lt;String&gt; hash   = new HashSet&lt;&gt;(words);
+Set&lt;String&gt; linked = new LinkedHashSet&lt;&gt;(words);
+Set&lt;String&gt; tree   = new TreeSet&lt;&gt;(words);
+
+System.out.println(linked);  // [груша, яблоко, банан, арбуз] — как добавляли
+System.out.println(tree);    // [арбуз, банан, груша, яблоко] — отсортировано
+System.out.println(hash);    // какой-то порядок — не гарантирован!</code></pre>
+    <div data-widget="ide" id="shot-set-order">
+      <script type="application/json">
+      { "tree": false, "file": "SetOrder.java", "runConfig": "SetOrder", "gutterRun": [3, 4], "statusPath": "module-13",
+        "code": "import java.util.*;\n\npublic class SetOrder {\n    public static void main(String[] args) {\n        List<String> words = List.of(\"груша\", \"яблоко\", \"банан\", \"груша\", \"арбуз\");\n\n        Set<String> hash   = new HashSet<>(words);\n        Set<String> linked = new LinkedHashSet<>(words);\n        Set<String> tree   = new TreeSet<>(words);\n\n        System.out.println(linked);\n        System.out.println(tree);\n        System.out.println(hash);\n    }\n}",
+        "console": { "title": "SetOrder", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… SetOrder" },
+          { "t": "out", "s": "[груша, яблоко, банан, арбуз]" },
+          { "t": "out", "s": "[арбуз, банан, груша, яблоко]" },
+          { "t": "out", "s": "[банан, арбуз, груша, яблоко]" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "LinkedHashSet: вторая «груша» выкинута, остальные — в порядке добавления" },
+                   { "n": 2, "target": "output-2", "text": "TreeSet: по алфавиту" },
+                   { "n": 3, "target": "output-3", "text": "HashSet: так легли корзины на этом компьютере и этой версии Java. Ни по алфавиту, ни по порядку добавления — и обещаний никаких", "box": true } ],
+        "caption": "Множество печатается, как список, — в квадратных скобках. Повторов нет ни в одном" }
+      </script>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Класс</th><th>Порядок</th><th>Скорость</th><th>Когда брать</th></tr>
+        <tr><td><code>HashSet</code></td><td>никакого — как ляжет</td><td>самый быстрый</td><td>нужна только уникальность и contains</td></tr>
+        <tr><td><code>LinkedHashSet</code></td><td>порядок добавления</td><td>почти как HashSet</td><td>убрать повторы, сохранив порядок</td></tr>
+        <tr><td><code>TreeSet</code></td><td>отсортировано (по алфавиту, по возрастанию)</td><td>помедленнее</td><td>нужен порядок по значению, min/max</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Не полагайся на порядок HashSet</span>
+      <p>Иногда HashSet печатает элементы «как будто по порядку» — например, маленькие числа. Это совпадение устройства, а не обещание. Добавь ещё элементы или смени версию Java — порядок может стать другим. Тест, который сравнивает вывод HashSet с текстом, — бомба замедленного действия. Нужен порядок — бери LinkedHashSet или TreeSet.</p>
+    </div>
+    <p>У множеств есть операции из школьной математики — их удобно применять, чтобы сравнивать наборы данных:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что остаётся в <code>a</code></th><th>Пример: a = {1, 2, 3}, b = {2, 3, 4}</th></tr>
+        <tr><td><code>a.addAll(b)</code></td><td>объединение: всё из обоих</td><td>{1, 2, 3, 4}</td></tr>
+        <tr><td><code>a.retainAll(b)</code></td><td>пересечение: только общие</td><td>{2, 3}</td></tr>
+        <tr><td><code>a.removeAll(b)</code></td><td>разность: из a убрать то, что есть в b</td><td>{1}</td></tr>
+      </table>
+    </div>
+    <p>Эти методы есть и у списков, но у множеств они работают намного быстрее. И помни: они <b>меняют</b> <code>a</code>. Нужен исходный — сначала сделай копию.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Как HashSet находит элемент мгновенно: корзины</h2>
+    <p>Если бы множество хранило всё в одном ряду, <code>contains</code> перебирал бы элементы по одному — как поиск в массиве. С миллионом элементов — миллион сравнений. HashSet хитрее: внутри у него <b>массив корзин</b> (по-английски buckets).</p>
+    <ol class="steps">
+      <li>У элемента вызывается <code>hashCode()</code> — получается целое число, «отпечаток».</li>
+      <li>Из этого числа вычисляется <b>номер корзины</b> (грубо — остаток от деления на число корзин).</li>
+      <li>Внутри корзины обычно 0–1 элемент. Их сравнивают с новым через <code>equals()</code>: нашёлся равный — это дубликат.</li>
+    </ol>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 300" role="img" aria-label="HashSet: hashCode выбирает корзину, equals сравнивает внутри корзины">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="20" width="150" height="46" rx="10" class="d-accent"/><text x="95" y="49" text-anchor="middle" class="d-mono-ink">add("кот")</text>
+        <path d="M170 43 H218" class="d-arrow"/>
+        <rect x="222" y="20" width="200" height="46" rx="10" class="d-yellow"/><text x="322" y="40" text-anchor="middle" class="d-small">① hashCode() = 1 074 558</text><text x="322" y="58" text-anchor="middle" class="d-small">② корзина № 2</text>
+        <path d="M322 66 V96 H262 V128" class="d-arrow"/>
+
+        <rect x="20" y="132" width="110" height="130" rx="8" class="d-soft"/><text x="75" y="152" text-anchor="middle" class="d-small">корзина 0</text>
+        <rect x="140" y="132" width="110" height="130" rx="8" class="d-soft"/><text x="195" y="152" text-anchor="middle" class="d-small">корзина 1</text>
+        <rect x="260" y="132" width="110" height="130" rx="8" class="d-green"/><text x="315" y="152" text-anchor="middle" class="d-small">корзина 2</text>
+        <rect x="380" y="132" width="110" height="130" rx="8" class="d-soft"/><text x="435" y="152" text-anchor="middle" class="d-small">корзина 3</text>
+        <rect x="500" y="132" width="110" height="130" rx="8" class="d-soft"/><text x="555" y="152" text-anchor="middle" class="d-small">корзина 4</text>
+
+        <rect x="32" y="166" width="86" height="30" rx="6" class="d-box"/><text x="75" y="186" text-anchor="middle" class="d-mono-ink">"сок"</text>
+        <rect x="272" y="166" width="86" height="30" rx="6" class="d-box"/><text x="315" y="186" text-anchor="middle" class="d-mono-ink">"кит"</text>
+        <rect x="272" y="204" width="86" height="30" rx="6" class="d-box"/><text x="315" y="224" text-anchor="middle" class="d-mono-ink">"кот"</text>
+        <rect x="512" y="166" width="86" height="30" rx="6" class="d-box"/><text x="555" y="186" text-anchor="middle" class="d-mono-ink">"дом"</text>
+
+        <text x="622" y="200" class="d-small">③ equals()</text>
+        <text x="622" y="218" class="d-small">внутри</text>
+        <text x="622" y="236" class="d-small">корзины 2</text>
+        <text x="360" y="288" text-anchor="middle" class="d-small">«кот» уже лежит в корзине 2 → equals вернул true → add вернёт false, дубликат не добавлен</text>
+      </svg>
+      <figcaption>hashCode отвечает «в какую корзину смотреть», equals — «это тот же самый элемент?». Сравнивать приходится с 1–2 элементами, а не со всеми.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: почтовые ячейки в подъезде</span>
+      <p>Почтальон не обходит все квартиры, чтобы найти Иванова. Он смотрит на номер квартиры (это hashCode) и сразу идёт к нужной ячейке. В ячейке может лежать пара писем — их он уже сверяет по имени (это equals).</p>
+    </div>
+    <div data-widget="trace" id="trace-m13-04-buckets">
+      <script type="application/json">
+      { "title": "Что делает HashSet при add",
+        "intro": "Номера корзин условные — главное, в каком порядке работают hashCode и equals.",
+        "code": "Set<String> tags = new HashSet<>();\ntags.add(\"java\");\ntags.add(\"test\");\nboolean added = tags.add(\"java\");\nSystem.out.println(tags.size() + \" \" + added);",
+        "steps": [
+          { "line": 1, "vars": { "tags": "{}", "корзины": "все пустые" }, "note": "Пустое множество: внутри массив пустых корзин." },
+          { "line": 2, "vars": { "tags": "{java}", "корзины": "№5: java" }, "note": "\"java\".hashCode() → допустим, корзина 5. Она пуста — сравнивать не с кем, кладём. add вернул true." },
+          { "line": 3, "vars": { "tags": "{java, test}", "корзины": "№5: java; №1: test" }, "note": "У \"test\" другой хеш-код → другая корзина, 1. Тоже пусто — кладём." },
+          { "line": 4, "vars": { "tags": "{java, test}", "корзины": "№5: java; №1: test", "added": "false" }, "ask": ["added"], "note": "Снова \"java\": тот же хеш-код → корзина 5. Там уже лежит \"java\", equals → true. Дубликат! add вернул false." },
+          { "line": 5, "vars": { "tags": "{java, test}", "корзины": "№5: java; №1: test", "added": "false" }, "out": "2 false\n", "note": "В множестве два элемента. Печатаем размер, а не само множество: порядок HashSet не гарантирован." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Свои объекты в HashSet: зачем equals и hashCode</h2>
+    <p>Вот где пригодится модуль 10. Класс точки — без <code>equals</code> и <code>hashCode</code>:</p>
+<pre data-file="SetOfPoints.java"><code class="java">class Point {
+    int x, y;
+    Point(int x, int y) { this.x = x; this.y = y; }
+}
+
+Set&lt;Point&gt; points = new HashSet&lt;&gt;();
+points.add(new Point(1, 2));
+points.add(new Point(1, 2));
+System.out.println(points.size());   // ?</code></pre>
+    <details class="predict">
+      <summary>Предскажи: 1 или 2?</summary>
+      <p><b>2.</b> Это два разных объекта, и Java о «равенстве точек» ничего не знает. <code>hashCode</code> из класса <code>Object</code> у разных объектов почти всегда разный — они попадают в разные корзины, и до <code>equals</code> дело даже не доходит. Множество видит два разных элемента.</p>
+    </details>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что переопределено в Point</th><th>size()</th><th>Почему</th></tr>
+        <tr><td>ничего</td><td>2</td><td>разные хеш-коды → разные корзины</td></tr>
+        <tr><td>только <code>equals</code></td><td>2 (почти всегда)</td><td>хеш-коды всё ещё разные → разные корзины, equals не вызывается</td></tr>
+        <tr><td>только <code>hashCode</code></td><td>2</td><td>одна корзина, но equals сравнивает ссылки → «разные»</td></tr>
+        <tr><td><code>equals</code> и <code>hashCode</code></td><td><b>1</b></td><td>одна корзина, equals → true → дубликат</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Контракт equals/hashCode — не формальность</span>
+      <p>Равные по <code>equals</code> объекты обязаны иметь <b>равные</b> <code>hashCode</code>. Нарушишь — HashSet и HashMap начнут вести себя «странно»: хранить дубликаты, не находить то, что лежит внутри. Переопределяешь одно — переопределяй и другое. IDEA сгенерирует оба: <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>equals() and hashCode()</b>.</p>
+    </div>
+    <div data-widget="ide" id="shot-generate-equals">
+      <script type="application/json">
+      { "tree": false, "file": "Point.java", "statusPath": "module-13", "caretLine": 8,
+        "code": "public class Point {\n    int x, y;\n\n    Point(int x, int y) {\n        this.x = x;\n        this.y = y;\n    }\n\n}",
+        "menu": { "at": "line-8", "items": ["Constructor", "Getter", "Setter", "Getter and Setter", "equals() and hashCode()", "toString()", "Override Methods…", "Delegate Methods…", "Test…", "Copyright"], "hl": "equals() and hashCode()" },
+        "marks": [ { "n": 1, "target": "line-8", "side": "left", "text": "Курсор — на пустой строке внутри класса. Жми <kbd>Alt</kbd>+<kbd>Insert</kbd>" },
+                   { "n": 2, "target": "menu", "text": "Меню <b>Generate</b> («сгенерировать»). Выбери <b>equals() and hashCode()</b> — дальше мастер спросит, по каким полям сравнивать (бери <code>x</code> и <code>y</code>), и напишет оба метода сразу, согласованно" } ],
+        "caption": "Alt+Insert — меню Generate" }
+      </script>
+    </div>
+    <div class="say" data-mood="wow"><p>А помнишь <code>record</code> из модуля 11? <code>record Point(int x, int y) {}</code> — и <code>equals</code> с <code>hashCode</code> уже написаны за тебя по всем полям. Для данных, которые кладут в множества и словари, record — идеальный выбор.</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: поменял поле — потерял объект</summary>
+      <p>Если положить объект в HashSet, а потом изменить поле, от которого зависит <code>hashCode</code>, объект останется лежать в <b>старой</b> корзине. <code>contains</code> посчитает новый хеш, заглянет в другую корзину — и ответит <code>false</code>, хотя объект внутри. Поэтому ключи множеств и словарей лучше делать неизменяемыми: строки, числа, record.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>TreeSet: всегда отсортировано</h2>
+    <p><code>TreeSet</code> хранит элементы в <b>дереве</b> — структуре, где они всегда стоят по порядку. Поэтому он умеет то, чего не умеет HashSet:</p>
+<pre data-file="Scores.java"><code class="java">TreeSet&lt;Integer&gt; scores = new TreeSet&lt;&gt;(List.of(70, 95, 70, 40, 88));
+// без повторов и по возрастанию
+System.out.println(scores);          // [40, 70, 88, 95]
+System.out.println(scores.first());  // 40 — минимум
+System.out.println(scores.last());   // 95 — максимум</code></pre>
+    <p>Чтобы сортировать, TreeSet должен уметь сравнивать элементы. Числа и строки умеют это «от природы». А свой класс — нет: <code>new TreeSet&lt;Point&gt;()</code> с обычными точками при первом же <code>add</code> упадёт с <code>ClassCastException</code> («Point cannot be cast to Comparable»). Как научить объекты сравниваться — в уроке 7.</p>
+    <div data-widget="ide" id="shot-treeset-cce">
+      <script type="application/json">
+      { "tree": false, "file": "PointsInTree.java", "runConfig": "PointsInTree", "gutterRun": [9, 10], "statusPath": "module-13",
+        "code": "import java.util.Set;\nimport java.util.TreeSet;\n\nclass Point {\n    int x, y;\n    Point(int x, int y) { this.x = x; this.y = y; }\n}\n\npublic class PointsInTree {\n    public static void main(String[] args) {\n        Set<Point> points = new TreeSet<>();\n        points.add(new Point(1, 2));\n        System.out.println(points.size());\n    }\n}",
+        "console": { "title": "PointsInTree", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… PointsInTree" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ClassCastException: class Point cannot be cast to class java.lang.Comparable (Point is in unnamed module of loader 'app'; java.lang.Comparable is in module java.base of loader 'bootstrap')" },
+          { "t": "err", "s": "\tat java.base/java.util.TreeMap.compare(TreeMap.java:1604)" },
+          { "t": "err", "s": "\tat java.base/java.util.TreeMap.addEntryToEmptyMap(TreeMap.java:811)" },
+          { "t": "err", "s": "\tat java.base/java.util.TreeMap.put(TreeMap.java:820)" },
+          { "t": "err", "s": "\tat java.base/java.util.TreeMap.put(TreeMap.java:569)" },
+          { "t": "err", "s": "\tat java.base/java.util.TreeSet.add(TreeSet.java:259)" },
+          { "t": "err", "s": "\tat PointsInTree.main(PointsInTree.java:12)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "side": "bottom", "text": "<b>class Point cannot be cast to class java.lang.Comparable</b> — «Point нельзя превратить в Comparable». Хвост в скобках про module и loader — служебный, его можно пропустить" },
+                   { "n": 2, "target": "link-1", "text": "<code>TreeMap.compare</code> — TreeSet внутри устроен на TreeMap и пытается сравнить точку… даже с самой собой, хотя она первая" },
+                   { "n": 3, "target": "link-6", "text": "Твоя строка — <b>12</b>, первый же <code>add</code>. До <code>println</code> дело не дошло" } ],
+        "caption": "TreeSet и класс без Comparable: ClassCastException" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Строки в TreeSet: в каком порядке встанут «яблоко», «Арбуз», «банан»?</summary>
+      <p><b>[Арбуз, банан, яблоко]</b> — здесь совпало с алфавитом. Но строки сравниваются по кодам символов, и все заглавные буквы идут раньше строчных: «Яблоко» с большой встало бы <b>перед</b> «арбуз» с маленькой. Хочешь без учёта регистра — приведи слова к одному регистру через <code>toLowerCase()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-04">
+      <script type="application/json">
+      { "title": "Set — главное",
+        "items": [
+          { "type": "match", "q": "Соедини множество с его порядком",
+            "left": ["HashSet", "LinkedHashSet", "TreeSet"],
+            "right": ["Порядок не гарантирован", "В порядке добавления", "Отсортировано по значению"],
+            "why": "Уникальность у всех одинаковая, разница — в порядке." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Set<String> s = new LinkedHashSet<>();\ns.add(\"б\");\ns.add(\"а\");\ns.add(\"б\");\ns.add(\"в\");\nSystem.out.println(s + \" \" + s.size());",
+            "answer": "[б, а, в] 3", "why": "Повторное «б» не добавилось и место не поменяло. LinkedHashSet помнит порядок первого добавления." },
+          { "type": "single", "q": "Класс Book переопределяет только equals. Две равные книги добавили в HashSet. Сколько элементов?",
+            "options": ["1 — equals же говорит, что они равны", "Скорее всего 2 — хеш-коды разные, книги попали в разные корзины", "Ошибка компиляции"], "answer": 1,
+            "why": "HashSet сначала смотрит на hashCode. Разные корзины — equals даже не вызывается. Нужны оба метода." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Set<Integer> a = new TreeSet<>(List.of(5, 1, 3, 1));\nSet<Integer> b = new TreeSet<>(List.of(3, 4, 5));\na.retainAll(b);\nSystem.out.println(a);",
+            "answer": "[3, 5]", "why": "a = {1, 3, 5}. retainAll оставляет только общие с b: 3 и 5. TreeSet печатает по возрастанию." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "set.add(x) возвращает false, если x уже был в множестве", "a": true },
+              { "s": "HashSet всегда печатает элементы в порядке добавления", "a": false, "why": "порядок HashSet не гарантирован. Для порядка добавления — LinkedHashSet." },
+              { "s": "У record equals и hashCode уже написаны по всем полям", "a": true },
+              { "s": "У множества есть метод get(i)", "a": false, "why": "у множеств нет номеров. Обход — for-each или итератор." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Нарисую схему корзин HashSet и объясню, что будет, если переопределить только equals. Проверь меня»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Set</code> — только уникальные значения. <code>add</code> возвращает <code>false</code> на дубликат, <code>contains</code> работает быстро.</li>
+        <li><code>HashSet</code> — без порядка, <code>LinkedHashSet</code> — порядок добавления, <code>TreeSet</code> — отсортировано (<code>first</code>, <code>last</code>).</li>
+        <li>HashSet: <code>hashCode</code> выбирает корзину, <code>equals</code> сравнивает внутри неё.</li>
+        <li>Свои объекты в HashSet — только с <code>equals</code> <b>и</b> <code>hashCode</code> (или record).</li>
+        <li><code>addAll</code>, <code>retainAll</code>, <code>removeAll</code> — объединение, пересечение, разность.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

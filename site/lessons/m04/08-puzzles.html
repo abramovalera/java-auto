@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: условия · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 4 · Головоломки</div>
+    <h1>Что выведется? Скомпилируется ли?</h1>
+    <p class="lead">Условия — любимая тема собеседований: короткий код, а подвохов — на целую статью. Здесь собраны классические ловушки с if, switch и тернарным оператором. Запускать нельзя — только думать.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — на опережение</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Как читать условия, чтобы не попасться</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 130" role="img" aria-label="Четыре вопроса к коду с условиями: где скобки, какой знак, что после if, есть ли break">
+        <rect x="10" y="20" width="164" height="96" rx="14" class="d-blue"/>
+        <text x="92" y="50" text-anchor="middle" class="d-title">① { } где?</text>
+        <text x="92" y="76" text-anchor="middle" class="d-small">без скобок if берёт</text>
+        <text x="92" y="94" text-anchor="middle" class="d-small">одну инструкцию</text>
+        <rect x="190" y="20" width="164" height="96" rx="14" class="d-violet"/>
+        <text x="272" y="50" text-anchor="middle" class="d-title">② = или == ?</text>
+        <text x="272" y="76" text-anchor="middle" class="d-small">и &gt; или &gt;= —</text>
+        <text x="272" y="94" text-anchor="middle" class="d-small">смотри на границу</text>
+        <rect x="370" y="20" width="164" height="96" rx="14" class="d-accent"/>
+        <text x="452" y="50" text-anchor="middle" class="d-title">③ Что после if?</text>
+        <text x="452" y="76" text-anchor="middle" class="d-small">лишняя «;»,</text>
+        <text x="452" y="94" text-anchor="middle" class="d-small">чей это else</text>
+        <rect x="550" y="20" width="160" height="96" rx="14" class="d-green"/>
+        <text x="630" y="50" text-anchor="middle" class="d-title">④ break есть?</text>
+        <text x="630" y="76" text-anchor="middle" class="d-small">case — только вход,</text>
+        <text x="630" y="94" text-anchor="middle" class="d-small">дальше провал</text>
+      </svg>
+      <figcaption>Отступы в головоломках часто нарочно врут. Верь скобкам и точкам с запятой, а не пробелам.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Как и раньше: сначала скажи ответ вслух и объясни «почему», потом жми «Проверить». Сомневаешься — набери код в IDEA и запусти: это честный способ.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+    <div data-widget="check" id="check-m04-pz-out">
+      <script type="application/json">
+      { "title": "Что выведется на экран?", "icon": "🖨️",
+        "items": [
+          { "type": "predict", "q": "1. Порядок веток. Что напечатает программа?",
+            "code": "int t = 35;\nif (t > 20) {\n    System.out.println(\"Тепло\");\n} else if (t > 30) {\n    System.out.println(\"Жара\");\n} else {\n    System.out.println(\"Холодно\");\n}",
+            "answer": "Тепло",
+            "why": "35 &gt; 20 — первая ветка подходит, остальные даже не проверяются. Ветка «Жара» в таком порядке не сработает никогда: всё, что &gt; 30, уже &gt; 20. Правильно — от узкого к широкому: сначала <code>t &gt; 30</code>." },
+          { "type": "predict", "q": "2. switch без break. Что напечатает?",
+            "code": "int level = 2;\nswitch (level) {\n    case 1:\n        System.out.println(\"Новичок\");\n    case 2:\n        System.out.println(\"Опытный\");\n    case 3:\n        System.out.println(\"Мастер\");\n        break;\n    default:\n        System.out.println(\"???\");\n}",
+            "answer": "Опытный\nМастер",
+            "why": "Вход — на <code>case 2</code>. break там нет, поэтому выполнение проваливается в <code>case 3</code> и останавливается на его break. case 1 и default не выполняются." },
+          { "type": "predict", "q": "3. default стоит первым. Что напечатает для n = 5?",
+            "code": "int n = 5;\nswitch (n) {\n    default:\n        System.out.println(\"D\");\n    case 1:\n        System.out.println(\"1\");\n        break;\n    case 2:\n        System.out.println(\"2\");\n}",
+            "answer": "D\n1",
+            "why": "default — такая же метка входа, просто для «всех остальных». 5 не совпало ни с чем — вход на default, печатаем D, break нет — проваливаемся в case 1, печатаем 1, выходим. Место default в списке не важно, а break — важен." },
+          { "type": "predict", "q": "4. Тернарный и склейка. Что напечатает?",
+            "code": "System.out.println(5 > 3 ? \"да\" : \"нет\" + \"!\");",
+            "answer": "да",
+            "why": "У тернарного приоритет ниже, чем у <code>+</code>, поэтому <code>\"нет\" + \"!\"</code> склеивается первым и становится третьим операндом тернарного оператора. 5 &gt; 3 — true, выбираем просто «да», без восклицательного знака." },
+          { "type": "predict", "q": "5. Чей это else? Что напечатает?",
+            "code": "int x = 10;\nif (x > 5)\n    if (x > 20)\n        System.out.println(\"A\");\nelse\n    System.out.println(\"B\");",
+            "answer": "B",
+            "why": "Отступ врёт: <code>else</code> относится к ближайшему if без пары — к <code>if (x &gt; 20)</code>. 10 &gt; 5 — заходим, 10 &gt; 20 — нет, срабатывает его else: «B». Разбор по шагам — ниже." },
+          { "type": "predict", "q": "6. Что напечатает?",
+            "code": "int x = 3;\nif (x > 5);\n    x = x * 2;\nSystem.out.println(x);",
+            "answer": "6",
+            "why": "<code>;</code> после if — пустое тело. Инструкция <code>x = x * 2</code> не входит в тело if и выполняется всегда: 3 × 2 = 6." },
+          { "type": "predict", "q": "7. Два отдельных if. Что напечатает?",
+            "code": "int n = 15;\nString s = \"\";\nif (n % 3 == 0) {\n    s = s + \"Fizz\";\n}\nif (n % 5 == 0) {\n    s = s + \"Buzz\";\n}\nSystem.out.println(s);",
+            "answer": "FizzBuzz",
+            "why": "Это не цепочка, а два независимых вопроса. 15 делится и на 3, и на 5 — срабатывают оба. С <code>else if</code> получилось бы только «Fizz»." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбор задачки 5: как видит код Java</h2>
+    <p>Вот та же программа, но отступы расставлены так, как её понимает компилятор. Пройди по шагам:</p>
+    <div data-widget="trace" id="trace-dangling">
+      <script type="application/json">
+      { "title": "Висячий else", "icon": "🪝", "kind": "Разбор по шагам",
+        "intro": "else всегда цепляется к ближайшему if, у которого ещё нет своего else.",
+        "code": "int x = 10;\nif (x > 5)\n    if (x > 20)\n        System.out.println(\"A\");\n    else\n        System.out.println(\"B\");",
+        "steps": [
+          { "line": 1, "vars": { "x": "10" }, "note": "Объявляем x и инициализируем значением 10." },
+          { "line": 2, "vars": { "x": "10", "x > 5": "true" }, "ask": ["x > 5"], "note": "Условие внешнего if: 10 > 5 — правда. Его тело — весь внутренний if вместе с else." },
+          { "line": 3, "vars": { "x": "10", "x > 20": "false" }, "ask": ["x > 20"], "note": "Условие внутреннего if: 10 > 20 — ложь. Значит, выполняется его ветка else." },
+          { "line": 6, "vars": { "x": "10" }, "out": "B\n", "note": "Печатаем B. Со скобками { } такой путаницы не было бы — поэтому их ставят всегда." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ: читаем код -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Последняя разминка перед проверкой компиляции: прочитай каждую строку правильными словами — <b>условие</b>, <b>тело</b> <code>if</code>, <b>ветка</b>, <b>тернарный оператор</b>, <b>switch-выражение</b>. В одних заданиях выбери верное описание из пяти, в других собери его из квадратиков (лишние оставь на месте).</p>
+    <div data-widget="check" id="check-m04-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 4", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в этом коде?", "code": "if (age >= 18) {\n    System.out.println(\"Можно\");\n}",
+            "options": ["Переменной <code>age</code> присваивается 18, потом вызывается <code>println</code>", "Проверяется условие <code>age &gt;= 18</code>; если оно истинно, выполняется тело if", "Вызывается метод <code>if</code> с аргументом <code>age &gt;= 18</code>, и этот метод сам печатает «Можно»", "Тело if выполняется, только если условие <code>age &gt;= 18</code> ложно", "Объявляется переменная <code>age</code>, а тело в скобках выполняется всегда"],
+            "answer": 1, "why": "<code>if</code> — не метод, а условный оператор. В скобках — условие (boolean-выражение), в фигурных скобках — тело. Тело выполняется, только когда условие истинно." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "int price = age < 18 ? 150 : 300;",
+            "options": ["Объявление <code>price</code> и присваивание ей сразу двух значений: 150 и 300", "Сравнение <code>price</code> с 150 и 300, результат — boolean", "Объявление <code>price</code> и инициализация литералом 150, а 300 игнорируется", "Объявление <code>price</code> и инициализация результатом тернарного оператора", "Условный оператор if без скобок, который печатает 150 или 300"],
+            "answer": 3, "why": "Тернарный оператор — выражение: если условие <code>age &lt; 18</code> истинно, его значение 150, иначе 300. Этим значением и инициализируется <code>price</code>." },
+          { "type": "single", "q": "Это строка из середины цепочки. Что она означает?", "code": "} else if (score >= 75) {",
+            "options": ["Ветка else с новым условием: проверяется, только если все условия выше ложны", "Новый независимый if: его условие проверяется всегда, даже если ветка выше уже сработала", "Присваивание переменной <code>score</code> значения 75", "Ветка else, которая выполняется вообще без условия", "Конец цепочки: после else if ветки else быть уже не может"],
+            "answer": 0, "why": "<code>else if</code> — это ветка <code>else</code>, внутри которой сразу стоит новый <code>if</code>. В цепочке выполняется первая ветка, чьё условие истинно, поэтому до этой проверки дело доходит, только если все условия выше оказались ложными." },
+          { "type": "single", "q": "Что происходит? (новый switch со стрелками)", "code": "switch (day) {\n    case 6, 7 -> System.out.println(\"Выходной\");\n    default -> System.out.println(\"Будни\");\n}",
+            "options": ["switch проверяет условие <code>day == 6 &amp;&amp; day == 7</code>", "Для 6 выполняются обе ветки, сначала case, потом default: это провал", "Переменной <code>day</code> присваивается сначала 6, потом 7", "Ветка default выполняется всегда, после ветки case", "<code>day</code> сравнивается с метками: 6 или 7 — ветка case, иначе — default"],
+            "answer": 4, "why": "switch берёт значение <code>day</code> и прыгает к подходящей ветке. В switch со стрелками выполняется только своя ветка — провала нет. <code>default</code> — ветка для всех остальных значений." },
+          { "type": "single", "q": "Что происходит?", "code": "String name = switch (day) {\n    case 1 -> \"Пн\";\n    default -> \"?\";\n};",
+            "options": ["switch сразу печатает «Пн» или «?», а <code>name</code> так и остаётся без значения", "Объявляем <code>name</code> и инициализируем результатом switch-выражения", "<code>name</code> по очереди присваиваются все строки — останется «?»", "Ошибка компиляции: switch нельзя ставить справа от <code>=</code>", "Объявляем метод <code>name</code>, который возвращает строку"],
+            "answer": 1, "why": "Это switch-выражение: оно возвращает одно значение — «Пн» при <code>day == 1</code>, иначе «?». Этим значением инициализируется переменная <code>name</code>. Точка с запятой после <code>}</code> завершает всю инструкцию." },
+          { "type": "build", "q": "Собери описание кода", "code": "if (n % 2 == 0) {\n    System.out.println(\"чётное\");\n}",
+            "answer": ["условный оператор <code>if</code>", "проверяет условие <code>n % 2 == 0</code>", "и, если оно истинно,", "выполняет тело — вызов <code>println</code>"],
+            "extra": ["присваивает <code>n</code> значение 0", "вызывает метод <code>if</code>", "иначе выполняет ветку <code>else</code>"] },
+          { "type": "build", "q": "Собери описание строки", "code": "String size = weight > 20 ? \"большая\" : \"малая\";",
+            "answer": ["объявляем переменную <code>size</code> типа <code>String</code>", "и инициализируем её результатом тернарного оператора:", "<code>\"большая\"</code>, если условие истинно, иначе <code>\"малая\"</code>"],
+            "extra": ["и присваиваем ей обе строки", "вызываем метод <code>weight</code>", "и выполняем тело <code>if</code>"] },
+          { "type": "build", "q": "Собери описание кода", "code": "switch (cmd) {\n    case \"stop\" -> System.out.println(\"Стоп\");\n    default -> System.out.println(\"?\");\n}",
+            "answer": ["<code>switch</code> сравнивает значение <code>cmd</code>", "с меткой <code>\"stop\"</code> по тексту", "и выполняет только одну ветку:", "<code>case</code> при совпадении, иначе <code>default</code>"],
+            "extra": ["сравнивает ссылки, как <code>==</code>", "без <code>break</code> проваливается в <code>default</code>", "присваивает <code>cmd</code> строку <code>\"stop\"</code>"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Скомпилируется ли? Что при запуске? Найди ошибку</h2>
+    <div data-widget="check" id="check-m04-pz-compile">
+      <script type="application/json">
+      { "title": "Скомпилируется? Запустится? Где ошибка?", "icon": "🕵️",
+        "items": [
+          { "type": "single", "q": "8. Скомпилируется?",
+            "code": "int x = 5;\nif (x = 5) {\n    System.out.println(\"Пять\");\n}",
+            "options": ["Да, напечатает «Пять»", "Да, но ничего не напечатает", "Нет: incompatible types: int cannot be converted to boolean"], "answer": 2,
+            "why": "<code>x = 5</code> — присваивание, его значение — число 5. А условие должно быть boolean. Нужно <code>x == 5</code>." },
+          { "type": "single", "q": "9. А так? Что будет?",
+            "code": "boolean ready = false;\nif (ready = true) {\n    System.out.println(\"Старт\");\n} else {\n    System.out.println(\"Ждём\");\n}",
+            "options": ["Ошибка компиляции", "Напечатает «Старт»", "Напечатает «Ждём»"], "answer": 1,
+            "why": "С boolean присваивание компилируется: <code>ready = true</code> присваивает переменной true, и значение этого выражения — тоже true. Условие всегда истинно. Пиши <code>if (ready)</code> — и ловушка невозможна." },
+          { "type": "single", "q": "10. Скомпилируется?",
+            "code": "int n = 3;\nString s = switch (n) {\n    case 1 -> \"один\";\n    case 2 -> \"два\";\n};",
+            "options": ["Да, s будет null", "Да, s будет пустой строкой", "Нет: switch-выражение не покрывает все значения"], "answer": 2,
+            "why": "switch-выражение обязано вернуть значение для любого int. Без <code>default</code> ошибка: <i>the switch expression does not cover all possible input values</i>." },
+          { "type": "single", "q": "11. Скомпилируется, но что будет при запуске?",
+            "code": "int x = 0;\nif (x != 0 && 10 / x > 1) {\n    System.out.println(\"A\");\n} else {\n    System.out.println(\"B\");\n}",
+            "options": ["Напечатает B", "ArithmeticException: / by zero", "Напечатает A"], "answer": 0,
+            "why": "<code>&amp;&amp;</code> ленивый: левая часть <code>x != 0</code> уже false, значит, всё выражение false, и правую часть Java даже не вычисляет. Деления на ноль не будет. А если поменять части местами — <code>10 / x &gt; 1 &amp;&amp; x != 0</code> — программа упадёт." },
+          { "type": "bug", "q": "12. Пользователь ввёл «да», а программа отвечает «Отмена». Найди строку с ошибкой",
+            "code": "String answer = scanner.nextLine();\nif (answer == \"да\") {\n    System.out.println(\"Удаляю\");\n} else {\n    System.out.println(\"Отмена\");\n}",
+            "answer": [2],
+            "why": "<code>==</code> сравнивает ссылки, а строка с клавиатуры — новый объект. Текст сравнивают так: <code>\"да\".equals(answer)</code>." },
+          { "type": "bug", "q": "13. Какая строка не скомпилируется?",
+            "code": "int age = 20;\nif (age >= 18) {\n    String status = \"взрослый\";\n}\nSystem.out.println(status);",
+            "answer": [5],
+            "why": "<code>status</code> объявлена внутри тела if и живёт только там. За скобкой — <code>cannot find symbol</code>. Объяви переменную до if." },
+          { "type": "tf", "q": "14. Скомпилируется или нет?",
+            "statements": [
+              { "s": "<code>double price = 9.5; switch (price) { … }</code> скомпилируется", "a": false, "why": "switch не работает с double, float, long и boolean." },
+              { "s": "<code>if (0 &lt; x &lt; 10) { … }</code> скомпилируется", "a": false, "why": "<code>0 &lt; x</code> даёт boolean, а boolean с 10 сравнить нельзя. Нужно <code>x &gt; 0 &amp;&amp; x &lt; 10</code>." },
+              { "s": "Классический switch с двумя метками <code>case 1:</code> в одном switch скомпилируется", "a": false, "why": "duplicate case label — метки должны быть разными." },
+              { "s": "<code>if (x &gt; 0) { }</code> с пустыми скобками скомпилируется", "a": true }
+            ] },
+          { "type": "predict", "q": "15. ★★★ На опережение. Что напечатает?",
+            "code": "System.out.println(true ? 1 : 2.0);",
+            "answer": "1.0",
+            "why": "У тернарного один общий тип результата. Если одно значение int, а другое double, Java приводит оба к double — как в арифметике <code>1 + 2.0</code>. Поэтому даже выбранная единица печатается как 1.0." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Ещё головоломки</span>
+      <p>Напиши наставнику: <em>«Дай мне 3 головоломки по условиям из модуля 4, по одной: что выведется, скомпилируется ли и найди ошибку»</em>. У него есть целый банк таких задачек.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>В цепочке else if побеждает первая подходящая ветка — следи за порядком.</li>
+        <li>case — только вход; без break выполнение идёт вниз, в том числе через default.</li>
+        <li>else цепляется к ближайшему if без пары. Отступы ничего не значат — значат скобки и <code>;</code>.</li>
+        <li><code>if (x = 5)</code> с int не скомпилируется, а <code>if (ok = true)</code> с boolean — скомпилируется и всегда будет true.</li>
+        <li>Тернарный внутри склейки — в скобках; оба его значения приводятся к общему типу.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

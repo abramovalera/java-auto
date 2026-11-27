@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>switch: выбор из многих · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-05">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 4 · Урок 5</div>
+    <h1>switch: выбор из многих</h1>
+    <p class="lead">Когда одну переменную сравнивают с длинным списком значений, цепочка else if превращается в простыню. Для таких случаев есть switch — сначала старый, с известной ловушкой, а потом современный, без неё.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🛗 лифт с кнопками</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m04-05-review">
+      <script type="application/json">
+      { "title": "Вспомним уроки 4.2–4.4",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "int coins = 0;\nSystem.out.println(coins > 0 ? \"Есть монеты\" : \"Пусто\");", "answer": "Пусто",
+            "why": "0 &gt; 0 — false, тернарный выбирает второй вариант." },
+          { "type": "single", "q": "Какая ветка никогда не выполнится?", "code": "if (n >= 0) {        // A\n    ...\n} else if (n >= 10) { // B\n    ...\n} else {             // C\n    ...\n}", "options": ["A", "B", "C"], "answer": 1,
+            "why": "Всё, что &gt;= 10, уже &gt;= 0 и уходит в ветку A." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем нужен switch</h2>
+    <p>Программа выводит название дня недели по номеру. Через else if это выглядит так:</p>
+<pre data-file="DayIf.java"><code class="java">if (day == 1) {
+    System.out.println("Понедельник");
+} else if (day == 2) {
+    System.out.println("Вторник");
+} else if (day == 3) {
+    System.out.println("Среда");
+} // … и ещё четыре раза одно и то же: day == …</code></pre>
+    <p>Все проверки задают <b>один и тот же вопрос</b>: «чему равен day?». Для этого и придуман оператор <b><code>switch</code></b> («переключатель»): он берёт одно значение и сразу прыгает к нужному варианту — к своей <b>ветке <code>case</code></b>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: лифт</span>
+      <p>В лифте ты не спрашиваешь на каждом этаже: «Это пятый? Нет. Это шестой? Нет…». Ты нажимаешь кнопку <b>7</b> — и лифт едет прямо на седьмой. <code>switch</code> так же: смотрит на значение и едет прямо к подходящему <code>case</code> («случаю»).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Классический switch с break</h2>
+    <p>Этот вариант был в Java с самого начала. Его до сих пор много в рабочем коде, поэтому знать его надо обязательно.</p>
+<pre data-file="DaySwitch.java"><code class="java">int day = 3;
+switch (day) {
+    case 1:
+        System.out.println("Понедельник");
+        break;
+    case 2:
+        System.out.println("Вторник");
+        break;
+    case 3:
+        System.out.println("Среда");
+        break;
+    default:
+        System.out.println("Нет такого дня");
+}</code></pre>
+<pre class="terminal"><span class="out">Среда</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>switch (day)</code><div><p>Что проверяем — в скобках: выражение, по значению которого выбирается ветка. Это <b>значение</b>, а не условие: не <code>day == 3</code>, а просто <code>day</code>.</p></div></div>
+      <div class="annot-row"><code>case 3:</code><div><p><b>Метка</b>: «если day равно 3 — начинай отсюда». После case — конкретное значение (литерал или константа) и двоеточие. Двух одинаковых меток быть не может.</p></div></div>
+      <div class="annot-row"><code>break;</code><div><p>Инструкция <code>break</code> — <b>выход</b> из switch. Без неё начнётся самое интересное — см. следующий шаг.</p></div></div>
+      <div class="annot-row"><code>default:</code><div><p>Ветка <b><code>default</code></b> — «во всех остальных случаях», как последний <code>else</code>. Необязательна, но почти всегда полезна.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Провал без break</h2>
+    <p>Метка <code>case</code> — это только <b>точка входа</b>, а не граница. Java прыгает на подходящую метку и дальше выполняет инструкции <b>подряд, вниз</b>, не глядя на остальные метки, — пока не встретит <code>break</code> или конец switch. Это называется <b>провал</b> (по-английски fall-through).</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 285" role="img" aria-label="Провал в switch: значение 2 прыгает на метку case 2, выполнение проваливается через case 3 до break">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="96" width="130" height="50" rx="14" class="d-accent"/>
+        <text x="85" y="118" text-anchor="middle" class="d-small">switch (day)</text>
+        <text x="85" y="137" text-anchor="middle" class="d-mono-ink">day = 2</text>
+        <rect x="230" y="16" width="230" height="44" rx="10" class="d-soft"/>
+        <text x="246" y="43" class="d-mono">case 1: «Пн»</text>
+        <rect x="230" y="76" width="230" height="44" rx="10" class="d-green"/>
+        <text x="246" y="103" class="d-mono-ink">case 2: «Вт»</text>
+        <rect x="230" y="136" width="230" height="44" rx="10" class="d-yellow"/>
+        <text x="246" y="163" class="d-mono-ink">case 3: «Ср»  break;</text>
+        <rect x="230" y="196" width="230" height="44" rx="10" class="d-soft"/>
+        <text x="246" y="223" class="d-mono">default: «?»</text>
+        <path d="M150 112 C190 112 190 98 226 98" class="d-arrow"/>
+        <text x="188" y="86" text-anchor="middle" class="d-small">прыжок</text>
+        <path d="M480 98 C520 98 520 158 484 158" class="d-arrow"/>
+        <text x="528" y="124" class="d-small">провал: break нет,</text>
+        <text x="528" y="142" class="d-small">идём вниз дальше</text>
+        <path d="M460 170 H600 V252 H130" class="d-arrow"/>
+        <text x="300" y="274" text-anchor="middle" class="d-small">break — выход из switch</text>
+      </svg>
+      <figcaption>День 2: Java прыгает на <code>case 2</code>, печатает «Вт», провал в <code>case 3</code> — печатает «Ср», на <code>break</code> выходит. До <code>default</code> не доходит.</figcaption>
+    </figure>
+    <p>Пройди это по шагам и угадай, что будет напечатано:</p>
+    <div data-widget="trace" id="trace-fallthrough">
+      <script type="application/json">
+      { "title": "switch без break: day = 2",
+        "intro": "В case 1 и case 2 забыли break. Следи, как выполнение «проваливается» вниз.",
+        "code": "int day = 2;\nswitch (day) {\n    case 1:\n        System.out.println(\"Пн\");\n    case 2:\n        System.out.println(\"Вт\");\n    case 3:\n        System.out.println(\"Ср\");\n        break;\n    default:\n        System.out.println(\"?\");\n}\nSystem.out.println(\"Готово\");",
+        "steps": [
+          { "line": 1, "vars": { "day": "2" }, "note": "Значение для выбора — 2." },
+          { "line": 2, "vars": { "day": "2" }, "note": "switch ищет метку case 2. Строки case 1 полностью пропускаются — туда не прыгали." },
+          { "line": 6, "vars": { "day": "2" }, "out": "Вт\n", "note": "Начинаем с case 2 и печатаем «Вт». break после этой строки нет…" },
+          { "line": 8, "vars": { "day": "2" }, "out": "Ср\n", "note": "…поэтому выполнение провалилось в case 3, хотя day не равно 3. Метка — не стена, а только вход." },
+          { "line": 9, "vars": { "day": "2" }, "note": "break — выходим из switch. default не выполняется." },
+          { "line": 13, "vars": { "day": "2" }, "out": "Готово\n", "note": "Итого напечатано: Вт, Ср, Готово." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что напечатает этот же код для <code>day = 1</code>? А для <code>day = 9</code>?</summary>
+      <p>Для 1: «Пн», «Вт», «Ср», «Готово» — провал через два case до break. Для 9: подходящей метки нет, прыгаем на <code>default</code>: «?», «Готово».</p>
+    </details>
+    <p>Иногда провал полезен — когда для нескольких значений нужно одно действие. Метки ставят друг под другом:</p>
+<pre data-file="Weekend.java"><code class="java">switch (day) {
+    case 6:
+    case 7:
+        System.out.println("Выходной");
+        break;
+    default:
+        System.out.println("Рабочий день");
+}</code></pre>
+    <div class="say" data-mood="oops"><p>Забытый <code>break</code> — одна из самых известных ошибок в истории программирования. Компилятор молчит: вдруг ты провалился специально? Поэтому в Java 14 появился switch, где проваливаться нельзя.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Новый switch со стрелками</h2>
+    <p>Вместо двоеточия — стрелка <code>-&gt;</code>. После стрелки выполняется <b>только своя</b> инструкция (или свой блок в фигурных скобках), и сразу выход. Никакого провала и никаких break.</p>
+<pre data-file="DayArrow.java"><code class="java">switch (day) {
+    case 1 -&gt; System.out.println("Понедельник");
+    case 2 -&gt; System.out.println("Вторник");
+    case 3 -&gt; System.out.println("Среда");
+    case 4 -&gt; System.out.println("Четверг");
+    case 5 -&gt; System.out.println("Пятница");
+    case 6, 7 -&gt; {
+        System.out.println("Выходной!");
+        System.out.println("Можно поспать");
+    }
+    default -&gt; System.out.println("Нет такого дня");
+}</code></pre>
+    <ul>
+      <li><code>case 6, 7 -&gt;</code> — несколько значений через запятую вместо «лесенки» меток.</li>
+      <li>Если в ветке несколько инструкций — блок в фигурных скобках.</li>
+      <li>Смешивать <code>:</code> и <code>-&gt;</code> в одном switch нельзя — компилятор не пустит.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="callout-title">Какой писать</span>
+      <p>В новом коде пиши switch со стрелками: он короче и безопаснее. Классический надо уметь <b>читать</b> — его полно в старых проектах и на собеседованиях («что выведет switch без break?»).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>По чему можно делать switch</h2>
+    <p>В скобках switch может стоять <code>int</code> (и меньшие целые <code>byte</code>, <code>short</code>), <code>char</code> и <code>String</code>. Нельзя: <code>long</code>, <code>double</code>, <code>float</code>, <code>boolean</code>.</p>
+<pre data-file="Menu.java"><code class="java">Scanner scanner = new Scanner(System.in);
+String command = scanner.nextLine();
+switch (command) {
+    case "start" -&gt; System.out.println("Запускаю игру");
+    case "stop" -&gt; System.out.println("Останавливаю");
+    case "help" -&gt; System.out.println("Команды: start, stop, help");
+    default -&gt; System.out.println("Неизвестная команда: " + command);
+}</code></pre>
+    <p>Хорошая новость: switch по строкам сравнивает их <b>по тексту</b> (внутри он сам вызывает <code>equals</code>), так что ловушки с <code>==</code> из урока 4.3 здесь нет. Но регистр важен: <code>"Start"</code> не совпадёт с <code>"start"</code>. Вот запуск, где ввели команду с большой буквы:</p>
+    <div data-widget="ide" id="shot-switch-menu">
+      <script type="application/json">
+      { "tree": false, "file": "Menu.java", "runConfig": "Menu", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Menu {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String command = scanner.nextLine();\n        switch (command) {\n            case \"start\" -> System.out.println(\"Запускаю игру\");\n            case \"stop\" -> System.out.println(\"Останавливаю\");\n            case \"help\" -> System.out.println(\"Команды: start, stop, help\");\n            default -> System.out.println(\"Неизвестная команда: \" + command);\n        }\n    }\n}",
+        "console": { "title": "Menu", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Menu" },
+          { "t": "in", "s": "Start" },
+          { "t": "out", "s": "Неизвестная команда: Start" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Ввели <b>Start</b> — с большой буквы" },
+                   { "n": 2, "target": "line-8", "side": "top", "text": "Метка <code>\"start\"</code> — с маленькой. Для Java это разные строки" },
+                   { "n": 3, "target": "output", "text": "Ни один case не совпал — сработал <code>default</code>", "box": true } ],
+        "caption": "switch по строкам: регистр букв важен" }
+      </script>
+    </div>
+<pre data-file="Grade.java"><code class="java">char mark = 'B';
+switch (mark) {
+    case 'A' -&gt; System.out.println("Отлично");
+    case 'B' -&gt; System.out.println("Хорошо");
+    default -&gt; System.out.println("Надо подтянуть");
+}</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Диапазоны — только if</span>
+      <p>В case пишут <b>конкретные значения</b>. «От 90 до 100» в switch не запишешь (<code>case score &gt;= 90</code> — ошибка). Если вопрос «больше / меньше» — нужен if. Если вопрос «равно чему из списка» — switch.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>switch как выражение</h2>
+    <p>Новый switch умеет то же, что тернарный оператор: <b>возвращать значение</b>. Такой switch называют <b>switch-выражением</b>: его результатом можно сразу инициализировать переменную:</p>
+<pre data-file="DayName.java"><code class="java">int day = 6;
+String name = switch (day) {
+    case 1 -&gt; "Понедельник";
+    case 2 -&gt; "Вторник";
+    case 3 -&gt; "Среда";
+    case 4 -&gt; "Четверг";
+    case 5 -&gt; "Пятница";
+    case 6 -&gt; "Суббота";
+    case 7 -&gt; "Воскресенье";
+    default -&gt; "???";
+};
+System.out.println(name);</code></pre>
+<pre class="terminal"><span class="out">Суббота</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>String name = switch</code><div><p>Объявляем переменную <code>name</code> и инициализируем её результатом switch-выражения — оно стоит справа от <code>=</code>.</p></div></div>
+      <div class="annot-row"><code>case 1 -&gt; "Понедельник";</code><div><p>После стрелки — не инструкция, а <b>значение</b> (здесь строковый литерал), которое станет результатом.</p></div></div>
+      <div class="annot-row"><code>default -&gt; "???";</code><div><p>Здесь default <b>обязателен</b>: switch-выражение должно вернуть что-то для <i>любого</i> int. Без него ошибка: <code>the switch expression does not cover all possible input values</code>.</p></div></div>
+      <div class="annot-row"><code>};</code><div><p>Точка с запятой после закрывающей скобки — это конец всей инструкции <code>String name = …;</code> (объявления с инициализацией). Её часто забывают.</p></div></div>
+    </div>
+    <p>Вот как IDEA встретит switch-выражение, у которого нет <code>default</code>:</p>
+    <div data-widget="ide" id="shot-switch-no-default">
+      <script type="application/json">
+      { "tree": false, "file": "DayName.java", "gutterRun": [1, 2],
+        "code": "public class DayName {\n    public static void main(String[] args) {\n        int day = 6;\n        String name = switch (day) {\n            case 1 -> \"Понедельник\";\n            case 2 -> \"Вторник\";\n            case 6 -> \"Суббота\";\n            case 7 -> \"Воскресенье\";\n        };\n        System.out.println(name);\n    }\n}",
+        "errors": [ { "line": 4, "text": "switch", "msg": "'switch' expression does not cover all possible input values", "tip": true, "fix": "Insert 'default' branch" } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Красным подчёркнуто само слово <code>switch</code>" },
+                   { "n": 2, "target": "tip", "text": "<b>'switch' expression does not cover all possible input values</b> — «switch-выражение покрывает не все возможные значения». А что вернуть для day = 3 или 100? <kbd>Alt</kbd>+<kbd>Enter</kbd> допишет ветку <code>default</code>" },
+                   { "n": 3, "target": "line-9", "side": "top", "text": "Заметь <code>};</code> — точка с запятой после скобки на месте, к ней претензий нет" } ],
+        "caption": "switch-выражение без default — ошибка компиляции" }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: если ветке нужно несколько строк — yield</summary>
+      <p>Если перед тем, как вернуть значение, нужно что-то сделать, ветку пишут в фигурных скобках, а значение отдают словом <code>yield</code> («выдай»):</p>
+<pre data-file="Yield.java"><code class="java">int price = switch (size) {
+    case "S" -&gt; 100;
+    case "M" -&gt; 150;
+    case "L" -&gt; {
+        System.out.println("Большая порция!");
+        yield 200;
+    }
+    default -&gt; 0;
+};</code></pre>
+      <p>Обычный <code>return</code> здесь не подойдёт: он завершил бы весь метод, а не только switch.</p>
+    </details>
+    <details class="predict">
+      <summary>Предскажи: что вернёт switch-выражение выше для <code>day = 0</code>?</summary>
+      <p><code>"???"</code> — значение из default. Ноль не совпал ни с одним case.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m04-05">
+      <script type="application/json">
+      {
+       "title": "switch — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет классический switch без break?",
+         "code": "int n = 2;\nswitch (n) {\n    case 1:\n        System.out.println(\"один\");\n    case 2:\n        System.out.println(\"два\");\n    case 3:\n        System.out.println(\"три\");\n}",
+         "answer": "два\nтри",
+         "why": "Вход на <code>case 2</code>, потом провал в <code>case 3</code>: break нигде нет. case 1 не выполняется — до него не прыгали."
+        },
+        {
+         "type": "predict",
+         "q": "А со стрелками?",
+         "code": "int n = 2;\nswitch (n) {\n    case 1 -> System.out.println(\"один\");\n    case 2 -> System.out.println(\"два\");\n    case 3 -> System.out.println(\"три\");\n}",
+         "answer": "два",
+         "why": "В switch со стрелками провала нет: выполняется только своя ветка."
+        },
+        {
+         "type": "multi",
+         "q": "По каким переменным можно сделать switch?",
+         "options": [
+          "int day",
+          "String cmd",
+          "char c",
+          "double price",
+          "boolean ok"
+         ],
+         "answer": [
+          0,
+          1,
+          2
+         ],
+         "why": "int, char и String — можно. double и boolean — нет (и long тоже)."
+        },
+        {
+         "type": "match",
+         "q": "Соедини задачу и подходящий инструмент",
+         "left": [
+          "Цена по размеру «S», «M», «L»",
+          "Скидка, если сумма больше 5000",
+          "Выбрать «да» или «нет» в одну строку"
+         ],
+         "right": [
+          "switch",
+          "if",
+          "тернарный ? :"
+         ],
+         "why": "Конкретные значения из списка — switch; «больше/меньше» — if; выбор из двух значений — тернарный."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "В классическом switch case — только точка входа; без break выполнение идёт дальше вниз",
+           "a": true
+          },
+          {
+           "s": "switch по String сравнивает строки по ссылке, как ==",
+           "a": false,
+           "why": "switch сравнивает текст, как equals."
+          },
+          {
+           "s": "После switch-выражения <code>String s = switch (…) { … }</code> нужна точка с запятой",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне классический switch с пропущенными break и разными входными значениями — я скажу, что напечатается в каждом случае»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>switch</code> сравнивает одно значение со списком конкретных вариантов. Диапазоны — через if.</li>
+        <li>Классический (<code>case 1:</code>): метка — только вход; без <code>break</code> выполнение проваливается вниз.</li>
+        <li>Новый (<code>case 1 -&gt;</code>, Java 14+): без провала, несколько значений через запятую.</li>
+        <li>Работает с <code>int</code>, <code>char</code>, <code>String</code> (строки сравнивает по тексту). Не работает с <code>long</code>, <code>double</code>, <code>boolean</code>.</li>
+        <li>switch-выражение возвращает значение: <code>String s = switch (x) { … default -&gt; …; };</code> — default обязателен.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

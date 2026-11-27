@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 14 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Ты научился передавать в методы поведение, а не только данные, и обрабатывать коллекции конвейерами. Это одна из самых «рабочих» тем курса: стримы встретятся почти в каждой настоящей программе. Соберём всё вместе — и к наставнику.</span><span class="free-only">Ты научился передавать в методы поведение, а не только данные, и обрабатывать коллекции конвейерами. Это одна из самых «рабочих» тем курса: стримы встретятся почти в каждой настоящей программе. Соберём всё вместе — и к <span class="ai-name">DeepSeek</span>.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 14: лямбды, функциональные интерфейсы, ссылки на методы, конвейер стрима, терминальные операции, Optional и Collectors">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">λ Лямбды</text>
+        <text x="56" y="80" class="d-small">(a, b) -&gt; a + b</text>
+        <text x="56" y="100" class="d-small">1 абстрактный метод</text>
+        <text x="56" y="120" class="d-small">effectively final</text>
+
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🔌 Интерфейсы</text>
+        <text x="526" y="80" class="d-small">Predicate, Function</text>
+        <text x="526" y="100" class="d-small">Consumer, Supplier</text>
+        <text x="526" y="120" class="d-small">comparing, thenComparing</text>
+
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-yellow"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">🔗 Ссылки</text>
+        <text x="26" y="230" class="d-small">String::length</text>
+        <text x="26" y="250" class="d-small">System.out::println</text>
+
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🏭 Конвейер</text>
+        <text x="556" y="230" class="d-small">filter, map, sorted</text>
+        <text x="556" y="250" class="d-small">ленивый, одноразовый</text>
+
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-green"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">📦 Терминал</text>
+        <text x="56" y="370" class="d-small">toList, count, anyMatch</text>
+        <text x="56" y="390" class="d-small">mapToInt → sum/average</text>
+        <text x="56" y="410" class="d-small">reduce(identity, …)</text>
+
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-red"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🗂 Collectors</text>
+        <text x="526" y="370" class="d-small">joining, groupingBy</text>
+        <text x="526" y="390" class="d-small">counting, partitioningBy</text>
+        <text x="526" y="410" class="d-small">toMap, TreeMap::new</text>
+
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 14</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Лямбды и Stream API</text>
+      </svg>
+      <figcaption>И ещё одна коробка, которой нет на схеме, но она везде: Optional — результат findFirst, min, max.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Вспомни сортировку анонимным классом в шесть строк. Теперь ты пишешь <code>sorted(Comparator.comparing(Product::price).reversed())</code> — промежуточная операция, а в её аргументе ссылка на метод — и это читается как обычная фраза. Именно так выглядит современная Java на работе.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>переписать анонимный класс в лямбда-выражение, назвать его параметры и тело и объяснить, что компилятор додумывает сам;</li>
+        <li>объяснить, что такое функциональный интерфейс и зачем <code>@FunctionalInterface</code>;</li>
+        <li>назвать вход и выход у <code>Predicate</code>, <code>Function</code>, <code>Consumer</code>, <code>Supplier</code>, <code>BiFunction</code> и их методы;</li>
+        <li>отсортировать список record-ов по двум полям через <code>comparing</code>, <code>reversed</code>, <code>thenComparing</code>;</li>
+        <li>заменить лямбду ссылкой на метод — и сказать, когда это невозможно;</li>
+        <li>нарисовать конвейер стрима: источник → промежуточные операции → терминальная операция, объяснить ленивость и «вертикальный» порядок;</li>
+        <li>выбрать терминальную операцию: <code>toList</code>, <code>count</code>, <code>anyMatch/allMatch/noneMatch</code>, <code>findFirst</code>, <code>min/max</code>, <code>sum/average</code>, <code>reduce</code>;</li>
+        <li>безопасно достать значение из <code>Optional</code> без <code>get()</code>;</li>
+        <li>сгруппировать и посчитать через <code>groupingBy</code>, <code>counting</code>, <code>partitioningBy</code>, склеить через <code>joining</code>;</li>
+        <li>решить задачу и циклом, и стримом — и объяснить, что понятнее; отладить стрим через <code>peek</code> или разбиение на шаги.</li>
+      </ul>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Честная самопроверка</span>
+      <p><span class="ai-only">На каждый пункт спроси себя: «Смогу ли я показать это в IDEA прямо сейчас, без подсказок?» Сомневаешься — вернись к уроку. Наставник спросит про каждый пункт.</span><span class="free-only">На каждый пункт спроси себя: «Смогу ли я показать это в IDEA прямо сейчас, без подсказок?» Сомневаешься — вернись к уроку. <span class="ai-name">DeepSeek</span> спросит про каждый пункт.</span></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <p>Десять заданий по всему модулю. Ошибки вернутся в конце.</p>
+    <div data-widget="check" id="check-m14-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 14: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини интерфейс и пример лямбды",
+         "left": [
+          "Predicate&lt;String&gt;",
+          "Function&lt;String, Integer&gt;",
+          "Consumer&lt;String&gt;",
+          "Supplier&lt;String&gt;"
+         ],
+         "right": [
+          "s -&gt; s.isBlank()",
+          "s -&gt; s.length()",
+          "s -&gt; System.out.println(s)",
+          "() -&gt; \"guest\""
+         ],
+         "why": "Проверить — Predicate, превратить — Function, сделать — Consumer, выдать — Supplier."
+        },
+        {
+         "type": "multi",
+         "q": "Какие лямбды можно заменить ссылкой на метод?",
+         "options": [
+          "<code>s -&gt; s.trim()</code>",
+          "<code>x -&gt; x * x</code>",
+          "<code>p -&gt; p.name()</code>",
+          "<code>s -&gt; s.charAt(0)</code>"
+         ],
+         "answer": [
+          0,
+          2
+         ],
+         "why": "<code>String::trim</code> и <code>Person::name</code>. В x * x нет метода, в charAt(0) лямбда добавляет свой аргумент."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "List<String> r = List.of(\"junit\", \"assertj\", \"gradle\", \"git\").stream()\n        .filter(s -> s.length() > 4)\n        .map(String::toUpperCase)\n        .sorted()\n        .toList();\nSystem.out.println(r);",
+         "answer": "[ASSERTJ, GRADLE, JUNIT]",
+         "why": "git (3 буквы) отсеян. Остальные — в верхний регистр и по алфавиту."
+        },
+        {
+         "type": "single",
+         "q": "Что выведет <code>Stream.of(\"a\").map(s -&gt; { System.out.println(s); return s; });</code>?",
+         "options": [
+          "a",
+          "[a]",
+          "Ничего"
+         ],
+         "answer": 2,
+         "why": "Терминальной операции нет — лямбда в map не вызывается."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "List<Integer> prices = List.of(200, 0, 1500);\nSystem.out.println(prices.stream().allMatch(p -> p > 0));\nSystem.out.println(prices.stream().mapToInt(p -> p).sum());\nSystem.out.println(prices.stream().filter(p -> p > 100).count());",
+         "answer": "false\n1700\n2",
+         "why": "0 не больше нуля — allMatch false. Сумма 1700. Дороже 100 — два товара."
+        },
+        {
+         "type": "single",
+         "q": "Как правильно достать имя из <code>Optional&lt;Student&gt; best</code>, если студента может не быть?",
+         "options": [
+          "<code>best.get().name()</code>",
+          "<code>best.map(Student::name).orElse(\"нет\")</code>",
+          "<code>best == null ? \"нет\" : best.name()</code>"
+         ],
+         "answer": 1,
+         "why": "map преобразует содержимое, orElse задаёт ответ для пустой коробки. get() на пустом выбросит исключение, а у Optional нет метода name()."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "Map<Integer, List<String>> m = Stream.of(\"ui\", \"api\", \"db\", \"e2e\")\n        .collect(Collectors.groupingBy(String::length,\n                TreeMap::new, Collectors.toList()));\nSystem.out.println(m);",
+         "answer": "{2=[ui, db], 3=[api, e2e]}",
+         "why": "Ключ — длина. TreeMap печатает ключи по возрастанию, внутри групп — порядок входа."
+        },
+        {
+         "type": "order",
+         "q": "Собери: имена трёх самых дорогих товаров через запятую",
+         "lines": [
+          "String top = products.stream()",
+          "        .sorted(Comparator.comparingInt(Product::price).reversed())",
+          "        .limit(3)",
+          "        .map(Product::title)",
+          "        .collect(Collectors.joining(\", \"));"
+         ],
+         "code": true,
+         "accept": [ ["String top = products.stream()", "        .sorted(Comparator.comparingInt(Product::price).reversed())", "        .map(Product::title)", "        .limit(3)", "        .collect(Collectors.joining(\", \"));"] ],
+         "why": "Сначала порядок, потом первые три, потом названия, потом склейка. Строки .limit(3) и .map(Product::title) можно поменять местами — результат тот же. А sorted должен стоять раньше map: сортируем по цене, а у названия цены нет."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Один объект Stream можно использовать дважды",
+           "a": false,
+           "why": "поток одноразовый — второй раз IllegalStateException."
+          },
+          {
+           "s": "В список из <code>toList()</code> нельзя добавлять элементы",
+           "a": true
+          },
+          {
+           "s": "Внутри лямбды можно сделать <code>count++</code> для локальной переменной",
+           "a": false,
+           "why": "захваченные переменные должны быть effectively final."
+          },
+          {
+           "s": "<code>Collectors.toMap</code> выбрасывает исключение, если два элемента дают одинаковый ключ, а функции слияния нет",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m14">странице практики</a> должны быть решены все десять задач. Почти во всех циклы запрещены — решаем стримами:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Квадраты чётных</td><td><code>filter</code>, <code>map</code>, <code>toList</code> — <a href="/lessons/m14/04-stream-pipeline.html">урок 14.4</a></td></tr>
+        <tr><td>2. Проверка цен · 3. Сумма и произведение через reduce</td><td><code>anyMatch/allMatch/noneMatch</code>, <code>reduce</code> — <a href="/lessons/m14/05-terminal-ops.html">урок 14.5</a></td></tr>
+        <tr><td>4. Длинные слова через запятую</td><td><code>joining</code>, ссылки на методы — <a href="/lessons/m14/07-collectors.html">урок 14.7</a></td></tr>
+        <tr><td>5. Средний балл</td><td><code>mapToInt</code>, <code>average</code>, OptionalDouble — уроки 14.5–14.6</td></tr>
+        <tr><td>6. Таблица рекордов · 7. Топ-3 товара</td><td>сортировка по двум полям, <code>limit</code> — уроки 14.2 и 14.4</td></tr>
+        <tr><td>8. Группировка по длине · 9. Частота символов 🛠</td><td><code>groupingBy</code>, <code>counting</code>, <code>TreeMap</code> — уроки 14.7–14.8</td></tr>
+        <tr><td>10. Первый отличник ★★★</td><td><code>findFirst</code> и Optional без <code>get()</code> — <a href="/lessons/m14/06-optional.html">урок 14.6</a></td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">Каждую зелёную задачу разбери с наставником: <code>/check m14-t01</code>, <code>/check m14-t02</code> и так далее.</span><span class="free-only">Каждую зелёную задачу разбери с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><strong>Пройди экзамен.</strong> Будут вопросы по теории («что такое функциональный интерфейс», «почему стрим ленивый»), головоломки «что выведется / скомпилируется ли», и задача: написать стрим в IDEA с нуля — и тот же алгоритм циклом.</li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить. Вернёшься, когда будешь готов.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить. Вернёшься, когда будешь готов.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p>Стримы легко «узнавать», но трудно писать с нуля. На экзамене пиши сам, без подглядывания в уроки — так ты поймёшь, что действительно умеешь.</p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Разминка: <em>«Давай пробный экзамен по модулю 14 без отметок в progress.md — дай три задачи, которые надо решить стримом, и пять головоломок»</em>. Готов по-настоящему — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">📄</span><h4>Модуль 15: файлы</h4><p>Чтение файла построчно отдаёт… стрим строк. Отфильтровать строки лога с ERROR — одна цепочка, которую ты уже умеешь писать.</p></div>
+      <div class="card"><span class="emoji">🧪</span><h4>JUnit и AssertJ</h4><p>Проверки вида «все цены больше нуля», «в корзине есть товар со скидкой» — это <code>allMatch</code> и <code>anyMatch</code>, только в тестах своего кода (модуль 17).</p></div>
+      <div class="card"><span class="emoji">🧵</span><h4>Модуль 16: потоки</h4><p>Помнишь <code>parallelStream()</code>? Там ты научишься сам делить работу между потоками — и узнаешь, почему общие данные при этом ломаются.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай все десять задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все десять задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 15!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 15!</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m14">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

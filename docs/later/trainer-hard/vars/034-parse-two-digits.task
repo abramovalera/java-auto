@@ -1,0 +1,43 @@
+## id: tr-vars-034
+## title: Число из двух цифр вручную
+## file: trainer/vars/ParseTwoDigitsByHand.java
+## class: ParseTwoDigitsByHand
+## level: 3
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>ParseTwoDigitsByHand</code>. Программа читает слово ровно из двух цифр, например <code>47</code> или <code>05</code>, и сама, без готовых методов, превращает его в число. Чтобы показать, что это настоящее число, напечатай <code>47 * 2 = 94</code>.</p>
+<pre class="terminal"><span class="out">ввод:  47
+вывод: 47 * 2 = 94</span></pre>
+<p>Нельзя читать число через <code>nextInt()</code> и нельзя использовать <code>Integer.parseInt</code> — только символы и их коды. Число <code>05</code> печатается как <code>5</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next()</code> — возвращает одно слово (до пробела или Enter)</li>
+<li><code>s.charAt(0)</code> — возвращает символ строки <code>s</code> по индексу (счёт с нуля)</li>
+<li><code>'7' - '0'</code> — равно 7: коды цифр идут подряд, начиная с <code>'0'</code> (48)</li>
+<li>число из десятков и единиц — <code>tens * 10 + ones</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+47
+@@ expect
+47 * 2 = 94
+@@ test: Ноль впереди
+@@ input
+05
+@@ expect
+5 * 2 = 10
+@@ test: Самое большое
+@@ input
+99
+@@ expect
+99 * 2 = 198
+@@ test: Два нуля
+@@ input
+00
+@@ expect
+0 * 2 = 0
+@@ test: Круглое число
+@@ input
+10
+@@ expect
+10 * 2 = 20
+@@ forbid: parseInt|valueOf|nextInt|nextLong|nextDouble|parseLong|parseDouble | Собери число сам из кодов символов — без nextInt и parseInt

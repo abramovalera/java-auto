@@ -1,0 +1,34 @@
+## id: tr-strings-012
+## title: Домен почты
+## file: trainer/strings/EmailDomainPart.java
+## class: EmailDomainPart
+## level: 1
+## category: Слова и разбор
+@@ description
+<p>Напиши класс <code>EmailDomainPart</code>. Программа читает адрес электронной почты (в нём ровно один знак <code>@</code>) и печатает домен — всё, что стоит после <code>@</code>, маленькими буквами.</p>
+<pre class="terminal"><span class="out">ввод:  Ivan.Petrov@Mail.RU    вывод: mail.ru
+ввод:  anna@gmail.com         вывод: gmail.com</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.indexOf('@')</code> — возвращает индекс символа <code>@</code> в строке</li>
+<li><code>s.substring(i)</code> — возвращает кусок строки с индекса <code>i</code> до конца</li>
+</ul></div>
+@@ test: Смешанный регистр
+@@ input
+Ivan.Petrov@Mail.RU
+@@ expect
+mail.ru
+@@ test: Обычный адрес
+@@ input
+anna@gmail.com
+@@ expect
+gmail.com
+@@ test: Всё заглавными
+@@ input
+BOSS@Company.Org
+@@ expect
+company.org
+@@ test: Короткий
+@@ input
+a@b.c
+@@ expect
+b.c

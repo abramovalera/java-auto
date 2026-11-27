@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>static: общее для всех объектов · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-04">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 9 · Урок 4</div>
+    <h1>static: общее для всех объектов</h1>
+    <p class="lead">Ты пишешь <code>static</code> с первого урока, и наконец пора узнать, что оно значит. Спойлер: это всё, что принадлежит классу целиком, а не отдельному объекту. И ответ на вопрос, почему main — static.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔢 счётчик объектов</span><span>🎮 1 мини-игра</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m09-04-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "У класса есть только конструктор <code>Car(String model)</code>. Что будет с <code>new Car()</code>?",
+            "options": ["Создастся машина с model = null", "Ошибка компиляции", "NullPointerException при запуске"], "answer": 1,
+            "why": "Свой конструктор написан — пустой по умолчанию исчез." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "class Box {\n    int size = 5;\n    Box(int size) {\n        this.size = this.size + size;\n    }\n}\n\n// в main:\nSystem.out.println(new Box(3).size);",
+            "answer": "8", "why": "Сначала инициализатор поля (size = 5), потом тело конструктора: 5 + 3." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Сколько котов мы создали?</h2>
+    <p>Задача: приют хочет знать, сколько котов уже зарегистрировано, и выдавать каждому номер по порядку. Первая попытка — завести поле-счётчик:</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    String name;
+    int count;                  // попытка 1
+
+    Cat(String name) {
+        this.name = name;
+        count++;
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: создали трёх котов. Чему равно <code>count</code> у третьего?</summary>
+      <p><b>1.</b> И у первого 1, и у второго 1. Поле — своё у <b>каждого</b> объекта: каждый новый кот получает свежий <code>count = 0</code> и увеличивает его до 1. Котам нужен <b>один общий</b> счётчик на всех.</p>
+    </details>
+    <p>Общее на всех поле объявляется с модификатором <code>static</code> — это <b>статическое поле</b> (поле класса; всё, что помечено <code>static</code>, называют <b>статическими членами</b> класса):</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    static int count = 0;       // одна на весь класс
+    String name;                // своя у каждого кота
+    int number;                 // своя у каждого кота
+
+    Cat(String name) {
+        this.name = name;
+        count++;                // общий счётчик +1
+        number = count;         // запомнили свой номер
+    }
+}</code></pre>
+<pre data-file="CatDemo.java"><code class="java">Cat a = new Cat("Мурзик");
+Cat b = new Cat("Барсик");
+System.out.println(Cat.count);   // 2
+System.out.println(b.number);    // 2
+System.out.println(a.number);    // 1</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: доска в классе</span>
+      <p>У каждого ученика свой дневник — это обычные поля: у каждого свои оценки. А доска в классе одна на всех: написал на ней один — видят все. <code>static</code>-поле — это доска. Оно принадлежит не ученику, а классу.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Где живёт static-поле</h2>
+    <p>Обычные поля лежат внутри каждого объекта в куче. А static-поле живёт в единственной копии «при классе» — в специальной области памяти, где JVM хранит сведения о классе. Оно появляется, когда класс впервые понадобился программе, ещё до первого <code>new</code>, и живёт до конца программы.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Класс Cat хранит одно static-поле count; у каждого из трёх объектов свои поля name и number">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="250" y="12" width="260" height="76" rx="14" class="d-violet"/>
+        <text x="380" y="38" text-anchor="middle" class="d-title">класс Cat (один)</text>
+        <text x="380" y="66" text-anchor="middle" class="d-mono-ink">static count = 3</text>
+
+        <rect x="20" y="140" width="220" height="90" rx="12" class="d-accent"/>
+        <text x="34" y="164" class="d-small">#1 · Cat</text>
+        <text x="34" y="190" class="d-mono-ink">name = "Мурзик"</text>
+        <text x="34" y="214" class="d-mono-ink">number = 1</text>
+        <rect x="270" y="140" width="220" height="90" rx="12" class="d-accent"/>
+        <text x="284" y="164" class="d-small">#2 · Cat</text>
+        <text x="284" y="190" class="d-mono-ink">name = "Барсик"</text>
+        <text x="284" y="214" class="d-mono-ink">number = 2</text>
+        <rect x="520" y="140" width="220" height="90" rx="12" class="d-accent"/>
+        <text x="534" y="164" class="d-small">#3 · Cat</text>
+        <text x="534" y="190" class="d-mono-ink">name = "Пушок"</text>
+        <text x="534" y="214" class="d-mono-ink">number = 3</text>
+
+        <path d="M300 88 L 140 136" class="d-dash"/>
+        <path d="M380 88 L 380 136" class="d-dash"/>
+        <path d="M460 88 L 620 136" class="d-dash"/>
+        <text x="130" y="110" text-anchor="middle" class="d-small">все видят одну</text>
+        <text x="630" y="110" text-anchor="middle" class="d-small">«доску» count</text>
+      </svg>
+      <figcaption>Три кота — три набора name и number. А count — один на всех, внутри объектов его нет.</figcaption>
+    </figure>
+    <p>Пройди по шагам: в «куче» тренажёра мы нарисуем класс отдельной карточкой, чтобы было видно, где лежит count.</p>
+    <div data-widget="trace" id="trace-m09-04-count">
+      <script type="application/json">
+      { "title": "Общий счётчик котов",
+        "intro": "Карточка «Cat (класс)» — это не объект, а место, где живут static-поля. Следи, как меняется count.",
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat a = new Cat(\"Мурзик\");\n        Cat b = new Cat(\"Барсик\");\n        Cat c = new Cat(\"Пушок\");\n        int total = Cat.count;\n        System.out.println(total + \" \" + a.number);\n    }\n}\n\nclass Cat {\n    static int count = 0;\n    String name;\n    int number;\n\n    Cat(String name) {\n        this.name = name;\n        count++;\n        number = count;\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "heap": [ { "id": "Cat", "label": "класс, static-поля", "fields": { "count": "0" } } ], "note": "Класс Cat впервые понадобился — JVM его загрузила и выполнила <code>static int count = 0</code>. Котов ещё нет, а count уже есть." },
+          { "line": 18, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Cat", "vars": { "this": "→#1", "name": "\"Мурзик\"" } } ], "heap": [ { "id": "Cat", "label": "класс, static-поля", "fields": { "count": "1" } }, { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "number": "0" } } ], "note": "Конструктор первого кота: <code>count++</code> меняет общий счётчик — он не в объекте, а в классе." },
+          { "line": 19, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Cat", "vars": { "this": "→#1", "name": "\"Мурзик\"" } } ], "heap": [ { "id": "Cat", "label": "класс, static-поля", "fields": { "count": "1" } }, { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "number": "1" } } ], "note": "А number — обычное поле, оно в объекте. Полю number Мурзика присвоено значение count — 1." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "a": "→#1", "b": "→#2" } } ], "heap": [ { "id": "Cat", "label": "класс, static-поля", "fields": { "count": "2" } }, { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "number": "1" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "number": "2" } } ], "note": "Второй кот: count стал 2, Барсик получил номер 2." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "a": "→#1", "b": "→#2", "c": "→#3" } } ], "heap": [ { "id": "Cat", "label": "класс, static-поля", "fields": { "count": "3" } }, { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "number": "1" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "number": "2" } }, { "id": "#3", "label": "Cat", "fields": { "name": "\"Пушок\"", "number": "3" } } ], "note": "Третий: count = 3, у Пушка номер 3." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": { "a": "→#1", "b": "→#2", "c": "→#3", "total": "3" } } ], "vars": { "total": "3" }, "ask": ["total"], "heap": [ { "id": "Cat", "label": "класс, static-поля", "fields": { "count": "3" } }, { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "number": "1" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "number": "2" } }, { "id": "#3", "label": "Cat", "fields": { "name": "\"Пушок\"", "number": "3" } } ], "note": "К static-полю обращаются через имя класса: <code>Cat.count</code>. Объект для этого не нужен. total = 3." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": { "a": "→#1", "b": "→#2", "c": "→#3", "total": "3" } } ], "heap": [ { "id": "Cat", "label": "класс, static-поля", "fields": { "count": "3" } }, { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "number": "1" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "number": "2" } }, { "id": "#3", "label": "Cat", "fields": { "name": "\"Пушок\"", "number": "3" } } ], "out": "3 1\n", "note": "Общий счётчик — 3, а номер Мурзика так и остался 1: он свой." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>static-методы: у класса, без объекта</h2>
+    <p>Методы тоже бывают static — ты писал только такие весь модуль 7. <b>Статический метод</b> принадлежит классу, а не объекту, и вызывается через имя класса:</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    static int count = 0;
+    String name;
+
+    static String report() {
+        return "Зарегистрировано котов: " + count;    // ✅ static видит static
+    }
+
+    static void broken() {
+        System.out.println(name);                     // ❌ ошибка компиляции
+    }
+}
+
+// в main:
+System.out.println(Cat.report());</code></pre>
+    <p>В IDEA строка <code>broken()</code> сразу станет красной:</p>
+    <div data-widget="ide" id="shot-static-field">
+      <script type="application/json">
+      { "tree": false, "file": "Cat.java",
+        "code": "class Cat {\n    static int count = 0;\n    String name;\n\n    static String report() {\n        return \"Зарегистрировано котов: \" + count;\n    }\n\n    static void broken() {\n        System.out.println(name);\n    }\n}",
+        "errors": [ { "line": 10, "text": "name", "msg": "Non-static field 'name' cannot be referenced from a static context", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "line-9", "side": "top", "text": "Метод помечен <code>static</code> — он принадлежит классу, кота (this) у него нет" },
+                   { "n": 2, "target": "err-10", "side": "left", "text": "А <code>name</code> — поле конкретного кота. Чьё именно — непонятно" },
+                   { "n": 3, "target": "tip", "text": "<b>Non-static field 'name' cannot be referenced from a static context</b> — «к нестатическому полю name нельзя обращаться из статического контекста»" } ],
+        "caption": "Обращение к полю объекта из static-метода" }
+      </script>
+    </div>
+    <p>А <code>javac</code> (и сайт кнопкой «Проверить») скажет то же самое своими словами:</p>
+<pre class="terminal"><span class="err">Cat.java:10: error: non-static variable name cannot be referenced from a static context</span></pre>
+    <p>Почему <code>broken()</code> не компилируется? У static-метода <b>нет this</b>: его вызывают у класса, а не у кота. Чьё <code>name</code> печатать — Мурзика? Барсика? Неизвестно. Поэтому компилятор и говорит: «к нестатической переменной нельзя обращаться из статического контекста».</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Откуда → куда</th><th>Можно?</th><th>Почему</th></tr>
+        <tr><td>метод объекта → поле/метод объекта</td><td>✅</td><td>есть this — понятно, чей</td></tr>
+        <tr><td>метод объекта → static-поле/метод</td><td>✅</td><td>общее доступно всем</td></tr>
+        <tr><td>static-метод → static-поле/метод</td><td>✅</td><td>оба «при классе»</td></tr>
+        <tr><td>static-метод → поле/метод объекта напрямую</td><td>❌</td><td>нет this. Можно только через объект: <code>someCat.name</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Вот почему main — static</h2>
+    <p>Когда ты жмёшь ▶, JVM нужно с чего-то начать. Объектов ещё нет ни одного. Создавать объект твоего класса JVM не станет — она не знает, какие аргументы передать в его конструктор. Поэтому договорились: точка входа — <b>static-метод</b>, его можно вызвать вообще без объектов: <code>CatDemo.main(args)</code>.</p>
+    <p>Теперь понятно, почему в модуле 7 все методы были <code>static</code>: мы вызывали их прямо из <code>main</code>, без объектов. А если в классе с main написать метод <b>без</b> static и вызвать его из main — получишь ту самую ошибку:</p>
+<pre data-file="Hello.java"><code class="java">public class Hello {
+    public static void main(String[] args) {
+        greet();              // ❌ non-static method greet()
+                              //    cannot be referenced from a static context
+        new Hello().greet();  // ✅ создали объект — есть у кого вызвать
+    }
+
+    void greet() {
+        System.out.println("Привет!");
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-static-method">
+      <script type="application/json">
+      { "tree": false, "file": "Hello.java", "gutterRun": [1, 2],
+        "code": "public class Hello {\n    public static void main(String[] args) {\n        greet();\n        new Hello().greet();\n    }\n\n    void greet() {\n        System.out.println(\"Привет!\");\n    }\n}",
+        "errors": [ { "line": 3, "text": "greet", "msg": "Non-static method 'greet()' cannot be referenced from a static context", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "left", "text": "Вызов без объекта из static-метода <code>main</code> — красный" },
+                   { "n": 2, "target": "tip", "text": "<b>Non-static method 'greet()' cannot be referenced from a static context</b>. По <kbd>Alt</kbd>+<kbd>Enter</kbd> IDEA предложит сделать greet() static — так тоже можно, но сначала подумай, нужен ли методу объект" },
+                   { "n": 3, "target": "line-4", "side": "top", "text": "А тут всё в порядке: сначала <code>new Hello()</code> — объект есть, у него и вызываем" } ],
+        "caption": "Метод объекта из main без объекта" }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Расшифровка заклинания из первого урока: <code>public</code> — <b>модификатор доступа</b> «виден всем» (даже JVM; подробно — в уроке 9.5), <code>static</code> — статический метод, вызывается без объекта, <code>void</code> — ничего не возвращает, <code>main</code> — имя, которое ищет JVM, <code>String[] args</code> — массив строк-аргументов запуска. Ни одного непонятного слова не осталось!</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ты пользуешься static всё время</h2>
+    <p>Посмотри на знакомые вызовы. Слева от точки бывает <b>имя класса</b> (с большой буквы) — это static. А бывает <b>переменная со ссылкой на объект</b> — это вызов метода у объекта.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вызов</th><th>Что слева от точки</th><th>Вид</th></tr>
+        <tr><td><code>Math.max(a, b)</code></td><td>класс <code>Math</code></td><td>static-метод</td></tr>
+        <tr><td><code>Math.PI</code></td><td>класс <code>Math</code></td><td>static-поле (константа)</td></tr>
+        <tr><td><code>Integer.parseInt("42")</code></td><td>класс <code>Integer</code></td><td>static-метод</td></tr>
+        <tr><td><code>Arrays.toString(arr)</code></td><td>класс <code>Arrays</code></td><td>static-метод</td></tr>
+        <tr><td><code>name.length()</code></td><td>объект-строка в переменной</td><td>метод объекта</td></tr>
+        <tr><td><code>scanner.nextInt()</code></td><td>объект Scanner</td><td>метод объекта</td></tr>
+        <tr><td><code>System.out</code></td><td>класс <code>System</code></td><td>static-поле!</td></tr>
+      </table>
+    </div>
+    <p><code>Math.max</code> — static, потому что ему не нужны ничьи данные: всё, что нужно, приходит в параметрах. Создавать «объект математики» бессмысленно. А <code>name.length()</code> — метод объекта: длина у каждой строки своя. Последняя строка таблицы — маленький сюрприз: <code>System.out</code> — это static-поле класса <code>System</code>. Через два урока мы разберём <code>System.out.println</code> до винтика.</p>
+    <p>Разложи вызовы по корзинам:</p>
+    <div data-widget="buckets" id="buckets-m09-04">
+      <script type="application/json">
+      { "title": "static или метод объекта?", "icon": "🧭",
+        "buckets": [ { "id": "st", "label": "🏛️ static (у класса)", "style": "indigo" }, { "id": "obj", "label": "🐱 у объекта", "style": "green" } ],
+        "items": [
+          { "emoji": "🔢", "text": "Math.sqrt(16)", "bucket": "st", "why": "Слева класс Math. Корню не нужны ничьи поля — только параметр." },
+          { "emoji": "✂️", "text": "word.toUpperCase()", "bucket": "obj", "why": "Вызов метода у объекта word: метод возвращает новую строку — эту же, но в верхнем регистре." },
+          { "emoji": "⌨️", "text": "sc.nextLine()", "bucket": "obj", "why": "sc — объект Scanner. Читает из своего источника ввода." },
+          { "emoji": "🔤", "text": "Integer.parseInt(\"7\")", "bucket": "st", "why": "Слева класс Integer — static-метод." },
+          { "emoji": "🐱", "text": "murzik.describe()", "bucket": "obj", "why": "Описывает конкретного кота — this = murzik." },
+          { "emoji": "📋", "text": "Cat.report()", "bucket": "st", "why": "Вызов через имя класса — static-метод." },
+          { "emoji": "🎲", "text": "Math.random()", "bucket": "st", "why": "Класс Math, без объекта." },
+          { "emoji": "🔎", "text": "text.equals(\"да\")", "bucket": "obj", "why": "Сравнивает именно эту строку text с другой." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Константы: static final</h2>
+    <p>Если значение общее для всех и никогда не меняется, его объявляют <b>константой</b> класса — <code>static final</code>. <code>final</code> — «окончательно»: присвоить новое значение нельзя, компилятор не даст.</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    static final int MAX_LIVES = 9;
+    static final String SPECIES = "Felis catus";
+}
+
+// где угодно:
+System.out.println(Cat.MAX_LIVES);   // 9
+// ❌ cannot assign a value to static final variable MAX_LIVES
+Cat.MAX_LIVES = 10;</code></pre>
+    <div data-widget="ide" id="shot-final-assign">
+      <script type="application/json">
+      { "tree": false, "file": "CatDemo.java", "gutterRun": [1, 2],
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        System.out.println(Cat.MAX_LIVES);\n        Cat.MAX_LIVES = 10;\n    }\n}",
+        "errors": [ { "line": 4, "text": "MAX_LIVES", "msg": "Cannot assign a value to final variable 'MAX_LIVES'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-3", "side": "top", "text": "Читать константу можно — через имя класса" },
+                   { "n": 2, "target": "err-4", "side": "left", "text": "Записать — нельзя: красная волна под именем константы" },
+                   { "n": 3, "target": "tip", "text": "<b>Cannot assign a value to final variable 'MAX_LIVES'</b> — «нельзя присвоить значение final-переменной». У <code>javac</code> чуть длиннее: <i>cannot assign a value to static final variable MAX_LIVES</i>" } ],
+        "caption": "Попытка изменить константу" }
+      </script>
+    </div>
+    <p>Константы пишут БОЛЬШИМИ_БУКВАМИ через подчёркивание — так их сразу видно. Знакомые примеры: <code>Math.PI</code>, <code>Integer.MAX_VALUE</code>. В реальных программах так хранят настройки и лимиты: <code>static final int MAX_PIN_ATTEMPTS = 3;</code></p>
+    <div class="callout warn">
+      <span class="callout-title">Не злоупотребляй static</span>
+      <p>Новичкам иногда хочется сделать static всё подряд — «так проще вызывать». Но тогда данные становятся общими для всех, и объекты теряют смысл: «у каждого кота своё имя» превращается в «у всех котов одно имя». Правило: static — только для того, что действительно общее (счётчик, константа, вспомогательная функция вроде <code>Math.max</code>).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m09-04">
+      <script type="application/json">
+      { "title": "static — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "class Ticket {\n    static int issued = 0;\n    int number;\n    Ticket() {\n        issued++;\n        number = issued;\n    }\n}\n\n// в main:\nTicket t1 = new Ticket();\nTicket t2 = new Ticket();\nTicket t3 = new Ticket();\nSystem.out.println(t1.number + \" \" + Ticket.issued);",
+            "answer": "1 3", "why": "number — своё у каждого билета (у первого 1), issued — общий на всех (3)." },
+          { "type": "bug", "q": "Какая строка не скомпилируется?",
+            "code": "class Dog {\n    String name;\n    static int total;\n    static void info() {\n        System.out.println(total);\n        System.out.println(name);\n    }\n}",
+            "answer": [6], "why": "В static-методе нет this — непонятно, чьё name. total — static, его можно." },
+          { "type": "single", "q": "Почему метод main объявлен как static?",
+            "options": ["Чтобы он работал быстрее", "Чтобы JVM могла вызвать его без создания объекта", "Потому что он ничего не возвращает"], "answer": 1,
+            "why": "В момент старта объектов нет, а JVM не знает, как создать объект твоего класса. static-метод вызывается у класса." },
+          { "type": "match", "q": "Соедини вызов с тем, что слева от точки",
+            "left": ["Math.max(3, 7)", "word.length()", "System.out", "Cat.count"],
+            "right": ["Класс, static-метод", "Объект-строка, метод объекта", "Класс System, его static-поле", "Класс Cat, его static-поле"],
+            "why": "С большой буквы слева — класс (static), переменная слева — объект." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "static-поле хранится внутри каждого объекта", "a": false, "why": "оно одно на класс, в объектах его нет." },
+              { "s": "Метод объекта может читать static-поле своего класса", "a": true },
+              { "s": "static final поле можно поменять в конструкторе любого объекта", "a": false, "why": "final — значение присваивается один раз, дальше компилятор не даст." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок про static. Спроси меня про пять вызовов из стандартной библиотеки, а я скажу, static они или нет, и объясню почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>static</code>-поле — одно на весь класс (доска в классе), обычное поле — своё у каждого объекта (дневник).</li>
+        <li>К static-полям обращаются и static-методы вызывают через имя класса: <code>Cat.count</code>, <code>Math.max</code>.</li>
+        <li>В static-методе нет this — к полям объекта напрямую обращаться нельзя.</li>
+        <li><code>main</code> — static, чтобы JVM могла вызвать его без объектов.</li>
+        <li><code>static final</code> — константа: <code>Math.PI</code>, <code>MAX_LIVES</code>. И <code>System.out</code> — тоже static-поле.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

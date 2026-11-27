@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Инкапсуляция: прячем данные · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m10-01">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 10 · Урок 1</div>
+    <h1>Инкапсуляция: прячем данные</h1>
+    <p class="lead">Объект — не мешок с полями, куда любой может залезть руками. Хороший объект сам охраняет свои данные и пускает к ним только через «окошки» с проверкой. Учимся писать такие классы на примере банковского счёта.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔒 private и методы</span><span>🧠 память по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <p>В модуле 9 ты научился писать свои классы. Вспомним самое нужное для сегодняшнего урока.</p>
+    <div data-widget="check" id="check-m10-01-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним модуль 9",
+       "kind": "Повторение",
+       "items": [
+        {
+         "type": "single",
+         "q": "Поле объявлено как <code>private String name;</code> в классе <code>Cat</code>. Что будет, если в другом классе написать <code>cat.name = \"Барсик\";</code>?",
+         "options": [
+          "Всё сработает, имя поменяется",
+          "Ошибка компиляции: name has private access in Cat",
+          "Ошибка только при запуске программы"
+         ],
+         "answer": 1,
+         "why": "private — «только для своих»: к полю можно обращаться только внутри класса Cat. Компилятор не пропустит такой код."
+        },
+        {
+         "type": "match",
+         "q": "Соедини модификатор доступа и кто видит поле или метод",
+         "left": [
+          "private",
+          "без модификатора",
+          "public"
+         ],
+         "right": [
+          "только сам класс",
+          "классы из того же пакета",
+          "все классы"
+         ],
+         "why": "Чем строже модификатор, тем меньше кода может трогать поле напрямую."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Три кита ООП</h2>
+    <p>Классы и объекты ты уже умеешь писать. Но в Java есть три идеи, которые превращают «просто классы» в <b>объектно-ориентированное программирование</b> (ООП). Их спрашивают на каждом собеседовании, и на них держится весь этот модуль.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 230" role="img" aria-label="Три кита ООП: инкапсуляция, наследование, полиморфизм держат на себе программу">
+        <rect x="40" y="20" width="640" height="46" rx="12" class="d-soft"/>
+        <text x="360" y="49" text-anchor="middle" class="d-title">Твоя программа: классы и объекты</text>
+        <rect x="40" y="90" width="200" height="120" rx="16" class="d-blue"/>
+        <text x="140" y="122" text-anchor="middle" class="d-title">🔒 Инкапсуляция</text>
+        <text x="140" y="150" text-anchor="middle" class="d-small">прячем данные,</text>
+        <text x="140" y="170" text-anchor="middle" class="d-small">пускаем через методы</text>
+        <text x="140" y="196" text-anchor="middle" class="d-small">урок 1</text>
+        <rect x="260" y="90" width="200" height="120" rx="16" class="d-violet"/>
+        <text x="360" y="122" text-anchor="middle" class="d-title">🧬 Наследование</text>
+        <text x="360" y="150" text-anchor="middle" class="d-small">новый класс на основе</text>
+        <text x="360" y="170" text-anchor="middle" class="d-small">готового</text>
+        <text x="360" y="196" text-anchor="middle" class="d-small">уроки 2–3</text>
+        <rect x="480" y="90" width="200" height="120" rx="16" class="d-teal"/>
+        <text x="580" y="122" text-anchor="middle" class="d-title">🎭 Полиморфизм</text>
+        <text x="580" y="150" text-anchor="middle" class="d-small">одна команда — разное</text>
+        <text x="580" y="170" text-anchor="middle" class="d-small">поведение у разных</text>
+        <text x="580" y="196" text-anchor="middle" class="d-small">уроки 4–6</text>
+        <path d="M140 66 V90 M360 66 V90 M580 66 V90" class="d-line"/>
+      </svg>
+      <figcaption>Иногда добавляют четвёртого кита — абстракцию. Её мы встретим в модуле 11.</figcaption>
+    </figure>
+    <div class="callout tip">
+      <span class="callout-title">Где набирать примеры из уроков</span>
+      <p>Создай внутри <code>module-10</code> пакет для экспериментов: правый клик по папке → <b>New → Package</b> → <code>lesson10</code>. Классы из уроков (<code>Cat</code>, <code>Animal</code>…) клади туда — тогда они не столкнутся с одноимёнными классами из других модулей. А вот файлы <b>задач</b> клади прямо в <code>module-10</code>, без пакета, иначе проверка их не найдёт.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Что не так с открытыми полями</h2>
+    <p>Представь банковский счёт, у которого поле баланса открыто всем:</p>
+<pre data-file="OpenBank.java"><code class="java">public class OpenBank {
+    public static void main(String[] args) {
+        OpenAccount acc = new OpenAccount();
+        acc.balance = 100;
+        acc.balance = acc.balance - 5000;   // сняли больше, чем было
+        acc.balance = -999999;              // или просто так
+        System.out.println("Баланс: " + acc.balance);
+    }
+}
+
+class OpenAccount {
+    public int balance;
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли этот код? Что напечатает?</summary>
+      <p><b>Скомпилируется и напечатает «Баланс: -999999».</b> Java не знает, что у счёта баланс не бывает отрицательным. Это знаем только мы — а охранять правило некому: любая строчка любого класса может присвоить полю что угодно.</p>
+    </details>
+    <p>В маленькой программе ошибку легко найти. А в проекте на сто тысяч строк, где баланс меняют из двадцати мест? Какое из них увело счёт в минус — ищи до вечера.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: банкомат и сейф</span>
+      <p>Деньги банка лежат в <b>сейфе</b>, и клиенту туда залезть нельзя. Клиент говорит <b>банкомату</b>: «сними 500». Банкомат проверяет, хватает ли денег, и только потом выдаёт. Если не хватает — вежливо отказывает.</p>
+      <p>Открытое поле — это сейф без двери: каждый берёт сколько хочет. <b>Инкапсуляция</b> — это сейф (<code>private</code>-поле) плюс банкомат (публичные методы с проверками).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Прячем поле, даём методы</h2>
+    <p><b>Инкапсуляция</b> (от «капсула») — приём, при котором данные объекта — его <b>поля</b> — спрятаны внутри с <b>модификатором доступа</b> <code>private</code>, а снаружи доступны только методы, и эти методы следят за правилами. Перепишем счёт:</p>
+<pre data-file="Bank.java"><code class="java">public class Bank {
+    public static void main(String[] args) {
+        BankAccount acc = new BankAccount();
+        acc.deposit(100);
+        boolean ok = acc.withdraw(5000);
+        System.out.println("Сняли? " + ok);
+        System.out.println("Баланс: " + acc.getBalance());
+    }
+}
+
+class BankAccount {
+    private int balance;                      // сейф: снаружи не достать
+
+    boolean deposit(int amount) {             // окошко «положить»
+        if (amount &lt;= 0) {
+            return false;
+        }
+        balance += amount;
+        return true;
+    }
+
+    boolean withdraw(int amount) {            // окошко «снять»
+        if (amount &lt;= 0 || amount &gt; balance) {
+            return false;                     // отказ: баланс не трогаем
+        }
+        balance -= amount;
+        return true;
+    }
+
+    int getBalance() {                        // окошко «посмотреть»
+        return balance;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>private int balance;</code><div><p>Объявляем поле <code>balance</code> с модификатором <code>private</code> — оно спрятано. Присваивание <code>acc.balance = -999999;</code> в <code>main</code> теперь <b>не скомпилируется</b>: <code>balance has private access</code>.</p></div></div>
+      <div class="annot-row"><code>if (amount &lt;= 0 || amount &gt; balance)</code><div><p>Правило «нельзя снять больше, чем есть» записано <b>в одном месте</b> — внутри класса. Обойти его снаружи невозможно.</p></div></div>
+      <div class="annot-row"><code>return false;</code><div><p>Метод не молчит: он <b>возвращает</b> <code>false</code> или <code>true</code> — сообщает, получилось или нет. Вызывающий код решает, что делать с отказом. (Позже, в модуле 12, научимся сообщать об ошибке исключением.)</p></div></div>
+      <div class="annot-row"><code>int getBalance()</code><div><p><b>Геттер</b> — метод, который возвращает значение поля; <b>сеттер</b> — метод, который присваивает полю новое значение. Геттер есть, а <b>сеттера нет</b>. Баланс можно прочитать, но поменять — только через <code>deposit</code> и <code>withdraw</code>.</p></div></div>
+    </div>
+    <p>Попробуй всё-таки залезть в сейф из <code>main</code> — IDEA остановит тебя ещё до запуска:</p>
+    <div data-widget="ide" id="shot-private-access">
+      <script type="application/json">
+      { "tree": false, "file": "Bank.java", "statusPath": "module-10", "gutterRun": [1, 2],
+        "code": "public class Bank {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount();\n        acc.deposit(100);\n        acc.balance = -999999;\n    }\n}",
+        "errors": [ { "line": 5, "text": "balance", "msg": "'balance' has private access in 'BankAccount'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-4", "text": "Через «окошко» <code>deposit</code> — можно: метод не private" },
+                   { "n": 2, "target": "err-5", "side": "top", "text": "Красным стало имя поля: к <code>balance</code> снаружи не подобраться" },
+                   { "n": 3, "target": "tip", "text": "<b>has private access in 'BankAccount'</b> — «доступ только внутри класса BankAccount». <code>javac</code> скажет почти так же: <code>balance has private access in BankAccount</code>" } ],
+        "caption": "Обращение к private-полю снаружи — ошибка компиляции" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 270" role="img" aria-label="Объект счёта как капсула: внутри приватное поле balance, снаружи три метода-окошка. Код снаружи может пройти только через методы">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="40" width="170" height="190" rx="14" class="d-soft"/>
+        <text x="105" y="68" text-anchor="middle" class="d-title">Код снаружи</text>
+        <text x="105" y="94" text-anchor="middle" class="d-small">main, другие классы</text>
+        <text x="40" y="130" class="d-mono-ink">deposit(100)</text>
+        <text x="40" y="160" class="d-mono-ink">withdraw(5000)</text>
+        <text x="40" y="190" class="d-mono-ink">getBalance()</text>
+        <rect x="250" y="20" width="450" height="230" rx="40" class="d-accent"/>
+        <text x="475" y="50" text-anchor="middle" class="d-title">объект BankAccount</text>
+        <rect x="270" y="108" width="140" height="34" rx="8" class="d-green"/>
+        <text x="340" y="130" text-anchor="middle" class="d-small">deposit: &gt; 0?</text>
+        <rect x="270" y="150" width="140" height="34" rx="8" class="d-green"/>
+        <text x="340" y="172" text-anchor="middle" class="d-small">withdraw: хватит?</text>
+        <rect x="270" y="192" width="140" height="34" rx="8" class="d-green"/>
+        <text x="340" y="214" text-anchor="middle" class="d-small">getBalance</text>
+        <rect x="470" y="100" width="200" height="120" rx="14" class="d-yellow"/>
+        <text x="570" y="130" text-anchor="middle" class="d-title">🔒 private</text>
+        <text x="570" y="165" text-anchor="middle" class="d-mono-ink">balance = 100</text>
+        <text x="570" y="196" text-anchor="middle" class="d-small">снаружи не видно</text>
+        <path d="M170 125 H266" class="d-arrow"/>
+        <path d="M170 167 H266" class="d-arrow"/>
+        <path d="M170 209 H266" class="d-arrow"/>
+        <path d="M412 160 H466" class="d-arrow"/>
+        <path d="M120 222 C 200 262, 420 262, 470 214" class="d-dash"/>
+        <text x="300" y="262" text-anchor="middle" class="d-c-red d-small">acc.balance = … ✗ не скомпилируется</text>
+      </svg>
+      <figcaption>Капсула: данные внутри, снаружи — только методы с проверками. Прямой путь к полю закрыт компилятором.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Посмотрим в память</h2>
+    <p>Пройди программу <code>Bank</code> по шагам. Следи, как меняется поле <code>balance</code> в куче — и в какой момент метод отказывается его трогать.</p>
+    <div data-widget="trace" id="trace-m10-01-bank">
+      <script type="application/json">
+      { "title": "Счёт охраняет сам себя",
+        "intro": "Слева — стек (переменные методов), справа — куча (объекты). Поле <code>balance</code> живёт внутри объекта в куче.",
+        "code": "BankAccount acc = new BankAccount();\nacc.deposit(100);\nboolean ok = acc.withdraw(5000);\nSystem.out.println(\"Сняли? \" + ok);\nSystem.out.println(\"Баланс: \" + acc.getBalance());",
+        "steps": [
+          { "line": 1, "stack": [ { "frame": "main", "vars": { "acc": "→#1" } } ], "heap": [ { "id": "#1", "label": "BankAccount", "fields": { "balance": "0" } } ], "note": "Оператор <code>new</code> создаёт объект класса <code>BankAccount</code>, переменная <code>acc</code> хранит ссылку на него. Поле <code>balance</code> типа int по умолчанию равно 0 — свой конструктор писать не пришлось." },
+          { "line": 2, "stack": [ { "frame": "main", "vars": { "acc": "→#1" } }, { "frame": "deposit", "vars": { "amount": "100", "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "BankAccount", "fields": { "balance": "0" } } ], "note": "Вызван <code>deposit(100)</code>. Внутри метода <code>this</code> — ссылка на тот же объект #1. Проверка: 100 &gt; 0, всё в порядке." },
+          { "line": 2, "stack": [ { "frame": "main", "vars": { "acc": "→#1" } } ], "heap": [ { "id": "#1", "label": "BankAccount", "fields": { "balance": "100" } } ], "note": "Метод прибавил 100 к полю и вернул true (возвращённое значение мы не сохранили — так тоже можно). Фрейм deposit снят." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "acc": "→#1" } }, { "frame": "withdraw", "vars": { "amount": "5000", "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "BankAccount", "fields": { "balance": "100" } } ], "note": "Вызван <code>withdraw(5000)</code>. Проверка: 5000 &gt; 100 — денег не хватает." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "acc": "→#1", "ok": "false" } } ], "heap": [ { "id": "#1", "label": "BankAccount", "fields": { "balance": "100" } } ], "note": "Метод вернул <code>false</code> и <b>не тронул</b> баланс. Правило объекта сохранилось: баланс никогда не бывает отрицательным." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "acc": "→#1", "ok": "false" } } ], "heap": [ { "id": "#1", "label": "BankAccount", "fields": { "balance": "100" } } ], "out": "Сняли? false\n", "note": "main узнал об отказе по возвращённому значению." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "acc": "→#1", "ok": "false" } } ], "heap": [ { "id": "#1", "label": "BankAccount", "fields": { "balance": "100" } } ], "out": "Баланс: 100\n", "note": "Читаем баланс через геттер — напрямую к полю из main не добраться." }
+        ] }
+      </script>
+    </div>
+    <dl class="terms">
+      <dt>Инвариант</dt><dd>Правило, которое <b>всегда</b> верно для объекта. У счёта: «баланс ≥ 0». Инкапсуляция нужна, чтобы инвариант нельзя было нарушить снаружи.</dd>
+      <dt>Интерфейс объекта</dt><dd>Набор методов, которые видны снаружи (здесь — <code>deposit</code>, <code>withdraw</code>, <code>getBalance</code>). Это «пульт» объекта. Не путай со словом <code>interface</code> из модуля 11 — это родственная, но отдельная штука.</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что даёт инкапсуляция</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">🛡️</span><h4>Проверки</h4><p>Каждое изменение проходит через метод, а метод может сказать «нет». Объект не попадёт в бессмысленное состояние.</p></div>
+      <div class="card"><span class="emoji">👀</span><h4>Только чтение</h4><p>Геттер без сеттера — поле можно смотреть, но не менять. С открытым полем так не выйдет.</p></div>
+      <div class="card"><span class="emoji">🔧</span><h4>Свобода переделать</h4><p>Захотел хранить баланс в копейках (<code>long</code>) — меняешь класс внутри, а весь код снаружи, который вызывает методы, остаётся прежним.</p></div>
+      <div class="card"><span class="emoji">📍</span><h4>Одно место правды</h4><p>Правило записано один раз — в классе. Ошибку ищешь в одном месте, а не по всему проекту.</p></div>
+    </div>
+    <h3>Детали прячем, действия показываем</h3>
+    <p>Возьмём кофемашину. Внутри у неё куча настроек: до скольких градусов греть воду, сколько грамм зёрен молоть, сколько налить молока (это детали, они часто меняются). Снаружи видна только понятная кнопка: «сделать латте». Это инкапсуляция в чистом виде:</p>
+<pre data-file="CoffeeMachineIdea.java"><code class="java">class CoffeeMachine {
+    // как именно варить — секрет машины
+    private int waterTemperature = 92;
+    private int coffeeGrams = 18;
+    private int milkMl = 150;
+
+    void makeLatte(String guest) { // что умеет машина — открыто
+        System.out.println("Грею воду до " + waterTemperature + "°");
+        System.out.println("Мелю " + coffeeGrams + " г зёрен");
+        System.out.println("Добавляю " + milkMl + " мл молока — латте для " + guest);
+    }
+}</code></pre>
+    <p>Купили другие зёрна — теперь их нужно 20 г? Правишь одну строку внутри <code>CoffeeMachine</code>, а сотня мест в программе, которые вызывают <code>makeLatte(...)</code>, даже не замечает. Так устроены и большие программы: каждый класс прячет свои детали и показывает наружу только действия.</p>
+    <div data-widget="check" id="check-m10-01-mid">
+      <script type="application/json">
+      { "title": "Инкапсуляция — суть",
+        "items": [
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Инкапсуляция — это когда поля private, а работа с ними идёт через методы, которые следят за правилами", "a": true },
+              { "s": "Если у поля есть публичный геттер, но нет сеттера, поле можно поменять снаружи", "a": false, "why": "без сеттера (и без других меняющих методов) поле снаружи только читается." },
+              { "s": "Правило «баланс не меньше нуля» лучше проверять в каждом месте, где снимают деньги", "a": false, "why": "лучше один раз — внутри метода withdraw. Тогда его не забудут и не обойдут." }
+            ] },
+          { "type": "single", "q": "В классе <code>BankAccount</code> из урока поле <code>balance</code> — private. Что сделает строка в <code>main</code>?",
+            "code": "BankAccount acc = new BankAccount();\nacc.balance = 500;",
+            "options": ["Положит 500 на счёт", "Не скомпилируется: balance has private access", "Скомпилируется, но при запуске будет ошибка"], "answer": 1,
+            "why": "Доступ к private-полю проверяет компилятор, ещё до запуска. Положить деньги можно только через deposit(500)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Ловушки: «геттер и сеттер на всё»</h2>
+    <p>Новички часто делают так: все поля <code>private</code>, а к каждому — геттер и сеттер, сгенерированные IDEA. Выглядит «по правилам», но посмотри:</p>
+<pre data-file="FakeAccount.java"><code class="java">class FakeAccount {
+    private int balance;
+
+    int getBalance() { return balance; }
+    void setBalance(int balance) { this.balance = balance; }   // любое число!
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: чем такой счёт лучше счёта с открытым полем?</summary>
+      <p><b>Почти ничем.</b> <code>acc.setBalance(-999999)</code> делает то же самое, что <code>acc.balance = -999999</code>. Поле формально закрыто, но дверь в сейф по-прежнему распахнута. Инкапсуляция — не слово <code>private</code>, а <b>защита правил</b>. Сеттер имеет смысл, только если в нём есть проверка или если любое значение поля действительно допустимо.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Правило</span>
+      <p>Сначала подумай, <b>какие действия</b> нужны объекту снаружи («положить», «снять»), и сделай методы под них. Геттеры — только для того, что действительно нужно читать. Сеттеры — только там, где менять поле напрямую не опасно.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: геттер, который выдаёт секрет</summary>
+      <p>Помнишь из модулей 6–7: переменная-массив хранит <b>ссылку</b>. Если геттер вернёт ссылку на внутренний массив, снаружи смогут менять его содержимое — в обход всех проверок:</p>
+<pre data-file="History.java"><code class="java">class History {
+    private int[] operations = {100, -50, 200};
+
+    int[] getOperations() {
+        return operations;                    // отдали ключ от сейфа!
+    }
+}
+
+// снаружи:
+history.getOperations()[0] = 1_000_000;      // поменяли «чужую» историю</code></pre>
+      <p>Защита — отдавать <b>копию</b>: <code>return Arrays.copyOf(operations, operations.length);</code>. Это называется «защитная копия». Со строками (<code>String</code>) такой проблемы нет: строки неизменяемы, их нельзя испортить через ссылку.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m10-01">
+      <script type="application/json">
+      {
+       "title": "Инкапсуляция — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа с классом <code>BankAccount</code> из урока?",
+         "code": "BankAccount acc = new BankAccount();\nacc.deposit(300);\nacc.withdraw(100);\nacc.withdraw(500);\nacc.deposit(-20);\nSystem.out.println(acc.getBalance());",
+         "answer": "200",
+         "why": "300 − 100 = 200. Снятие 500 отклонено (не хватает), пополнение −20 отклонено (сумма ≤ 0)."
+        },
+        {
+         "type": "bug",
+         "q": "Класс хочет, чтобы возраст был от 0 до 150. Какая строка ломает эту защиту?",
+         "code": "class Person {\n    private int age;\n    public int counter;\n    void setAge(int age) {\n        if (age >= 0 && age <= 150) this.age = age;\n    }\n    void forceAge(int age) { this.age = age; }\n}",
+         "answer": [
+          7
+         ],
+         "why": "forceAge записывает любое число без проверки — через него инвариант «0..150» нарушается. Поле counter публичное, но к возрасту оно отношения не имеет."
+        },
+        {
+         "type": "multi",
+         "q": "Отметь, что даёт инкапсуляция",
+         "options": [
+          "Проверки при изменении данных",
+          "Программа работает быстрее",
+          "Можно поменять внутреннее устройство класса, не трогая код снаружи",
+          "Поле можно сделать доступным только для чтения"
+         ],
+         "answer": [
+          0,
+          2,
+          3
+         ],
+         "why": "Инкапсуляция — про надёжность и гибкость, а не про скорость."
+        },
+        {
+         "type": "single",
+         "q": "В классе кофемашины поля с настройками (температура воды, граммы зёрен) обычно делают…",
+         "options": [
+          "public — чтобы любой код мог сам подкрутить что хочет",
+          "private — снаружи вызывают методы-действия, а детали рецепта спрятаны",
+          "static — чтобы не создавать объект машины"
+         ],
+         "answer": 1,
+         "why": "Программа говорит «сделай латте», а сколько грамм молоть — секрет машины. Поменялся рецепт — правится один класс."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 10.1. Придумай класс из жизни (например, термостат или лифт), а я скажу, какие у него поля, какие правила-инварианты и какие методы должны быть открыты»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Три кита ООП: инкапсуляция, наследование, полиморфизм.</li>
+        <li>Инкапсуляция: поля <code>private</code>, работа с ними — через методы, которые проверяют правила.</li>
+        <li>Публичное поле может испортить кто угодно; правило объекта (инвариант) должен охранять сам объект.</li>
+        <li>Геттер без сеттера — поле только для чтения. Сеттер без проверки — почти то же, что открытое поле.</li>
+        <li>Хороший класс как кофемашина: детали спрятаны, наружу — действия.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

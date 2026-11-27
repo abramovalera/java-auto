@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Selenide: первый UI-тест · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-04">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 18 · Урок 4</div>
+    <h1>Selenide: первый UI-тест</h1>
+    <p class="lead">Java-код, который сам открывает браузер, печатает в поля, жмёт кнопки и проверяет, что увидел. Разберём настоящий тест логина строчка за строчкой.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🌐 Selenide</span><span>📖 код для чтения и разбора</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m18-04-review">
+      <script type="application/json">
+      { "title": "Вспомним локаторы", "icon": "🔁",
+        "items": [
+          { "type": "match", "q": "Соедини локатор с тем, что он найдёт",
+            "left": ["#cart", ".price", "[data-test-id='buy']", "//h4[text()='Чистый код']"],
+            "right": ["элемент с id cart", "все элементы с классом price", "элемент с тестовым атрибутом buy", "заголовок h4 с точным текстом"],
+            "why": "# — id, точка — класс, квадратные скобки — атрибут, text() — текст (только XPath)." },
+          { "type": "single", "q": "Какой локатор переживёт перестройку вёрстки с наибольшей вероятностью?",
+            "options": ["/html/body/div[2]/button", "[data-test-id='pay']", ".row .col .btn"], "answer": 1,
+            "why": "Тестовый атрибут не зависит ни от дизайна, ни от структуры страницы." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Selenium и Selenide</h2>
+    <p>Браузером из Java управляет библиотека <b>Selenium WebDriver</b> — мировой стандарт с 2000-х. Она умеет всё, но многословна: чтобы дождаться кнопки и нажать её, нужно несколько строк служебного кода. <b>Selenide</b> — обёртка над Selenium, написанная автоматизаторами для автоматизаторов: коротко, читаемо и, главное, <b>сама ждёт</b> элементы.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 170" role="img" aria-label="Цепочка: твой тест, Selenide, Selenium WebDriver, драйвер браузера, браузер Chrome">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="8" y="40" width="128" height="76" rx="12" class="d-accent"/>
+        <text x="72" y="72" text-anchor="middle" class="d-title">Твой тест</text>
+        <text x="72" y="96" text-anchor="middle" class="d-small">JUnit 5</text>
+        <rect x="160" y="40" width="128" height="76" rx="12" class="d-green"/>
+        <text x="224" y="72" text-anchor="middle" class="d-title">Selenide</text>
+        <text x="224" y="96" text-anchor="middle" class="d-small">$(…).click()</text>
+        <rect x="312" y="40" width="128" height="76" rx="12" class="d-blue"/>
+        <text x="376" y="72" text-anchor="middle" class="d-title">Selenium</text>
+        <text x="376" y="96" text-anchor="middle" class="d-small">WebDriver</text>
+        <rect x="464" y="40" width="128" height="76" rx="12" class="d-violet"/>
+        <text x="528" y="72" text-anchor="middle" class="d-title">Драйвер</text>
+        <text x="528" y="96" text-anchor="middle" class="d-small">chromedriver</text>
+        <rect x="616" y="40" width="136" height="76" rx="12" class="d-yellow"/>
+        <text x="684" y="72" text-anchor="middle" class="d-title">🌐 Chrome</text>
+        <text x="684" y="96" text-anchor="middle" class="d-small">настоящий браузер</text>
+        <path d="M136 78 H154" class="d-arrow"/>
+        <path d="M288 78 H306" class="d-arrow"/>
+        <path d="M440 78 H458" class="d-arrow"/>
+        <path d="M592 78 H610" class="d-arrow"/>
+        <text x="380" y="150" text-anchor="middle" class="d-small">ты пишешь только левую часть — остальное Selenide подтягивает и настраивает сам</text>
+      </svg>
+      <figcaption>Команда идёт по цепочке: твой тест → Selenide → Selenium → драйвер → браузер.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: коробка передач</span>
+      <p>Selenium — механика: всё под контролем, но на каждом перекрёстке сам выжимаешь сцепление и переключаешь передачи. Selenide — автомат: нажал «газ» — едешь, переключения он делает сам. Ехать можно на обоих, но на автомате думаешь о дороге, а не о педалях.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Словарь Selenide</h2>
+    <p>Почти все тесты собираются из десятка методов: <b>статических методов</b> класса <code>Selenide</code> и методов элемента. Статические методы подключают <b>статическим импортом</b> — тогда можно вызывать <code>open(…)</code> и <code>$(…)</code> без имени класса:</p>
+<pre data-file="imports"><code class="java">import static com.codeborne.selenide.Selenide.*;     // open, $, $$
+import static com.codeborne.selenide.Condition.*;    // visible, text, value…</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вызов метода</th><th>Что делает</th></tr>
+        <tr><td><code>open("/login")</code></td><td>открывает адрес; если он начинается с <code>/</code>, к нему приклеится <code>Configuration.baseUrl</code></td></tr>
+        <tr><td><code>$("локатор")</code></td><td>локатор передаётся аргументом; метод возвращает <b>элемент страницы</b> — объект <code>SelenideElement</code>, первый подходящий по CSS-селектору</td></tr>
+        <tr><td><code>$x("//xpath")</code> или <code>$(byXpath("…"))</code></td><td>один элемент по XPath</td></tr>
+        <tr><td><code>$$("локатор")</code></td><td>коллекция всех подходящих элементов</td></tr>
+        <tr><td><code>.setValue("anna")</code></td><td><b>действие</b>: очищает поле и вводит текст из аргумента</td></tr>
+        <tr><td><code>.click()</code></td><td><b>действие</b>: кликает по элементу</td></tr>
+        <tr><td><code>.shouldBe(visible)</code></td><td><b>проверка состояния</b>: элемент виден — метод получает аргументом условие <code>visible</code> (есть и <code>hidden</code>, <code>enabled</code>, <code>disabled</code>)</td></tr>
+        <tr><td><code>.shouldHave(text("Привет"))</code></td><td><b>проверка</b>: текст элемента <b>содержит</b> «Привет»</td></tr>
+        <tr><td><code>.shouldHave(exactText("Привет, anna!"))</code></td><td><b>проверка</b>: текст совпадает <b>целиком</b></td></tr>
+        <tr><td><code>.shouldHave(value("anna"))</code></td><td><b>проверка</b>: значение поля ввода</td></tr>
+        <tr><td><code>.getText()</code></td><td>просто возвращает текст элемента как значение типа <code>String</code> (без ожидания и проверки)</td></tr>
+        <tr><td><code>$$(".book-card").shouldHave(size(3))</code></td><td><b>проверка</b> коллекции: ровно 3 элемента</td></tr>
+        <tr><td><code>$$(".book-card").findBy(text("Чистый код"))</code></td><td>из коллекции — элемент с нужным текстом</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="wow"><p>Да, метод называется просто <code>$</code>. В Java доллар — законный символ имени, как буква. <code>$</code> — обычный статический метод класса <code>Selenide</code>, который возвращает объект <code>SelenideElement</code>. А у объекта — методы <code>click()</code>, <code>setValue()</code>, <code>shouldHave()</code>. Строку <code>$("#login").click();</code> читаем так: вызываем статический метод <code>$</code> с аргументом-локатором <code>"#login"</code>, он возвращает элемент страницы, и у этого объекта сразу вызываем метод <code>click</code> — <b>цепочка вызовов</b>. Никакой магии: это классы и методы из модулей 9–11.</p></div>
+    <details class="predict">
+      <summary>Чем отличаются <code>shouldHave(text("Войти"))</code> и <code>shouldHave(exactText("Войти"))</code> для кнопки с текстом «Войти через почту»?</summary>
+      <p>Первая проверка пройдёт: условие <code>text</code> ищет <b>подстроку</b>, а «Войти» внутри есть. Вторая упадёт: <code>exactText</code> требует совпадения целиком. Регистр букв обе по умолчанию не учитывают (для строгого сравнения есть <code>textCaseSensitive</code>). Частая ошибка новичка — проверить <code>text("1")</code> у счётчика с числом 12 и получить ложный «зелёный».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Умные ожидания: секрет Selenide</h2>
+    <p>Страницы живут своей жизнью: данные грузятся, кнопки появляются через полсекунды, ошибки всплывают с анимацией. Если тест проверит «прямо сейчас», он то пройдёт, то нет — станет flaky.</p>
+    <p>Новичок «чинит» это так: <code>Thread.sleep(5000)</code> — «подожду 5 секунд на всякий случай». Плохо дважды: если элемент появился через 0,3 с, тест зря стоит 4,7 с (а таких мест в наборе сотни), а если сервер сегодня медленный и элемент появился через 6 с — тест всё равно упал.</p>
+    <p>Selenide делает иначе. Каждая проверка состояния <code>should…</code> <b>повторяется</b> каждые 200 мс, пока не выполнится, — но не дольше <code>Configuration.timeout</code> (по умолчанию 4 секунды). Действия <code>click</code> и <code>setValue</code> тоже сначала ждут, пока элемент появится.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 230" role="img" aria-label="Сравнение: Thread.sleep ждёт всё время, Selenide проверяет каждые 200 мс и идёт дальше, как только элемент появился">
+        <path d="M150 24 V196" class="d-dash"/>
+        <path d="M440 24 V196" class="d-dash"/>
+        <path d="M710 24 V196" class="d-dash"/>
+        <text x="150" y="216" text-anchor="middle" class="d-small">0 с</text>
+        <text x="440" y="216" text-anchor="middle" class="d-small">1,3 с — элемент появился</text>
+        <text x="710" y="216" text-anchor="middle" class="d-small">4 с</text>
+        <text x="16" y="66" class="d-title">sleep(4000)</text>
+        <rect x="150" y="46" width="560" height="30" rx="8" class="d-red"/>
+        <text x="575" y="66" text-anchor="middle" class="d-small">стоим зря ещё 2,7 с</text>
+        <text x="16" y="140" class="d-title">Selenide</text>
+        <rect x="150" y="120" width="290" height="30" rx="8" class="d-green"/>
+        <circle cx="150" cy="135" r="5" class="d-box"/>
+        <circle cx="194" cy="135" r="5" class="d-box"/>
+        <circle cx="237" cy="135" r="5" class="d-box"/>
+        <circle cx="281" cy="135" r="5" class="d-box"/>
+        <circle cx="324" cy="135" r="5" class="d-box"/>
+        <circle cx="368" cy="135" r="5" class="d-box"/>
+        <circle cx="411" cy="135" r="5" class="d-box"/>
+        <circle cx="440" cy="135" r="8" class="d-accent"/>
+        <text x="456" y="140" class="d-text">✓ дальше!</text>
+        <text x="296" y="176" text-anchor="middle" class="d-small">проверка каждые 200 мс</text>
+      </svg>
+      <figcaption>Sleep ждёт всегда одинаково. Selenide — ровно столько, сколько нужно, но не дольше таймаута.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: ждёшь друга у подъезда</span>
+      <p><code>sleep</code> — «простою 10 минут, потом поднимусь», даже если друг вышел через минуту. Selenide — «смотрю на дверь каждые пару секунд: вышел — идём; не вышел за 10 минут — звоню, что-то случилось».</p>
+    </div>
+    <details class="predict">
+      <summary>Ошибка «Неверный пароль» появляется через 0,5 с после клика. Тест: <code>click()</code>, затем <code>$(".error").shouldBe(visible)</code>. Пройдёт?</summary>
+      <p>Да. <code>shouldBe</code> будет проверять видимость каждые 200 мс и через ~0,6 с увидит ошибку. Тест пройдёт за полсекунды, без всяких sleep. А если ошибка не появится за 4 с — тест упадёт с понятным сообщением.</p>
+    </details>
+    <p>Свою «умную паузу» ты напишешь в задаче <a href="/tasks.html?module=m18">«Умное ожидание вместо sleep»</a> — и увидишь, как она устроена внутри.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Тест логина целиком</h2>
+    <p>Вот настоящий UI-тест для формы входа магазина Nook (адрес выдуманный: домен <code>.test</code> зарезервирован как раз для примеров). Прочитай его медленно — почти каждую строку ты уже понимаешь.</p>
+<pre data-file="LoginTest.java"><code class="java">import com.codeborne.selenide.Configuration;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selenide.*;
+
+class LoginTest {
+
+    @BeforeEach
+    void setUp() {
+        Configuration.baseUrl = "https://nook-shop.test";
+        Configuration.browser = "chrome";
+        Configuration.timeout = 4000;
+        open("/login");
+    }
+
+    @AfterEach
+    void tearDown() {
+        closeWebDriver();
+    }
+
+    @Test
+    void userCanLogInWithValidPassword() {
+        $("[data-test-id='login']").setValue("anna");
+        $("[data-test-id='password']").setValue("qwerty123");
+        $("[data-test-id='login-button']").click();
+
+        $("[data-test-id='greeting']").shouldHave(text("Привет, anna!"));
+        $$(".book-card").shouldHave(sizeGreaterThan(0));
+    }
+
+    @Test
+    void wrongPasswordShowsError() {
+        $("[data-test-id='login']").setValue("anna");
+        $("[data-test-id='password']").setValue("12345");
+        $("[data-test-id='login-button']").click();
+
+        $("[data-test-id='error']").shouldBe(visible)
+                .shouldHave(exactText("Неверный логин или пароль"));
+        $("[data-test-id='greeting']").shouldNotBe(visible);
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Configuration.baseUrl</code><div><p>Адрес стенда. Все <code>open("/…")</code> приклеятся к нему. Сменить стенд (тестовый → предрелизный) — поменять одну строку, а лучше вынести в файл настроек (урок 6).</p></div></div>
+      <div class="annot-row"><code>Configuration.browser</code><div><p>Каким браузером запускать: <code>chrome</code>, <code>firefox</code>, <code>edge</code>. Драйвер для него Selenium скачает сам.</p></div></div>
+      <div class="annot-row"><code>open("/login")</code><div><p>В методе с аннотацией <code>@BeforeEach</code>: каждый тест начинает со страницы входа — тесты независимы.</p></div></div>
+      <div class="annot-row"><code>closeWebDriver()</code><div><p>В <code>@AfterEach</code>: закрыть браузер. Следующий тест получит чистый — без куки и входа от предыдущего.</p></div></div>
+      <div class="annot-row"><code>.setValue("anna")</code><div><p>Действие: найти поле (подождав, если надо), очистить и ввести текст — аргумент <code>"anna"</code>.</p></div></div>
+      <div class="annot-row"><code>.shouldHave(text(…))</code><div><p>Проверка состояния — ожидаемый результат тест-кейса: метод <code>shouldHave</code> получает аргументом условие <code>text(…)</code> с ожидаемым текстом. Без этой строки тест был бы «кликалкой» без проверки.</p></div></div>
+      <div class="annot-row"><code>sizeGreaterThan(0)</code><div><p>Условие для коллекции: каталог не пустой. Это статический метод класса <code>CollectionCondition</code>.</p></div></div>
+      <div class="annot-row"><code>.shouldNotBe(visible)</code><div><p>Негативная проверка: после ошибки приветствия быть не должно. Тоже ждёт — пока элемент не исчезнет.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Что будет, если в первом тесте сайт поздоровается «Привет, Anna!» с большой буквы?</summary>
+      <p>Тест пройдёт: условие <code>text</code> по умолчанию не учитывает регистр. Если регистр важен по требованиям — нужна строгая проверка <code>textCaseSensitive</code> или <code>exactTextCaseSensitive</code>. Вывод: всегда понимай, что именно проверяет твоё условие.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Когда тест падает</h2>
+    <p>Если проверка не выполнилась за таймаут, Selenide выбрасывает исключение (это <code>AssertionError</code>-наследник, как у AssertJ) с подробным сообщением, а заодно сам делает <b>скриншот</b> и сохраняет HTML страницы:</p>
+    <div data-widget="ide" id="shot-selenide-fail">
+      <script type="application/json">
+      { "tree": false, "project": "nook-tests", "status": "nook-tests › src › test › java › LoginTest",
+        "file": "LoginTest.java", "runConfig": "LoginTest", "gutterRun": [1, 10],
+        "code": "class LoginTest {\n\n    @BeforeEach\n    void setUp() {\n        Configuration.baseUrl = \"https://nook-shop.test\";\n        open(\"/login\");\n    }\n\n    @Test\n    void userCanLogInWithValidPassword() {\n        $(\"[data-test-id='login']\").setValue(\"anna\");\n        $(\"[data-test-id='password']\").setValue(\"qwerty123\");\n        $(\"[data-test-id='login-button']\").click();\n\n        $(\"[data-test-id='greeting']\").shouldHave(text(\"Привет, anna!\"));\n    }\n}",
+        "tests": { "title": "LoginTest", "time": "9 sec 120 ms",
+                   "tree": [ { "name": "LoginTest", "status": "fail", "time": "9 sec 120 ms" },
+                             { "name": "userCanLogInWithValidPassword()", "status": "fail", "depth": 1, "sel": true, "time": "6 sec 410 ms" },
+                             { "name": "wrongPasswordShowsError()", "status": "pass", "depth": 1, "time": "2 sec 710 ms" } ],
+                   "out": [ { "t": "err", "s": "com.codeborne.selenide.ex.ElementShould: Element should have text \"Привет, anna!\" {[data-test-id='greeting']}" },
+                            { "t": "err", "s": "Element: '<div data-test-id=\"greeting\">Привет, гость!</div>'" },
+                            { "t": "err", "s": "Actual value: text=\"Привет, гость!\"" },
+                            { "t": "err", "s": "Screenshot: file:/C:/nook-tests/build/reports/tests/1732650000.0.png" },
+                            { "t": "err", "s": "Page source: file:/C:/nook-tests/build/reports/tests/1732650000.0.html" },
+                            { "t": "err", "s": "Timeout: 4 s." },
+                            { "t": "err", "s": "\tat LoginTest.userCanLogInWithValidPassword(LoginTest.java:15)" } ] },
+        "marks": [ { "n": 1, "target": "test-2", "text": "Упавший тест. Шёл больше 6 секунд: 4 из них Selenide честно ждал нужный текст" },
+                   { "n": 2, "target": "test-out", "text": "Сообщение читаем сверху вниз: <b>should have text</b> — ожидаемое значение и где (локатор в фигурных скобках); <b>Element</b> и <b>Actual value</b> — фактическое значение; <b>Screenshot</b> и <b>Page source</b> — ссылки на скриншот и HTML страницы в момент падения; <b>Timeout</b> — сколько ждали" },
+                   { "n": 3, "target": "link-1", "text": "Строка 15 — проверка, которая не дождалась. Щелчок — переход к коду" },
+                   { "n": 4, "target": "line-15", "side": "top", "text": "Та самая строка. Приветствие «гость» намекает: вход не случился, проблема раньше — на строках 11–13" } ],
+        "caption": "Упавший Selenide-тест в окне результатов IDEA (импорты и служебные строки stack trace не показаны)" }
+      </script>
+    </div>
+    <p>Читать сообщение — как читать stack trace из модуля 12: <b>ожидаемое значение</b> (текст «Привет, anna!»), <b>где</b> (локатор), <b>фактическое значение</b> (Привет, гость!). Здесь вход, похоже, не случился. Скриншот покажет, что было на экране в момент падения, — открываешь и разбираешься: баг в продукте или проблема в тесте.</p>
+    <div class="callout warn">
+      <span class="callout-title">Сначала — «мой ли это тест?»</span>
+      <p>Красный тест — не всегда баг продукта. Сначала проверь: стенд работает? Данные (пользователь anna) на месте? Локатор не устарел? Только убедившись, что виноват продукт, заводи баг-репорт — с шагами, ожидаемым и фактическим результатом и скриншотом.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Как запустить у себя</h2>
+    <p>На сервере нашего курса браузера нет, поэтому задачи модуля сделаны на «заглушках» — обычных Java-классах, которые имитируют страницу. Настоящий Selenide ты запустишь в своём Gradle-проекте, который соберём в уроке 6:</p>
+    <ol class="steps">
+      <li>Установлен Chrome (или Firefox) — тот, что у тебя уже есть.</li>
+      <li>Gradle-проект с <b>зависимостями</b> (подключёнными библиотеками) <code>selenide</code>, <code>junit-jupiter</code>, <code>assertj-core</code> в <code>build.gradle.kts</code> (через <code>testImplementation</code>) — после Load Gradle Changes IDEA сама их скачает.</li>
+      <li>Тест в <code>src/test/java</code>, запуск — зелёный треугольник ▶ у класса или метода. Откроется окно браузера, и ты увидишь, как тест сам печатает и кликает.</li>
+    </ol>
+    <div class="callout tip">
+      <span class="callout-title">Посмотреть глазами</span>
+      <p>Первые тесты запускай с видимым браузером и смотри, что он делает. Когда тесты пойдут на CI, там включают «безголовый» режим <code>Configuration.headless = true</code>: браузер работает без окна.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m18-04">
+      <script type="application/json">
+      {
+       "title": "Selenide — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что делает <code>$(\".error\").shouldBe(visible)</code>, если ошибка появится через 1 секунду?",
+         "options": [
+          "Сразу падает: элемента ещё нет",
+          "Проверяет снова и снова и проходит примерно через 1 с",
+          "Ждёт ровно 4 секунды, потом проверяет"
+         ],
+         "answer": 1,
+         "why": "Selenide повторяет проверку каждые 200 мс до таймаута и идёт дальше, как только условие выполнилось."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Selenide — обёртка над Selenium WebDriver",
+           "a": true
+          },
+          {
+           "s": "<code>shouldHave(text(\"Войти\"))</code> пройдёт для текста «Войти через почту»",
+           "a": true
+          },
+          {
+           "s": "<code>Thread.sleep(5000)</code> делает тест надёжнее, чем ожидание Selenide",
+           "a": false,
+           "why": "sleep тратит время зря и всё равно падает, если сайт медленнее."
+          },
+          {
+           "s": "<code>$</code> — это обычный статический метод класса Selenide",
+           "a": true
+          },
+          {
+           "s": "<code>getText()</code> ждёт, пока текст станет нужным",
+           "a": false,
+           "why": "getText просто читает текст сейчас. Ждут проверки should…."
+          }
+         ]
+        },
+        {
+         "type": "order",
+         "q": "Собери тест «пустой пароль показывает ошибку»",
+         "lines": [
+          "open(\"/login\");",
+          "$(\"[data-test-id='login']\").setValue(\"anna\");",
+          "$(\"[data-test-id='login-button']\").click();",
+          "$(\"[data-test-id='error']\").shouldHave(text(\"Введите пароль\"));"
+         ],
+         "code": true,
+         "why": "Открыть → заполнить → нажать → проверить. Проверка всегда последняя: она — ожидаемый результат."
+        },
+        {
+         "type": "single",
+         "q": "Зачем <code>closeWebDriver()</code> в <code>@AfterEach</code>?",
+         "options": [
+          "Чтобы тест работал быстрее",
+          "Чтобы следующий тест начал в чистом браузере, без входа и куки от предыдущего",
+          "Без него Selenide не откроет страницу"
+         ],
+         "answer": 1,
+         "why": "Свежий браузер — независимые тесты. Плата — время на запуск браузера."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясни мне своими словами разницу между sleep и ожиданиями Selenide, а потом спроси меня, как я понял, — с примером, где sleep ломает тест»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Selenide — обёртка над Selenium: короткий синтаксис, автоматические ожидания, скриншоты при падении.</li>
+        <li><code>open</code> — открыть страницу; <code>$</code>, <code>$$</code> — найти элемент страницы (или коллекцию) по локатору; <code>setValue</code>, <code>click</code> — действия; <code>shouldBe(visible)</code>, <code>shouldHave(text/exactText/value)</code>, <code>size</code> — проверки состояния.</li>
+        <li>Проверки повторяются каждые 200 мс до <code>Configuration.timeout</code> (4 с). <code>Thread.sleep</code> не нужен.</li>
+        <li><code>text</code> — подстрока, <code>exactText</code> — целиком; регистр по умолчанию не важен.</li>
+        <li><code>Configuration.baseUrl</code>, <code>browser</code>, <code>timeout</code> — общие настройки. Каждый тест: открыть страницу в <code>@BeforeEach</code>, закрыть браузер в <code>@AfterEach</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

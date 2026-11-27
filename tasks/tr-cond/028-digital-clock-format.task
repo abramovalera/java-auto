@@ -1,0 +1,38 @@
+## id: tr-cond-028
+## title: Электронные часы
+## file: trainer/cond/DigitalClockFormat.java
+## class: DigitalClockFormat
+## level: 2
+## category: Даты и время
+@@ description
+<p>Напиши класс <code>DigitalClockFormat</code>. Программа читает часы (0–23) и минуты (0–59) — два целых числа через пробел — и печатает время, как на электронных часах: <code>ЧЧ:ММ</code>, всегда по две цифры.</p>
+<pre class="terminal"><span class="out">ввод:  9 5
+вывод: 09:05</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>(m < 10 ? "0" : "") + m</code> — приписывает ведущий ноль к однозначному числу</li>
+</ul></div>
+@@ test: Утро
+@@ input
+9 5
+@@ expect
+09:05
+@@ test: Обе части двузначные
+@@ input
+12 30
+@@ expect
+12:30
+@@ test: Полночь
+@@ input
+0 0
+@@ expect
+00:00
+@@ test: Однозначные минуты
+@@ input
+23 7
+@@ expect
+23:07
+@@ test: Ровно 10 минут
+@@ input
+7 10
+@@ expect
+07:10

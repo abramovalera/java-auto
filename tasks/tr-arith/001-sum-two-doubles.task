@@ -1,0 +1,31 @@
+## id: tr-arith-001
+## title: Сумма двух дробных чисел
+## file: trainer/arith/SumOfTwoDoubles.java
+## class: SumOfTwoDoubles
+## level: 1
+## category: Типы и переполнение
+@@ description
+<p>Создай класс <code>SumOfTwoDoubles</code>. Программа читает через <code>Scanner</code> два дробных числа (каждое — с новой строки) и печатает их сумму:</p>
+<pre class="terminal"><span class="out">ввод:  2.5
+       4
+вывод: Сумма: 6.5</span></pre>
+<p>Обрати внимание: если ввели <code>4</code>, а читаешь ты <code>double</code>, переменная всё равно будет дробной — <code>4.0</code>. Поэтому <code>2 + 3</code> напечатается как <code>Сумма: 5.0</code>.</p>
+@@ test: Пример из условия
+@@ input
+2.5
+4
+@@ expect
+Сумма: 6.5
+@@ test: Целые на входе — сумма всё равно дробная
+@@ input
+2
+3
+@@ expect
+Сумма: 5.0
+@@ test: Отрицательное число
+@@ input
+-1.5
+0.25
+@@ expect
+Сумма: -1.25
+@@ require: nextDouble\s*\( | Читай числа как double: метод nextDouble()

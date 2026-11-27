@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: автотесты · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 18 · Головоломки</div>
+    <h1>Автотесты: найдёт ли? пройдёт ли? что выведется?</h1>
+    <p class="lead">Вопросы в духе собеседования на автоматизатора: локаторы, проверки Selenide, ожидания, Page Object и жизненный цикл JUnit. Запускать нельзя — только думать и объяснять.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — со звёздочкой</span></div>
+  </header>
+
+  <div class="callout tip">
+    <span class="callout-title">Как решать</span>
+    <p>Сначала <strong>скажи ответ вслух и объясни почему</strong>, потом кликай. Для локаторов помогает нарисовать дерево элементов, для JUnit — вспомнить, что на каждый тест создаётся новый объект класса.</p>
+  </div>
+
+  <h2>Какой локатор найдёт элемент?</h2>
+
+  <div class="quiz">
+    <p class="q">1. Какой локатор <b>не</b> найдёт эту кнопку?</p>
+<pre><code>&lt;button class="btn btn-primary" data-test-id="pay"&gt;Оплатить&lt;/button&gt;</code></pre>
+    <ul>
+      <li data-why="Точка — класс. Класс btn-primary у кнопки есть, CSS понимает список классов.">.btn-primary</li>
+      <li data-why="Точное совпадение тестового атрибута — найдёт.">[data-test-id='pay']</li>
+      <li data-correct data-why="XPath сравнивает атрибут class целиком: «btn btn-primary» ≠ «btn». Нужно contains(@class,'btn') или CSS .btn.">//button[@class='btn']</li>
+      <li data-why="Текст кнопки ровно «Оплатить» — найдёт.">//button[text()='Оплатить']</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. На странице есть <code>&lt;input id="email" name="email"&gt;</code>. Что сделает тест?</p>
+<pre><code class="java">$("email").setValue("anna@mail.ru");</code></pre>
+    <ul>
+      <li data-why="Без решётки это не id.">Введёт адрес в поле email</li>
+      <li data-correct data-why="Селектор без # и точки — это имя тега: ищется элемент &lt;email&gt;. Такого нет, Selenide будет ждать до таймаута и упадёт с ElementNotFound. Правильно: #email или [name='email'].">Будет искать тег &lt;email&gt;, не найдёт и упадёт через таймаут</li>
+      <li data-why="Это строка, компилятору всё равно, что в ней. Ошибка будет только при запуске.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. Сколько элементов найдёт <code>.menu .active li</code>?</p>
+<pre><code>&lt;ul class="menu"&gt;
+  &lt;li&gt;Книги&lt;/li&gt;
+  &lt;li class="active"&gt;Новинки&lt;/li&gt;
+  &lt;li&gt;Акции&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+    <ul>
+      <li data-why="Так было бы для .menu li.active — без пробела перед .active у li.">1</li>
+      <li data-correct data-why="Пробел значит «внутри»: ищем li внутри элемента .active, который внутри .menu. Внутри «Новинок» никаких li нет. Нужный локатор — .menu li.active или .menu .active.">0</li>
+      <li data-why="Все три li внутри .menu, но условие требует ещё и вложенности в .active.">3</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. ★ Для того же меню: сколько найдёт <code>//li[contains(text(),'книги')]</code>?</p>
+    <ul>
+      <li data-why="contains в XPath чувствителен к регистру: «книги» ≠ «Книги».">1</li>
+      <li data-correct data-why="XPath различает большие и маленькие буквы, а пункт называется «Книги». Ловушка: условие Selenide text() регистр не учитывает, а XPath — учитывает.">0</li>
+      <li data-why="«Новинки» и «Акции» не содержат «книги» ни в каком регистре.">3</li>
+    </ul>
+  </div>
+
+  <h2>Хрупкий или стабильный?</h2>
+
+  <div class="quiz">
+    <p class="q">5. Дизайнеры перенесли кнопку «Выйти» из шапки в боковое меню и перекрасили её. Какой локатор переживёт редизайн?</p>
+    <ul>
+      <li data-why="И класс цвета, и контейнер-шапка поменялись.">.header .btn-blue</li>
+      <li data-why="Абсолютный путь ломается от любого перемещения.">/html/body/header/div[2]/button</li>
+      <li data-correct data-why="Тестовый атрибут не связан ни с местом, ни с цветом. Ради этого его и добавляют.">[data-test-id='logout']</li>
+      <li data-why="Номер кнопки на странице изменится, как только кнопки переставят.">(//button)[3]</li>
+    </ul>
+  </div>
+
+  <h2>Что проверяет shouldHave?</h2>
+
+  <div class="quiz">
+    <p class="q">6. Значок корзины должен показывать 1, а из-за бага показывает 12. Что будет с тестом?</p>
+<pre><code class="java">$("[data-test-id='cart-count']").shouldHave(text("1"));</code></pre>
+    <ul>
+      <li data-why="text() ищет подстроку, а «1» в «12» есть.">Упадёт: 12 ≠ 1</li>
+      <li data-correct data-why="text — «содержит». «12» содержит «1», тест зелёный, баг пропущен. Для чисел и точных значений — exactText(&quot;1&quot;).">Пройдёт — баг останется незамеченным</li>
+      <li data-why="Условие text() работает с любым текстом, и с цифрами тоже.">Ошибка: text() не работает с числами</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">7. В итоговой строке написано «Итого: 1 290 ₽». Какая проверка упадёт?</p>
+    <ul>
+      <li data-why="«1 290» — подстрока, проверка пройдёт.">shouldHave(text("1 290"))</li>
+      <li data-why="Регистр text() не учитывает — пройдёт.">shouldHave(text("итого"))</li>
+      <li data-correct data-why="exactText требует совпадения всей строки, а там ещё «Итого:» и «₽».">shouldHave(exactText("1 290"))</li>
+    </ul>
+  </div>
+
+  <h2>Ожидания и sleep</h2>
+
+  <div class="quiz">
+    <p class="q">8. Результат поиска появляется через 0,3 с. Что не так с тестом?</p>
+<pre><code class="java">$("[data-test-id='search-button']").click();
+Thread.sleep(2000);
+$("[data-test-id='results']").shouldBe(visible);</code></pre>
+    <ul>
+      <li data-why="Тест пройдёт — но это не значит, что с ним всё в порядке.">Тест упадёт</li>
+      <li data-correct data-why="shouldBe сам ждёт до 4 с, поэтому sleep не нужен: он только тратит 1,7 с на каждом прогоне. Его надо просто удалить.">Пройдёт, но sleep лишний: каждый раз теряем время</li>
+      <li data-why="Selenide не требует sleep — его проверки ждут сами.">Всё правильно: без sleep Selenide не дождётся</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">9. ★★ Блок результатов виден сразу с текстом «Ищем…», а «Найдено: 5» появляется в нём через 3 с. Что будет?</p>
+<pre><code class="java">$("[data-test-id='search-button']").click();
+Thread.sleep(2000);
+assertThat($("[data-test-id='results']").getText()).isEqualTo("Найдено: 5");</code></pre>
+    <ul>
+      <li data-why="getText не ждёт условия: он читает текст в момент вызова.">Пройдёт: AssertJ подождёт</li>
+      <li data-correct data-why="Через 2 с в блоке ещё «Ищем…». getText() просто возвращает текущий текст — это фактическое значение, а assertThat сравнивает его с ожидаемым один раз — падение. Правильно: $(…).shouldHave(exactText(&quot;Найдено: 5&quot;)) — без sleep.">Упадёт: проверка выполнится один раз, когда текста ещё нет</li>
+      <li data-why="Тест детерминированно падает: 2 с всегда меньше 3 с.">Будет то проходить, то падать</li>
+    </ul>
+  </div>
+
+  <h2>Page Object: что вернёт и скомпилируется ли</h2>
+
+  <div class="quiz">
+    <p class="q">10. Скомпилируется ли последняя строка?</p>
+<pre><code class="java">public class SearchPage {
+    public SearchPage typeQuery(String q) { /* … */ return this; }
+    public ResultsPage submit() { /* … */ return new ResultsPage(); }
+}
+public class ResultsPage {
+    public int count() { /* … */ }
+}
+
+new SearchPage().typeQuery("java").submit().typeQuery("kotlin");</code></pre>
+    <ul>
+      <li data-why="Цепочка идёт по типам возвращаемых значений: после submit() у нас уже ResultsPage.">Да, это обычная цепочка</li>
+      <li data-correct data-why="submit() возвращает ResultsPage, а у него нет метода typeQuery. Компилятор не даст «напечатать в поиск» со страницы результатов — типы описывают переходы между страницами.">Нет: у ResultsPage нет метода typeQuery</li>
+      <li data-why="Компилятор проверяет методы по типу — ошибка будет при компиляции, а не при запуске.">Да, но упадёт при запуске</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">11. ★★★ Скомпилируется ли класс страницы? (Есть <code>import static com.codeborne.selenide.Selenide.*;</code>)</p>
+<pre><code class="java">public class LoginPage {
+    public LoginPage open() {
+        open("/login");
+        return this;
+    }
+}</code></pre>
+    <ul>
+      <li data-why="Статический импорт здесь не поможет — см. правило про имена.">Да: вызовется Selenide.open("/login")</li>
+      <li data-correct data-why="Метод класса с именем open перекрывает статически импортированные open. Java ищет open(String) в LoginPage, находит только open() без параметров — ошибка компиляции. Решение: Selenide.open(&quot;/login&quot;).">Нет: внутри класса open — это метод самого LoginPage, а он не принимает аргументов</li>
+      <li data-why="Компилятор найдёт ошибку раньше — рекурсии не будет.">Да, но будет бесконечная рекурсия</li>
+    </ul>
+  </div>
+
+  <h2>Независимость тестов и JUnit</h2>
+
+  <div class="quiz">
+    <p class="q">12. Что напечатают два теста (в любом порядке)?</p>
+<pre><code class="java">class CounterTest {
+    int calls = 0;
+
+    @Test void first()  { calls++; System.out.print(calls); }
+    @Test void second() { calls++; System.out.print(calls); }
+}</code></pre>
+    <ul>
+      <li data-why="Так было бы, если бы оба теста работали с одним объектом.">12</li>
+      <li data-correct data-why="JUnit создаёт новый объект CounterTest для каждого теста, и calls каждый раз начинается с 0. Поэтому поля не переносят состояние между тестами — это и защищает независимость.">11</li>
+      <li data-why="calls++ выполняется до печати.">00</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">13. ★ А если поле сделать <code>static int calls = 0;</code>?</p>
+    <ul>
+      <li data-why="static-поле одно на класс, а не на объект.">11</li>
+      <li data-correct data-why="static живёт в классе, а не в объекте, — счётчик общий: 1, потом 2. Общее изменяемое static-состояние делает тесты зависимыми от порядка и соседей — так появляются flaky-тесты.">12</li>
+      <li data-why="Компилятор не запрещает static-поля в тестовых классах.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">14. ★★ Что напечатает запуск единственного теста <code>t</code>?</p>
+<pre><code class="java">abstract class BaseTest {
+    @BeforeEach void baseBefore() { System.out.print("B"); }
+    @AfterEach  void baseAfter()  { System.out.print("b"); }
+}
+
+class LoginTest extends BaseTest {
+    @BeforeEach void loginBefore() { System.out.print("L"); }
+    @AfterEach  void loginAfter()  { System.out.print("l"); }
+    @Test       void t()           { System.out.print("T"); }
+}</code></pre>
+    <ul>
+      <li data-why="@BeforeEach родителя выполняется раньше, чем наследника.">LBTlb</li>
+      <li data-correct data-why="«До» — снаружи внутрь: сначала родитель (B), потом наследник (L). «После» — изнутри наружу: сначала наследник (l), потом родитель (b). Как матрёшка: открываем от большой, закрываем с маленькой.">BLTlb</li>
+      <li data-why="После теста порядок обратный: наследник раньше родителя.">BLTbl</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">15. Скомпилируется, но что будет при запуске?</p>
+<pre><code class="java">class CatalogTest {
+    @BeforeAll
+    void configure() {
+        Configuration.baseUrl = "https://nook-shop.test";
+    }
+
+    @Test
+    void catalogOpens() { /* … */ }
+}</code></pre>
+    <ul>
+      <li data-why="Для @BeforeAll важна форма метода — проверит её JUnit при запуске.">Всё отработает как обычно</li>
+      <li data-correct data-why="@BeforeAll вызывается один раз до создания объектов теста, поэтому по умолчанию метод обязан быть static. Компилятор этого не знает (аннотация — просто пометка), а JUnit при запуске сообщит об ошибке, и тесты класса не выполнятся.">JUnit откажется запускать: метод @BeforeAll должен быть static</li>
+      <li data-why="Компилятор не проверяет правила JUnit — для него это обычный метод с пометкой.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <section class="pz-reading">
+    <h2>Читаем код</h2>
+    <p>Строки автотестов тоже читаем вслух правильными словами: <b>локатор</b>, <b>элемент страницы</b>, <b>действие</b>, <b>проверка состояния</b>, <b>метод страницы</b>, ожидаемое и фактическое значение. В одних заданиях выбери верное описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m18-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 18", "icon": "🗣",
+        "items": [
+          {"type":"single","q":"Что происходит в строке?","code":"$(\"#login\").setValue(\"anna\");","options":["Вызываем статический метод <code>$</code> с аргументом-локатором <code>\"#login\"</code>; он возвращает элемент страницы, и у элемента выполняем действие <code>setValue</code> с аргументом <code>\"anna\"</code>","Объявляем переменную <code>$</code> и инициализируем её строкой <code>\"#login\"</code>","Проверяем, что в поле <code>#login</code> уже записано <code>\"anna\"</code>","Создаём новый объект поля ввода оператором <code>new</code>","Ищем элемент с тегом <code>&lt;login&gt;</code> и кликаем по нему"],"answer":0,"why":"<code>$</code> — статический метод Selenide: аргумент — CSS-локатор (<code>#</code> — id), возвращает объект <code>SelenideElement</code>. <code>setValue</code> — действие: очистить поле и ввести текст. Это не проверка: тест ничего не сравнивает."},
+          {"type":"single","q":"Что происходит в строке?","code":"$(\".error\").shouldBe(visible);","options":["Действие: кликаем по элементу с классом <code>error</code>","Проверка состояния: Selenide ждёт до таймаута, пока элемент с классом <code>error</code> станет видимым; не дождался — тест падает","Вызываем метод, который возвращает <code>true</code> или <code>false</code>, а тест продолжается в любом случае","Проверяем один раз и сразу падаем, если элемента ещё нет","Делаем элемент <code>.error</code> видимым на странице"],"answer":1,"why":"<code>shouldBe</code> — проверка состояния элемента с условием <code>visible</code>. Она повторяется каждые 200 мс до <code>Configuration.timeout</code> (4 с) и только потом роняет тест. Страницу она не меняет."},
+          {"type":"single","q":"Что происходит в строке?","code":"LoginPage loginPage = new LoginPage();","options":["Вызываем статический метод <code>LoginPage</code>, и браузер открывает страницу входа","Объявляем переменную <code>loginPage</code> типа <code>LoginPage</code> и инициализируем её ссылкой на новый объект Page Object; браузер пока ничего не делает","Присваиваем переменной <code>loginPage</code> уже открытую страницу входа","Объявляем класс <code>LoginPage</code>","Ищем на странице элемент с локатором <code>LoginPage</code>"],"answer":1,"why":"<code>new LoginPage()</code> — создание объекта с вызовом конструктора. Поля-элементы Selenide «ленивые»: искать их начнут при первом действии или проверке, а страницу откроет вызов метода страницы <code>open()</code>."},
+          {"type":"single","q":"Что происходит в строке?","code":"CatalogPage catalog = loginPage.loginAs(\"anna\", \"qwerty123\");","options":["Объявляем переменную <code>catalog</code> типа <code>CatalogPage</code> и инициализируем её значением, которое возвращает метод страницы <code>loginAs</code>, вызванный у <code>loginPage</code> с аргументами <code>\"anna\"</code> и <code>\"qwerty123\"</code>","Создаём объект <code>CatalogPage</code> оператором <code>new</code> прямо в этой строке","Приводим объект <code>loginPage</code> к типу <code>CatalogPage</code>","Объявляем метод <code>loginAs</code> с параметрами <code>\"anna\"</code> и <code>\"qwerty123\"</code>","Проверяем, что пользователь anna попал в каталог"],"answer":0,"why":"Справа — вызов метода страницы с двумя аргументами. Метод сделал действия и вернул объект следующей страницы (внутри у него <code>return new CatalogPage()</code>); этой ссылкой инициализируется <code>catalog</code>. Проверки в строке нет."},
+          {"type":"single","q":"Что происходит в строке?","code":"assertThat(cart.count()).isEqualTo(3);","options":["Присваиваем результату <code>cart.count()</code> значение 3","Вызываем <code>cart.count()</code> и печатаем результат в консоль","Проверка (assertion): фактическое значение — результат вызова <code>cart.count()</code>, ожидаемое — 3; не равны — тест падает с <code>AssertionError</code>","Проверка, которая ждёт до 4 секунд, пока <code>count()</code> станет равен 3","Объявляем переменную <code>count</code> и инициализируем её значением 3"],"answer":2,"why":"В <code>assertThat</code> передаём фактическое значение, в <code>isEqualTo</code> — ожидаемое. Проверка AssertJ выполняется один раз и ничего не ждёт — ждут только проверки состояния Selenide (<code>should…</code>)."},
+          {"type":"single","q":"Что делает первая строка?","code":"@Test\nvoid userCanLogIn() { … }","options":["Вызывает метод <code>userCanLogIn</code>","Аннотация <code>@Test</code> помечает метод <code>userCanLogIn</code> как тестовый: JUnit сам найдёт его и вызовет при запуске тестов","Объявляет переменную <code>Test</code>","Проверяет, что метод <code>userCanLogIn</code> вернул <code>true</code>","Создаёт объект класса <code>Test</code>"],"answer":1,"why":"Аннотация — пометка для инструментов, сама она ничего не выполняет. По <code>@Test</code> JUnit находит тестовые методы; <code>void</code> — тестовый метод ничего не возвращает, результат решают проверки внутри."},
+          {"type":"build","q":"Собери описание строки","code":"$(\"[data-test-id='buy']\").click();","answer":["вызываем статический метод <code>$</code>","с аргументом-локатором <code>[data-test-id='buy']</code>,","он возвращает элемент страницы,","и у элемента выполняем действие <code>click</code>"],"extra":["и проверяем, что элемент виден","создаём объект оператором <code>new</code>","и передаём аргумент <code>true</code>"]},
+          {"type":"build","q":"Собери описание строки API-теста","code":"given().when().get(\"/api/books/{id}\", 101).then().statusCode(200);","answer":["цепочка вызовов методов REST Assured:","<code>get</code> с аргументами — шаблоном адреса и 101 — отправляет GET-запрос,","<code>then()</code> переходит к проверкам ответа,","<code>statusCode(200)</code> — проверка: ожидаемый статус-код 200"],"extra":["<code>given()</code> открывает браузер","<code>statusCode(200)</code> присваивает ответу код 200","<code>get</code> возвращает элемент страницы"]}
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <div class="callout ai">
+    <span class="callout-title">Хочешь ещё?</span>
+    <p>Напиши наставнику: <em>«Дай мне 3 головоломки на локаторы по одному куску HTML и 2 на жизненный цикл JUnit. Ответ не говори, пока я не объясню своё решение»</em>.</p>
+  </div>
+
+  <section class="summary">
+    <h2>Что тренирует этот набор</h2>
+    <ul>
+      <li>Как CSS и XPath находят элементы: пробел — «внутри», класс в XPath сравнивается целиком, XPath различает регистр.</li>
+      <li>Почему стабильный локатор опирается на тестовый атрибут, а не на место, цвет и номер.</li>
+      <li>Разницу <code>text</code> / <code>exactText</code> и почему <code>getText</code> + sleep — путь к падениям.</li>
+      <li>Как типы возвращаемых значений методов страниц (Page Object) описывают переходы между страницами.</li>
+      <li>Жизненный цикл JUnit: новый объект на тест, порядок <code>@BeforeEach</code>/<code>@AfterEach</code>, static у <code>@BeforeAll</code>.</li>
+    </ul>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,40 @@
+## id: tr-arith-013
+## title: Сколько лет до прав
+## file: trainer/arith/YearsUntilDriving.java
+## class: YearsUntilDriving
+## level: 1
+## category: Math и округление
+@@ description
+<p>Водительские права можно получить с 18 лет. Создай класс <code>YearsUntilDriving</code>. Программа читает возраст (целое число) и печатает, сколько лет осталось ждать. Если человеку уже 18 или больше — ждать не нужно, печатается 0 (а не отрицательное число).</p>
+<pre class="terminal"><span class="out">ввод:  15      вывод: Лет до прав: 3
+ввод:  30      вывод: Лет до прав: 0</span></pre>
+<p><code>if</code> здесь не нужен: подумай, как «не меньше нуля» записать через <code>Math.max</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.max(0, x)</code> — возвращает <code>x</code>, если оно положительное, и <code>0</code>, если <code>x</code> меньше нуля</li>
+</ul></div>
+@@ test: Подросток
+@@ input
+15
+@@ expect
+Лет до прав: 3
+@@ test: Ровно 18
+@@ input
+18
+@@ expect
+Лет до прав: 0
+@@ test: Взрослый
+@@ input
+30
+@@ expect
+Лет до прав: 0
+@@ test: Новорождённый
+@@ input
+0
+@@ expect
+Лет до прав: 18
+@@ test: Остался год
+@@ input
+17
+@@ expect
+Лет до прав: 1
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — обойдись методом Math.max

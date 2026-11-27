@@ -1,0 +1,84 @@
+## id: m10-t04
+## title: Точка: toString, equals и hashCode
+## file: module-10/PointEqualsDemo.java
+## class: PointEqualsDemo
+## level: 2
+@@ description
+<p>Научи точку на плоскости красиво печататься и честно сравниваться. В файле <code>PointEqualsDemo.java</code>:</p>
+<ul>
+  <li><code>class EqualsPoint</code> — поля <code>private final int x, y</code>, конструктор <code>(int x, int y)</code> и три переопределённых метода класса <code>Object</code>:
+    <ul>
+      <li><code>public String toString()</code> → <code>(1, 2)</code>;</li>
+      <li><code>public boolean equals(Object o)</code> — точки равны, если равны обе координаты. Не забудь про <code>null</code> и объект другого класса;</li>
+      <li><code>public int hashCode()</code> — согласованный с equals (например, <code>Objects.hash(x, y)</code>, нужен <code>import java.util.Objects;</code>).</li>
+    </ul>
+  </li>
+  <li><code>public class PointEqualsDemo</code> с <code>main</code>: читает четыре числа <code>x1 y1 x2 y2</code>, создаёт точки A и B и печатает ровно так:</li>
+</ul>
+<pre class="terminal"><span class="out">ввод: 1 2 1 2
+
+A = (1, 2)
+B = (1, 2)
+A == B: false
+A.equals(B): true
+B.equals(A): true
+hashCode совпадает: true
+A.equals(null): false
+A.equals(строка): false</span></pre>
+<ul>
+  <li>Точки печатай как <code>"A = " + a</code> — <code>toString()</code> вызовется сам.</li>
+  <li>Строку <code>hashCode совпадает: …</code> печатай <b>только если</b> <code>a.equals(b)</code> — контракт обещает одинаковый hashCode именно равным объектам.</li>
+  <li>Последняя строка — сравнение точки со строкой <code>a.toString()</code>: текст тот же, но это не точка, значит <code>false</code>.</li>
+</ul>
+<p>📖 <a href="/lessons/m10/05-object-class.html">Класс Object: toString, equals, hashCode</a></p>
+@@ test: Одинаковые точки
+@@ input
+1 2 1 2
+@@ expect
+A = (1, 2)
+B = (1, 2)
+A == B: false
+A.equals(B): true
+B.equals(A): true
+hashCode совпадает: true
+A.equals(null): false
+A.equals(строка): false
+@@ test: Координаты переставлены
+@@ input
+1 2 2 1
+@@ expect
+A = (1, 2)
+B = (2, 1)
+A == B: false
+A.equals(B): false
+B.equals(A): false
+A.equals(null): false
+A.equals(строка): false
+@@ test: Начало координат
+@@ input
+0 0 0 0
+@@ expect
+A = (0, 0)
+B = (0, 0)
+A == B: false
+A.equals(B): true
+B.equals(A): true
+hashCode совпадает: true
+A.equals(null): false
+A.equals(строка): false
+@@ test: Отрицательные, отличается только y
+@@ input
+-5 7 -5 8
+@@ expect
+A = (-5, 7)
+B = (-5, 8)
+A == B: false
+A.equals(B): false
+B.equals(A): false
+A.equals(null): false
+A.equals(строка): false
+@@ require: class\s+EqualsPoint\b | Нужен класс EqualsPoint в том же файле
+@@ require: boolean\s+equals\s*\(\s*Object\s+\w+\s*\) | equals должен принимать Object: public boolean equals(Object o). С другим параметром это перегрузка, а не переопределение
+@@ require: int\s+hashCode\s*\(\s*\) | Переопредели hashCode() вместе с equals — это контракт
+@@ require: String\s+toString\s*\(\s*\) | Переопредели toString(), чтобы точка печаталась как (x, y)
+@@ require: @Override | Помечай переопределённые методы аннотацией @Override

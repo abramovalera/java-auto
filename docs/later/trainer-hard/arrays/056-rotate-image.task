@@ -1,0 +1,60 @@
+## id: tr-arrays-056
+## title: Повернуть картинку
+## file: trainer/arrays/ImageRotateClockwise.java
+## class: ImageRotateClockwise
+## level: 3
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>ImageRotateClockwise</code>. Картинка хранится таблицей яркостей пикселей: <code>r</code> строк по <code>c</code> чисел. Поверни её на 90° <b>по часовой стрелке</b>: первая строка картинки станет последним столбцом, а левый столбец (снизу вверх) — первой строкой. В первой строке ввода — <code>r</code> и <code>c</code> (оба ≥ 1), дальше <code>r</code> строк по <code>c</code> чисел. Напечатай повёрнутую картинку: <code>c</code> строк по <code>r</code> чисел через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  2 3
+       1 2 3
+       4 5 6
+вывод: 4 1
+       5 2
+       6 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>новая таблица — <code>new int[c][r]</code></li>
+<li>нарисуй на бумаге таблицу 2 × 3 и её поворот — и посмотри, куда переехал элемент <code>m[i][j]</code>: строка в новой таблице зависит от <code>j</code>, а столбец — от <code>r - 1 - i</code></li>
+</ul></div>
+@@ test: Два на три
+@@ input
+2 3
+1 2 3
+4 5 6
+@@ expect
+4 1
+5 2
+6 3
+@@ test: Квадрат
+@@ input
+3 3
+1 2 3
+4 5 6
+7 8 9
+@@ expect
+7 4 1
+8 5 2
+9 6 3
+@@ test: Одна строка
+@@ input
+1 3
+7 8 9
+@@ expect
+7
+8
+9
+@@ test: Один столбец
+@@ input
+3 1
+1
+2
+3
+@@ expect
+3 2 1
+@@ test: Один пиксель
+@@ input
+1 1
+255
+@@ expect
+255
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];

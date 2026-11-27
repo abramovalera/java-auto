@@ -1,0 +1,43 @@
+## id: tr-methods-009
+## title: Кубики в большой коробке
+## file: trainer/methods/CubeBoxCounter.java
+## class: CubeBoxCounter
+## level: 1
+## category: Вычисления
+@@ description
+<p>Коробка — куб со стороной <code>side</code> сантиметров, её доверху заполняют кубиками 1×1×1 см. Создай класс <code>CubeBoxCounter</code> и напиши метод <code>static long cubeCount(int side)</code>, который возвращает, сколько кубиков поместится.</p>
+<p>main читает одно целое число (от 0 до 2000) и печатает <code>Кубиков: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3       вывод: Кубиков: 27
+ввод:  2000    вывод: Кубиков: 8000000000</span></pre>
+<p>⚠️ Подвох: <code>int</code> вмещает только чуть больше 2 миллиардов. Если перемножить три <code>int</code>, переполнение случится раньше, чем результат попадёт в <code>long</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>long big = side;</code> — значение <code>int</code> можно положить в переменную <code>long</code></li>
+<li>если хотя бы один операнд умножения — <code>long</code>, умножение идёт в <code>long</code></li>
+</ul></div>
+@@ test: Маленькая коробка
+@@ input
+3
+@@ expect
+Кубиков: 27
+@@ test: Один кубик
+@@ input
+1
+@@ expect
+Кубиков: 1
+@@ test: Пустая коробка
+@@ input
+0
+@@ expect
+Кубиков: 0
+@@ test: Миллиард ещё влезает в int
+@@ input
+1000
+@@ expect
+Кубиков: 1000000000
+@@ test: Восемь миллиардов
+@@ input
+2000
+@@ expect
+Кубиков: 8000000000
+@@ require: static\s+long\s+cubeCount\s*\(\s*int\s+\w+\s*\) | Нужен метод static long cubeCount(int side)
+@@ require: \WcubeCount\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать cubeCount(...) и передать ему сторону

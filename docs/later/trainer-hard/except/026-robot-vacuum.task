@@ -1,0 +1,82 @@
+## id: tr-except-026
+## title: Маршрут робота-пылесоса
+## file: trainer/except/RobotVacuumRoute.java
+## class: RobotVacuumRoute
+## level: 3
+## category: throw и проверки
+@@ description
+<p>Напиши класс <code>RobotVacuumRoute</code>. Робот-пылесос ездит по комнате 10×10: координаты x и y от 0 до 9, стартует в точке (0, 0). Команды: <code>up N</code> (y растёт), <code>down N</code>, <code>right N</code> (x растёт), <code>left N</code>.</p>
+<p>В первой строке ввода — количество команд n, дальше n строк по команде. Ошибка в команде не останавливает робота: программа печатает <code>Строка K: </code> и причину (K — номер команды с 1) и переходит к следующей. Причины:</p>
+<ul>
+<li>в строке не два слова — <code>нужны команда и число шагов</code>;</li>
+<li>шаги не целое число — <code>шаги — это целое число</code>;</li>
+<li>шагов 0 или меньше — <code>шагов должно быть больше нуля</code>;</li>
+<li>команда не из списка — <code>неизвестная команда X</code>;</li>
+<li>робот выехал бы за край комнаты — <code>впереди стена, робот стоит на месте</code>: тогда он не двигается совсем. Для этого объяви своё исключение <code>RobotVacuumWallException</code>.</li>
+</ul>
+<p>Проверяй в этом порядке. В конце напечатай <code>Робот в точке (x, y)</code> и <code>Ошибок: E</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3              вывод: Строка 2: впереди стена, робот стоит на месте
+       up 3                  Робот в точке (2, 3)
+       left 1                Ошибок: 1
+       right 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>сначала посчитай новые координаты в отдельных переменных и только если они внутри комнаты — присвой</li>
+<li><code>static int x, y;</code> — поля класса, которые видят все статические методы</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+up 3
+left 1
+right 2
+@@ expect
+Строка 2: впереди стена, робот стоит на месте
+Робот в точке (2, 3)
+Ошибок: 1
+@@ test: Все виды ошибок
+@@ input
+6
+up
+right два
+down -1
+jump 2
+up 10
+right 9
+@@ expect
+Строка 1: нужны команда и число шагов
+Строка 2: шаги — это целое число
+Строка 3: шагов должно быть больше нуля
+Строка 4: неизвестная команда jump
+Строка 5: впереди стена, робот стоит на месте
+Робот в точке (9, 0)
+Ошибок: 5
+@@ test: Ровно до стены и обратно
+@@ input
+4
+up 9
+right 9
+down 9
+left 4
+@@ expect
+Робот в точке (5, 0)
+Ошибок: 0
+@@ test: Без ошибок
+@@ input
+2
+right 5
+up 5
+@@ expect
+Робот в точке (5, 5)
+Ошибок: 0
+@@ test: Лишнее слово
+@@ input
+2
+up 2 3
+up 2
+@@ expect
+Строка 1: нужны команда и число шагов
+Робот в точке (0, 2)
+Ошибок: 1
+@@ require: class\s+RobotVacuumWallException\s+extends\s+Exception | Объяви класс RobotVacuumWallException extends Exception
+@@ require: throw\s+new\s+RobotVacuumWallException | Выбрасывай RobotVacuumWallException, когда впереди стена
+@@ require: throw\s+new\s+IllegalArgumentException | Для неправильной команды выбрасывай IllegalArgumentException

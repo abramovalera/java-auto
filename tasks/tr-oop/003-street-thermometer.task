@@ -1,0 +1,56 @@
+## id: tr-oop-003
+## title: Уличный термометр
+## file: trainer/oop/StreetThermometerDemo.java
+## class: StreetThermometerDemo
+## level: 1
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>StreetThermometerDemo</code> с методом <code>main</code>, а ниже в том же файле — класс <code>StreetThermometer</code>:</p>
+<ul>
+<li>поле <code>double celsius</code> — температура по Цельсию;</li>
+<li>конструктор <code>StreetThermometer(double celsius)</code>;</li>
+<li><code>double toFahrenheit()</code> — возвращает температуру по Фаренгейту: <code>C × 9 / 5 + 32</code>;</li>
+<li><code>boolean isFrost()</code> — возвращает <code>true</code>, если температура ниже нуля.</li>
+</ul>
+<p><code>main</code> читает одно дробное число, создаёт термометр и печатает две строки. Градусы Фаренгейта округли до одного знака после точки: <code>Math.round(f * 10) / 10.0</code>.</p>
+<pre class="terminal"><span class="out">ввод:  20
+вывод: По Фаренгейту: 68.0
+       Мороз: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextDouble()</code> — читает дробное число</li>
+<li><code>Math.round(x * 10) / 10.0</code> — округляет до одного знака после точки</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+20
+@@ expect
+По Фаренгейту: 68.0
+Мороз: false
+@@ test: Ноль — ещё не мороз
+@@ input
+0
+@@ expect
+По Фаренгейту: 32.0
+Мороз: false
+@@ test: Минус сорок — шкалы совпадают
+@@ input
+-40
+@@ expect
+По Фаренгейту: -40.0
+Мороз: true
+@@ test: Дробная температура
+@@ input
+36.6
+@@ expect
+По Фаренгейту: 97.9
+Мороз: false
+@@ test: Чуть ниже нуля
+@@ input
+-0.5
+@@ expect
+По Фаренгейту: 31.1
+Мороз: true
+@@ require: \bclass\s+StreetThermometer\b | Объяви в том же файле класс StreetThermometer
+@@ require: StreetThermometer\s*\(\s*double\s+\w+\s*\) | Нужен конструктор StreetThermometer(double celsius)
+@@ require: \bdouble\s+toFahrenheit\s*\(\s*\) | Нужен метод double toFahrenheit()
+@@ require: \bboolean\s+isFrost\s*\(\s*\) | Нужен метод boolean isFrost()

@@ -1,0 +1,74 @@
+{
+  "id": "m13",
+  "num": "13",
+  "title": "Коллекции и generics",
+  "summary": "ArrayList, обёртки и кэш Integer, перебор и Iterator, HashSet/TreeSet, HashMap, очередь и стек, Comparable и Comparator, свои generics.",
+  "lessons": [
+    {
+      "id": "m13-01",
+      "title": "Почему не массив: List и ArrayList",
+      "url": "/lessons/m13/01-why-list.html"
+    },
+    {
+      "id": "m13-02",
+      "title": "Угловые скобки и обёртки",
+      "url": "/lessons/m13/02-generics-wrappers.html"
+    },
+    {
+      "id": "m13-03",
+      "title": "Перебор: for-each, индекс и Iterator",
+      "url": "/lessons/m13/03-iteration.html"
+    },
+    {
+      "id": "m13-04",
+      "title": "Set: только уникальные",
+      "url": "/lessons/m13/04-set.html"
+    },
+    {
+      "id": "m13-05",
+      "title": "Map: ключ → значение (Мастерская)",
+      "url": "/lessons/m13/05-map.html"
+    },
+    {
+      "id": "m13-06",
+      "title": "Очередь и стек",
+      "url": "/lessons/m13/06-queue-stack.html"
+    },
+    {
+      "id": "m13-07",
+      "title": "Сортировка: Comparable и Comparator",
+      "url": "/lessons/m13/07-sorting.html"
+    },
+    {
+      "id": "m13-08",
+      "title": "Свои generics: класс-коробка",
+      "url": "/lessons/m13/08-own-generics.html"
+    },
+    {
+      "id": "m13-12",
+      "title": "Сравниваем близнецов: какой класс выбрать",
+      "url": "/lessons/m13/12-twins.html"
+    },
+    {
+      "id": "m13-13",
+      "title": "Главные методы коллекций и ловушки",
+      "url": "/lessons/m13/13-methods.html"
+    },
+    {
+      "id": "m13-09",
+      "title": "Карта коллекций и как выбрать",
+      "url": "/lessons/m13/09-choose-collection.html"
+    },
+    {
+      "id": "m13-pz",
+      "title": "Головоломки: что выведется?",
+      "url": "/lessons/m13/10-puzzles.html"
+    },
+    {
+      "id": "m13-sum",
+      "title": "Итоги модуля и экзамен",
+      "url": "/lessons/m13/11-summary.html"
+    }
+  ],
+  "taskCount": 14
+}

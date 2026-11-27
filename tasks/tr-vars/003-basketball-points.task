@@ -1,0 +1,52 @@
+## id: tr-vars-003
+## title: Очки в баскетболе
+## file: trainer/vars/BasketballPoints.java
+## class: BasketballPoints
+## level: 1
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>BasketballPoints</code>. В баскетболе обычный бросок приносит 2 очка, дальний — 3 очка, штрафной — 1 очко. Программа читает три целых числа, каждое с новой строки: сколько забито обычных, дальних и штрафных бросков. Напечатай, сколько очков набрал игрок, в формате <code>Очков: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       2
+       3
+вывод: Очков: 19</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>a * 2 + b * 3</code> — умножение выполняется раньше сложения, как в математике</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+5
+2
+3
+@@ expect
+Очков: 19
+@@ test: Ничего не забил
+@@ input
+0
+0
+0
+@@ expect
+Очков: 0
+@@ test: Только дальние
+@@ input
+0
+10
+0
+@@ expect
+Очков: 30
+@@ test: Только штрафные
+@@ input
+0
+0
+7
+@@ expect
+Очков: 7
+@@ test: Отличная игра
+@@ input
+12
+4
+9
+@@ expect
+Очков: 45

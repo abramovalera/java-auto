@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Запись в файл · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 15 · Урок 3</div>
+    <h1>Запись в файл</h1>
+    <p class="lead">Программа научилась читать. Теперь пусть оставляет следы: отчёт за день, журнал, результат расчёта. Главное — не стереть случайно то, что уже было в файле.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>✍️ writeString / write / APPEND</span><span>🧩 сборка кода</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m15-03-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Лог сервера весит 3 ГБ. Нужно найти в нём строки с ERROR. Что взять?",
+            "options": ["Files.readString", "Files.readAllLines", "Files.lines в try-with-resources"], "answer": 2,
+            "why": "lines читает по строке и не грузит весь файл в память." },
+          { "type": "predict", "q": "Что выведет? (файла <code>a.txt</code> нет, main объявлен с throws IOException)",
+            "code": "Path p = Path.of(\"a.txt\");\nSystem.out.println(\"start\");\nSystem.out.println(p.getFileName());\nSystem.out.println(\"end\");",
+            "answer": "start\na.txt\nend", "why": "Path — только адрес, getFileName не трогает диск. Ошибки не будет: никто не читает файл." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Без <code>throws IOException</code> или <code>try-catch</code> вызов <code>Files.readString</code> не скомпилируется", "a": true },
+              { "s": "<code>Files.readAllLines</code> нужно закрывать в try-with-resources", "a": false, "why": "он сам открывает и закрывает файл. Закрывать надо стрим из Files.lines." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>writeString и write</h2>
+    <p>Запись — зеркало чтения. Тот же класс <code>Files</code>, два главных статических метода:</p>
+<pre data-file="SaveReport.java"><code class="java">import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+public class SaveReport {
+    public static void main(String[] args) throws IOException {
+        Path summary = Path.of("summary.txt");
+        Files.writeString(summary, "Заказов: 12, отменено 2\n");
+
+        Path cancelled = Path.of("cancelled.txt");
+        List&lt;String&gt; names = List.of("кофемашина", "пылесос");
+        Files.write(cancelled, names);
+
+        System.out.println(Files.readString(summary));
+        System.out.println(Files.readAllLines(cancelled));
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-save-report">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "file": "SaveReport.java", "runConfig": "SaveReport", "gutterRun": [6, 7],
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "SaveReport", "type": "class", "depth": 2, "selected": true },
+                  { "name": "cancelled.txt", "type": "file", "depth": 1 },
+                  { "name": "summary.txt", "type": "file", "depth": 1 },
+                  { "name": "users.txt", "type": "file", "depth": 1 } ],
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.List;\n\npublic class SaveReport {\n    public static void main(String[] args) throws IOException {\n        Path summary = Path.of(\"summary.txt\");\n        Files.writeString(summary, \"Заказов: 12, отменено 2\\n\");\n\n        Path cancelled = Path.of(\"cancelled.txt\");\n        List<String> names = List.of(\"кофемашина\", \"пылесос\");\n        Files.write(cancelled, names);\n\n        System.out.println(Files.readString(summary));\n        System.out.println(Files.readAllLines(cancelled));\n    }\n}",
+        "console": { "title": "SaveReport", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… SaveReport" },
+          { "t": "out", "s": "Заказов: 12, отменено 2" },
+          { "t": "out", "s": " " },
+          { "t": "out", "s": "[кофемашина, пылесос]" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tree-summary.txt", "text": "Новые файлы появились в корне <b>workspace</b> — в рабочей папке. Не видно? <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd> (Reload All from Disk). Двойной щелчок откроет файл прямо в IDEA" },
+                   { "n": 2, "target": "output", "text": "Содержимое <code>summary.txt</code>, прочитанное обратно" },
+                   { "n": 3, "target": "output-3", "text": "<code>cancelled.txt</code> через <code>readAllLines</code> — список из двух строк" } ],
+        "caption": "Программа записала два файла — вот они в дереве проекта" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>Files.writeString(путь, текст)</code><div><p>Вызов статического метода <code>writeString</code>: первым аргументом передаём путь, вторым — текст, и метод записывает эту строку в файл. Файла нет — создаст. Есть — <b>сотрёт старое содержимое</b> и запишет новое. Перевод строки сам не добавляет: нужен — пиши <code>\n</code>.</p></div></div>
+      <div class="annot-row"><code>Files.write(путь, список)</code><div><p>Статический метод <code>write</code> получает аргументами путь и список и записывает список строк: каждая строка — на своей строчке файла, после каждой Java ставит перевод строки. Удобно для коллекций из модуля 13.</p></div></div>
+      <div class="annot-row"><code>throws IOException</code><div><p>Запись тоже может сорваться: диск полон, нет прав, папки нет. Поэтому методы записи тоже объявлены с <code>throws IOException</code> — исключение снова checked.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: почему в выводе после «отменено 2» пустая строка?</summary>
+      <p>В файле текст заканчивается на <code>\n</code>, а <code>println</code> добавляет ещё один перевод строки. Два перевода подряд — одна пустая строка.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Перезапись или дописывание</h2>
+    <p>Запусти программу ниже дважды и загляни в <code>log.txt</code>. Сколько там строк?</p>
+<pre data-file="LogTwice.java"><code class="java">Path log = Path.of("log.txt");
+Files.writeString(log, "заказ 1: оплачен\n");
+Files.writeString(log, "заказ 2: отменён\n");</code></pre>
+    <p>Одна: <code>заказ 2: отменён</code>. Каждый <code>writeString</code> по умолчанию <b>начинает файл с чистого листа</b>. Первая запись стёрта второй.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Слева: обычная запись стирает старые строки. Справа: запись с APPEND добавляет новую строку в конец">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="190" y="28" text-anchor="middle" class="d-title">writeString(log, "C")</text>
+        <rect x="20" y="50" width="130" height="110" rx="10" class="d-box"/>
+        <text x="36" y="80" class="d-mono-ink">A</text><text x="36" y="104" class="d-mono-ink">B</text>
+        <path d="M150 105 H222" class="d-arrow"/>
+        <text x="186" y="96" text-anchor="middle" class="d-small">стёрли</text>
+        <rect x="228" y="50" width="130" height="110" rx="10" class="d-red"/>
+        <text x="244" y="80" class="d-mono-ink">C</text>
+        <text x="190" y="190" text-anchor="middle" class="d-small">по умолчанию: TRUNCATE_EXISTING</text>
+        <text x="190" y="210" text-anchor="middle" class="d-small">старое содержимое пропало</text>
+        <path d="M380 40 V230" class="d-dash"/>
+        <text x="570" y="28" text-anchor="middle" class="d-title">… APPEND</text>
+        <rect x="400" y="50" width="130" height="110" rx="10" class="d-box"/>
+        <text x="416" y="80" class="d-mono-ink">A</text><text x="416" y="104" class="d-mono-ink">B</text>
+        <path d="M530 105 H602" class="d-arrow"/>
+        <text x="566" y="96" text-anchor="middle" class="d-small">дописали</text>
+        <rect x="608" y="50" width="130" height="110" rx="10" class="d-green"/>
+        <text x="624" y="80" class="d-mono-ink">A</text><text x="624" y="104" class="d-mono-ink">B</text><text x="624" y="128" class="d-mono-ink">C</text>
+        <text x="570" y="190" text-anchor="middle" class="d-small">CREATE + APPEND</text>
+        <text x="570" y="210" text-anchor="middle" class="d-small">новое — в конец файла</text>
+      </svg>
+      <figcaption>Слева — перезапись (по умолчанию), справа — дописывание.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: доска и тетрадь</span>
+      <p>Обычная запись — <b>школьная доска</b>: перед новой темой её вытирают целиком. <code>APPEND</code> — <b>тетрадь</b>: каждая новая запись идёт на следующую строку, старое остаётся.</p>
+    </div>
+    <p>Чтобы дописывать, передай методу дополнительными аргументами <b>опции открытия</b> — константы из <code>StandardOpenOption</code>:</p>
+<pre data-file="AppendLog.java"><code class="java">import java.nio.file.StandardOpenOption;
+…
+Path log = Path.of("log.txt");
+Files.writeString(log, "заказ 1: оплачен\n",
+        StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+Files.writeString(log, "заказ 2: отменён\n",
+        StandardOpenOption.CREATE, StandardOpenOption.APPEND);</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Опция</th><th>Смысл</th></tr>
+        <tr><td><code>CREATE</code></td><td>файла нет — создать</td></tr>
+        <tr><td><code>APPEND</code></td><td>писать в конец, не стирая</td></tr>
+        <tr><td><code>TRUNCATE_EXISTING</code></td><td>обрезать файл до нуля перед записью (по умолчанию)</td></tr>
+        <tr><td><code>CREATE_NEW</code></td><td>создать новый, а если файл уже есть — ошибка <code>FileAlreadyExistsException</code>. Защита от случайной перезаписи</td></tr>
+      </table>
+    </div>
+    <p>Без опций Java подставляет <code>CREATE, TRUNCATE_EXISTING, WRITE</code> — отсюда и «доска».</p>
+    <details class="predict">
+      <summary>Предскажи: файла <code>log.txt</code> нет, пишем с одной опцией <code>APPEND</code> (без <code>CREATE</code>). Что будет?</summary>
+      <p>Метод выбросит исключение <code>NoSuchFileException</code>. Как только ты передал опции сам, Java больше ничего не подставляет — а <code>APPEND</code> умеет только дописывать в существующий файл. Поэтому пара <code>CREATE, APPEND</code> — устойчивое выражение.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка в IDEA: лог растёт с каждым запуском</span>
+      <p>Программа дописывает в <code>log.txt</code> с <code>APPEND</code>. Запустил 5 раз — в файле строки от всех пяти запусков. Если нужен лог <b>только этого</b> запуска, в начале программы очисти файл: <code>Files.writeString(log, "")</code> — обычная запись без опций как раз обнуляет его.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Собери журнал заказов</h2>
+    <p>Программа должна начать журнал с чистого листа, дописать в него две строки (сначала про чайник, потом про утюг) и напечатать, сколько строк получилось. Расставь строки по порядку.</p>
+    <div data-widget="parsons" id="append-parsons" data-code data-title="Журнал заказов с APPEND" data-icon="📒"
+         data-hint="Сначала путь, потом очистка, потом две дописки, в конце — чтение."
+         data-success="🎉 Верно! Очистили одной обычной записью, дописали с CREATE + APPEND, прочитали — 2 строки.">
+      <script type="text/plain">
+Path log = Path.of("orders.log");
+Files.writeString(log, "");
+Files.writeString(log, "чайник: оплачен\n", StandardOpenOption.APPEND);
+Files.writeString(log, "утюг: отменён\n", StandardOpenOption.APPEND);
+List<String> lines = Files.readAllLines(log);
+System.out.println("Строк в журнале: " + lines.size());
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Заметил? Здесь <code>APPEND</code> без <code>CREATE</code> работает: файл к этому моменту уже создан первой строкой <code>writeString(log, "")</code>.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Нет папки — нет файла</h2>
+    <p>Программы любят раскладывать файлы по папкам: <code>photos/summer/sea.png</code>, <code>reports/2026-11-27/summary.txt</code>. Но <code>writeString</code> <b>не создаёт папки</b>. Папки <code>reports</code> нет — метод выбросит <code>NoSuchFileException</code>.</p>
+    <div data-widget="ide" id="shot-write-no-folder">
+      <script type="application/json">
+      { "tree": false, "file": "ReportInFolder.java", "runConfig": "ReportInFolder", "gutterRun": [5, 6], "statusPath": "module-15",
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\n\npublic class ReportInFolder {\n    public static void main(String[] args) throws IOException {\n        Path report = Path.of(\"reports\", \"shop\", \"summary.txt\");\n        Files.writeString(report, \"Заказов: 5, все оплачены\\n\");\n        System.out.println(\"Записано: \" + report.toAbsolutePath());\n    }\n}",
+        "console": { "title": "ReportInFolder", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ReportInFolder" },
+          { "t": "err", "s": "Exception in thread \"main\" java.nio.file.NoSuchFileException: reports\\shop\\summary.txt" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:85)" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsFileSystemProvider.newByteChannel(WindowsFileSystemProvider.java:234)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.spi.FileSystemProvider.newOutputStream(FileSystemProvider.java:482)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.newOutputStream(Files.java:227)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.write(Files.java:3492)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.writeString(Files.java:3714)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.writeString(Files.java:3654)" },
+          { "t": "err", "s": "\tat ReportInFolder.main(ReportInFolder.java:8)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "side": "bottom", "text": "То же <b>NoSuchFileException</b>, что при чтении, — хотя мы <b>пишем</b>. Сам файл Java создала бы, но папки <code>reports\\shop</code> нет, и класть его некуда" },
+                   { "n": 2, "target": "link-10", "text": "Строка <b>8</b> — <code>writeString</code>. Лечение — строчкой выше вызвать <code>Files.createDirectories(report.getParent())</code>" } ],
+        "caption": "Запись в несуществующую папку" }
+      </script>
+    </div>
+<pre data-file="ReportInFolder.java"><code class="java">Path report = Path.of("reports", "shop", "summary.txt");
+
+// reports/shop — со всеми родителями
+Files.createDirectories(report.getParent());
+Files.writeString(report, "Заказов: 5, все оплачены\n");
+
+System.out.println("Записано: " + report.toAbsolutePath());</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>report.getParent()</code><div><p>Вызываем метод <code>getParent</code> у объекта <code>report</code>; он возвращает папку, где должен лежать файл: <code>reports/shop</code>. Это возвращаемое значение сразу передаём аргументом в <code>createDirectories</code>. Метод Path из урока 15.1 пригодился.</p></div></div>
+      <div class="annot-row"><code>Files.createDirectories(…)</code><div><p>Статический метод получает путь аргументом и создаёт папку <b>и всех недостающих родителей</b>. Если папка уже есть — спокойно ничего не делает. Можно вызывать хоть каждый раз.</p></div></div>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">📁</span><h4>createDirectory</h4><p>Ровно одну папку. Родителя нет — <code>NoSuchFileException</code>. Папка уже есть — <code>FileAlreadyExistsException</code>.</p></div>
+      <div class="card"><span class="emoji">🗂️</span><h4>createDirectories</h4><p>Всю цепочку. Уже есть — не ошибка. На практике почти всегда берут его.</p></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: <code>Files.createDirectories(Path.of("notes.txt").getParent())</code> — что будет?</summary>
+      <p><code>getParent()</code> у пути из одной части — <code>null</code>, и вызов <code>createDirectories(null)</code> выбросит <code>NullPointerException</code>. Если файл пишется прямо в рабочую папку, создавать ничего не нужно — она уже есть.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Переводы строк и PrintWriter</h2>
+    <p>Мелочь, о которой спотыкаются: на Windows конец строки в файле — два символа <code>\r\n</code>, на Linux и macOS — один <code>\n</code>.</p>
+    <ul>
+      <li><code>Files.write(путь, список)</code> ставит после каждой строки <code>System.lineSeparator()</code> — перевод строки той системы, где запущена программа.</li>
+      <li><code>Files.writeString</code> пишет ровно то, что дали. Написал <code>\n</code> — будет <code>\n</code>.</li>
+      <li>При чтении разницы нет: <code>readAllLines</code> и <code>lines</code> понимают оба варианта.</li>
+    </ul>
+    <p>Если строк много и их удобно печатать как в консоль — есть старый знакомый <code>println</code>, только в файл. Это класс <code>PrintWriter</code>:</p>
+<pre data-file="PrintToFile.java"><code class="java">try (PrintWriter out = new PrintWriter(
+        Files.newBufferedWriter(Path.of("table.txt")))) {
+    out.println("Товар           | Цена");
+    out.printf("%-15s | %d руб.%n", "чайник", 340);
+    out.printf("%-15s | %d руб.%n", "кофемашина", 1250);
+}</code></pre>
+    <p>Те же <code>println</code> и <code>printf</code>, что у <code>System.out</code>, только текст уходит в файл. Объект <code>PrintWriter</code> создаётся в скобках <code>try (…)</code> — это уже знакомый try-с-ресурсами: после блока файл закроется автоматически. Подробнее про это и про <code>BufferedWriter</code> — в следующем уроке про потоки.</p>
+    <div class="say" data-mood="wow"><p>Кстати, <code>System.out</code> — это объект <code>PrintStream</code>, близкий родственник <code>PrintWriter</code>. Ты с первого урока пишешь в «файл», который называется консоль!</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m15-03">
+      <script type="application/json">
+      {
+       "title": "Запись в файл — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Path p = Path.of(\"a.txt\");\nFiles.writeString(p, \"one\\n\");\nFiles.writeString(p, \"two\\n\");\nFiles.writeString(p, \"three\\n\", StandardOpenOption.APPEND);\nSystem.out.println(Files.readAllLines(p));",
+         "answer": "[two, three]",
+         "why": "Вторая запись стёрла one, третья дописала three в конец."
+        },
+        {
+         "type": "single",
+         "q": "Файла <code>log.txt</code> нет. Что сделает <code>Files.writeString(log, \"x\", StandardOpenOption.APPEND)</code>?",
+         "options": [
+          "Создаст файл и запишет x",
+          "Упадёт с NoSuchFileException",
+          "Ничего не сделает"
+         ],
+         "answer": 1,
+         "why": "Опции заданы явно, CREATE среди них нет. Нужно CREATE, APPEND."
+        },
+        {
+         "type": "match",
+         "q": "Соедини опцию со смыслом",
+         "left": [
+          "CREATE",
+          "APPEND",
+          "TRUNCATE_EXISTING",
+          "CREATE_NEW"
+         ],
+         "right": [
+          "Нет файла — создать",
+          "Дописать в конец",
+          "Стереть старое перед записью",
+          "Только новый файл, иначе ошибка"
+         ],
+         "why": "По умолчанию writeString использует CREATE + TRUNCATE_EXISTING — поэтому старое стирается."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>Files.write(путь, список)</code> ставит перевод строки после каждого элемента",
+           "a": true
+          },
+          {
+           "s": "<code>createDirectories</code> падает, если папка уже существует",
+           "a": false,
+           "why": "это createDirectory падает. createDirectories спокойно ничего не делает."
+          },
+          {
+           "s": "<code>writeString</code> сам добавляет перевод строки в конце текста",
+           "a": false,
+           "why": "пишет ровно то, что передали."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 15.3. Дай мне код с записью в файл, а я скажу, что окажется в файле после двух запусков»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Files.writeString(путь, текст)</code> и <code>Files.write(путь, список)</code> — статические методы записи. По умолчанию файл <b>перезаписывается</b>.</li>
+        <li>Дописать в конец — <code>StandardOpenOption.CREATE, StandardOpenOption.APPEND</code>. Без <code>CREATE</code> на несуществующем файле — ошибка.</li>
+        <li>Папки сами не появляются: <code>Files.createDirectories(file.getParent())</code> перед записью.</li>
+        <li><code>Files.write</code> ставит системный перевод строки, <code>writeString</code> пишет ровно то, что дали.</li>
+        <li><code>PrintWriter</code> — <code>println</code>/<code>printf</code> в файл.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,47 @@
+## id: tr-arrays-037
+## title: Сколько разных марок
+## file: trainer/arrays/DistinctStampCount.java
+## class: DistinctStampCount
+## level: 2
+## category: Повторы и уникальность
+@@ description
+<p>Напиши класс <code>DistinctStampCount</code>. Филателист высыпал на стол свою коллекцию, у каждой марки — код, и одинаковых марок бывает много. В первой строке — количество марок <code>n</code>, во второй — <code>n</code> кодов. Напечатай <code>Разных марок: K</code>.</p>
+<pre class="terminal"><span class="out">ввод:  8
+       5 1 5 3 1 5 9 3
+вывод: Разных марок: 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.sort(a)</code> — после сортировки одинаковые коды окажутся рядом</li>
+<li>новый код начинается там, где <code>a[i] != a[i - 1]</code></li>
+<li>не забудь про пустую коллекцию</li>
+</ul></div>
+@@ test: Коллекция
+@@ input
+8
+5 1 5 3 1 5 9 3
+@@ expect
+Разных марок: 4
+@@ test: Все разные
+@@ input
+4
+4 3 2 1
+@@ expect
+Разных марок: 4
+@@ test: Все одинаковые
+@@ input
+3
+7 7 7
+@@ expect
+Разных марок: 1
+@@ test: Пустой стол
+@@ input
+0
+@@ expect
+Разных марок: 0
+@@ test: Отрицательные коды
+@@ input
+4
+-1 0 -1 1
+@@ expect
+Разных марок: 3
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];
+@@ forbid: \b(ArrayList|LinkedList|HashSet|TreeSet|HashMap|TreeMap|List|Set|Map)\s*<|\.stream\s*\( | Здесь только массивы: коллекции и стримы будут позже

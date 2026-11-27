@@ -1,0 +1,49 @@
+## id: tr-strings-005
+## title: Тот же логин?
+## file: trainer/strings/SameLoginIgnoreCase.java
+## class: SameLoginIgnoreCase
+## level: 1
+## category: Проверка формата
+@@ description
+<p>Напиши класс <code>SameLoginIgnoreCase</code>. При входе в игру логин сравнивают без учёта регистра и пробелов по краям: <code>Admin</code> и <code> admin </code> — один и тот же логин. Программа читает две строки: сохранённый логин и введённый логин. Напечатай <code>true</code>, если это один логин, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Admin
+       admin
+вывод: true
+
+ввод:  ivan
+       ivan1
+вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a.equalsIgnoreCase(b)</code> — сравнивает строки по содержимому, не обращая внимания на регистр</li>
+<li><code>s.strip()</code> — убирает пробелы по краям</li>
+</ul></div>
+@@ test: Разный регистр
+@@ input
+Admin
+admin
+@@ expect
+true
+@@ test: Пробелы по краям
+@@ input
+  maria 
+MARIA
+@@ expect
+true
+@@ test: Лишняя цифра
+@@ input
+ivan
+ivan1
+@@ expect
+false
+@@ test: Пробел внутри важен
+@@ input
+max
+m ax
+@@ expect
+false
+@@ test: Полное совпадение
+@@ input
+Kot_007
+Kot_007
+@@ expect
+true

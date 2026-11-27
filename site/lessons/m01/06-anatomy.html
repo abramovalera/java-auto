@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Анатомия программы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m01-06">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 1 · Урок 5</div>
+    <h1>Анатомия программы</h1>
+    <p class="lead">Первая программа уже работает. Теперь разберём её по косточкам: что значит каждое слово, каждая скобка и каждая точка — и что из этого важно запомнить уже сейчас.</p>
+    <div class="meta"><span>⏱ 20–25 минут</span><span>🔬 разбор кода строчка за строчкой</span><span>⌨️ открой IDEA</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Вот она, наша программа</h2>
+    <p>Это та самая программа, которую ты набрал в <a href="/lessons/m01/04-first-program-idea.html">уроке 1.4</a>. Всего пять строк, но в них уже есть почти всё, из чего состоит любая программа на Java:</p>
+<pre data-file="HelloWorld.java"><code class="java">public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}</code></pre>
+    <div class="say" data-mood="think"><p>В уроке 1.4 ты набрал эти строки, не вникая в смысл слов, — помог шаблон <code>psvm</code>. Пора их расшифровать! Сначала посмотрим издалека — как на здание, — а потом зайдём внутрь.</p></div>
+    <p>В этом уроке ты будешь специально «ломать» программу и смотреть, что скажет IDEA. Для этого пригодятся ещё несколько клавиш. <b>Допиши их к своей таблице из урока 1.4</b> — руками, на тот же листочек:</p>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA, часть 2</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Отменить последнее изменение</td><td>Сломал — верни как было</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Вернуть отменённое обратно</td><td>Отменил лишнего</td></tr>
+        <tr><td><kbd>F2</kbd></td><td>Прыгнуть к следующей ошибке в файле</td><td>Видишь красное, а где оно — не найти</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F6</kbd></td><td>Переименовать (класс, переменную) везде сразу; для класса — и файл тоже</td><td>Захотел поменять имя</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>/</kbd></td><td>Закомментировать / раскомментировать строку</td><td>Временно «выключить» строку</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Space</kbd></td><td>Показать подсказки: что можно написать здесь</td><td>Забыл, как называется метод</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>J</kbd></td><td>Список всех сокращений-шаблонов (<code>psvm</code>, <code>sout</code> и других) с пояснениями</td><td>Забыл, как называлось сокращение</td></tr>
+      </table></div>
+      <p style="margin-top:10px">И без клавиш: <b>наведи мышку на красную волну</b> — IDEA покажет, что не так.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Коробки в коробках</h2>
+    <p>Главное, что надо увидеть в этом коде, — <strong>вложенность</strong>. Фигурные скобки <code>{</code> и <code>}</code> работают как стенки коробки: открывающая — «тут коробка начинается», закрывающая — «тут закончилась». Внутрь одной коробки можно положить другую.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 330" role="img" aria-label="Вложенность: файл содержит класс, класс содержит метод main, метод содержит инструкции">
+        <rect x="10" y="10" width="700" height="310" rx="16" class="d-soft"/>
+        <text x="30" y="40" class="d-title">📄 Файл HelloWorld.java</text>
+        <text x="690" y="40" text-anchor="end" class="d-small">то, что лежит на диске</text>
+
+        <rect x="30" y="58" width="660" height="242" rx="14" class="d-blue"/>
+        <text x="50" y="88" class="d-mono-ink">public class HelloWorld {</text>
+        <text x="670" y="88" text-anchor="end" class="d-small">класс — главная коробка</text>
+
+        <rect x="56" y="104" width="608" height="150" rx="12" class="d-teal"/>
+        <text x="76" y="134" class="d-mono-ink">public static void main(String[] args) {</text>
+        <text x="644" y="158" text-anchor="end" class="d-small">метод main — вход в программу</text>
+
+        <rect x="84" y="170" width="552" height="56" rx="10" class="d-yellow"/>
+        <text x="104" y="203" class="d-mono-ink">System.out.println("Hello, World!");</text>
+        <text x="616" y="217" text-anchor="end" class="d-small">инструкция</text>
+
+        <text x="76" y="246" class="d-mono-ink">}</text>
+        <text x="100" y="246" class="d-small">← конец метода</text>
+        <text x="50" y="290" class="d-mono-ink">}</text>
+        <text x="74" y="290" class="d-small">← конец класса</text>
+      </svg>
+      <figcaption>Файл → класс → метод → инструкции. У каждой открывающей скобки <code>{</code> есть своя закрывающая <code>}</code>.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: дом</span>
+      <p><strong>Файл</strong> — участок земли. На нём стоит <strong>дом</strong> — это класс. В доме есть комнаты — это <strong>методы</strong>, и одна из них особенная: <strong>прихожая</strong> <code>main</code>, через неё в дом входят все гости. А <strong>инструкции</strong> — то, что происходит в комнате: «включи свет», «поставь чайник».</p>
+      <p>Забыл закрыть скобку — получилась комната без стены. Java не поймёт, где кончается одно и начинается другое, и откажется компилировать.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбор по строкам</h2>
+    <p>Теперь зайдём внутрь. Слева — код, справа — что он значит.</p>
+    <div class="annot">
+      <div class="annot-row">
+        <code>public class HelloWorld {</code>
+        <div><p><strong>Объявление класса.</strong> <code>class</code> — «вот класс», <code>HelloWorld</code> — его имя (придумываешь ты). <code>public</code> — «публичный», доступный всем. <code>{</code> открывает коробку класса.</p></div>
+      </div>
+      <div class="annot-row">
+        <code>    public static void main(String[] args) {</code>
+        <div><p><strong>Объявление метода <code>main</code></strong> — точка входа. Когда ты жмёшь ▶, IDEA запускает JVM, а JVM ищет именно этот метод и начинает выполнение с него. <code>{</code> открывает коробку метода — его <strong>тело</strong>: всё, что между <code>{</code> и <code>}</code>.</p></div>
+      </div>
+      <div class="annot-row">
+        <code>        System.out.println("Hello, World!");</code>
+        <div><p><strong>Инструкция</strong> — одно законченное действие: «напечатай в консоль строку <em>Hello, World!</em>». Здесь это <strong>вызов метода</strong> <code>println</code>: в скобках ему <strong>передаётся аргумент</strong> — строка <code>"Hello, World!"</code>, которую надо напечатать. Инструкция заканчивается точкой с запятой <code>;</code>.</p></div>
+      </div>
+      <div class="annot-row">
+        <code>    }</code>
+        <div><p>Закрываем тело метода <code>main</code>. Когда выполнение дойдёт сюда, программа закончится.</p></div>
+      </div>
+      <div class="annot-row">
+        <code>}</code>
+        <div><p>Закрываем класс <code>HelloWorld</code>.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Метод main — входная дверь</h2>
+    <p><strong>Метод</strong> — именованный кусок кода, который что-то делает. В классе их может быть много, но у программы должен быть один особый — <code>main</code> (по-английски «главный»). С него JVM начинает выполнение — строчка за строчкой, сверху вниз. Пройди программу по шагам сам:</p>
+    <div data-widget="trace" id="trace-main">
+      <script type="application/json">
+      { "title": "Как JVM выполняет main", "intro": "Нажимай «Шаг ▶». Подсвеченная строка — та, которую JVM выполняет прямо сейчас. Справа внизу — консоль. Табличка «Переменные» здесь останется пустой: в этой программе их нет, переменные появятся в модуле 2.",
+        "code": "public class Steps {\n    public static void main(String[] args) {\n        System.out.println(\"Раз\");\n        // System.out.println(\"Два\");\n        System.out.println(\"Три\");\n    }\n}",
+        "steps": [
+          { "line": 2, "note": "JVM нашла метод <code>main</code> и входит в него. Строка с <code>class</code> — это объявление класса, коробка, а не инструкция: выполнять там нечего." },
+          { "line": 3, "out": "Раз\n", "note": "Первая инструкция — вызов метода <code>println</code>: печатаем «Раз» и переходим на новую строку." },
+          { "line": 4, "note": "Это комментарий — компилятор его выбросил, в программе его нет. Ничего не происходит." },
+          { "line": 5, "out": "Три\n", "note": "Следующая инструкция: печатаем «Три»." },
+          { "line": 6, "note": "Закрывающая скобка тела <code>main</code>: инструкции кончились — программа завершена (exit code 0)." }
+        ] }
+      </script>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: книга</span>
+      <p>Книгу читают с первой страницы, а не с середины. Метод <code>main</code> — первая страница программы. Если его нет, JVM не знает, откуда начинать, и при запуске сообщит: <em>main method not found</em>.</p>
+    </div>
+    <p>А что за слова вокруг <code>main</code>? Честно: <strong>сейчас их нужно запомнить как формулу</strong>. Каждое по-настоящему разберём в модулях про методы и классы. Но краткое объяснение полезно уже сейчас:</p>
+    <dl class="terms">
+      <dt>public</dt><dd>«Публичный» — JVM снаружи может вызвать этот метод.</dd>
+      <dt>static</dt><dd>«Статический» — метод можно вызвать, не создавая объект. Что такое объект — помнишь котов из урока 1.1? Подробно — в модуле 9.</dd>
+      <dt>void</dt><dd>«Пустота» — метод ничего не возвращает в ответ, просто делает свою работу.</dd>
+      <dt>main</dt><dd>Имя метода. Именно такое — с маленькой буквы, иначе JVM его не найдёт.</dd>
+      <dt>String[] args</dt><dd>Сюда попадают аргументы — то, что можно передать программе при запуске. Пока не используем, но писать обязательно.</dd>
+    </dl>
+    <div class="callout tip">
+      <span class="callout-title">Лайфхак IDEA</span>
+      <p>Внутри класса напечатай <code>psvm</code> (<em>public static void main</em>) или <code>main</code> и нажми <kbd>Tab</kbd> — строка появится сама. Но первые несколько раз <strong>набери её руками</strong>: так она быстрее запомнится.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>System.out.println — читаем по точкам</h2>
+    <p>Точка в Java означает «внутри» или «у кого». Читать <code>System.out.println</code> удобно как почтовый адрес — от большого к маленькому:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Разбор System.out.println как адреса: страна, город, улица">
+        <text x="20" y="34" class="d-small">почтовый адрес:</text>
+        <rect x="150" y="14" width="130" height="34" rx="8" class="d-soft"/>
+        <text x="215" y="37" text-anchor="middle" class="d-text">Россия</text>
+        <text x="292" y="37" text-anchor="middle" class="d-title">.</text>
+        <rect x="304" y="14" width="130" height="34" rx="8" class="d-soft"/>
+        <text x="369" y="37" text-anchor="middle" class="d-text">Москва</text>
+        <text x="446" y="37" text-anchor="middle" class="d-title">.</text>
+        <rect x="458" y="14" width="150" height="34" rx="8" class="d-soft"/>
+        <text x="533" y="37" text-anchor="middle" class="d-text">ул. Тверская</text>
+
+        <text x="20" y="104" class="d-small">в Java:</text>
+        <rect x="150" y="76" width="130" height="48" rx="10" class="d-blue"/>
+        <text x="215" y="106" text-anchor="middle" class="d-mono-ink">System</text>
+        <text x="292" y="106" text-anchor="middle" class="d-title">.</text>
+        <rect x="304" y="76" width="130" height="48" rx="10" class="d-teal"/>
+        <text x="369" y="106" text-anchor="middle" class="d-mono-ink">out</text>
+        <text x="446" y="106" text-anchor="middle" class="d-title">.</text>
+        <rect x="458" y="76" width="150" height="48" rx="10" class="d-accent"/>
+        <text x="533" y="106" text-anchor="middle" class="d-mono-ink">println</text>
+        <rect x="616" y="76" width="96" height="48" rx="10" class="d-yellow"/>
+        <text x="664" y="106" text-anchor="middle" class="d-mono-ink">("…")</text>
+
+        <text x="215" y="150" text-anchor="middle" class="d-title">система</text>
+        <text x="215" y="170" text-anchor="middle" class="d-small">готовый класс Java</text>
+        <text x="215" y="188" text-anchor="middle" class="d-small">про компьютер</text>
+        <text x="369" y="150" text-anchor="middle" class="d-title">вывод</text>
+        <text x="369" y="170" text-anchor="middle" class="d-small">«выход» программы —</text>
+        <text x="369" y="188" text-anchor="middle" class="d-small">консоль</text>
+        <text x="533" y="150" text-anchor="middle" class="d-title">напечатай строку</text>
+        <text x="533" y="170" text-anchor="middle" class="d-small">print line: напечатай</text>
+        <text x="533" y="188" text-anchor="middle" class="d-small">и перейди на новую</text>
+        <text x="664" y="150" text-anchor="middle" class="d-title">что</text>
+        <text x="664" y="170" text-anchor="middle" class="d-small">в скобках —</text>
+        <text x="664" y="188" text-anchor="middle" class="d-small">что печатать</text>
+
+        <text x="360" y="232" text-anchor="middle" class="d-text">«Система, у тебя есть вывод, — напечатай в нём вот это»</text>
+      </svg>
+      <figcaption>Точки идут от большого к маленькому, как в адресе. Скобки после имени метода — это его вызов: «выполни действие вот с этими данными». Данные в скобках — аргумент.</figcaption>
+    </figure>
+    <p>Текст для печати пишется <strong>в двойных кавычках</strong>: <code>"Hello, World!"</code>. Такой текст называется <strong>строкой</strong> (по-английски <em>string</em>), а строка, записанная прямо в коде в кавычках, — <strong>строковым литералом</strong>. Кавычки говорят Java: «это не код, а просто текст — выведи его как есть».</p>
+    <details class="predict">
+      <summary>Скомпилируется ли строка System.out.println(Hello); — без кавычек?</summary>
+      <p><strong>Нет.</strong> Без кавычек <code>Hello</code> — уже не текст, а имя чего-то, что Java должна знать. Ничего с таким именем нет, поэтому будет ошибка <em>cannot find symbol</em> — «не знаю такого имени». Текст всегда в двойных кавычках: <code>"Hello"</code>.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: что на самом деле стоит за System.out.println</summary>
+      <p><code>System</code> — класс из стандартной библиотеки Java, <code>out</code> — объект внутри него, который умеет печатать, <code>println</code> — метод (умение) этого объекта. Вся строка читается так: «вызываем метод <code>println</code> у объекта <code>System.out</code> и передаём ему аргумент». За одной строкой прячется длинная цепочка готового кода — вплоть до операционной системы. Подробно «провалимся» туда в модулях 7 и 9, когда будешь знать методы и классы.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Точка с запятой и регистр букв</h2>
+    <p>Каждая инструкция в Java заканчивается точкой с запятой <code>;</code> — как точка в конце предложения: «мысль закончена, дальше следующая». После строк с <code>{</code> и <code>}</code> точку с запятой <strong>не ставят</strong>: скобки — стенки коробок, а не инструкции.</p>
+<pre data-file="HelloWorld.java"><code class="java">public class HelloWorld {                   // без ; — это начало коробки
+    public static void main(String[] args) {  // без ;
+        System.out.println("Раз");          // ; — инструкция закончилась
+        System.out.println("Два");          // ;
+    }                                       // без ;
+}</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: диктант</span>
+      <p>Без точек диктант превращается в кашу: «я пришёл домой мама сказала иди обедать». Где кончается одна мысль? Компилятор думает так же: без <code>;</code> он не понимает, где кончается инструкция, и пишет <em>';' expected</em> — «ожидалась точка с запятой».</p>
+    </div>
+    <p>И ещё: для Java <code>System</code> и <code>system</code> — <strong>два совершенно разных слова</strong>. Как «Иван» и «иван» для паспортного стола: одна буква — и человека «не существует».</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Правильно</th><th>Неправильно</th><th>Почему</th></tr></thead>
+        <tbody>
+          <tr><td><code>System</code></td><td><code>system</code></td><td>класс <code>System</code> пишется с большой буквы</td></tr>
+          <tr><td><code>println</code></td><td><code>PrintLn</code>, <code>printIn</code></td><td>все буквы маленькие; и это «л» (<em>line</em>), а не «ай»</td></tr>
+          <tr><td><code>String[] args</code></td><td><code>string[] args</code></td><td><code>String</code> — тоже класс, с большой буквы</td></tr>
+          <tr><td><code>main</code></td><td><code>Main</code></td><td>JVM ищет метод именно <code>main</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>В println: буква перед «n» — это «I» (большая i) или «l» (маленькая L)?</summary>
+      <p>Маленькая <strong>L</strong>: <code>print<strong>l</strong>n</code> — от <em>print line</em>, «напечатай строку». Опечатка <code>printIn</code> — одна из самых частых у новичков: в некоторых шрифтах эти буквы почти одинаковые. IDEA подчеркнёт её красным: <em>cannot resolve method</em>, а компилятор скажет <em>cannot find symbol</em>.</p>
+    </details>
+    <p>Вот как все три промаха — забытая <code>;</code>, <code>system</code> с маленькой буквы и <code>printIn</code> — выглядят в IDEA. Она подчёркивает их, пока ты печатаешь, ещё до запуска:</p>
+    <div data-widget="ide" id="shot-anatomy-typos">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "gutterRun": [1, 2],
+        "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Раз\")\n        system.out.println(\"Два\");\n        System.out.printIn(\"Три\");\n    }\n}",
+        "errors": [ { "line": 3, "col": 34, "len": 1, "msg": "';' expected" },
+                    { "line": 4, "text": "system", "msg": "Cannot resolve symbol 'system'" },
+                    { "line": 5, "text": "printIn", "msg": "Cannot resolve method 'printIn' in 'PrintStream'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-3", "text": "Нет <code>;</code> — красная чёрточка встала сразу за скобкой, там, где точка с запятой должна быть" },
+                   { "n": 2, "target": "err-4", "side": "left", "text": "<code>system</code> с маленькой буквы — красным стало само слово: IDEA не знает такого имени" },
+                   { "n": 3, "target": "tip", "text": "Навёл мышку на <code>printIn</code> — IDEA пишет: <b>Cannot resolve method 'printIn' in 'PrintStream'</b>, «не могу найти метод printIn». Значит, в имени опечатка" },
+                   { "n": 4, "target": "problems", "text": "<b>❗3</b> — в файле три ошибки. Клавиша <kbd>F2</kbd> переносит курсор от одной к другой" } ],
+        "caption": "Три частые опечатки новичка глазами IDEA" }
+      </script>
+    </div>
+    <div data-widget="check" id="check-m01-06-a">
+      <script type="application/json">
+      {
+       "title": "Разминка: найди ошибку",
+       "items": [
+        {
+         "type": "bug",
+         "q": "В какой строке ошибка?",
+         "code": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Привет\")\n    }\n}",
+         "answer": [
+          3
+         ],
+         "why": "Инструкция не закончена: в конце строки 3 нужна точка с запятой <code>;</code>."
+        },
+        {
+         "type": "bug",
+         "q": "А здесь?",
+         "code": "public class Hello {\n    public static void main(String[] args) {\n        system.out.println(\"Привет\");\n    }\n}",
+         "answer": [
+          3
+         ],
+         "why": "<code>system</code> с маленькой буквы — для Java неизвестное имя. Класс называется <code>System</code>."
+        },
+        {
+         "type": "single",
+         "q": "Где нужна точка с запятой?",
+         "code": "public class A {\n    public static void main(String[] args) {\n        System.out.println(\"Hi\")\n    }\n}",
+         "options": [
+          "В конце каждой строки",
+          "Только после println(…)",
+          "Нигде — Java догадается сама"
+         ],
+         "answer": 1,
+         "why": "<code>;</code> завершает инструкцию. Строки с <code>{</code> и <code>}</code> — границы коробок, а не инструкции."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Комментарии и отступы</h2>
+    <p><span class="ai-only"><strong>Комментарий</strong> — текст в коде, который компилятор полностью пропускает. Он нужен людям: тебе через месяц, коллеге, наставнику. Бывает двух видов:</span><span class="free-only"><strong>Комментарий</strong> — текст в коде, который компилятор полностью пропускает. Он нужен людям: тебе через месяц, коллеге, <span class="ai-name">DeepSeek</span>. Бывает двух видов:</span></p>
+<pre data-file="HelloWorld.java"><code class="java">/*
+   Многострочный комментарий.
+   Всё от открывающих до закрывающих знаков игнорируется.
+*/
+public class HelloWorld {
+    public static void main(String[] args) {
+        // Однострочный комментарий: от // до конца строки
+        System.out.println("Hello, World!"); // можно и после кода
+        // System.out.println("Эта строка не выполнится");
+    }
+}</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Зачем это тебе прямо сейчас</span>
+      <p>Подписывай своими словами, что делает строка, — так лучше запоминается. А чтобы временно «выключить» строку, не удаляя её, закомментируй её: в IDEA — <kbd>Ctrl</kbd> + <kbd>/</kbd>.</p>
+    </div>
+    <p>А вот та же программа, сжатая в две строки без отступов. Она <strong>скомпилируется и заработает</strong>:</p>
+<pre><code class="java">public class HelloWorld { public static void main(String[] args) {
+System.out.println("Hello, World!"); } }</code></pre>
+    <p><span class="ai-only">Компилятору безразличны пробелы, переносы и отступы. Но человеку читать такое — пытка. Поэтому правило: <strong>каждый уровень вложенности сдвигается на 4 пробела вправо</strong> — по отступу сразу видно, в какой коробке строка. В IDEA <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>L</kbd> расставит отступы во всём файле — нажимай перед тем, как показать код наставнику.</span><span class="free-only">Компилятору безразличны пробелы, переносы и отступы. Но человеку читать такое — пытка. Поэтому правило: <strong>каждый уровень вложенности сдвигается на 4 пробела вправо</strong> — по отступу сразу видно, в какой коробке строка. В IDEA <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>L</kbd> расставит отступы во всём файле — нажимай перед тем, как показать код <span class="ai-name">DeepSeek</span>.</span></p>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Имя класса и имя файла</h2>
+    <p>В Java весь код живёт внутри <strong>классов</strong>: нельзя написать <code>println</code> посреди пустого файла. Пока считай класс <strong>контейнером для кода</strong>. И есть железное правило: <strong>имя файла совпадает с именем <code>public</code>-класса</strong> буква в букву, плюс <code>.java</code>.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Класс в коде</th><th>Имя файла</th><th>Результат</th></tr></thead>
+        <tbody>
+          <tr><td><code>public class HelloWorld</code></td><td><code>HelloWorld.java</code></td><td>✅ всё хорошо</td></tr>
+          <tr><td><code>public class HelloWorld</code></td><td><code>helloworld.java</code></td><td>❌ регистр букв не совпадает</td></tr>
+          <tr><td><code>public class HelloWorld</code></td><td><code>Main.java</code></td><td>❌ имена разные</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Типичная ловушка</span>
+      <p>Поменял имя класса в коде (например, <code>HelloWorld</code> на <code>Hello</code>), а файл — нет. IDEA подчеркнёт имя красным, а компилятор скажет: <em>class Hello is public, should be declared in a file named Hello.java</em>. Чтобы переименовать правильно, щёлкни по имени класса и нажми <kbd>Shift</kbd> + <kbd>F6</kbd> (Refactor → Rename) — IDEA переименует и класс, и файл.</p>
+    </div>
+    <div data-widget="ide" id="shot-anatomy-filename">
+      <script type="application/json">
+      { "tree": [ { "name": "module-01", "type": "src", "depth": 0, "open": true }, { "name": "HelloWorld", "type": "class", "depth": 1, "selected": true } ],
+        "file": "HelloWorld.java",
+        "code": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+        "errors": [ { "line": 1, "text": "Hello", "msg": "Class 'Hello' is public, should be declared in a file named 'Hello.java'", "tip": true, "fix": "Rename file to Hello.java" } ],
+        "marks": [ { "n": 1, "target": "tab", "text": "Файл по-прежнему называется <b>HelloWorld.java</b>…" },
+                   { "n": 2, "target": "err-1", "text": "…а класс в коде переименовали в <b>Hello</b> — имя подчёркнуто красным" },
+                   { "n": 3, "target": "tip", "text": "Сообщение: «публичный класс Hello должен лежать в файле Hello.java». IDEA предлагает переименовать файл; можно и наоборот — переименовать класс (<kbd>Shift</kbd>+<kbd>F6</kbd>). Главное — чтобы имена совпали буква в букву" } ],
+        "caption": "Имя класса и имя файла разошлись" }
+      </script>
+    </div>
+    <p>Имя придумываешь ты, но программисты договорились о правилах — <strong>соглашениях об именовании</strong>. Компилятор их не проверяет, но код не по правилам выглядит как сочинение без заглавных букв:</p>
+    <ul>
+      <li><strong>Класс — с большой буквы</strong>: <code>HelloWorld</code>, <code>Calculator</code>, <code>Tree</code>.</li>
+      <li><strong>Слова склеиваются, каждое с большой буквы</strong>: <code>MyFirstProgram</code>. Это называют <em>PascalCase</em> (иногда — CamelCase с большой буквы): большие буквы торчат, как горбы верблюда. А имена переменных и методов пишут в <em>camelCase</em> — так же, но первое слово с маленькой: <code>main</code>, <code>firstName</code>. Подробнее — в модуле 2.</li>
+      <li><strong>Только латиница и цифры</strong>, без пробелов и дефисов: <code>AboutMe</code> — хорошо, <code>About Me</code> и <code>about-me</code> — ошибка компиляции.</li>
+      <li><strong>Имя объясняет, что внутри</strong>: <code>Postcard</code> лучше, чем <code>Test1</code>.</li>
+    </ul>
+    <div class="callout try">
+      <span class="callout-title">Попробуй сам в IDEA</span>
+      <p>Открой свой <code>HelloWorld.java</code> и по очереди сделай маленькие «поломки». Каждый раз смотри, что подчеркнула IDEA, наведи мышку на красное и прочитай сообщение. После каждой поломки возвращай как было (<kbd>Ctrl</kbd> + <kbd>Z</kbd>):</p>
+      <ol>
+        <li>убери точку с запятой в конце строки с <code>println</code>;</li>
+        <li>напиши <code>system</code> с маленькой буквы;</li>
+        <li>удали последнюю закрывающую скобку <code>}</code>;</li>
+        <li>переименуй класс в <code>Hello</code> прямо в тексте, не трогая файл.</li>
+      </ol>
+      <p>Непонятные сообщения пока не пугают — в <a href="/lessons/m01/08-errors.html">уроке 1.7</a> научимся их читать.</p>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Практика: задачи 2–3</span>
+      <p>На странице <a href="/tasks.html?module=m01">Практика</a> тебя ждут задачи 2–3: <strong>«Визитка»</strong> (класс <code>AboutMe</code>: три строки о себе — три <code>println</code>) и <strong>«Открытка в рамке»</strong> (класс <code>Postcard</code>: вывод символ в символ, считай пробелы). Для них хватит этого урока: каждый вызов <code>System.out.println</code> печатает свою строку, а выполняются они сверху вниз. Для каждой задачи создай в <code>module-01</code> новый класс с методом <code>main</code> — как <code>HelloWorld</code> в уроке 1.4.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m01-06">
+      <script type="application/json">
+      { "title": "Анатомия программы — главное",
+        "items": [
+          { "type": "predict", "q": "Что напечатает программа?",
+            "code": "System.out.println(\"Утро\");\n// System.out.println(\"День\");\nSystem.out.println(\"Вечер\"); // System.out.println(\"Ночь\");",
+            "answer": "Утро\nВечер", "why": "Инструкции выполняются сверху вниз. Всё, что после <code>//</code>, — комментарий: «День» и «Ночь» компилятор выбросил." },
+          { "type": "single", "q": "С какого места JVM начинает выполнять программу?",
+            "options": ["С первой строки файла", "С метода main", "С первого комментария"], "answer": 1,
+            "why": "<code>main</code> — точка входа. Первая строка файла — объявление класса, это коробка, а не инструкция." },
+          { "type": "match", "q": "Соедини часть программы с её ролью",
+            "left": ["class HelloWorld", "main", "{ }", ";", "\"Hello\""],
+            "right": ["Коробка-контейнер для кода", "Точка входа: отсюда стартует программа", "Стенки коробки: начало и конец блока", "Конец инструкции", "Строка — текст, который печатается как есть"],
+            "why": "Класс → метод main → инструкции; скобки — границы, точка с запятой — конец инструкции, кавычки — строковый литерал." },
+          { "type": "single", "q": "Класс объявлен как <code>public class AboutMe</code>. Как должен называться файл?",
+            "options": ["aboutme.java", "AboutMe.java", "Как угодно, главное с .java"], "answer": 1,
+            "why": "Имя файла буква в букву совпадает с именем public-класса, плюс <code>.java</code>." },
+          { "type": "multi", "q": "Какие имена классов написаны по соглашениям Java?",
+            "options": ["MyProgram", "myProgram", "My Program", "Postcard", "my-program"], "answer": [0, 3],
+            "why": "Класс — с большой буквы, слова склеены, каждое с большой буквы (PascalCase). Пробел и дефис — вообще ошибка компиляции, а <code>myProgram</code> скомпилируется, но так называют не классы." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Компилятору важны отступы: без них программа не запустится", "a": false, "why": "компилятору всё равно, отступы нужны людям." },
+              { "s": "Комментарий можно поставить в конце строки с кодом", "a": true },
+              { "s": "Main и main — для JVM одно и то же", "a": false, "why": "регистр важен, JVM ищет именно <code>main</code>." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши в Claude Code: <em>«Я прочитал урок 1.5 про анатомию программы. Дай мне кусок кода с ошибками в оформлении — без готового ответа, — а я найду, что не так»</em>. Или: <em>«Спроси меня, что означает каждая часть строки с main»</em> — и ответь, не подглядывая.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Программа — вложенные коробки: файл → класс → метод <code>main</code> → инструкции. У каждой <code>{</code> есть пара <code>}</code>.</li>
+        <li><code>main</code> — точка входа: JVM выполняет его инструкции сверху вниз. Строку с <code>main</code> пока запоминаем как формулу.</li>
+        <li><code>System.out.println("…")</code> — вызов метода <code>println</code> у объекта <code>System.out</code> с аргументом-строкой: «система, напечатай в вывод строку и перейди на новую». Текст — в двойных кавычках (строковый литерал).</li>
+        <li>Инструкция заканчивается <code>;</code>. Регистр важен: <code>System</code> ≠ <code>system</code>.</li>
+        <li>Имя файла = имя public-класса. Классы — PascalCase: каждое слово с большой буквы (<code>MyFirstProgram</code>).</li>
+        <li>Комментарии <code>//</code> и <code>/* */</code> — заметки для людей; отступы — для читаемости.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

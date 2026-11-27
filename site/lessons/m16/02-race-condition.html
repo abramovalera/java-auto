@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Гонка данных · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m16-02">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 16 · Урок 2</div>
+    <h1>Гонка данных (race condition)</h1>
+    <p class="lead">Два потока по сто тысяч раз прибавляют единицу к одному счётчику. Должно получиться двести тысяч. Получается… каждый раз по-разному. Разберёмся, куда пропадают единицы и как их спасти.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔒 synchronized</span><span>⚛️ AtomicInteger</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m16-02-review">
+      <script type="application/json">
+      { "title": "Вспомним урок 16.1", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Чем <code>t.start()</code> отличается от <code>t.run()</code>?",
+            "options": ["Ничем, это синонимы", "start() запускает новый поток, run() выполняет задачу в текущем", "run() запускает поток быстрее"], "answer": 1,
+            "why": "Вызов run() — вызов обычного метода в текущем потоке. Новый поток запускает только вызов start()." },
+          { "type": "single", "q": "Главный поток запустил помощника и сразу печатает результат его работы. Что нужно добавить перед печатью?",
+            "options": ["helper.join();", "helper.run();", "Thread.sleep(10);"], "answer": 0,
+            "why": "Вызов join() — ожидание завершения потока: ждёт ровно столько, сколько нужно. sleep — гадание: может и не хватить." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Объект, созданный в main, может прочитать и изменить другой поток, если у него есть ссылка", "a": true },
+              { "s": "Thread.sleep не требует обработки исключений", "a": false, "why": "sleep бросает проверяемое InterruptedException." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Эксперимент: куда пропали клики?</h2>
+    <p>Кнопка «Нравится» в приложении: два «пользователя» одновременно жмут её по 100 000 раз. Счётчик общий — статическое поле. Для обоих потоков вызываем <code>join</code> — ждём их завершения, так что дело не в нём.</p>
+<pre data-file="LostClicks.java"><code class="java">public class LostClicks {
+    static int count = 0;
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable clicker = () -&gt; {
+            for (int i = 0; i &lt; 100_000; i++) {
+                count++;
+            }
+        };
+        Thread a = new Thread(clicker);
+        Thread b = new Thread(clicker);
+        a.start();
+        b.start();
+        a.join();
+        b.join();
+        System.out.println("Кликов: " + count);
+    }
+}</code></pre>
+    <p>Три запуска подряд: <b>137412</b>, <b>118905</b>, <b>200000</b>. Вот как выглядит первый в панели Run:</p>
+    <div data-widget="ide" id="shot-lost-clicks">
+      <script type="application/json">
+      { "tree": false, "file": "LostClicks.java", "runConfig": "LostClicks", "statusPath": "module-16", "gutterRun": [1, 4],
+        "code": "public class LostClicks {\n    static int count = 0;\n\n    public static void main(String[] args) throws InterruptedException {\n        Runnable clicker = () -> {\n            for (int i = 0; i < 100_000; i++) {\n                count++;\n            }\n        };\n        Thread a = new Thread(clicker);\n        Thread b = new Thread(clicker);\n        a.start();\n        b.start();\n        a.join();\n        b.join();\n        System.out.println(\"Кликов: \" + count);\n    }\n}",
+        "problems": true,
+        "console": { "title": "LostClicks", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… LostClicks" },
+          { "t": "out", "s": "Кликов: 137412" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "problems", "text": "Зелёная галочка: для компилятора всё в порядке. Гонку потоков он не видит" },
+                   { "n": 2, "target": "output", "text": "Ждали <b>200000</b>, получили 137412 — больше шестидесяти тысяч кликов пропало", "box": true },
+                   { "n": 3, "target": "exit", "text": "И даже <b>exit code 0</b>: ни исключения, ни ошибки. Просто неверный ответ — и каждый раз разный" } ],
+        "caption": "Гонка потоков: программа «успешно» выдаёт неправильное число" }
+      </script>
+    </div>
+    <div class="say" data-mood="oops"><p>Видишь третий запуск? Иногда программа отвечает правильно! Поэтому такие ошибки и коварны: на твоём компьютере всё сошлось, а ночью на сервере счётчик соврал. Это и есть <b>плавающая ошибка</b> — «то правильно, то нет» без изменений в коде.</p></div>
+    <div class="callout tip">
+      <span class="callout-title">Попробуй сам</span>
+      <p>Набери <code>LostClicks</code> в папке <code>module-16</code> и запусти раз пять. Числа будут свои, но почти всегда меньше 200 000.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Почему: count++ — это три действия</h2>
+    <p>Для нас <code>count++</code> (инкремент статического поля <code>count</code>) — одно действие. Для процессора — три: <b>прочитать</b> значение из памяти, <b>увеличить</b> у себя «в руках», <b>записать</b> обратно. Между любыми из этих шагов поток могут прервать и пустить другой.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="Потерянное обновление: оба потока прочитали 5, оба записали 6, одна единица пропала">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="130" y="30" text-anchor="middle" class="d-title">Поток A</text>
+        <text x="380" y="30" text-anchor="middle" class="d-title">count в памяти</text>
+        <text x="630" y="30" text-anchor="middle" class="d-title">Поток B</text>
+        <rect x="320" y="46" width="120" height="40" rx="10" class="d-yellow"/>
+        <text x="380" y="72" text-anchor="middle" class="d-title">5</text>
+        <rect x="30" y="96" width="200" height="40" rx="10" class="d-blue"/>
+        <text x="130" y="121" text-anchor="middle" class="d-text">1. прочитал 5</text>
+        <path d="M320 70 C270 70 260 100 234 112" class="d-arrow"/>
+        <rect x="530" y="96" width="200" height="40" rx="10" class="d-violet"/>
+        <text x="630" y="121" text-anchor="middle" class="d-text">2. прочитал 5</text>
+        <path d="M440 70 C490 70 500 100 526 112" class="d-arrow"/>
+        <rect x="30" y="150" width="200" height="40" rx="10" class="d-blue"/>
+        <text x="130" y="175" text-anchor="middle" class="d-text">3. 5 + 1 = 6</text>
+        <rect x="530" y="150" width="200" height="40" rx="10" class="d-violet"/>
+        <text x="630" y="175" text-anchor="middle" class="d-text">4. 5 + 1 = 6</text>
+        <rect x="30" y="204" width="200" height="40" rx="10" class="d-blue"/>
+        <text x="130" y="229" text-anchor="middle" class="d-text">5. записал 6</text>
+        <rect x="530" y="204" width="200" height="40" rx="10" class="d-violet"/>
+        <text x="630" y="229" text-anchor="middle" class="d-text">6. записал 6</text>
+        <rect x="320" y="234" width="120" height="40" rx="10" class="d-red"/>
+        <text x="380" y="260" text-anchor="middle" class="d-title">6, а не 7!</text>
+        <path d="M234 226 C270 226 290 250 316 252" class="d-arrow"/>
+        <path d="M526 226 C490 226 470 250 444 252" class="d-arrow"/>
+        <text x="380" y="310" text-anchor="middle" class="d-small">два увеличения, а счётчик вырос на 1 — одно обновление потерялось</text>
+      </svg>
+      <figcaption>Потерянное обновление (lost update): B перезаписал результат A, потому что прочитал значение до того, как A успел записать своё.</figcaption>
+    </figure>
+    <p>Когда результат зависит от того, какой поток «прибежит» первым, это называется <b>гонкой данных</b> (race condition). Пройди этот сценарий по шагам и посчитай сам. Код ниже — не настоящая Java, а <code>count++</code>, разобранный на три действия для двух потоков.</p>
+    <div data-widget="trace" id="trace-m16-02-race">
+      <script type="application/json">
+      { "title": "Два потока, один count++", "icon": "🏁",
+        "intro": "a и b — то, что каждый поток держит «в руках» (в своём регистре). count — общая переменная в памяти.",
+        "code": "// count++ в потоке A        // count++ в потоке B\nA: a = count;\n                              B: b = count;\nA: a = a + 1;\n                              B: b = b + 1;\nA: count = a;\n                              B: count = b;",
+        "steps": [
+          { "line": 2, "vars": { "count": "5", "a": "5" }, "note": "Поток A прочитал общий счётчик: 5." },
+          { "line": 3, "vars": { "count": "5", "a": "5", "b": "5" }, "ask": ["b"], "note": "Планировщик переключился на B. В памяти всё ещё 5 — A ничего не записал. Значит, b = 5." },
+          { "line": 4, "vars": { "count": "5", "a": "6", "b": "5" }, "note": "A увеличил своё значение. В памяти по-прежнему 5." },
+          { "line": 5, "vars": { "count": "5", "a": "6", "b": "6" }, "note": "B тоже увеличил своё: 5 + 1 = 6." },
+          { "line": 6, "vars": { "count": "6", "a": "6", "b": "6" }, "ask": ["count"], "note": "A записал своё 6 в память." },
+          { "line": 7, "vars": { "count": "6", "a": "6", "b": "6" }, "ask": ["count"], "note": "B записал своё 6 поверх. Было два увеличения, а count вырос только на 1. Клик потерян." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>А если бы планировщик не переключил потоки посередине — сначала все три шага A, потом все три шага B?</summary>
+      <p>Тогда B прочитал бы уже 6 и записал 7 — всё честно. Поэтому третий запуск в эксперименте и дал 200 000: потокам «повезло» не пересечься. Ошибка в коде есть всегда, а проявляется — как повезёт.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>synchronized — замок на двери</h2>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: примерочная с одним ключом</span>
+      <p>В примерочную пускают по одному: вошёл — запер дверь, вышел — отпер. Остальные ждут снаружи. Внутри никто не помешает: можно спокойно «прочитать, увеличить, записать».</p>
+    </div>
+    <p>В Java такая «примерочная» — <b>синхронизированный блок</b> <code>synchronized (…) { … }</code>: участок кода, который в один момент выполняет только один поток. В скобках указывают объект, который служит <b>замком</b> (по-английски lock или monitor). Пока один поток выполняет тело блока, другие потоки с <b>тем же</b> замком ждут у двери.</p>
+<pre data-file="SafeClicks.java"><code class="java">public class SafeClicks {
+    static int count = 0;
+    static final Object lock = new Object();
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable clicker = () -&gt; {
+            for (int i = 0; i &lt; 100_000; i++) {
+                synchronized (lock) {
+                    count++;
+                }
+            }
+        };
+        Thread a = new Thread(clicker);
+        Thread b = new Thread(clicker);
+        a.start();
+        b.start();
+        a.join();
+        b.join();
+        System.out.println("Кликов: " + count);   // всегда 200000
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>static final Object lock</code><div><p>Объявляем статическое поле <code>lock</code> и инициализируем его новым объектом (<code>new Object()</code>) — это замок. Подойдёт любой объект — важно, чтобы <b>все</b> потоки брали <b>один и тот же</b>.</p></div></div>
+      <div class="annot-row"><code>synchronized (lock) { … }</code><div><p>Вход в синхронизированный блок: поток захватывает замок <code>lock</code> — вошёл и запер. Пока поток выполняет тело блока, другой поток на этой строке ждёт (состояние <b>BLOCKED</b>).</p></div></div>
+      <div class="annot-row"><code>}</code><div><p>Выход из блока: поток отпускает замок — вышел и отпер, даже если внутри вылетело исключение. Следующий ожидающий заходит.</p></div></div>
+    </div>
+    <p>Можно объявить с модификатором <code>synchronized</code> целый метод (<b>синхронизированный метод</b>) — тогда замком будет сам объект (<code>this</code>), а у <code>static</code>-метода — класс:</p>
+<pre data-file="ClickCounter.java"><code class="java">class ClickCounter {
+    private int count = 0;
+
+    public synchronized void click() {   // замок — этот объект
+        count++;
+    }
+
+    public synchronized int get() {
+        return count;
+    }
+}</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Замок должен быть общим</span>
+      <p>Если каждый поток запирает <b>свою</b> дверь (например, <code>synchronized (new Object())</code>), никто никого не ждёт — защиты нет. Ещё запомни цену: потоки у замка стоят в очереди, значит, внутри <code>synchronized</code> держи только то, что действительно нужно защитить.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>AtomicInteger — счётчик, который не теряет</h2>
+    <p>Для простых счётчиков есть готовые классы из пакета <code>java.util.concurrent.atomic</code>. <b>Атомарный</b> значит «неделимый»: прочитать-увеличить-записать происходит как одно действие, разорвать его посередине нельзя.</p>
+<pre data-file="AtomicClicks.java"><code class="java">import java.util.concurrent.atomic.AtomicInteger;
+
+public class AtomicClicks {
+    static AtomicInteger count = new AtomicInteger(0);
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable clicker = () -&gt; {
+            for (int i = 0; i &lt; 100_000; i++) {
+                count.incrementAndGet();     // атомарный count++
+            }
+        };
+        Thread a = new Thread(clicker);
+        Thread b = new Thread(clicker);
+        a.start();
+        b.start();
+        a.join();
+        b.join();
+        System.out.println("Кликов: " + count.get());
+    }
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод <code>AtomicInteger</code></th><th>Что делает</th></tr>
+        <tr><td><code>incrementAndGet()</code></td><td>увеличивает на 1, возвращаемое значение — новое (как <code>++count</code>)</td></tr>
+        <tr><td><code>getAndIncrement()</code></td><td>возвращает старое значение и увеличивает (как <code>count++</code>)</td></tr>
+        <tr><td><code>addAndGet(5)</code></td><td>прибавляет аргумент 5 и возвращает результат</td></tr>
+        <tr><td><code>get()</code> / <code>set(0)</code></td><td>прочитать / записать</td></tr>
+      </table>
+    </div>
+    <p>Есть и <code>AtomicLong</code>, <code>AtomicBoolean</code>. Что выбрать?</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">⚛️</span><h4>AtomicInteger</h4><p>Одна переменная-счётчик или флаг. Просто и быстро.</p></div>
+      <div class="card"><span class="emoji">🔒</span><h4>synchronized</h4><p>Несколько действий, которые должны пройти вместе: «проверить баланс и списать», «добавить в список и увеличить счётчик».</p></div>
+    </div>
+    <details class="predict">
+      <summary>Счётчик — AtomicInteger, но код такой: if (count.get() &lt; 10) count.incrementAndGet(); Может ли счётчик стать больше 10?</summary>
+      <p>Да! Каждое действие по отдельности атомарно, а <b>пара</b> «проверить, потом увеличить» — нет. Два потока могут оба увидеть 9, оба пройти проверку и оба прибавить — получится 11. Связку действий защищают синхронизированным блоком <code>synchronized</code> (или специальными методами атомиков вроде <code>updateAndGet</code>).</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Гонки в настоящих программах</h2>
+    <p>В рабочем коде гонка редко выглядит как голый <code>count++</code>. Чаще так:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">💳</span><h4>Общий баланс счёта</h4><p>Два перевода одновременно снимают деньги с одного счёта: оба прочитали «1000 ₽», оба записали свой остаток — и один перевод «потерялся». Иногда.</p></div>
+      <div class="card"><span class="emoji">📦</span><h4>static-поле с заказом</h4><p><code>static String orderId</code> — поток A записал свой заказ, поток B перезаписал своим, и A отправляет чек по чужому заказу.</p></div>
+      <div class="card"><span class="emoji">🧾</span><h4>Общий файл журнала</h4><p>Несколько потоков дописывают в один файл без синхронизации — строки перемешиваются или теряются.</p></div>
+    </div>
+    <div class="say" data-mood="cool"><p>Лучшее лекарство часто не <code>synchronized</code>, а <b>независимость</b>: у каждого потока свои данные (свой заказ, свой счётчик, уникальное имя файла), а общий итог собирают в конце. Нет общих данных — нет гонки. Так устроена и Мастерская в следующем уроке.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m16-02">
+      <script type="application/json">
+      {
+       "title": "Гонка данных и её лечение",
+       "items": [
+        {
+         "type": "single",
+         "q": "Два потока по 1000 раз делают <code>count++</code> с обычным <code>static int</code>, оба дождались через join. Что напечатает <code>println(count)</code>?",
+         "options": [
+          "Всегда 2000",
+          "Какое-то число не больше 2000, каждый раз разное",
+          "Всегда 1000"
+         ],
+         "answer": 1,
+         "why": "count++ не атомарен: часть увеличений теряется, сколько — зависит от случая. Иногда может выйти и ровно 2000."
+        },
+        {
+         "type": "order",
+         "q": "Расставь, из каких действий на самом деле состоит count++",
+         "lines": [
+          "прочитать count из памяти",
+          "прибавить 1 к прочитанному",
+          "записать результат в count"
+         ],
+         "why": "Три шага. Если между ними вклинится другой поток, одно обновление потеряется."
+        },
+        {
+         "type": "multi",
+         "q": "Какие варианты делают счётчик потокобезопасным?",
+         "options": [
+          "synchronized (lock) { count++; } с общим lock",
+          "AtomicInteger и incrementAndGet()",
+          "Thread.sleep(1) перед count++",
+          "synchronized (new Object()) { count++; }"
+         ],
+         "answer": [
+          0,
+          1
+         ],
+         "why": "sleep ничего не защищает — только меняет тайминги. new Object() каждый раз — у каждого свой замок, никто никого не ждёт."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Гонка данных — это ошибка компиляции",
+           "a": false,
+           "why": "компилятор её не видит: код корректен, но результат зависит от случайного порядка потоков."
+          },
+          {
+           "s": "Если программа с гонкой 10 раз подряд выдала правильный ответ, ошибки в коде нет",
+           "a": false,
+           "why": "гонка может проявляться редко. Плавающая ошибка «иногда всё правильно» — классика."
+          },
+          {
+           "s": "Пока один поток выполняет синхронизированный блок, другой поток с тем же замком ждёт",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 16.2. Дай мне кусок кода с общим счётчиком, а я скажу, есть ли там гонка и как её починить»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Гонка данных: несколько потоков меняют общие данные, и результат зависит от того, кто успел первым.</li>
+        <li><code>count++</code> — три действия (прочитать, увеличить, записать), поэтому из нескольких потоков теряет обновления.</li>
+        <li><code>synchronized (lock) { … }</code> — синхронизированный блок с замком <code>lock</code>: его тело одновременно выполняет только один поток. Замок должен быть общим.</li>
+        <li>Вызов <code>incrementAndGet()</code> у объекта <code>AtomicInteger</code> — неделимое увеличение без явного замка, метод возвращает новое значение. Но связка «проверить и изменить» всё равно требует <code>synchronized</code>.</li>
+        <li>Лучшее лекарство от гонок — независимость: у каждого потока свои данные, а итог собирают в конце.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

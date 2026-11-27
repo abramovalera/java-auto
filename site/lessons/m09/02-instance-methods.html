@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Методы объекта и this · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 9 · Урок 2</div>
+    <h1>Методы объекта и this</h1>
+    <p class="lead">Объект умеет не только хранить данные, но и что-то делать: кот мяукает, счёт пополняется, лампа включается. Учим объекты действовать — и узнаём, откуда метод знает, «чей» он.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 стек и this</span><span>🧩 без static</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m09-02-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "Cat x = new Cat();\nCat y = x;\ny.name = \"Тиша\";\nSystem.out.println(x.name);",
+            "answer": "Тиша", "why": "x и y — две ссылки на один объект. Записали через y — прочитали через x." },
+          { "type": "single", "q": "Как вызвать метод <code>sum(int a, int b)</code> из модуля 7 так, чтобы получить 5?",
+            "options": ["sum(2, 3);", "int r = sum(2, 3);", "sum = 2 + 3;"], "answer": 1,
+            "why": "Метод возвращает результат через return, его нужно куда-то сохранить или сразу использовать." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "У каждого объекта своя копия полей", "a": true },
+              { "s": "Обращение к полю по ссылке null даёт ошибку компиляции", "a": false, "why": "компилятор это не ловит — программа падает при запуске с NullPointerException." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Данные есть — а действия где?</h2>
+    <p>Сейчас всё, что касается кота, делает <code>main</code>: сам склеивает строку для печати, сам прибавляет возраст. Если таких мест в программе десять — описание кота будет склеиваться в десяти местах, и в каждом можно ошибиться.</p>
+<pre data-file="CatDemo.java"><code class="java">System.out.println(murzik.name + ", " + murzik.age + " г.");
+System.out.println(barsik.name + ", " + barsik.age + " г.");
+murzik.age = murzik.age + 1;   // день рождения</code></pre>
+    <p>Логичнее, чтобы кот <b>сам</b> умел рассказать о себе и сам отмечал день рождения. Для этого методы пишут <b>прямо в классе</b> — и без слова <code>static</code>:</p>
+<pre data-file="Cat.java"><code class="java">public class Cat {
+    String name;
+    int age;
+
+    void describe() {
+        System.out.println(name + ", " + age + " г.");
+    }
+
+    void birthday() {
+        age++;
+    }
+}</code></pre>
+<pre data-file="CatDemo.java"><code class="java">Cat murzik = new Cat();
+murzik.name = "Мурзик";
+murzik.age = 3;
+
+murzik.describe();   // Мурзик, 3 г.
+murzik.birthday();
+murzik.describe();   // Мурзик, 4 г.</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>void describe()</code><div><p><b>Объявление метода объекта</b> (по-другому — <b>метода экземпляра</b>). Нет слова <code>static</code> — значит, метод вызывают у конкретного кота.</p></div></div>
+      <div class="annot-row"><code>name + ", " + age</code><div><p>Внутри метода поля доступны просто по имени. Но чьи? Того кота, у которого метод вызвали.</p></div></div>
+      <div class="annot-row"><code>murzik.describe();</code><div><p><b>Вызов метода</b> <code>describe</code> <b>у объекта</b> <code>murzik</code>: «Мурзик, опиши себя». Слева от точки — ссылка на объект, справа — какой метод у него вызвать.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кнопки на технике</span>
+      <p>У каждой стиральной машины есть кнопка «Старт». Модель одна (класс), машин много (объекты). Нажимаешь «Старт» на машине в ванной — крутится именно она, а не соседская. Метод объекта — такая кнопка: <code>washer1.start()</code> запускает первую машину, <code>washer2.start()</code> — вторую.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Откуда метод знает, чей он: this</h2>
+    <p>Код метода <code>describe</code> один на всех котов. Как он понимает, чьё <code>name</code> печатать? Секрет: при вызове <code>murzik.describe()</code> Java незаметно передаёт в метод ещё один параметр — ссылку на объект слева от точки. Внутри метода она называется <b><code>this</code></b> («этот») — ссылка на текущий объект, у которого вызвали метод.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Ты пишешь</th><th>Java понимает как</th></tr>
+        <tr><td><code>murzik.describe();</code></td><td>вызвать describe, где <code>this</code> = ссылка из murzik</td></tr>
+        <tr><td><code>barsik.describe();</code></td><td>вызвать describe, где <code>this</code> = ссылка из barsik</td></tr>
+        <tr><td><code>name</code> внутри метода</td><td><code>this.name</code> — поле объекта, на который смотрит this</td></tr>
+      </table>
+    </div>
+    <p>Посмотри, как это выглядит в памяти. У фрейма метода <code>describe</code> есть своя переменная <code>this</code> — и при каждом вызове она указывает на другого кота.</p>
+    <div data-widget="trace" id="trace-m09-02-this">
+      <script type="application/json">
+      { "title": "this в памяти",
+        "intro": "Следи за фреймом describe: в нём появляется скрытая переменная this со стрелкой на объект.",
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat murzik = new Cat();\n        murzik.name = \"Мурзик\";\n        Cat barsik = new Cat();\n        barsik.name = \"Барсик\";\n        murzik.describe();\n        barsik.describe();\n    }\n}\n\nclass Cat {\n    String name;\n    int age;\n    void describe() {\n        System.out.println(name + \", \" + age + \" г.\");\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0" } } ], "note": "Создали первый объект <code>Cat</code>, переменная <code>murzik</code> хранит ссылку на него." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0" } } ], "note": "Присвоили значение полю <code>name</code>." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "Создан второй объект <code>Cat</code>, ссылка на него — в <code>barsik</code>." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "Вызываем describe у Мурзика: слева от точки — murzik." },
+          { "line": 16, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2" } }, { "frame": "describe", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "out": "Мурзик, 0 г.\n", "note": "На стеке фрейм describe. В нём <code>this</code> → #1. Поэтому <code>name</code> — это имя объекта #1." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "Метод завершился, фрейм сняли со стека. Теперь вызываем describe у объекта barsik." },
+          { "line": 16, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2" } }, { "frame": "describe", "vars": { "this": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "out": "Барсик, 0 г.\n", "note": "Тот же код, новый фрейм — и <code>this</code> уже → #2. Код метода один, объектов много: this подсказывает, с кем работаем сейчас." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p>Заметил? Класс <code>Cat</code> в этом примере написан в том же файле, что и <code>CatDemo</code>, и без слова <code>public</code>. Так можно — подробности в уроке 9.5. В задачах модуля будем писать именно так: один файл, несколько классов. Только не объявляй один класс дважды: если у тебя уже есть <code>Cat.java</code>, второй <code>class Cat</code> в другом файле IDEA назовёт <em>duplicate class</em>.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Методы с параметрами и результатом</h2>
+    <p>Методы объекта бывают какими угодно — с параметрами, с <code>return</code>, как в модуле 7. Разница одна: у них под рукой поля объекта.</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    String name;
+    int age;
+    double weight;
+
+    void feed(double grams) {            // меняет объект
+        weight = weight + grams / 1000;
+    }
+
+    boolean isKitten() {                 // отвечает на вопрос
+        return age &lt; 1;
+    }
+
+    String greet(String who) {           // собирает строку
+        return name + " мурлычет для " + who;
+    }
+
+    boolean isOlderThan(Cat other) {     // сравнивает с другим котом
+        return age &gt; other.age;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>void feed(double grams)</code><div><p>Меняет состояние объекта: полю <code>weight</code> этого кота присваивается новое значение. Возвращаемого значения нет — <code>void</code>.</p></div></div>
+      <div class="annot-row"><code>boolean isKitten()</code><div><p>Метод-вопрос. Такие часто называют с <code>is</code>: <code>isKitten</code>, <code>isEmpty</code>, <code>isBlank</code> (последние два — у String, из модуля 8).</p></div></div>
+      <div class="annot-row"><code>isOlderThan(Cat other)</code><div><p>Параметр может иметь тип класса — тогда в метод передаётся ссылка на объект. <code>age</code> — поле «этого» кота (this), <code>other.age</code> — поле объекта, ссылку на который передали аргументом.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: Мурзику 3, Барсику 5. Что вернут <code>murzik.isOlderThan(barsik)</code> и <code>barsik.isOlderThan(murzik)</code>?</summary>
+      <p><b>false и true.</b> В первом вызове this — Мурзик (3), other — Барсик (5): 3 &gt; 5 — нет. Во втором наоборот. Один и тот же метод, но «кто спрашивает» — решает объект слева от точки.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Когда this писать обязательно</h2>
+    <p>Обычно <code>this.</code> можно не писать: <code>name</code> и так означает <code>this.name</code>. Но бывает, что у параметра такое же имя, как у поля:</p>
+<pre data-file="Cat.java"><code class="java">void rename(String name) {
+    name = name;          // ❌ ничего не происходит!
+}
+
+void rename2(String name) {
+    this.name = name;     // ✅ поле объекта = параметр
+}</code></pre>
+    <p>Внутри метода имя <code>name</code> сначала ищется среди <b>локальных</b> переменных и параметров, и только потом среди полей. Параметр <code>name</code> «загораживает» поле с тем же именем — это называется <b>затенение</b> (shadowing). Строка <code>name = name;</code> присваивает параметр сам себе, а поле объекта не трогает.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="Параметр name загораживает поле name; this.name пробивается к полю объекта">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="30" width="250" height="140" rx="14" class="d-soft"/>
+        <text x="145" y="56" text-anchor="middle" class="d-title">фрейм rename2</text>
+        <rect x="40" y="72" width="210" height="36" rx="8" class="d-yellow"/>
+        <text x="54" y="95" class="d-mono-ink">name = "Тиша"</text>
+        <text x="236" y="95" text-anchor="end" class="d-small">параметр</text>
+        <rect x="40" y="118" width="210" height="36" rx="8" class="d-box"/>
+        <text x="54" y="141" class="d-mono-ink">this</text>
+        <text x="236" y="141" text-anchor="end" class="d-small">● #1</text>
+
+        <rect x="450" y="40" width="250" height="110" rx="14" class="d-accent"/>
+        <text x="466" y="66" class="d-small">#1 · Cat (куча)</text>
+        <text x="466" y="98" class="d-mono-ink">name = "Мурзик"</text>
+        <text x="466" y="124" class="d-mono-ink">age = 3</text>
+
+        <path d="M252 136 C 350 136, 360 94, 446 94" class="d-arrow"/>
+        <text x="575" y="172" text-anchor="middle" class="d-small">this.name — идём по стрелке к полю</text>
+        <text x="145" y="190" text-anchor="middle" class="d-small">просто name — ближайший, то есть параметр</text>
+      </svg>
+      <figcaption>Ближайшее имя побеждает. Чтобы добраться до поля, пиши <code>this.name</code>.</figcaption>
+    </figure>
+    <div class="callout tip">
+      <span class="callout-title">IDEA подсказывает</span>
+      <p>Строку <code>name = name;</code> IDEA подсветит жёлтым: <em>Variable is assigned to itself</em> — «переменная присвоена сама себе». Жёлтая подсветка — не ошибка компиляции, но почти всегда признак бага. Читай такие предупреждения.</p>
+    </div>
+    <div data-widget="ide" id="shot-self-assign">
+      <script type="application/json">
+      { "tree": false, "file": "Cat.java",
+        "code": "public class Cat {\n    String name;\n\n    void rename(String name) {\n        name = name;\n    }\n}",
+        "warnings": [ { "line": 5, "text": "name = name", "msg": "Variable 'name' is assigned to itself", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-5", "side": "top", "text": "Жёлтая волна под всей строкой: IDEA подозревает ошибку, хотя код компилируется" },
+                   { "n": 2, "target": "tip", "text": "Наведи мышку: <b>Variable 'name' is assigned to itself</b> — «переменная name присвоена сама себе». Значит, поле не меняется. Исправление — <code>this.name = name;</code>" },
+                   { "n": 3, "target": "problems", "text": "<b>⚠1</b> — одно предупреждение в файле. Жёлтый треугольник, а не красный восклицательный знак: компилировать не мешает" } ],
+        "caption": "Предупреждение: присваивание самому себе" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Объект без объекта не работает</h2>
+    <p>Метод объекта всегда нужно вызывать <b>у объекта</b>. Две частые ошибки новичков:</p>
+<pre data-file="CatDemo.java"><code class="java">public class CatDemo {
+    public static void main(String[] args) {
+        describe();                 // ❌ ошибка компиляции
+
+        Cat nobody = null;
+        nobody.describe();          // ❌ скомпилируется, но упадёт
+    }
+}</code></pre>
+    <p>В IDEA обе ошибки видны ещё до запуска, но выглядят по-разному — красная и жёлтая:</p>
+    <div data-widget="ide" id="shot-no-object">
+      <script type="application/json">
+      { "tree": false, "file": "CatDemo.java", "gutterRun": [1, 2],
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        describe();\n\n        Cat nobody = null;\n        nobody.describe();\n    }\n}",
+        "errors": [ { "line": 3, "text": "describe", "msg": "Cannot resolve method 'describe' in 'CatDemo'", "tip": true, "fix": "Create method 'describe' in 'CatDemo'" } ],
+        "warnings": [ { "line": 6, "text": "describe", "msg": "Method invocation 'describe' will produce 'NullPointerException'" } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "left", "text": "Красное — <b>ошибка компиляции</b>: программа не запустится, пока не исправишь" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot resolve method 'describe' in 'CatDemo'</b> — «не нахожу метод describe в классе CatDemo». IDEA предлагает создать такой метод — <b>не соглашайся</b>: нужен не новый метод, а объект, у которого вызвать старый: <code>murzik.describe()</code>" },
+                   { "n": 3, "target": "err-6", "side": "top", "text": "Жёлтое — только предупреждение: IDEA видит, что в <code>nobody</code> null, и вызов упадёт. Но компилятор пропустит, и при запуске будет NullPointerException" },
+                   { "n": 4, "target": "problems", "text": "Счётчик: <b>❗1</b> ошибка и <b>⚠1</b> предупреждение" } ],
+        "caption": "Метод объекта без объекта: ошибка и предупреждение" }
+      </script>
+    </div>
+    <ol class="steps">
+      <li><code>describe();</code> без объекта — компилятор спросит «describe у кого?» и не найдёт такого метода в <code>CatDemo</code>: <em>cannot find symbol</em>. А если бы метод был в том же классе, но без <code>static</code>, ошибка была бы <em>non-static method describe() cannot be referenced from a static context</em>. Почему <code>main</code> — static и что это значит, разберём в уроке 9.4.</li>
+      <li><code>nobody.describe();</code> — синтаксически верно, но в переменной null. При запуске: <em>NullPointerException: Cannot invoke "Cat.describe()" because "nobody" is null</em>.</li>
+    </ol>
+    <p>Чтобы было ещё нагляднее, собери программу из строк: объявление класса с методом и вызов этого метода у объекта.</p>
+    <div data-widget="parsons" id="parsons-m09-02" data-code data-title="Собери кота, который умеет мяукать" data-icon="🐱"
+         data-hint="Сначала класс с main, внутри — создание объекта Cat через new и вызов его метода. Потом объявление класса Cat с полем и методом."
+         data-success="🎉 Верно! main создаёт объект и вызывает у него метод, а метод сам читает поле name своего объекта (this).">
+      <script type="text/plain">
+public class MeowDemo {
+    public static void main(String[] args) {
+        Cat cat = new Cat();
+        cat.name = "Рыжик";
+        cat.meow();
+    }
+}
+class Cat {
+    String name;
+    void meow() {
+        System.out.println(name + ": мяу!");
+    }
+}
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m09-02">
+      <script type="application/json">
+      {
+       "title": "Методы объекта — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "class Counter {\n    int value;\n    void inc() { value++; }\n}\n\n// в main:\nCounter a = new Counter();\nCounter b = new Counter();\na.inc();\na.inc();\nb.inc();\nSystem.out.println(a.value + \" \" + b.value);",
+         "answer": "2 1",
+         "why": "У каждого объекта своё поле value. inc() меняет поле того объекта, у которого вызван."
+        },
+        {
+         "type": "predict",
+         "q": "А тут?",
+         "code": "class Box {\n    int size;\n    void setSize(int size) {\n        size = size;\n    }\n}\n\n// в main:\nBox box = new Box();\nbox.setSize(5);\nSystem.out.println(box.size);",
+         "answer": "0",
+         "why": "Параметр size затенил поле. size = size присвоил параметр самому себе, поле осталось 0. Нужно this.size = size."
+        },
+        {
+         "type": "single",
+         "q": "Что такое <code>this</code> внутри метода объекта?",
+         "options": [
+          "Имя класса",
+          "Ссылка на объект, у которого вызвали метод",
+          "Новый объект, который создаётся при вызове"
+         ],
+         "answer": 1,
+         "why": "При murzik.describe() внутри метода this указывает туда же, куда murzik."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Метод объекта пишется без слова static",
+           "a": true
+          },
+          {
+           "s": "Внутри метода объекта поля доступны просто по имени",
+           "a": true
+          },
+          {
+           "s": "nobody.describe() при nobody == null — ошибка компиляции",
+           "a": false,
+           "why": "компилятор пропустит, а при запуске будет NullPointerException."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясни мне this ещё раз на другом примере — не на котах. А потом я сам придумаю класс с тремя методами и покажу тебе»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Методы объекта пишут в классе без <code>static</code> и вызывают через точку: <code>murzik.describe()</code>.</li>
+        <li>Внутри метода есть скрытая ссылка <code>this</code> — на объект слева от точки. Поля по имени — это поля this.</li>
+        <li>Если параметр называется как поле, он его затеняет. Пиши <code>this.name = name</code>.</li>
+        <li>Метод объекта без объекта не вызвать; по ссылке null — NullPointerException.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

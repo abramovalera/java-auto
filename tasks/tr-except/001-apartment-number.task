@@ -1,0 +1,40 @@
+## id: tr-except-001
+## title: Номер квартиры
+## file: trainer/except/ApartmentNumberInput.java
+## class: ApartmentNumberInput
+## level: 1
+## category: Плохой ввод
+@@ description
+<p>Напиши класс <code>ApartmentNumberInput</code>. Курьер вводит номер квартиры. Программа читает строку целиком через <code>nextLine()</code> и пытается превратить её в целое число. Получилось — печатает <code>Номер принят: N</code>. Не получилось — программа не должна падать, а печатает <code>Это не число</code>.</p>
+<pre class="terminal"><span class="out">ввод:  15      вывод: Номер принят: 15
+ввод:  12б     вывод: Это не число</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Integer.parseInt(s)</code> — превращает строку в <code>int</code>, а если не может — выбрасывает <code>NumberFormatException</code></li>
+<li><code>try { … } catch (NumberFormatException e) { … }</code> — перехватывает это исключение</li>
+</ul></div>
+@@ test: Обычный номер
+@@ input
+15
+@@ expect
+Номер принят: 15
+@@ test: Буквы вместо цифр
+@@ input
+abc
+@@ expect
+Это не число
+@@ test: Номер с буквой
+@@ input
+12б
+@@ expect
+Это не число
+@@ test: Дробное число — не целое
+@@ input
+7.5
+@@ expect
+Это не число
+@@ test: Слишком большое для int
+@@ input
+2147483648
+@@ expect
+Это не число
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException — его выбрасывает Integer.parseInt

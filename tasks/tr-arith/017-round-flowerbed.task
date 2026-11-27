@@ -1,0 +1,40 @@
+## id: tr-arith-017
+## title: Круглая клумба
+## file: trainer/arith/RoundFlowerbedArea.java
+## class: RoundFlowerbedArea
+## level: 1
+## category: Math и округление
+@@ description
+<p>Садовник хочет засеять круглую клумбу и считает её площадь по формуле <code>π · r²</code>. Создай класс <code>RoundFlowerbedArea</code>. Программа читает радиус в метрах (дробное число) и печатает площадь, округлённую до двух знаков после точки.</p>
+<pre class="terminal"><span class="out">ввод:  2       вывод: Площадь: 12.57</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.PI</code> — константа «пи», 3.141592653589793</li>
+<li><code>scanner.nextDouble()</code> — читает дробное число</li>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет до двух знаков после точки</li>
+</ul></div>
+@@ test: Радиус 2
+@@ input
+2
+@@ expect
+Площадь: 12.57
+@@ test: Радиус 1 — это почти пи
+@@ input
+1
+@@ expect
+Площадь: 3.14
+@@ test: Маленькая клумба
+@@ input
+0.5
+@@ expect
+Площадь: 0.79
+@@ test: Большая клумба
+@@ input
+10
+@@ expect
+Площадь: 314.16
+@@ test: Нулевой радиус
+@@ input
+0
+@@ expect
+Площадь: 0.0
+@@ require: Math\.PI | Возьми число пи из константы Math.PI

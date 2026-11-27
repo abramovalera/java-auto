@@ -1,0 +1,77 @@
+## id: m10-t02
+## title: Сумма площадей фигур
+## file: module-10/PolyShapesTotal.java
+## class: PolyShapesTotal
+## level: 2
+@@ description
+<p>Построй маленькую иерархию фигур и посчитай общую площадь. В файле <code>PolyShapesTotal.java</code>:</p>
+<ul>
+  <li><code>class PolyShape</code> — родитель. Методы <code>String name()</code> (возвращает <code>"Фигура"</code>) и <code>double area()</code> (возвращает 0).</li>
+  <li><code>class PolyCircle extends PolyShape</code> — круг с целым радиусом. Имя <code>"Круг"</code>, площадь <code>Math.PI * r * r</code>.</li>
+  <li><code>class PolyRectangle extends PolyShape</code> — прямоугольник с целыми сторонами. Имя <code>"Прямоугольник"</code>, площадь — ширина × высота.</li>
+  <li><code>class PolySquare extends PolyRectangle</code> — квадрат <b>является</b> прямоугольником! Конструктор принимает одну сторону и передаёт её родителю дважды через <code>super(...)</code>. Переопредели только <code>name()</code> → <code>"Квадрат"</code>, а <code>area()</code> он получит от прямоугольника.</li>
+</ul>
+<p>В <code>main</code>: прочитай N, потом N фигур (<code>circle 1</code>, <code>rect 2 3</code>, <code>square 4</code>) и сложи их в массив <code>PolyShape[]</code>. Потом <b>одним циклом</b> по массиву напечатай имя и площадь каждой фигуры, а в конце — сумму площадей и имя самой большой фигуры (при равенстве — первой из них; если фигур нет — <code>нет</code>).</p>
+<pre class="terminal"><span class="out">ввод:          вывод:
+3
+circle 1       Круг: 3.14
+rect 2 3       Прямоугольник: 6.0
+square 4       Квадрат: 16.0
+               Сумма площадей: 25.14
+               Самая большая: Квадрат</span></pre>
+<p>Площади печатай округлёнными до сотых этим методом (положи его в <code>PolyShapesTotal</code>): <code>static double round2(double x) { return Math.round(x * 100) / 100.0; }</code>. Сумму считай из <b>неокруглённых</b> площадей и округляй только при печати.</p>
+<p>⚠️ <code>instanceof</code> и проверки «какая это фигура» в цикле не нужны: каждая фигура сама знает свою площадь — это и есть полиморфизм.</p>
+<p>📖 <a href="/lessons/m10/03-overriding.html">Переопределение методов</a>, <a href="/lessons/m10/04-polymorphism.html">Полиморфизм</a></p>
+@@ test: Три разные фигуры
+@@ input
+3
+circle 1
+rect 2 3
+square 4
+@@ expect
+Круг: 3.14
+Прямоугольник: 6.0
+Квадрат: 16.0
+Сумма площадей: 25.14
+Самая большая: Квадрат
+@@ test: Два круга и прямоугольник
+@@ input
+3
+circle 3
+rect 1 5
+circle 1
+@@ expect
+Круг: 28.27
+Прямоугольник: 5.0
+Круг: 3.14
+Сумма площадей: 36.42
+Самая большая: Круг
+@@ test: Равные площади — побеждает первая
+@@ input
+2
+rect 3 3
+square 3
+@@ expect
+Прямоугольник: 9.0
+Квадрат: 9.0
+Сумма площадей: 18.0
+Самая большая: Прямоугольник
+@@ test: Квадрат со стороной 0
+@@ input
+1
+square 0
+@@ expect
+Квадрат: 0.0
+Сумма площадей: 0.0
+Самая большая: Квадрат
+@@ test: Фигур нет
+@@ input
+0
+@@ expect
+Сумма площадей: 0.0
+Самая большая: нет
+@@ require: extends\s+PolyShape\b | Круг и прямоугольник должны наследовать PolyShape (extends PolyShape)
+@@ require: class\s+PolySquare\s+extends\s+PolyRectangle | Квадрат является прямоугольником: class PolySquare extends PolyRectangle
+@@ require: @Override | Помечай переопределённые методы аннотацией @Override
+@@ require: PolyShape\s*\[\s*\] | Сложи фигуры в массив PolyShape[]
+@@ forbid: instanceof | instanceof здесь не нужен — пусть каждая фигура сама считает площадь в своём area()

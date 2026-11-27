@@ -1,0 +1,52 @@
+## id: tr-arrays-024
+## title: Занятые места в кинозале
+## file: trainer/arrays/CinemaOccupiedSeats.java
+## class: CinemaOccupiedSeats
+## level: 1
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>CinemaOccupiedSeats</code>. Схема зала — таблица: <code>1</code> — место занято, <code>0</code> — свободно. В первой строке — число рядов <code>r</code> и мест в ряду <code>c</code> через пробел (оба ≥ 1), дальше <code>r</code> строк по <code>c</code> чисел. Сохрани схему в двумерный массив и напечатай <code>Занято: X из Y</code>, где Y — всего мест в зале.</p>
+<pre class="terminal"><span class="out">ввод:  3 4
+       1 0 0 1
+       1 1 1 1
+       0 0 1 0
+вывод: Занято: 7 из 12</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int[][] m = new int[r][c];</code> — таблица из <code>r</code> строк по <code>c</code> столбцов; читай её двумя вложенными циклами</li>
+<li><code>m.length</code> — число строк, <code>m[i].length</code> — число столбцов в строке <code>i</code></li>
+</ul></div>
+@@ test: Вечерний сеанс
+@@ input
+3 4
+1 0 0 1
+1 1 1 1
+0 0 1 0
+@@ expect
+Занято: 7 из 12
+@@ test: Пустой зал
+@@ input
+2 3
+0 0 0
+0 0 0
+@@ expect
+Занято: 0 из 6
+@@ test: Аншлаг
+@@ input
+2 2
+1 1
+1 1
+@@ expect
+Занято: 4 из 4
+@@ test: Одно место
+@@ input
+1 1
+1
+@@ expect
+Занято: 1 из 1
+@@ test: Один ряд
+@@ input
+1 5
+0 1 0 1 0
+@@ expect
+Занято: 2 из 5
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];

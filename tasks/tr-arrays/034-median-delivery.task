@@ -1,0 +1,47 @@
+## id: tr-arrays-034
+## title: Медиана доставки
+## file: trainer/arrays/MedianDeliveryTime.java
+## class: MedianDeliveryTime
+## level: 2
+## category: Максимум и минимум
+@@ description
+<p>Напиши класс <code>MedianDeliveryTime</code>. Служба доставки хочет знать «типичное» время доставки — медиану. Чтобы её найти, времена сортируют: при нечётном количестве медиана — элемент ровно посередине, при чётном — среднее двух средних элементов. В первой строке — количество заказов <code>n</code> (n ≥ 1), во второй — <code>n</code> времён в минутах. Напечатай <code>Медиана: X</code>, где X — дробное число (<code>double</code>).</p>
+<pre class="terminal"><span class="out">ввод:  5
+       40 25 90 30 35
+вывод: Медиана: 35.0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.sort(a)</code> — сортирует массив по возрастанию</li>
+<li>середина массива — индекс <code>n / 2</code>; при чётном <code>n</code> нужны индексы <code>n / 2 - 1</code> и <code>n / 2</code></li>
+<li><code>(a + b) / 2.0</code> — дробное деление</li>
+</ul></div>
+@@ test: Нечётное количество
+@@ input
+5
+40 25 90 30 35
+@@ expect
+Медиана: 35.0
+@@ test: Чётное количество
+@@ input
+4
+20 50 10 40
+@@ expect
+Медиана: 30.0
+@@ test: Один заказ
+@@ input
+1
+15
+@@ expect
+Медиана: 15.0
+@@ test: Половинка
+@@ input
+2
+30 31
+@@ expect
+Медиана: 30.5
+@@ test: Повторы
+@@ input
+6
+10 10 10 60 60 60
+@@ expect
+Медиана: 35.0
+@@ require: Arrays\s*\.\s*sort\s*\( | Отсортируй массив через Arrays.sort

@@ -1,0 +1,5 @@
+# Везде LF: файлы курса читает сервер в Linux-контейнере
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary

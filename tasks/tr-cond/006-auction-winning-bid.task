@@ -1,0 +1,39 @@
+## id: tr-cond-006
+## title: Выигрышная ставка
+## file: trainer/cond/AuctionWinningBid.java
+## class: AuctionWinningBid
+## level: 1
+## category: Сравнения и максимум
+@@ description
+<p>Напиши класс <code>AuctionWinningBid</code>. На аукционе остались две ставки. Программа читает их (два целых числа, каждое с новой строки) и печатает бо́льшую — она и выиграла. Выбери число тернарным оператором.</p>
+<pre class="terminal"><span class="out">ввод:  500
+       700
+вывод: 700</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>условие ? a : b</code> — тернарный оператор: возвращает <code>a</code>, если условие истинно, иначе <code>b</code></li>
+</ul></div>
+@@ test: Вторая больше
+@@ input
+500
+700
+@@ expect
+700
+@@ test: Первая больше
+@@ input
+900
+300
+@@ expect
+900
+@@ test: Ставки равны
+@@ input
+450
+450
+@@ expect
+450
+@@ test: Одна из ставок нулевая
+@@ input
+0
+15
+@@ expect
+15
+@@ require: \? | Выбери бо́льшую ставку тернарным оператором ? :

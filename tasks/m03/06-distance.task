@@ -1,0 +1,39 @@
+## id: m03-t06
+## title: Расстояние между точками
+## file: module-03/DistanceBetweenPoints.java
+## class: DistanceBetweenPoints
+## level: 2
+@@ description
+<p>На клетчатой карте игры две точки: (x1, y1) и (x2, y2). Программа читает четыре целых числа в порядке <code>x1 y1 x2 y2</code> и печатает расстояние между точками, <b>округлённое до двух знаков после точки</b>:</p>
+<pre class="terminal"><span class="out">0 0 1 1
+Расстояние: 1.41</span></pre>
+<p>Формула (теорема Пифагора): расстояние = √((x2 − x1)² + (y2 − y1)²). Корень — <code>Math.sqrt</code>. Округлить до сотых: умножь на 100, округли <code>Math.round</code>, раздели на <code>100.0</code> (почему именно <code>100.0</code>, а не <code>100</code>?).</p>
+<p>Java печатает дробное число без лишних нулей, но минимум с одной цифрой после точки: <code>5.0</code>, <code>1.41</code>, <code>7.07</code>.</p>
+<p>📖 Урок: <a href="/lessons/m03/06-math.html">Класс Math</a></p>
+@@ test: Египетский треугольник 3-4-5
+@@ input
+0 0 3 4
+@@ expect
+Расстояние: 5.0
+@@ test: Отрицательные координаты
+@@ input
+-1 -1 2 3
+@@ expect
+Расстояние: 5.0
+@@ test: Диагональ клетки
+@@ input
+0 0 1 1
+@@ expect
+Расстояние: 1.41
+@@ test: Одна и та же точка
+@@ input
+2 2 2 2
+@@ expect
+Расстояние: 0.0
+@@ test: Вторая точка левее и ниже
+@@ input
+5 5 0 0
+@@ expect
+Расстояние: 7.07
+@@ require: Math\.sqrt | Для корня используй Math.sqrt
+@@ require: Math\.round | Для округления до сотых используй Math.round

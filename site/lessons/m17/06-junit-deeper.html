@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JUnit 5 глубже и AssertJ · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-06">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 17 · Урок 6</div>
+    <h1>JUnit 5 глубже и AssertJ</h1>
+    <p class="lead">Подготовка перед каждым тестом, один тест на десять наборов данных, понятные имена в отчёте — и проверки, которые читаются как обычная фраза. Это уже настоящий рабочий инструментарий Java-разработчика.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🔄 жизненный цикл</span><span>✨ AssertJ</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-06-review">
+      <script type="application/json">
+      { "title": "Вспомним основы JUnit", "icon": "🔁",
+        "items": [
+          { "type": "bug", "q": "В каком тесте ошибка: он зелёный, но ничего не проверяет?",
+            "code": "@Test\nvoid feeForSmallOrder() {\n    assertEquals(199, DeliveryFee.feeFor(500));\n}\n\n@Test\nvoid feeForBigOrder() {\n    DeliveryFee.feeFor(2500);\n}\n\n@Test\nvoid zeroRejected() {\n    assertThrows(IllegalArgumentException.class,\n            () -> DeliveryFee.feeFor(0));\n}",
+            "answer": [8], "why": "Во втором тесте нет assert: метод вызывается, а результат никто не сравнивает." },
+          { "type": "single", "q": "Что не так в <code>assertEquals(fee, 199)</code>?",
+            "options": ["Ничего, порядок не важен", "Перепутаны ожидаемое и фактическое — при падении сообщение будет врать", "Не скомпилируется"], "answer": 1,
+            "why": "Сначала expected, потом actual. Иначе JUnit напишет «ждали 0, а было 199» наоборот." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>@BeforeEach и @AfterEach: подготовка и уборка</h2>
+    <p>Часто каждому тесту нужна одна и та же подготовка: создать корзину, положить товары, завести покупателя, подключиться к базе. Копировать её в каждый тест — плохо: поменяется подготовка — придётся править двадцать мест. Поэтому подготовку выносят в отдельный метод и помечают его <b>аннотацией</b> — JUnit сам вызовет этот метод в нужный момент:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Аннотация</th><th>Когда выполняется</th><th>Пример из рабочих тестов</th></tr>
+        <tr><td><code>@BeforeEach</code></td><td>перед <b>каждым</b> тестом</td><td>создать новую корзину и тестовые данные</td></tr>
+        <tr><td><code>@AfterEach</code></td><td>после <b>каждого</b> теста — даже упавшего</td><td>удалить созданные данные и временные файлы</td></tr>
+        <tr><td><code>@BeforeAll</code></td><td>один раз <b>до всех</b> тестов класса; метод <code>static</code></td><td>подключиться к базе, прочитать настройки</td></tr>
+        <tr><td><code>@AfterAll</code></td><td>один раз <b>после всех</b>; метод <code>static</code></td><td>отключиться от базы, удалить временную папку</td></tr>
+      </table>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: ресторан</span>
+      <p><code>@BeforeAll</code> — утром открыть ресторан и включить плиты. <code>@BeforeEach</code> — перед каждым гостем постелить чистую скатерть. Тест — обслужить гостя. <code>@AfterEach</code> — убрать со стола. <code>@AfterAll</code> — вечером выключить плиты и закрыть дверь.</p>
+    </div>
+    <p>Пройди по шагам, в каком порядке JUnit вызывает методы, — и следи за кучей: перед каждым тестовым методом JUnit <b>создаёт новый объект</b> тестового класса.</p>
+    <div data-widget="trace" id="trace-lifecycle">
+      <script type="application/json">
+      { "title": "Жизненный цикл тестового класса", "icon": "🔄", "kind": "Порядок вызовов",
+        "intro": "JUnit запускает класс с двумя тестами. Методы печатают своё имя — смотри консоль. Порядок самих тестов JUnit не обещает, здесь addTea идёт первым для примера.",
+        "code": "class CartLifecycleTest {\n    private List<String> cart;\n\n    @BeforeAll\n    static void openShop() { System.out.println(\"BeforeAll\"); }\n\n    @BeforeEach\n    void setUp() {\n        cart = new ArrayList<>();\n        System.out.println(\"BeforeEach\");\n    }\n\n    @Test\n    void addTea() { cart.add(\"чай\"); assertEquals(1, cart.size()); }\n\n    @Test\n    void startsEmpty() { assertTrue(cart.isEmpty()); }\n\n    @AfterEach\n    void tearDown() { System.out.println(\"AfterEach\"); }\n\n    @AfterAll\n    static void closeShop() { System.out.println(\"AfterAll\"); }\n}",
+        "steps": [
+          { "line": 5, "stack": [ { "frame": "openShop", "vars": {} } ], "heap": [], "out": "BeforeAll\n", "note": "Первым JUnit вызывает static-метод openShop() с аннотацией @BeforeAll. Объекта тестового класса ещё нет, поэтому метод и обязан быть static." },
+          { "line": 10, "stack": [ { "frame": "setUp", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "CartLifecycleTest", "fields": { "cart": "[]" } } ], "out": "BeforeEach\n", "note": "JUnit создал объект #1 для теста addTea и вызвал у него метод setUp() с аннотацией @BeforeEach: полю cart присвоен новый пустой список." },
+          { "line": 14, "stack": [ { "frame": "addTea", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "CartLifecycleTest", "fields": { "cart": "[чай]" } } ], "note": "Тестовый метод addTea: вызов cart.add добавил чай, проверка assertEquals(1, cart.size()) проходит — ожидаемое 1, фактическое 1 ✓." },
+          { "line": 20, "stack": [ { "frame": "tearDown", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "CartLifecycleTest", "fields": { "cart": "[чай]" } } ], "out": "AfterEach\n", "note": "После теста — @AfterEach на том же объекте. Объект #1 больше не нужен." },
+          { "line": 10, "stack": [ { "frame": "setUp", "vars": { "this": "→#2" } } ], "heap": [ { "id": "#2", "label": "CartLifecycleTest", "fields": { "cart": "[]" } } ], "out": "BeforeEach\n", "note": "Для второго теста — НОВЫЙ объект #2 и снова @BeforeEach. Чай из прошлого теста сюда не попадёт." },
+          { "line": 17, "vars": { "this": "→#2", "cart.isEmpty()": "true" }, "stack": [ { "frame": "startsEmpty", "vars": { "this": "→#2", "cart.isEmpty()": "true" } } ], "heap": [ { "id": "#2", "label": "CartLifecycleTest", "fields": { "cart": "[]" } } ], "ask": ["cart.isEmpty()"], "note": "Корзину в объекте #2 только что создал setUp. Значит, она пустая: isEmpty() = true, тест зелёный." },
+          { "line": 20, "stack": [ { "frame": "tearDown", "vars": { "this": "→#2" } } ], "heap": [ { "id": "#2", "label": "CartLifecycleTest", "fields": { "cart": "[]" } } ], "out": "AfterEach\n", "note": "Снова уборка после теста." },
+          { "line": 23, "stack": [ { "frame": "closeShop", "vars": {} } ], "heap": [], "out": "AfterAll\n", "note": "Все тесты класса прошли — один раз @AfterAll. Итог в консоли: BeforeAll, затем пары BeforeEach/AfterEach вокруг каждого теста, в конце AfterAll." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="wow"><p>Вот почему тесты обязаны быть <b>независимыми</b>: каждый получает свежий объект и свою подготовку. Тест, который рассчитывает, что «предыдущий тест уже положил товар в корзину», сломается, как только JUnit поменяет порядок или ты запустишь его один.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Схема жизненного цикла</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 200" role="img" aria-label="Порядок: BeforeAll один раз, затем для каждого теста BeforeEach, тест, AfterEach, в конце AfterAll один раз">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="60" width="100" height="70" rx="12" class="d-violet"/>
+        <text x="60" y="92" text-anchor="middle" class="d-text">BeforeAll</text>
+        <text x="60" y="114" text-anchor="middle" class="d-small">1 раз</text>
+
+        <rect x="126" y="20" width="250" height="150" rx="14" class="d-dash"/>
+        <text x="251" y="42" text-anchor="middle" class="d-small">объект #1</text>
+        <rect x="136" y="60" width="72" height="70" rx="10" class="d-blue"/>
+        <text x="172" y="90" text-anchor="middle" class="d-small">Before</text>
+        <text x="172" y="108" text-anchor="middle" class="d-small">Each</text>
+        <rect x="216" y="60" width="72" height="70" rx="10" class="d-green"/>
+        <text x="252" y="100" text-anchor="middle" class="d-text">тест 1</text>
+        <rect x="296" y="60" width="72" height="70" rx="10" class="d-yellow"/>
+        <text x="332" y="90" text-anchor="middle" class="d-small">After</text>
+        <text x="332" y="108" text-anchor="middle" class="d-small">Each</text>
+
+        <rect x="390" y="20" width="250" height="150" rx="14" class="d-dash"/>
+        <text x="515" y="42" text-anchor="middle" class="d-small">объект #2 — новый</text>
+        <rect x="400" y="60" width="72" height="70" rx="10" class="d-blue"/>
+        <text x="436" y="90" text-anchor="middle" class="d-small">Before</text>
+        <text x="436" y="108" text-anchor="middle" class="d-small">Each</text>
+        <rect x="480" y="60" width="72" height="70" rx="10" class="d-green"/>
+        <text x="516" y="100" text-anchor="middle" class="d-text">тест 2</text>
+        <rect x="560" y="60" width="72" height="70" rx="10" class="d-yellow"/>
+        <text x="596" y="90" text-anchor="middle" class="d-small">After</text>
+        <text x="596" y="108" text-anchor="middle" class="d-small">Each</text>
+
+        <rect x="654" y="60" width="78" height="70" rx="12" class="d-violet"/>
+        <text x="693" y="92" text-anchor="middle" class="d-text">AfterAll</text>
+        <text x="693" y="114" text-anchor="middle" class="d-small">1 раз</text>
+        <text x="370" y="192" text-anchor="middle" class="d-small">время идёт слева направо →</text>
+      </svg>
+      <figcaption>BeforeEach/AfterEach обнимают каждый тест; BeforeAll/AfterAll — весь класс.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Что будет, если забыть <code>static</code> у метода с <code>@BeforeAll</code>?</summary>
+      <p>Скомпилируется, но при запуске JUnit откажется: <em>@BeforeAll method … must be static</em> — и ни один тест класса не выполнится. Логика простая: метод вызывается до создания любого объекта, значит, вызвать его можно только у класса.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>@DisplayName и @Disabled</h2>
+<pre data-file="DeliveryFeeTest.java"><code class="java">@Test
+@DisplayName("Заказ на 500 ₽ — доставка 199 ₽")
+void smallOrderPaysFee() {
+    assertEquals(199, DeliveryFee.feeFor(500));
+}
+
+@Test
+@Disabled("Ждём исправления бага SHOP-123: скидка для 0 ₽")
+void zeroDiscountEdgeCase() {
+    // …
+}</code></pre>
+    <ul>
+      <li>Аннотация <code>@DisplayName</code> с аргументом-строкой — человеческое имя теста в отчёте, можно по-русски, с пробелами и символами. Имя метода остаётся для кода, DisplayName — для людей, читающих отчёт.</li>
+      <li>Аннотация <code>@Disabled("причина")</code> — тестовый метод <b>пропускается</b>: в отчёте он жёлтый/серый (skipped), а не красный. Применяют, когда тест временно нельзя запускать — например, ждут исправления известного бага. <b>Всегда пиши причину</b> и номер задачи — иначе через год никто не вспомнит, можно ли его включить.</li>
+    </ul>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Параметризованные тесты</h2>
+    <p>Проверить доставку для сумм 1, 1999, 2000 и 5000 — четыре почти одинаковых теста. Вместо копипасты — <b>один</b> тест и таблица данных:</p>
+<pre data-file="DeliveryFeeTest.java"><code class="java">import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+@ParameterizedTest(name = "сумма {0} → доставка {1}")
+@CsvSource({
+        "1, 199",
+        "1999, 199",
+        "2000, 0",
+        "5000, 0"
+})
+void feeDependsOnSum(int orderSum, int expectedFee) {
+    assertEquals(expectedFee, DeliveryFee.feeFor(orderSum));
+}
+
+@ParameterizedTest
+@ValueSource(ints = {0, -1, -500})
+void nonPositiveSumIsRejected(int orderSum) {
+    assertThrows(IllegalArgumentException.class,
+            () -&gt; DeliveryFee.feeFor(orderSum));
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>@ParameterizedTest</code><div><p>Аннотация вместо <code>@Test</code>. У тестового метода появляются <b>параметры</b>, и JUnit вызывает его по разу на каждый набор данных, передавая значения как аргументы. В отчёте — отдельная строка на каждый запуск.</p></div></div>
+      <div class="annot-row"><code>@CsvSource({"1, 199", …})</code><div><p>Каждая строка — один вызов; значения через запятую становятся аргументами по порядку параметров: параметр <code>orderSum</code> получает 1, <code>expectedFee</code> — 199. JUnit сам превратит текст в <code>int</code>.</p></div></div>
+      <div class="annot-row"><code>@ValueSource(ints = {0, -1, -500})</code><div><p>Когда параметр один: значения перечислены массивом, по одному на вызов. Есть <code>strings = {…}</code>, <code>doubles = {…}</code> и другие.</p></div></div>
+      <div class="annot-row"><code>name = "сумма {0} → доставка {1}"</code><div><p>Имя каждого запуска в отчёте: <code>{0}</code> и <code>{1}</code> заменятся на значения параметров.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Сколько строк-тестов появится в отчёте от этих двух методов?</summary>
+      <p><b>7</b>: четыре запуска <code>feeDependsOnSum</code> (по строке <code>@CsvSource</code>) и три запуска <code>nonPositiveSumIsRejected</code>. Упадёт одна строка — остальные всё равно выполнятся, и сразу видно, на каких данных сломалось.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: другие источники данных</summary>
+      <p><code>@NullAndEmptySource</code> подставит <code>null</code> и пустую строку — удобно для полей формы. <code>@EnumSource(Color.class)</code> — все значения enum. <code>@MethodSource("users")</code> — данные из static-метода, который возвращает <code>Stream</code> наборов: так передают сложные объекты.</p>
+    </details>
+    <p>Вот как выглядит в IDEA запуск класса, где собраны все приёмы этого и прошлого шага — <code>@DisplayName</code>, <code>@Disabled</code> и параметризованные тесты:</p>
+    <div data-widget="ide" id="shot-junit-tree">
+      <script type="application/json">
+      { "tree": false, "file": "DeliveryFeeTest.java", "runConfig": "DeliveryFeeTest", "statusPath": "module-17", "gutterRun": [1, 4, 10, 15, 21],
+        "code": "public class DeliveryFeeTest {\n    @Test\n    @DisplayName(\"Заказ на 500 ₽ — доставка 199 ₽\")\n    void smallOrderPaysFee() {\n        assertEquals(199, DeliveryFee.feeFor(500));\n    }\n\n    @Test\n    @Disabled(\"Ждём исправления бага SHOP-123: скидка для 0 ₽\")\n    void zeroDiscountEdgeCase() {\n    }\n\n    @ParameterizedTest(name = \"сумма {0} → доставка {1}\")\n    @CsvSource({\"1, 199\", \"1999, 199\", \"2000, 0\", \"5000, 0\"})\n    void feeDependsOnSum(int orderSum, int expectedFee) {\n        assertEquals(expectedFee, DeliveryFee.feeFor(orderSum));\n    }\n\n    @ParameterizedTest\n    @ValueSource(ints = {0, -1, -500})\n    void nonPositiveSumIsRejected(int orderSum) {\n        assertThrows(IllegalArgumentException.class, () -> DeliveryFee.feeFor(orderSum));\n    }\n}",
+        "tests": { "title": "DeliveryFeeTest", "summary": "Tests passed: 8, ignored: 1 of 9 tests – 64 ms",
+                   "tree": [ { "name": "DeliveryFeeTest", "status": "pass", "time": "64 ms" },
+                             { "name": "Заказ на 500 ₽ — доставка 199 ₽", "status": "pass", "depth": 1, "time": "21 ms" },
+                             { "name": "zeroDiscountEdgeCase()", "status": "skip", "depth": 1 },
+                             { "name": "feeDependsOnSum(int, int)", "status": "pass", "depth": 1, "time": "30 ms" },
+                             { "name": "сумма 1 → доставка 199", "status": "pass", "depth": 2 },
+                             { "name": "сумма 1999 → доставка 199", "status": "pass", "depth": 2 },
+                             { "name": "сумма 2000 → доставка 0", "status": "pass", "depth": 2 },
+                             { "name": "сумма 5000 → доставка 0", "status": "pass", "depth": 2 },
+                             { "name": "nonPositiveSumIsRejected(int)", "status": "pass", "depth": 1, "time": "8 ms" },
+                             { "name": "[1] 0", "status": "pass", "depth": 2 },
+                             { "name": "[2] -1", "status": "pass", "depth": 2 },
+                             { "name": "[3] -500", "status": "pass", "depth": 2 } ] },
+        "marks": [ { "n": 1, "target": "test-2", "text": "Вместо имени метода — текст из <code>@DisplayName</code>" },
+                   { "n": 2, "target": "test-3", "text": "⊘ — тест пропущен (<code>@Disabled</code>). Не красный: он не упал, его просто не запускали" },
+                   { "n": 3, "target": "test-5", "text": "Каждая строка <code>@CsvSource</code> — отдельный запуск со своим именем по шаблону <code>name</code>" },
+                   { "n": 4, "target": "test-10", "text": "Без <code>name</code> JUnit называет запуски сам: номер в скобках и значение параметра" },
+                   { "n": 5, "target": "test-summary", "text": "Итог: 8 прошли, 1 пропущен (<b>ignored</b>), всего 9" } ],
+        "caption": "DisplayName, Disabled и параметризованные тесты в окне результатов (импорты в начале файла не показаны)" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>AssertJ: проверки, которые читаются как фраза</h2>
+    <p><b>AssertJ</b> — библиотека проверок, которую любят Java-разработчики. Главная идея — <b>fluent</b>-стиль («текучий»): начинаешь с вызова <code>assertThat(фактическое)</code>, ставишь точку — и IDEA подсказывает все методы-проверки, подходящие к этому типу. Проверки вызываются цепочкой: каждая возвращает тот же объект, и к нему можно дописать следующую через точку.</p>
+<pre data-file="AssertJDemoTest.java"><code class="java">import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+assertThat(DeliveryFee.feeFor(500)).isEqualTo(199);
+
+assertThat("Java").startsWith("Ja").endsWith("va").hasSize(4);
+
+List&lt;String&gt; names = List.of("Аня", "Боря", "Вика");
+assertThat(names).hasSize(3).contains("Боря").doesNotContain("Петя");
+assertThat(names).containsExactly("Аня", "Боря", "Вика");
+assertThat(names).containsExactlyInAnyOrder("Вика", "Аня", "Боря");
+assertThat(new ArrayList&lt;String&gt;()).isEmpty();
+
+assertThatThrownBy(() -&gt; DeliveryFee.feeFor(0))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("больше нуля");
+
+assertThat(DeliveryFee.feeFor(500))
+        .as("доставка для заказа на 500 ₽")
+        .isEqualTo(199);</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>JUnit</th><th>AssertJ</th></tr>
+        <tr><td><code>assertEquals(199, fee)</code></td><td><code>assertThat(fee).isEqualTo(199)</code></td></tr>
+        <tr><td><code>assertTrue(name.startsWith("Ja"))</code></td><td><code>assertThat(name).startsWith("Ja")</code></td></tr>
+        <tr><td><code>assertEquals(3, list.size())</code></td><td><code>assertThat(list).hasSize(3)</code></td></tr>
+        <tr><td><code>assertThrows(…)</code> + <code>assertEquals(…, e.getMessage())</code></td><td><code>assertThatThrownBy(…).isInstanceOf(…).hasMessageContaining(…)</code></td></tr>
+        <tr><td>сообщение — последним аргументом</td><td><code>.as("описание")</code> — перед проверкой</td></tr>
+      </table>
+    </div>
+    <h3>Почему AssertJ так любят в тестах</h3>
+    <div class="cards">
+      <div class="card"><span class="emoji">📖</span><h4>Читается как текст</h4><p>«Убедись, что имена содержат ровно Аня, Боря, Вика». И нельзя перепутать ожидаемое с фактическим: фактическое всегда в <code>assertThat(…)</code>.</p></div>
+      <div class="card"><span class="emoji">🔎</span><h4>Подробные сообщения</h4><p>Не просто «не равно», а что именно лишнее, чего не хватает, где порядок другой.</p></div>
+      <div class="card"><span class="emoji">🧰</span><h4>Сотни проверок</h4><p>Для строк, списков, Map, дат, исключений, файлов. Подсказка IDEA после точки — твой справочник.</p></div>
+    </div>
+    <p>Вот настоящее сообщение AssertJ, когда <code>containsExactly</code> не сошёлся (автор курса сам на него наткнулся, проверяя задачу этого модуля: в слове «программирование» прячется «мир»):</p>
+    <div data-widget="ide" id="shot-assertj-fail">
+      <script type="application/json">
+      { "tree": false, "file": "CatalogSearchTest.java", "runConfig": "CatalogSearchTest", "statusPath": "module-17", "gutterRun": [6, 8],
+        "code": "import org.junit.jupiter.api.Test;\nimport java.util.List;\n\nimport static org.assertj.core.api.Assertions.assertThat;\n\npublic class CatalogSearchTest {\n    @Test\n    void findsBooksByWord() {\n        List<String> books = List.of(\"Java. Эффективное программирование\", \"Война и мир\");\n        List<String> found = books.stream().filter(b -> b.contains(\"мир\")).toList();\n        assertThat(found).containsExactly(\"Война и мир\");\n    }\n}",
+        "tests": { "title": "CatalogSearchTest", "summary": "Tests failed: 1 of 1 test – 57 ms",
+                   "tree": [ { "name": "CatalogSearchTest", "status": "fail", "time": "57 ms" },
+                             { "name": "findsBooksByWord()", "status": "fail", "depth": 1, "sel": true, "time": "57 ms" } ],
+                   "out": [ { "t": "err", "s": "java.lang.AssertionError: " },
+                            { "t": "err", "s": "Expecting actual:" },
+                            { "t": "err", "s": "  [\"Java. Эффективное программирование\", \"Война и мир\"]" },
+                            { "t": "err", "s": "to contain exactly (and in same order):" },
+                            { "t": "err", "s": "  [\"Война и мир\"]" },
+                            { "t": "err", "s": "but some elements were not expected:" },
+                            { "t": "err", "s": "  [\"Java. Эффективное программирование\"]" },
+                            { "t": "err", "s": "\tat CatalogSearchTest.findsBooksByWord(CatalogSearchTest.java:11)" } ] },
+        "marks": [ { "n": 1, "target": "test-out", "text": "Читаем по частям: <b>Expecting actual</b> — что получили на самом деле; <b>to contain exactly</b> — что ждали; <b>but some elements were not expected</b> — что лишнее. Лишняя — книга про программирование: в слове «программирование» прячется «мир»" },
+                   { "n": 2, "target": "link-1", "text": "Строка 11 — проверка, которая не прошла. Щелчок по ссылке — переход к ней" },
+                   { "n": 3, "target": "line-10", "side": "top", "text": "Баг прячется здесь: <code>contains(\"мир\")</code> ищет кусок слова, а не слово целиком. Тест сделал свою работу — поймал это" } ],
+        "caption": "Сообщение AssertJ в окне результатов теста (служебные строки stack trace опущены)" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что проверяет строчка <code>assertThat(names.contains("Боря"));</code>?</summary>
+      <p><b>Ничего!</b> Вызов <code>assertThat(…)</code> только создаёт объект-проверку для фактического значения («берёт значение в руки»), а проверяет метод, который вызывают после точки. Без <code>.isTrue()</code> тест всегда зелёный. Правильно: <code>assertThat(names).contains("Боря")</code> — и сообщение при падении будет понятнее, чем у <code>isTrue()</code>.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: мягкие проверки (soft assertions)</summary>
+      <p>Обычный тест останавливается на первой упавшей проверке. А у профиля пользователя хочется проверить сразу имя, email и телефон — и увидеть <b>все</b> расхождения за один прогон. Для этого в AssertJ есть <code>SoftAssertions.assertSoftly(softly -&gt; { softly.assertThat(name).isEqualTo("Аня"); softly.assertThat(email).contains("@"); })</code> — все ошибки собираются и показываются вместе в конце.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-06">
+      <script type="application/json">
+      {
+       "title": "JUnit глубже и AssertJ — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "В классе два теста. Что напечатается? (Каждый метод печатает своё имя.)",
+         "code": "@BeforeAll static void a() { System.out.println(\"BeforeAll\"); }\n@BeforeEach void b() { System.out.println(\"BeforeEach\"); }\n@AfterEach void c() { System.out.println(\"AfterEach\"); }\n@AfterAll static void d() { System.out.println(\"AfterAll\"); }\n@Test void t1() { }\n@Test void t2() { }",
+         "answer": "BeforeAll\nBeforeEach\nAfterEach\nBeforeEach\nAfterEach\nAfterAll",
+         "why": "BeforeAll и AfterAll — по разу на класс, пара BeforeEach/AfterEach — вокруг каждого из двух тестов."
+        },
+        {
+         "type": "match",
+         "q": "Соедини аннотацию и её смысл",
+         "left": [
+          "@BeforeEach",
+          "@BeforeAll",
+          "@Disabled",
+          "@DisplayName",
+          "@ParameterizedTest"
+         ],
+         "right": [
+          "Перед каждым тестом",
+          "Один раз до всех тестов, static",
+          "Пропустить тест, указав причину",
+          "Человеческое имя в отчёте",
+          "Один тест — много наборов данных"
+         ],
+         "why": "Эти пять аннотаций покрывают большую часть повседневных тестов."
+        },
+        {
+         "type": "single",
+         "q": "Список <code>[\"Боря\", \"Аня\", \"Вика\"]</code>. Какая проверка упадёт?",
+         "options": [
+          "assertThat(list).contains(\"Аня\", \"Боря\")",
+          "assertThat(list).containsExactly(\"Аня\", \"Боря\", \"Вика\")",
+          "assertThat(list).hasSize(3)"
+         ],
+         "answer": 1,
+         "why": "Порядок другой: Боря первый. contains порядок не проверяет, hasSize — только количество."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Для каждого теста JUnit создаёт новый объект тестового класса",
+           "a": true
+          },
+          {
+           "s": "Тест может рассчитывать на данные, которые оставил предыдущий тест",
+           "a": false,
+           "why": "порядок не гарантирован, а объект каждый раз новый — тесты обязаны быть независимыми."
+          },
+          {
+           "s": "Строка assertThat(x > 5); сама по себе ничего не проверяет",
+           "a": true
+          },
+          {
+           "s": "@Disabled-тест в отчёте считается упавшим",
+           "a": false,
+           "why": "он пропущен (skipped), а не красный."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Покажи наставнику</span>
+      <p>Задачи: <a href="/tasks.html?module=m17">«Билеты в кино: параметризованный тест»</a> и «Каталог книг: AssertJ и @BeforeEach». После них напиши: <em>«/check m17-t06 — и спроси меня, зачем тут @BeforeEach, а не одна общая корзина на все тесты»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>@BeforeEach</code>/<code>@AfterEach</code> — вокруг каждого теста; <code>@BeforeAll</code>/<code>@AfterAll</code> — раз на класс, static.</li>
+        <li>Каждый тест — новый объект тестового класса; тесты независимы, порядок не гарантирован.</li>
+        <li><code>@DisplayName</code> — имя для отчёта, <code>@Disabled("причина")</code> — пропустить.</li>
+        <li><code>@ParameterizedTest</code> + <code>@CsvSource</code>/<code>@ValueSource</code> — один тест на много данных.</li>
+        <li>AssertJ: <code>assertThat(фактическое).проверка(…)</code>; <code>containsExactly</code>, <code>hasSize</code>, <code>assertThatThrownBy</code>, <code>.as(…)</code>. Без метода после точки ничего не проверяется.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

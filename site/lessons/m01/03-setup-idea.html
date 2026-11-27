@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IntelliJ IDEA: твой проект и окно · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m01-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 1 · Урок 3</div>
+    <h1>IntelliJ IDEA: твой проект и окно</h1>
+    <p class="lead">IDEA уже стоит, папка <code>workspace</code> открыта (урок 0.3). Разберёмся, как устроен твой проект, где окно что показывает и как создать свой проект с нуля.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🗂 проект и окно IDEA</span><span>🖼 со скринами</span></div>
+  </header>
+
+  
+  
+  
+  
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Как устроен твой проект</h2>
+    <p>Папка <code>workspace</code>, которую ты открыл в уроке 0.3, — это и есть твой <b>учебный проект</b> в IDEA. Вот что внутри:</p>
+    <div data-widget="ide" id="shot-workspace-layout">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-01",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "src", "depth": 1, "open": true, "note": "задачи модуля 1" },
+                  { "name": "FixMe", "type": "class", "depth": 2 },
+                  { "name": "module-02", "type": "src", "depth": 1, "note": "задачи модуля 2" },
+                  { "name": "…", "type": "file", "depth": 1 },
+                  { "name": "module-18", "type": "src", "depth": 1 },
+                  { "name": "training", "type": "src", "depth": 1, "note": "примеры из уроков (урок 1.6)" },
+                  { "name": "README.md", "type": "file", "depth": 1 } ],
+        "marks": [ { "n": 1, "target": "tree-workspace", "text": "<b>workspace</b> — учебный проект. Открываешь его один раз через File → Open, дальше IDEA помнит" },
+                   { "n": 2, "target": "tree-module-01", "text": "<b>module-01 … module-18</b> — по папке на модуль, сюда кладёшь решения задач со страницы «Практика». Папки <b style=\"color:#5d9fff\">синие</b> — IDEA знает, что там код, и умеет его запускать" },
+                   { "n": 3, "target": "tree-training", "text": "<b>training</b> — тренировочная папка для примеров из уроков и песочницы Playground (появится в уроке 1.6)" } ],
+        "caption": "Учебный проект workspace в IDEA" }
+      </script>
+    </div>
+    <ul>
+      <li><b>Новый класс</b> — правый клик по нужной папке → <b>New → Java Class</b> → имя (покажем в следующем уроке).</li>
+      <li><b>Папки модулей</b> <code>module-01</code> … <code>module-18</code> уже на месте. Заготовки задач (например, сломанный код, который надо починить) появляются в папке модуля, когда открываешь его страницу «Практика».</li>
+      <li><b>Свой проект МиниБанк</b> — отдельный, второй проект. Его ты создашь сам в конце модуля 1 (★-задание), и он будет открываться в своём окне.</li>
+    </ul>
+    <h3>Если папка вдруг серая</h3>
+    <p>Синяя папка — значит «здесь код». Если какая-то папка серая (например, ты создал её сам), IDEA не будет её компилировать: не будет ▶ и всё подчеркнётся красным. Лечится так: <b>правый клик по папке</b> → <b>Mark Directory as → Sources Root</b>.</p>
+    <div data-widget="ide" id="shot-sources-root">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-01",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "folder", "depth": 1, "open": true, "selected": true },
+                  { "name": "FixMe.java", "type": "file", "depth": 2 },
+                  { "name": "README.md", "type": "file", "depth": 1 } ],
+        "menu": { "at": "tree-module-01", "items": ["New ›", "-", "Cut\tCtrl+X", "Copy\tCtrl+C", "Paste\tCtrl+V", "-", "Find in Files…\tCtrl+Shift+F", "-", "Mark Directory as ›"], "hl": "Mark Directory as",
+                  "sub": { "items": ["Sources Root", "Test Sources Root", "Resources Root", "Test Resources Root", "Excluded", "Generated Sources Root"], "hl": "Sources Root" } },
+        "marks": [ { "n": 1, "target": "tree-module-01", "text": "Правый клик по серой папке. Пока она обычная, не синяя, а <code>FixMe.java</code> внутри — просто файл, а не класс" },
+                   { "n": 2, "target": "menu", "side": "left", "text": "В самом низу меню — <b>Mark Directory as</b> («пометить папку как»). Наведи на него" },
+                   { "n": 3, "target": "submenu", "text": "Выбери <b>Sources Root</b> — «корень исходного кода». Остальные пункты пригодятся позже, например <b>Test Sources Root</b> — папка для тестов, они будут в модуле 17" } ],
+        "caption": "Если папка серая: Mark Directory as → Sources Root" }
+      </script>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Зачем это</span>
+      <p>Это как сказать библиотекарю: «книги — вот на этой полке». В проекте бывают картинки, заметки, настройки, а компилировать нужно только код. Синяя папка — значит «здесь код, его надо собирать».</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Код не запускается?</span>
+      <p>Первым делом проверь две вещи: папка синяя? SDK выбран (урок 0.3, шаг 6)?</p>
+    </div>
+    <h3>Как устроено окно IDEA</h3>
+    <p>Мастерская готова. Запомни четыре главных места в окне IDEA — дальше в уроках мы будем постоянно на них ссылаться. Вот как окно будет выглядеть уже в следующем уроке, когда ты напишешь и запустишь первую программу:</p>
+    <div data-widget="ide" id="shot-idea-overview">
+      <script type="application/json">
+      { "project": "workspace", "runConfig": "HelloWorld",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "src", "depth": 1, "open": true },
+                  { "name": "FixMe", "type": "class", "depth": 2 },
+                  { "name": "HelloWorld", "type": "class", "depth": 2, "selected": true },
+                  { "name": "README.md", "type": "file", "depth": 1 } ],
+        "file": "HelloWorld.java", "gutterRun": [1, 2],
+        "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+        "console": { "title": "HelloWorld", "lines": [ { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… HelloWorld" }, { "t": "out", "s": "Hello, World!" }, { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tree", "text": "<b>Дерево проекта</b> (панель Project): все папки и файлы. Синяя папка <code>module-01</code> — код, значок Ⓒ — класс Java. Двойной щелчок открывает файл" },
+                   { "n": 2, "target": "editor", "text": "<b>Редактор</b>: здесь ты пишешь код. Сверху — вкладки открытых файлов, слева — номера строк" },
+                   { "n": 3, "target": "run-btn", "text": "<b>▶ Run</b> — запустить программу. Такие же зелёные ▶ есть на полях у строк 1 и 2" },
+                   { "n": 4, "target": "console", "text": "<b>Панель Run</b> (её ещё зовут <b>консолью</b>) открывается снизу после запуска. Сюда программа печатает текст и здесь же видны ошибки при запуске" } ],
+        "caption": "Четыре главных места окна IntelliJ IDEA" }
+      </script>
+    </div>
+  </section>
+
+    <!-- ШАГ 2 -->
+    <section class="step" id="new-project">
+      <h2>Свой проект с нуля: что выбрать</h2>
+      <p>Для уроков ничего создавать не нужно — <code>workspace</code> уже готов. Но свой проект ты будешь создавать постоянно: МиниБанк в конце модуля 1, свои программы — потом на работе. Поэтому разберём окно создания проекта по каждому полю.</p>
+      <div class="callout tip">
+        <span class="callout-title">Сейчас — бегло</span>
+        <p>Прочитай этот шаг один раз, чтобы знать, где он. Пригодится в конце модуля, в ★-задании про МиниБанк: оттуда будет ссылка сюда. Что такое класс, <code>main</code>, <code>psvm</code> и <code>sout</code> — подробно в следующих уроках, 1.4 и 1.5.</p>
+      </div>
+      <p>Меню <b>File → New → Project…</b> (или кнопка <b>New Project</b> на стартовом экране). Слева выбери <b>Java</b>.</p>
+      <div data-widget="ide" id="shot-new-project">
+        <script type="application/json">
+        { "tree": false, "project": "workspace",
+          "dialog": { "title": "New Project", "side": ["Java", "Kotlin", "Groovy", "Empty Project"], "sideHl": "Java",
+                      "rows": [ { "label": "Name", "value": "MyFirstProject", "hl": true },
+                                { "label": "Location", "value": "C:\\Users\\Misha\\IdeaProjects" },
+                                { "label": "", "value": "Project will be created in: C:\\Users\\Misha\\IdeaProjects\\MyFirstProject", "type": "text" },
+                                { "label": "Git", "value": "☐ Create Git repository", "type": "text" },
+                                { "label": "Build system", "value": "[ IntelliJ ]   Maven   Gradle", "type": "text" },
+                                { "label": "JDK", "value": "21  Eclipse Temurin", "type": "select", "hl": true },
+                                { "label": "Sample code", "value": "☑ Add sample code", "type": "text", "hl": true } ],
+                      "buttons": ["Create", "Cancel"], "primary": "Create" },
+          "marks": [ { "n": 1, "target": "side-Java", "text": "Слева — <b>Java</b>: обычный проект на Java" },
+                     { "n": 2, "target": "field-Name", "text": "<b>Name</b> — имя проекта и его папки: латиницей, без пробелов — <code>MyFirstProject</code> или <code>my-first-project</code>. Для МиниБанка — ровно <code>MiniBank</code>" },
+                     { "n": 3, "target": "field-Location", "text": "<b>Location</b> — <i>внутри какой</i> папки появится папка проекта. По умолчанию <code>IdeaProjects</code> — это нормально. Строка ниже, <b>Project will be created in</b>, показывает итоговый путь: имя проекта IDEA допишет сама, в Location его вписывать не надо (иначе выйдет <code>MiniBank\\MiniBank</code>)" },
+                     { "n": 4, "target": "field-Git", "text": "<b>Create Git repository</b> — сразу подключить Git («историю версий»). Для пробного проекта не нужно, для МиниБанка — ставим" },
+                     { "n": 5, "target": "field-Build system", "text": "<b>Build system</b> — сборщик. Пока выбирай <b>IntelliJ</b>: самый простой. <b>Gradle</b> понадобится, когда к проекту подключают готовые библиотеки, он будет в модуле 17" },
+                     { "n": 6, "target": "field-JDK", "text": "<b>JDK</b> — какая Java. Выбери <b>21</b>. Если список пустой — в нём есть пункт <b>Download JDK…</b> (скрин ниже)" },
+                     { "n": 7, "target": "field-Sample code", "text": "<b>Add sample code</b> — по умолчанию галочка стоит, и IDEA сама напишет класс Main. Сними её: свой код пишешь ты" },
+                     { "n": 8, "target": "btn-Create", "side": "top", "text": "<b>Create</b> — создать. IDEA спросит <b>This Window / New Window</b>: выбирай <b>New Window</b> — курс останется открыт рядом" } ],
+          "caption": "File → New → Project: что выбрать в каждом поле" }
+        </script>
+      </div>
+
+      <h3>Если в поле JDK пусто</h3>
+      <p>Значит, на компьютере ещё нет Java (или IDEA её не нашла). Раскрой список <b>JDK</b> и выбери <b>Download JDK…</b> — откроется то же окно, что в уроке 0.3: <b>Version 21</b>, <b>Vendor Eclipse Temurin</b>, <b>Download</b>.</p>
+      <div data-widget="ide" id="shot-new-project-jdk">
+        <script type="application/json">
+        { "tree": false, "project": "workspace",
+          "dialog": { "title": "New Project", "side": ["Java", "Kotlin", "Groovy", "Empty Project"], "sideHl": "Java",
+                      "rows": [ { "label": "Name", "value": "MyFirstProject" },
+                                { "label": "Build system", "value": "[ IntelliJ ]   Maven   Gradle", "type": "text" },
+                                { "label": "JDK", "value": "<No SDK>", "type": "select", "hl": true } ],
+                      "buttons": ["Create", "Cancel"], "primary": "Create" },
+          "menu": { "at": "field-JDK", "items": ["Download JDK…", "Add JDK from disk…", "-", "Detected SDKs"], "hl": "Download JDK…" },
+          "marks": [ { "n": 1, "target": "field-JDK", "text": "Щёлкни по полю <b>JDK</b> — раскроется список" },
+                     { "n": 2, "target": "menu", "side": "left", "text": "<b>Download JDK…</b> — скачать Java прямо из IDEA. <b>Add JDK from disk…</b> — если Java уже скачана и ты знаешь папку. Если в списке уже есть 21 — просто выбери её" } ],
+          "caption": "JDK ещё не установлен: Download JDK…" }
+        </script>
+      </div>
+      <div class="callout fact">
+        <span class="callout-title">А JVM настраивать надо?</span>
+        <p>Нет. JVM лежит внутри JDK (помнишь матрёшку JDK ⊃ JRE ⊃ JVM?). Выбрал JDK 21 — у проекта есть и компилятор, и JVM. Больше ничего настраивать не нужно.</p>
+        <p>Позже, в больших программах, иногда передают <b>параметры JVM</b> — например, сколько памяти можно взять программе. Они задаются в <b>Run → Edit Configurations… → Modify options → Add VM options</b>. Сейчас туда заходить не нужно — просто знай, где это.</p>
+      </div>
+
+      <h3>Что появится после Create</h3>
+      <div data-widget="ide" id="shot-new-project-tree">
+        <script type="application/json">
+        { "project": "MyFirstProject", "statusPath": "src",
+          "tree": [ { "name": "MyFirstProject", "type": "folder", "depth": 0, "open": true },
+                    { "name": ".idea", "type": "folder", "depth": 1 },
+                    { "name": "src", "type": "src", "depth": 1, "open": true },
+                    { "name": "Main", "type": "class", "depth": 2, "selected": true },
+                    { "name": "MyFirstProject.iml", "type": "file", "depth": 1 },
+                    { "name": "External Libraries", "type": "folder", "depth": 0, "note": "< 21 >" } ],
+          "file": "Main.java", "gutterRun": [1, 2],
+          "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Работает!\");\n    }\n}",
+          "marks": [ { "n": 1, "target": "tree-src", "text": "<b>src</b> — папка для кода, она уже <b style=\"color:#5d9fff\">синяя</b>. Класс: правый клик по <code>src</code> → <b>New → Java Class</b> → имя <code>Main</code> → <kbd>Enter</kbd>" },
+                     { "n": 2, "target": "tree-.idea", "text": "<b>.idea</b> и файл <b>MyFirstProject.iml</b> (под <code>src</code>) — настройки проекта для IDEA. Их не трогаем" },
+                     { "n": 3, "target": "tree-External Libraries", "text": "<b>External Libraries → &lt; 21 &gt;</b> — значит, JDK 21 подключён. Нет этой строки — выбери JDK, как в уроке 0.3" },
+                     { "n": 4, "target": "line-2", "text": "Внутри класса — <code>psvm</code> + <kbd>Tab</kbd> (метод main) и <code>sout</code> + <kbd>Tab</kbd> (печать). Запуск — ▶ слева от <code>main</code>" } ],
+          "caption": "Новый проект после Create и первого класса Main" }
+        </script>
+      </div>
+
+      <h3>Шпаргалка: проект, папки, классы</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Что нужно</th><th>Как сделать</th></tr>
+          <tr><td>Открыть учебный проект</td><td><b>File → Open…</b> → папка <code>workspace</code> → <b>Trust Project</b></td></tr>
+          <tr><td>Создать свой проект</td><td><b>File → New → Project…</b> → Java, имя латиницей, Build system <b>IntelliJ</b>, JDK <b>21</b>, без sample code</td></tr>
+          <tr><td>Поставить Java (JDK)</td><td><b>File → Project Structure…</b> (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) → Project → SDK → <b>Download JDK…</b> → 21, Temurin</td></tr>
+          <tr><td>Новый класс</td><td>Правый клик по синей папке → <b>New → Java Class</b> → имя с большой буквы (<code>HelloWorld</code>)</td></tr>
+          <tr><td>Новая папка для кода</td><td>Правый клик → <b>New → Directory</b> → имя; потом правый клик по ней → <b>Mark Directory as → Sources Root</b> (станет синей)</td></tr>
+          <tr><td>Метод main и печать</td><td><code>psvm</code> + <kbd>Tab</kbd>, <code>sout</code> + <kbd>Tab</kbd>; все шаблоны — <kbd>Ctrl</kbd>+<kbd>J</kbd></td></tr>
+          <tr><td>Запустить</td><td>▶ слева от <code>main</code> или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd></td></tr>
+          <tr><td>Переключиться между проектами</td><td><b>File → Recent Projects</b>; каждый проект открыт в своём окне</td></tr>
+        </table>
+      </div>
+      <div class="callout tip">
+        <span class="callout-title">«Модули» курса и модули IDEA — разные вещи</span>
+        <p>В меню IDEA есть <b>File → New → Module</b>. Модуль IDEA — это часть большого проекта со своими папками кода и своими библиотеками (в Gradle-проектах так выглядят подпроекты). Нам он не нужен. Модуль курса — просто папка <code>module-01</code>, <code>module-02</code>… в <code>workspace</code>, они уже готовы и синие.</p>
+      </div>
+    </section>
+
+  
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Если что-то пошло не так</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что видишь</th><th>Что делать</th></tr>
+        <tr><td>Жёлтая полоска «Project JDK is not defined» или весь код красный</td><td>Не выбрана Java. Урок 0.3, шаг 6.</td></tr>
+        <tr><td>Нет зелёного треугольника ▶ рядом с кодом</td><td>Папка серая, а не синяя: правый клик → Mark Directory as → Sources Root (этот урок, «Если папка вдруг серая»).</td></tr>
+      </table>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Наставник поможет</span>
+      <p>С установкой Claude Code помогает напрямую. Напиши: <em>«Разбираюсь с проектом в IDEA по уроку 1.3, вижу вот это: …»</em> — и приложи скриншот.</p>
+    </div>
+    <div class="quiz">
+      <p class="q">Зачем помечать папку как Sources Root?</p>
+      <ul>
+        <li data-why="Цвет — лишь признак. Смысл в том, что IDEA теперь знает, что тут код.">Чтобы папка была красивого синего цвета</li>
+        <li data-correct data-why="Именно: IDEA будет компилировать и запускать код из этой папки.">Чтобы IDEA знала, что в этой папке лежит код, который надо компилировать</li>
+        <li data-why="Java скачивается отдельно — через Project Structure → SDK.">Чтобы скачалась Java</li>
+      </ul>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Учебный проект — <code>workspace</code>: папки <code>module-01…18</code> для задач и <code>training</code> для примеров из уроков.</li>
+        <li>Папку с кодом помечаем как Sources Root — она синяя.</li>
+          <li>Свой проект: File → New → Project → Java, Build system IntelliJ, JDK 21. JVM отдельно не настраивается — она внутри JDK.</li>
+          <li>Новый класс: правый клик по синей папке → New → Java Class.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

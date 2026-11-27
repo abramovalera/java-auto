@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 2 и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-sum">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 2 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Теперь твои программы помнят данные, знают их типы, спрашивают пользователя и умеют превращать одно в другое. А ты знаешь, где всё это лежит в памяти. Соберём картину целиком — и к наставнику на экзамен.</span><span class="free-only">Теперь твои программы помнят данные, знают их типы, спрашивают пользователя и умеют превращать одно в другое. А ты знаешь, где всё это лежит в памяти. Соберём картину целиком — и к <span class="ai-name">DeepSeek</span> на экзамен.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <p>Пройдись по каждому блоку и вспомни, что за ним стоит. Если про блок сказать нечего — вернись к уроку в меню слева.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 2: переменные, примитивные типы, строки и имена, стек и куча, Scanner, преобразования типов">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-yellow"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">📦 Переменные</text>
+        <text x="56" y="80" class="d-small">тип имя = значение;</text>
+        <text x="56" y="100" class="d-small">= значит «положи»</text>
+        <text x="56" y="120" class="d-small">x = x + 1, трассировка</text>
+
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🔢 Примитивы</text>
+        <text x="526" y="80" class="d-small">int long double</text>
+        <text x="526" y="100" class="d-small">boolean char (+3 редких)</text>
+        <text x="526" y="120" class="d-small">10L 3.14 'A' · переполнение</text>
+
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-green"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">🔤 String и имена</text>
+        <text x="26" y="230" class="d-small">length() charAt() · var</text>
+        <text x="26" y="250" class="d-small">final, camelCase, UPPER</text>
+
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🧠 Стек и куча</text>
+        <text x="556" y="230" class="d-small">примитив — в переменной</text>
+        <text x="556" y="250" class="d-small">объект — в куче, ссылка</text>
+
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">⌨️ Scanner</text>
+        <text x="56" y="370" class="d-small">nextLine next nextInt</text>
+        <text x="56" y="390" class="d-small">ловушка nextInt+nextLine</text>
+        <text x="56" y="410" class="d-small">дробь в консоли — «,»</text>
+
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-red"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🔄 Преобразования</text>
+        <text x="526" y="370" class="d-small">int → double сама</text>
+        <text x="526" y="390" class="d-small">(int) 3.9 = 3 · 'A' + 1</text>
+        <text x="526" y="410" class="d-small">Integer.parseInt("42")</text>
+
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 2</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Переменные и типы</text>
+      </svg>
+      <figcaption>Шесть тем модуля. В центре всего — идея «коробки с типом».</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <ul>
+        <li>объявить переменную, инициализировать её и присвоить ей новое значение — и объяснить, почему <code>=</code> — это оператор присваивания, а не «равно»;</li>
+        <li>сделать трассировку нескольких строк кода табличкой «шаг | переменные»;</li>
+        <li>выбрать тип для данных из жизни и объяснить выбор: int или long, double, boolean, char, String;</li>
+        <li>распознать тип литерала: <code>42</code>, <code>42L</code>, <code>4.2</code>, <code>4.2f</code>, <code>'4'</code>, <code>"4"</code>, <code>true</code>;</li>
+        <li>объяснить переполнение int и как его избежать;</li>
+        <li>вызывать методы <code>length()</code> и <code>charAt()</code>, читать код с <code>var</code>, объявлять константы с <code>final</code>;</li>
+        <li>называть переменные, классы и константы по правилам Java;</li>
+        <li>нарисовать стек и кучу для кода с примитивами и строками, объяснить, что такое ссылка и null;</li>
+        <li>прочитать с клавиатуры строку, слово и число через Scanner и обойти ловушку nextInt + nextLine;</li>
+        <li>превратить double в int, char в код и обратно, строку в число и число в строку — и сказать, где возможна потеря.</li>
+      </ul>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Честная самопроверка</span>
+      <p><span class="ai-only">На каждый пункт спроси себя: «Смогу показать или объяснить это прямо сейчас, без подсказок?» Сомневаешься — перечитай урок. Наставник на экзамене спросит про каждый пункт.</span><span class="free-only">На каждый пункт спроси себя: «Смогу показать или объяснить это прямо сейчас, без подсказок?» Сомневаешься — перечитай урок. <span class="ai-name">DeepSeek</span> на экзамене спросит про каждый пункт.</span></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большой квиз</h2>
+    <p>Десять вопросов по всему модулю. Ошибки вернутся в конце — пройди до идеального результата.</p>
+    <div data-widget="check" id="check-m02-sum">
+      <script type="application/json">
+      {
+       "title": "Весь модуль 2",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int x = 3;\nint y = x * 2;\nx = x + y;\nSystem.out.println(x + \" \" + y);",
+         "answer": "9 6",
+         "why": "y инициализирована результатом выражения 3 * 2 = 6. Потом переменной x присваивается 3 + 6 = 9. y не меняется."
+        },
+        {
+         "type": "match",
+         "q": "Соедини значение с подходящим типом",
+         "left": [
+          "Число жителей Земли",
+          "Средняя оценка 4.7",
+          "Есть ли скидка",
+          "Пол: 'М' или 'Ж'",
+          "Адрес электронной почты"
+         ],
+         "right": [
+          "long",
+          "double",
+          "boolean",
+          "char",
+          "String"
+         ],
+         "why": "Больше 2,1 млрд — long; дробь — double; да/нет — boolean; один символ — char; текст — String."
+        },
+        {
+         "type": "bug",
+         "q": "В какой строке ошибка компиляции?",
+         "code": "final double PI = 3.14;\nlong big = 4_000_000_000;\nchar letter = 'x';\nString word = \"x\";",
+         "answer": [
+          2
+         ],
+         "why": "Литерал без L — int, а 4 миллиарда в int не влезает. Нужно 4_000_000_000L."
+        },
+        {
+         "type": "single",
+         "q": "Что напечатает <code>System.out.println(Integer.MAX_VALUE + 1);</code>?",
+         "options": [
+          "2147483648",
+          "-2147483648",
+          "Ошибку компиляции",
+          "0"
+         ],
+         "answer": 1,
+         "why": "Переполнение: int идёт по кругу, за самым большим — самое маленькое."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String a = \"мяч\";\nString b = a;\na = \"кубик\";\nSystem.out.println(b + \" \" + a.length());",
+         "answer": "мяч 5",
+         "why": "b инициализирована копией стрелки на «мяч». Потом переменной a присвоили ссылку на «кубик» (5 букв) — её стрелку перевесили."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Объект String живёт в куче, а переменная хранит ссылку на него",
+           "a": true
+          },
+          {
+           "s": "<code>int n = null;</code> — законная строка",
+           "a": false,
+           "why": "примитив не может быть null."
+          },
+          {
+           "s": "Объект, на который не ведёт ни одна ссылка, может убрать сборщик мусора",
+           "a": true
+          },
+          {
+           "s": "<code>(int) 9.99</code> равно 10",
+           "a": false,
+           "why": "приведение отрезает дробь: 9."
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Пользователь вводит возраст, потом город из двух слов. Как правильно прочитать город после <code>int age = sc.nextInt();</code>?",
+         "options": [
+          "String city = sc.next();",
+          "String city = sc.nextLine();",
+          "sc.nextLine(); String city = sc.nextLine();"
+         ],
+         "answer": 2,
+         "why": "nextInt оставил Enter. Лишний nextLine его съедает, второй вызов nextLine возвращает город целиком. next() прочитал бы только первое слово."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "char c = 'K';\nSystem.out.println(c + 1);\nSystem.out.println((char) (c + 1));\nSystem.out.println(\"\" + c + 1);",
+         "answer": "76\nL\nK1",
+         "why": "Код K — 75. char + int = int: 76; (char) приводит обратно к букве L; со строкой в начале — склейка «K1»."
+        },
+        {
+         "type": "single",
+         "q": "Как назвать константу с адресом сайта магазина?",
+         "options": [
+          "final String baseUrl",
+          "final String BASE_URL",
+          "final String BaseUrl",
+          "String BASE_URL"
+         ],
+         "answer": 1,
+         "why": "Константа — final и UPPER_SNAKE_CASE. Без final это просто переменная с громким именем."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <p><span class="ai-only">Квиз — разминка. Настоящая проверка — разговор с наставником: программист должен уметь не только выбрать вариант, но и <b>объяснить</b> и <b>написать сам</b>.</span><span class="free-only">Квиз — разминка. Настоящая проверка — разговор с <span class="ai-name">DeepSeek</span>: программист должен уметь не только выбрать вариант, но и <b>объяснить</b> и <b>написать сам</b>.</span></p>
+    <ol class="steps">
+      <li><b>Сделай все задачи.</b> На <a href="/tasks.html?module=m02">странице практики</a> все десять задач модуля должны быть зелёными.</li>
+      <li><span class="ai-only"><b>Открой Claude Code в папке курса</b> и напиши <code>/exam</code>.</span><span class="free-only"><b>Открой <span class="ai-name">DeepSeek</span></b> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><b>Пройди экзамен.</b> Наставник попросит сделать трассировку, нарисовать стек и кучу, предсказать вывод, найти ошибку, объяснить ловушку Scanner — и, возможно, написать маленькую программу с вводом с нуля.</span><span class="free-only"><b>Пройди экзамен.</b> <span class="ai-name">DeepSeek</span> попросит сделать трассировку, нарисовать стек и кучу, предсказать вывод, найти ошибку, объяснить ловушку Scanner — и, возможно, написать маленькую программу с вводом с нуля.</span></li>
+      <li><span class="ai-only"><b>Не получилось — не страшно.</b> Наставник скажет, что повторить. Перечитаешь урок — и вернёшься.</span><span class="free-only"><b>Не получилось — не страшно.</b> <span class="ai-name">DeepSeek</span> скажет, что повторить. Перечитаешь урок — и вернёшься.</span></li>
+      <li><span class="ai-only"><b>Модуль засчитан</b>, когда наставник отметит все пункты в <code>progress.md</code>.</span><span class="free-only"><b>Модуль засчитан</b>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p>На экзамене не подглядывай в уроки и не копируй код. Списанный экзамен обманывает только тебя: модуль 3 целиком стоит на переменных и типах.</p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Хочешь размяться — напиши: <em>«Давай пробный экзамен по модулю 2, без отметок в progress.md»</em>. Готов по-настоящему — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">🧮</span><h4>Модуль 3: операторы</h4><p>Арифметика целиком: деление и остаток <code>%</code>, <code>++</code> и <code>+=</code>, сравнения, логика И/ИЛИ/НЕ, приоритет операций.</p></div>
+      <div class="card"><span class="emoji">🔄</span><h4>Типы пригодятся</h4><p>Почему <code>7 / 2</code> — это 3 и что такое <code>int + double</code>, ты уже знаешь. В модуле 3 это станет главным инструментом.</p></div>
+      <div class="card"><span class="emoji">🧠</span><h4>Стек и куча — тоже</h4><p>Картинка со стрелками вернётся в модулях про массивы, методы и классы. Чем лучше ты её понял сейчас, тем легче будет дальше.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Переменная — коробка с типом, именем и значением. Её объявляют, инициализируют, ей присваивают новые значения; <code>=</code> — оператор присваивания («положи»).</li>
+        <li>Пять главных примитивов: int, long, double, boolean, char. String — класс, строки — объекты.</li>
+        <li>Примитив — значение прямо на стеке, объект — в куче, в переменной ссылка.</li>
+        <li>Scanner читает с клавиатуры; помни про ловушку nextInt + nextLine.</li>
+        <li>Расширение — автоматически, сужение — явно <code>(тип)</code>; строки в числа — <code>parseInt</code>/<code>parseDouble</code>.</li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m02">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

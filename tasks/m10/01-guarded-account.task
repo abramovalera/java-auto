@@ -1,0 +1,71 @@
+## id: m10-t01
+## title: Счёт, который не уходит в минус
+## file: module-10/GuardedAccountDemo.java
+## class: GuardedAccountDemo
+## level: 1
+@@ description
+<p>Напиши банковский счёт, который <b>сам себя защищает</b>. В одном файле <code>GuardedAccountDemo.java</code> — два класса:</p>
+<ul>
+  <li><code>class GuardedAccount</code> (без <code>public</code>) — счёт. Поле баланса <code>private int balance</code>, в начале 0. Методы:
+    <ul>
+      <li><code>boolean deposit(int amount)</code> — положить деньги. Если сумма ≤ 0 — ничего не меняет и возвращает <code>false</code>, иначе прибавляет и возвращает <code>true</code>;</li>
+      <li><code>boolean withdraw(int amount)</code> — снять. Отказ (<code>false</code>, баланс не меняется), если сумма ≤ 0 <b>или</b> больше баланса;</li>
+      <li><code>int getBalance()</code> — узнать баланс. <b>Сеттера баланса нет</b> — менять его можно только через deposit и withdraw.</li>
+    </ul>
+  </li>
+  <li><code>public class GuardedAccountDemo</code> с <code>main</code>: читает число операций N, потом N операций вида <code>+ 500</code> (положить) или <code>- 200</code> (снять) и после каждой печатает результат. В конце — итоговый баланс.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:            вывод:
+4
++ 500            Положили 500, баланс 500
+- 200            Сняли 200, баланс 300
+- 1000           Отказ: снять 1000, баланс 300
++ 0              Отказ: положить 0, баланс 300
+                 Итоговый баланс: 300</span></pre>
+<p>Знак читай через <code>scanner.next()</code>, сумму — через <code>scanner.nextInt()</code>. Строки сравнивай через <code>equals</code>, а не <code>==</code> (модуль 8). Все проверки суммы — <b>внутри</b> <code>GuardedAccount</code>, а <code>main</code> только смотрит, что вернул метод.</p>
+<p>📖 <a href="/lessons/m10/01-encapsulation.html">Инкапсуляция: прячем данные</a></p>
+@@ test: Обычный день
+@@ input
+4
++ 500
+- 200
+- 1000
++ 0
+@@ expect
+Положили 500, баланс 500
+Сняли 200, баланс 300
+Отказ: снять 1000, баланс 300
+Отказ: положить 0, баланс 300
+Итоговый баланс: 300
+@@ test: Снять ровно всё — граница
+@@ input
+3
++ 100
+- 100
+- 1
+@@ expect
+Положили 100, баланс 100
+Сняли 100, баланс 0
+Отказ: снять 1, баланс 0
+Итоговый баланс: 0
+@@ test: Отрицательные суммы
+@@ input
+3
++ -50
+- -50
++ 70
+@@ expect
+Отказ: положить -50, баланс 0
+Отказ: снять -50, баланс 0
+Положили 70, баланс 70
+Итоговый баланс: 70
+@@ test: Ни одной операции
+@@ input
+0
+@@ expect
+Итоговый баланс: 0
+@@ require: class\s+GuardedAccount\b | Нужен класс GuardedAccount в том же файле
+@@ require: private\s+int\s+balance | Баланс должен храниться в поле private int balance — это и есть инкапсуляция
+@@ require: \.deposit\s*\( | main должен класть деньги через метод deposit
+@@ require: \.withdraw\s*\( | main должен снимать деньги через метод withdraw
+@@ forbid: setBalance | Сеттер баланса позволяет обойти проверки — убери его, баланс меняется только через deposit и withdraw

@@ -1,0 +1,42 @@
+## id: tr-arith-035
+## title: Зеркальное число
+## file: trainer/arith/ReverseThreeDigit.java
+## class: ReverseThreeDigit
+## level: 2
+## category: Деление и остаток
+@@ description
+<p>Создай класс <code>ReverseThreeDigit</code>. Программа читает трёхзначное число и печатает число, записанное теми же цифрами в обратном порядке. Если в начале получились нули, они пропадают, как у обычного числа: из <code>120</code> выходит <code>21</code>.</p>
+<pre class="terminal"><span class="out">ввод:  123     вывод: 321
+ввод:  120     вывод: 21</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n / 100</code> — первая цифра трёхзначного числа, <code>n % 10</code> — последняя</li>
+<li><code>n / 10 % 10</code> — средняя цифра</li>
+<li>Число из цифр собирается так: <code>a * 100 + b * 10 + c</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+123
+@@ expect
+321
+@@ test: Ноль в конце
+@@ input
+120
+@@ expect
+21
+@@ test: Сотня
+@@ input
+100
+@@ expect
+1
+@@ test: Само себе зеркало
+@@ input
+909
+@@ expect
+909
+@@ test: По убыванию
+@@ input
+987
+@@ expect
+789
+@@ require: % | Цифры достаются через / и %
+@@ forbid: charAt|split|toCharArray|String\.valueOf|Integer\.toString|StringBuilder|\.reverse\s*\( | Здесь число нужно развернуть арифметикой, а не через строки

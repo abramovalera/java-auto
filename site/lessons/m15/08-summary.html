@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля «Файлы и ввод-вывод» · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-sum">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 15 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead">Твои программы больше не забывают всё при выходе: они читают данные из файлов, пишут отчёты, раскладывают фотографии по папкам и берут настройки из конфига. Соберём модуль в одну картинку и проверим себя.</p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <p>Пройдись по каждому блоку и вспомни, что за ним стоит. Если про блок сказать нечего — вернись к уроку.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 15: пути, чтение, запись, потоки, папки, CSV и properties">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">🗺️ Пути</text>
+        <text x="56" y="80" class="d-small">Path.of, resolve</text>
+        <text x="56" y="100" class="d-small">полный и относительный</text>
+        <text x="56" y="120" class="d-small">рабочая папка = корень</text>
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">📖 Чтение</text>
+        <text x="526" y="80" class="d-small">readString, readAllLines</text>
+        <text x="526" y="100" class="d-small">lines — стрим, закрыть</text>
+        <text x="526" y="120" class="d-small">IOException — checked</text>
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">✍️ Запись</text>
+        <text x="26" y="230" class="d-small">writeString — перезапись</text>
+        <text x="26" y="250" class="d-small">CREATE + APPEND</text>
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-yellow"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🚰 Потоки</text>
+        <text x="556" y="230" class="d-small">байты и символы</text>
+        <text x="556" y="250" class="d-small">буфер, закрыть в try</text>
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-green"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">📂 Папки</text>
+        <text x="56" y="370" class="d-small">exists, list, walk</text>
+        <text x="56" y="390" class="d-small">copy, move, delete</text>
+        <text x="56" y="410" class="d-small">временные файлы</text>
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-red"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">⚙️ CSV и конфиг</text>
+        <text x="526" y="370" class="d-small">split, trim, заголовок</text>
+        <text x="526" y="390" class="d-small">Properties, getProperty</text>
+        <text x="526" y="410" class="d-small">Мастерская: сумма</text>
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 15</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Файлы и ввод-вывод</text>
+      </svg>
+      <figcaption>Шесть блоков модуля. В центре — идея «данные живут дольше программы».</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <section class="goals">
+      <h3>Проверь каждый пункт честно</h3>
+      <ul>
+        <li>объяснить разницу между абсолютным и относительным путём и найти рабочую папку программы в IDEA;</li>
+        <li>создать объект <code>Path</code> вызовом статического метода <code>Path.of</code>, собрать путь через <code>resolve</code>, достать имя файла и папку-родителя;</li>
+        <li>прочитать файл статическими методами <code>Files</code> — целиком, списком строк и стримом — и сказать, когда что лучше;</li>
+        <li>объяснить, почему <code>IOException</code> — checked, и обработать его двумя способами: перехватить в <code>catch</code> или объявить в <code>throws</code>;</li>
+        <li>по сообщению <code>NoSuchFileException</code> найти, где программа ищет файл;</li>
+        <li>записать файл с перезаписью и с дописыванием, создать недостающие папки;</li>
+        <li>нарисовать «трубу» потока: байты и символы, InputStream и Reader, буфер;</li>
+        <li>прочитать файл через <code>BufferedReader</code>: вызывать <code>readLine()</code> в цикле, пока метод не вернёт <code>null</code>;</li>
+        <li>объяснить, зачем закрывать потоки и в каком порядке закрывает ресурсы try-с-ресурсами;</li>
+        <li>вывести содержимое папки по алфавиту, скопировать, переместить и удалить файл;</li>
+        <li>разобрать CSV в объекты и посчитать сумму по колонке по шаблону Мастерской;</li>
+        <li>прочитать настройки программы из <code>config.properties</code> через <code>Properties</code>.</li>
+      </ul>
+    </section>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большой квиз</h2>
+    <p>Восемь вопросов по всему модулю. Ошибки вернутся в конце — разберись с ними.</p>
+    <div data-widget="check" id="check-m15-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 15 целиком",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Программа из <code>module-15</code> запущена в IDEA и пишет <code>Path.of(\"out.txt\")</code>. Как точно узнать, где окажется файл?",
+         "options": [
+          "Посмотреть в папке module-15",
+          "Напечатать Path.of(\"out.txt\").toAbsolutePath()",
+          "Поискать в папке out"
+         ],
+         "answer": 1,
+         "why": "toAbsolutePath приклеивает рабочую папку и показывает настоящий адрес. В IDEA это корень проекта."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Path p = Path.of(\"log.txt\");\nFiles.writeString(p, \"A\\n\");\nFiles.writeString(p, \"B\\n\", StandardOpenOption.APPEND);\nFiles.writeString(p, \"C\\n\");\nFiles.writeString(p, \"D\\n\", StandardOpenOption.APPEND);\nSystem.out.println(Files.readAllLines(p));",
+         "answer": "[C, D]",
+         "why": "Третья запись без опций стёрла A и B, четвёртая дописала D."
+        },
+        {
+         "type": "match",
+         "q": "Соедини исключение с причиной",
+         "left": [
+          "NoSuchFileException",
+          "FileAlreadyExistsException",
+          "DirectoryNotEmptyException",
+          "unreported exception IOException"
+         ],
+         "right": [
+          "Файла нет по этому пути",
+          "copy без REPLACE_EXISTING, а файл уже есть",
+          "delete папки, в которой что-то лежит",
+          "Ошибка компиляции: не обработано checked-исключение"
+         ],
+         "why": "Первые три — при запуске, последнее — сообщение компилятора."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>Files.lines</code> и <code>Files.list</code> нужно закрывать, а <code>Files.readAllLines</code> — нет",
+           "a": true
+          },
+          {
+           "s": "try-with-resources закрывает ресурсы в том же порядке, в каком открыл",
+           "a": false,
+           "why": "в обратном: последний открытый — первым."
+          },
+          {
+           "s": "Незакрытый BufferedWriter может оставить файл пустым",
+           "a": true
+          },
+          {
+           "s": "<code>Files.walk(dir)</code> не включает саму папку dir",
+           "a": false,
+           "why": "включает: первым элементом идёт сама dir."
+          }
+         ]
+        },
+        {
+         "type": "bug",
+         "q": "Код должен вывести строки CSV без заголовка. В какой строке ошибка?",
+         "code": "List<String> lines = Files.readAllLines(Path.of(\"users.csv\"));\nfor (int i = 0; i < lines.size(); i++) {\n    String[] c = lines.get(i).split(\",\");\n    System.out.println(c[0] + \" → \" + c[2]);\n}",
+         "answer": [
+          2
+         ],
+         "why": "Цикл начинается с 0 — заголовок не пропущен. Нужно i = 1 (или skip(1) в стриме)."
+        },
+        {
+         "type": "order",
+         "q": "Расставь строки: сохранить отчёт в папку, которой ещё нет",
+         "lines": [
+          "Path report = Path.of(\"reports\", \"smoke.txt\");",
+          "Files.createDirectories(report.getParent());",
+          "Files.writeString(report, \"5 из 5\");",
+          "System.out.println(Files.readString(report));"
+         ],
+         "code": true,
+         "why": "Путь → папки → запись → чтение."
+        },
+        {
+         "type": "multi",
+         "q": "Отметь всё, что делает <code>BufferedReader</code>",
+         "options": [
+          "Читает символы, а не байты",
+          "Зачерпывает данные из файла большими кусками",
+          "Возвращает null из readLine() в конце файла",
+          "Сам закрывается, когда программа дочитала файл"
+         ],
+         "answer": [
+          0,
+          1,
+          2
+         ],
+         "why": "Закрывать его надо самому — объявить в try-с-ресурсами."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><strong>Сделай все задачи.</strong> На <a href="/tasks.html?module=m15">странице практики</a> все восемь задач должны быть зелёными — от заметок с номерами до сводки по заказам.</li>
+      <li><strong>Пройди головоломки</strong> модуля, если ещё не прошёл, — на экзамене будут похожие.</li>
+      <li><span class="ai-only"><strong>Открой Claude Code в папке курса</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><strong>Будь готов объяснять «что окажется в файле».</strong> Наставник покажет код с записью и попросит сказать содержимое файла после одного и двух запусков. А для Мастерской — план решения по шаблону ещё до кода.</span><span class="free-only"><strong>Будь готов объяснять «что окажется в файле».</strong> <span class="ai-name">DeepSeek</span> покажет код с записью и попросит сказать содержимое файла после одного и двух запусков. А для Мастерской — план решения по шаблону ещё до кода.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p><span class="ai-only">На экзамене не подглядывай в уроки. Если не помнишь — так и скажи: наставник подскажет, какой урок перечитать. Это честнее и полезнее, чем угадывать.</span><span class="free-only">На экзамене не подглядывай в уроки. Если не помнишь — так и скажи: <span class="ai-name">DeepSeek</span> подскажет, какой урок перечитать. Это честнее и полезнее, чем угадывать.</span></p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Напиши: <em>«Давай пробный экзамен по модулю 15 без отметок в progress.md — особенно рабочая папка, APPEND и try-with-resources»</em>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card">
+        <span class="emoji">🧵</span>
+        <h4>Модуль 16: многопоточность</h4>
+        <p>Что будет, если два потока выполнения пишут в один файл одновременно? Разберёмся, почему строки перемешиваются и как этого избежать.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">🧪</span>
+        <h4>Модуль 17: инструменты</h4>
+        <p>JUnit-тесты с <code>@TempDir</code>, файлы-ресурсы в <code>src/test/resources</code>, тестовые данные из CSV через <code>@CsvFileSource</code>.</p>
+      </div>
+    </div>
+    <section class="summary">
+      <h2>Ты молодец</h2>
+      <p>Файлы — мост между программой и остальным миром: данными, конфигами, отчётами. Теперь ты знаешь, где программа ищет файл, почему он вдруг оказался пустым и как не стереть журнал вторым запуском.</p>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li>Сделай все восемь задач до зелёного.</li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 16!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 16!</span></li>
+      </ul>
+    </section>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m15">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

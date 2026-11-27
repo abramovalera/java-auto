@@ -1,0 +1,39 @@
+## id: tr-strings-024
+## title: Сколько заглавных
+## file: trainer/strings/CapitalLettersCount.java
+## class: CapitalLettersCount
+## level: 1
+## category: Подсчёт символов
+@@ description
+<p>Напиши класс <code>CapitalLettersCount</code>. Программа читает строку и печатает, сколько в ней заглавных букв (русских и английских).</p>
+<pre class="terminal"><span class="out">ввод:  Hello World    вывод: 2
+ввод:  iPhone         вывод: 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Character.isUpperCase(c)</code> — <code>true</code>, если <code>c</code> — заглавная буква</li>
+<li><code>s.charAt(i)</code> в цикле <code>for</code> — перебор символов строки</li>
+</ul></div>
+@@ test: Две заглавные
+@@ input
+Hello World
+@@ expect
+2
+@@ test: Аббревиатуры
+@@ input
+НАСА и ESA
+@@ expect
+7
+@@ test: Нет букв
+@@ input
+123!
+@@ expect
+0
+@@ test: Одна в середине
+@@ input
+iPhone
+@@ expect
+1
+@@ test: Пустая строка
+@@ input
+
+@@ expect
+0

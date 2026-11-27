@@ -1,0 +1,40 @@
+## id: tr-loops-050
+## title: Гипотеза Коллатца
+## file: trainer/loops/CollatzStepsCounter.java
+## class: CollatzStepsCounter
+## level: 2
+## category: Последовательности
+@@ description
+<p>Напиши класс <code>CollatzStepsCounter</code>. Берём число <code>n</code> (1 ≤ n ≤ 1 000 000): если оно чётное — делим на 2, если нечётное — умножаем на 3 и прибавляем 1. Повторяем, пока не получим 1. Напечатай <code>Шагов: S, максимум: M</code> — сколько шагов понадобилось и какое самое большое число встретилось по пути (включая само n).</p>
+<pre class="terminal"><span class="out">ввод:  6
+вывод: Шагов: 8, максимум: 16</span></pre>
+<p>Подвох: по пути числа могут вырасти больше, чем помещается в <code>int</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>while (n != 1) { … }</code> — число шагов заранее неизвестно</li>
+<li><code>long n</code> — промежуточные значения храни в long</li>
+</ul></div>
+@@ test: Шесть
+@@ input
+6
+@@ expect
+Шагов: 8, максимум: 16
+@@ test: Уже единица
+@@ input
+1
+@@ expect
+Шагов: 0, максимум: 1
+@@ test: Двадцать семь
+@@ input
+27
+@@ expect
+Шагов: 111, максимум: 9232
+@@ test: Вылет за int
+@@ input
+837799
+@@ expect
+Шагов: 524, максимум: 2974984576
+@@ test: Степень двойки
+@@ input
+16
+@@ expect
+Шагов: 4, максимум: 16

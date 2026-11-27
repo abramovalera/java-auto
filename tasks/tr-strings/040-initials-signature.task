@@ -1,0 +1,35 @@
+## id: tr-strings-040
+## title: Подпись в документе
+## file: trainer/strings/InitialsSignature.java
+## class: InitialsSignature
+## level: 2
+## category: Слова и разбор
+@@ description
+<p>Напиши класс <code>InitialsSignature</code>. Программа читает ФИО — три слова в порядке «фамилия имя отчество», в любом регистре, с лишними пробелами по краям и между словами. Напечатай подпись: фамилия с заглавной буквы (остальные маленькие), затем инициалы имени и отчества с точками: <code>Иванов П. С.</code></p>
+<pre class="terminal"><span class="out">ввод:  иванов пётр сергеевич           вывод: Иванов П. С.
+ввод:    ПЕТРОВА   анна   ивановна     вывод: Петрова А. И.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.strip().split("\\s+")</code> — массив слов без пустых строк</li>
+<li><code>s.substring(0, 1).toUpperCase()</code> — первая буква заглавной</li>
+<li><code>s.substring(1).toLowerCase()</code> — остальные буквы маленькими</li>
+</ul></div>
+@@ test: Маленькие буквы
+@@ input
+иванов пётр сергеевич
+@@ expect
+Иванов П. С.
+@@ test: Лишние пробелы и капс
+@@ input
+  ПЕТРОВА   анна   ивановна 
+@@ expect
+Петрова А. И.
+@@ test: Английские имена
+@@ input
+smith JOHN paul
+@@ expect
+Smith J. P.
+@@ test: Короткая фамилия
+@@ input
+ли ЯН вэй
+@@ expect
+Ли Я. В.

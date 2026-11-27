@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Свои generics: Box&lt;T&gt; · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-08">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 13 · Урок 8</div>
+    <h1>Свои generics: коробка для чего угодно</h1>
+    <p class="lead">Ты уже пользуешься <code>List&lt;T&gt;</code> и <code>Map&lt;K, V&gt;</code>. Теперь заглянем с другой стороны: как написать свой класс и метод с угловыми скобками. Коротко — но так, чтобы чужой код с <code>&lt;T&gt;</code> больше не пугал.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>📦 класс Box&lt;T&gt;</span><span>🔎 wildcards для любопытных</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-08-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Зачем писать <code>List&lt;String&gt;</code>, а не просто <code>List</code>?",
+            "options": ["Так быстрее работает", "Компилятор проверит тип элементов и не потребует приведения при get", "Без этого список не создаётся"], "answer": 1,
+            "why": "Generics переносят ошибку «не тот тип» из запуска в компиляцию." },
+          { "type": "single", "q": "Компаратор вернул 0 для двух студентов. Что это значит?",
+            "options": ["Ошибка сравнения", "Для сортировки они равны", "Первый меньше второго"], "answer": 1,
+            "why": "0 — равны; знак минус — первый раньше, плюс — первый позже." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Коробка без generics: Object и приведения</h2>
+    <p>Хотим класс-коробку, в которую можно положить одну вещь, а потом достать. Вещь может быть строкой, числом, товаром — чем угодно. Первая мысль — поле типа <code>Object</code> (модуль 10: от него наследуются все классы):</p>
+<pre data-file="ObjectBox.java"><code class="java">class ObjectBox {
+    private Object item;
+    void put(Object item) { this.item = item; }
+    Object get() { return item; }
+}
+
+ObjectBox box = new ObjectBox();
+box.put("подарок");
+String s = (String) box.get();     // приводить руками
+Integer n = (Integer) box.get();   // 💥 ClassCastException — при запуске</code></pre>
+    <p>Те же проблемы, что у «сырого» списка в уроке 2: компилятор не знает, что внутри, и ошибка всплывает только при запуске. Generics решают это и для твоих классов.</p>
+    <div data-widget="ide" id="shot-box-cce">
+      <script type="application/json">
+      { "tree": false, "file": "BoxDemo.java", "runConfig": "BoxDemo", "gutterRun": [7, 8], "statusPath": "module-13",
+        "code": "class ObjectBox {\n    private Object item;\n    void put(Object item) { this.item = item; }\n    Object get() { return item; }\n}\n\npublic class BoxDemo {\n    public static void main(String[] args) {\n        ObjectBox box = new ObjectBox();\n        box.put(\"подарок\");\n        String s = (String) box.get();\n        System.out.println(s);\n        Integer n = (Integer) box.get();\n        System.out.println(n);\n    }\n}",
+        "console": { "title": "BoxDemo", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… BoxDemo" },
+          { "t": "out", "s": "подарок" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ClassCastException: class java.lang.String cannot be cast to class java.lang.Integer (java.lang.String and java.lang.Integer are in module java.base of loader 'bootstrap')" },
+          { "t": "err", "s": "\tat BoxDemo.main(BoxDemo.java:13)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "line-13", "text": "Компилятор пропустил эту строку: <code>get()</code> возвращает <code>Object</code>, а приведение к <code>Integer</code> — «я так сказал»" },
+                   { "n": 2, "target": "output", "text": "Приведение к <code>String</code> сработало — внутри и правда строка" },
+                   { "n": 3, "target": "error", "side": "bottom", "text": "<b>ClassCastException</b>: «класс <code>String</code> нельзя привести к классу <code>Integer</code>». Остаток в скобках — служебный" },
+                   { "n": 4, "target": "link-1", "text": "Упало в строке <b>13</b> — при запуске, а не при компиляции. С <code>Box&lt;String&gt;</code> такая строка была бы красной ещё в редакторе" } ],
+        "caption": "Коробка на Object: ClassCastException при запуске" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Box&lt;T&gt;: параметр типа</h2>
+<pre data-file="Box.java"><code class="java">class Box&lt;T&gt; {
+    private T item;
+
+    void put(T item) { this.item = item; }
+    T get() { return item; }
+    boolean isEmpty() { return item == null; }
+}
+
+Box&lt;String&gt; gift = new Box&lt;&gt;();
+gift.put("книга");
+String g = gift.get();        // без приведения
+gift.put(42);                 // ❌ ошибка компиляции: int — не String
+
+Box&lt;Integer&gt; coins = new Box&lt;&gt;();
+coins.put(42);                // автоупаковка в Integer
+int c = coins.get();</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>class Box&lt;T&gt;</code><div><p><code>T</code> — <b>параметр типа</b>: «сюда подставят конкретный тип, когда будут создавать коробку». Как параметр метода, только вместо значения — тип.</p></div></div>
+      <div class="annot-row"><code>private T item;</code><div><p>Внутри класса <code>T</code> используется как обычный тип: поле, параметр, результат.</p></div></div>
+      <div class="annot-row"><code>Box&lt;String&gt; gift</code><div><p>Подставили <code>String</code> вместо <code>T</code>. Для этой коробки компилятор «видит» <code>put(String)</code> и <code>String get()</code>.</p></div></div>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 230" role="img" aria-label="Один шаблон Box T превращается в Box String и Box Integer при подстановке типа">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="250" y="14" width="220" height="86" rx="14" class="d-accent"/>
+        <text x="360" y="42" text-anchor="middle" class="d-title">Box&lt;T&gt;</text>
+        <text x="360" y="66" text-anchor="middle" class="d-mono-ink">put(T) · T get()</text>
+        <text x="360" y="88" text-anchor="middle" class="d-small">шаблон: T — «какой-то тип»</text>
+        <path d="M290 100 L170 140" class="d-arrow"/>
+        <path d="M430 100 L550 140" class="d-arrow"/>
+        <text x="200" y="118" text-anchor="end" class="d-small">T = String</text>
+        <text x="520" y="118" class="d-small">T = Integer</text>
+        <rect x="60" y="144" width="230" height="70" rx="14" class="d-teal"/>
+        <text x="175" y="172" text-anchor="middle" class="d-title">Box&lt;String&gt;</text>
+        <text x="175" y="196" text-anchor="middle" class="d-mono-ink">put(String) · String get()</text>
+        <rect x="430" y="144" width="240" height="70" rx="14" class="d-blue"/>
+        <text x="550" y="172" text-anchor="middle" class="d-title">Box&lt;Integer&gt;</text>
+        <text x="550" y="196" text-anchor="middle" class="d-mono-ink">put(Integer) · Integer get()</text>
+      </svg>
+      <figcaption>Один класс — много «версий» для разных типов. Проверяет их компилятор.</figcaption>
+    </figure>
+    <p>Имена параметров типа по традиции — одна большая буква: <code>T</code> (Type), <code>E</code> (Element — в коллекциях), <code>K</code> и <code>V</code> (Key, Value — в Map). Параметров может быть несколько:</p>
+<pre data-file="Pair.java"><code class="java">record Pair&lt;K, V&gt;(K key, V value) { }
+
+Pair&lt;String, Integer&gt; p = new Pair&lt;&gt;("хлеб", 45);
+System.out.println(p.key() + " = " + p.value());   // хлеб = 45</code></pre>
+    <div class="callout try">
+      <span class="callout-title">Где ты это встретишь</span>
+      <p>Ответ сервера часто описывают как <code>Response&lt;User&gt;</code>, хранилище заказов — как <code>Repository&lt;Order&gt;</code>, кэш товаров — как <code>Cache&lt;String, Product&gt;</code>. А в тестах (модуль 17) <code>assertThat(list)</code> из AssertJ возвращает объект «проверки списка строк» — внутри него generics, поэтому IDEA подсказывает подходящие проверки. Писать такое с нуля джуну приходится редко, а читать — каждый день.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Обобщённый метод: &lt;T&gt; перед типом результата</h2>
+    <p>Параметр типа можно объявить не у класса, а у одного метода. Угловые скобки ставят <b>перед</b> типом результата:</p>
+<pre data-file="ListUtils.java"><code class="java">static &lt;T&gt; T lastOf(List&lt;T&gt; list) {
+    return list.get(list.size() - 1);
+}
+
+String w = lastOf(List.of("а", "б", "в"));  // T = String — Java вывела сама
+Integer n = lastOf(List.of(10, 20, 30));    // T = Integer</code></pre>
+    <p>Указывать <code>T</code> при вызове не нужно: Java <b>выводит</b> тип из аргумента. Один метод работает со списком чего угодно, и при этом результат типизирован: <code>lastOf</code> от списка строк возвращает именно <code>String</code>, а не <code>Object</code>.</p>
+    <details class="predict">
+      <summary>Скомпилируется ли: int x = lastOf(List.of("а", "б"));</summary>
+      <p><b>Нет.</b> T выведен как <code>String</code>, значит метод возвращает <code>String</code>, а его в <code>int</code> не положишь: <code>incompatible types</code>. Generics и тут поймали ошибку до запуска.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Чего нельзя с T</span>
+      <ul>
+        <li>Подставить примитив: <code>Box&lt;int&gt;</code> — нельзя, только <code>Box&lt;Integer&gt;</code> (урок 2).</li>
+        <li>Создать объект: <code>new T()</code> — нельзя, Java не знает, какой конструктор вызывать.</li>
+        <li>Вызвать у <code>T</code> методы конкретного класса: про «какой-то тип» известно только то, что он <code>Object</code> — доступны <code>equals</code>, <code>hashCode</code>, <code>toString</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Для любопытных: ограничения и wildcards</h2>
+    <p>Это уже материал «на вырост». Читать стоит, зубрить — нет.</p>
+    <details class="curious">
+      <summary>🔎 &lt;T extends Comparable&lt;T&gt;&gt;: «какой-то тип, но сравнимый»</summary>
+      <p>Хотим метод «максимум из списка» для чего угодно. Но сравнивать через <code>compareTo</code> можно не всё. Ограничим T:</p>
+<pre data-file="MaxOf.java"><code class="java">static &lt;T extends Comparable&lt;T&gt;&gt; T maxOf(List&lt;T&gt; list) {
+    T best = list.get(0);
+    for (T x : list) {
+        if (x.compareTo(best) &gt; 0) best = x;
+    }
+    return best;
+}</code></pre>
+      <p>Теперь внутри можно звать <code>compareTo</code>, а вызов <code>maxOf</code> со списком несравнимых объектов не скомпилируется. Так устроен сам <code>Collections.sort</code>.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Почему List&lt;Integer&gt; — не List&lt;Number&gt;, и что такое ? extends</summary>
+      <p><code>Integer</code> — наследник <code>Number</code>. Но <code>List&lt;Integer&gt;</code> <b>не</b> наследник <code>List&lt;Number&gt;</code>! Иначе можно было бы сделать так:</p>
+<pre data-file="WhyNot.java"><code class="java">List&lt;Integer&gt; ints = new ArrayList&lt;&gt;();
+List&lt;Number&gt; nums = ints;   // ❌ не компилируется — и правильно:
+nums.add(3.14);             // иначе в список Integer пролез бы Double</code></pre>
+      <p>Если методу нужно только <b>читать</b> числа из списка любых чисел, пишут <b>wildcard</b> (подстановочный знак) <code>? extends Number</code> — «список чего-то, что является Number»:</p>
+<pre data-file="SumAll.java"><code class="java">static double sum(List&lt;? extends Number&gt; list) {
+    double total = 0;
+    for (Number n : list) total += n.doubleValue();
+    return total;
+}
+sum(List.of(1, 2, 3));        // List&lt;Integer&gt; — подходит
+sum(List.of(1.5, 2.5));       // List&lt;Double&gt; — тоже</code></pre>
+      <p>Добавлять в такой список нельзя (кроме <code>null</code>): компилятор не знает, Integer там или Double. Правило-запоминалка с собеседований — <b>PECS</b>: Producer Extends, Consumer Super. Читаешь из коллекции — <code>extends</code>, пишешь в неё — <code>super</code>.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Стирание типов</summary>
+      <p>Generics существуют только для компилятора. После проверки он «стирает» угловые скобки, и в байт-коде <code>Box&lt;String&gt;</code> и <code>Box&lt;Integer&gt;</code> — один и тот же класс <code>Box</code> с полем <code>Object</code> (приведения компилятор вставляет сам). Поэтому при запуске нельзя спросить «это Box от String?» и нельзя написать <code>new T()</code>. Это называется <b>type erasure</b> — тоже частый вопрос на собеседовании.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-08">
+      <script type="application/json">
+      {
+       "title": "Свои generics — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Какая строка не скомпилируется?",
+         "code": "Box<String> b = new Box<>();",
+         "options": [
+          "b.put(\"кот\");",
+          "String s = b.get();",
+          "b.put(5);",
+          "boolean e = b.isEmpty();"
+         ],
+         "answer": 2,
+         "why": "У Box&lt;String&gt; метод put принимает только String."
+        },
+        {
+         "type": "match",
+         "q": "Соедини букву с традиционным смыслом",
+         "left": [
+          "T",
+          "E",
+          "K",
+          "V"
+         ],
+         "right": [
+          "Type — любой тип",
+          "Element — элемент коллекции",
+          "Key — ключ словаря",
+          "Value — значение словаря"
+         ],
+         "why": "Это только соглашение, но его соблюдает вся стандартная библиотека."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "В обобщённом методе &lt;T&gt; пишут перед типом результата",
+           "a": true
+          },
+          {
+           "s": "Внутри Box&lt;T&gt; можно написать new T()",
+           "a": false,
+           "why": "Java не знает, какой тип будет подставлен и какой у него конструктор."
+          },
+          {
+           "s": "При вызове lastOf(List.of(1, 2)) тип T нужно указать вручную",
+           "a": false,
+           "why": "Java выводит T из аргумента сама — здесь Integer."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Покажи мне 3 строки из настоящей библиотеки с generics (например, из ArrayList или AssertJ), а я объясню, что там значит каждая буква в угловых скобках»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>class Box&lt;T&gt;</code> — класс с параметром типа: при создании подставляют конкретный тип, компилятор проверяет.</li>
+        <li>Без generics — <code>Object</code>, приведения и <code>ClassCastException</code> при запуске.</li>
+        <li>Обобщённый метод: <code>static &lt;T&gt; T lastOf(List&lt;T&gt; list)</code> — тип выводится из аргументов.</li>
+        <li>Нельзя: примитивы в скобках, <code>new T()</code>.</li>
+        <li>На вырост: <code>&lt;T extends Comparable&lt;T&gt;&gt;</code>, <code>? extends Number</code>, стирание типов.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Встроенные функциональные интерфейсы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-02">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 14 · Урок 2</div>
+    <h1>Встроенные функциональные интерфейсы</h1>
+    <p class="lead">Писать свой интерфейс под каждую лямбду — скучно. В Java уже есть готовый набор «розеток» на все случаи жизни. Выучишь пять — и будешь читать любой код со стримами.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔌 5 главных интерфейсов</span><span>🧩 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m14-02-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлый урок", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Что такое функциональный интерфейс?",
+            "options": ["Интерфейс, в котором все методы default", "Интерфейс ровно с одним абстрактным методом", "Любой интерфейс из пакета java.util"], "answer": 1,
+            "why": "Один абстрактный метод — одно «гнездо», куда вставляется лямбда." },
+          { "type": "bug", "q": "Какая строка не скомпилируется?",
+            "code": "Comparator<String> a = (x, y) -> x.compareTo(y);\nComparator<String> b = (x, y) -> { return y.compareTo(x); };\nComparator<String> c = x, y -> x.length() - y.length();",
+            "answer": [3], "why": "Два параметра пишутся только в скобках: <code>(x, y) -&gt; …</code>." },
+          { "type": "single", "q": "Модуль 13: какой интерфейс передают в <code>list.sort(…)</code>?",
+            "options": ["Comparable", "Comparator", "Iterator"], "answer": 1,
+            "why": "<code>sort</code> принимает Comparator — внешнего «судью», который сравнивает два элемента. Comparable — это когда объект умеет сравнивать себя сам." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Готовые розетки из java.util.function</h2>
+    <p>В прошлом уроке мы написали свой <code>PriceRule</code> с методом <code>boolean check(int price)</code>. Но «взять что-то и ответить да/нет» нужно так часто, что в Java давно есть готовый функциональный интерфейс — <code>Predicate</code>. Как и ещё несколько на типовые случаи. Все они лежат в пакете <code>java.util.function</code>.</p>
+    <p>Чтобы их запомнить, достаточно смотреть на <b>форму</b>: что входит и что выходит.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="Пять функциональных интерфейсов как машинки: Predicate превращает T в да или нет, Function превращает T в R, Consumer принимает T и ничего не возвращает, Supplier ничего не принимает и выдаёт T, BiFunction принимает два значения и выдаёт R">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="80" y="24" text-anchor="middle" class="d-small">вход</text>
+        <text x="380" y="24" text-anchor="middle" class="d-small">интерфейс и метод</text>
+        <text x="680" y="24" text-anchor="middle" class="d-small">выход</text>
+
+        <text x="80" y="64" text-anchor="middle" class="d-mono-ink">T</text>
+        <path d="M110 59 H230" class="d-arrow"/>
+        <rect x="240" y="38" width="280" height="42" rx="12" class="d-blue"/>
+        <text x="380" y="65" text-anchor="middle" class="d-title">Predicate · test</text>
+        <path d="M530 59 H620" class="d-arrow"/>
+        <text x="680" y="64" text-anchor="middle" class="d-mono-ink">true/false</text>
+
+        <text x="80" y="122" text-anchor="middle" class="d-mono-ink">T</text>
+        <path d="M110 117 H230" class="d-arrow"/>
+        <rect x="240" y="96" width="280" height="42" rx="12" class="d-violet"/>
+        <text x="380" y="123" text-anchor="middle" class="d-title">Function · apply</text>
+        <path d="M530 117 H620" class="d-arrow"/>
+        <text x="680" y="122" text-anchor="middle" class="d-mono-ink">R</text>
+
+        <text x="80" y="180" text-anchor="middle" class="d-mono-ink">T</text>
+        <path d="M110 175 H230" class="d-arrow"/>
+        <rect x="240" y="154" width="280" height="42" rx="12" class="d-teal"/>
+        <text x="380" y="181" text-anchor="middle" class="d-title">Consumer · accept</text>
+        <text x="680" y="180" text-anchor="middle" class="d-small">ничего (void)</text>
+
+        <text x="80" y="238" text-anchor="middle" class="d-small">ничего</text>
+        <rect x="240" y="212" width="280" height="42" rx="12" class="d-yellow"/>
+        <text x="380" y="239" text-anchor="middle" class="d-title">Supplier · get</text>
+        <path d="M530 233 H620" class="d-arrow"/>
+        <text x="680" y="238" text-anchor="middle" class="d-mono-ink">T</text>
+
+        <text x="80" y="296" text-anchor="middle" class="d-mono-ink">T, U</text>
+        <path d="M110 291 H230" class="d-arrow"/>
+        <rect x="240" y="270" width="280" height="42" rx="12" class="d-accent"/>
+        <text x="380" y="297" text-anchor="middle" class="d-title">BiFunction · apply</text>
+        <path d="M530 291 H620" class="d-arrow"/>
+        <text x="680" y="296" text-anchor="middle" class="d-mono-ink">R</text>
+      </svg>
+      <figcaption>Пять машинок. T, U, R — это generics из модуля 13: «какой-то тип», который подставишь сам.</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Интерфейс</th><th>Вход → выход</th><th>Метод</th><th>Пример лямбды</th><th>Где пригодится</th></tr>
+        <tr><td><code>Predicate&lt;T&gt;</code></td><td>T → boolean</td><td><code>test</code></td><td><code>s -&gt; s.isEmpty()</code></td><td>«подходит ли элемент?» — фильтры</td></tr>
+        <tr><td><code>Function&lt;T, R&gt;</code></td><td>T → R</td><td><code>apply</code></td><td><code>s -&gt; s.length()</code></td><td>«превратить элемент в его текст/цену»</td></tr>
+        <tr><td><code>Consumer&lt;T&gt;</code></td><td>T → ничего</td><td><code>accept</code></td><td><code>s -&gt; System.out.println(s)</code></td><td>«сделать с каждым»: напечатать, сохранить</td></tr>
+        <tr><td><code>Supplier&lt;T&gt;</code></td><td>ничего → T</td><td><code>get</code></td><td><code>() -&gt; new ArrayList&lt;&gt;()</code></td><td>«выдать по требованию»: новый список, случайное число</td></tr>
+        <tr><td><code>BiFunction&lt;T, U, R&gt;</code></td><td>(T, U) → R</td><td><code>apply</code></td><td><code>(a, b) -&gt; a + b</code></td><td>«из двух сделать одно»</td></tr>
+      </table>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кухонные приборы</span>
+      <p><b>Predicate</b> — сито: кладёшь ягоду, оно говорит «пропустить» или «нет». <b>Function</b> — соковыжималка: яблоко на входе, сок на выходе. <b>Consumer</b> — мусорное ведро: принимает и ничего не отдаёт. <b>Supplier</b> — холодильник: ничего не кладёшь, а достаёшь продукт. <b>BiFunction</b> — блендер на два ингредиента.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Все пять в коде</h2>
+    <p>Посмотри: объявляем переменную типа интерфейса, инициализируем её лямбда-выражением, а потом вызываем у неё единственный абстрактный метод интерфейса — у каждого он свой. Лямбда задаёт тело этого метода:</p>
+<pre data-file="FiveInterfaces.java"><code class="java">import java.util.*;
+import java.util.function.*;
+
+public class FiveInterfaces {
+    public static void main(String[] args) {
+        Predicate&lt;String&gt; isError = text -&gt; text.startsWith("ERROR");
+        System.out.println(isError.test("ERROR: нет связи"));  // true
+
+        Function&lt;String, Integer&gt; length = text -&gt; text.length();
+        System.out.println(length.apply("Купить"));  // 6
+
+        Consumer&lt;String&gt; log = text -&gt; System.out.println("[LOG] " + text);
+        log.accept("Заказ принят");  // [LOG] Заказ принят
+
+        Supplier&lt;String&gt; greeting = () -&gt; "Добро пожаловать!";
+        System.out.println(greeting.get());  // Добро пожаловать!
+
+        BiFunction&lt;Integer, Integer, Integer&gt; total =
+                (price, count) -&gt; price * count;
+        System.out.println(total.apply(250, 4));  // 1000
+    }
+}</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Generics — только классы-обёртки</span>
+      <p>Как в коллекциях из модуля 13, в угловых скобках нельзя писать <code>int</code>: только <code>Integer</code>, <code>Double</code>, <code>Boolean</code>. Поэтому <code>Function&lt;String, Integer&gt;</code>, а не <code>Function&lt;String, int&gt;</code>.</p>
+    </div>
+    <p>Есть ещё два «частных случая», их часто встретишь в чужом коде:</p>
+    <dl class="terms">
+      <dt>UnaryOperator&lt;T&gt;</dt><dd>Это <code>Function&lt;T, T&gt;</code>: тип на входе и выходе одинаковый. Пример: <code>UnaryOperator&lt;String&gt; up = s -&gt; s.toUpperCase();</code></dd>
+      <dt>BinaryOperator&lt;T&gt;</dt><dd>Это <code>BiFunction&lt;T, T, T&gt;</code>: два одинаковых в одно такое же. Пример: <code>BinaryOperator&lt;Integer&gt; sum = (a, b) -&gt; a + b;</code> Пригодится в <code>reduce</code>.</dd>
+    </dl>
+    <details class="predict">
+      <summary>Объявлена переменная <code>Predicate&lt;Integer&gt; even = n -&gt; n % 2 == 0;</code>. Что вернёт вызов <code>even.test(0)</code>?</summary>
+      <p><code>true</code>: 0 % 2 = 0, значит, ноль — чётное число. Граничный случай, на котором многие спотыкаются.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Склеиваем правила: and, or, negate, andThen</h2>
+    <p>У этих интерфейсов есть готовые <code>default</code>-методы, которые собирают из простых правил сложные. Это как конструктор: каждое правило маленькое и понятное, а вместе — мощные.</p>
+<pre data-file="Combine.java"><code class="java">Predicate&lt;String&gt; notEmpty = s -&gt; !s.isEmpty();
+Predicate&lt;String&gt; shortText = s -&gt; s.length() &lt;= 10;
+
+Predicate&lt;String&gt; validButton = notEmpty.and(shortText);
+System.out.println(validButton.test("Купить"));  // true
+System.out.println(validButton.test(""));        // false
+// true: текст длиннее 10
+System.out.println(shortText.negate().test("Оформить заказ"));
+
+Function&lt;String, String&gt; trim = s -&gt; s.trim();
+Function&lt;String, Integer&gt; length = s -&gt; s.length();
+System.out.println(trim.andThen(length).apply("  OK  "));  // 2</code></pre>
+    <ul>
+      <li>Каждый такой метод <b>возвращает новое</b> правило. <code>p1.and(p2)</code> — оба правила (как <code>&amp;&amp;</code>), <code>p1.or(p2)</code> — хотя бы одно (как <code>||</code>), <code>p.negate()</code> — наоборот (как <code>!</code>).</li>
+      <li><code>f1.andThen(f2)</code> — сначала <code>f1</code>, потом её возвращаемое значение передаётся аргументом в <code>f2</code>. Как конвейер из двух станков.</li>
+    </ul>
+    <details class="predict">
+      <summary><code>Function&lt;Integer, Integer&gt; twice = x -&gt; x * 2;</code> и <code>plus3 = x -&gt; x + 3;</code>. Что даст <code>twice.andThen(plus3).apply(5)</code>?</summary>
+      <p><b>13.</b> Сначала <code>twice</code>: 5 · 2 = 10, потом <code>plus3</code>: 10 + 3 = 13. Порядок важен: <code>plus3.andThen(twice)</code> дал бы (5 + 3) · 2 = 16.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Коллекции уже умеют принимать лямбды</h2>
+    <p>Эти интерфейсы встроены в коллекции из модуля 13. Три метода, которым лямбда-выражение передают аргументом, — ты будешь вызывать их постоянно:</p>
+<pre data-file="CollectionsWithLambdas.java"><code class="java">List&lt;String&gt; buttons = new ArrayList&lt;&gt;(List.of("Купить", "", "Отмена", "  "));
+
+buttons.removeIf(b -&gt; b.isBlank());          // Predicate: убрать пустые
+buttons.forEach(b -&gt; System.out.println(b)); // Consumer: напечатать каждую
+
+Map&lt;String, Integer&gt; prices = new HashMap&lt;&gt;();
+prices.put("Чай", 200);
+prices.put("Кофе", 350);
+prices.forEach((name, price) -&gt; System.out.println(name + " — " + price));</code></pre>
+<pre class="terminal"><span class="out">Купить
+Отмена
+Кофе — 350
+Чай — 200</span></pre>
+    <p>(Порядок строк из <code>HashMap</code> не гарантирован — помнишь модуль 13? У тебя «Чай» может оказаться первым.)</p>
+    <div class="callout warn">
+      <span class="callout-title">removeIf и неизменяемые списки</span>
+      <p><code>removeIf</code> меняет список. У списка из <code>List.of(…)</code> он выбросит <code>UnsupportedOperationException</code> — такой список неизменяемый. Поэтому выше мы создали изменяемую копию: новый объект <code>new ArrayList&lt;&gt;(…)</code>, которому аргументом передали этот список.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Comparator без анонимных классов: comparing и thenComparing</h2>
+    <p>Самое приятное — сортировка. У <code>Comparator</code> есть статический метод <code>comparing</code>: ты передаёшь ему аргументом <b>Function</b> «как достать ключ сравнения», а он возвращает готовый <code>Comparator</code>.</p>
+<pre data-file="SortStudents.java"><code class="java">record Student(String name, int group, int score) { }
+
+List&lt;Student&gt; students = new ArrayList&lt;&gt;(List.of(
+        new Student("Вика", 2, 90),
+        new Student("Аня", 1, 75),
+        new Student("Борис", 2, 90)));
+
+students.sort(Comparator.comparing(s -&gt; s.name()));     // по имени
+System.out.println(students.get(0).name());              // Аня</code></pre>
+    <p>А если нужно по двум полям — «по баллу от большего, при равенстве по имени»? Тут лямбды в длинной цепочке вызовов начинают мешать компилятору (подробности — ниже), поэтому пишут <b>ссылки на методы</b> <code>Student::score</code> — это та же лямбда <code>s -&gt; s.score()</code>, только короче. Подробно разберём их в следующем уроке, а пока просто прочитай:</p>
+<pre data-file="SortStudents.java"><code class="java">students.sort(Comparator.comparing(Student::score).reversed()
+        .thenComparing(Student::name));
+
+students.forEach(s -&gt; System.out.println(s.name() + " " + s.score()));</code></pre>
+<pre class="terminal"><span class="out">Борис 90
+Вика 90
+Аня 75</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Comparator.comparing(Student::score)</code><div><p>Вызов статического метода <code>comparing</code> с аргументом — ссылкой на метод <code>Student::score</code>. Возвращает компаратор «по баллу, по возрастанию».</p></div></div>
+      <div class="annot-row"><code>.reversed()</code><div><p>Вызов <code>reversed()</code> у этого компаратора возвращает новый — по убыванию.</p></div></div>
+      <div class="annot-row"><code>.thenComparing(Student::name)</code><div><p>Вызов <code>thenComparing</code> добавляет второе правило: если баллы равны — сравнить по имени. Работает только как «второй судья».</p></div></div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка: comparing(лямбда).reversed()</span>
+      <p><code>Comparator.comparing(s -&gt; s.score()).reversed()</code> <b>не скомпилируется</b>: <em>cannot find symbol: method score()</em>. Из-за <code>.reversed()</code> в конце компилятор не может понять тип параметра <code>s</code> лямбды и считает его просто <code>Object</code>. Лечится ссылкой на метод <code>Student::score</code> или явным типом <code>(Student s) -&gt; s.score()</code>.</p>
+    </div>
+    <div data-widget="ide" id="shot-comparing-reversed">
+      <script type="application/json">
+      { "tree": false, "file": "SortStudents.java", "gutterRun": [7, 8], "statusPath": "module-14",
+        "code": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\nrecord Student(String name, int group, int score) { }\n\npublic class SortStudents {\n    public static void main(String[] args) {\n        List<Student> students = new ArrayList<>();\n        students.sort(Comparator.comparing(s -> s.score()).reversed());\n    }\n}",
+        "errors": [ { "line": 10, "text": "score", "msg": "Cannot resolve method 'score' in 'Object'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-10", "side": "top", "text": "Красным — <code>score</code>, хотя в record <code>Student</code> такой метод точно есть" },
+                   { "n": 2, "target": "tip", "text": "Разгадка в конце сообщения: <b>in 'Object'</b>. Компилятор решил, что параметр <code>s</code> — просто <code>Object</code>, а у Object метода <code>score()</code> нет. <code>javac</code> скажет <code>cannot find symbol … location: variable s of type Object</code>" },
+                   { "n": 3, "target": "problems", "text": "<b>❗1</b>. Замени лямбду на <code>Student::score</code> — и красное исчезнет" } ],
+        "caption": "comparing(лямбда).reversed(): компилятор потерял тип" }
+      </script>
+    </div>
+    <p>Для чисел есть варианты без лишней упаковки: <code>Comparator.comparingInt(Student::score)</code>, <code>comparingDouble</code>. А для «естественного» порядка — <code>Comparator.naturalOrder()</code> и <code>Comparator.reverseOrder()</code>.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m14-02">
+      <script type="application/json">
+      {
+       "title": "Функциональные интерфейсы — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини интерфейс с его формой",
+         "left": [
+          "Predicate&lt;T&gt;",
+          "Function&lt;T, R&gt;",
+          "Consumer&lt;T&gt;",
+          "Supplier&lt;T&gt;",
+          "BiFunction&lt;T, U, R&gt;"
+         ],
+         "right": [
+          "T → true/false",
+          "T → R",
+          "T → ничего",
+          "ничего → T",
+          "(T, U) → R"
+         ],
+         "why": "Сито, соковыжималка, ведро, холодильник, блендер."
+        },
+        {
+         "type": "single",
+         "q": "Какой интерфейс подходит для лямбды <code>() -&gt; new ArrayList&lt;String&gt;()</code>?",
+         "options": [
+          "Consumer&lt;List&lt;String&gt;&gt;",
+          "Supplier&lt;List&lt;String&gt;&gt;",
+          "Function&lt;String, List&lt;String&gt;&gt;"
+         ],
+         "answer": 1,
+         "why": "У лямбды нет параметров, но есть возвращаемое значение — это Supplier, его абстрактный метод get()."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "Predicate<Integer> positive = x -> x > 0;\nPredicate<Integer> even = x -> x % 2 == 0;\nSystem.out.println(positive.and(even).test(-4));\nSystem.out.println(positive.or(even).test(-4));\nSystem.out.println(even.negate().test(-4));",
+         "answer": "false\ntrue\nfalse",
+         "why": "−4 чётное, но не положительное. and: false, or: true, negate от true — false."
+        },
+        {
+         "type": "single",
+         "q": "Что будет при запуске?",
+         "code": "List<String> list = List.of(\"a\", \"\", \"b\");\nlist.removeIf(s -> s.isEmpty());\nSystem.out.println(list);",
+         "options": [
+          "[a, b]",
+          "[a, , b]",
+          "UnsupportedOperationException"
+         ],
+         "answer": 2,
+         "why": "List.of возвращает неизменяемый список, а removeIf пытается его изменить и выбрасывает исключение. Нужно <code>new ArrayList&lt;&gt;(List.of(…))</code>."
+        },
+        {
+         "type": "order",
+         "q": "Собери сортировку: по группе, при равенстве — по имени",
+         "lines": [
+          "students.sort(",
+          "    Comparator.comparing(Student::group)",
+          "        .thenComparing(Student::name)",
+          ");"
+         ],
+         "code": true,
+         "why": "Первый судья — comparing, второй — thenComparing."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Урок 14.2. Назови мне пять ситуаций из жизни программ (магазин, банк, игра), а я скажу, какой функциональный интерфейс там нужен и почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Predicate</code> — проверить (<code>test</code>), <code>Function</code> — превратить (<code>apply</code>), <code>Consumer</code> — сделать (<code>accept</code>), <code>Supplier</code> — выдать (<code>get</code>), <code>BiFunction</code> — из двух в одно.</li>
+        <li>Правила склеиваются: <code>and</code>, <code>or</code>, <code>negate</code>, <code>andThen</code>.</li>
+        <li>Методы коллекций принимают аргументом лямбда-выражения: <code>forEach</code>, <code>removeIf</code> (только изменяемый список!), <code>map.forEach((k, v) -&gt; …)</code>.</li>
+        <li>Сортировка: <code>Comparator.comparing(…)</code>, <code>.reversed()</code>, <code>.thenComparing(…)</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

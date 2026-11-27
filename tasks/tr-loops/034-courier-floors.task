@@ -1,0 +1,45 @@
+## id: tr-loops-034
+## title: Курьер в многоэтажке
+## file: trainer/loops/CourierFloorsTravel.java
+## class: CourierFloorsTravel
+## level: 2
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>CourierFloorsTravel</code>. Курьер развозит заказы по этажам высотки и начинает на 1-м этаже. В первой строке — число заказов <code>n</code> (n ≥ 0), во второй — номера этажей в том порядке, в каком он их обходит. Сколько этажей всего проехал курьер на лифте (вверх и вниз вместе)?</p>
+<pre class="terminal"><span class="out">ввод:  3
+       5 3 9
+вывод: 12</span></pre>
+<p>Путь в примере: 1 → 5 (4 этажа), 5 → 3 (2 этажа), 3 → 9 (6 этажей) — всего 12.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.abs(floor - current)</code> — сколько этажей между двумя этажами, неважно, вверх или вниз</li>
+<li><code>current = floor;</code> — переменная «последнее значение»: после поездки курьер стоит на новом этаже</li>
+</ul></div>
+@@ test: Три заказа
+@@ input
+3
+5 3 9
+@@ expect
+12
+@@ test: Заказ на первом этаже
+@@ input
+1
+1
+@@ expect
+0
+@@ test: Заказов нет
+@@ input
+0
+@@ expect
+0
+@@ test: Туда-сюда
+@@ input
+4
+20 1 20 1
+@@ expect
+76
+@@ test: Подвал
+@@ input
+2
+-2 4
+@@ expect
+9

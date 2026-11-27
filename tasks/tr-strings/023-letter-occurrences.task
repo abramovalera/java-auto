@@ -1,0 +1,50 @@
+## id: tr-strings-023
+## title: Сколько раз встречается буква
+## file: trainer/strings/LetterOccurrences.java
+## class: LetterOccurrences
+## level: 1
+## category: Подсчёт символов
+@@ description
+<p>Напиши класс <code>LetterOccurrences</code>. Программа читает две строки: текст и одну букву. Напечатай, сколько раз эта буква встречается в тексте. Регистр не важен: <code>М</code> и <code>м</code> — одна буква.</p>
+<pre class="terminal"><span class="out">ввод:  Мама мыла раму
+       м
+вывод: 4
+
+ввод:  Banana
+       A
+вывод: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.charAt(0)</code> — достаёт символ из строки, где он один</li>
+<li><code>Character.toLowerCase(c)</code> — возвращает символ <code>c</code> маленькой буквой</li>
+<li>Символы сравнивают через <code>==</code>: <code>c == 'a'</code></li>
+</ul></div>
+@@ test: Пример
+@@ input
+Мама мыла раму
+м
+@@ expect
+4
+@@ test: Заглавная во вводе
+@@ input
+Banana
+A
+@@ expect
+3
+@@ test: Буквы нет
+@@ input
+Привет
+z
+@@ expect
+0
+@@ test: Все символы — эта буква
+@@ input
+OoOo
+o
+@@ expect
+4
+@@ test: Пробел тоже символ
+@@ input
+a b c
+ 
+@@ expect
+2

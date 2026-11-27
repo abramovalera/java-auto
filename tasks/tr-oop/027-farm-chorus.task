@@ -1,0 +1,68 @@
+## id: tr-oop-027
+## title: Хор на ферме
+## file: trainer/oop/FarmChorus.java
+## class: FarmChorus
+## level: 2
+## category: Наследование и интерфейсы
+@@ description
+<p>Создай класс <code>FarmChorus</code> с методом <code>main</code>, а ниже в том же файле — абстрактный класс и трёх его наследников.</p>
+<p><code>abstract class FarmAnimal</code>:</p>
+<ul>
+<li>поле <code>private final String name</code> и конструктор <code>FarmAnimal(String name)</code>;</li>
+<li>абстрактный метод <code>abstract String sound()</code> — звук животного, у каждого свой;</li>
+<li>обычный метод <code>String speak()</code> — возвращает <code>Имя: звук</code>, звук берёт из <code>sound()</code>.</li>
+</ul>
+<p>Наследники <code>FarmCow</code>, <code>FarmDog</code> и <code>FarmRooster</code> переопределяют <code>sound()</code>: корова — <code>Му-у</code>, собака — <code>Гав!</code>, петух — <code>Ку-ка-ре-ку!</code>.</p>
+<p>Ввод: в первой строке — количество животных <code>n</code>, дальше <code>n</code> строк «вид имя», где вид — <code>cow</code>, <code>dog</code> или <code>rooster</code>. Сложи животных в массив <code>FarmAnimal[]</code>, потом одним циклом вызови <code>speak()</code> у каждого. В конце — <code>Голосов в хоре: n</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2
+       cow Зорька
+       rooster Петя
+вывод: Зорька: Му-у
+       Петя: Ку-ка-ре-ку!
+       Голосов в хоре: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>FarmAnimal a = new FarmCow("Зорька");</code> — переменная типа родителя может ссылаться на объект наследника</li>
+<li>при вызове <code>a.speak()</code> внутри сработает <code>sound()</code> того класса, чей объект на самом деле лежит в переменной</li>
+<li>объект абстрактного класса создать нельзя: <code>new FarmAnimal(…)</code> не скомпилируется</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2
+cow Зорька
+rooster Петя
+@@ expect
+Зорька: Му-у
+Петя: Ку-ка-ре-ку!
+Голосов в хоре: 2
+@@ test: Все три вида
+@@ input
+3
+dog Бобик
+cow Милка
+rooster Кеша
+@@ expect
+Бобик: Гав!
+Милка: Му-у
+Кеша: Ку-ка-ре-ку!
+Голосов в хоре: 3
+@@ test: Одни собаки
+@@ input
+2
+dog Жучка
+dog Тузик
+@@ expect
+Жучка: Гав!
+Тузик: Гав!
+Голосов в хоре: 2
+@@ test: Пустой двор
+@@ input
+0
+@@ expect
+Голосов в хоре: 0
+@@ require: \babstract\s+class\s+FarmAnimal\b | FarmAnimal должен быть абстрактным классом: abstract class FarmAnimal
+@@ require: \babstract\s+String\s+sound\s*\(\s*\)\s*; | Объяви абстрактный метод abstract String sound();
+@@ require: \bclass\s+FarmCow\s+extends\s+FarmAnimal\b | Нужен класс FarmCow extends FarmAnimal
+@@ require: \bclass\s+FarmDog\s+extends\s+FarmAnimal\b | Нужен класс FarmDog extends FarmAnimal
+@@ require: \bclass\s+FarmRooster\s+extends\s+FarmAnimal\b | Нужен класс FarmRooster extends FarmAnimal
+@@ require: FarmAnimal\s*\[\s*\]\s*\w+\s*=\s*new\s+FarmAnimal\s*\[ | Сложи животных в массив: FarmAnimal[] farm = new FarmAnimal[n]
+@@ forbid: (?s)String\s+speak\s*\(\s*\)(?=.*String\s+speak\s*\(\s*\)) | speak() пиши один раз — в FarmAnimal; наследники переопределяют только sound()

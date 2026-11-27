@@ -1,0 +1,39 @@
+## id: tr-strings-039
+## title: Без повторов
+## file: trainer/strings/UniqueCharsKeeper.java
+## class: UniqueCharsKeeper
+## level: 2
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>UniqueCharsKeeper</code>. Программа читает строку и печатает её, оставив каждый символ только при его <b>первой</b> встрече — все повторы дальше по строке выбрасываются. Регистр важен: <code>A</code> и <code>a</code> — разные символы.</p>
+<pre class="terminal"><span class="out">ввод:  programming    вывод: progamin
+ввод:  банан          вывод: бан</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>sb.indexOf(String.valueOf(c)) == -1</code> — символа <code>c</code> в собранном ответе ещё нет</li>
+<li><code>String.valueOf(c)</code> — превращает символ в строку из одного символа</li>
+</ul></div>
+@@ test: Пример
+@@ input
+programming
+@@ expect
+progamin
+@@ test: Банан
+@@ input
+банан
+@@ expect
+бан
+@@ test: Всё одинаковое
+@@ input
+aaaa
+@@ expect
+a
+@@ test: Без повторов
+@@ input
+abc
+@@ expect
+abc
+@@ test: Регистр важен
+@@ input
+AaAa
+@@ expect
+Aa

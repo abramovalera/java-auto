@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Зачем нужны методы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-01">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 7 · Урок 1</div>
+    <h1>Зачем нужны методы</h1>
+    <p class="lead">Учимся давать куску кода имя и вызывать его одной строкой — как кнопку «сделай X». А заодно наконец разбираем по словам <code>public static void main(String[] args)</code>.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>🧩 сборка кода</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Один и тот же код — пять раз</h2>
+    <p>Представь, что ты печатаешь чек магазина. Между блоками чека нужна линия из чёрточек. Без новых знаний программа выглядит так:</p>
+<pre data-file="Receipt.java"><code class="java">public class Receipt {
+    public static void main(String[] args) {
+        System.out.println("--------------------");
+        System.out.println("Магазин «У Джавика»");
+        System.out.println("--------------------");
+        System.out.println("Кофе          150");
+        System.out.println("Булочка        70");
+        System.out.println("--------------------");
+        System.out.println("Итого:        220");
+        System.out.println("--------------------");
+    }
+}</code></pre>
+    <p>Работает. Но вот приходит начальник: «Линию сделай из знаков <code>=</code>, так красивее». Тебе придётся найти и поменять <b>четыре</b> одинаковые строки. Пропустишь одну — чек станет кривым. А в настоящей программе таких мест может быть сорок.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кнопка на кофемашине</span>
+      <p>Чтобы сварить капучино, нужно смолоть зёрна, пролить воду, вспенить молоко… Но ты не делаешь это по шагам — ты жмёшь кнопку <b>«Капучино»</b>. Кто-то один раз записал рецепт внутрь кнопки, а пользоваться им можно сколько угодно раз.</p>
+      <p><b>Метод — это такая кнопка в программе.</b> Ты один раз записываешь шаги и даёшь им имя (объявляешь метод), а потом «нажимаешь» по имени (вызываешь метод).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Метод: кусок кода с именем</h2>
+    <p><b>Метод</b> — это именованный блок кода, который можно <b>вызывать</b> по имени из других мест программы. Перепишем чек с методом:</p>
+<pre data-file="Receipt.java"><code class="java">public class Receipt {
+    public static void main(String[] args) {
+        printLine();
+        System.out.println("Магазин «У Джавика»");
+        printLine();
+        System.out.println("Кофе          150");
+        System.out.println("Булочка        70");
+        printLine();
+        System.out.println("Итого:        220");
+        printLine();
+    }
+
+    static void printLine() {
+        System.out.println("--------------------");
+    }
+}</code></pre>
+    <p>Теперь линия описана <b>в одном месте</b>. Захочешь знаки <code>=</code> — поменяешь одну строку, и все четыре линии изменятся сами.</p>
+    <div class="annot">
+      <div class="annot-row"><code>static void printLine() {</code><div><p><b>Объявление метода</b> (его ещё называют <b>определением</b>), точнее его первая строка — <b>заголовок метода</b>: «вот кнопка, её зовут <code>printLine</code>». Пока это только рецепт — сам по себе он ничего не печатает.</p></div></div>
+      <div class="annot-row"><code>    System.out.println("----");</code><div><p><b>Тело метода</b> — то, что лежит между фигурными скобками. Эти строки выполнятся при каждом «нажатии кнопки».</p></div></div>
+      <div class="annot-row"><code>printLine();</code><div><p><b>Вызов метода</b>: имя + круглые скобки + точка с запятой. Это и есть «нажать кнопку». Скобки обязательны, даже если внутри пусто.</p></div></div>
+    </div>
+    <dl class="terms">
+      <dt>Метод</dt><dd>Именованный блок кода внутри класса. В других языках то же самое называют <b>функцией</b> или <b>процедурой</b>.</dd>
+      <dt>Объявить метод</dt><dd>Написать его: заголовок + тело в фигурных скобках. Объявление метод не выполняет.</dd>
+      <dt>Вызвать метод</dt><dd>Написать его имя со скобками: <code>printLine();</code>. Java выполнит тело метода и вернётся обратно.</dd>
+    </dl>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 730 300" role="img" aria-label="Три вызова printLine из main ведут в один и тот же метод, после него выполнение возвращается назад">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="20" width="330" height="250" rx="14" class="d-code"/>
+        <text x="40" y="48" class="d-small">main — главный сценарий</text>
+        <text x="40" y="84" class="d-mono">printLine();</text>
+        <text x="40" y="114" class="d-mono">println("Магазин…");</text>
+        <text x="40" y="144" class="d-mono">printLine();</text>
+        <text x="40" y="174" class="d-mono">println("Кофе 150");</text>
+        <text x="40" y="204" class="d-mono">printLine();</text>
+        <text x="40" y="234" class="d-mono">println("Итого 220");</text>
+        <path d="M150 80 C260 80 300 130 430 140" class="d-arrow"/>
+        <path d="M150 140 C260 140 330 145 430 150" class="d-arrow"/>
+        <path d="M150 200 C260 200 300 170 430 160" class="d-arrow"/>
+        <rect x="430" y="100" width="280" height="100" rx="14" class="d-accent"/>
+        <text x="448" y="132" class="d-mono-ink">static void printLine() {</text>
+        <text x="448" y="158" class="d-mono-ink">  println("--------");</text>
+        <text x="448" y="184" class="d-mono-ink">}</text>
+        <path d="M520 200 C520 260 300 270 210 112" class="d-dash"/>
+        <text x="570" y="235" text-anchor="middle" class="d-small">отработал — вернулся</text>
+        <text x="570" y="255" text-anchor="middle" class="d-small">на следующую строку main</text>
+        <text x="570" y="80" text-anchor="middle" class="d-small">три вызова → один метод</text>
+      </svg>
+      <figcaption>Все три вызова ведут в один и тот же метод. После его тела Java возвращается и продолжает main со следующей строки.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа, если из main убрать все четыре строки <code>printLine();</code>, а сам метод оставить?</summary>
+      <p>Ни одной линии. Объявление метода — это рецепт, а не действие. Пока метод никто не вызвал, его тело не выполняется ни разу. Ошибки тоже не будет: объявить метод и не пользоваться им можно (IDEA лишь покажет его имя серым — «не используется»).</p>
+    </details>
+    <div data-widget="ide" id="shot-unused-method">
+      <script type="application/json">
+      { "tree": false, "file": "Receipt.java", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class Receipt {\n    public static void main(String[] args) {\n        System.out.println(\"Магазин «У Джавика»\");\n        System.out.println(\"Итого:        220\");\n    }\n\n    static void printLine() {\n        System.out.println(\"--------------------\");\n    }\n}",
+        "unused": [ { "line": 7, "text": "printLine", "msg": "Method 'printLine()' is never used", "tip": true, "fix": "Safe delete 'printLine()'" } ],
+        "marks": [ { "n": 1, "target": "err-7", "side": "left", "text": "Имя метода стало <b>серым</b>: его никто не вызывает. Это не ошибка — программа запустится" },
+                   { "n": 2, "target": "tip", "text": "Наведи мышку: <b>Method 'printLine()' is never used</b> — «метод нигде не используется». IDEA предлагает его удалить — но если ты просто забыл вызов, допиши <code>printLine();</code> в main, и имя снова станет обычным" },
+                   { "n": 3, "target": "problems", "text": "В счётчике это предупреждение (⚠), а не ошибка (❗)" } ],
+        "caption": "Объявленный, но не вызванный метод — серый" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Где писать метод</h2>
+    <p>Метод объявляют <b>внутри класса, рядом с main</b> — но не в теле main. Класс — как коробка, в которой лежат методы-кнопки. Положить одну кнопку внутрь другой нельзя.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">✅</span><h4>Можно</h4><p>Метод выше или ниже main, внутри фигурных скобок класса. Порядок не важен: Java сначала прочитает весь класс и знает про все его методы.</p></div>
+      <div class="card"><span class="emoji">❌</span><h4>Нельзя</h4><p>Объявлять метод внутри другого метода. Компилятор скажет <code>illegal start of expression</code> — «тут не может начинаться такое».</p></div>
+      <div class="card"><span class="emoji">⚠️</span><h4>Частая опечатка</h4><p>Вызов без скобок: <code>printLine;</code>. Ошибка <code>not a statement</code> — «это не инструкция»: для Java это не вызов, а просто имя.</p></div>
+    </div>
+    <div class="say" data-mood="think"><p>Почему методы пишут с маленькой буквы, а классы — с большой? Это договорённость Java-программистов: <code>Receipt</code> — класс, <code>printLine</code> — метод. Имя метода обычно начинается с <b>глагола</b>: он ведь что-то <i>делает</i>. Если слов несколько, каждое следующее с большой буквы: <code>printLine</code>, <code>showMenu</code>, <code>printReceipt</code>. Это называют <b>camelCase</b> — «верблюжий регистр», большие буквы торчат, как горбы.</p></div>
+    <details class="predict">
+      <summary>Предскажи: метод <code>printLine</code> написан <b>выше</b> main. Скомпилируется?</summary>
+      <p>Да. В отличие от локальных переменных, методы можно вызывать «раньше», чем они объявлены в файле. Порядок методов в классе — дело вкуса. Обычно main ставят первым, а помощников — ниже.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Куда прыгает программа</h2>
+    <p>Программа выполняется инструкция за инструкцией — это ты знаешь. Вызов метода — это <b>прыжок</b>: Java ставит закладку «откуда я ушла», выполняет тело метода и возвращается к закладке. Пройди по шагам и следи за номером строки и за стопкой справа.</p>
+    <div data-widget="trace" id="trace-m07-01-jump">
+      <script type="application/json">
+      { "title": "Прыжки в метод и обратно",
+        "intro": "Справа — <b>стек</b>: стопка «рабочих столов» методов, которые сейчас выполняются. Верхний — тот, что работает прямо сейчас. Подробно про стек — в уроке 3, а пока просто смотри, как он растёт и уменьшается.",
+        "code": "public class Receipt {\n    public static void main(String[] args) {\n        printLine();\n        System.out.println(\"Чек №42\");\n        printLine();\n    }\n\n    static void printLine() {\n        System.out.println(\"----------\");\n    }\n}",
+        "steps": [
+          { "line": 2, "stack": [ { "frame": "main", "vars": {} } ], "note": "JVM запускает программу с метода <code>main</code>. На стеке появляется его рабочий стол." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "note": "Вызов <code>printLine()</code>. Java запоминает: «вернуться сюда, на строку 3» — и прыгает в метод." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": {} }, { "frame": "printLine", "vars": {} } ], "note": "Мы внутри <code>printLine</code>. Поверх main лёг новый рабочий стол. main при этом <b>ждёт</b>, а не исчезает." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "printLine", "vars": {} } ], "out": "----------\n", "note": "Тело метода: вызов println печатает линию." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": {} }, { "frame": "printLine", "vars": {} } ], "note": "Закрывающая скобка тела — метод закончился. Его стол убирают со стека, Java возвращается к закладке." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": {} } ], "out": "Чек №42\n", "note": "Снова в main — продолжаем со <b>следующей</b> строки после вызова." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": {} } ], "note": "Второй вызов того же метода. Закладка теперь — строка 5." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "printLine", "vars": {} } ], "out": "----------\n", "note": "Тот же код метода выполняется ещё раз. Написан один раз — работает сколько угодно." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": {} } ], "note": "Вернулись в main, и он тоже дошёл до конца. Стек опустел — программа завершилась." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Ты пользуешься методами с первого урока</h2>
+    <p>Сюрприз: методы ты вызываешь уже давно. Просто их объявил не ты, а авторы Java.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вызов</th><th>Что это</th></tr>
+        <tr><td><code>System.out.println("Hi")</code></td><td>вызов метода <code>println</code> с аргументом <code>"Hi"</code> — печатает строку</td></tr>
+        <tr><td><code>scanner.nextInt()</code></td><td>вызов метода <code>nextInt</code> у объекта <code>scanner</code> — читает число с клавиатуры и возвращает его</td></tr>
+        <tr><td><code>Math.max(3, 7)</code></td><td>вызов метода <code>max</code> с аргументами 3 и 7 — возвращает большее из двух</td></tr>
+        <tr><td><code>main</code></td><td>тоже метод! Его вызывает сама JVM при запуске</td></tr>
+      </table>
+    </div>
+    <p>Видишь общий узор? <b>Имя, а за ним круглые скобки</b>. Где скобки после имени — там вызов метода, а в скобках — <b>аргументы</b>, значения, которые методу передают. Точки перед именем (<code>System.out.</code>, <code>Math.</code>) — это «адрес», где метод живёт. Наши собственные методы лежат в том же классе, что и main, поэтому их зовём просто по имени.</p>
+    <div class="say" data-mood="wow"><p>Под одной строчкой <code>System.out.println</code> прячется целая цепочка методов: один вызывает другой, тот — третий… В уроке 3 мы заглянем туда и посчитаем, сколько их.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Наконец-то: <code>public static void main(String[] args)</code></h2>
+    <p>С модуля 1 ты писал эту строку как заклинание. Теперь ты знаешь, что такое метод, массив и тип, — и можешь прочитать её по словам.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Разбор заголовка метода main по словам">
+        <rect x="20" y="30" width="720" height="56" rx="12" class="d-code"/>
+        <text x="40" y="66" class="d-mono" style="font-size:20px">public  static  void  main  (String[] args)</text>
+        <path d="M78 90 V130" class="d-line"/>
+        <path d="M178 90 V130" class="d-line"/>
+        <path d="M262 90 V130" class="d-line"/>
+        <path d="M335 90 V130" class="d-line"/>
+        <path d="M500 90 V130" class="d-line"/>
+        <rect x="20" y="130" width="116" height="96" rx="12" class="d-blue"/>
+        <text x="78" y="156" text-anchor="middle" class="d-title">public</text>
+        <text x="78" y="180" text-anchor="middle" class="d-small">виден всем —</text>
+        <text x="78" y="198" text-anchor="middle" class="d-small">даже JVM</text>
+        <text x="78" y="216" text-anchor="middle" class="d-small">снаружи</text>
+        <rect x="146" y="130" width="70" height="96" rx="12" class="d-violet"/>
+        <text x="181" y="156" text-anchor="middle" class="d-title">static</text>
+        <text x="181" y="180" text-anchor="middle" class="d-small">без</text>
+        <text x="181" y="198" text-anchor="middle" class="d-small">объекта</text>
+        <rect x="226" y="130" width="76" height="96" rx="12" class="d-teal"/>
+        <text x="264" y="156" text-anchor="middle" class="d-title">void</text>
+        <text x="264" y="180" text-anchor="middle" class="d-small">ничего</text>
+        <text x="264" y="198" text-anchor="middle" class="d-small">не воз-</text>
+        <text x="264" y="216" text-anchor="middle" class="d-small">вращает</text>
+        <rect x="312" y="130" width="86" height="96" rx="12" class="d-yellow"/>
+        <text x="355" y="156" text-anchor="middle" class="d-title">main</text>
+        <text x="355" y="180" text-anchor="middle" class="d-small">имя, его</text>
+        <text x="355" y="198" text-anchor="middle" class="d-small">ищет JVM</text>
+        <rect x="408" y="130" width="332" height="96" rx="12" class="d-green"/>
+        <text x="574" y="156" text-anchor="middle" class="d-title">(String[] args) — параметр</text>
+        <text x="574" y="180" text-anchor="middle" class="d-small">массив строк с именем args:</text>
+        <text x="574" y="198" text-anchor="middle" class="d-small">слова, переданные программе при запуске</text>
+        <text x="574" y="216" text-anchor="middle" class="d-small">(обычно пустой)</text>
+      </svg>
+      <figcaption>Заголовок метода main: кто его видит, нужен ли объект, что возвращает, как зовут и что получает.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>public</dt><dd>«Публичный» — метод можно вызвать откуда угодно, в том числе снаружи класса. JVM запускает твою программу «снаружи», поэтому main обязан быть public. Для своих методов внутри одного класса мы пока пишем без него — подробно про <code>public</code> и его родственников будет в модуле 9.</dd>
+      <dt>static</dt><dd>«Статический» — метод принадлежит классу целиком, и для вызова не нужно создавать объект. Пока все наши методы будут static: объекты появятся в модуле 9, и там станет понятно, какие методы бывают без static.</dd>
+      <dt>void</dt><dd>«Пустота» — метод ничего не возвращает: просто делает дело. В следующем уроке напишем методы, которые возвращают результат — у них вместо void будет тип, например <code>int</code>.</dd>
+      <dt>main</dt><dd>Имя метода. Имя и параметры вместе называют <b>сигнатурой</b> метода. JVM ищет именно <code>main</code> с маленькой буквы — помнишь головоломку про <code>Main</code>?</dd>
+      <dt>String[] args</dt><dd><b>Параметр</b> — переменная, объявленная в скобках заголовка: то, что метод получает на вход. Тут это массив строк по имени <code>args</code> (от <i>arguments</i>). Массивы ты уже знаешь из модуля 6.</dd>
+    </dl>
+    <p>Что будет, если у своего метода забыть <code>static</code>? Самая частая ошибка новичка в этом модуле — IDEA сразу подчеркнёт вызов:</p>
+    <div data-widget="ide" id="shot-static-context">
+      <script type="application/json">
+      { "tree": false, "file": "Receipt.java", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class Receipt {\n    public static void main(String[] args) {\n        printLine();\n    }\n\n    void printLine() {\n        System.out.println(\"--------------------\");\n    }\n}",
+        "errors": [ { "line": 3, "text": "printLine", "msg": "Non-static method 'printLine()' cannot be referenced from a static context", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "left", "text": "Красным подчёркнут вызов в <code>main</code>" },
+                   { "n": 2, "target": "tip", "text": "<b>Non-static method … cannot be referenced from a static context</b> — «нестатический метод нельзя вызвать из статического места». <code>main</code> — static, а <code>printLine</code> — нет. У <code>javac</code> текст почти тот же: <code>non-static method printLine() cannot be referenced from a static context</code>" },
+                   { "n": 3, "target": "line-6", "text": "Причина — здесь: у метода нет слова <code>static</code>. Допиши <code>static void printLine()</code> — и ошибка исчезнет" } ],
+        "caption": "Забыли static — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Пока просто пиши <code>static</code> у каждого своего метода. Почему без него нельзя вызвать метод из <code>main</code> — станет понятно в модуле 9, когда появятся объекты.</p>
+    <p>Что лежит в <code>args</code>? Слова, которые передали программе при запуске. В IDEA их задают так: <b>Run → Edit Configurations… → Program arguments</b>. Попробуй:</p>
+<pre data-file="ArgsDemo.java"><code class="java">public class ArgsDemo {
+    public static void main(String[] args) {
+        System.out.println("Аргументов: " + args.length);
+        for (int i = 0; i &lt; args.length; i++) {
+            System.out.println(args[i]);
+        }
+    }
+}</code></pre>
+    <p>Если в Program arguments написать <code>кот 42</code>, программа выведет:</p>
+    <div data-widget="ide" id="shot-args-demo">
+      <script type="application/json">
+      { "tree": false, "file": "ArgsDemo.java", "runConfig": "ArgsDemo", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class ArgsDemo {\n    public static void main(String[] args) {\n        System.out.println(\"Аргументов: \" + args.length);\n        for (int i = 0; i < args.length; i++) {\n            System.out.println(args[i]);\n        }\n    }\n}",
+        "console": { "title": "ArgsDemo", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ArgsDemo кот 42" },
+          { "t": "out", "s": "Аргументов: 2" },
+          { "t": "out", "s": "кот" },
+          { "t": "out", "s": "42" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "config", "side": "left", "text": "Здесь, в списке рядом с ▶, — <b>Edit Configurations…</b>, а в нём поле <b>Program arguments</b>" },
+                   { "n": 2, "target": "cmd", "text": "В конце строки запуска, после имени класса, — аргументы <code>кот 42</code>: JVM передаст их в <code>args</code>" },
+                   { "n": 3, "target": "output", "text": "В массиве два элемента — по одному на каждое слово" } ],
+        "caption": "Запуск с аргументами «кот 42»" }
+      </script>
+    </div>
+    <p>А если ничего не писать — <code>Аргументов: 0</code>: JVM передаёт аргументом пустой массив. Поэтому обращение к <code>args[0]</code> без проверки закончится уже знакомым <code>ArrayIndexOutOfBoundsException</code>.</p>
+    <div class="callout fact">
+      <span class="callout-title">Где это пригодится</span>
+      <p>В рабочих программах параметры запуска — обычное дело: например, на каком языке показывать интерфейс или какой файл настроек прочитать. Механизм тот же — программе что-то передают снаружи при старте.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Собери программу с методом</h2>
+    <p>Строки программы перемешались. Метод <code>printStars</code> печатает пять звёздочек, а main вызывает его до и после приветствия.</p>
+    <div data-widget="parsons" id="parsons-m07-01" data-code data-title="Метод и его вызовы" data-icon="🧩"
+         data-hint="Сначала класс, внутри — main, после main — объявление метода. Отступы подскажут вложенность."
+         data-success="🎉 Верно! Методы лежат рядом внутри класса, а main нажимает кнопку printStars дважды.">
+      <script type="text/plain">
+public class Stars {
+    public static void main(String[] args) {
+        printStars();
+        System.out.println("Привет!");
+        printStars();
+    }
+    static void printStars() {
+        System.out.println("*****");
+    }
+}
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m07-01">
+      <script type="application/json">
+      {
+       "title": "Методы — первое знакомство",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "public class Order {\n    public static void main(String[] args) {\n        System.out.println(\"1\");\n        beep();\n        System.out.println(\"2\");\n        beep();\n    }\n\n    static void beep() {\n        System.out.println(\"бип\");\n    }\n}",
+         "answer": "1\nбип\n2\nбип",
+         "why": "Каждый вызов метода beep — прыжок в тело метода и возврат на следующую инструкцию main."
+        },
+        {
+         "type": "bug",
+         "q": "В какой строке ошибка компиляции?",
+         "code": "public class Demo {\n    public static void main(String[] args) {\n        static void hello() {\n            System.out.println(\"Hi\");\n        }\n        hello();\n    }\n}",
+         "answer": [
+          3
+         ],
+         "why": "Метод нельзя объявлять в теле другого метода. Объявление hello нужно вынести из main и положить рядом с ним, внутри класса."
+        },
+        {
+         "type": "match",
+         "q": "Соедини слово из заголовка main с его смыслом",
+         "left": [
+          "public",
+          "static",
+          "void",
+          "String[] args"
+         ],
+         "right": [
+          "метод виден всем, его может вызвать JVM",
+          "для вызова не нужен объект",
+          "метод ничего не возвращает",
+          "массив строк — аргументы запуска"
+         ],
+         "why": "Теперь заголовок main — не заклинание, а описание: кто видит, нужен ли объект, что возвращает, что получает."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Метод выполняется сразу, как только его объявили",
+           "a": false,
+           "why": "объявление метода — только рецепт. Тело выполняется при каждом вызове."
+          },
+          {
+           "s": "Метод можно написать ниже main, а вызвать из main",
+           "a": true
+          },
+          {
+           "s": "Один и тот же метод можно вызвать много раз",
+           "a": true
+          },
+          {
+           "s": "Вызов можно писать без скобок: printLine;",
+           "a": false,
+           "why": "без скобок это не вызов. Компилятор скажет not a statement."
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Программу запустили без аргументов. Что будет в args?",
+         "options": [
+          "null — массива нет",
+          "Пустой массив, args.length == 0",
+          "Массив из одной пустой строки"
+         ],
+         "answer": 1,
+         "why": "JVM всегда передаёт в параметр args массив. Без аргументов он просто пустой."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 7.1. Объясню своими словами, чем объявление метода отличается от вызова, а ты задай мне каверзный вопрос про public static void main»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Метод</b> — блок кода с именем. Объявляешь один раз — вызываешь сколько угодно.</li>
+        <li><b>Объявление метода</b>: заголовок <code>static void имя()</code> и <b>тело</b> <code>{ … }</code> — внутри класса, рядом с main, но не в его теле.</li>
+        <li><b>Вызов метода</b>: <code>имя();</code> — Java прыгает в метод, выполняет тело и возвращается к следующей инструкции.</li>
+        <li>Имя метода — глагол в camelCase: <code>printLine</code>, <code>showMenu</code>.</li>
+        <li><code>public</code> — виден всем, <code>static</code> — без объекта, <code>void</code> — ничего не возвращает, <code>String[] args</code> — параметр, массив аргументов запуска.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

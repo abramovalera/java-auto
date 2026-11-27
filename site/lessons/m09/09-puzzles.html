@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: классы и объекты · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 9 · Головоломки</div>
+    <h1>Головоломки: классы и объекты</h1>
+    <p class="lead">Ссылки, которые смотрят на одного кота, конструктор, который не конструктор, поле, которое загородили, и println, который не компилируется. Классика собеседований по ООП — думаем, не запуская.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>🧠 разбор по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Как решать задачки про объекты</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 130" role="img" aria-label="Четыре шага: найди все new, нарисуй стрелки, проверь имена и static, выполни по строкам">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="20" width="158" height="96" rx="14" class="d-blue"/>
+        <text x="89" y="52" text-anchor="middle" class="d-title">① 🔎 new</text>
+        <text x="89" y="78" text-anchor="middle" class="d-small">сколько объектов?</text>
+        <text x="89" y="96" text-anchor="middle" class="d-small">столько, сколько new</text>
+        <path d="M170 68 H190" class="d-arrow"/>
+        <rect x="194" y="20" width="158" height="96" rx="14" class="d-violet"/>
+        <text x="273" y="52" text-anchor="middle" class="d-title">② ➡️ стрелки</text>
+        <text x="273" y="78" text-anchor="middle" class="d-small">какая переменная</text>
+        <text x="273" y="96" text-anchor="middle" class="d-small">на какой объект</text>
+        <path d="M354 68 H374" class="d-arrow"/>
+        <rect x="378" y="20" width="158" height="96" rx="14" class="d-accent"/>
+        <text x="457" y="52" text-anchor="middle" class="d-title">③ 🏷️ имена</text>
+        <text x="457" y="78" text-anchor="middle" class="d-small">this? static? void?</text>
+        <text x="457" y="96" text-anchor="middle" class="d-small">private? затенение?</text>
+        <path d="M538 68 H558" class="d-arrow"/>
+        <rect x="562" y="20" width="148" height="96" rx="14" class="d-green"/>
+        <text x="636" y="52" text-anchor="middle" class="d-title">④ ▶ строки</text>
+        <text x="636" y="78" text-anchor="middle" class="d-small">выполни по одной,</text>
+        <text x="636" y="96" text-anchor="middle" class="d-small">меняя картинку</text>
+      </svg>
+      <figcaption>Почти все ловушки этого модуля ловятся одной картинкой: стек слева, куча справа, стрелки между ними.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Рисуй! Прямо на бумажке: переменные — коробочки слева, объекты — коробки справа, ссылки — стрелки. На собеседовании так делают даже опытные разработчики — и это засчитывается как плюс.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+    <p>Во всех задачках класс <code>Cat</code> такой: <code>class Cat { String name; Cat(String name) { this.name = name; } }</code>.</p>
+    <div data-widget="check" id="check-m09-pz-out">
+      <script type="application/json">
+      { "title": "Что выведется?", "icon": "🖨️",
+        "items": [
+          { "type": "predict", "q": "1. Две ссылки, потом новая",
+            "code": "Cat a = new Cat(\"Мурзик\");\nCat b = a;\nb.name = \"Барсик\";\na = new Cat(\"Пушок\");\nSystem.out.println(a.name + \" \" + b.name);",
+            "answer": "Пушок Барсик",
+            "why": "a и b смотрели на одного кота, через b его переименовали в Барсика. Потом переменной a присвоили ссылку на новый объект — Пушка, а b осталась на Барсике. Присваивание переменной не меняет объект — только стрелку." },
+          { "type": "predict", "q": "2. Счётчик посетителей",
+            "code": "class Visitor {\n    static int count;\n    int id;\n    Visitor() {\n        count++;\n        id = count;\n    }\n}\n\n// в main:\nVisitor v1 = new Visitor();\nVisitor v2 = new Visitor();\nVisitor v3 = v2;\nSystem.out.println(Visitor.count + \" \" + v3.id);",
+            "answer": "2 2",
+            "why": "new было только два — значит, и посетителей два, count = 2. v3 = v2 копирует ссылку, конструктор не вызывается. v3 смотрит на второго посетителя, его id = 2." },
+          { "type": "predict", "q": "3. Поле или локальная переменная?",
+            "code": "class Score {\n    int points = 10;\n    void add() {\n        int points = 5;\n        points += 1;\n    }\n}\n\n// в main:\nScore s = new Score();\ns.add();\nSystem.out.println(s.points);",
+            "answer": "10",
+            "why": "Внутри add объявлена своя локальная points — она затеняет поле. points += 1 меняет локальную (5 → 6), а она исчезает вместе с фреймом. Поле осталось 10. Чтобы изменить поле, нужно this.points += 1 и без объявления локальной." },
+          { "type": "predict", "q": "4. Конструктор, который не конструктор",
+            "code": "class Robot {\n    String name = \"R2\";\n    void Robot() {\n        name = \"C3PO\";\n    }\n}\n\n// в main:\nSystem.out.println(new Robot().name);",
+            "answer": "R2",
+            "why": "Из-за void это обычный метод с именем Robot, а не конструктор. При new вызывается невидимый конструктор по умолчанию, поле остаётся «R2». Метод Robot() никто не вызывал." },
+          { "type": "predict", "q": "5. == для объектов",
+            "code": "class Point {\n    int x, y;\n    Point(int x, int y) { this.x = x; this.y = y; }\n}\n\n// в main:\nPoint p1 = new Point(1, 2);\nPoint p2 = new Point(1, 2);\nPoint p3 = p1;\nSystem.out.println((p1 == p2) + \" \" + (p1 == p3));",
+            "answer": "false true",
+            "why": "== сравнивает ссылки. p1 и p2 — два разных объекта с одинаковыми полями, стрелки разные. p3 — копия ссылки p1. Сравнение «по содержимому» — equals, модуль 10." },
+          { "type": "predict", "q": "6. Кто первый: поле или конструктор?",
+            "code": "class Engine {\n    Engine() { System.out.println(\"Engine\"); }\n}\nclass Car {\n    Engine engine = new Engine();\n    Car() { System.out.println(\"Car\"); }\n}\n\n// в main:\nnew Car();",
+            "answer": "Engine\nCar",
+            "why": "Конвейер new: сначала инициализаторы полей (engine = new Engine() — печатает Engine), потом тело конструктора Car." },
+          { "type": "predict", "q": "7. Цепочка конструкторов",
+            "code": "class Lamp {\n    Lamp() {\n        this(\"белый\");\n        System.out.println(\"1\");\n    }\n    Lamp(String color) {\n        System.out.println(\"2 \" + color);\n    }\n}\n\n// в main:\nnew Lamp();",
+            "answer": "2 белый\n1",
+            "why": "Lamp() первой строкой передаёт управление Lamp(String). Тот печатает «2 белый», возвращается — и только потом Lamp() печатает «1». Стек вызовов, только для конструкторов." },
+          { "type": "predict", "q": "8. Объект в методе (вспомни модуль 7)",
+            "code": "static void rename(Cat c) {\n    c.name = \"Тигр\";\n    c = new Cat(\"Лев\");\n}\n\n// в main:\nCat cat = new Cat(\"Мурзик\");\nrename(cat);\nSystem.out.println(cat.name);",
+            "answer": "Тигр",
+            "why": "В метод приходит копия ссылки. Через неё переименовали того же кота — это видно снаружи. Потом копию c перенаправили на нового Льва, но переменная cat в main об этом не знает." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбор задачки 1 по шагам</h2>
+    <p>Самая коварная — первая: кажется, что раз <code>b = a</code>, то b «следует» за a всегда. Пройди медленно:</p>
+    <div data-widget="trace" id="trace-m09-pz-refs">
+      <script type="application/json">
+      { "title": "Две ссылки, потом новая", "kind": "Разбор по шагам",
+        "intro": "Присваивание переменной меняет только её стрелку. Объекты при этом не трогаются.",
+        "code": "Cat a = new Cat(\"Мурзик\");\nCat b = a;\nb.name = \"Барсик\";\na = new Cat(\"Пушок\");\nSystem.out.println(a.name + \" \" + b.name);",
+        "steps": [
+          { "line": 1, "stack": [ { "frame": "main", "vars": { "a": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"" } } ], "note": "Один new — один объект: создаём #1, переменная a инициализируется ссылкой на него." },
+          { "line": 2, "stack": [ { "frame": "main", "vars": { "a": "→#1", "b": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"" } } ], "note": "b инициализируется копией ссылки: две стрелки на один объект." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "a": "→#1", "b": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Барсик\"" } } ], "note": "Через b присваиваем новое значение полю name объекта #1. Теперь и a.name — «Барсик»." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "a": "→#2", "b": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Барсик\"" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Пушок\"" } } ], "note": "Создан новый объект #2, переменной a присвоена ссылка на него — стрелка переехала. Стрелка b никуда не делась — она по-прежнему на #1." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "a": "→#2", "b": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Барсик\"" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Пушок\"" } } ], "out": "Пушок Барсик\n", "note": "a.name — Пушок, b.name — Барсик." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Скомпилируется? Что при запуске?</h2>
+    <div data-widget="check" id="check-m09-pz-compile">
+      <script type="application/json">
+      { "title": "Скомпилируется? Упадёт?", "icon": "🕵️",
+        "items": [
+          { "type": "single", "q": "9. Скомпилируется?",
+            "code": "class Safe {\n    private int code = 1234;\n}\n\npublic class Thief {\n    public static void main(String[] args) {\n        Safe s = new Safe();\n        System.out.println(s.code);\n    }\n}",
+            "options": ["Да, напечатает 1234", "Нет: code has private access in Safe", "Скомпилируется, но упадёт при запуске"], "answer": 1,
+            "why": "private — только внутри класса Safe. Даже из соседнего класса в том же файле к полю не обратиться. Нужен метод-геттер." },
+          { "type": "single", "q": "10. Скомпилируется?",
+            "code": "class Player {\n    String nick;\n    static void hello() {\n        System.out.println(\"Привет, \" + nick);\n    }\n}",
+            "options": ["Да", "Нет: non-static variable nick cannot be referenced from a static context"], "answer": 1,
+            "why": "У static-метода нет this: непонятно, чей nick. Либо убрать static у метода, либо передать игрока параметром." },
+          { "type": "single", "q": "11. Скомпилируется? Что при запуске?",
+            "code": "Cat[] cats = new Cat[3];\ncats[0].name = \"Мурзик\";\nSystem.out.println(cats[0].name);",
+            "options": ["Напечатает Мурзик", "Ошибка компиляции", "Скомпилируется, но упадёт с NullPointerException"], "answer": 2,
+            "why": "new Cat[3] создаёт массив из трёх ссылок, и все они null (модуль 6: значения по умолчанию). Объектов Cat ещё нет! Нужно сначала создать объект: cats[0] = new Cat(\"Мурзик\")." },
+          { "type": "single", "q": "12. Скомпилируется?",
+            "code": "System.out.println(null);",
+            "options": ["Да, напечатает null", "Да, напечатает пустую строку", "Нет: reference to println is ambiguous"], "answer": 2,
+            "why": "null подходит и к println(char[]), и к println(String) — компилятор не может выбрать. А String s = null; System.out.println(s); работает и печатает null." },
+          { "type": "bug", "q": "13. Найди все строки, которые не скомпилируются",
+            "code": "record Book(String title, int pages) { }\n\n// в main:\nBook b = new Book(\"Java\", 500);\nSystem.out.println(b.title());\nSystem.out.println(b.getPages());\nb.pages = 600;",
+            "answer": [6, 7],
+            "why": "У record методы доступа без get: pages(), а не getPages(). И поля record — final: присвоить новое значение нельзя." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Под капотом: порядок вызовов и stack trace</h2>
+    <div data-widget="check" id="check-m09-pz-hood">
+      <script type="application/json">
+      { "title": "Под капотом", "icon": "🔬",
+        "items": [
+          { "type": "order", "q": "14. Программа упала. Расставь методы в порядке, в котором их <b>вызывали</b> (первый вызванный — сверху)",
+            "code": true,
+            "lines": ["Kitchen.main", "Chef.cook", "Oven.bake", "Thermometer.read"],
+            "why": "Stack trace был такой: at Thermometer.read / at Oven.bake / at Chef.cook / at Kitchen.main. Порядок вызовов — снизу вверх. Последним вызван тот, кто наверху: там и авария." },
+          { "type": "single", "q": "15. Где в этом stack trace твоя ошибка?",
+            "code": "Exception in thread \"main\" java.lang.NullPointerException:\nCannot invoke \"String.length()\" because \"this.name\" is null\n\tat Pet.toString(Clinic.java:14)\n\tat java.base/java.lang.String.valueOf(String.java:4454)\n\tat java.base/java.io.PrintStream.println(PrintStream.java:1187)\n\tat Clinic.main(Clinic.java:6)",
+            "options": ["В PrintStream.println — JDK сломался", "В Pet.toString, строка 14: поле name у питомца null", "В String.valueOf"], "answer": 1,
+            "why": "Строки с java.base/ — код JDK, он почти никогда не виноват. Первая сверху строка своего кода — Pet.toString. В нём name.length(), а name == null: питомца создали без имени (может, конструктор забыл this.name = name?)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Последний тренажёр модуля: читаем строки вслух правильными словами — объявление класса, поле, конструктор, создание объекта, ссылка, вызов метода у объекта, static. Класс <code>Cat</code> — как в уроках модуля: поля <code>name</code> и <code>age</code>, конструктор <code>Cat(String name, int age)</code>, методы <code>describe()</code> и <code>feed(double grams)</code>, статическое поле <code>count</code>.</p>
+    <div data-widget="check" id="check-m09-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 9", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке?", "code": "Cat barsik = new Cat(\"Барсик\", 5);",
+            "options": ["Объявление класса <code>Cat</code> с полем <code>barsik</code>", "Вызов метода <code>Cat</code> у объекта <code>barsik</code> с двумя аргументами", "Создание объекта класса <code>Cat</code> с вызовом конструктора; ссылкой на него инициализируется <code>barsik</code>", "Присваивание строки <code>\"Барсик\"</code> переменной <code>barsik</code>", "Копирование уже существующего кота в переменную <code>barsik</code>"],
+            "answer": 2, "why": "Слева — объявление переменной <code>barsik</code> типа <code>Cat</code>. Справа оператор <code>new</code> создаёт объект (экземпляр) и вызывает конструктор с аргументами <code>\"Барсик\"</code> и <code>5</code>. В переменной хранится ссылка на объект, а не сам кот." },
+          { "type": "single", "q": "Строка стоит в конструкторе <code>Cat(String name, int age)</code>. Что она делает?", "code": "this.name = name;",
+            "options": ["Объявляет новое поле <code>name</code>", "Параметру <code>name</code> присваивается значение поля", "Вызывает конструктор с аргументом <code>name</code>", "Полю <code>name</code> текущего объекта присваивается значение параметра <code>name</code>", "Создаёт новый объект и записывает в него имя"],
+            "answer": 3, "why": "<code>this.name</code> — поле объекта, который сейчас создаётся, а просто <code>name</code> — параметр конструктора (он затеняет поле). Значение справа от <code>=</code> присваивается тому, что слева." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "murzik.describe();",
+            "options": ["Объявление метода <code>describe</code>", "Создание объекта <code>describe</code>", "Обращение к полю <code>describe</code> объекта <code>murzik</code>", "Вызов статического метода <code>describe</code> класса <code>murzik</code>", "Вызов метода <code>describe</code> у объекта, на который ссылается <code>murzik</code>"],
+            "answer": 4, "why": "Слева от точки — переменная со ссылкой на объект, справа — имя метода и скобки. Это вызов метода у объекта; внутри метода <code>this</code> указывает туда же, куда <code>murzik</code>. У поля скобок нет, а static-методы вызывают через имя класса." },
+          { "type": "single", "q": "Переменная <code>murzik</code> уже ссылается на кота. Что делает строка?", "code": "Cat same = murzik;",
+            "options": ["Объявляет <code>same</code> типа <code>Cat</code> и инициализирует её копией ссылки из <code>murzik</code>: объект остаётся один", "Создаёт новый объект класса <code>Cat</code> — точную копию того, на который ссылается <code>murzik</code>", "Сравнивает ссылки <code>same</code> и <code>murzik</code>", "Вызывает конструктор без аргументов", "Объявляет класс <code>same</code>"],
+            "answer": 0, "why": "<code>new</code> нет — значит, нового объекта нет. Копируется только ссылка: <code>same</code> и <code>murzik</code> теперь указывают на один объект. Сравнение ссылок — это <code>==</code>." },
+          { "type": "single", "q": "Поле объявлено как <code>static int count</code>. Что происходит в строке?", "code": "int total = Cat.count;",
+            "options": ["Чтение поля <code>count</code> у конкретного кота", "Объявляем <code>total</code> и инициализируем значением статического поля <code>count</code> класса <code>Cat</code>", "Вызов метода <code>count</code> у объекта <code>Cat</code>", "Создание объекта <code>Cat</code> и чтение его поля", "Объявление статического поля <code>total</code>"],
+            "answer": 1, "why": "Слева от точки — имя класса, а <code>count</code> — static-поле: оно одно на весь класс, объект для обращения не нужен. Скобок нет — значит, это поле, а не вызов метода." },
+          { "type": "build", "q": "Собери описание строки", "code": "Cat murzik = new Cat(\"Мурзик\", 3);",
+            "answer": ["объявляем переменную <code>murzik</code> типа <code>Cat</code>", "и инициализируем её ссылкой", "на новый объект класса <code>Cat</code>,", "созданный вызовом конструктора с аргументами <code>\"Мурзик\"</code> и <code>3</code>"],
+            "extra": ["вызываем метод <code>Cat</code>", "объявляем класс <code>murzik</code>", "копируем существующий объект"] },
+          { "type": "build", "q": "Собери описание строки", "code": "murzik.feed(50);",
+            "answer": ["вызываем метод <code>feed</code>", "у объекта <code>murzik</code>", "и передаём ему аргумент <code>50</code>"],
+            "extra": ["создаём объект <code>feed</code>", "у класса <code>Cat</code> как static-метод", "метод возвращает <code>50</code>"] },
+          { "type": "single", "q": "В какой строке вызывается конструктор?", "code": "Cat a;\na = new Cat(\"Пушок\", 1);\nCat b = a;\nb.describe();\nString s = a.toString();",
+            "options": ["В строке 1", "В строке 2", "В строке 3", "В строке 4", "В строке 5"],
+            "answer": 1, "why": "Строка 1 — только объявление переменной. В строке 2 оператор <code>new</code> создаёт объект и вызывает конструктор, ссылка присваивается <code>a</code>. Строка 3 копирует ссылку, строки 4 и 5 — вызовы методов у объекта; <code>toString()</code> возвращает строку, ею инициализируется <code>s</code>." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Хочешь ещё?</h2>
+    <div class="callout ai">
+      <span class="callout-title">Головоломки от наставника</span>
+      <p>Напиши: <em>«Дай мне 3 головоломки по модулю 9 на ссылки, static и конструкторы — по одной, ответ не говори, пока я не нарисую стек и кучу и не объясню»</em>. На экзамене модуля они тоже будут.</p>
+    </div>
+    <div class="summary">
+      <h2>Главные ловушки модуля</h2>
+      <ul>
+        <li>Объектов столько, сколько <code>new</code>. <code>b = a</code> копирует стрелку, а не объект; <code>==</code> сравнивает стрелки.</li>
+        <li>Затенение: локальная переменная или параметр с именем поля загораживают поле — нужен <code>this.</code>.</li>
+        <li><code>void</code> перед «конструктором» превращает его в обычный метод.</li>
+        <li>static — один на класс; в static-методе нет this.</li>
+        <li><code>new Cat[3]</code> — три null, а не три кота. По null — NullPointerException.</li>
+        <li>В stack trace ищи первую сверху строку своего кода; <code>java.base/</code> — JDK.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

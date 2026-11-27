@@ -1,0 +1,41 @@
+## id: tr-arrays-001
+## title: Шагомер: сколько всего
+## file: trainer/arrays/TotalStepsForWeek.java
+## class: TotalStepsForWeek
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>TotalStepsForWeek</code>. Шагомер записывал, сколько шагов ты прошёл за каждый день. Программа читает через <code>Scanner</code>: в первой строке — количество дней <code>n</code>, во второй — <code>n</code> целых чисел через пробел. Сохрани числа в массив и напечатай их сумму в формате <code>Всего шагов: X</code>.</p>
+<p>Если дней нет (<code>n = 0</code>), сумма равна 0.</p>
+<pre class="terminal"><span class="out">ввод:  7
+       5000 7200 3100 9000 4000 12000 6500
+вывод: Всего шагов: 46800</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int[] a = new int[n];</code> — создаёт массив из <code>n</code> элементов, все равны 0</li>
+<li><code>for (int i = 0; i &lt; n; i++) { a[i] = scanner.nextInt(); }</code> — читает <code>n</code> чисел в массив</li>
+<li><code>total += x;</code> — составное присваивание: прибавляет <code>x</code> к накопителю <code>total</code></li>
+</ul></div>
+@@ test: Неделя
+@@ input
+7
+5000 7200 3100 9000 4000 12000 6500
+@@ expect
+Всего шагов: 46800
+@@ test: Один день
+@@ input
+1
+8000
+@@ expect
+Всего шагов: 8000
+@@ test: Нет дней
+@@ input
+0
+@@ expect
+Всего шагов: 0
+@@ test: Нулевые дни
+@@ input
+3
+0 0 1500
+@@ expect
+Всего шагов: 1500
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

@@ -1,0 +1,42 @@
+## id: tr-cond-021
+## title: Обмен валюты
+## file: trainer/cond/CurrencyByCodeConverter.java
+## class: CurrencyByCodeConverter
+## level: 1
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>CurrencyByCodeConverter</code>. Обменник принимает три валюты по курсу: <code>USD</code> — 90 ₽, <code>EUR</code> — 100 ₽, <code>CNY</code> — 12 ₽. Программа читает одну строку: сумму (целое число) и код валюты через пробел. Напечатай, сколько это рублей: <code>N ₽</code>. Если код другой — <code>Неизвестная валюта: …</code> и сам код.</p>
+<pre class="terminal"><span class="out">ввод:  10 USD
+вывод: 900 ₽
+
+ввод:  20 usd
+вывод: Неизвестная валюта: usd</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next()</code> — читает одно слово (до пробела или конца строки)</li>
+<li><code>switch</code> по строке: <code>case "USD" -> …</code></li>
+</ul></div>
+@@ test: Доллары
+@@ input
+10 USD
+@@ expect
+900 ₽
+@@ test: Евро
+@@ input
+5 EUR
+@@ expect
+500 ₽
+@@ test: Юани
+@@ input
+100 CNY
+@@ expect
+1200 ₽
+@@ test: Ноль долларов
+@@ input
+0 USD
+@@ expect
+0 ₽
+@@ test: Код маленькими буквами
+@@ input
+20 usd
+@@ expect
+Неизвестная валюта: usd

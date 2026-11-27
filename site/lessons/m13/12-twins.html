@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Сравниваем близнецов: какой класс выбрать · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-12">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 13 · Урок 9</div>
+    <h1>Сравниваем близнецов: какой класс выбрать</h1>
+    <p class="lead">ArrayList и LinkedList, HashSet и TreeSet, HashMap и LinkedHashMap — снаружи одинаковые методы, внутри совсем разное устройство. Разбираемся, чем они отличаются, почему это важно и как ответить на самый частый вопрос собеседования про коллекции.</p>
+    <div class="meta"><span>⏱ 35 минут</span><span>⚖️ сравнение реализаций</span><span>⏱ скорость O(…)</span><span>🎤 вопросы собеседований</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Близнецы: одна семья — разное устройство</h2>
+    <p>Ты уже знаешь интерфейсы <code>List</code>, <code>Set</code>, <code>Map</code> и <code>Deque</code>. У каждого несколько <b>реализаций</b> — классов, которые выполняют один и тот же контракт. Методы у них одинаковые: <code>add</code>, <code>contains</code>, <code>get</code>. А внутри они устроены по-разному — поэтому одна быстрее в одном, другая в другом, и хранят элементы в разном порядке.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Интерфейс</th><th>Близнецы</th><th>Чем отличаются</th></tr>
+        <tr><td><code>List</code></td><td><code>ArrayList</code> · <code>LinkedList</code></td><td>массив внутри или цепочка узлов</td></tr>
+        <tr><td><code>Set</code></td><td><code>HashSet</code> · <code>LinkedHashSet</code> · <code>TreeSet</code></td><td>порядок: никакой · как добавляли · отсортировано</td></tr>
+        <tr><td><code>Map</code></td><td><code>HashMap</code> · <code>LinkedHashMap</code> · <code>TreeMap</code></td><td>тот же порядок, что у Set, — но по ключам</td></tr>
+        <tr><td><code>Deque</code> / стек</td><td><code>ArrayDeque</code> · <code>LinkedList</code> · старый <code>Stack</code></td><td>скорость и наследство старой Java</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="happy"><p>Правило запоминания для Set и Map: <b>Hash</b> — быстро и без порядка, <b>LinkedHash</b> — помнит порядок добавления, <b>Tree</b> — всегда отсортировано. Всю семью целиком смотри на <a href="/lessons/m13/09-choose-collection.html#collections-map">карте коллекций</a>.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>ArrayList против LinkedList: как они устроены</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 250" role="img" aria-label="ArrayList — ячейки массива подряд с номерами; LinkedList — узлы, связанные стрелками в обе стороны">
+        <text x="20" y="28" class="d-title">ArrayList — массив внутри</text>
+        <g class="d-mono-ink">
+          <rect x="20" y="44" width="80" height="44" rx="6" class="d-blue"/><text x="60" y="72" text-anchor="middle">"А"</text>
+          <rect x="100" y="44" width="80" height="44" rx="6" class="d-blue"/><text x="140" y="72" text-anchor="middle">"Б"</text>
+          <rect x="180" y="44" width="80" height="44" rx="6" class="d-blue"/><text x="220" y="72" text-anchor="middle">"В"</text>
+          <rect x="260" y="44" width="80" height="44" rx="6" class="d-blue"/><text x="300" y="72" text-anchor="middle">"Г"</text>
+          <rect x="340" y="44" width="80" height="44" rx="6" class="d-box"/><text x="380" y="72" text-anchor="middle">запас</text>
+        </g>
+        <text x="60" y="106" text-anchor="middle" class="d-small">[0]</text><text x="140" y="106" text-anchor="middle" class="d-small">[1]</text><text x="220" y="106" text-anchor="middle" class="d-small">[2]</text><text x="300" y="106" text-anchor="middle" class="d-small">[3]</text>
+        <text x="450" y="64" class="d-small">get(2) — сразу в ячейку [2]: мгновенно</text>
+        <text x="450" y="84" class="d-small">add(0, x) — сдвинуть ВСЕ вправо: медленно</text>
+
+        <text x="20" y="150" class="d-title">LinkedList — цепочка узлов</text>
+        <g class="d-mono-ink">
+          <rect x="20" y="166" width="90" height="44" rx="10" class="d-green"/><text x="65" y="194" text-anchor="middle">"А"</text>
+          <rect x="160" y="166" width="90" height="44" rx="10" class="d-green"/><text x="205" y="194" text-anchor="middle">"Б"</text>
+          <rect x="300" y="166" width="90" height="44" rx="10" class="d-green"/><text x="345" y="194" text-anchor="middle">"В"</text>
+          <rect x="440" y="166" width="90" height="44" rx="10" class="d-green"/><text x="485" y="194" text-anchor="middle">"Г"</text>
+        </g>
+        <path d="M112 182 H156 M158 194 H114 M252 182 H296 M298 194 H254 M392 182 H436 M438 194 H394" class="d-line"/>
+        <text x="20" y="236" class="d-small">каждый узел знает соседей · addFirst(x) — новый узел и две стрелки: мгновенно · get(2) — идти по стрелкам от края: медленно</text>
+      </svg>
+      <figcaption>Снаружи оба — List с одинаковыми методами, внутри — массив и цепочка</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что делаем</th><th><code>ArrayList</code></th><th><code>LinkedList</code></th></tr>
+        <tr><td>вызываем <code>get(i)</code> — берём элемент по индексу</td><td>✅ мгновенно — O(1)</td><td>🐢 медленно — O(n): идёт по цепочке</td></tr>
+        <tr><td>добавляем в конец — <code>add(x)</code></td><td>✅ быстро (иногда массив расширяется)</td><td>✅ мгновенно</td></tr>
+        <tr><td>добавляем в начало — <code>add(0, x)</code></td><td>🐢 медленно — сдвигает все элементы</td><td>✅ мгновенно — O(1)</td></tr>
+        <tr><td>ищем — <code>contains(x)</code></td><td>🐢 O(n) — перебирает всех</td><td>🐢 O(n) — тоже перебирает</td></tr>
+        <tr><td>память</td><td>меньше</td><td>больше: каждый узел хранит ещё две ссылки</td></tr>
+      </table>
+    </div>
+    <p>Проверь сам. Создай в <code>training</code> класс <code>TwinsSpeed</code>, запусти и посмотри на числа:</p>
+<pre class="code" data-file="TwinsSpeed.java"><code>import java.util.*;
+
+public class TwinsSpeed {
+    public static void main(String[] args) {
+        List&lt;Integer&gt; array = new ArrayList&lt;&gt;();
+        List&lt;Integer&gt; linked = new LinkedList&lt;&gt;();
+        int n = 100_000;
+
+        long t0 = System.nanoTime();
+        for (int i = 0; i &lt; n; i++) array.add(0, i);
+        long t1 = System.nanoTime();
+        for (int i = 0; i &lt; n; i++) linked.add(0, i);
+        long t2 = System.nanoTime();
+        System.out.println("add(0): ArrayList "
+                + (t1 - t0) / 1_000_000 + " мс, LinkedList "
+                + (t2 - t1) / 1_000_000 + " мс");
+
+        long sum = 0;
+        t0 = System.nanoTime();
+        for (int i = 0; i &lt; 20_000; i++) sum += array.get(i * 4);
+        t1 = System.nanoTime();
+        for (int i = 0; i &lt; 20_000; i++) sum += linked.get(i * 4);
+        t2 = System.nanoTime();
+        System.out.println("get(i): ArrayList "
+                + (t1 - t0) / 1_000_000 + " мс, LinkedList "
+                + (t2 - t1) / 1_000_000 + " мс");
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">add(0): ArrayList 371 мс, LinkedList 4 мс
+get(i): ArrayList 0 мс, LinkedList 876 мс</span></pre>
+    <p>У тебя числа будут другими, но разница — в десятки и сотни раз, и в разные стороны. Читаем код: <code>System.nanoTime()</code> — <b>вызываем статический метод</b>, он <b>возвращает</b> текущее время в наносекундах; разница двух замеров, делённая на миллион, — миллисекунды.</p>
+    <div class="callout fact">
+      <span class="callout-title">Что выбрать на практике</span>
+      <p><b>ArrayList — почти всегда.</b> Мы чаще читаем элементы по индексу и перебираем список, чем вставляем в начало. Для очереди и стека есть <code>ArrayDeque</code> — он быстрее LinkedList. Так что LinkedList в живом коде встречается редко, но на собеседовании про него спросят обязательно.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Скорость словами и буквой O</h2>
+    <p>На собеседовании скорость называют <b>«О большое»</b> — как растёт время работы, когда элементов становится больше. Три значения, которых хватит:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">⚡</span><h4>O(1) — мгновенно</h4><p>Время не зависит от размера. Как открыть квартиру по номеру: 10 квартир в доме или 1000 — один шаг. <code>get(i)</code> у ArrayList, <code>contains</code> у HashSet.</p></div>
+      <div class="card"><span class="emoji">🎯</span><h4>O(log n) — быстро</h4><p>Каждый шаг отбрасывает половину. Как угадать число от 1 до 1000 за 10 вопросов «больше или меньше». TreeSet, TreeMap.</p></div>
+      <div class="card"><span class="emoji">🐢</span><h4>O(n) — медленно на больших данных</h4><p>Время растёт вместе с размером: в 10 раз больше элементов — в 10 раз дольше. Как искать человека, обходя все квартиры. <code>contains</code> у List.</p></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Частая ловушка</span>
+      <p><code>list.contains(x)</code> в цикле по большому списку — медленно: O(n) внутри цикла. Если нужно много раз проверять «есть ли такой» — сначала положи элементы в <code>HashSet</code>, там <code>contains</code> мгновенный.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Три Set на одних данных</h2>
+    <p>Объявим три множества и инициализируем каждое одним и тем же списком — с повтором числа 7:</p>
+<pre class="code" data-file="Playground.java · внутри main"><code>List&lt;Integer&gt; nums = List.of(42, 7, 19, 7, 3, 25);
+System.out.println(new HashSet&lt;&gt;(nums));
+System.out.println(new LinkedHashSet&lt;&gt;(nums));
+System.out.println(new TreeSet&lt;&gt;(nums));</code></pre>
+    <p>Читаем вторую строку: <b>создаём объект</b> <code>HashSet</code>, <b>передавая конструктору</b> список <code>nums</code>, — и сразу передаём этот объект как аргумент в <code>println</code>.</p>
+<pre class="terminal"><span class="out">[19, 3, 7, 25, 42]
+[42, 7, 19, 3, 25]
+[3, 7, 19, 25, 42]</span></pre>
+    <ul>
+      <li>Во всех трёх повтор <code>7</code> исчез — это же множества.</li>
+      <li><b>HashSet</b> — порядок «случайный»: он зависит от <code>hashCode</code> и размера внутренней таблицы. Полагаться на него нельзя.</li>
+      <li><b>LinkedHashSet</b> — ровно как добавляли.</li>
+      <li><b>TreeSet</b> — по возрастанию. Для строк — по алфавиту.</li>
+    </ul>
+    <p>Со строками то же самое: <code>List.of("груша", "яблоко", "банан", "яблоко", "вишня")</code> даст</p>
+<pre class="terminal"><span class="out">[банан, груша, яблоко, вишня]
+[груша, яблоко, банан, вишня]
+[банан, вишня, груша, яблоко]</span></pre>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Три Map на одних данных</h2>
+<pre class="code" data-file="Playground.java · внутри main"><code>Map&lt;String, Integer&gt; ages = new HashMap&lt;&gt;(); // потом — Linked, Tree
+ages.put("Оля", 25);
+ages.put("Артём", 19);
+ages.put("Ваня", 31);
+ages.put("Белла", 22);
+System.out.println(ages);</code></pre>
+    <p>Читаем: объявляем переменную <code>ages</code> типа <code>Map&lt;String, Integer&gt;</code> и инициализируем новым объектом <code>HashMap</code>; потом четыре раза вызываем метод <code>put</code> и передаём ключ и значение. Замени <code>HashMap</code> на <code>LinkedHashMap</code> и на <code>TreeMap</code> — получишь:</p>
+<pre class="terminal"><span class="out">HashMap:       {Артём=19, Ваня=31, Белла=22, Оля=25}
+LinkedHashMap: {Оля=25, Артём=19, Ваня=31, Белла=22}
+TreeMap:       {Артём=19, Белла=22, Ваня=31, Оля=25}</span></pre>
+    <p>Правило то же, что у Set, только про <b>ключи</b>: HashMap — без порядка, LinkedHashMap — как добавляли, TreeMap — ключи по алфавиту.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Очередь и стек: ArrayDeque, PriorityQueue и старый Stack</h2>
+<pre class="code" data-file="Playground.java · внутри main"><code>Deque&lt;String&gt; stack = new ArrayDeque&lt;&gt;();
+stack.push("a");
+stack.push("b");
+stack.push("c");
+System.out.println(stack + " pop=" + stack.pop());
+
+Queue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(List.of(5, 1, 4, 2, 3));
+System.out.println(pq + " poll=" + pq.poll() + " " + pq);</code></pre>
+<pre class="terminal"><span class="out">[c, b, a] pop=c
+[1, 2, 4, 5, 3] poll=1 [2, 3, 4, 5]</span></pre>
+    <ul>
+      <li><code>ArrayDeque</code> как стек: <code>push</code> кладёт наверх, <code>pop</code> снимает верхний — последним пришёл, первым ушёл.</li>
+      <li><code>PriorityQueue</code>: <code>poll()</code> всегда возвращает минимум. Но <b>печать всей очереди не отсортирована</b> — <code>[1, 2, 4, 5, 3]</code>. По порядку элементы выходят только через <code>poll()</code>. Любимая ловушка собеседований.</li>
+      <li>Класс <code>Stack</code> тоже умеет <code>push</code>/<code>pop</code>, но он устарел — об этом в следующем шаге.</li>
+    </ul>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Устаревшие: Vector, Stack, Hashtable</h2>
+    <p>Эти классы появились в самой первой Java (1996), ещё до Collection Framework. Их не удалили, чтобы старые программы продолжали работать. Ты встретишь их в старом коде и на собеседовании — но в новом коде не бери.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Устаревший</th><th>Почему не стоит</th><th>Что взять вместо</th></tr>
+        <tr><td><code>Vector</code></td><td>каждый метод синхронизирован для потоков — медленнее даже в обычной программе</td><td><code>ArrayList</code></td></tr>
+        <tr><td><code>Stack</code></td><td>наследует Vector: медленный и умеет лишнее (вставку в середину стека)</td><td><code>ArrayDeque</code> через интерфейс <code>Deque</code></td></tr>
+        <tr><td><code>Hashtable</code></td><td>синхронизирован, не пускает <code>null</code> ни в ключ, ни в значение</td><td><code>HashMap</code>; для нескольких потоков — <code>ConcurrentHashMap</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Сводная таблица</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Класс</th><th>Порядок</th><th>Дубликаты</th><th><code>null</code></th><th>Доступ / поиск</th><th>Добавить</th></tr>
+        <tr><td><code>ArrayList</code> 🔥</td><td>как добавляли</td><td>да</td><td>да</td><td><code>get(i)</code> O(1), <code>contains</code> O(n)</td><td>в конец O(1), в начало O(n)</td></tr>
+        <tr><td><code>LinkedList</code></td><td>как добавляли</td><td>да</td><td>да</td><td><code>get(i)</code> O(n), <code>contains</code> O(n)</td><td>с краёв O(1)</td></tr>
+        <tr><td><code>HashSet</code> 🔥</td><td>нет</td><td>нет</td><td>один</td><td><code>contains</code> O(1)</td><td>O(1)</td></tr>
+        <tr><td><code>LinkedHashSet</code></td><td>как добавляли</td><td>нет</td><td>один</td><td><code>contains</code> O(1)</td><td>O(1)</td></tr>
+        <tr><td><code>TreeSet</code></td><td>отсортировано</td><td>нет</td><td>нет</td><td><code>contains</code> O(log n)</td><td>O(log n)</td></tr>
+        <tr><td><code>HashMap</code> 🔥</td><td>нет</td><td>ключи — нет</td><td>один ключ</td><td><code>get(k)</code> O(1)</td><td><code>put</code> O(1)</td></tr>
+        <tr><td><code>LinkedHashMap</code></td><td>как добавляли</td><td>ключи — нет</td><td>один ключ</td><td><code>get(k)</code> O(1)</td><td><code>put</code> O(1)</td></tr>
+        <tr><td><code>TreeMap</code></td><td>по ключу</td><td>ключи — нет</td><td>ключ — нет</td><td><code>get(k)</code> O(log n)</td><td><code>put</code> O(log n)</td></tr>
+        <tr><td><code>ArrayDeque</code> 🔥</td><td>очередь / стек</td><td>да</td><td>нет</td><td>края O(1)</td><td>с краёв O(1)</td></tr>
+        <tr><td><code>PriorityQueue</code></td><td>голова — минимум</td><td>да</td><td>нет</td><td><code>peek</code> O(1)</td><td>O(log n)</td></tr>
+      </table>
+    </div>
+    <p class="muted">🔥 — используют постоянно.</p>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Как ответить на собеседовании</h2>
+    <p>Сначала ответь вслух сам, потом открой.</p>
+    <details class="cheat-qa"><summary>Чем ArrayList отличается от LinkedList?</summary><p>ArrayList хранит элементы в массиве: доступ по индексу мгновенный (O(1)), но вставка и удаление в начале или середине медленные — приходится сдвигать элементы. LinkedList — цепочка узлов: вставка и удаление с краёв мгновенные, а доступ по индексу медленный (O(n)), и памяти он занимает больше. На практике почти всегда берут ArrayList.</p></details>
+    <details class="cheat-qa"><summary>HashSet, LinkedHashSet и TreeSet — в чём разница?</summary><p>Все хранят только уникальные элементы. HashSet — без гарантии порядка, самый быстрый (O(1)). LinkedHashSet — помнит порядок добавления. TreeSet — держит элементы отсортированными, операции за O(log n), <code>null</code> не пускает.</p></details>
+    <details class="cheat-qa"><summary>HashMap или TreeMap? А LinkedHashMap?</summary><p>HashMap — словарь по умолчанию, get и put за O(1), порядок ключей не гарантирован. LinkedHashMap — то же, но с порядком добавления. TreeMap — ключи всегда отсортированы, операции за O(log n), null-ключ нельзя.</p></details>
+    <details class="cheat-qa"><summary>Чем HashMap отличается от Hashtable?</summary><p>Hashtable — устаревший класс из Java 1.0: все методы синхронизированы (медленнее) и <code>null</code> нельзя ни в ключ, ни в значение. HashMap не синхронизирован, допускает один null-ключ. Для работы из нескольких потоков вместо Hashtable берут ConcurrentHashMap.</p></details>
+    <details class="cheat-qa"><summary>Почему не Stack, а ArrayDeque?</summary><p>Stack наследует устаревший Vector: синхронизирован без нужды и позволяет лишние операции. ArrayDeque через интерфейс Deque даёт те же push, pop, peek быстрее.</p></details>
+    <details class="cheat-qa"><summary>Почему печать PriorityQueue не отсортирована?</summary><p>PriorityQueue гарантирует только одно: в голове — минимальный элемент. Остальные лежат в куче (особой структуре) не по порядку. Отсортированно элементы выходят только по одному через <code>poll()</code>.</p></details>
+  </section>
+
+  <!-- ШАГ 10 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-twins">
+      <script type="application/json">
+      { "title": "Близнецы: кто есть кто", "icon": "⚖️",
+        "items": [
+          { "type": "predict", "q": "Что напечатает программа?", "code": "Set<String> s = new LinkedHashSet<>();\ns.add(\"кот\");\ns.add(\"ёж\");\ns.add(\"кот\");\ns.add(\"бобр\");\nSystem.out.println(s);",
+            "answer": "[кот, ёж, бобр]", "why": "LinkedHashSet помнит порядок добавления, а повтор «кот» просто не добавился." },
+          { "type": "predict", "q": "А если TreeSet?", "code": "Set<Integer> s = new TreeSet<>(List.of(30, 10, 20, 10));\nSystem.out.println(s);",
+            "answer": "[10, 20, 30]", "why": "TreeSet хранит уникальные элементы по возрастанию." },
+          { "type": "single", "q": "Нужно миллион раз проверять, есть ли номер заказа среди уже обработанных. Что выбрать?",
+            "options": ["ArrayList и contains", "LinkedList и contains", "HashSet и contains", "TreeMap", "Stack"], "answer": 2,
+            "why": "У HashSet contains — O(1), мгновенно. У списков — O(n): на миллионе проверок это огромная разница." },
+          { "type": "single", "q": "Нужен список, из которого постоянно читают элементы по индексу. Что выбрать?",
+            "options": ["LinkedList", "ArrayList", "HashSet", "PriorityQueue", "Vector"], "answer": 1,
+            "why": "get(i) у ArrayList мгновенный. У LinkedList — идёт по цепочке. Vector устарел." },
+          { "type": "single", "q": "Что напечатает <code>System.out.println(pq)</code> после <code>new PriorityQueue&lt;&gt;(List.of(5, 1, 4, 2, 3))</code>?",
+            "options": ["Обязательно [1, 2, 3, 4, 5]", "Обязательно [5, 4, 3, 2, 1]", "Первым будет 1, остальные — не обязательно по порядку", "[5, 1, 4, 2, 3] — как добавляли", "Ошибку компиляции"], "answer": 2,
+            "why": "PriorityQueue гарантирует только минимум в голове. Здесь печать даёт [1, 2, 4, 5, 3]." },
+          { "type": "match", "q": "Соедини класс с тем, чем его заменить",
+            "left": ["Vector", "Stack", "Hashtable"], "right": ["ArrayList", "ArrayDeque", "HashMap"],
+            "why": "Все три — наследие Java 1.0 с лишней синхронизацией." },
+          { "type": "build", "q": "Собери описание строки", "code": "Set<String> tags = new TreeSet<>();",
+            "answer": ["объявляем переменную <code>tags</code> типа <code>Set&lt;String&gt;</code>", "и инициализируем её", "новым объектом класса <code>TreeSet</code>"],
+            "extra": ["вызываем метод <code>TreeSet</code>", "и сортируем список", "литералом <code>Set</code>"] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Проверь себя на ИИ</span>
+      <p>Напиши: <em>«Проведи мне мини-собеседование по коллекциям Java: ArrayList vs LinkedList, HashSet vs TreeSet, HashMap vs TreeMap vs LinkedHashMap. По одному вопросу, жди моего ответа и оценивай, как интервьюер»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Близнецы выполняют один интерфейс, но устроены по-разному — отсюда разные скорость и порядок.</li>
+        <li><b>ArrayList</b> — массив: <code>get(i)</code> мгновенно, вставка в начало медленно. <b>LinkedList</b> — цепочка: края мгновенно, <code>get(i)</code> медленно. На практике — почти всегда ArrayList.</li>
+        <li>Set и Map: <b>Hash</b> — без порядка и быстро, <b>LinkedHash</b> — порядок добавления, <b>Tree</b> — отсортировано, O(log n), без <code>null</code>.</li>
+        <li>Скорость: O(1) — мгновенно, O(log n) — быстро, O(n) — растёт вместе с размером.</li>
+        <li>Vector, Stack, Hashtable — устарели: вместо них ArrayList, ArrayDeque, HashMap.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

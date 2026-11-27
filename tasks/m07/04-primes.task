@@ -1,0 +1,45 @@
+## id: m07-t04
+## title: Мастерская: простые числа до N
+## file: module-07/PrimesUpTo.java
+## class: PrimesUpTo
+## level: 2
+@@ description
+<p><b>Простое число</b> — целое число больше 1, которое делится нацело только на 1 и на само себя: 2, 3, 5, 7, 11… Число 1 — не простое, 0 и отрицательные — тоже.</p>
+<p>Программа читает N и печатает в одну строку через пробел все простые числа от 1 до N. Если таких нет — печатает <code>Простых чисел нет</code>.</p>
+<pre class="terminal"><span class="out">20
+2 3 5 7 11 13 17 19</span></pre>
+<p>Разбей решение на методы, как в Мастерской:</p>
+<ul>
+<li><code>static boolean isPrime(int n)</code> — отвечает, простое ли одно число;</li>
+<li><code>static void printPrimesUpTo(int n)</code> — перебирает числа и печатает простые (или сообщение, что их нет);</li>
+<li>main только читает N и вызывает <code>printPrimesUpTo</code>.</li>
+</ul>
+<p>Сначала план: примеры руками (N = 10, N = 2, N = 1), роли переменных, псевдокод — и только потом код. Пробел в конце строки не важен.</p>
+<p>📖 <a href="/lessons/m07/07-workshop.html">Мастерская: разбиваем задачу на методы</a></p>
+@@ test: N = 20
+@@ input
+20
+@@ expect
+2 3 5 7 11 13 17 19
+@@ test: N = 2 — одно простое
+@@ input
+2
+@@ expect
+2
+@@ test: N = 50
+@@ input
+50
+@@ expect
+2 3 5 7 11 13 17 19 23 29 31 37 41 43 47
+@@ test: N = 1 — простых нет
+@@ input
+1
+@@ expect
+Простых чисел нет
+@@ test: Отрицательное N
+@@ input
+-5
+@@ expect
+Простых чисел нет
+@@ require: static\s+boolean\s+isPrime\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isPrime(int n)
+@@ require: static\s+void\s+printPrimesUpTo\s*\(\s*int\s+\w+\s*\) | Нужен метод static void printPrimesUpTo(int n)

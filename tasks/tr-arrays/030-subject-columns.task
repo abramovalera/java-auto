@@ -1,0 +1,53 @@
+## id: tr-arrays-030
+## title: Лучший предмет класса
+## file: trainer/arrays/SubjectColumnTotals.java
+## class: SubjectColumnTotals
+## level: 2
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>SubjectColumnTotals</code>. В журнале строка — ученик, столбец — предмет, в ячейке — балл. В первой строке — число учеников <code>r</code> и предметов <code>c</code> (оба ≥ 1), дальше <code>r</code> строк по <code>c</code> баллов. Напечатай две строки: суммы баллов по каждому предмету (по столбцам) через пробел и <code>Лучший предмет: j</code> — номер столбца с наибольшей суммой (с 1; при равенстве — первый).</p>
+<pre class="terminal"><span class="out">ввод:  3 4
+       5 4 3 5
+       4 4 5 5
+       3 5 4 4
+вывод: 12 13 12 14
+       Лучший предмет: 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int[][] m = new int[r][c];</code> — таблица из <code>r</code> строк по <code>c</code> столбцов; читай её двумя вложенными циклами</li>
+<li>чтобы сложить столбец, внешний цикл ведёт по столбцам <code>j</code>, а внутренний — по строкам <code>i</code>: <code>m[i][j]</code></li>
+<li>суммы удобно сложить в массив <code>int[] totals = new int[c];</code></li>
+</ul></div>
+@@ test: Три ученика
+@@ input
+3 4
+5 4 3 5
+4 4 5 5
+3 5 4 4
+@@ expect
+12 13 12 14
+Лучший предмет: 4
+@@ test: Ничья — первый
+@@ input
+2 3
+1 5 5
+2 3 3
+@@ expect
+3 8 8
+Лучший предмет: 2
+@@ test: Один ученик
+@@ input
+1 3
+2 9 4
+@@ expect
+2 9 4
+Лучший предмет: 2
+@@ test: Один предмет
+@@ input
+3 1
+5
+4
+3
+@@ expect
+12
+Лучший предмет: 1
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];

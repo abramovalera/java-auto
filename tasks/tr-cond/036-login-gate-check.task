@@ -1,0 +1,50 @@
+## id: tr-cond-036
+## title: Вход в систему
+## file: trainer/cond/LoginGateCheck.java
+## class: LoginGateCheck
+## level: 2
+## category: Игры и правила
+@@ description
+<p>Напиши класс <code>LoginGateCheck</code>. В системе два пользователя: <code>admin</code> с паролем <code>qwerty123</code> и <code>guest</code> с паролем <code>guest</code>. Программа читает две строки — логин и пароль — и печатает:</p>
+<ul><li><code>Добро пожаловать, логин!</code> — если логин есть и пароль верный;</li><li><code>Неверный пароль</code> — если логин есть, а пароль не тот;</li><li><code>Нет такого пользователя</code> — если логина нет.</li></ul>
+<pre class="terminal"><span class="out">ввод:  admin
+       qwerty123
+вывод: Добро пожаловать, admin!
+
+ввод:  admin
+       qwerty
+вывод: Неверный пароль</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a.equals(b)</code> — сравнивает строки по содержимому, регистр букв важен</li>
+<li>вложенный <code>if</code>: сначала узнай, чей логин, а внутри проверь его пароль</li>
+</ul></div>
+@@ test: Администратор
+@@ input
+admin
+qwerty123
+@@ expect
+Добро пожаловать, admin!
+@@ test: Ошибка в пароле
+@@ input
+admin
+qwerty
+@@ expect
+Неверный пароль
+@@ test: Гость
+@@ input
+guest
+guest
+@@ expect
+Добро пожаловать, guest!
+@@ test: Гость с паролем админа
+@@ input
+guest
+qwerty123
+@@ expect
+Неверный пароль
+@@ test: Логин с большой буквы
+@@ input
+Admin
+qwerty123
+@@ expect
+Нет такого пользователя

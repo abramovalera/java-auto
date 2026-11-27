@@ -1,0 +1,56 @@
+## id: tr-strings-033
+## title: Надпись в рамке
+## file: trainer/strings/FramedBanner.java
+## class: FramedBanner
+## level: 2
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>FramedBanner</code>. Для вывески надпись обводят рамкой из звёздочек. Программа читает строку, убирает пробелы по краям и печатает три строки: сверху и снизу — звёздочки, посередине — <code>* надпись *</code>. Ширина рамки — длина надписи плюс 4.</p>
+<pre class="terminal"><span class="out">ввод:  Привет
+вывод: **********
+       * Привет *
+       **********
+
+ввод:    Java  
+вывод: ********
+       * Java *
+       ********</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>"*".repeat(n)</code> — строка из <code>n</code> звёздочек</li>
+<li><code>s.strip()</code> — убирает пробелы по краям</li>
+</ul></div>
+@@ test: Слово
+@@ input
+Привет
+@@ expect
+**********
+* Привет *
+**********
+@@ test: Пробелы по краям
+@@ input
+  Java  
+@@ expect
+********
+* Java *
+********
+@@ test: Одна буква
+@@ input
+A
+@@ expect
+*****
+* A *
+*****
+@@ test: Фраза со знаками
+@@ input
+Скидки до 50%!
+@@ expect
+******************
+* Скидки до 50%! *
+******************
+@@ test: Пустая надпись
+@@ input
+
+@@ expect
+****
+*  *
+****

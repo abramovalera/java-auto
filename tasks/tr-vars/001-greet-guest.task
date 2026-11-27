@@ -1,0 +1,36 @@
+## id: tr-vars-001
+## title: Привет по имени
+## file: trainer/vars/GreetGuestByName.java
+## class: GreetGuestByName
+## level: 1
+## category: Вывод и склейка строк
+@@ description
+<p>Напиши класс <code>GreetGuestByName</code>. Программа читает через <code>Scanner</code> одну строку — имя гостя — и печатает приветствие <code>Привет, &lt;имя&gt;!</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Аня
+вывод: Привет, Аня!</span></pre>
+<p>Имя может состоять из нескольких слов, например «Анна Мария», — поздоровайся с ним целиком.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextLine()</code> — возвращает всю строку до Enter, вместе с пробелами</li>
+<li><code>"Привет, " + name + "!"</code> — оператор <code>+</code> со строкой склеивает текст</li>
+</ul></div>
+@@ test: Обычное имя
+@@ input
+Аня
+@@ expect
+Привет, Аня!
+@@ test: Имя из двух слов
+@@ input
+Анна Мария
+@@ expect
+Привет, Анна Мария!
+@@ test: Одна буква
+@@ input
+Я
+@@ expect
+Привет, Я!
+@@ test: Латиница
+@@ input
+Bob
+@@ expect
+Привет, Bob!

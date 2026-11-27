@@ -1,0 +1,55 @@
+## id: tr-methods-033
+## title: Обратный отсчёт рекурсией
+## file: trainer/methods/RocketCountdownRecursion.java
+## class: RocketCountdownRecursion
+## level: 2
+## category: Рекурсия
+@@ description
+<p>Перед стартом ракеты идёт обратный отсчёт. Создай класс <code>RocketCountdownRecursion</code> и напиши <b>рекурсивный</b> метод <code>static void countdown(int n)</code>: он печатает <code>n</code>, затем вызывает сам себя для <code>n - 1</code>, а когда доходит до нуля — печатает <code>Пуск!</code>. Циклы использовать нельзя.</p>
+<p>main читает целое <code>n ≥ 0</code> и вызывает метод.</p>
+<pre class="terminal"><span class="out">ввод:  3
+вывод: 3
+       2
+       1
+       Пуск!</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>рекурсия = базовый случай (когда остановиться) + шаг (вызов себя с меньшим аргументом)</li>
+<li><code>return;</code> в <code>void</code>-методе — немедленный выход из метода</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+@@ expect
+3
+2
+1
+Пуск!
+@@ test: С единицы
+@@ input
+1
+@@ expect
+1
+Пуск!
+@@ test: Сразу пуск
+@@ input
+0
+@@ expect
+Пуск!
+@@ test: Десять
+@@ input
+10
+@@ expect
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Пуск!
+@@ require: static\s+void\s+countdown\s*\(\s*int\s+\w+\s*\) | Нужен метод static void countdown(int n)
+@@ require: \bcountdown\s*\(\s*\w+\s*-\s*1\s*\) | Метод должен вызывать сам себя: countdown(n - 1)
+@@ forbid: \b(for|while)\s*\( | Здесь без циклов: повторение делает рекурсия

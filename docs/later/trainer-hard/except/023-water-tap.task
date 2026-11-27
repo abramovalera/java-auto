@@ -1,0 +1,76 @@
+## id: tr-except-023
+## title: Кран и ведро
+## file: trainer/except/WaterTapSession.java
+## class: WaterTapSession
+## level: 3
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>WaterTapSession</code>. Из крана наливают воду в ведро на 10 литров.</p>
+<p>В том же файле (без <code>public</code>) объяви класс <code>WaterTap</code>, который реализует интерфейс <code>AutoCloseable</code>:</p>
+<ul>
+<li>конструктор печатает <code>Кран открыт</code>;</li>
+<li>метод <code>void pour(int liters)</code> наливает воду в ведро (поле объекта): если литров 0 или меньше — выбрасывает <code>IllegalArgumentException</code> с сообщением <code>литров должно быть больше нуля</code>; если вода не поместится в ведро — <code>IllegalStateException</code> с сообщением <code>ведро переполнится</code> и ничего не наливает; иначе наливает и печатает <code>Налито N л, в ведре M л</code>;</li>
+<li>метод <code>close()</code> печатает <code>Кран закрыт</code>.</li>
+</ul>
+<p>В <code>main</code> сначала прочитай количество порций n и n целых чисел (каждое с новой строки). Потом в try-с-ресурсами открой кран и налей порции по очереди. Первая же ошибка прерывает наливание: перехвати её и напечатай <code>Ошибка: </code> и сообщение.</p>
+<pre class="terminal"><span class="out">ввод:  3       вывод: Кран открыт
+       6              Налито 6 л, в ведре 6 л
+       5              Кран закрыт
+       1              Ошибка: ведро переполнится</span></pre>
+<p>Обрати внимание на порядок: кран закрывается раньше, чем срабатывает <code>catch</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>class WaterTap implements AutoCloseable { … public void close() { … } }</code> — такой объект можно создавать в заголовке try-с-ресурсами</li>
+<li><code>try (WaterTap tap = new WaterTap()) { … } catch (…) { … }</code> — <code>close()</code> вызовется сам, до блока <code>catch</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+6
+5
+1
+@@ expect
+Кран открыт
+Налито 6 л, в ведре 6 л
+Кран закрыт
+Ошибка: ведро переполнится
+@@ test: Всё поместилось
+@@ input
+3
+2
+3
+4
+@@ expect
+Кран открыт
+Налито 2 л, в ведре 2 л
+Налито 3 л, в ведре 5 л
+Налито 4 л, в ведре 9 л
+Кран закрыт
+@@ test: Ровно 10 литров
+@@ input
+2
+7
+3
+@@ expect
+Кран открыт
+Налито 7 л, в ведре 7 л
+Налито 3 л, в ведре 10 л
+Кран закрыт
+@@ test: Отрицательная порция
+@@ input
+3
+4
+-2
+1
+@@ expect
+Кран открыт
+Налито 4 л, в ведре 4 л
+Кран закрыт
+Ошибка: литров должно быть больше нуля
+@@ test: Ни одной порции
+@@ input
+0
+@@ expect
+Кран открыт
+Кран закрыт
+@@ require: implements\s+AutoCloseable | Объяви класс WaterTap implements AutoCloseable
+@@ require: try\s*\(\s*WaterTap | Открой кран в заголовке try-с-ресурсами: try (WaterTap tap = new WaterTap())

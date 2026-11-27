@@ -1,0 +1,37 @@
+## id: tr-streams-012
+## title: Длинные слова — громко
+## file: trainer/streams/LongWordsShout.java
+## class: LongWordsShout
+## level: 1
+## category: filter и map
+@@ description
+<p>Напиши класс <code>LongWordsShout</code>. Робот-глашатай выкрикивает только длинные слова. В одной строке — слова через пробел; среди них есть хотя бы одно длиннее трёх букв. Напечатай через пробел слова длиннее трёх букв, переведённые в верхний регистр, в исходном порядке.</p>
+<pre class="terminal"><span class="out">ввод:  кот бежит за мышкой
+вывод: БЕЖИТ МЫШКОЙ</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.filter(w -&gt; w.length() &gt; 3)</code> — оставляет только слова длиннее трёх символов</li>
+<li><code>.map(String::toUpperCase)</code> — заменяет каждое слово его версией в верхнем регистре</li>
+</ul></div>
+@@ test: Кот и мышка
+@@ input
+кот бежит за мышкой
+@@ expect
+БЕЖИТ МЫШКОЙ
+@@ test: Латиница
+@@ input
+Java is fun and cool
+@@ expect
+JAVA COOL
+@@ test: Ровно три буквы — не длинное
+@@ input
+дом лес река мир
+@@ expect
+РЕКА
+@@ test: Уже в верхнем регистре
+@@ input
+Привет мир ДРУГ
+@@ expect
+ПРИВЕТ ДРУГ
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

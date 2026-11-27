@@ -1,0 +1,49 @@
+## id: tr-except-017
+## title: Мятая кассовая лента
+## file: trainer/except/ReceiptTapeSum.java
+## class: ReceiptTapeSum
+## level: 2
+## category: Плохой ввод
+@@ description
+<p>Напиши класс <code>ReceiptTapeSum</code>. Кассовая лента помялась, и часть сумм не читается. Программа читает одну строку: суммы через пробелы (пробелов между ними может быть несколько, в начале и в конце строки — тоже). Каждая сумма — целое число, но некоторые записи испорчены.</p>
+<p>Сложи только те записи, которые превращаются в целое число, и посчитай испорченные. Программа печатает две строки:</p>
+<pre class="terminal"><span class="out">ввод:  120 45 4б 30
+вывод: Сумма: 195
+       Пропущено: 1</span></pre>
+<p>Сумма может не поместиться в <code>int</code> — храни её в <code>long</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.trim().split("\\s+")</code> — режет строку по одному или нескольким пробелам</li>
+<li><code>try</code>/<code>catch</code> внутри тела цикла — ошибка в одной записи не останавливает цикл</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+120 45 4б 30
+@@ expect
+Сумма: 195
+Пропущено: 1
+@@ test: Лишние пробелы
+@@ input
+  10    20   5
+@@ expect
+Сумма: 35
+Пропущено: 0
+@@ test: Ничего не читается
+@@ input
+x y z
+@@ expect
+Сумма: 0
+Пропущено: 3
+@@ test: Отрицательное и дробное
+@@ input
+-5 5 7.5
+@@ expect
+Сумма: 0
+Пропущено: 1
+@@ test: Сумма больше int
+@@ input
+2147483647 1 1
+@@ expect
+Сумма: 2147483649
+Пропущено: 0
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException
+@@ require: \blong\b | Храни сумму в переменной типа long

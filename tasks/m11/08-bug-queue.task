@@ -1,0 +1,84 @@
+## id: m11-t08
+## title: Очередь на починку багов
+## file: module-11/BugQueue.java
+## class: BugQueue
+## level: 3
+@@ description
+<p>🛠 <b>Мастерская.</b> Тестировщик завёл баги, разработчик спрашивает: «С чего начать?» Собери очередь: сначала самые серьёзные, внутри одной серьёзности — по номеру. Здесь встречаются всё сразу: enum, record и компаратор.</p>
+<p>В файле <code>BugQueue.java</code> (вспомогательные типы без <code>public</code>):</p>
+<ul>
+  <li><code>enum BugSeverity</code> — константы <b>от самой серьёзной к самой лёгкой</b>: <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, у каждой поле «часов на починку»: 8, 4, 2, 1;</li>
+  <li><code>record BugTicket(int id, BugSeverity severity, String title)</code>.</li>
+</ul>
+<p><b>Ввод:</b> число N, потом N строк <code>номер СЕРЬЁЗНОСТЬ название</code> (название — одно слово). Отсортируй массив через <code>Arrays.sort</code> с компаратором (анонимный класс или отдельный класс — без лямбд). Выведи очередь и сколько часов уйдёт на всё:</p>
+<pre class="terminal"><span class="out">ввод:                  вывод:
+5                      #102 [BLOCKER] вход
+101 MINOR опечатка     #104 [BLOCKER] оплата
+102 BLOCKER вход       #105 [CRITICAL] корзина
+103 MAJOR фильтр       #103 [MAJOR] фильтр
+104 BLOCKER оплата     #101 [MINOR] опечатка
+105 CRITICAL корзина   Часов на всё: 23</span></pre>
+<p>Сначала план, потом код (шаблон Мастерской):</p>
+<ol>
+  <li>Разложи пример руками: какие два бага сравниваешь и по какому полю решаешь, кто раньше? Когда нужно второе поле?</li>
+  <li>Подумай, как сравнить две константы enum, не пиша <code>if</code> на каждую пару. Подсказка: константы enum уже умеют сравниваться — по порядку объявления (<code>compareTo</code>).</li>
+  <li>Запиши <code>compare(a, b)</code> псевдокодом на русском, потом переведи в Java.</li>
+</ol>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/04-callbacks.html">Comparator</a> · <a href="/lessons/m11/05-enum.html">enum</a> · <a href="/lessons/m11/06-records.html">record</a></p>
+@@ test: Пример из условия
+@@ input
+5
+101 MINOR опечатка
+102 BLOCKER вход
+103 MAJOR фильтр
+104 BLOCKER оплата
+105 CRITICAL корзина
+@@ expect
+#102 [BLOCKER] вход
+#104 [BLOCKER] оплата
+#105 [CRITICAL] корзина
+#103 [MAJOR] фильтр
+#101 [MINOR] опечатка
+Часов на всё: 23
+@@ test: Одна серьёзность — решает номер
+@@ input
+3
+30 MAJOR c
+10 MAJOR a
+20 MAJOR b
+@@ expect
+#10 [MAJOR] a
+#20 [MAJOR] b
+#30 [MAJOR] c
+Часов на всё: 6
+@@ test: Багов нет
+@@ input
+0
+@@ expect
+Часов на всё: 0
+@@ test: Один баг
+@@ input
+1
+7 CRITICAL x
+@@ expect
+#7 [CRITICAL] x
+Часов на всё: 4
+@@ test: Номера и серьёзность вперемешку
+@@ input
+4
+5 MINOR e
+1 MINOR a
+9 BLOCKER z
+3 CRITICAL c
+@@ expect
+#9 [BLOCKER] z
+#3 [CRITICAL] c
+#1 [MINOR] a
+#5 [MINOR] e
+Часов на всё: 14
+@@ require: enum\s+BugSeverity | Нужен enum BugSeverity
+@@ require: record\s+BugTicket\s*\( | Нужен record BugTicket(int id, BugSeverity severity, String title)
+@@ require: Comparator\s*<\s*BugTicket\s*> | Нужен компаратор Comparator<BugTicket>
+@@ require: Arrays\.sort\s*\( | Сортируй через Arrays.sort(массив, компаратор)
+@@ forbid: -> | Пока без лямбд: анонимный класс или отдельный класс-компаратор (лямбды — модуль 14)

@@ -1,0 +1,34 @@
+## id: tr-strings-002
+## title: Объявление капсом
+## file: trainer/strings/LoudAnnouncement.java
+## class: LoudAnnouncement
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>LoudAnnouncement</code>. Диктор на вокзале хочет, чтобы объявление на табло было заметным. Программа читает одну строку и печатает её заглавными буквами, а в конце добавляет восклицательный знак <code>!</code>. Цифры и знаки остаются как были.</p>
+<pre class="terminal"><span class="out">ввод:  посадка на поезд начинается    вывод: ПОСАДКА НА ПОЕЗД НАЧИНАЕТСЯ!
+ввод:  Gate 7 is open                 вывод: GATE 7 IS OPEN!</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.toUpperCase()</code> — возвращает новую строку, где все буквы заглавные</li>
+<li><code>a + b</code> — склейка (конкатенация) двух строк</li>
+</ul></div>
+@@ test: Русский текст
+@@ input
+посадка на поезд начинается
+@@ expect
+ПОСАДКА НА ПОЕЗД НАЧИНАЕТСЯ!
+@@ test: Английский с цифрой
+@@ input
+Gate 7 is open
+@@ expect
+GATE 7 IS OPEN!
+@@ test: Уже заглавные
+@@ input
+STOP
+@@ expect
+STOP!
+@@ test: Буква ё
+@@ input
+ёлка у входа
+@@ expect
+ЁЛКА У ВХОДА!

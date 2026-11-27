@@ -1,0 +1,40 @@
+## id: tr-strings-036
+## title: Каждое слово задом наперёд
+## file: trainer/strings/EachWordReversed.java
+## class: EachWordReversed
+## level: 2
+## category: Переворот и палиндромы
+@@ description
+<p>Напиши класс <code>EachWordReversed</code>. Шпионы переписываются так: каждое слово пишут задом наперёд, а порядок слов не меняют. Программа читает фразу (слова разделены одним пробелом) и печатает её «шпионскую» версию. Знаки препинания считаются частью слова.</p>
+<pre class="terminal"><span class="out">ввод:  привет мир    вывод: тевирп рим
+ввод:  Hi, Bob!      вывод: ,iH !boB</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.split(" ")</code> — массив слов</li>
+<li><code>new StringBuilder(word).reverse()</code> — слово задом наперёд</li>
+<li><code>String.join(" ", array)</code> — склеивает массив обратно через пробел</li>
+</ul></div>
+@@ test: Два слова
+@@ input
+привет мир
+@@ expect
+тевирп рим
+@@ test: Со знаками
+@@ input
+Hi, Bob!
+@@ expect
+,iH !boB
+@@ test: Одно слово
+@@ input
+Java
+@@ expect
+avaJ
+@@ test: Пример с LeetCode
+@@ input
+Let's take LeetCode contest
+@@ expect
+s'teL ekat edoCteeL tsetnoc
+@@ test: Однобуквенные слова
+@@ input
+a b c
+@@ expect
+a b c

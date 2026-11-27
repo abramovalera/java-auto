@@ -1,0 +1,47 @@
+## id: tr-except-019
+## title: Порт сервера
+## file: trainer/except/ServerPortConfig.java
+## class: ServerPortConfig
+## level: 2
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>ServerPortConfig</code>. Сервер читает из настроек номер порта — целое число от 1 до 65535.</p>
+<p>Напиши метод <code>static int readPort(String text)</code>, который возвращает номер порта. Если строка не число, метод перехватывает <code>NumberFormatException</code> и выбрасывает вместо него <code>IllegalStateException</code> с сообщением <code>Порт задан неверно: текст</code>, передав исходное исключение вторым аргументом как причину. Если число вне диапазона, метод выбрасывает <code>IllegalStateException</code> с сообщением <code>Порт вне диапазона: N</code> (без причины).</p>
+<p>В <code>main</code> прочитай строку через <code>nextLine()</code> и вызови метод. Получилось — напечатай <code>Сервер слушает порт N</code>. Нет — напечатай сообщение исключения, а если у исключения есть причина, второй строкой напечатай <code>Причина: </code> и короткое имя класса причины.</p>
+<pre class="terminal"><span class="out">ввод:  8080    вывод: Сервер слушает порт 8080
+ввод:  80a     вывод: Порт задан неверно: 80a
+                      Причина: NumberFormatException</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>new IllegalStateException("текст", e)</code> — новое исключение с причиной <code>e</code></li>
+<li><code>e.getCause()</code> — возвращает причину или <code>null</code>, если её нет</li>
+<li><code>obj.getClass().getSimpleName()</code> — короткое имя класса объекта</li>
+</ul></div>
+@@ test: Обычный порт
+@@ input
+8080
+@@ expect
+Сервер слушает порт 8080
+@@ test: Буква в номере
+@@ input
+80a
+@@ expect
+Порт задан неверно: 80a
+Причина: NumberFormatException
+@@ test: Слишком большой
+@@ input
+70000
+@@ expect
+Порт вне диапазона: 70000
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Порт вне диапазона: 0
+@@ test: Самый большой порт
+@@ input
+65535
+@@ expect
+Сервер слушает порт 65535
+@@ require: static\s+int\s+readPort\s*\(\s*String | Объяви метод static int readPort(String text)
+@@ require: new\s+IllegalStateException\s*\([^;]*,\s*\w+\s*\) | Передай исходное исключение причиной: new IllegalStateException("…", e)
+@@ require: getCause\s*\( | Достань причину методом getCause()

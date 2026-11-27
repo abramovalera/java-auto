@@ -1,0 +1,85 @@
+## id: tr-colls-045
+## title: Телефонная книжка с командами
+## file: trainer/colls/PhoneBookCommands.java
+## class: PhoneBookCommands
+## level: 2
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>PhoneBookCommands</code>. В первой строке — количество команд <code>n</code>, дальше <code>n</code> строк-команд:</p>
+<ul>
+<li><code>add имя номер</code> — записать номер; печатает <code>Добавлен: имя</code>, а если имя уже было — заменяет номер и печатает <code>Обновлён: имя</code>;</li>
+<li><code>find имя</code> — печатает номер или <code>Не найден: имя</code>;</li>
+<li><code>remove имя</code> — удаляет запись; печатает <code>Удалён: имя</code> или <code>Не найден: имя</code>.</li>
+</ul>
+<p>После всех команд напечатай <code>Книжка:</code> и все записи по алфавиту, каждую строкой <code>имя номер</code>. Если книжка пуста — <code>Книжка пуста</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       add Вася 111
+       add Аня 222
+       find Вася
+       add Вася 333
+       remove Петя
+       find Вася
+вывод: Добавлен: Вася
+       Добавлен: Аня
+       111
+       Обновлён: Вася
+       Не найден: Петя
+       333
+       Книжка:
+       Аня 222
+       Вася 333</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>TreeMap&lt;String, String&gt;</code> — записи сразу по алфавиту</li>
+<li><code>map.put</code> возвращает старое значение или <code>null</code>, если ключа не было</li>
+<li><code>map.remove(key)</code> возвращает удалённое значение или <code>null</code></li>
+</ul></div>
+@@ test: Все команды
+@@ input
+6
+add Вася 111
+add Аня 222
+find Вася
+add Вася 333
+remove Петя
+find Вася
+@@ expect
+Добавлен: Вася
+Добавлен: Аня
+111
+Обновлён: Вася
+Не найден: Петя
+333
+Книжка:
+Аня 222
+Вася 333
+@@ test: Удалили всех
+@@ input
+3
+add Оля 555
+remove Оля
+find Оля
+@@ expect
+Добавлен: Оля
+Удалён: Оля
+Не найден: Оля
+Книжка пуста
+@@ test: Регистр в именах
+@@ input
+3
+add lena 1
+add Lena 2
+find LENA
+@@ expect
+Добавлен: lena
+Добавлен: Lena
+Не найден: LENA
+Книжка:
+Lena 2
+lena 1
+@@ test: Только поиск
+@@ input
+1
+find Кто
+@@ expect
+Не найден: Кто
+Книжка пуста

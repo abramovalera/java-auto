@@ -1,0 +1,41 @@
+## id: tr-cond-026
+## title: Ближе к десяти
+## file: trainer/cond/CloserToTen.java
+## class: CloserToTen
+## level: 2
+## category: Сравнения и максимум
+@@ description
+<p>Напиши класс <code>CloserToTen</code>. В игре «угадай число» загадано 10. Два игрока назвали свои числа. Программа читает два целых числа через пробел и печатает то, которое ближе к 10. Если оба на одинаковом расстоянии — <code>Одинаково</code>.</p>
+<pre class="terminal"><span class="out">ввод:  8 13
+вывод: 8
+
+ввод:  7 13
+вывод: Одинаково</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>расстояние между числами — модуль разности: <code>Math.abs(a - 10)</code></li>
+</ul></div>
+@@ test: Первое ближе
+@@ input
+8 13
+@@ expect
+8
+@@ test: Второе ближе
+@@ input
+15 11
+@@ expect
+11
+@@ test: По разные стороны, поровну
+@@ input
+7 13
+@@ expect
+Одинаково
+@@ test: Оба угадали
+@@ input
+10 10
+@@ expect
+Одинаково
+@@ test: Отрицательное число
+@@ input
+-3 25
+@@ expect
+-3

@@ -1,0 +1,14 @@
+{ "id": "m07", "num": "7", "title": "Методы",
+  "summary": "Разбиваем программу на кусочки: параметры и return, стек вызовов, передача аргументов, перегрузка, область видимости, рекурсия.",
+  "lessons": [
+    { "id": "m07-01", "title": "Зачем нужны методы", "url": "/lessons/m07/01-why-methods.html" },
+    { "id": "m07-02", "title": "Параметры и return", "url": "/lessons/m07/02-params-return.html" },
+    { "id": "m07-03", "title": "Стек вызовов", "url": "/lessons/m07/03-call-stack.html" },
+    { "id": "m07-04", "title": "Как передаются аргументы", "url": "/lessons/m07/04-passing-args.html" },
+    { "id": "m07-05", "title": "Перегрузка и область видимости", "url": "/lessons/m07/05-overload-scope.html" },
+    { "id": "m07-06", "title": "Рекурсия", "url": "/lessons/m07/06-recursion.html" },
+    { "id": "m07-07", "title": "Мастерская: задача по кусочкам", "url": "/lessons/m07/07-workshop.html" },
+    { "id": "m07-pz", "title": "Головоломки: что выведется?", "url": "/lessons/m07/08-puzzles.html" },
+    { "id": "m07-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m07/09-summary.html" }
+  ],
+  "taskCount": 10 }

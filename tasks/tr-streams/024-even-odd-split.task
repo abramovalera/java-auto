@@ -1,0 +1,44 @@
+## id: tr-streams-024
+## title: Чётные налево, нечётные направо
+## file: trainer/streams/EvenOddSplit.java
+## class: EvenOddSplit
+## level: 2
+## category: Collectors и группировка
+@@ description
+<p>Напиши класс <code>EvenOddSplit</code>. В одной строке — целые числа через пробел (хотя бы одно, бывают отрицательные). Разложи их на две группы и напечатай две строки: <code>Чётные: [...]</code> и <code>Нечётные: [...]</code> — списки в исходном порядке. Пустая группа печатается как <code>[]</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1 2 3 4 5 6
+вывод: Чётные: [2, 4, 6]
+       Нечётные: [1, 3, 5]</span></pre>
+<p>Подвох: у отрицательного нечётного числа остаток от деления на 2 равен <code>-1</code>, а не <code>1</code>.</p>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Collectors.partitioningBy(x -&gt; …)</code> — раскладывает элементы на две полки: <code>true</code> и <code>false</code> (обе есть всегда)</li>
+<li><code>map.get(true)</code> — список элементов, для которых условие истинно; печатается как <code>[1, 2]</code></li>
+</ul></div>
+@@ test: Подряд
+@@ input
+1 2 3 4 5 6
+@@ expect
+Чётные: [2, 4, 6]
+Нечётные: [1, 3, 5]
+@@ test: Отрицательные нечётные
+@@ input
+-3 -2 7 0 -1
+@@ expect
+Чётные: [-2, 0]
+Нечётные: [-3, 7, -1]
+@@ test: Только чётные
+@@ input
+2 4 8
+@@ expect
+Чётные: [2, 4, 8]
+Нечётные: []
+@@ test: Одно нечётное
+@@ input
+9
+@@ expect
+Чётные: []
+Нечётные: [9]
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: partitioningBy\s*\( | Разложи числа на две группы коллектором partitioningBy

@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Сравнение строк: == против equals · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-02">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 8 · Урок 2</div>
+    <h1>Сравнение строк: == против equals</h1>
+    <p class="lead">Самый популярный вопрос на собеседовании по Java. Пользователь ввёл «да», а программа уверена, что это не «да». Разберёмся почему — до последней стрелки в памяти.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🎯 классика собеседований</span><span>🧠 память по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-02-review">
+      <script type="application/json">
+      { "title": "Строки в памяти", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "String s = \"ok\";\ns.toUpperCase();\ns = s + \"!\";\nSystem.out.println(s);",
+            "answer": "ok!", "why": "Возвращаемое значение <code>toUpperCase()</code> потеряно, а результат склейки присвоили обратно переменной <code>s</code>." },
+          { "type": "predict", "q": "Модуль 6: что выведет программа?",
+            "code": "int[] a = {1, 2};\nint[] b = {1, 2};\nSystem.out.println(a == b);",
+            "answer": "false", "why": "Два разных массива в куче, у каждого свой адрес. <code>==</code> сравнивает ссылки, а не содержимое. Помнишь <code>Arrays.equals</code>? Со строками — та же история." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Загадка: «да» — это не «да»</h2>
+    <p>Программа спрашивает, продолжать ли. Запусти её в IDEA, введи <code>да</code> — и удивись:</p>
+<pre data-file="AskUser.java"><code class="java">import java.util.Scanner;
+
+public class AskUser {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Продолжить? ");
+        String answer = sc.nextLine();
+        if (answer == "да") {
+            System.out.println("Продолжаем!");
+        } else {
+            System.out.println("Стоп.");
+        }
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-askuser">
+      <script type="application/json">
+      { "tree": false, "file": "AskUser.java", "runConfig": "AskUser", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class AskUser {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        System.out.print(\"Продолжить? \");\n        String answer = sc.nextLine();\n        if (answer == \"да\") {\n            System.out.println(\"Продолжаем!\");\n        } else {\n            System.out.println(\"Стоп.\");\n        }\n    }\n}",
+        "warnings": [ { "line": 8, "text": "==", "msg": "String values are compared using '==', not 'equals()'", "tip": true, "fix": "Replace '==' with 'equals()'" } ],
+        "console": { "title": "AskUser", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… AskUser" },
+          { "t": "out", "s": "Продолжить? " },
+          { "t": "in", "s": "да", "inline": true },
+          { "t": "out", "s": "Стоп." },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Зелёным — то, что ты ввёл с клавиатуры: ровно <b>да</b>, сразу после вопроса и Enter" },
+                   { "n": 2, "target": "output-2", "text": "А программа ответила <b>Стоп.</b> — значит, <code>answer == \"да\"</code> дал false", "box": true },
+                   { "n": 3, "target": "err-8", "side": "top", "text": "IDEA заранее подсвечивает сравнение жёлтым — подозревает ошибку" },
+                   { "n": 4, "target": "tip", "text": "Наведи мышку: <b>String values are compared using '==', not 'equals()'</b> — «строки сравниваются через ==, а не через equals()». Ниже готовое исправление: <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Replace '==' with 'equals()'</b>. Почему это ошибка — разбираемся дальше" } ],
+        "caption": "Сравнение строк через == и предупреждение IDEA" }
+      </script>
+    </div>
+    <p>Ты ввёл ровно «да», без пробелов. Строки одинаковые. Почему <code>==</code> говорит «нет»?</p>
+    <div class="say" data-mood="think"><p>Подсказка — в повторении. Для массивов <code>a == b</code> давал <code>false</code>, хотя внутри одно и то же. Строка — тоже объект. Значит…</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>== сравнивает номерки, equals — содержимое</h2>
+    <p>Для объектов оператор <code>==</code> — это <b>сравнение по ссылке</b>: «<b>это один и тот же объект?</b>» — то есть смотрят ли две стрелки в одно место. Вызов метода <code>equals</code> — <b>сравнение по содержимому</b>, ответ на другой вопрос: «<b>одинаковое ли у них содержимое?</b>» — те же ли символы в том же порядке.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: две одинаковые книги</span>
+      <p>У тебя и у друга по экземпляру «Гарри Поттера». Это <b>одна и та же</b> книга? Нет: два разных экземпляра на разных полках (<code>==</code> → false). А текст в них <b>одинаковый</b>? Да (<code>equals</code> → true). Если же друг держит в руках <b>твой</b> экземпляр — тогда и <code>==</code> → true.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 260" role="img" aria-label="Переменная literal ссылается на объект #1 «да» в пуле строк. Переменная answer ссылается на другой объект #2 «да», созданный Scanner. Стрелки ведут в разные объекты">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="10" width="230" height="240" rx="14" class="d-soft"/>
+        <text x="125" y="40" text-anchor="middle" class="d-title">Стек (main)</text>
+        <rect x="24" y="70" width="202" height="56" rx="8" class="d-box"/>
+        <text x="36" y="104" class="d-mono-ink">"да" в коде</text>
+        <rect x="150" y="80" width="64" height="36" rx="6" class="d-violet"/>
+        <text x="182" y="104" text-anchor="middle" class="d-mono-ink">#1</text>
+        <rect x="24" y="160" width="202" height="56" rx="8" class="d-box"/>
+        <text x="36" y="194" class="d-mono-ink">answer</text>
+        <rect x="150" y="170" width="64" height="36" rx="6" class="d-violet"/>
+        <text x="182" y="194" text-anchor="middle" class="d-mono-ink">#2</text>
+
+        <rect x="290" y="10" width="420" height="240" rx="14" class="d-soft"/>
+        <text x="500" y="40" text-anchor="middle" class="d-title">Куча</text>
+        <rect x="320" y="60" width="200" height="80" rx="12" class="d-teal"/>
+        <text x="336" y="84" class="d-small">#1 · литерал из кода</text>
+        <text x="420" y="120" text-anchor="middle" class="d-title">"да"</text>
+        <rect x="320" y="160" width="200" height="80" rx="12" class="d-blue"/>
+        <text x="336" y="184" class="d-small">#2 · создал Scanner</text>
+        <text x="420" y="220" text-anchor="middle" class="d-title">"да"</text>
+        <path d="M216 98 C260 98 280 100 316 100" class="d-arrow"/>
+        <path d="M216 188 C260 188 280 200 316 200" class="d-arrow"/>
+        <text x="540" y="100" class="d-text">== → false</text>
+        <text x="540" y="124" class="d-small">номерки #1 и #2</text>
+        <text x="540" y="190" class="d-text">equals → true</text>
+        <text x="540" y="214" class="d-small">буквы одинаковые</text>
+      </svg>
+      <figcaption>Вызов <code>nextLine()</code> прочитал ввод и вернул <b>новый</b> объект «да». Литерал «да» в коде — другой объект. Разные номерки — <code>==</code> говорит false.</figcaption>
+    </figure>
+    <p>Исправление — одно слово: вызываем метод <code>equals</code> у объекта <code>answer</code> и передаём аргументом литерал <code>"да"</code>:</p>
+<pre data-file="AskUser.java"><code class="java">if (answer.equals("да")) {         // сравниваем буквы, а не номерки
+    System.out.println("Продолжаем!");
+}</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Правило на всю жизнь</span>
+      <p><b>Строки (и любые объекты) сравнивай по содержимому — через <code>equals</code>.</b> <code>==</code> — только для примитивов (<code>int</code>, <code>char</code>, <code>boolean</code>…) и в редком случае, когда тебе нужно именно «тот же самый объект».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Почему == иногда «работает»: пул строк</h2>
+    <p>Самое коварное: вот этот код печатает <code>true</code>. Из-за этого многие новички думают, что <code>==</code> для строк годится.</p>
+<pre data-file="Pool.java"><code class="java">String a = "Java";
+String b = "Java";
+System.out.println(a == b);   // true (?!)</code></pre>
+    <p>Дело в <b>пуле строк</b> (string pool). Все строки-литералы — то, что написано в коде в кавычках, — JVM кладёт в особое место кучи и хранит <b>по одному экземпляру</b>. Встретила <code>"Java"</code> второй раз — не создаёт новый объект, а отдаёт ссылку (номерок) на уже существующий. Это безопасно, потому что строки неизменяемы: никто не испортит общую строку.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: доска объявлений</span>
+      <p>В подъезде висит одно объявление «Не курить». Жильцам не печатают по личной копии — все смотрят на одну бумажку. Пул строк — такая доска для литералов. А <code>new String("Не курить")</code> — это кто-то отксерил объявление себе домой: текст тот же, бумажка другая.</p>
+    </div>
+    <p>Строки, которые появились <b>во время работы</b> программы — ввод через Scanner, склейка переменных, строки, которые вернули вызовы <code>substring</code>, <code>toUpperCase</code> и т. п., — в пул не попадают. Это новые объекты в обычной части кучи. Пройди по шагам:</p>
+    <div data-widget="trace" id="trace-m08-02-pool">
+      <script type="application/json">
+      { "title": "Литералы, new String и ==",
+        "intro": "Следи, куда смотрят стрелки. Перед каждым == угадай ответ.",
+        "code": "String s1 = \"Java\";\nString s2 = \"Java\";\nString s3 = new String(\"Java\");\nboolean r1 = s1 == s2;\nboolean r2 = s1 == s3;\nboolean r3 = s1.equals(s3);\nSystem.out.println(r1 + \" \" + r2 + \" \" + r3);",
+        "steps": [
+          { "line": 1, "vars": { "s1": "→#1" }, "heap": [ { "id": "#1", "label": "String · пул", "fields": { "текст": "\"Java\"" } } ], "note": "Объявляем s1 и инициализируем литералом «Java» — он лёг в пул строк. В <code>s1</code> — ссылка #1." },
+          { "line": 2, "vars": { "s1": "→#1", "s2": "→#1" }, "heap": [ { "id": "#1", "label": "String · пул", "fields": { "текст": "\"Java\"" } } ], "note": "Такой литерал в пуле уже есть — s2 инициализируется той же ссылкой #1. Нового объекта нет." },
+          { "line": 3, "vars": { "s1": "→#1", "s2": "→#1", "s3": "→#2" }, "heap": [ { "id": "#1", "label": "String · пул", "fields": { "текст": "\"Java\"" } }, { "id": "#2", "label": "String · new", "fields": { "текст": "\"Java\"" } } ], "note": "Оператор <code>new</code> всегда создаёт новый объект — даже если такой текст уже есть. Это #2 с теми же буквами." },
+          { "line": 4, "vars": { "s1": "→#1", "s2": "→#1", "s3": "→#2", "r1": "true" }, "heap": [ { "id": "#1", "label": "String · пул", "fields": { "текст": "\"Java\"" } }, { "id": "#2", "label": "String · new", "fields": { "текст": "\"Java\"" } } ], "ask": ["r1"], "note": "Посмотри, куда ведут стрелки s1 и s2. Обе — в #1, это один объект, поэтому сравнение по ссылке <code>==</code> даёт true. Повезло, а не «строки равны»." },
+          { "line": 5, "vars": { "s1": "→#1", "s2": "→#1", "s3": "→#2", "r1": "true", "r2": "false" }, "heap": [ { "id": "#1", "label": "String · пул", "fields": { "текст": "\"Java\"" } }, { "id": "#2", "label": "String · new", "fields": { "текст": "\"Java\"" } } ], "ask": ["r2"], "note": "Сравни номерки у s1 и s3. #1 и #2 разные. Буквы одинаковые, но <code>==</code> на буквы не смотрит: false." },
+          { "line": 6, "vars": { "s1": "→#1", "s2": "→#1", "s3": "→#2", "r1": "true", "r2": "false", "r3": "true" }, "heap": [ { "id": "#1", "label": "String · пул", "fields": { "текст": "\"Java\"" } }, { "id": "#2", "label": "String · new", "fields": { "текст": "\"Java\"" } } ], "ask": ["r3"], "note": "Вызов s1.equals(s3) сравнивает по содержимому, а не по ссылке: символы по одному — J=J, a=a, v=v, a=a. Все совпали, метод возвращает true." },
+          { "line": 7, "vars": { "s1": "→#1", "s2": "→#1", "s3": "→#2", "r1": "true", "r2": "false", "r3": "true" }, "heap": [ { "id": "#1", "label": "String · пул", "fields": { "текст": "\"Java\"" } }, { "id": "#2", "label": "String · new", "fields": { "текст": "\"Java\"" } } ], "out": "true false true\n", "note": "Вывод: <code>==</code> ответил по-разному на одинаковый текст. Надёжен только <code>equals</code>." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p><code>new String("Java")</code> в живом коде почти не пишут — он нужен как раз для таких демонстраций и вопросов на собеседовании. В реальности «разные объекты с одинаковым текстом» получаются сами: из Scanner, из файла, из ответа сервера.</p></div>
+    <details class="predict">
+      <summary>String a = "Java"; String part = "Ja"; String b = part + "va"; — что даст a == b? А a.equals(b)?</summary>
+      <p><code>a == b</code> → <b>false</b>: выражение со склейкой переменной вычисляется во время работы программы и создаёт новый объект вне пула. <code>a.equals(b)</code> → <b>true</b>: содержимое то же. А вот <code>"Ja" + "va" == "Java"</code> даст <b>true</b>: склейку двух литералов компилятор делает заранее, ещё при компиляции, и в байт-коде остаётся готовый литерал «Java» из пула. Вот почему <code>==</code> для строк — лотерея.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: intern() — положить строку в пул вручную</summary>
+      <p>Метод <code>intern()</code> возвращает «пуловую» версию строки: если такой текст в пуле есть — ссылку оттуда, если нет — кладёт строку в пул. Поэтому <code>(part + "va").intern() == "Java"</code> → true. В обычном коде это не нужно, но на собеседовании иногда спрашивают «что такое intern».</p>
+      <p>И ещё тонкость: если переменная объявлена как <code>final String part = "Ja";</code>, она становится константой, и <code>part + "va"</code> тоже вычисляется при компиляции — тогда <code>==</code> снова даст true. Ещё одна причина не полагаться на <code>==</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Без учёта регистра и без NullPointerException</h2>
+    <h3>equalsIgnoreCase — «Да», «ДА» и «да» — одно и то же</h3>
+<pre data-file="IgnoreCase.java"><code class="java">String answer = "ДА";
+System.out.println(answer.equals("да"));            // false — регистр важен
+System.out.println(answer.equalsIgnoreCase("да"));  // true
+System.out.println(answer.toLowerCase().equals("да")); // true — тот же эффект</code></pre>
+    <h3>Если в переменной может оказаться null</h3>
+    <p><code>equals</code> — метод объекта: его вызывают у объекта и передают аргумент. Если объекта нет, вызвать метод не у кого:</p>
+<pre data-file="NullSafe.java"><code class="java">String answer = null;
+System.out.println("да".equals(answer));   // false — спокойно
+System.out.println(answer.equals("да"));   // 💥 NullPointerException</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>"да".equals(answer)</code><div><p>Метод вызываем у строкового литерала — он точно существует, а <code>answer</code> передаём аргументом. Если <code>answer</code> окажется <code>null</code>, метод просто вернёт false. Такой порядок иногда называют «условия Йоды»: «да равно ли ответу?» — звучит странно, зато безопасно.</p></div></div>
+      <div class="annot-row"><code>answer.equals("да")</code><div><p>Если <code>answer</code> — null, вызвать метод не у кого — это всё равно что прийти в гардероб без номерка и требовать пальто: NullPointerException.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Что будет: String s = null; System.out.println(s == null); ?</summary>
+      <p><b>true</b>, и никакого исключения. Проверять «есть ли объект» как раз нужно сравнением по ссылке <code>==</code>: <code>null</code> — это не объект, у него нет «содержимого», есть только «номерка нет». Так что правило «строки — через equals» не мешает писать <code>if (s == null)</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Где это встретится в тестах</h2>
+    <p>В тестах сравнение строк — каждая вторая строчка. И там то же разделение: сравнение по ссылке («тот же объект») и по содержимому («то же содержимое»):</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Проверка в JUnit / AssertJ</th><th>Что сравнивает внутри</th></tr>
+        <tr><td><code>assertEquals("Корзина", title)</code></td><td><code>equals</code> — содержимое ✅</td></tr>
+        <tr><td><code>assertThat(title).isEqualTo("Корзина")</code></td><td><code>equals</code> — содержимое ✅</td></tr>
+        <tr><td><code>assertThat(title).isEqualToIgnoringCase("корзина")</code></td><td><code>equalsIgnoreCase</code></td></tr>
+        <tr><td><code>assertSame(expected, actual)</code></td><td><code>==</code> — тот же объект (нужно редко)</td></tr>
+      </table>
+    </div>
+    <p>JUnit и AssertJ мы разберём в модуле 17. Сейчас важно: когда тест пишет «ожидали <i>Корзина</i>, получили <i>Корзина</i>» и всё равно падает — первое, что проверяешь, это невидимые пробелы и регистр. Об этом — в следующем уроке (<code>trim</code>, <code>strip</code>).</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: а как сравнить «больше-меньше»? compareTo</summary>
+      <p>Для сортировки по алфавиту есть вызов <code>a.compareTo(b)</code>. Метод возвращает число: отрицательное, если <code>a</code> по алфавиту раньше, ноль — если строки равны, положительное — если позже. <code>"apple".compareTo("banana")</code> → −1. Знаки <code>&lt;</code> и <code>&gt;</code> к строкам не применяются вообще — не скомпилируется. Пригодится в модуле 13, когда будем сортировать списки.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-02">
+      <script type="application/json">
+      {
+       "title": "== против equals",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String a = \"кот\";\nString b = \"кот\";\nString c = new String(\"кот\");\nSystem.out.println(a == b);\nSystem.out.println(a == c);\nSystem.out.println(a.equals(c));",
+         "answer": "true\nfalse\ntrue",
+         "why": "a и b ссылаются на один литерал из пула. c — новый объект через new. equals сравнивает по содержимому — оно одинаковое."
+        },
+        {
+         "type": "bug",
+         "q": "Пользователь вводит пароль. В какой строке ошибка?",
+         "code": "Scanner sc = new Scanner(System.in);\nString pass = sc.nextLine();\nif (pass == \"qwerty\") {\n    System.out.println(\"Вход выполнен\");\n}",
+         "answer": [
+          3
+         ],
+         "why": "Строку, которую вернул Scanner, сравнивают через <code>==</code> — это сравнение по ссылке, ответ всегда false. Нужно <code>pass.equals(\"qwerty\")</code>."
+        },
+        {
+         "type": "single",
+         "q": "Переменная <code>city</code> может быть null. Какая проверка не упадёт?",
+         "options": [
+          "<code>city.equals(\"Москва\")</code>",
+          "<code>\"Москва\".equals(city)</code>",
+          "<code>city.equalsIgnoreCase(\"Москва\")</code>"
+         ],
+         "answer": 1,
+         "why": "Метод вызывается у литерала, который точно существует, а city передаётся аргументом. Если city — null, equals просто вернёт false."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Одинаковые литералы в коде — это один объект в пуле строк",
+           "a": true
+          },
+          {
+           "s": "Если <code>a == b</code> дало true, значит, и <code>a.equals(b)</code> даст true",
+           "a": true
+          },
+          {
+           "s": "Если <code>a.equals(b)</code> дало true, значит, и <code>a == b</code> даст true",
+           "a": false,
+           "why": "одинаковый текст может лежать в двух разных объектах — тогда == даст false."
+          },
+          {
+           "s": "<code>new String(\"x\")</code> берёт объект из пула",
+           "a": false,
+           "why": "оператор new всегда создаёт новый объект."
+          }
+         ]
+        },
+        {
+         "type": "match",
+         "q": "Соедини вопрос и способ его задать",
+         "left": [
+          "Это один и тот же объект?",
+          "Одинаковый ли текст?",
+          "Одинаковый текст, регистр не важен?",
+          "Объекта нет?"
+         ],
+         "right": [
+          "a == b",
+          "a.equals(b)",
+          "a.equalsIgnoreCase(b)",
+          "a == null"
+         ],
+         "why": "<code>==</code> для объектов — сравнение по ссылке. По содержимому — только equals и его родственники."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Тренировка к собеседованию</span>
+      <p>Напиши наставнику: <em>«Спроси меня, как на собеседовании: чем == отличается от equals для строк и почему "Java" == "Java" иногда true. Я отвечу своими словами, а ты придирайся»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>==</code> для объектов — <b>сравнение по ссылке</b> (тот же ли объект), <code>equals</code> — <b>сравнение по содержимому</b>.</li>
+        <li>Строки сравнивай по содержимому — вызовом <code>equals</code>. Всегда.</li>
+        <li>Литералы хранятся в пуле по одному экземпляру — поэтому <code>"a" == "a"</code> бывает true. Строки из Scanner, склейки с переменными и <code>new String</code> — новые объекты.</li>
+        <li><code>equalsIgnoreCase</code> — без учёта регистра. <code>"да".equals(x)</code> не упадёт, даже если <code>x</code> — null.</li>
+        <li>Проверка «объекта нет» — <code>x == null</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

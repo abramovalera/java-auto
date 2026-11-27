@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ошибки — твои друзья · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m01-08">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 1 · Урок 7</div>
+    <h1>Ошибки — твои друзья</h1>
+    <p class="lead">Красный текст пугает только первые пару недель. Потом понимаешь: это не «ты плохой программист», а подсказка от компилятора — где именно и что пошло не так. Научимся её читать.</p>
+    <div class="meta"><span>⏱ 20–25 минут</span><span>🔍 учимся читать сообщения об ошибках</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Ошибаются все</h2>
+    <div class="say" data-mood="oops"><p>Открою секрет: опытные программисты видят ошибки <b>каждый день, десятки раз</b>. Разница не в том, что профи не ошибается, а в том, что он спокойно читает сообщение и за минуту понимает, что поправить. Это навык — и он тренируется прямо сегодня.</p></div>
+    <p>Сообщение об ошибке — не наказание, а подсказка: Java говорит, где и что не так. Научишься его читать — и будешь спокойно чинить и свой код, и чужой.</p>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Три вида ошибок</h2>
+    <p>Вспомни конвейер из <a href="/lessons/m01/02-how-java-works.html">урока 1.2</a>: <code>Main.java</code> → <code>javac</code> → <code>Main.class</code> → JVM. Когда ты жмёшь ▶, IDEA проходит его целиком. Ошибки могут «выскочить» на разных участках этого пути:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 770 300" role="img" aria-label="Где ловятся ошибки: компиляции — на javac, выполнения — в JVM, логические — в результате">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="30" width="110" height="60" rx="10" class="d-blue"/>
+        <text x="65" y="66" text-anchor="middle" class="d-title">Main.java</text>
+        <path d="M122 60 H146" class="d-arrow"/>
+        <rect x="150" y="30" width="110" height="60" rx="30" class="d-accent"/>
+        <text x="205" y="66" text-anchor="middle" class="d-title">javac</text>
+        <path d="M262 60 H286" class="d-arrow"/>
+        <rect x="290" y="30" width="110" height="60" rx="10" class="d-yellow"/>
+        <text x="345" y="66" text-anchor="middle" class="d-title">Main.class</text>
+        <path d="M402 60 H426" class="d-arrow"/>
+        <rect x="430" y="30" width="110" height="60" rx="10" class="d-teal"/>
+        <text x="485" y="66" text-anchor="middle" class="d-title">JVM</text>
+        <path d="M542 60 H596" class="d-arrow"/>
+        <rect x="600" y="30" width="155" height="60" rx="10" class="d-box"/>
+        <text x="677" y="66" text-anchor="middle" class="d-title">вывод</text>
+
+        <path d="M205 92 V138" class="d-dash"/>
+        <path d="M485 92 V138" class="d-dash"/>
+        <path d="M677 92 V138" class="d-dash"/>
+
+        <rect x="115" y="140" width="180" height="140" rx="12" class="d-red"/>
+        <text x="205" y="166" text-anchor="middle" class="d-title">Ошибка компиляции</text>
+        <text x="130" y="192" class="d-small">опечатка, забытая ;,</text>
+        <text x="130" y="212" class="d-small">лишняя скобка</text>
+        <text x="130" y="238" class="d-small">→ .class не создаётся,</text>
+        <text x="130" y="258" class="d-small">программа не стартует</text>
+
+        <rect x="395" y="140" width="180" height="140" rx="12" class="d-yellow"/>
+        <text x="485" y="166" text-anchor="middle" class="d-title">Ошибка выполнения</text>
+        <text x="410" y="192" class="d-small">код правильный, но</text>
+        <text x="410" y="212" class="d-small">делает невозможное</text>
+        <text x="410" y="238" class="d-small">→ программа падает</text>
+        <text x="410" y="258" class="d-small">посреди работы</text>
+
+        <rect x="590" y="140" width="170" height="140" rx="12" class="d-violet"/>
+        <text x="675" y="166" text-anchor="middle" class="d-title">Логическая</text>
+        <text x="605" y="192" class="d-small">всё работает, но</text>
+        <text x="605" y="212" class="d-small">выводит не то</text>
+        <text x="605" y="238" class="d-small">→ заметишь только ты</text>
+        <text x="605" y="258" class="d-small">или проверка задач</text>
+      </svg>
+      <figcaption>Чем левее поймана ошибка, тем лучше: компилятор находит её ещё до запуска и сам показывает место.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: рецепт торта</span>
+      <p><strong>Ошибка компиляции</strong> — в рецепте опечатка: «добавьте 2 яйк». Повар (компилятор) читает рецепт заранее и отказывается готовить, пока не исправишь.</p>
+      <p><strong>Ошибка выполнения</strong> — рецепт грамотный, но на шаге 5 написано «возьмите яйцо из пустого холодильника». Повар начал готовить и застрял посреди процесса.</p>
+      <p><strong>Логическая ошибка</strong> — рецепт выполнен идеально, торт испечён… но вместо сахара в рецепте указана соль. Никто не ругался, а результат не тот.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Где ты увидишь ошибку компиляции</h2>
+    <p>Допустим, в <code>HelloWorld.java</code> забыли точку с запятой в конце строки 3. Узнаешь об этом в трёх местах — посмотрим на каждое.</p>
+
+    <h3>1. Прямо в редакторе — ещё до запуска</h3>
+    <p>IDEA проверяет код, пока ты печатаешь. Место ошибки она подчёркивает <b>красной волнистой линией</b>. Наведи на него мышку — всплывёт описание:</p>
+    <div data-widget="ide" id="shot-err-editor">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "gutterRun": [1, 2],
+        "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\")\n    }\n}",
+        "errors": [ { "line": 3, "col": 44, "len": 1, "msg": "';' expected", "tip": true, "fix": "Insert ';'" } ],
+        "marks": [ { "n": 1, "target": "err-3", "text": "Красная волна — «вот здесь что-то не так». Тут она стоит сразу после <code>)</code>: именно там должна быть <code>;</code>" },
+                   { "n": 2, "target": "tip", "text": "Описание ошибки появляется, если навести мышку на волну: <b>';' expected</b> — «ожидалась точка с запятой». Ниже IDEA предлагает исправление (<kbd>Alt</kbd>+<kbd>Enter</kbd>)" },
+                   { "n": 3, "target": "problems", "text": "Счётчик в правом верхнем углу: <b>❗1</b> — в файле одна ошибка. Стрелочки рядом прыгают от ошибки к ошибке. Зелёная галочка ✓ — ошибок нет" } ],
+        "caption": "Ошибка компиляции в редакторе IDEA" }
+      </script>
+    </div>
+
+    <h3>2. При запуске ▶ — панель Build</h3>
+    <p>Если всё равно нажать ▶, программа <b>не запустится</b>: компилятор откажется делать <code>.class</code>. Вместо консоли Run внизу откроется панель <b>Build</b> («сборка»):</p>
+    <div data-widget="ide" id="shot-err-build">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "gutterRun": [1, 2],
+        "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\")\n    }\n}",
+        "errors": [ { "line": 3, "col": 44, "len": 1, "msg": "';' expected" } ],
+        "build": { "file": "HelloWorld.java", "errors": [ { "msg": "';' expected", "line": 3, "col": 44 } ] },
+        "marks": [ { "n": 1, "target": "build-result", "text": "<b>build failed</b> — сборка не удалась, программа не запускалась вообще. Поэтому никакого вывода нет" },
+                   { "n": 2, "target": "build-file", "text": "В каком файле ошибки и сколько их" },
+                   { "n": 3, "target": "build-err-1", "text": "Сама ошибка и номер строки <b>:3</b>. <b>Двойной щелчок</b> по ней переносит курсор прямо на нужное место в коде" },
+                   { "n": 4, "target": "build-out", "text": "Подробности: полный путь к файлу, потом <b>:3:44</b> — строка 3, символ 44 — и описание <code>java: ';' expected</code>" } ],
+        "caption": "Панель Build после неудачного запуска" }
+      </script>
+    </div>
+
+    <h3>3. На сайте — кнопкой «Проверить»</h3>
+    <p>Сайт показывает текст компилятора <code>javac</code> целиком, ровно как он его пишет:</p>
+<pre class="terminal"><span class="err">workspace/module-01/HelloWorld.java:3: error: ';' expected
+        System.out.println("Hello, World!")
+                                           ^
+1 error</span></pre>
+    <p>Выглядит страшно, но в этом сообщении нет ни одного лишнего слова. Именно в таком виде ошибки встречаются в логах программ, в вопросах на форумах и на собеседованиях — так что научимся читать его целиком.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Как читать сообщение компилятора</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 220" role="img" aria-label="Части сообщения об ошибке: файл, номер строки, тип, описание, строка кода, указатель, количество ошибок">
+        <text x="96" y="52" text-anchor="middle" class="d-title d-c-blue">файл</text>
+        <path d="M96 58 V84" class="d-dash"/>
+        <text x="166" y="24" text-anchor="middle" class="d-title d-c-accent">№ строки</text>
+        <path d="M166 30 V84" class="d-dash"/>
+        <text x="214" y="52" text-anchor="middle" class="d-title d-c-red">тип</text>
+        <path d="M214 58 V84" class="d-dash"/>
+        <text x="296" y="24" text-anchor="middle" class="d-title d-c-violet">что не так</text>
+        <path d="M296 30 V84" class="d-dash"/>
+
+        <rect x="20" y="70" width="420" height="128" rx="10" class="d-code"/>
+        <text x="36" y="98" class="d-mono">HelloWorld.java:3: error: ';' expected</text>
+        <text x="36" y="126" class="d-mono">    System.out.println("Hello, World!")</text>
+        <text x="352" y="152" class="d-mono">^</text>
+        <text x="36" y="180" class="d-mono">1 error</text>
+
+        <text x="456" y="130" class="d-text">← сама строка из твоего файла</text>
+        <text x="456" y="156" class="d-text">← «^» показывает место: «вот тут!»</text>
+        <text x="456" y="184" class="d-text">← сколько всего ошибок</text>
+      </svg>
+      <figcaption>Формула любого сообщения компилятора: <code>файл:строка: error: описание</code>, потом твоя строка и стрелочка <code>^</code>.</figcaption>
+    </figure>
+    <ol class="steps">
+      <li><strong>Файл и номер строки</strong> — <code>HelloWorld.java:3</code>. Открой файл в IDEA и перейди на строку 3: номера строк — слева от кода, быстрый переход — <kbd>Ctrl</kbd> + <kbd>G</kbd>.</li>
+      <li><strong>Описание</strong> — <code>';' expected</code>, «ожидалась точка с запятой». Описания на английском, но слов в них немного, и они повторяются. Словарик — на следующем шаге.</li>
+      <li><strong>Стрелочка <code>^</code></strong> — точное место, где компилятор «споткнулся». Здесь — сразу после закрывающей скобки: там и должна стоять <code>;</code>.</li>
+    </ol>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Словарик: топ ошибок новичка</h2>
+    <p>Эти сообщения ты увидишь в ближайший месяц много раз. Учить наизусть не надо — возвращайся сюда, когда встретишь незнакомое.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Сообщение</th><th>Перевод</th><th>Частая причина</th></tr></thead>
+        <tbody>
+          <tr><td><code>';' expected</code></td><td>ожидалась точка с запятой</td><td>забыл <code>;</code> в конце инструкции</td></tr>
+          <tr><td><code>cannot find symbol</code></td><td>не могу найти имя</td><td>опечатка или неверный регистр: <code>system</code>, <code>printIn</code>, <code>Sytem</code>; слово без кавычек там, где нужен текст</td></tr>
+          <tr><td><code>class X is public, should be declared in a file named X.java</code></td><td>класс публичный — файл должен называться X.java</td><td>имя класса и имя файла не совпадают хотя бы одной буквой</td></tr>
+          <tr><td><code>unclosed string literal</code></td><td>строковый литерал (текст в кавычках) не закрыт</td><td>забыл закрывающую кавычку <code>"</code></td></tr>
+          <tr><td><code>reached end of file while parsing</code></td><td>файл кончился, а разбор ещё нет</td><td>не хватает закрывающей <code>}</code> — Java дошла до конца файла и не нашла, где кончается коробка</td></tr>
+          <tr><td><code>illegal character: '«'</code></td><td>недопустимый символ</td><td>в код попали «ёлочки», «умные» кавычки “ ” или русская буква вместо английской — обычно после копирования из Word или мессенджера</td></tr>
+          <tr><td><code>class, interface, enum, or record expected</code></td><td>ожидался класс (или похожее)</td><td>лишняя <code>}</code> закрыла класс раньше времени, и код оказался «снаружи коробки»</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Редактор IDEA формулирует некоторые ошибки <b>своими словами</b>, не как <code>javac</code>. Смысл тот же — посмотри, как выглядят самые частые:</p>
+    <div data-widget="ide" id="shot-err-symbol">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "gutterRun": [1, 2],
+        "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        Sytem.out.println(\"Hello, World!\");\n    }\n}",
+        "errors": [ { "line": 3, "text": "Sytem", "msg": "Cannot resolve symbol 'Sytem'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "left", "text": "Красным стало само слово: IDEA не знает, что такое <code>Sytem</code> (пропущена буква <b>s</b>)" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot resolve symbol</b> — «не могу понять имя». <code>javac</code> скажет то же самое словами <code>cannot find symbol</code>" } ],
+        "caption": "Опечатка в имени: Cannot resolve symbol" }
+      </script>
+    </div>
+    <div data-widget="ide" id="shot-err-filename">
+      <script type="application/json">
+      { "tree": [ { "name": "module-01", "type": "src", "depth": 0, "open": true }, { "name": "HelloWorld", "type": "class", "depth": 1, "selected": true } ],
+        "file": "HelloWorld.java",
+        "code": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+        "errors": [ { "line": 1, "text": "Hello", "msg": "Class 'Hello' is public, should be declared in a file named 'Hello.java'", "tip": true, "fix": "Rename file to Hello.java" } ],
+        "marks": [ { "n": 1, "target": "tab", "text": "Файл называется <b>HelloWorld.java</b>…" },
+                   { "n": 2, "target": "err-1", "text": "…а класс внутри — <b>Hello</b>. Имена не совпадают" },
+                   { "n": 3, "target": "tip", "text": "IDEA предлагает переименовать файл; можно и наоборот — переименовать класс (<kbd>Shift</kbd>+<kbd>F6</kbd>). Главное — чтобы имена совпали буква в букву" } ],
+        "caption": "Имя класса не совпадает с именем файла" }
+      </script>
+    </div>
+    <div data-widget="ide" id="shot-err-string">
+      <script type="application/json">
+      { "tree": false, "file": "Note.java", "gutterRun": [1, 2],
+        "code": "public class Note {\n    public static void main(String[] args) {\n        System.out.println(\"Список покупок:\");\n        System.out.println(\"- хлеб);\n        System.out.println(\"- сыр\");\n    }\n}",
+        "errors": [ { "line": 4, "text": "\"- хлеб);", "msg": "Illegal line end in string literal", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-4", "text": "Подсвечен весь хвост строки: кавычка открылась, а закрыться не успела до конца строки" },
+                   { "n": 2, "target": "tip", "text": "IDEA пишет <b>Illegal line end in string literal</b> — «строка кода кончилась внутри текста». У <code>javac</code> это <code>unclosed string literal</code>" } ],
+        "caption": "Незакрытая кавычка" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Невидимые враги</span>
+      <p>Буква «с» в русской и английской раскладке выглядит одинаково, но для Java это разные символы. Если <em>cannot find symbol</em> указывает на слово, которое «точно написано правильно», — сотри его и набери заново в английской раскладке. А кавычки в коде всегда только прямые: <code>"</code>.</p>
+    </div>
+    <div data-widget="check" id="check-m01-08-a">
+      <script type="application/json">
+      { "title": "Разминка: словарик ошибок",
+        "items": [
+          { "type": "match", "q": "Соедини сообщение компилятора с причиной",
+            "left": ["';' expected", "cannot find symbol", "unclosed string literal", "reached end of file while parsing"],
+            "right": ["Забыта точка с запятой", "Опечатка в имени или неверный регистр букв", "Не закрыта кавычка у текста", "Не хватает закрывающей фигурной скобки"],
+            "why": "Четыре самых частых сообщения. Узнаёшь их — и половина ошибок чинится за секунды." },
+          { "type": "bug", "q": "Компилятор пишет <code>unclosed string literal</code>. Какая строка виновата?",
+            "code": "public class Note {\n    public static void main(String[] args) {\n        System.out.println(\"Список покупок:\");\n        System.out.println(\"- хлеб);\n        System.out.println(\"- сыр\");\n    }\n}",
+            "answer": [4], "why": "В строке 4 у строкового литерала нет закрывающей кавычки: <code>\"- хлеб);</code>. Java считает, что строка тянется до конца строки кода, и не находит ей конца." },
+          { "type": "single", "q": "Компилятор пишет <code>cannot find symbol</code> и показывает на <code>system.out.println</code>. В чём дело?",
+            "options": ["Не хватает точки с запятой", "system написано с маленькой буквы", "Неправильное имя файла"], "answer": 1,
+            "why": "Класс называется <code>System</code> — с большой буквы. <code>system</code> для Java — неизвестное имя. Про <code>;</code> было бы <em>';' expected</em>." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Чини первую ошибку</h2>
+    <p>Иногда компилятор вываливает 5, 10, 20 ошибок сразу. Не паникуй: часто <strong>одна настоящая ошибка тянет за собой цепочку ложных</strong>. Например, забытая кавычка «съедает» остаток строки, и компилятор начинает путаться во всём, что дальше.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: домино</span>
+      <p>Упала первая костяшка — повалились остальные. Поднимать каждую по отдельности бессмысленно: подними первую, и половина «ошибок» исчезнет сама. Правило: <strong>исправь самую первую ошибку в списке и запусти снова</strong>. Потом смотри, что осталось.</p>
+    </div>
+    <p>Вот так выглядит список из нескольких ошибок в панели <b>Build</b>. Начинай с самой верхней:</p>
+    <div data-widget="ide" id="shot-err-many">
+      <script type="application/json">
+      { "tree": false, "file": "Hello.java", "gutterRun": [1, 2],
+        "code": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Привет!\")\n        System.out.println(\"Как дела?\");\n        System.out.println(\"Пока!\")\n    }\n}",
+        "errors": [ { "line": 3, "col": 38, "len": 1, "msg": "';' expected" }, { "line": 5, "col": 36, "len": 1, "msg": "';' expected" } ],
+        "build": { "file": "Hello.java", "errors": [ { "msg": "';' expected", "line": 3, "col": 38 }, { "msg": "';' expected", "line": 5, "col": 36 } ] },
+        "marks": [ { "n": 1, "target": "problems", "text": "В редакторе две ошибки — <b>❗2</b>" },
+                   { "n": 2, "target": "build-err-1", "text": "Первая ошибка в списке — строка 3. Исправь её и запусти снова" },
+                   { "n": 3, "target": "build-err-2", "text": "Потом следующая. Если после исправления первой список сильно изменился — значит, остальные были «эхом» первой" } ],
+        "caption": "Несколько ошибок в панели Build" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Строка и строка выше</span>
+      <p>Компилятор замечает проблему там, где <em>перестал понимать</em> код, а это не всегда место, где ты ошибся. Если в указанной строке всё нормально — посмотри на строку <strong>выше</strong>. Забытая <code>}</code> вообще может обнаружиться только в последней строке файла.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Ошибки выполнения и логические</h2>
+    <p>Бывает, что компилятор доволен, <code>.class</code> создан, программа запустилась — и вдруг упала. Например, Java не умеет делить целое число на ноль. Жмёшь ▶ — и в панели Run видишь:</p>
+    <div data-widget="ide" id="shot-err-runtime">
+      <script type="application/json">
+      { "tree": false, "file": "Crash.java", "runConfig": "Crash", "gutterRun": [1, 2],
+        "code": "public class Crash {\n    public static void main(String[] args) {\n        System.out.println(\"Начинаем...\");\n        System.out.println(10 / 0);\n        System.out.println(\"Эту строку мы не увидим\");\n    }\n}",
+        "warnings": [ { "line": 4, "text": "10 / 0", "msg": "Division by zero" } ],
+        "console": { "title": "Crash", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Crash" },
+          { "t": "out", "s": "Начинаем..." },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ArithmeticException: / by zero" },
+          { "t": "err", "s": "\tat Crash.main(Crash.java:4)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Жёлтая подсветка — это <b>предупреждение</b>, не ошибка: IDEA подозревает неладное (деление на ноль), но компилировать не мешает" },
+                   { "n": 2, "target": "output", "text": "Инструкция в строке 3 успела выполниться" },
+                   { "n": 3, "target": "error", "text": "Красным — <b>исключение</b>: <code>ArithmeticException</code> (арифметическая ошибка), после двоеточия — причина: <code>/ by zero</code>, деление на ноль" },
+                   { "n": 4, "target": "link-1", "text": "Где упало: файл <b>Crash.java</b>, строка <b>4</b>. Это синяя ссылка — щёлкни, и IDEA откроет нужную строку" },
+                   { "n": 5, "target": "exit", "text": "<b>exit code 1</b> вместо 0 — программа завершилась аварийно. Строку 5 мы так и не увидели" } ],
+        "caption": "Ошибка выполнения (исключение) в консоли Run" }
+      </script>
+    </div>
+    <p>Это <strong>исключение</strong> (<em>exception</em>). Читается так же, как ошибка компиляции: что случилось (<code>/ by zero</code> — деление на ноль) и где (<code>Crash.java:4</code> — файл и строка; в IDEA это ссылка, по ней можно щёлкнуть). Первая инструкция успела выполниться, на инструкции в строке 4 программа упала, всё ниже уже не выполнилось. И <code>exit code 1</code> вместо привычного <code>0</code> — «что-то пошло не так». Подробно про исключения — в модуле 12.</p>
+    <p><strong>Логические ошибки</strong> — самые коварные. Никто не ругается, программа честно отработала… но вывела не то:</p>
+    <div data-widget="ide" id="shot-err-logic">
+      <script type="application/json">
+      { "tree": false, "file": "Sum.java", "runConfig": "Sum", "gutterRun": [1, 2],
+        "code": "public class Sum {\n    public static void main(String[] args) {\n        System.out.println(\"2 + 2 = \" + 2 + 2);\n    }\n}",
+        "console": { "title": "Sum", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Sum" },
+          { "t": "out", "s": "2 + 2 = 22" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "problems", "text": "Зелёная галочка: для IDEA в коде всё в порядке" },
+                   { "n": 2, "target": "output", "text": "Хотели <b>4</b>, получили <b>22</b>", "box": true },
+                   { "n": 3, "target": "exit", "text": "И даже <b>exit code 0</b> — «всё хорошо». Ошибку видишь только ты" } ],
+        "problems": true,
+        "caption": "Логическая ошибка: никаких красных строк, но результат не тот" }
+      </script>
+    </div>
+    <p>Java сделала ровно то, что ты написал, — просто написал ты не то, что имел в виду (помнишь ловушку из <a href="/lessons/m01/07-console-output.html">урока 1.6</a>?). Такие ошибки ловятся только сравнением результата с ожиданием. Именно этим занимается <strong>проверка задач на сайте</strong>: запускает программу и сравнивает результат с правильным, вплоть до символа. В модуле 17 ты научишься писать такие проверки сам — тесты на JUnit.</p>
+    <details class="predict">
+      <summary>Проверка написала: «ожидалось Hello, World!, получено Hello World!». Какой это вид ошибки?</summary>
+      <p><strong>Логическая.</strong> Программа скомпилировалась и выполнилась без падений, но вывела текст без запятой. Компьютер не догадается, что ты «имел в виду» запятую, — для него это другая строка. Сравнивай вывод посимвольно.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Если застрял + задача FixMe</h2>
+    <p>Вот алгоритм. Проходи его по шагам и не перескакивай к последнему сразу:</p>
+    <ol class="steps">
+      <li><strong>Прочитай сообщение целиком.</strong> Не «опять красное», а по словам: файл, строка, описание. Найди описание в словарике.</li>
+      <li><strong>Посмотри на указанную строку и на строку выше.</strong> Проверь <code>;</code>, кавычки, скобки, регистр букв.</li>
+      <li><strong>Сравни с работающим примером.</strong> Открой урок или прошлую задачу, где похожий код работал, и найди отличие.</li>
+      <li><strong>Исправь одну вещь и запусти снова.</strong> Не меняй пять мест сразу — потом не поймёшь, что помогло.</li>
+      <li><span class="ai-only"><strong>Спроси наставника.</strong> Напиши в Claude Code <code>/hint</code>. Он не исправит за тебя, а подскажет, куда смотреть, — и каждая следующая подсказка будет точнее.</span><span class="free-only"><strong>Спроси <span class="ai-name">DeepSeek</span>.</strong> Вставь текст ошибки и свой код и попроси: «Не исправляй за меня — подскажи, куда смотреть». Он подскажет направление, а если не поможет — попроси следующую подсказку, чуть точнее.</span></li>
+    </ol>
+    <p>На <a href="/tasks.html?module=m01">странице практики</a> тебя ждёт <strong>задача 7 — FixMe</strong>. Файл <code>FixMe.java</code> уже лежит в папке <code>module-01</code> — и он сломан. В нём <strong>четыре ошибки</strong>, и все они из словарика этого урока.</p>
+    <div class="callout try">
+      <span class="callout-title">Правила игры</span>
+      <p><span class="ai-only">Не исправляй на глаз всё подряд. Нажми «Проверить» на сайте (или ▶ в IDEA), прочитай <strong>первое</strong> сообщение, исправь, проверь снова. Так ты потренируешь главный навык урока — чтение ошибок. Запиши себе, какие сообщения увидел: наставник на экзамене спросит.</span><span class="free-only">Не исправляй на глаз всё подряд. Нажми «Проверить» на сайте (или ▶ в IDEA), прочитай <strong>первое</strong> сообщение, исправь, проверь снова. Так ты потренируешь главный навык урока — чтение ошибок. Запиши себе, какие сообщения увидел: <span class="ai-name">DeepSeek</span> на экзамене спросит.</span></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m01-08">
+      <script type="application/json">
+      { "title": "Ошибки — главное",
+        "items": [
+          { "type": "match", "q": "Соедини ситуацию с видом ошибки",
+            "left": ["IDEA подчеркнула строку красным, программа не запускается", "Программа напечатала половину и упала с ArithmeticException", "Программа отработала, но вывела «Hello world» вместо «Hello, World!»"],
+            "right": ["Ошибка компиляции", "Ошибка выполнения", "Логическая ошибка"],
+            "why": "Компиляции — ловит javac до запуска; выполнения — программа падает на ходу; логическая — всё работает, но результат не тот." },
+          { "type": "single", "q": "Что значит <code>reached end of file while parsing</code>?",
+            "options": ["Файл пустой", "Не хватает закрывающей фигурной скобки", "Файл слишком длинный"], "answer": 1,
+            "why": "Компилятор дошёл до конца файла, а какая-то коробка так и не закрылась. Обычно не хватает <code>}</code>." },
+          { "type": "single", "q": "Компилятор выдал 6 ошибок. С чего начать?",
+            "options": ["С последней — она самая свежая", "Исправить все шесть сразу и только потом запустить", "С первой, потом запустить снова"], "answer": 2,
+            "why": "Первая ошибка часто вызывает остальные. Исправь её, запусти — и ошибок, скорее всего, станет меньше." },
+          { "type": "single", "q": "Сообщение: <code>Hello.java:4: error: ';' expected</code>. Что оно значит?",
+            "options": ["В файле 4 ошибки", "В строке 4 файла Hello.java не хватает точки с запятой", "Программа упала на 4-й секунде работы"], "answer": 1,
+            "why": "Формула: <code>файл:строка: error: описание</code>. Число ошибок пишется отдельно внизу: <em>1 error</em>." },
+          { "type": "bug", "q": "Найди обе ошибки",
+            "code": "public class Weather {\n    public static void main(String[] args) {\n        System.out.printIn(\"Сегодня солнечно\");\n        system.out.println(\"Завтра дождь\");\n    }\n}",
+            "answer": [3, 4], "why": "Строка 3 — <code>printIn</code> с большой «i» вместо <code>println</code> с маленькой «L». Строка 4 — <code>system</code> с маленькой буквы. Обе дадут <em>cannot find symbol</em>." },
+          { "type": "order", "q": "Застрял на ошибке. Расставь действия по порядку",
+            "lines": ["Прочитать сообщение целиком: файл, строка, описание", "Посмотреть на указанную строку и строку выше", "Сравнить с работающим примером", "Исправить одну вещь и запустить снова", "Написать наставнику /hint"],
+            "why": "Наставник — последняя ступенька: сначала попробуй сам, так навык растёт быстрее." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши в Claude Code: <em>«Дай мне три коротких сломанных программы, по одной ошибке в каждой. Я буду угадывать, что скажет компилятор, а потом найду ошибку»</em>. Это лучшая тренировка перед задачей FixMe и экзаменом.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Ошибки бывают трёх видов: <strong>компиляции</strong> (ловит javac до запуска), <strong>выполнения</strong> (программа падает на ходу), <strong>логические</strong> (работает, но не то).</li>
+        <li>Ошибку компиляции видно в редакторе IDEA (красное), в панели Build при запуске и на сайте кнопкой «Проверить».</li>
+        <li>Формула сообщения: <code>файл:строка: error: описание</code>, твоя строка и <code>^</code> под местом проблемы.</li>
+        <li>Чини <strong>первую</strong> ошибку и запускай снова — остальные часто исчезают сами. В строке всё чисто — смотри строку выше.</li>
+        <li>Самые частые: <code>';' expected</code>, <code>cannot find symbol</code>, несовпадение имени класса и файла, незакрытая кавычка, нехватка <code>}</code>.</li>
+        <li><span class="ai-only">Застрял — пройди алгоритм, потом <code>/hint</code> наставнику.</span><span class="free-only">Застрял — пройди алгоритм, потом попроси подсказку у <span class="ai-name">DeepSeek</span>.</span></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

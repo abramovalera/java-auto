@@ -1,0 +1,49 @@
+## id: tr-colls-009
+## title: Повтор в лотерейных билетах
+## file: trainer/colls/HasRepeatedNumber.java
+## class: HasRepeatedNumber
+## level: 1
+## category: Классика собеседований
+@@ description
+<p>Напиши класс <code>HasRepeatedNumber</code>. Номера лотерейных билетов не должны повторяться. В первой строке — количество билетов <code>n</code>, во второй — <code>n</code> номеров через пробел. Читай номера по порядку: как только встретится номер, который уже был, напечатай <code>Есть повтор: X</code> и закончи проверку. Если повторов нет, напечатай <code>Повторов нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       105 230 417 230 105 999
+вывод: Есть повтор: 230
+
+ввод:  4
+       1 2 3 4
+вывод: Повторов нет</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>set.add(x)</code> возвращает <code>false</code>, если такой элемент в множестве уже был</li>
+<li><code>return;</code> в <code>main</code> — сразу завершает программу</li>
+</ul></div>
+@@ test: Повтор есть
+@@ input
+6
+105 230 417 230 105 999
+@@ expect
+Есть повтор: 230
+@@ test: Все разные
+@@ input
+4
+1 2 3 4
+@@ expect
+Повторов нет
+@@ test: Ловушка: первым повторился не самый ранний
+@@ input
+5
+7 8 9 8 7
+@@ expect
+Есть повтор: 8
+@@ test: Один билет
+@@ input
+1
+42
+@@ expect
+Повторов нет
+@@ test: Повтор сразу
+@@ input
+3
+5 5 6
+@@ expect
+Есть повтор: 5

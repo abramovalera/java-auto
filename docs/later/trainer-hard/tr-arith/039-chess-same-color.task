@@ -1,0 +1,50 @@
+## id: tr-arith-039
+## title: Клетки одного цвета
+## file: trainer/arith/ChessCellSameColor.java
+## class: ChessCellSameColor
+## level: 3
+## category: Логика: true/false
+@@ description
+<p>Клетки шахматной доски заданы двумя числами от 1 до 8: номер столбца и номер строки. Клетка (1, 1) — чёрная, цвета чередуются. Создай класс <code>ChessCellSameColor</code>. Программа читает две строки — в каждой столбец и строку одной клетки через пробел — и печатает <code>true</code>, если клетки одного цвета, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1 1
+       2 2
+вывод: true</span></pre>
+<p>Подумай, что общего у всех чёрных клеток, если сложить их столбец и строку.</p>
+@@ test: По диагонали
+@@ input
+1 1
+2 2
+@@ expect
+true
+@@ test: Соседи по вертикали
+@@ input
+1 1
+1 2
+@@ expect
+false
+@@ test: Противоположные углы
+@@ input
+1 1
+8 8
+@@ expect
+true
+@@ test: Другая диагональ
+@@ input
+1 8
+8 1
+@@ expect
+true
+@@ test: Соседи по горизонтали
+@@ input
+3 5
+4 5
+@@ expect
+false
+@@ test: Одна и та же клетка
+@@ input
+4 4
+4 4
+@@ expect
+true
+@@ require: % | Цвет клетки определяется чётностью — оператором %
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

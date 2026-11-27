@@ -1,0 +1,41 @@
+## id: tr-methods-012
+## title: Стоимость такси
+## file: trainer/methods/TaxiFareMethod.java
+## class: TaxiFareMethod
+## level: 1
+## category: Вычисления
+@@ description
+<p>Тариф такси: посадка стоит 150 ₽ и включает первые 3 км, каждый следующий километр — 40 ₽. Создай класс <code>TaxiFareMethod</code> и напиши метод <code>static int fare(int km)</code>, который возвращает цену поездки.</p>
+<p>main читает целое число километров и печатает <code>Поездка K км: N ₽</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10    вывод: Поездка 10 км: 430 ₽
+ввод:  2     вывод: Поездка 2 км: 150 ₽</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>в методе может быть несколько <code>return</code> — сработает тот, до которого дойдёт выполнение</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+10
+@@ expect
+Поездка 10 км: 430 ₽
+@@ test: Короткая поездка
+@@ input
+2
+@@ expect
+Поездка 2 км: 150 ₽
+@@ test: Ровно 3 км
+@@ input
+3
+@@ expect
+Поездка 3 км: 150 ₽
+@@ test: Первый платный километр
+@@ input
+4
+@@ expect
+Поездка 4 км: 190 ₽
+@@ test: Передумал ехать
+@@ input
+0
+@@ expect
+Поездка 0 км: 150 ₽
+@@ require: static\s+int\s+fare\s*\(\s*int\s+\w+\s*\) | Нужен метод static int fare(int km)
+@@ require: \Wfare\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать fare(...) и передать километры

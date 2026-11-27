@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вложенные циклы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m05-04">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 5 · Урок 4</div>
+    <h1>Вложенные циклы</h1>
+    <p class="lead">Цикл внутри цикла: так рисуют прямоугольники и треугольники из звёздочек, печатают таблицу умножения и обходят любые «строки и столбцы». И да — ёлочка любой высоты.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🔁🔁 цикл в цикле</span><span>🎄 ёлочка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m05-04-review">
+      <script type="application/json">
+      { "title": "Разминка: break, continue, do-while",
+        "items": [
+          { "type": "predict", "q": "Что выведет код?", "code": "for (int i = 1; i <= 6; i++) {\n    if (i % 2 == 1) {\n        continue;\n    }\n    System.out.print(i);\n}",
+            "answer": "246", "why": "Для нечётных continue переходит к следующей итерации, печатаются 2, 4, 6." },
+          { "type": "single", "q": "Какой цикл выполнит тело хотя бы один раз при любом условии?",
+            "options": ["for", "while", "do-while"], "answer": 2, "why": "do-while — цикл с постусловием: проверяет условие после тела." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "break внутри цикла останавливает всю программу", "a": false, "why": "break выходит только из цикла; программа продолжается со строки после него." },
+              { "s": "while (true) без break внутри — бесконечный цикл", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Цикл в цикле</h2>
+    <p>Тело цикла может содержать любые инструкции: вызов <code>println</code>, <code>if</code>… и другой цикл. Такой цикл называют <b>вложенным</b>. Он нужен, когда у данных есть <b>строки и столбцы</b>: таблица, шахматная доска, картинка из звёздочек, места в кинозале (ряды и кресла).</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: почтальон в многоэтажке</span>
+      <p>Почтальон поднимается на <b>этаж</b> (внешний цикл) и обходит на нём <b>все квартиры</b> (внутренний цикл). Только обойдя все квартиры этажа, он идёт на следующий этаж — и снова обходит все квартиры с первой.</p>
+    </div>
+<pre data-file="Rectangle.java"><code class="java">for (int row = 1; row &lt;= 3; row++) {        // этажи: строки
+    for (int col = 1; col &lt;= 5; col++) {    // квартиры: столбцы
+        System.out.print("*");
+    }
+    System.out.println();                   // строка готова — на новую строку
+}</code></pre>
+<pre class="terminal"><span class="out">*****
+*****
+*****</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>for (int row …)</code><div><p><b>Внешний</b> цикл: строки. Одна итерация внешнего цикла = одна строка картинки.</p></div></div>
+      <div class="annot-row"><code>for (int col …)</code><div><p><b>Внутренний</b> цикл: его тело — вызов <code>print</code>, звёздочки одной строки печатаются без перевода строки. На каждой итерации внешнего цикла счётчик <code>col</code> заново объявляется и инициализируется значением 1.</p></div></div>
+      <div class="annot-row"><code>System.out.println();</code><div><p>Вызов стоит <b>после</b> внутреннего цикла, но <b>в теле</b> внешнего. Выполняется один раз на итерацию внешнего цикла — «нажимает Enter».</p></div></div>
+    </div>
+    <figure class="fig">
+      <svg viewBox="0 0 640 230" role="img" aria-label="Порядок обхода прямоугольника 3 на 5: сначала вся первая строка слева направо, потом вся вторая, потом третья — всего 15 шагов">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="160" y="24" class="d-small">col = 1</text>
+        <text x="224" y="24" class="d-small">2</text>
+        <text x="288" y="24" class="d-small">3</text>
+        <text x="352" y="24" class="d-small">4</text>
+        <text x="416" y="24" class="d-small">5</text>
+        <text x="40" y="66" class="d-small">row = 1</text>
+        <text x="40" y="126" class="d-small">row = 2</text>
+        <text x="40" y="186" class="d-small">row = 3</text>
+        <rect x="140" y="36" width="56" height="48" rx="8" class="d-accent"/><text x="168" y="66" text-anchor="middle" class="d-title">1</text>
+        <rect x="204" y="36" width="56" height="48" rx="8" class="d-accent"/><text x="232" y="66" text-anchor="middle" class="d-title">2</text>
+        <rect x="268" y="36" width="56" height="48" rx="8" class="d-accent"/><text x="296" y="66" text-anchor="middle" class="d-title">3</text>
+        <rect x="332" y="36" width="56" height="48" rx="8" class="d-accent"/><text x="360" y="66" text-anchor="middle" class="d-title">4</text>
+        <rect x="396" y="36" width="56" height="48" rx="8" class="d-accent"/><text x="424" y="66" text-anchor="middle" class="d-title">5</text>
+        <rect x="140" y="96" width="56" height="48" rx="8" class="d-teal"/><text x="168" y="126" text-anchor="middle" class="d-title">6</text>
+        <rect x="204" y="96" width="56" height="48" rx="8" class="d-teal"/><text x="232" y="126" text-anchor="middle" class="d-title">7</text>
+        <rect x="268" y="96" width="56" height="48" rx="8" class="d-teal"/><text x="296" y="126" text-anchor="middle" class="d-title">8</text>
+        <rect x="332" y="96" width="56" height="48" rx="8" class="d-teal"/><text x="360" y="126" text-anchor="middle" class="d-title">9</text>
+        <rect x="396" y="96" width="56" height="48" rx="8" class="d-teal"/><text x="424" y="126" text-anchor="middle" class="d-title">10</text>
+        <rect x="140" y="156" width="56" height="48" rx="8" class="d-violet"/><text x="168" y="186" text-anchor="middle" class="d-title">11</text>
+        <rect x="204" y="156" width="56" height="48" rx="8" class="d-violet"/><text x="232" y="186" text-anchor="middle" class="d-title">12</text>
+        <rect x="268" y="156" width="56" height="48" rx="8" class="d-violet"/><text x="296" y="186" text-anchor="middle" class="d-title">13</text>
+        <rect x="332" y="156" width="56" height="48" rx="8" class="d-violet"/><text x="360" y="186" text-anchor="middle" class="d-title">14</text>
+        <rect x="396" y="156" width="56" height="48" rx="8" class="d-violet"/><text x="424" y="186" text-anchor="middle" class="d-title">15</text>
+        <path d="M462 60 H500" class="d-arrow"/><text x="508" y="65" class="d-small">println() ↵</text>
+        <path d="M462 120 H500" class="d-arrow"/><text x="508" y="125" class="d-small">println() ↵</text>
+        <path d="M462 180 H500" class="d-arrow"/><text x="508" y="185" class="d-small">println() ↵</text>
+        <text x="320" y="224" text-anchor="middle" class="d-small">Всего итераций внутреннего цикла: 3 × 5 = 15</text>
+      </svg>
+      <figcaption>Внешний цикл сделал 3 итерации, внутренний на каждой из них — по 5. Номер в клетке — очередь, в которой она печатается.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>По шагам: внутренний цикл каждый раз заново</h2>
+    <p>Самое важное, что нужно увидеть: когда внешний цикл переходит к следующей итерации, внутренний начинается <b>с самого начала</b> — с инициализации <code>col = 1</code>.</p>
+    <div data-widget="trace" id="trace-nested">
+      <script type="application/json">
+      { "title": "Вложенные циклы: 2 строки × 3 столбца",
+        "intro": "Внешний цикл — row, внутренний — col. Следи, что происходит с col, когда row меняется.",
+        "code": "for (int row = 1; row <= 2; row++) {\n    for (int col = 1; col <= 3; col++) {\n        System.out.print(col);\n    }\n    System.out.println();\n}",
+        "steps": [
+          { "line": 1, "vars": { "row": "1" }, "note": "Внешний цикл: инициализация row = 1, условие 1 <= 2 — true. Первая итерация внешнего цикла — первая строка." },
+          { "line": 2, "vars": { "row": "1", "col": "1" }, "note": "Внутренний цикл стартует: инициализация col = 1, условие 1 <= 3 — true." },
+          { "line": 3, "vars": { "row": "1", "col": "1" }, "out": "1", "note": "Вызываем print и передаём аргумент col — печать без перевода строки." },
+          { "line": 2, "vars": { "row": "1", "col": "2" }, "ask": ["col"], "note": "Шаг внутреннего цикла col++. Было 1, стало 2. row не меняется!" },
+          { "line": 3, "vars": { "row": "1", "col": "2" }, "out": "2", "note": "Печатаем 2." },
+          { "line": 2, "vars": { "row": "1", "col": "3" }, "note": "col = 3, 3 <= 3 верно." },
+          { "line": 3, "vars": { "row": "1", "col": "3" }, "out": "3", "note": "Печатаем 3." },
+          { "line": 2, "vars": { "row": "1", "col": "4" }, "note": "col = 4, условие 4 <= 3 — false. Внутренний цикл закончился, счётчик col исчезает: он объявлен в заголовке внутреннего цикла." },
+          { "line": 5, "vars": { "row": "1" }, "out": "\n", "note": "println() — переводим строку. Первая строка «123» готова." },
+          { "line": 1, "vars": { "row": "2" }, "ask": ["row"], "note": "Шаг внешнего цикла row++. Был 1, стал 2. 2 <= 2 — true, вторая итерация внешнего цикла." },
+          { "line": 2, "vars": { "row": "2", "col": "1" }, "ask": ["col"], "note": "Внутренний цикл начинается заново — с инициализации счётчика. Значит, col снова 1, а не 4." },
+          { "line": 3, "vars": { "row": "2", "col": "1" }, "out": "1", "note": "Печатаем 1." },
+          { "line": 3, "vars": { "row": "2", "col": "2" }, "out": "2", "note": "col = 2 — печатаем 2 (проверку условия здесь пропустим, ты её уже знаешь)." },
+          { "line": 3, "vars": { "row": "2", "col": "3" }, "out": "3", "note": "col = 3 — печатаем 3." },
+          { "line": 2, "vars": { "row": "2", "col": "4" }, "note": "col = 4 — внутренний цикл закончен." },
+          { "line": 5, "vars": { "row": "2" }, "out": "\n", "note": "Перевод строки. Вторая строка «123» готова." },
+          { "line": 1, "vars": { "row": "3" }, "note": "row = 3, условие 3 <= 2 ложно. Внешний цикл закончен. Итог: две строки 123. Тело внутреннего цикла выполнилось 2 × 3 = 6 раз — 6 итераций." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Таблица умножения</h2>
+    <p>В заголовке и теле внутреннего цикла можно использовать счётчик внешнего. Строка <code>i</code>, столбец <code>j</code>, в клетке — <code>i * j</code>. Для ровных столбцов после каждого числа печатаем табуляцию <code>\t</code> из модуля 1.</p>
+<pre data-file="Times.java"><code class="java">for (int i = 1; i &lt;= 9; i++) {
+    for (int j = 1; j &lt;= 9; j++) {
+        System.out.print(i * j + "\t");
+    }
+    System.out.println();
+}</code></pre>
+<pre class="terminal"><span class="out">1	2	3	4	5	6	7	8	9
+2	4	6	8	10	12	14	16	18
+3	6	9	12	15	18	21	24	27
+…
+9	18	27	36	45	54	63	72	81</span></pre>
+    <p>Здесь выражение <code>i * j + "\t"</code> вычисляется правильно: оператор <code>*</code> выполняется раньше склейки. Сколько всего умножений сделала программа? 9 × 9 = 81.</p>
+    <details class="predict">
+      <summary>Что изменится, если во внутреннем цикле написать <code>j &lt;= i</code> вместо <code>j &lt;= 9</code>?</summary>
+      <p>Получится <b>треугольник</b>: в первой строке одно число, во второй два, в девятой девять. Условие внутреннего цикла теперь зависит от счётчика внешнего — это главный приём для любых треугольников и ёлочек.</p>
+<pre class="terminal"><span class="out">1
+2	4
+3	6	9
+…</span></pre>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Лесенка, прижатая вправо</h2>
+    <p>В уроке 5.1 лесенка была прижата к левому краю. Прижмём её вправо — для этого перед звёздочками нужны пробелы. Прежде чем писать код, заполним табличку для высоты 4 — так делают программисты, а не гадают:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Строка <code>row</code></th><th>Как выглядит</th><th>Пробелов</th><th>Звёздочек</th></tr>
+        <tr><td>1</td><td><code>␣␣␣*</code></td><td>3</td><td>1</td></tr>
+        <tr><td>2</td><td><code>␣␣**</code></td><td>2</td><td>2</td></tr>
+        <tr><td>3</td><td><code>␣***</code></td><td>1</td><td>3</td></tr>
+        <tr><td>4</td><td><code>****</code></td><td>0</td><td>4</td></tr>
+      </table>
+    </div>
+    <p>Звёздочек — столько же, сколько номер строки: <code>row</code>. Пробелов — сколько не хватает до 4: <code>n - row</code>. Значит, в каждой строке <b>два</b> внутренних цикла подряд: сначала пробелы, потом звёздочки.</p>
+<pre data-file="RightStairs.java"><code class="java">int n = 4;
+for (int row = 1; row &lt;= n; row++) {
+    for (int s = 1; s &lt;= n - row; s++) {
+        System.out.print(" ");
+    }
+    for (int k = 1; k &lt;= row; k++) {
+        System.out.print("*");
+    }
+    System.out.println();
+}</code></pre>
+<pre class="terminal"><span class="out">   *
+  **
+ ***
+****</span></pre>
+    <p>Пройди по шагам для <code>n = 3</code>. Отдельные итерации внутренних циклов мы «свернули» — ты уже знаешь, как они крутятся. Твоя задача — посчитать, сколько пробелов напечатать в каждой строке.</p>
+    <div data-widget="trace" id="trace-stairs">
+      <script type="application/json">
+      { "title": "Лесенка вправо, n = 3",
+        "intro": "Переменная «n - row» в таблице — не настоящая переменная, а подсказка: столько раз прокрутится цикл пробелов.",
+        "code": "int n = 3;\nfor (int row = 1; row <= n; row++) {\n    for (int s = 1; s <= n - row; s++) {\n        System.out.print(\" \");\n    }\n    for (int k = 1; k <= row; k++) {\n        System.out.print(\"*\");\n    }\n    System.out.println();\n}",
+        "steps": [
+          { "line": 1, "vars": { "n": "3" }, "note": "Высота лесенки — 3." },
+          { "line": 2, "vars": { "n": "3", "row": "1", "n - row": "2" }, "ask": ["n - row"], "note": "Первая строка: row = 1. Пробелов нужно n - row = 3 - 1 = 2." },
+          { "line": 4, "vars": { "n": "3", "row": "1", "n - row": "2" }, "out": "  ", "note": "Цикл по s сделал 2 итерации — напечатаны 2 пробела." },
+          { "line": 7, "vars": { "n": "3", "row": "1", "n - row": "2" }, "out": "*", "note": "Цикл по k до row = 1: одна звёздочка." },
+          { "line": 9, "vars": { "n": "3", "row": "1", "n - row": "2" }, "out": "\n", "note": "Перевод строки." },
+          { "line": 2, "vars": { "n": "3", "row": "2", "n - row": "1" }, "ask": ["n - row"], "note": "Вторая строка: row = 2. Пробелов 3 - 2 = 1." },
+          { "line": 4, "vars": { "n": "3", "row": "2", "n - row": "1" }, "out": " ", "note": "Один пробел." },
+          { "line": 7, "vars": { "n": "3", "row": "2", "n - row": "1" }, "out": "**", "note": "Две звёздочки — по номеру строки." },
+          { "line": 9, "vars": { "n": "3", "row": "2", "n - row": "1" }, "out": "\n", "note": "Перевод строки." },
+          { "line": 2, "vars": { "n": "3", "row": "3", "n - row": "0" }, "ask": ["n - row"], "note": "Третья строка: row = 3. Пробелов 3 - 3 = 0." },
+          { "line": 3, "vars": { "n": "3", "row": "3", "n - row": "0" }, "note": "Цикл по s: условие 1 <= 0 — false сразу. Тело цикла не выполняется ни разу — и это правильно: пробелов не нужно." },
+          { "line": 7, "vars": { "n": "3", "row": "3", "n - row": "0" }, "out": "***", "note": "Три звёздочки." },
+          { "line": 9, "vars": { "n": "3", "row": "3", "n - row": "0" }, "out": "\n", "note": "Перевод строки." },
+          { "line": 2, "vars": { "n": "3", "row": "4" }, "note": "row = 4, условие 4 <= 3 ложно — лесенка готова." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ёлочка: план, а код — за тобой</h2>
+    <p>Ёлочка из модуля 1 — это та же лесенка, только звёздочек в строке больше. Сделаем то же, что с лесенкой: табличка для высоты 4.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 640 230" role="img" aria-label="Ёлочка высотой 4: в каждой строке сначала пробелы, потом звёздочки; пробелов 3, 2, 1, 0; звёздочек 1, 3, 5, 7">
+        <text x="40" y="24" class="d-small">row</text>
+        <text x="430" y="24" class="d-small">пробелов</text>
+        <text x="530" y="24" class="d-small">звёздочек</text>
+        <text x="52" y="58" text-anchor="middle" class="d-title">1</text>
+        <text x="52" y="106" text-anchor="middle" class="d-title">2</text>
+        <text x="52" y="154" text-anchor="middle" class="d-title">3</text>
+        <text x="52" y="202" text-anchor="middle" class="d-title">4</text>
+        <rect x="90" y="36" width="40" height="36" rx="6" class="d-dash"/>
+        <rect x="134" y="36" width="40" height="36" rx="6" class="d-dash"/>
+        <rect x="178" y="36" width="40" height="36" rx="6" class="d-dash"/>
+        <rect x="222" y="36" width="40" height="36" rx="6" class="d-green"/><text x="242" y="61" text-anchor="middle" class="d-title">*</text>
+        <rect x="90" y="84" width="40" height="36" rx="6" class="d-dash"/>
+        <rect x="134" y="84" width="40" height="36" rx="6" class="d-dash"/>
+        <rect x="178" y="84" width="40" height="36" rx="6" class="d-green"/><text x="198" y="109" text-anchor="middle" class="d-title">*</text>
+        <rect x="222" y="84" width="40" height="36" rx="6" class="d-green"/><text x="242" y="109" text-anchor="middle" class="d-title">*</text>
+        <rect x="266" y="84" width="40" height="36" rx="6" class="d-green"/><text x="286" y="109" text-anchor="middle" class="d-title">*</text>
+        <rect x="90" y="132" width="40" height="36" rx="6" class="d-dash"/>
+        <rect x="134" y="132" width="40" height="36" rx="6" class="d-green"/><text x="154" y="157" text-anchor="middle" class="d-title">*</text>
+        <rect x="178" y="132" width="40" height="36" rx="6" class="d-green"/><text x="198" y="157" text-anchor="middle" class="d-title">*</text>
+        <rect x="222" y="132" width="40" height="36" rx="6" class="d-green"/><text x="242" y="157" text-anchor="middle" class="d-title">*</text>
+        <rect x="266" y="132" width="40" height="36" rx="6" class="d-green"/><text x="286" y="157" text-anchor="middle" class="d-title">*</text>
+        <rect x="310" y="132" width="40" height="36" rx="6" class="d-green"/><text x="330" y="157" text-anchor="middle" class="d-title">*</text>
+        <rect x="90" y="180" width="40" height="36" rx="6" class="d-green"/><text x="110" y="205" text-anchor="middle" class="d-title">*</text>
+        <rect x="134" y="180" width="40" height="36" rx="6" class="d-green"/><text x="154" y="205" text-anchor="middle" class="d-title">*</text>
+        <rect x="178" y="180" width="40" height="36" rx="6" class="d-green"/><text x="198" y="205" text-anchor="middle" class="d-title">*</text>
+        <rect x="222" y="180" width="40" height="36" rx="6" class="d-green"/><text x="242" y="205" text-anchor="middle" class="d-title">*</text>
+        <rect x="266" y="180" width="40" height="36" rx="6" class="d-green"/><text x="286" y="205" text-anchor="middle" class="d-title">*</text>
+        <rect x="310" y="180" width="40" height="36" rx="6" class="d-green"/><text x="330" y="205" text-anchor="middle" class="d-title">*</text>
+        <rect x="354" y="180" width="40" height="36" rx="6" class="d-green"/><text x="374" y="205" text-anchor="middle" class="d-title">*</text>
+        <text x="460" y="60" text-anchor="middle" class="d-title">3</text><text x="565" y="60" text-anchor="middle" class="d-title">1</text>
+        <text x="460" y="108" text-anchor="middle" class="d-title">2</text><text x="565" y="108" text-anchor="middle" class="d-title">3</text>
+        <text x="460" y="156" text-anchor="middle" class="d-title">1</text><text x="565" y="156" text-anchor="middle" class="d-title">5</text>
+        <text x="460" y="204" text-anchor="middle" class="d-title">0</text><text x="565" y="204" text-anchor="middle" class="d-title">7</text>
+      </svg>
+      <figcaption>Пунктир — пробел, зелёная клетка — звёздочка. Пробелы как у лесенки, а звёздочки растут на 2 за строку.</figcaption>
+    </figure>
+    <p>Пробелы — уже знакомое <code>n - row</code>. А звёздочки: 1, 3, 5, 7 — нечётные числа, каждый раз +2. Как связать их с номером строки? Попробуй сам, прежде чем открыть:</p>
+    <details class="predict">
+      <summary>Формула для количества звёздочек в строке <code>row</code></summary>
+      <p><b>2 · row − 1</b>. Проверь: row = 1 → 1, row = 2 → 3, row = 3 → 5, row = 4 → 7. Подход «удвой номер и подправь» помогает почти всегда, когда число растёт на 2.</p>
+    </details>
+    <p>План на русском — <b>псевдокод</b>, то есть «почти код» обычными словами:</p>
+<pre class="terminal"><span class="out">для row от 1 до N:
+    напечатать (N − row) пробелов
+    напечатать (2·row − 1) звёздочек
+    перевести строку
+ствол: (N − 1) пробелов и «|»</span></pre>
+    <div class="callout try">
+      <span class="callout-title">Твой ход</span>
+      <p>Переводить план в код ты будешь сам — это задача <b>m05-t05 «Ёлочка любой высоты»</b> на <a href="/tasks.html?module=m05">странице практики</a>. Подсказка: код почти как у лесенки выше, меняется условие одного цикла и добавляется ствол. Проверь себя трассировкой на N = 1 и N = 2.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Сколько раз и куда выходит break</h2>
+    <p>Если внешний цикл делает <code>A</code> итераций, а внутренний — <code>B</code> итераций, тело внутреннего выполнится <b>A × B</b> раз. 100 × 100 — уже 10 000, а три вложенных цикла по 1000 — миллиард. Поэтому с вложенностью осторожнее: программа может стать очень медленной.</p>
+    <p>Если условие внутреннего цикла зависит от счётчика внешнего (треугольник, <code>j &lt;= i</code>), считаем по строкам: 1 + 2 + 3 + … + N.</p>
+<pre data-file="BreakInside.java"><code class="java">for (int i = 1; i &lt;= 3; i++) {
+    for (int j = 1; j &lt;= 3; j++) {
+        if (j == 2) {
+            break;
+        }
+        System.out.print(i + "" + j + " ");
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Что напечатает этот код?</summary>
+      <p><b>11 21 31</b>. <code>break</code> выходит только из <b>ближайшего</b> цикла — внутреннего. Внешний продолжает работать: i = 2, i = 3, и внутренний каждый раз начинается заново и снова доходит до j = 2. А выражение <code>i + "" + j</code> — приём из модуля 1: пустой строковый литерал в середине склеивает числа как текст, иначе получилось бы сложение.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Собери программу</h2>
+    <p>Прямоугольник 3 × 4 из решёток. Собери строки в правильном порядке — отступы подскажут вложенность.</p>
+    <div data-widget="parsons" id="nested-parsons" data-code data-title="Прямоугольник из решёток" data-icon="🧩"
+         data-success="🎉 Верно! Внешний цикл — строки, внутренний — решётки в строке, println — после внутреннего, но внутри внешнего.">
+      <script type="text/plain">
+for (int row = 1; row <= 3; row++) {
+    for (int col = 1; col <= 4; col++) {
+        System.out.print("# ");
+    }
+    System.out.println();
+}
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m05-04">
+      <script type="application/json">
+      {
+       "title": "Быстрая проверка: вложенные циклы",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "for (int i = 1; i <= 3; i++) {\n    for (int j = 1; j <= i; j++) {\n        System.out.print(\"*\");\n    }\n    System.out.println();\n}",
+         "answer": "*\n**\n***",
+         "why": "Условие внутреннего цикла j <= i зависит от счётчика внешнего: в строке i ровно i звёздочек."
+        },
+        {
+         "type": "single",
+         "q": "Сколько раз напечатается «x»?",
+         "code": "for (int a = 0; a < 4; a++) {\n    for (int b = 0; b < 5; b++) {\n        System.out.print(\"x\");\n    }\n}",
+         "options": [
+          "9",
+          "20",
+          "5"
+         ],
+         "answer": 1,
+         "why": "4 итерации внешнего × 5 итераций внутреннего = 20."
+        },
+        {
+         "type": "bug",
+         "q": "Должен получиться прямоугольник 3 строки × 4 звёздочки, а всё печатается в одну строку. Где ошибка?",
+         "code": "for (int r = 1; r <= 3; r++) {\n    for (int c = 1; c <= 4; c++) {\n        System.out.print(\"*\");\n    }\n}\nSystem.out.println();",
+         "answer": [
+          6
+         ],
+         "why": "Вызов println() стоит после внешнего цикла — перевод строки один на всю картинку. Его место — в теле внешнего цикла, после внутреннего."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "На каждой итерации внешнего цикла внутренний начинается заново",
+           "a": true
+          },
+          {
+           "s": "break во внутреннем цикле останавливает оба цикла",
+           "a": false,
+           "why": "break выходит только из ближайшего, внутреннего цикла."
+          },
+          {
+           "s": "Внутренний цикл может использовать счётчик внешнего",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Нарисуй мне фигуру из звёздочек (треугольник или рамку), а я составлю для неё табличку "строка → пробелы → звёздочки" и псевдокод. Код не показывай»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Вложенный цикл</b> — цикл в теле другого цикла. Внешний обычно — строки, внутренний — столбцы.</li>
+        <li>На каждой итерации внешнего цикла внутренний проходит полностью, с инициализации счётчика.</li>
+        <li>Вызов <code>println()</code> после внутреннего цикла завершает строку.</li>
+        <li>Тело внутреннего выполняется A × B раз. Условие внутреннего цикла может зависеть от счётчика внешнего — так получаются треугольники.</li>
+        <li>Картинку сначала раскладываем в табличку «строка → пробелы → символы», ищем формулу, пишем псевдокод — и только потом код.</li>
+        <li><code>break</code> выходит только из ближайшего цикла.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

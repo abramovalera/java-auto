@@ -1,0 +1,71 @@
+## id: tr-oop-030
+## title: Каталог от дешёвых к дорогим
+## file: trainer/oop/CatalogPriceSort.java
+## class: CatalogPriceSort
+## level: 2
+## category: Наследование и интерфейсы
+@@ description
+<p>Создай класс <code>CatalogPriceSort</code> с методом <code>main</code>, а ниже в том же файле:</p>
+<ul>
+<li>запись <code>record CatalogProduct(String name, int price)</code>;</li>
+<li>класс <code>ByCatalogPrice implements Comparator&lt;CatalogProduct&gt;</code> — «судья» для сортировки: его метод <code>compare</code> ставит раньше более дешёвый товар.</li>
+</ul>
+<p>Ввод: в первой строке — количество товаров <code>n</code>, дальше <code>n</code> строк «название цена». Сложи товары в массив, отсортируй его вызовом <code>Arrays.sort(массив, new ByCatalogPrice())</code> и напечатай пронумерованный список. Товары с одинаковой ценой остаются в том порядке, в каком их ввели (<code>Arrays.sort</code> для объектов так и делает).</p>
+<pre class="terminal"><span class="out">ввод:  3
+       Кофе 450
+       Чай 120
+       Какао 300
+вывод: 1. Чай — 120 руб.
+       2. Какао — 300 руб.
+       3. Кофе — 450 руб.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>import java.util.Arrays;</code> и <code>import java.util.Comparator;</code> — в начале файла</li>
+<li><code>public int compare(CatalogProduct a, CatalogProduct b)</code> — минус: <code>a</code> раньше, плюс: <code>b</code> раньше, ноль: равны</li>
+<li><code>Integer.compare(x, y)</code> — готовое сравнение двух чисел</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+Кофе 450
+Чай 120
+Какао 300
+@@ expect
+1. Чай — 120 руб.
+2. Какао — 300 руб.
+3. Кофе — 450 руб.
+@@ test: Одинаковые цены — порядок ввода
+@@ input
+4
+Сыр 600
+Хлеб 50
+Масло 600
+Соль 50
+@@ expect
+1. Хлеб — 50 руб.
+2. Соль — 50 руб.
+3. Сыр — 600 руб.
+4. Масло — 600 руб.
+@@ test: Уже отсортировано
+@@ input
+3
+Спички 10
+Свеча 90
+Фонарь 1500
+@@ expect
+1. Спички — 10 руб.
+2. Свеча — 90 руб.
+3. Фонарь — 1500 руб.
+@@ test: Один товар
+@@ input
+1
+Арбуз 399
+@@ expect
+1. Арбуз — 399 руб.
+@@ test: Пустой каталог
+@@ input
+0
+@@ expect
+@@ require: \brecord\s+CatalogProduct\s*\(\s*String\s+name\s*,\s*int\s+price\s*\) | Объяви запись record CatalogProduct(String name, int price)
+@@ require: \bclass\s+ByCatalogPrice\s+implements\s+Comparator\s*<\s*CatalogProduct\s*> | Нужен класс ByCatalogPrice, который реализует Comparator для CatalogProduct
+@@ require: public\s+int\s+compare\s*\(\s*CatalogProduct\s+\w+\s*,\s*CatalogProduct\s+\w+\s*\) | Реализуй метод public int compare(CatalogProduct a, CatalogProduct b)
+@@ require: Arrays\.sort\s*\(\s*\w+\s*,\s*new\s+ByCatalogPrice\s*\(\s*\)\s*\) | Отсортируй массив: Arrays.sort(products, new ByCatalogPrice())

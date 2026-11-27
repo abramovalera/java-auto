@@ -1,0 +1,40 @@
+## id: tr-strings-020
+## title: Середина слова
+## file: trainer/strings/MiddleOfWord.java
+## class: MiddleOfWord
+## level: 1
+## category: Слова и разбор
+@@ description
+<p>Напиши класс <code>MiddleOfWord</code>. Программа читает слово (хотя бы одна буква) и печатает его середину. Если букв нечётное количество — одну среднюю букву, если чётное — две средние.</p>
+<pre class="terminal"><span class="out">ввод:  кот     вывод: о
+ввод:  test    вывод: es</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.length() / 2</code> — целочисленное деление, дробная часть отбрасывается</li>
+<li><code>s.substring(a, b)</code> — кусок с индекса <code>a</code> до <code>b</code>, причём <code>b</code> не входит</li>
+<li><code>n % 2 == 0</code> — проверка на чётность</li>
+</ul></div>
+@@ test: Нечётная длина
+@@ input
+кот
+@@ expect
+о
+@@ test: Чётная длина
+@@ input
+test
+@@ expect
+es
+@@ test: Одна буква
+@@ input
+a
+@@ expect
+a
+@@ test: Две буквы
+@@ input
+ой
+@@ expect
+ой
+@@ test: Длинное слово
+@@ input
+middle
+@@ expect
+dd

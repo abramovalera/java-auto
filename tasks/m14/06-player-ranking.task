@@ -1,0 +1,47 @@
+## id: m14-t06
+## title: Таблица рекордов: сортировка по двум полям
+## file: module-14/PlayerRankingSort.java
+## class: PlayerRankingSort
+## level: 2
+@@ description
+<p>В одной строке через пробел вводятся игроки в виде <code>имя:очки</code>. Выведи таблицу рекордов: сначала по очкам <b>от большего к меньшему</b>, а при равных очках — по имени <b>по алфавиту</b>. Каждый игрок — на своей строке:</p>
+<pre class="terminal"><span class="out">ввод:  Вика:90 Аня:75 Борис:90 Гоша:100
+
+Гоша 100
+Борис 90
+Вика 90
+Аня 75</span></pre>
+<p>Опиши игрока record'ом <b>внутри</b> своего класса: <code>record RankedPlayer(String name, int score) { }</code>. Сравнение собери из готовых кусочков: <code>Comparator.comparingInt(...)</code>, <code>.reversed()</code> и <code>.thenComparing(...)</code>. Печатай через <code>forEach</code>. Циклы запрещены.</p>
+<p>Подсказка: строку <code>"Аня:75"</code> разбивает <code>split(":")</code> — получится массив из имени и очков.</p>
+<p>📖 <a href="/lessons/m14/02-functional-interfaces.html">Comparator.comparing и thenComparing</a> · <a href="/lessons/m14/04-stream-pipeline.html">sorted в стриме</a></p>
+@@ test: Пример из условия
+@@ input
+Вика:90 Аня:75 Борис:90 Гоша:100
+@@ expect
+Гоша 100
+Борис 90
+Вика 90
+Аня 75
+@@ test: Все с равными очками — по алфавиту
+@@ input
+Дима:50 Анна:50 Вера:50
+@@ expect
+Анна 50
+Вера 50
+Дима 50
+@@ test: Один игрок
+@@ input
+Solo:0
+@@ expect
+Solo 0
+@@ test: Ввод отсортирован наоборот
+@@ input
+A:1 B:2 C:3 D:3
+@@ expect
+C 3
+D 3
+B 2
+A 1
+@@ require: thenComparing\s*\( | Второе поле сортировки добавь через thenComparing
+@@ require: \.sorted\s*\( | Сортируй в стриме методом sorted
+@@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

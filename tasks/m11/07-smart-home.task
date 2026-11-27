@@ -1,0 +1,80 @@
+## id: m11-t07
+## title: Умный дом
+## file: module-11/SmartHomeHub.java
+## class: SmartHomeHub
+## level: 3
+@@ description
+<p>Пульт умного дома не знает, какие именно устройства подключены: он работает с <b>контрактом</b> «устройство». Собери систему из интерфейса, абстрактного класса и трёх устройств — всё в одном файле <code>SmartHomeHub.java</code> (вспомогательные типы без <code>public</code>).</p>
+<ul>
+  <li><code>interface HomeDevice</code> — методы <code>String id()</code>, <code>String title()</code>, <code>void turnOn()</code>, <code>void turnOff()</code>, <code>boolean isOn()</code>, <code>int power()</code> (сколько ватт ест сейчас) и <b>default-метод</b> <code>String status()</code>, который возвращает <code>title() + ": вкл"</code> или <code>": выкл"</code>.</li>
+  <li><code>abstract class HomeBaseDevice implements HomeDevice</code> — общая часть: приватное поле «включено» и методы <code>turnOn</code>, <code>turnOff</code>, <code>isOn</code>. Остальное он оставляет наследникам.</li>
+  <li><code>HomeLamp</code>, <code>HomeHeater</code>, <code>HomeTv</code> — наследники <code>HomeBaseDevice</code>:</li>
+</ul>
+<div class="table-wrap"><table>
+  <tr><th>Класс</th><th>id</th><th>title</th><th>Включён</th><th>Выключен</th></tr>
+  <tr><td><code>HomeLamp</code></td><td>lamp</td><td>Лампа</td><td>60 Вт</td><td>0 Вт</td></tr>
+  <tr><td><code>HomeHeater</code></td><td>heater</td><td>Обогреватель</td><td>1500 Вт</td><td>0 Вт</td></tr>
+  <tr><td><code>HomeTv</code></td><td>tv</td><td>Телевизор</td><td>120 Вт</td><td>1 Вт (ждёт пульт)</td></tr>
+</table></div>
+<p>В <code>main</code> заведи массив <code>HomeDevice[]</code> ровно в таком порядке: лампа, обогреватель, телевизор. Сначала всё выключено.</p>
+<p><b>Ввод:</b> число N, потом N команд <code>on цель</code> или <code>off цель</code>. Цель — id устройства или слово <code>all</code> (все устройства сразу). Если устройства с таким id нет — сразу выведи <code>Нет устройства: цель</code>. После всех команд выведи <code>status()</code> каждого устройства и общее потребление:</p>
+<pre class="terminal"><span class="out">ввод:          вывод:
+4              Нет устройства: fridge
+on all         Лампа: вкл
+off heater     Обогреватель: выкл
+off tv         Телевизор: выкл
+on fridge      Потребление: 61 Вт</span></pre>
+<p>Пульт не должен знать про лампы и телевизоры: в <code>main</code> никаких <code>instanceof</code> и проверок конкретного класса — только методы интерфейса.</p>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/02-interfaces.html">Интерфейсы</a> · <a href="/lessons/m11/03-default-static.html">default-методы и «когда что»</a></p>
+@@ test: Всё включили
+@@ input
+3
+on lamp
+on tv
+on heater
+@@ expect
+Лампа: вкл
+Обогреватель: вкл
+Телевизор: вкл
+Потребление: 1680 Вт
+@@ test: all, выключение и неизвестное устройство
+@@ input
+4
+on all
+off heater
+off tv
+on fridge
+@@ expect
+Нет устройства: fridge
+Лампа: вкл
+Обогреватель: выкл
+Телевизор: выкл
+Потребление: 61 Вт
+@@ test: Ни одной команды — телевизор всё равно ест 1 Вт
+@@ input
+0
+@@ expect
+Лампа: выкл
+Обогреватель: выкл
+Телевизор: выкл
+Потребление: 1 Вт
+@@ test: Выключить всё и включить одно
+@@ input
+3
+on heater
+off all
+on tv
+@@ expect
+Лампа: выкл
+Обогреватель: выкл
+Телевизор: вкл
+Потребление: 120 Вт
+@@ require: interface\s+HomeDevice | Нужен интерфейс HomeDevice
+@@ require: default\s+String\s+status\s*\( | status() должен быть default-методом интерфейса HomeDevice
+@@ require: abstract\s+class\s+HomeBaseDevice\s+implements\s+HomeDevice | Нужен абстрактный класс HomeBaseDevice implements HomeDevice
+@@ require: class\s+HomeLamp\s+extends\s+HomeBaseDevice | HomeLamp должен наследоваться от HomeBaseDevice
+@@ require: class\s+HomeHeater\s+extends\s+HomeBaseDevice | HomeHeater должен наследоваться от HomeBaseDevice
+@@ require: class\s+HomeTv\s+extends\s+HomeBaseDevice | HomeTv должен наследоваться от HomeBaseDevice
+@@ require: HomeDevice\s*\[\s*\] | Храни устройства в массиве HomeDevice[]
+@@ forbid: instanceof | Пульт не проверяет типы через instanceof — пользуйся только методами интерфейса

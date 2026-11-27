@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: коллекции · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 13 · Головоломки</div>
+    <h1>Коллекции: что выведется? Скомпилируется ли?</h1>
+    <p class="lead">Коллекции — золотая жила собеседований: кэш Integer, два remove, equals без hashCode, падающий for-each. Запускать нельзя — только думать и объяснять.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧩 15 задачек</span><span>★★★ — со звёздочкой</span></div>
+  </header>
+
+  <div class="callout tip">
+    <span class="callout-title">Как решать</span>
+    <p>Сначала <strong>скажи ответ вслух и объясни почему</strong>, потом кликай. Для задач про Integer и HashSet помогает нарисовать стек, кучу и корзины — как в уроках 13.2 и 13.4.</p>
+  </div>
+
+  <h2>Что выведется на экран?</h2>
+
+  <div class="quiz">
+    <p class="q">1. Кэш Integer. Что напечатают две строки?</p>
+<pre><code class="java">Integer a = 127, b = 127;
+Integer c = 128, d = 128;
+System.out.println(a == b);
+System.out.println(c == d);</code></pre>
+    <ul>
+      <li data-why="Числа внутри одинаковые, но == у объектов сравнивает ссылки.">true и true</li>
+      <li data-correct data-why="Упаковка берёт объекты для −128..127 из кэша: a и b — один объект, true. 128 в кэш не входит: c и d — два разных объекта, false. Сравнивать обёртки нужно через equals.">true и false</li>
+      <li data-why="127 входит в кэш Integer: обе переменные получили один и тот же объект.">false и false</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Два remove. Что напечатает?</p>
+<pre><code class="java">List&lt;Integer&gt; list = new ArrayList&lt;&gt;(List.of(1, 2, 3));
+list.remove(1);
+System.out.println(list);</code></pre>
+    <ul>
+      <li data-why="Так было бы с remove(Integer.valueOf(1)) — удалением по значению.">[2, 3]</li>
+      <li data-correct data-why="Аргумент 1 — int, а для int есть точное совпадение: remove(int index). Удалился элемент номер 1 — двойка.">[1, 3]</li>
+      <li data-why="Метод remove(int) существует, компилятор доволен.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. Своя точка в HashSet. Класс Point <b>не</b> переопределяет equals и hashCode. Что напечатает?</p>
+<pre><code class="java">Set&lt;Point&gt; set = new HashSet&lt;&gt;();
+set.add(new Point(1, 1));
+set.add(new Point(1, 1));
+System.out.println(set.size());</code></pre>
+    <ul>
+      <li data-why="Для нас точки одинаковые, но Java сравнивает их по правилам класса Object — по ссылке.">1</li>
+      <li data-correct data-why="Два разных объекта: hashCode из Object у них разный, они попали в разные корзины, а equals из Object сравнивает ссылки. Нужны оба метода — или record.">2</li>
+      <li data-why="HashSet принимает любые объекты, исключения не будет.">Исключение при запуске</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Слово, которого нет. Что напечатает?</p>
+<pre><code class="java">Map&lt;String, Integer&gt; ages = new HashMap&lt;&gt;();
+ages.put("Аня", 20);
+System.out.println(ages.get("Борис"));</code></pre>
+    <ul>
+      <li data-why="Значения по умолчанию у Map нет. Для этого есть getOrDefault.">0</li>
+      <li data-correct data-why="get по отсутствующему ключу возвращает null, а println печатает его как текст «null». Исключения нет — пока null не попробуют распаковать в int.">null</li>
+      <li data-why="get не бросает исключений, если ключа нет.">NoSuchElementException</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. put дважды. Что напечатает?</p>
+<pre><code class="java">Map&lt;String, String&gt; m = new HashMap&lt;&gt;();
+System.out.println(m.put("цвет", "синий"));
+System.out.println(m.put("цвет", "красный"));
+System.out.println(m.size());</code></pre>
+    <ul>
+      <li data-why="put не возвращает новое значение — он возвращает то, что было раньше.">синий, красный, 1</li>
+      <li data-correct data-why="put возвращает старое значение. В первый раз ключа не было — null. Во второй раз было «синий» — его и вернул, заменив на «красный». Ключ один — размер 1.">null, синий, 1</li>
+      <li data-why="Ключи в Map уникальны: второй put заменил значение, а не добавил пару.">null, синий, 2</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">6. PriorityQueue. Что напечатает первая строка?</p>
+<pre><code class="java">PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(List.of(5, 1, 4, 2, 3));
+System.out.println(pq.poll() + " " + pq.poll());</code></pre>
+    <ul>
+      <li data-why="PriorityQueue — не обычная очередь: она отдаёт не первого пришедшего, а самого маленького.">5 1</li>
+      <li data-correct data-why="poll всегда отдаёт минимум: сначала 1, потом 2. (А вот println(pq) напечатал бы внутренний порядок кучи, не отсортированный.)">1 2</li>
+      <li data-why="Это порядок с конца, но очередь с приоритетом выдаёт наименьший.">3 2</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">7. Удаление в цикле по индексу. Что напечатает?</p>
+<pre><code class="java">List&lt;String&gt; list = new ArrayList&lt;&gt;(List.of("a", "", "", "b"));
+for (int i = 0; i &lt; list.size(); i++) {
+    if (list.get(i).isEmpty()) {
+        list.remove(i);
+    }
+}
+System.out.println(list.size());</code></pre>
+    <ul>
+      <li data-why="Хотели получить 2, но одна пустая строка перепрыгнута.">2</li>
+      <li data-correct data-why="Удалили пустую строку на месте 1, вторая пустая сдвинулась на место 1, а i уже стал 2 — её не проверили. Осталось [a, , b] — три элемента. Чинится проходом с конца или итератором.">3</li>
+      <li data-why="Цикл по индексу не использует итератор, поэтому ConcurrentModificationException не будет — будет тихая ошибка.">ConcurrentModificationException</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">8. Списки и множества — равны? Что напечатают две строки?</p>
+<pre><code class="java">System.out.println(List.of(1, 2).equals(List.of(2, 1)));
+System.out.println(Set.of(1, 2).equals(Set.of(2, 1)));</code></pre>
+    <ul>
+      <li data-why="Для списка порядок — часть содержимого.">true и true</li>
+      <li data-correct data-why="Списки равны, только если элементы совпадают по порядку. Множества сравнивают состав, порядок им не важен.">false и true</li>
+      <li data-why="equals у коллекций сравнивает содержимое, а не ссылки, — иначе оба ответа были бы false. Но у множеств состав совпадает.">false и false</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется ли?</h2>
+
+  <div class="quiz">
+    <p class="q">9. Скомпилируется?</p>
+<pre><code class="java">List&lt;int&gt; numbers = new ArrayList&lt;&gt;();</code></pre>
+    <ul>
+      <li data-why="В угловых скобках могут быть только ссылочные типы.">Да</li>
+      <li data-correct data-why="Нет: unexpected type, required reference, found int. Коллекции хранят объекты — нужна обёртка List&lt;Integer&gt;.">Нет: нужен Integer вместо int</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">10. ★ Скомпилируется?</p>
+<pre><code class="java">List&lt;Object&gt; things = new ArrayList&lt;String&gt;();</code></pre>
+    <ul>
+      <li data-why="Хотя String — наследник Object, список строк — не наследник списка объектов.">Да, String ведь наследник Object</li>
+      <li data-correct data-why="Нет. Если бы так было можно, в «список объектов» добавили бы число, и в списке строк оказалось бы Integer. Generics это запрещают: List&lt;String&gt; не является List&lt;Object&gt;.">Нет: incompatible types</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется, но что будет при запуске?</h2>
+
+  <div class="quiz">
+    <p class="q">11. Неизменяемый список. Что будет при запуске?</p>
+<pre><code class="java">List&lt;String&gt; menu = List.of("Главная", "Каталог");
+menu.add("Корзина");
+System.out.println(menu);</code></pre>
+    <ul>
+      <li data-why="List.of создаёт список только для чтения.">[Главная, Каталог, Корзина]</li>
+      <li data-correct data-why="add есть в интерфейсе List, поэтому компилятор молчит. Но List.of — неизменяемый: при запуске UnsupportedOperationException. Нужен изменяемый — new ArrayList&lt;&gt;(List.of(…)).">UnsupportedOperationException</li>
+      <li data-why="Метод add объявлен в интерфейсе List — компилятор не знает, что эта реализация его запрещает.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">12. Распаковка. Что будет при запуске?</p>
+<pre><code class="java">Map&lt;String, Integer&gt; stock = new HashMap&lt;&gt;();
+int pears = stock.get("груши");
+System.out.println(pears);</code></pre>
+    <ul>
+      <li data-why="Нет ключа — нет и значения. 0 вернул бы getOrDefault(«груши», 0).">0</li>
+      <li data-correct data-why="get вернул null, а Java пытается распаковать его в int: null.intValue() — NullPointerException.">NullPointerException</li>
+      <li data-why="Integer в int распаковывается автоматически, компилятор не возражает.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">13. Удаление в for-each. Что будет при запуске?</p>
+<pre><code class="java">List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(List.of(1, -2, 3, 4));
+for (Integer n : nums) {
+    if (n &lt; 0) {
+        nums.remove(n);
+    }
+}</code></pre>
+    <ul>
+      <li data-why="for-each — это скрытый итератор, а список изменили в обход него.">nums станет [1, 3, 4]</li>
+      <li data-correct data-why="После remove итератор на следующем next() видит, что список менялся без его ведома, и бросает ConcurrentModificationException. Правильно — Iterator и it.remove().">ConcurrentModificationException</li>
+      <li data-why="n — Integer, поэтому вызывается remove(Object), удаление по значению. Ошибки индекса не будет — будет другая.">IndexOutOfBoundsException</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">14. ★ TreeSet своих объектов. Класс Point не реализует Comparable. Что будет при запуске?</p>
+<pre><code class="java">Set&lt;Point&gt; points = new TreeSet&lt;&gt;();
+points.add(new Point(1, 2));</code></pre>
+    <ul>
+      <li data-why="Одна точка — сравнивать вроде бы не с кем, но TreeSet проверяет, что элемент умеет сравниваться, уже при первом add.">Точка добавится, ведь она одна</li>
+      <li data-correct data-why="TreeSet должен сравнивать элементы, чтобы держать их по порядку. Point не Comparable — ClassCastException: Point cannot be cast to Comparable. Решение: implements Comparable или Comparator в конструкторе TreeSet.">ClassCastException</li>
+      <li data-why="Компилятор не проверяет, Comparable ли тип элементов TreeSet: ошибка будет только при запуске.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">15. ★★★ На опережение. Удаляем в for-each <b>предпоследний</b> элемент. Что будет?</p>
+<pre><code class="java">List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(List.of(1, 2, 3));
+for (Integer n : nums) {
+    if (n == 2) {
+        nums.remove(n);
+    }
+}
+System.out.println(nums);</code></pre>
+    <ul>
+      <li data-why="Логично ожидать исключение, но здесь цикл закончится раньше, чем итератор проверит изменения.">ConcurrentModificationException</li>
+      <li data-correct data-why="После удаления двойки размер стал 2, а итератор уже на позиции 2. hasNext() сравнивает позицию с размером: 2 == 2, «элементов больше нет» — цикл выходит, до проверки в next() дело не доходит. Тройку цикл даже не посмотрел. Работает «случайно» — так писать нельзя.">[1, 3] — без исключения</li>
+      <li data-why="Удаление прошло: n — Integer, сработал remove(Object), и двойки в списке больше нет.">[1, 2, 3]</li>
+    </ul>
+  </div>
+
+  <div class="callout ai">
+    <span class="callout-title">Хочешь ещё?</span>
+    <p>Напиши наставнику: <em>«Дай мне 3 головоломки по коллекциям, по одной. Ответ не говори, пока я не объясню, что происходит в памяти или в корзинах»</em>.</p>
+  </div>
+
+    <section class="pz-reading">
+    <h2>Читаем код</h2>
+    <p>Прочитай каждую строку правильными словами: что объявляется, чем инициализируется, у какого объекта вызывается метод и что он возвращает.</p>
+    <div data-widget="check" id="check-m13-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 13", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке?", "code": "List<String> names = new ArrayList<>();",
+            "options": ["Объявляем переменную <code>names</code> типа <code>List&lt;String&gt;</code> и инициализируем её новым пустым объектом <code>ArrayList</code>", "Вызываем метод <code>ArrayList</code> и сохраняем результат в <code>names</code>", "Объявляем класс <code>List</code> с параметром <code>String</code>", "Создаём список и сразу кладём в него строку <code>names</code>", "Приводим <code>ArrayList</code> к типу <code>List</code>"],
+            "answer": 0, "why": "Слева — объявление переменной типа интерфейса с параметром типа <code>String</code>, справа — создание объекта класса <code>ArrayList</code> оператором <code>new</code>. Ромб <code>&lt;&gt;</code> — компилятор сам подставит <code>String</code>." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "int count = scores.getOrDefault(\"Аня\", 0);",
+            "options": ["Кладём в словарь пару «Аня» → 0", "Объявляем <code>count</code> и инициализируем значением по ключу «Аня» или нулём, если ключа нет", "Удаляем «Аня» из словаря", "Проверяем, есть ли ключ «Аня», и получаем <code>boolean</code>", "Объявляем словарь <code>count</code>"],
+            "answer": 1, "why": "Вызываем метод <code>getOrDefault</code> у словаря <code>scores</code> и передаём два аргумента: ключ и запасное значение. Метод возвращает число — им инициализируется <code>count</code>. Сам словарь не меняется." },
+          { "type": "single", "q": "Что делает строка?", "code": "boolean added = uniqueIds.add(42);",
+            "options": ["Всегда добавляет 42 и возвращает <code>true</code>", "Объявляет <code>added</code> и инициализирует его результатом вызова <code>add</code>: <code>true</code>, если 42 ещё не было в множестве", "Присваивает множеству <code>uniqueIds</code> значение 42", "Сравнивает <code>uniqueIds</code> с числом 42", "Создаёт новое множество из одного числа"],
+            "answer": 1, "why": "У Set метод <code>add</code> возвращает <code>false</code>, если такой элемент уже есть. Этим возвращаемым значением инициализируется переменная <code>added</code>." },
+          { "type": "single", "q": "В какой строке объявляется метод, а в какой он вызывается?", "code": "static int countLong(List<String> words) {\n    int n = 0;\n    for (String w : words) if (w.length() > 5) n++;\n    return n;\n}\n// ...\nint longOnes = countLong(names);",
+            "options": ["Объявляется в строке 7, вызывается в строке 1", "Объявляется в строке 1 (параметр <code>words</code>), вызывается в строке 7 с аргументом <code>names</code>", "И объявляется, и вызывается в строке 1", "В строке 4 метод вызывается ещё раз", "Метод нигде не вызывается"],
+            "answer": 1, "why": "Строка 1 — объявление метода: тип возвращаемого значения <code>int</code>, параметр <code>words</code>. Строка 7 — вызов с аргументом <code>names</code>; возвращённое число инициализирует <code>longOnes</code>." },
+          { "type": "build", "q": "Собери описание строки", "code": "Map<String, Integer> stock = new HashMap<>();",
+            "answer": ["объявляем переменную <code>stock</code>", "типа <code>Map&lt;String, Integer&gt;</code>", "и инициализируем её новым объектом <code>HashMap</code>"],
+            "extra": ["вызываем метод <code>HashMap</code>", "и кладём пару ключ — значение", "типа <code>List</code>"] },
+          { "type": "build", "q": "Собери описание строки", "code": "names.removeIf(n -> n.isBlank());",
+            "answer": ["вызываем метод <code>removeIf</code> у списка <code>names</code>", "и передаём ему лямбда-выражение", "которое удаляет пустые строки"],
+            "extra": ["объявляем переменную <code>n</code>", "и создаём новый список", "метод возвращает новую строку"] },
+          { "type": "build", "q": "Собери описание строки", "code": "for (Map.Entry<String, Integer> e : counts.entrySet()) {",
+            "answer": ["заголовок цикла for-each:", "на каждой итерации переменная <code>e</code>", "получает очередную пару из <code>counts.entrySet()</code>"],
+            "extra": ["объявляем словарь <code>e</code>", "счётчик увеличивается на 1", "метод <code>entrySet</code> удаляет пары"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <section class="summary">
+    <h2>Что тренирует этот набор</h2>
+    <ul>
+      <li>Обёртки: кэш Integer −128..127, <code>==</code> против <code>equals</code>, распаковка <code>null</code>.</li>
+      <li>Списки: <code>remove(int)</code> и <code>remove(Object)</code>, неизменяемый <code>List.of</code>, равенство с учётом порядка.</li>
+      <li>Изменение коллекции во время обхода: ConcurrentModificationException и тихие пропуски.</li>
+      <li>Хеш-коллекции: equals + hashCode, <code>get</code> → <code>null</code>, <code>put</code> возвращает старое значение.</li>
+      <li>Сортированные коллекции требуют Comparable или Comparator.</li>
+    </ul>
+  </section>
+
+</main>
+</body>
+</html>

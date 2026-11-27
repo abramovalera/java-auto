@@ -1,0 +1,40 @@
+## id: tr-loops-038
+## title: Кратные 3 или 5
+## file: trainer/loops/ThreeOrFiveSum.java
+## class: ThreeOrFiveSum
+## level: 2
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>ThreeOrFiveSum</code>. Программа читает <code>n</code> (1 ≤ n ≤ 1 000 000) и печатает сумму всех натуральных чисел <b>меньше</b> <code>n</code>, которые делятся на 3 или на 5. Число, которое делится и на 3, и на 5 (например, 15), считается один раз.</p>
+<pre class="terminal"><span class="out">ввод:  10
+вывод: 23</span></pre>
+<p>Для 10 подходят 3, 5, 6 и 9 — сумма 23. Само число <code>n</code> не берётся.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>i % 3 == 0 || i % 5 == 0</code> — логическое ИЛИ: хотя бы одно условие верно</li>
+<li><code>long sum</code> — для больших n сумма не влезет в int</li>
+</ul></div>
+@@ test: До десяти
+@@ input
+10
+@@ expect
+23
+@@ test: До одного — пусто
+@@ input
+1
+@@ expect
+0
+@@ test: Пятнадцать не включается
+@@ input
+15
+@@ expect
+45
+@@ test: До шестнадцати
+@@ input
+16
+@@ expect
+60
+@@ test: До миллиона
+@@ input
+1000000
+@@ expect
+233333166668

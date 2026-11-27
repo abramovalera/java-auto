@@ -1,0 +1,41 @@
+## id: tr-loops-043
+## title: Самая большая цифра
+## file: trainer/loops/BiggestDigitInNumber.java
+## class: BiggestDigitInNumber
+## level: 2
+## category: Цифры числа
+@@ description
+<p>Напиши класс <code>BiggestDigitInNumber</code>. Программа читает целое число (может быть отрицательным) и печатает <code>Максимальная цифра: D, раз: K</code> — самую большую цифру числа и сколько раз она в нём встречается.</p>
+<pre class="terminal"><span class="out">ввод:  3979
+вывод: Максимальная цифра: 9, раз: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>нашлась цифра больше рекорда — новый рекорд и счётчик снова 1; равная рекорду — счётчик +1</li>
+<li><code>Math.abs(n)</code> — убирает минус</li>
+<li><code>do { … } while (n &gt; 0);</code> — чтобы у числа 0 тоже нашлась одна цифра</li>
+</ul></div>
+@@ test: Две девятки
+@@ input
+3979
+@@ expect
+Максимальная цифра: 9, раз: 2
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Максимальная цифра: 0, раз: 1
+@@ test: Отрицательное
+@@ input
+-5
+@@ expect
+Максимальная цифра: 5, раз: 1
+@@ test: Одинаковые цифры
+@@ input
+111
+@@ expect
+Максимальная цифра: 1, раз: 3
+@@ test: Девятка в начале
+@@ input
+908172
+@@ expect
+Максимальная цифра: 9, раз: 1
+@@ forbid: \.length\(\)|charAt|String\.valueOf|Integer\.toString | Разбери число на цифры арифметикой (% 10 и / 10)

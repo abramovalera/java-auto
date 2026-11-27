@@ -1,0 +1,47 @@
+## id: tr-streams-018
+## title: Перепад температур
+## file: trainer/streams/TemperatureSpread.java
+## class: TemperatureSpread
+## level: 2
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>TemperatureSpread</code>. В одной строке — температура за каждый час суток через пробел (целые числа, хотя бы одно). Напечатай три строки: <code>Минимум: A</code>, <code>Максимум: B</code> и <code>Перепад: C</code>, где <code>C</code> — разница между самой высокой и самой низкой температурой.</p>
+<pre class="terminal"><span class="out">ввод:  2 -3 5 11 8 0
+вывод: Минимум: -3
+       Максимум: 11
+       Перепад: 14</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.summaryStatistics()</code> — за один проход считает минимум, максимум, сумму и среднее</li>
+<li><code>stats.getMin()</code>, <code>stats.getMax()</code> — достают минимум и максимум из статистики</li>
+</ul></div>
+@@ test: Весенние сутки
+@@ input
+2 -3 5 11 8 0
+@@ expect
+Минимум: -3
+Максимум: 11
+Перепад: 14
+@@ test: Морозные сутки
+@@ input
+-20 -15 -31 -18
+@@ expect
+Минимум: -31
+Максимум: -15
+Перепад: 16
+@@ test: Одно измерение
+@@ input
+7
+@@ expect
+Минимум: 7
+Максимум: 7
+Перепад: 0
+@@ test: Без изменений
+@@ input
+4 4 4 4
+@@ expect
+Минимум: 4
+Максимум: 4
+Перепад: 0
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

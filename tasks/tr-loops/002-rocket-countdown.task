@@ -1,0 +1,54 @@
+## id: tr-loops-002
+## title: Обратный отсчёт
+## file: trainer/loops/RocketCountdownLaunch.java
+## class: RocketCountdownLaunch
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>RocketCountdownLaunch</code>. Перед стартом ракеты идёт обратный отсчёт. Программа читает целое <code>n</code> (n ≥ 0) и печатает числа от <code>n</code> до 1, каждое на своей строке, а потом строку <code>Пуск!</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+вывод: 5
+       4
+       3
+       2
+       1
+       Пуск!</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>for (int i = n; i &gt;= 1; i--)</code> — счётчик идёт вниз: шаг <code>i--</code> уменьшает его на 1</li>
+</ul></div>
+@@ test: С пяти
+@@ input
+5
+@@ expect
+5
+4
+3
+2
+1
+Пуск!
+@@ test: С единицы
+@@ input
+1
+@@ expect
+1
+Пуск!
+@@ test: Ноль — сразу пуск
+@@ input
+0
+@@ expect
+Пуск!
+@@ test: С десяти
+@@ input
+10
+@@ expect
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Пуск!

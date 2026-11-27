@@ -1,0 +1,93 @@
+## id: m15-t08
+## title: Мастерская: сводка по прогону тестов
+## file: module-15/TestResultsReport.java
+## class: TestResultsReport
+## level: 3
+@@ description
+<p>Задача для Мастерской: сначала распиши план (вход/выход, примеры руками, роли переменных, псевдокод), потом код.</p>
+<p>Программа читает число <code>N</code> и <code>N</code> строк результатов прогона в формате <code>имяТеста;статус;мс</code>. Она:</p>
+<ol>
+  <li>записывает файл <code>results.csv</code>: первой строкой заголовок <code>test;status;ms</code>, дальше введённые строки;</li>
+  <li><b>читает results.csv</b>, пропускает заголовок и считает сводку;</li>
+  <li>записывает сводку в файл <code>summary.txt</code>;</li>
+  <li><b>читает summary.txt</b> и печатает его содержимое.</li>
+</ol>
+<pre class="terminal"><span class="out">5
+login;PASSED;340
+loginWrongPassword;FAILED;1200
+checkout;PASSED;2100
+search;SKIPPED;0
+profile;PASSED;560</span></pre>
+<pre class="terminal"><span class="out">Всего тестов: 5
+PASSED: 3
+FAILED: 1
+SKIPPED: 1
+Общее время: 4200 мс
+Самый медленный: checkout (2100 мс)
+Упали: loginWrongPassword</span></pre>
+<ul>
+  <li>Статус может быть написан в любом регистре (<code>failed</code>, <code>Passed</code>), вокруг значений бывают пробелы.</li>
+  <li>Строки PASSED, FAILED и SKIPPED печатаются всегда, даже если там 0.</li>
+  <li>Самых медленных несколько — первый по порядку в файле. Тестов нет — <code>Самый медленный: нет</code>.</li>
+  <li>Упавшие — <b>по алфавиту</b>, через запятую с пробелом. Не упал никто — <code>Упали: нет</code>.</li>
+</ul>
+<p>📖 <a href="/lessons/m15/06-csv-properties.html">Практика: CSV и Мастерская</a> · <a href="/lessons/m15/03-writing.html">Запись в файл</a></p>
+@@ test: Обычный прогон
+@@ input
+5
+login;PASSED;340
+loginWrongPassword;FAILED;1200
+checkout;PASSED;2100
+search;SKIPPED;0
+profile;PASSED;560
+@@ expect
+Всего тестов: 5
+PASSED: 3
+FAILED: 1
+SKIPPED: 1
+Общее время: 4200 мс
+Самый медленный: checkout (2100 мс)
+Упали: loginWrongPassword
+@@ test: Регистр, пробелы, ничья по времени
+@@ input
+4
+ cart ; failed ; 800
+api;Passed;120
+basket;FAILED;800
+admin;failed;50
+@@ expect
+Всего тестов: 4
+PASSED: 1
+FAILED: 3
+SKIPPED: 0
+Общее время: 1770 мс
+Самый медленный: cart (800 мс)
+Упали: admin, basket, cart
+@@ test: Все прошли
+@@ input
+2
+a;PASSED;10
+b;PASSED;20
+@@ expect
+Всего тестов: 2
+PASSED: 2
+FAILED: 0
+SKIPPED: 0
+Общее время: 30 мс
+Самый медленный: b (20 мс)
+Упали: нет
+@@ test: Тестов нет
+@@ input
+0
+@@ expect
+Всего тестов: 0
+PASSED: 0
+FAILED: 0
+SKIPPED: 0
+Общее время: 0 мс
+Самый медленный: нет
+Упали: нет
+@@ require: test;status;ms | Первой строкой в results.csv запиши заголовок test;status;ms
+@@ require: results\.csv | Результаты запиши в файл results.csv
+@@ require: summary\.txt | Сводку запиши в файл summary.txt и прочитай её оттуда
+@@ require: \.split\s*\( | Разрежь строку на ячейки методом split

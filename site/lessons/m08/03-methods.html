@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Методы строк · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 8 · Урок 3</div>
+    <h1>Методы строк: искать, резать, чистить</h1>
+    <p class="lead">У строки десятки готовых методов. Разберём два десятка самых нужных: как найти кусок текста, вырезать его, почистить от пробелов, разбить на слова и склеить обратно.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🔪 substring и границы</span><span>📋 шпаргалка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-03-review">
+      <script type="application/json">
+      { "title": "Сравнение строк", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Как правильно проверить, что пользователь ввёл «stop»?",
+            "options": ["<code>input == \"stop\"</code>", "<code>input.equals(\"stop\")</code>", "<code>input = \"stop\"</code>"], "answer": 1,
+            "why": "Текст из Scanner — новый объект, <code>==</code> сравнит ссылки. По содержимому сравнивает вызов <code>equals</code>." },
+          { "type": "predict", "q": "Модуль 6: что выведет?",
+            "code": "int[] a = {10, 20, 30};\nSystem.out.println(a[a.length - 1]);",
+            "answer": "30", "why": "Обращение по последнему индексу: длина минус один. У строк будет ровно так же." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Строка — ряд пронумерованных символов</h2>
+    <p>Всё, что ты знаешь про индексы массивов, работает и для строк: нумерация с <b>нуля</b>, последний символ — под номером <code>length() - 1</code>, выход за край — исключение.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 200" role="img" aria-label="Строка Hello, Java! разложена по ячейкам с индексами от 0 до 11, длина 12">
+        <text x="20" y="66" class="d-small">символ</text>
+        <text x="20" y="112" class="d-small">индекс</text>
+        <g>
+          <rect x="90" y="36" width="50" height="46" rx="6" class="d-blue"/><text x="115" y="66" text-anchor="middle" class="d-title">H</text>
+          <rect x="145" y="36" width="50" height="46" rx="6" class="d-blue"/><text x="170" y="66" text-anchor="middle" class="d-title">e</text>
+          <rect x="200" y="36" width="50" height="46" rx="6" class="d-blue"/><text x="225" y="66" text-anchor="middle" class="d-title">l</text>
+          <rect x="255" y="36" width="50" height="46" rx="6" class="d-blue"/><text x="280" y="66" text-anchor="middle" class="d-title">l</text>
+          <rect x="310" y="36" width="50" height="46" rx="6" class="d-blue"/><text x="335" y="66" text-anchor="middle" class="d-title">o</text>
+          <rect x="365" y="36" width="50" height="46" rx="6" class="d-yellow"/><text x="390" y="66" text-anchor="middle" class="d-title">,</text>
+          <rect x="420" y="36" width="50" height="46" rx="6" class="d-yellow"/><text x="445" y="66" text-anchor="middle" class="d-small">пробел</text>
+          <rect x="475" y="36" width="50" height="46" rx="6" class="d-green"/><text x="500" y="66" text-anchor="middle" class="d-title">J</text>
+          <rect x="530" y="36" width="50" height="46" rx="6" class="d-green"/><text x="555" y="66" text-anchor="middle" class="d-title">a</text>
+          <rect x="585" y="36" width="50" height="46" rx="6" class="d-green"/><text x="610" y="66" text-anchor="middle" class="d-title">v</text>
+          <rect x="640" y="36" width="50" height="46" rx="6" class="d-green"/><text x="665" y="66" text-anchor="middle" class="d-title">a</text>
+          <rect x="695" y="36" width="50" height="46" rx="6" class="d-yellow"/><text x="720" y="66" text-anchor="middle" class="d-title">!</text>
+        </g>
+        <text x="115" y="112" text-anchor="middle" class="d-mono-ink">0</text><text x="170" y="112" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="225" y="112" text-anchor="middle" class="d-mono-ink">2</text><text x="280" y="112" text-anchor="middle" class="d-mono-ink">3</text>
+        <text x="335" y="112" text-anchor="middle" class="d-mono-ink">4</text><text x="390" y="112" text-anchor="middle" class="d-mono-ink">5</text>
+        <text x="445" y="112" text-anchor="middle" class="d-mono-ink">6</text><text x="500" y="112" text-anchor="middle" class="d-mono-ink">7</text>
+        <text x="555" y="112" text-anchor="middle" class="d-mono-ink">8</text><text x="610" y="112" text-anchor="middle" class="d-mono-ink">9</text>
+        <text x="665" y="112" text-anchor="middle" class="d-mono-ink">10</text><text x="720" y="112" text-anchor="middle" class="d-mono-ink">11</text>
+        <text x="90" y="150" class="d-text">length() = 12</text>
+        <text x="300" y="150" class="d-text">charAt(7) = 'J'</text>
+        <text x="520" y="150" class="d-text">charAt(12) → 💥</text>
+        <text x="90" y="182" class="d-small">пробел и знаки препинания — тоже символы, у них тоже есть индексы</text>
+      </svg>
+      <figcaption>Строка <code>"Hello, Java!"</code>: 12 символов, индексы 0…11. <code>charAt(12)</code> — StringIndexOutOfBoundsException.</figcaption>
+    </figure>
+    <div class="callout warn">
+      <span class="callout-title">length или length()?</span>
+      <p>У массива длина — <b>поле</b>, без скобок: <code>arr.length</code>. У строки — <b>метод</b>, со скобками: <code>s.length()</code>. Перепутаешь — не скомпилируется. Запоминалка: строка «умеет посчитать» себя — значит, это вызов метода, а у вызова есть скобки.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Найти: indexOf, contains, startsWith, endsWith</h2>
+<pre data-file="Search.java"><code class="java">String url = "https://shop.ru/cart/items";
+
+url.indexOf("/cart")       // 15 — позиция, с которой начинается кусок
+url.indexOf('z')           // -1 — не нашли
+url.lastIndexOf('/')       // 20 — ищет с конца, последнее вхождение
+url.indexOf('/', 9)        // 15 — ищет, начиная с позиции 9
+url.contains("cart")       // true  — есть ли кусок где-нибудь
+url.startsWith("https")    // true  — начинается ли с…
+url.endsWith("/items")     // true  — заканчивается ли на…</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>indexOf(...)</code><div><p>Метод возвращает индекс <b>первого</b> вхождения символа (аргумент — символьный литерал в одинарных кавычках) или куска строки (строковый литерал в двойных). Не нашёл — <b>−1</b>. Это тот самый приём «−1 = не нашли» из поиска по массиву в модуле 6.</p></div></div>
+      <div class="annot-row"><code>lastIndexOf(...)</code><div><p>То же, но возвращает индекс последнего вхождения. Удобно для «всё после последнего слэша» или «расширение файла после последней точки».</p></div></div>
+      <div class="annot-row"><code>contains / startsWith / endsWith</code><div><p>Возвращают <code>boolean</code> — их вызов сразу ставят в условие <code>if</code>. Их вызывают постоянно: «имя файла заканчивается на .pdf», «сообщение начинается с “Ошибка”».</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>"banana".indexOf("an") — сколько? А "banana".lastIndexOf("an")?</summary>
+      <p><b>1</b> и <b>3</b>. b-<b>an</b>-ana: первое «an» начинается с индекса 1. ban-<b>an</b>-a: последнее — с индекса 3. Метод возвращает позицию <b>начала</b> найденного куска.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Вырезать: substring и его границы</h2>
+    <p>Метод <code>substring</code> вырезает кусок строки и возвращает его как новую строку. Два перегруженных варианта — с одним и с двумя аргументами:</p>
+<pre data-file="Cut.java"><code class="java">String s = "Hello, Java!";
+s.substring(7)        // "Java!"  — от индекса 7 до конца
+s.substring(7, 11)    // "Java"   — от 7 ВКЛЮЧИТЕЛЬНО до 11 НЕ включительно
+s.substring(0, 5)     // "Hello"
+s.substring(3, 3)     // ""       — пустой кусок, не ошибка
+s.substring(12)       // ""       — от самого конца: тоже пустая строка
+s.substring(13)       // 💥 StringIndexOutOfBoundsException</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 190" role="img" aria-label="Разрезы между символами: substring(7, 11) берёт символы с индексами 7, 8, 9, 10, а символ 11 не берёт">
+        <rect x="90" y="40" width="50" height="46" rx="6" class="d-box"/><text x="115" y="70" text-anchor="middle" class="d-title">H</text>
+        <rect x="145" y="40" width="50" height="46" rx="6" class="d-box"/><text x="170" y="70" text-anchor="middle" class="d-title">e</text>
+        <rect x="200" y="40" width="50" height="46" rx="6" class="d-box"/><text x="225" y="70" text-anchor="middle" class="d-title">l</text>
+        <rect x="255" y="40" width="50" height="46" rx="6" class="d-box"/><text x="280" y="70" text-anchor="middle" class="d-title">l</text>
+        <rect x="310" y="40" width="50" height="46" rx="6" class="d-box"/><text x="335" y="70" text-anchor="middle" class="d-title">o</text>
+        <rect x="365" y="40" width="50" height="46" rx="6" class="d-box"/><text x="390" y="70" text-anchor="middle" class="d-title">,</text>
+        <rect x="420" y="40" width="50" height="46" rx="6" class="d-box"/><text x="445" y="70" text-anchor="middle" class="d-small">␣</text>
+        <rect x="475" y="40" width="50" height="46" rx="6" class="d-accent"/><text x="500" y="70" text-anchor="middle" class="d-title">J</text>
+        <rect x="530" y="40" width="50" height="46" rx="6" class="d-accent"/><text x="555" y="70" text-anchor="middle" class="d-title">a</text>
+        <rect x="585" y="40" width="50" height="46" rx="6" class="d-accent"/><text x="610" y="70" text-anchor="middle" class="d-title">v</text>
+        <rect x="640" y="40" width="50" height="46" rx="6" class="d-accent"/><text x="665" y="70" text-anchor="middle" class="d-title">a</text>
+        <rect x="695" y="40" width="50" height="46" rx="6" class="d-box"/><text x="720" y="70" text-anchor="middle" class="d-title">!</text>
+        <text x="500" y="108" text-anchor="middle" class="d-mono-ink">7</text><text x="555" y="108" text-anchor="middle" class="d-mono-ink">8</text>
+        <text x="610" y="108" text-anchor="middle" class="d-mono-ink">9</text><text x="665" y="108" text-anchor="middle" class="d-mono-ink">10</text>
+        <text x="720" y="108" text-anchor="middle" class="d-mono-ink">11</text>
+        <path d="M472 24 V120" class="d-line"/>
+        <path d="M692 24 V120" class="d-line"/>
+        <text x="472" y="18" text-anchor="middle" class="d-c-blue d-small">начало: 7</text>
+        <text x="692" y="18" text-anchor="middle" class="d-c-violet d-small">конец: 11</text>
+        <text x="90" y="150" class="d-text">substring(7, 11) = "Java" — берём 7, 8, 9, 10; символ 11 уже не берём</text>
+        <text x="90" y="176" class="d-small">длина куска = конец − начало = 11 − 7 = 4</text>
+      </svg>
+      <figcaption>Думай о числах как о <b>разрезах между символами</b>: режем перед символом 7 и перед символом 11.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: батон и нож</span>
+      <p>Аргументы <code>substring</code> — не ломтики, а места, куда ставишь нож. <code>substring(7, 11)</code> — «режу перед 7-м ломтиком и перед 11-м». Всё, что между надрезами, — твоё. Отсюда удобные правила: длина куска = <code>конец − начало</code>, а <code>substring(0, s.length())</code> — вся строка целиком.</p>
+    </div>
+    <p>А вот что будет, если поставить нож за краем батона — <code>substring(13)</code> у строки длиной 12:</p>
+    <div data-widget="ide" id="shot-substring-oob">
+      <script type="application/json">
+      { "tree": false, "file": "Cut.java", "runConfig": "Cut", "gutterRun": [1, 2],
+        "code": "public class Cut {\n    public static void main(String[] args) {\n        String s = \"Hello, Java!\";\n        System.out.println(s.substring(7));\n        System.out.println(s.substring(13));\n    }\n}",
+        "console": { "title": "Cut", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Cut" },
+          { "t": "out", "s": "Java!" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.StringIndexOutOfBoundsException: Range [13, 12) out of bounds for length 12" },
+          { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$1.apply(Preconditions.java:55)" },
+          { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$1.apply(Preconditions.java:52)" },
+          { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:213)" },
+          { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:210)" },
+          { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.outOfBounds(Preconditions.java:98)" },
+          { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.outOfBoundsCheckFromToIndex(Preconditions.java:112)" },
+          { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.checkFromToIndex(Preconditions.java:349)" },
+          { "t": "err", "s": "\tat java.base/java.lang.String.checkBoundsBeginEnd(String.java:4865)" },
+          { "t": "err", "s": "\tat java.base/java.lang.String.substring(String.java:2834)" },
+          { "t": "err", "s": "\tat java.base/java.lang.String.substring(String.java:2807)" },
+          { "t": "err", "s": "\tat Cut.main(Cut.java:5)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Вызов <code>substring(7)</code> вернул <b>Java!</b>" },
+                   { "n": 2, "target": "error", "text": "<b>StringIndexOutOfBoundsException</b> — «индекс за пределами строки». <b>Range [13, 12) out of bounds for length 12</b> — просили кусок от 13 до 12, а в строке всего 12 символов" },
+                   { "n": 3, "target": "link-11", "text": "Длинный хвост строк <code>at java.base/…</code> — это фреймы методов самой Java, через которые прошёл вызов. Его пропускай. Твоя строка — <b>Cut.java:5</b>, ищи её среди ссылок" },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 1</b> — программа упала. Компилятор длину строки не проверяет: такие ошибки всплывают только при запуске" } ],
+        "caption": "StringIndexOutOfBoundsException: вышли за край строки" }
+      </script>
+    </div>
+    <p>Номера строк в <code>String.java</code> у тебя могут быть другими — они зависят от версии JDK. А вот <code>Cut.java:5</code> будет таким же.</p>
+    <p>Самое частое применение — вместе с <code>indexOf</code>: найти разделитель, а его индекс передать аргументом в <code>substring</code> — и отрезать то, что до или после него.</p>
+<pre data-file="Email.java"><code class="java">String email = "ivan.petrov@mail.ru";
+int at = email.indexOf('@');              // 11
+String login = email.substring(0, at);    // "ivan.petrov" — всё ДО @
+String domain = email.substring(at + 1);  // "mail.ru" — всё ПОСЛЕ @ (без @)</code></pre>
+    <details class="predict">
+      <summary>А что будет, если в строке нет @, а мы всё равно делаем email.substring(0, email.indexOf('@'))?</summary>
+      <p>Вызов <code>indexOf</code> вернёт −1, и получится <code>substring(0, -1)</code> — <b>StringIndexOutOfBoundsException</b>. Поэтому перед вырезанием проверяют: <code>if (at != -1) { … }</code>. Граничный случай «а если не нашли?» — первое, о чём думает опытный программист.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Почистить и переделать: trim, toUpperCase, replace, repeat</h2>
+    <p>Помни урок 8.1: все эти методы <b>возвращают новую строку</b>. Возвращаемое значение — присваиваем переменной.</p>
+<pre data-file="Clean.java"><code class="java">String raw = "   Иван Петров  ";
+raw.trim()               // "Иван Петров" — убрал пробелы только по краям
+raw.strip()              // то же, но понимает и «экзотические» пробелы
+raw.isEmpty()            // false — длина не 0
+"   ".isEmpty()          // false — пробелы тоже символы!
+"   ".isBlank()          // true  — пустая ИЛИ из одних пробелов
+"".isEmpty()             // true
+
+"Java".toUpperCase()     // "JAVA"
+"Java".toLowerCase()     // "java"
+"мама".replace('м', 'п') // "папа" — все вхождения, не только первое
+"1 000 000".replace(" ", "")  // "1000000" — заменить кусок на пустоту = удалить
+"-".repeat(10)           // "----------"</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Когда нужен</th></tr>
+        <tr><td><code>trim()</code> / <code>strip()</code></td><td>Ввод пользователя, текст со страницы: лишние пробелы по краям — главная причина «одинаковые строки, а equals = false». <code>strip()</code> новее (Java 11) и убирает и необычные пробелы из Юникода, которые встречаются в текстах с сайтов.</td></tr>
+        <tr><td><code>isEmpty()</code> / <code>isBlank()</code></td><td>Проверить, ввели ли хоть что-то. Для формы «имя обязательно» правильнее <code>isBlank()</code> — три пробела именем не считаются.</td></tr>
+        <tr><td><code>toLowerCase()</code></td><td>Сравнить без учёта регистра или привести всё к одному виду перед поиском.</td></tr>
+        <tr><td><code>replace(a, b)</code></td><td>Заменить <b>все</b> вхождения символа или куска. Удалить — заменить на <code>""</code>.</td></tr>
+        <tr><td><code>repeat(n)</code></td><td>Повторить строку n раз — рамки, линии, отступы (Java 11).</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Что выведет: String s = "  hi  "; s.trim(); System.out.println("[" + s + "]"); ?</summary>
+      <p><b>[  hi  ]</b> — с пробелами! Вызов <code>trim()</code> вернул новую строку, но её не присвоили. Надо <code>s = s.trim();</code>. Это уже второй раз в модуле — значит, правда важно.</p>
+    </details>
+    <p>Методы можно вызывать <b>цепочкой</b>: каждый вызов возвращает новую строку, и у неё сразу вызывается следующий метод. Как конвейер на кухне: помыли → почистили → нарезали.</p>
+<pre data-file="Chain.java"><code class="java">String input = "  ДА  ";
+// "  ДА  " → "ДА" → "да" → true
+if (input.trim().toLowerCase().equals("да")) {
+    System.out.println("Согласие получено");
+}</code></pre>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Разбить и склеить: split и join</h2>
+    <p>Метод <code>split</code> режет строку по разделителю (его передают аргументом) и возвращает <b>массив строк</b> — а с массивами ты умеешь всё.</p>
+<pre data-file="Split.java"><code class="java">String date = "2026-11-27";
+String[] parts = date.split("-");          // ["2026", "11", "27"]
+System.out.println(parts.length);          // 3
+System.out.println(parts[0]);              // 2026
+
+String csv = "Иван;Петров;25";
+String[] cells = csv.split(";");           // ["Иван", "Петров", "25"]
+
+String joined = String.join(", ", cells);  // "Иван, Петров, 25"
+String path = String.join("/", "home", "user", "docs");  // "home/user/docs"</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Ловушки split</span>
+      <p><b>1. Лишние пробелы.</b> <code>"  кот   пёс ".split(" ")</code> даст <code>["", "", "кот", "", "", "пёс"]</code> — пустые строки там, где пробелы шли подряд или стояли в начале. Пустые <b>в конце</b> Java отбрасывает сама, а в начале и в середине — нет.</p>
+      <p><b>Рецепт для слов:</b> <code>s.trim().split("\\s+")</code> — сначала убрать пробелы по краям, потом резать по «одному или нескольким пробелам подряд». Почему пишется так странно — расскажет урок 8.8 про регулярные выражения. Пока бери как готовую формулу.</p>
+      <p><b>2. Пустая строка.</b> <code>"".split(" ")</code> — это массив из <b>одного</b> элемента <code>""</code>, а не пустой массив. Подсчёт слов через длину массива <code>split(...).length</code> для пустого ввода скажет «1 слово». Проверяй <code>isBlank()</code> заранее.</p>
+      <p><b>3. Точка и некоторые другие символы.</b> <code>"a.b.c".split(".")</code> вернёт <b>пустой</b> массив! Точка в <code>split</code> — особый символ «любой символ». Правильно: <code>split("\\.")</code>. Тоже подробности в уроке 8.8.</p>
+    </div>
+    <details class="predict">
+      <summary>"a,b,,c,,".split(",").length — сколько?</summary>
+      <p><b>4</b>: <code>["a", "b", "", "c"]</code>. Пустая строка между двумя запятыми в середине остаётся, а пустые хвосты в конце отбрасываются.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Из числа в строку и обратно</h2>
+    <p>Текст из файла и ввод пользователя — всегда строки. Чтобы посчитать, их надо превратить в числа, и наоборот: вызываем метод, передаём аргумент, и он возвращает значение нужного типа.</p>
+<pre data-file="Convert.java"><code class="java">String s1 = String.valueOf(42);       // "42" — число → строка
+String s2 = "" + 42;                  // "42" — тоже работает, через склейку
+String s3 = String.valueOf('x');      // "x"  — символ → строка
+
+int n = Integer.parseInt("42");        // 42   — строка → int
+double d = Double.parseDouble("3.5");  // 3.5  — строка → double
+int bad = Integer.parseInt("42 руб."); // 💥 NumberFormatException — не число</code></pre>
+    <p>Типичная задача: из чека прочитали строку «Итого: 1 299 ₽», вырезали число, убрали пробелы, <code>parseInt</code> — и сверили с суммой товаров. Каждый шаг — метод из этого урока.</p>
+    <details class="predict">
+      <summary>String.valueOf(42) + 1 — что получится? А Integer.parseInt("42") + 1?</summary>
+      <p><b>"421"</b> — строка плюс число = склейка. И <b>43</b> — parseInt вернул настоящее число типа int. Тип операндов решает всё.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Шпаргалка</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Возвращает</th><th>Пример → результат</th></tr>
+        <tr><td><code>length()</code></td><td>int</td><td><code>"кот".length()</code> → 3</td></tr>
+        <tr><td><code>charAt(i)</code></td><td>char</td><td><code>"кот".charAt(0)</code> → 'к'</td></tr>
+        <tr><td><code>indexOf(x)</code> / <code>lastIndexOf(x)</code></td><td>int, −1 если нет</td><td><code>"мама".indexOf("ма")</code> → 0, <code>lastIndexOf</code> → 2</td></tr>
+        <tr><td><code>contains / startsWith / endsWith</code></td><td>boolean</td><td><code>"file.txt".endsWith(".txt")</code> → true</td></tr>
+        <tr><td><code>substring(a)</code>, <code>substring(a, b)</code></td><td>String</td><td><code>"hello".substring(1, 3)</code> → "el"</td></tr>
+        <tr><td><code>trim() / strip()</code></td><td>String</td><td><code>" a ".trim()</code> → "a"</td></tr>
+        <tr><td><code>isEmpty() / isBlank()</code></td><td>boolean</td><td><code>" ".isBlank()</code> → true</td></tr>
+        <tr><td><code>toUpperCase() / toLowerCase()</code></td><td>String</td><td><code>"Ok".toUpperCase()</code> → "OK"</td></tr>
+        <tr><td><code>replace(a, b)</code></td><td>String</td><td><code>"a-b-c".replace("-", "")</code> → "abc"</td></tr>
+        <tr><td><code>split(разделитель)</code></td><td>String[]</td><td><code>"a b".split(" ")</code> → ["a", "b"]</td></tr>
+        <tr><td><code>String.join(сцепка, части…)</code></td><td>String</td><td><code>String.join("+", "a", "b")</code> → "a+b"</td></tr>
+        <tr><td><code>repeat(n)</code></td><td>String</td><td><code>"ab".repeat(3)</code> → "ababab"</td></tr>
+        <tr><td><code>String.valueOf(x)</code></td><td>String</td><td><code>String.valueOf(3.5)</code> → "3.5"</td></tr>
+        <tr><td><code>equals / equalsIgnoreCase</code></td><td>boolean</td><td><code>"A".equalsIgnoreCase("a")</code> → true</td></tr>
+      </table>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Как найти остальные методы</span>
+      <p>Поставь точку после строковой переменной в IDEA — выпадет список всех методов с описанием. Наведи на метод и нажми <kbd>Ctrl</kbd>+<kbd>Q</kbd> — откроется документация. Учить наизусть не нужно: нужно знать, что такое бывает, и уметь найти.</p>
+    </div>
+    <div data-widget="ide" id="shot-completion">
+      <script type="application/json">
+      { "tree": false, "file": "Methods.java", "gutterRun": [1, 2], "caretLine": 4,
+        "code": "public class Methods {\n    public static void main(String[] args) {\n        String s = \"Hello, Java!\";\n        s.\n    }\n}",
+        "menu": { "at": "line-4", "items": ["ⓜ charAt(int index)   char", "ⓜ contains(CharSequence s)   boolean", "ⓜ indexOf(String str)   int", "ⓜ length()   int", "ⓜ substring(int beginIndex)   String", "ⓜ toUpperCase()   String"], "hl": "ⓜ length()   int" },
+        "marks": [ { "n": 1, "target": "line-4", "side": "left", "text": "Набрал имя переменной и точку — IDEA сразу показывает, что умеет строка. Не появилось — <kbd>Ctrl</kbd>+<kbd>Space</kbd>" },
+                   { "n": 2, "target": "menu", "text": "Список методов: слева имя и параметры в скобках, справа — <b>тип возвращаемого значения</b> (<code>int</code>, <code>boolean</code>, <code>String</code>). Начни печатать <code>sub</code> — список сузится. Стрелками выбери строку и нажми <kbd>Ctrl</kbd>+<kbd>Q</kbd> — откроется описание метода" } ],
+        "caption": "Подсказка методов после точки (часть списка)" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-03">
+      <script type="application/json">
+      {
+       "title": "Методы строк",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String s = \"programming\";\nSystem.out.println(s.substring(3, 7));",
+         "answer": "gram",
+         "why": "p0 r1 o2 g3 r4 a5 m6 m7: вызов substring(3, 7) берёт индексы 3, 4, 5, 6 — «gram». Символ 7 уже не берём. Длина куска 7 − 3 = 4."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String file = \"report.final.pdf\";\nint dot = file.lastIndexOf('.');\nSystem.out.println(file.substring(dot + 1));",
+         "answer": "pdf",
+         "why": "lastIndexOf вернул индекс последней точки — перед «pdf». Аргумент <code>dot + 1</code> пропускает саму точку."
+        },
+        {
+         "type": "single",
+         "q": "Что вернёт <code>\"Java\".indexOf(\"script\")</code>?",
+         "options": [
+          "0",
+          "-1",
+          "Ошибку StringIndexOutOfBoundsException"
+         ],
+         "answer": 1,
+         "why": "Не нашёл — метод возвращает −1, без исключений. Исключение бросают substring и charAt при выходе за границы."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>\"   \".isEmpty()</code> вернёт true",
+           "a": false,
+           "why": "пробелы — символы, длина 3. true вернёт <code>isBlank()</code>."
+          },
+          {
+           "s": "<code>\"мама\".replace('м', 'п')</code> заменит все буквы м",
+           "a": true
+          },
+          {
+           "s": "<code>s.trim()</code> убирает пробелы и внутри строки",
+           "a": false,
+           "why": "только по краям."
+          },
+          {
+           "s": "<code>\"\".split(\" \").length</code> равно 1",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "bug",
+         "q": "Где ошибка компиляции?",
+         "code": "String word = \"кот\";\nint[] nums = {1, 2, 3};\nint a = word.length();\nint b = nums.length;\nint c = word.length;",
+         "answer": [
+          5
+         ],
+         "why": "У строки длина — вызов метода со скобками: <code>word.length()</code>. Поле без скобок бывает только у массива."
+        },
+        {
+         "type": "match",
+         "q": "Соедини задачу и метод",
+         "left": [
+          "Есть ли в URL «/cart»?",
+          "Разбить «a;b;c» на части",
+          "Убрать пробелы по краям",
+          "Строка из одних пробелов?"
+         ],
+         "right": [
+          "contains",
+          "split",
+          "strip",
+          "isBlank"
+         ],
+         "why": "Шпаргалка из шага 8 — на все случаи жизни."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Попроси задачку</span>
+      <p>Напиши наставнику: <em>«Дай мне 3 мини-задачи на substring и indexOf: строка на входе, что нужно вырезать. Ответы не говори, пока я не напишу свои»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Индексы строки — как у массива: с 0 до <code>length() - 1</code>. У строки <code>length()</code> со скобками.</li>
+        <li><span class="ai-only">Вызов <code>indexOf</code> возвращает позицию или −1. <code>contains/startsWith/endsWith</code> возвращают boolean.</span><span class="free-only">Вызов <code>indexOf</code> возвращает позицию или −1. <code>contains/startsWith/endsWith</code> возвращают boolean.</span></li>
+        <li><code>substring(a, b)</code>: от a включительно до b не включительно, длина b − a. Числа — «разрезы между символами».</li>
+        <li><code>trim/strip</code>, <code>toUpperCase</code>, <code>replace</code> возвращают новую строку — присваивай возвращаемое значение.</li>
+        <li><code>split</code> возвращает массив; для слов — <code>s.trim().split("\\s+")</code>. <code>String.join</code> склеивает обратно.</li>
+        <li><code>String.valueOf</code> — в строку, <code>Integer.parseInt</code> — в число.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

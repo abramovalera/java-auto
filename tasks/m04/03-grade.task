@@ -1,0 +1,79 @@
+## id: m04-t03
+## title: Оценка по баллам
+## file: module-04/GradeByScore.java
+## class: GradeByScore
+## level: 2
+@@ description
+<p>🛠 <b>Мастерская.</b> Программа читает баллы за экзамен (целое число) и печатает буквенную оценку:</p>
+<div class="table-wrap"><table>
+<tr><th>Баллы</th><th>Вывод</th></tr>
+<tr><td>90–100</td><td><code>Оценка: A</code></td></tr>
+<tr><td>80–89</td><td><code>Оценка: B</code></td></tr>
+<tr><td>70–79</td><td><code>Оценка: C</code></td></tr>
+<tr><td>60–69</td><td><code>Оценка: D</code></td></tr>
+<tr><td>0–59</td><td><code>Оценка: F</code></td></tr>
+<tr><td>меньше 0 или больше 100</td><td><code>Ошибка: баллы от 0 до 100</code></td></tr>
+</table></div>
+<p>Прежде чем писать код, составь <b>таблицу случаев</b>, как в Мастерской: какие числа стоят на границах каждого диапазона? Проверка подаёт именно их — все до одного.</p>
+<p>📖 <a href="/lessons/m04/06-workshop.html">Мастерская: решения с условиями</a>, <a href="/lessons/m04/02-else-if.html">else if и порядок проверок</a></p>
+@@ test: 100 — верхний край
+@@ input
+100
+@@ expect
+Оценка: A
+@@ test: 90 — граница A
+@@ input
+90
+@@ expect
+Оценка: A
+@@ test: 89 — ещё не A
+@@ input
+89
+@@ expect
+Оценка: B
+@@ test: 80 — граница B
+@@ input
+80
+@@ expect
+Оценка: B
+@@ test: 79
+@@ input
+79
+@@ expect
+Оценка: C
+@@ test: 70 — граница C
+@@ input
+70
+@@ expect
+Оценка: C
+@@ test: 69
+@@ input
+69
+@@ expect
+Оценка: D
+@@ test: 60 — граница D
+@@ input
+60
+@@ expect
+Оценка: D
+@@ test: 59 — уже F
+@@ input
+59
+@@ expect
+Оценка: F
+@@ test: 0 — нижний край
+@@ input
+0
+@@ expect
+Оценка: F
+@@ test: -1 — за нижним краем
+@@ input
+-1
+@@ expect
+Ошибка: баллы от 0 до 100
+@@ test: 101 — за верхним краем
+@@ input
+101
+@@ expect
+Ошибка: баллы от 0 до 100
+@@ require: else\s+if | Пять диапазонов удобно разобрать цепочкой else if

@@ -1,0 +1,81 @@
+## id: m10-t05
+## title: Перепись зоопарка
+## file: module-10/ZooCensus.java
+## class: ZooCensus
+## level: 2
+@@ description
+<p>🛠 <b>Мастерская.</b> В зоопарке — массив животных разных классов. Посчитай, кого сколько, с помощью <code>instanceof</code>. В файле <code>ZooCensus.java</code>:</p>
+<ul>
+  <li><code>class CensusAnimal</code> — имя (<code>private</code>), конструктор, <code>getName()</code>;</li>
+  <li><code>class CensusCat extends CensusAnimal</code>;</li>
+  <li><code>class CensusKitten extends CensusCat</code> — котёнок <b>тоже кот</b>;</li>
+  <li><code>class CensusDog extends CensusAnimal</code> — плюс поле «сторожевая ли» и метод <code>boolean isGuard()</code>;</li>
+  <li><code>class CensusParrot extends CensusAnimal</code>.</li>
+</ul>
+<p><code>main</code> читает N и N животных: <code>cat Murka</code>, <code>kitten Pushok</code>, <code>parrot Kesha</code>, а у собак третье слово — <code>guard</code> (сторож) или <code>home</code> (домашняя): <code>dog Sharik guard</code>. Складывает их в массив <code>CensusAnimal[]</code> и вызывает метод <code>static void census(CensusAnimal[] animals)</code>, который и считает. <b>Внутри census слова cat/dog уже не видны</b> — только объекты, поэтому тип узнаём через <code>instanceof</code>.</p>
+<pre class="terminal"><span class="out">ввод:              вывод:
+5
+cat Murka          Всего: 5
+kitten Pushok      Кошачьих: 2
+dog Sharik guard   Собак: 2
+dog Bobik home     Сторожевых собак: 1
+parrot Kesha       Прочих: 1
+                   Сторожа: Sharik</span></pre>
+<p>«Сторожа» — имена сторожевых собак через запятую с пробелом в порядке ввода; если их нет — <code>нет</code>. Чтобы вызвать <code>isGuard()</code>, собаку придётся привести к <code>CensusDog</code> — удобнее всего через pattern matching: <code>if (a instanceof CensusDog dog)</code>.</p>
+<p>Сначала план, как в Мастерской: что на входе census и что на выходе? Какие роли у переменных (подсказка: несколько счётчиков и один накопитель-строка)? Что будет с котёнком — в какой счётчик он попадёт и почему?</p>
+<p>📖 <a href="/lessons/m10/06-casting.html">Приведение типов и instanceof</a></p>
+@@ test: Пример из условия
+@@ input
+5
+cat Murka
+kitten Pushok
+dog Sharik guard
+dog Bobik home
+parrot Kesha
+@@ expect
+Всего: 5
+Кошачьих: 2
+Собак: 2
+Сторожевых собак: 1
+Прочих: 1
+Сторожа: Sharik
+@@ test: Пустой зоопарк
+@@ input
+0
+@@ expect
+Всего: 0
+Кошачьих: 0
+Собак: 0
+Сторожевых собак: 0
+Прочих: 0
+Сторожа: нет
+@@ test: Только котята — они тоже кошачьи
+@@ input
+2
+kitten Snezhok
+kitten Ugolyok
+@@ expect
+Всего: 2
+Кошачьих: 2
+Собак: 0
+Сторожевых собак: 0
+Прочих: 0
+Сторожа: нет
+@@ test: Два сторожа
+@@ input
+4
+dog Rex guard
+parrot Gosha
+dog Polkan guard
+cat Vaska
+@@ expect
+Всего: 4
+Кошачьих: 1
+Собак: 2
+Сторожевых собак: 2
+Прочих: 1
+Сторожа: Rex, Polkan
+@@ require: class\s+CensusKitten\s+extends\s+CensusCat | Котёнок — это кот: class CensusKitten extends CensusCat
+@@ require: static\s+void\s+census\s*\(\s*CensusAnimal\s*\[\s*\]\s*\w+\s*\) | Нужен метод static void census(CensusAnimal[] animals)
+@@ require: instanceof\s+CensusCat\b | Кошачьих определяй через instanceof CensusCat
+@@ require: instanceof\s+CensusDog\b | Собак определяй через instanceof CensusDog

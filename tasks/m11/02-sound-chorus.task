@@ -1,0 +1,59 @@
+## id: m11-t02
+## title: Хор из чего угодно
+## file: module-11/SoundChorus.java
+## class: SoundChorus
+## level: 1
+@@ description
+<p>Кошка, собака и… машина. Общего предка у них нет, но все умеют <b>издавать звук</b>. Это работа для <b>интерфейса</b>.</p>
+<p>В одном файле <code>SoundChorus.java</code> (вспомогательные типы — без <code>public</code>):</p>
+<ul>
+  <li><code>interface ChorusVoice</code> с двумя методами: <code>String name()</code> и <code>String sound()</code>;</li>
+  <li>три класса, которые его реализуют (<code>implements</code>): <code>ChorusCat</code> (Кошка, Мяу), <code>ChorusDog</code> (Собака, Гав), <code>ChorusCar</code> (Машина, Би-би).</li>
+</ul>
+<p><b>Ввод:</b> число N, потом N слов: <code>cat</code>, <code>dog</code>, <code>car</code> или что-то другое. Для знакомого слова создай объект и положи в массив <code>ChorusVoice[]</code>. Незнакомое слово — сразу напечатай <code>Не знаю, кто это: слово</code> и пропусти. После ввода напечатай <code>Хор из K:</code> (K — сколько голосов набралось) и каждый голос в формате <code>имя — звук</code> (тире длинное: <code>—</code>).</p>
+<pre class="terminal"><span class="out">ввод:                вывод:
+3                    Не знаю, кто это: cow
+dog cow car          Хор из 2:
+                     Собака — Гав
+                     Машина — Би-би</span></pre>
+<p>Подсказка: создание объекта по слову удобно вынести в метод <code>static ChorusVoice create(String word)</code>, который для незнакомого слова возвращает <code>null</code>. Вторая подсказка: массив можно заводить сразу на N мест, а заполненных ячеек будет K.</p>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/02-interfaces.html">Интерфейсы</a></p>
+@@ test: Весь хор в сборе
+@@ input
+4
+cat dog car cat
+@@ expect
+Хор из 4:
+Кошка — Мяу
+Собака — Гав
+Машина — Би-би
+Кошка — Мяу
+@@ test: Незнакомец в хоре
+@@ input
+3
+dog cow car
+@@ expect
+Не знаю, кто это: cow
+Хор из 2:
+Собака — Гав
+Машина — Би-би
+@@ test: Пустой ввод
+@@ input
+0
+@@ expect
+Хор из 0:
+@@ test: Только незнакомцы
+@@ input
+2
+frog bird
+@@ expect
+Не знаю, кто это: frog
+Не знаю, кто это: bird
+Хор из 0:
+@@ require: interface\s+ChorusVoice | Нужен интерфейс ChorusVoice
+@@ require: class\s+ChorusCat\s+implements\s+ChorusVoice | ChorusCat должен реализовать ChorusVoice (implements)
+@@ require: class\s+ChorusDog\s+implements\s+ChorusVoice | ChorusDog должен реализовать ChorusVoice (implements)
+@@ require: class\s+ChorusCar\s+implements\s+ChorusVoice | ChorusCar должен реализовать ChorusVoice (implements)
+@@ require: ChorusVoice\s*\[\s*\] | Храни голоса в массиве ChorusVoice[] — переменная типа интерфейса
+@@ forbid: instanceof | Не проверяй тип через instanceof — просто вызови name() и sound(), полиморфизм разберётся сам

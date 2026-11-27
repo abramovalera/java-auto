@@ -1,0 +1,44 @@
+## id: tr-arrays-015
+## title: Где номер в списке
+## file: trainer/arrays/FindRoomByNumber.java
+## class: FindRoomByNumber
+## level: 1
+## category: Поиск
+@@ description
+<p>Напиши класс <code>FindRoomByNumber</code>. Администратор гостиницы держит список занятых номеров. В первой строке — <code>n</code>, во второй — <code>n</code> номеров комнат, в третьей — номер, который ищем. Напечатай <b>индекс</b> первого вхождения этого номера в массиве или <code>-1</code>, если его нет.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       101 204 305 204 410
+       204
+вывод: 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int index = -1;</code> — значение «не нашли» до начала поиска</li>
+<li><code>break</code> — выход из цикла, когда нашли</li>
+</ul></div>
+@@ test: Нашёлся
+@@ input
+5
+101 204 305 204 410
+204
+@@ expect
+1
+@@ test: Нет такого
+@@ input
+3
+12 14 16
+15
+@@ expect
+-1
+@@ test: Первый в списке
+@@ input
+2
+7 8
+7
+@@ expect
+0
+@@ test: Пустой список
+@@ input
+0
+100
+@@ expect
+-1
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

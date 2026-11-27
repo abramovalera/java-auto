@@ -1,0 +1,39 @@
+## id: tr-loops-008
+## title: Пирамида из кубиков
+## file: trainer/loops/SumOfSquaresTo.java
+## class: SumOfSquaresTo
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>SumOfSquaresTo</code>. Пирамиду строят из кубиков слоями: в верхнем слое 1×1 = 1 кубик, во втором 2×2 = 4, в третьем 3×3 = 9, в нижнем <code>n</code>×<code>n</code>. Программа читает число слоёв <code>n</code> (0 ≤ n ≤ 100 000) и печатает, сколько кубиков нужно на всю пирамиду.</p>
+<pre class="terminal"><span class="out">ввод:  3
+вывод: 14</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>long total = 0;</code> — накопитель в long: кубиков может быть очень много</li>
+<li><code>(long) i * i</code> — приведение к long до умножения: иначе <code>i * i</code> переполнит int при больших i</li>
+</ul></div>
+@@ test: Три слоя
+@@ input
+3
+@@ expect
+14
+@@ test: Один кубик
+@@ input
+1
+@@ expect
+1
+@@ test: Пирамиды нет
+@@ input
+0
+@@ expect
+0
+@@ test: Десять слоёв
+@@ input
+10
+@@ expect
+385
+@@ test: Огромная пирамида
+@@ input
+100000
+@@ expect
+333338333350000

@@ -1,0 +1,19 @@
+# Запуск:   docker compose up -d --build
+# Открыть:  http://localhost:7070
+# Стоп:     docker compose down
+services:
+  course:
+    build: .
+    container_name: java-course
+    ports:
+      - "7070:7070"
+    environment:
+      TZ: Europe/Moscow          # часовой пояс для истории проверок
+      PROJECT_DIR: /minibank     # сквозной проект ученика «МиниБанк»
+    volumes:
+      - ./site:/app/site:ro      # сайт и уроки — правки видны без пересборки
+      - ./tasks:/app/tasks:ro    # условия и тесты задач
+      - ./workspace:/workspace   # ТВОИ данные: код, прогресс, история проверок
+      - ./starter:/app/starter:ro  # заготовки задач — копируются в workspace, только если файла там нет
+      - ./MiniBank:/minibank:ro  # ТВОЙ проект МиниБанк (свой Git) — сервер только читает его для проверки ★-заданий
+    restart: unless-stopped

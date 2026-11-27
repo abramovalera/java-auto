@@ -1,0 +1,73 @@
+## id: m09-t07
+## title: Корзина на record
+## file: module-09/ShopCartTotal.java
+## class: ShopCartTotal
+## level: 2
+@@ description
+<p>Интернет-магазин считает корзину. Сначала вводится число позиций N, потом N строк <code>название цена количество</code> (название — одно слово, цена и количество — целые). Программа печатает каждую позицию, итог и самую дорогую позицию (по стоимости «цена × количество»; если таких несколько — первую из них):</p>
+<pre class="terminal"><span class="out">ввод: 3
+      Хлеб 45 2
+      Сыр 450 1
+      Молоко 89 3
+
+Хлеб: 45 x 2 = 90
+Сыр: 450 x 1 = 450
+Молоко: 89 x 3 = 267
+Итого: 807
+Самая дорогая позиция: CartProduct[title=Сыр, price=450, qty=1]</span></pre>
+<p>Если N = 0, печатается одна строка: <code>Корзина пуста</code>.</p>
+<p>Позиция корзины — <b>record</b>: <code>record CartProduct(String title, int price, int qty)</code> с одним своим методом <code>int cost()</code> (цена × количество). Позиции храни в массиве <code>CartProduct[]</code>. Последнюю строку печатай, просто передав объект-позицию в склейку или println, — нужный вид <code>CartProduct[title=…, price=…, qty=…]</code> даёт готовый toString record'а, писать его не надо.</p>
+<p>Помни: у record методы доступа без get — <code>p.title()</code>, <code>p.price()</code>.</p>
+<p>📖 <a href="/lessons/m09/08-record-tostring.html">toString и record</a></p>
+@@ test: Три позиции
+@@ input
+3
+Хлеб 45 2
+Сыр 450 1
+Молоко 89 3
+@@ expect
+Хлеб: 45 x 2 = 90
+Сыр: 450 x 1 = 450
+Молоко: 89 x 3 = 267
+Итого: 807
+Самая дорогая позиция: CartProduct[title=Сыр, price=450, qty=1]
+@@ test: Одна позиция
+@@ input
+1
+Чай 120 1
+@@ expect
+Чай: 120 x 1 = 120
+Итого: 120
+Самая дорогая позиция: CartProduct[title=Чай, price=120, qty=1]
+@@ test: Дорогая по количеству, а не по цене
+@@ input
+2
+Икра 900 1
+Яблоко 50 20
+@@ expect
+Икра: 900 x 1 = 900
+Яблоко: 50 x 20 = 1000
+Итого: 1900
+Самая дорогая позиция: CartProduct[title=Яблоко, price=50, qty=20]
+@@ test: Одинаковая стоимость — берём первую
+@@ input
+3
+Соль 30 2
+Перец 60 1
+Сахар 20 3
+@@ expect
+Соль: 30 x 2 = 60
+Перец: 60 x 1 = 60
+Сахар: 20 x 3 = 60
+Итого: 180
+Самая дорогая позиция: CartProduct[title=Соль, price=30, qty=2]
+@@ test: Пустая корзина
+@@ input
+0
+@@ expect
+Корзина пуста
+@@ require: record\s+CartProduct\s*\(\s*String\s+title\s*,\s*int\s+price\s*,\s*int\s+qty\s*\) | Нужен record CartProduct(String title, int price, int qty)
+@@ require: int\s+cost\s*\(\s*\) | В record нужен свой метод int cost()
+@@ require: CartProduct\s*\[\s*\] | Храни позиции в массиве CartProduct[]
+@@ forbid: class\s+CartProduct | CartProduct должен быть record, а не class
+@@ forbid: String\s+toString\s*\( | Свой toString не нужен — используй готовый toString record'а

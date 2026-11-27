@@ -1,0 +1,46 @@
+## id: tr-arrays-036
+## title: Билет продан дважды
+## file: trainer/arrays/DuplicateTicketCheck.java
+## class: DuplicateTicketCheck
+## level: 2
+## category: Повторы и уникальность
+@@ description
+<p>Напиши класс <code>DuplicateTicketCheck</code>. Контролёр сканирует билеты на входе по очереди. Если номер уже сканировали раньше — это подделка. В первой строке — количество билетов <code>n</code>, во второй — <code>n</code> номеров в порядке сканирования. Найди <b>первый</b> билет, номер которого уже встречался перед ним, и напечатай <code>Повтор: X</code>. Если все номера разные — <code>Все билеты разные</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       5 3 7 3 5 9
+вывод: Повтор: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>вложенный цикл: для каждого <code>j</code> проверь все <code>i &lt; j</code></li>
+<li>чтобы выйти сразу из двух циклов, удобно завести флаг и проверять его во внешнем цикле</li>
+</ul></div>
+@@ test: Подделка
+@@ input
+6
+5 3 7 3 5 9
+@@ expect
+Повтор: 3
+@@ test: Все разные
+@@ input
+4
+10 20 30 40
+@@ expect
+Все билеты разные
+@@ test: Повтор сразу
+@@ input
+3
+8 8 1
+@@ expect
+Повтор: 8
+@@ test: Нет билетов
+@@ input
+0
+@@ expect
+Все билеты разные
+@@ test: Второй раньше первого
+@@ input
+5
+1 2 3 2 1
+@@ expect
+Повтор: 2
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];
+@@ forbid: \b(ArrayList|LinkedList|HashSet|TreeSet|HashMap|TreeMap|List|Set|Map)\s*<|\.stream\s*\( | Здесь только массивы: коллекции и стримы будут позже

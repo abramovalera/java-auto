@@ -1,0 +1,54 @@
+## id: tr-arrays-049
+## title: Таблица расстояний
+## file: trainer/arrays/SymmetricDistanceTable.java
+## class: SymmetricDistanceTable
+## level: 3
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>SymmetricDistanceTable</code>. В таблице расстояний между <code>n</code> городами в строке <code>i</code>, столбце <code>j</code> записано расстояние от города <code>i</code> до города <code>j</code>. Правильная таблица <b>симметрична</b>: <code>m[i][j]</code> всегда равно <code>m[j][i]</code>. В первой строке — <code>n</code> (n ≥ 1), дальше <code>n</code> строк по <code>n</code> чисел. Напечатай <code>Таблица верна</code> или <code>Ошибка: строка R, столбец C</code> — первая несовпадающая клетка при чтении таблицы слева направо, сверху вниз (номера с 1).</p>
+<pre class="terminal"><span class="out">ввод:  3
+       0 5 9
+       5 0 4
+       9 4 0
+вывод: Таблица верна</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>сравнивай <code>m[i][j]</code> с <code>m[j][i]</code></li>
+<li>чтобы остановить сразу оба цикла, заведи флаг и проверяй его в условии внешнего цикла</li>
+</ul></div>
+@@ test: Верная таблица
+@@ input
+3
+0 5 9
+5 0 4
+9 4 0
+@@ expect
+Таблица верна
+@@ test: Ошибка
+@@ input
+3
+0 5 9
+5 0 4
+8 4 0
+@@ expect
+Ошибка: строка 1, столбец 3
+@@ test: Один город
+@@ input
+1
+0
+@@ expect
+Таблица верна
+@@ test: Ошибка в первой строке
+@@ input
+2
+0 3
+4 0
+@@ expect
+Ошибка: строка 1, столбец 2
+@@ test: Диагональ не важна
+@@ input
+2
+7 1
+1 9
+@@ expect
+Таблица верна
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];

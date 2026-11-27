@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Класс Object: toString, equals, hashCode · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m10-05">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 10 · Урок 5</div>
+    <h1>Класс Object: toString, equals, hashCode</h1>
+    <p class="lead">У всех классов Java есть общий прародитель — Object. От него каждый класс наследует несколько методов. Три из них ты будешь переопределять постоянно: чтобы объект красиво печатался, честно сравнивался и правильно работал в коллекциях.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🧬 Object</span><span>⚖️ контракт equals/hashCode</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m10-05-review">
+      <script type="application/json">
+      { "title": "Вспомним полиморфизм и строки", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "<code>Animal a = new Cat();</code> Чья версия <code>a.speak()</code> выполнится?",
+            "options": ["Animal — по типу переменной", "Cat — по реальному объекту", "Ошибка компиляции"], "answer": 1,
+            "why": "Переопределённые методы выбираются по объекту — динамическая диспетчеризация." },
+          { "type": "predict", "q": "Модуль 8. Что выведет?",
+            "code": "String a = new String(\"hi\");\nString b = new String(\"hi\");\nSystem.out.println(a == b);\nSystem.out.println(a.equals(b));",
+            "answer": "false\ntrue", "why": "== сравнивает ссылки (два разных объекта), equals — содержимое строк." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Object — прародитель всех классов</h2>
+    <p>Если у класса не написано <code>extends</code>, Java молча добавляет <code>extends Object</code>. Значит, <b>любой</b> класс — твой <code>Cat</code>, <code>String</code>, массивы — наследник <code>java.lang.Object</code>. Прямо или через цепочку родителей.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Object на вершине иерархии. Под ним String, Animal, Shop. Под Animal — Cat и Dog. Под Shop — Bakery">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="190" y="14" width="340" height="60" rx="14" class="d-accent"/>
+        <text x="360" y="40" text-anchor="middle" class="d-title">Object</text>
+        <text x="360" y="62" text-anchor="middle" class="d-small">toString · equals · hashCode · getClass</text>
+        <rect x="40" y="110" width="150" height="44" rx="10" class="d-soft"/>
+        <text x="115" y="137" text-anchor="middle" class="d-mono-ink">String</text>
+        <rect x="285" y="110" width="150" height="44" rx="10" class="d-violet"/>
+        <text x="360" y="137" text-anchor="middle" class="d-mono-ink">Animal</text>
+        <rect x="530" y="110" width="150" height="44" rx="10" class="d-blue"/>
+        <text x="605" y="137" text-anchor="middle" class="d-mono-ink">Shop</text>
+        <rect x="215" y="190" width="120" height="44" rx="10" class="d-violet"/>
+        <text x="275" y="217" text-anchor="middle" class="d-mono-ink">Cat</text>
+        <rect x="385" y="190" width="120" height="44" rx="10" class="d-violet"/>
+        <text x="445" y="217" text-anchor="middle" class="d-mono-ink">Dog</text>
+        <rect x="545" y="190" width="150" height="44" rx="10" class="d-blue"/>
+        <text x="620" y="217" text-anchor="middle" class="d-mono-ink">Bakery</text>
+        <path d="M115 108 L290 76" class="d-arrow"/>
+        <path d="M360 108 V78" class="d-arrow"/>
+        <path d="M605 108 L430 76" class="d-arrow"/>
+        <path d="M275 188 L330 158" class="d-arrow"/>
+        <path d="M445 188 L390 158" class="d-arrow"/>
+        <path d="M620 188 L608 158" class="d-arrow"/>
+      </svg>
+      <figcaption>Любая цепочка наследования наверху упирается в Object.</figcaption>
+    </figure>
+    <p>Поэтому у каждого объекта есть унаследованные методы, которых ты не писал. Главные:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает по умолчанию</th><th>Переопределять?</th></tr>
+        <tr><td><code>String toString()</code></td><td>текст вида <code>Cat@1b6d3586</code></td><td>почти всегда</td></tr>
+        <tr><td><code>boolean equals(Object o)</code></td><td>то же, что <code>==</code>: «это один и тот же объект?»</td><td>для классов-значений</td></tr>
+        <tr><td><code>int hashCode()</code></td><td>число, своё у каждого объекта</td><td><b>только вместе с equals</b></td></tr>
+        <tr><td><code>Class getClass()</code></td><td>сведения о реальном классе объекта</td><td>нельзя: он <code>final</code></td></tr>
+      </table>
+    </div>
+    <p>Ещё есть <code>clone</code>, <code>wait</code>, <code>notify</code> и пара служебных — к некоторым вернёмся в модуле про многопоточность.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>toString: как объект выглядит в тексте</h2>
+<pre data-file="Print.java"><code class="java">Cat cat = new Cat("Мурка", 3);
+System.out.println(cat);</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатается, если toString не переопределён?</summary>
+      <p>Что-то вроде <b>Cat@1b6d3586</b>: имя класса, @ и шестнадцатеричное число (из hashCode). Для человека — бесполезно. Число каждый раз может быть разным.</p>
+    </details>
+    <p><code>println(объект)</code> и склейка <code>"Кот: " + cat</code> сами вызывают у объекта <code>toString()</code>. Переопределим:</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    private final String name;
+    private final int age;
+
+    Cat(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Cat{name=" + name + ", age=" + age + "}";
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Cat{name=Мурка, age=3}</span></pre>
+    <div class="callout warn">
+      <span class="callout-title">public обязательно</span>
+      <p>В Object метод объявлен как <code>public String toString()</code>. Правило из урока 3: доступ при переопределении нельзя сужать. Напишешь <code>String toString()</code> без <code>public</code> — ошибка <code>attempting to assign weaker access privileges</code>. То же для <code>equals</code> и <code>hashCode</code>.</p>
+    </div>
+    <div data-widget="ide" id="shot-weaker-access">
+      <script type="application/json">
+      { "tree": false, "file": "Cat.java", "statusPath": "module-10",
+        "code": "class Cat {\n    private final String name;\n    private final int age;\n\n    Cat(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n\n    @Override\n    String toString() {\n        return \"Cat{name=\" + name + \", age=\" + age + \"}\";\n    }\n}",
+        "errors": [ { "line": 11, "text": "toString", "msg": "'toString()' in 'Cat' clashes with 'toString()' in 'java.lang.Object'; attempting to assign weaker access privileges ('package-private'); was 'public'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-11", "side": "top", "text": "Забыли <code>public</code> — красным стало имя метода" },
+                   { "n": 2, "target": "tip", "text": "Длинно, но читается по кускам: <b>clashes with</b> — «конфликтует с» toString из Object; <b>weaker access privileges ('package-private')</b> — у тебя доступ слабее (без модификатора); <b>was 'public'</b> — а у родителя был public" },
+                   { "n": 3, "target": "line-10", "text": "<code>@Override</code> тут ни при чём — ошибка была бы и без неё. Починка: дописать <code>public</code>" } ],
+        "caption": "Переопределение не может сужать доступ" }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p>Для поиска ошибок хороший <code>toString</code> — подарок. Программа повела себя странно, ты печатаешь объекты, чтобы понять, что внутри. Видишь <code>User{name=Ann, role=ADMIN}</code>, хотя ждал <code>User{name=Ann, role=GUEST}</code>, — и сразу понятно, что сломалось. А видишь <code>User@5e2de80c</code> — идёшь в отладчик.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>equals: «одинаковые» или «тот же самый»?</h2>
+    <p>Два разных объекта с одинаковыми данными:</p>
+<pre data-file="Same.java"><code class="java">Point a = new Point(1, 2);
+Point b = new Point(1, 2);
+System.out.println(a == b);
+System.out.println(a.equals(b));</code></pre>
+    <details class="predict">
+      <summary>Предскажи вывод, если в Point нет своего equals</summary>
+      <p><b>false и false.</b> <code>==</code> сравнивает ссылки — объектов два. А <code>equals</code> из Object устроен так же, как <code>==</code>. Чтобы точки с одинаковыми координатами считались равными, equals надо <b>переопределить</b>.</p>
+    </details>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: две одинаковые книги</span>
+      <p>У тебя и у друга по экземпляру «Гарри Поттера» одного издания. «Это одна и та же книга?» — нет, два физических экземпляра (<code>==</code> → false). «Это одинаковые книги?» — да, текст тот же (<code>equals</code> → true). Что считать «одинаковым», решаешь ты, когда пишешь equals: для книги — название и издание, а не цвет закладки.</p>
+    </div>
+    <p>Рецепт equals, который пишут почти все (и генерирует IDEA):</p>
+<pre data-file="Point.java"><code class="java">class Point {
+    private final int x;
+    private final int y;
+
+    Point(int x, int y) { this.x = x; this.y = y; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;                              // 1
+        if (o == null || getClass() != o.getClass()) return false; // 2
+        Point other = (Point) o;                                 // 3
+        return x == other.x &amp;&amp; y == other.y;                   // 4
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>equals(Object o)</code><div><p>Параметр — именно <code>Object</code>, иначе получится перегрузка, а не переопределение (это классическая ловушка, есть в головоломках). <code>@Override</code> её поймает.</p></div></div>
+      <div class="annot-row"><code>1: this == o</code><div><p>Ссылки равны — значит, объект сравнивают сам с собой: сразу «да», дальше можно не смотреть.</p></div></div>
+      <div class="annot-row"><code>2: null или другой класс</code><div><p>С <code>null</code> и с объектом другого класса (например, строкой) точка не равна никогда. Проверка на null обязательна — иначе на шаге 3–4 будет <code>NullPointerException</code>.</p></div></div>
+      <div class="annot-row"><code>3: (Point) o</code><div><p><b>Приведение типа</b> ссылки: параметр <code>o</code> имеет тип <code>Object</code>, а мы уже уверены, что он ссылается на точку, и хотим читать её поля. Подробно — в уроке 6.</p></div></div>
+      <div class="annot-row"><code>4: сравнение полей</code><div><p>Примитивы — через <code>==</code>, поля-объекты (строки и т.п.) — через их <code>equals</code>. Удобно: <code>Objects.equals(name, other.name)</code> — он ещё и с null справляется.</p></div></div>
+    </div>
+    <h3>Контракт equals</h3>
+    <p><b>Контракт</b> — обещания, которые должен выполнять любой equals. На них полагаются коллекции и библиотеки:</p>
+    <ul>
+      <li><b>Рефлексивность</b>: <code>x.equals(x)</code> — всегда true.</li>
+      <li><b>Симметричность</b>: если <code>x.equals(y)</code>, то и <code>y.equals(x)</code>.</li>
+      <li><b>Транзитивность</b>: x равен y, y равен z → x равен z.</li>
+      <li><b>Постоянство</b>: пока объекты не менялись, ответ один и тот же.</li>
+      <li><b>С null</b>: <code>x.equals(null)</code> — всегда false, без исключений.</li>
+    </ul>
+
+    <h3>Кому переопределять, а кому нет</h3>
+    <p>Частый вопрос: «А для <code>String</code> тоже надо писать <code>equals</code>?» Нет. Авторы JDK уже переопределили его во всех классах-«значениях». Писать <code>equals</code> нужно <b>только в своих классах</b>, если их объекты надо сравнивать по содержимому.</p>
+    <div class="table-wrap"><table>
+      <tr><th>Класс</th><th>equals сравнивает…</th><th>Что делать тебе</th></tr>
+      <tr><td><code>String</code>, <code>Integer</code>, <code>Double</code>, <code>Boolean</code>…</td><td>содержимое — уже переопределён в JDK</td><td>ничего, просто вызывай <code>equals</code> (не <code>==</code>!)</td></tr>
+      <tr><td><code>List</code>, <code>Set</code>, <code>Map</code>, <code>LocalDate</code></td><td>содержимое — уже переопределён</td><td>ничего: два списка с одинаковыми элементами равны</td></tr>
+      <tr><td>Твой класс (<code>Point</code>, <code>Product</code>, <code>User</code>…)</td><td>ссылки — достался от <code>Object</code></td><td><b>переопредели</b> <code>equals</code> и <code>hashCode</code> (<kbd>Alt</kbd>+<kbd>Insert</kbd> → equals() and hashCode())</td></tr>
+      <tr><td><code>record</code></td><td>все поля — компилятор пишет сам</td><td>ничего</td></tr>
+      <tr><td><code>enum</code></td><td>ссылки — и это правильно: каждое значение существует в одном экземпляре</td><td>ничего; сравнивать можно и через <code>==</code></td></tr>
+      <tr><td>Массивы <code>int[]</code>, <code>String[]</code>…</td><td><b>ссылки</b> — не переопределён!</td><td>сравнивай через <code>Arrays.equals(a, b)</code></td></tr>
+      <tr><td><code>StringBuilder</code></td><td><b>ссылки</b> — не переопределён!</td><td><code>sb1.toString().equals(sb2.toString())</code></td></tr>
+    </table></div>
+    <details class="predict">
+      <summary>Что выведет <code>new StringBuilder("ок").equals(new StringBuilder("ок"))</code>? А <code>Arrays.equals(new int[]{1}, new int[]{1})</code>?</summary>
+      <p><b>false</b> и <b>true</b>. У <code>StringBuilder</code> и у массивов <code>equals</code> остался от <code>Object</code> — сравнивает ссылки, а объектов два. Для массивов есть готовый помощник <code>Arrays.equals</code>. Обе ловушки любят на собеседованиях.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Где equals вызывают за тебя</span>
+      <p>Списки (модуль 13) внутри вызывают <b>equals</b>: <code>list.contains(x)</code>, <code>list.indexOf(x)</code>, <code>list.remove(x)</code>. Ищешь в корзине свой объект <code>new Product("Хлеб", 50)</code>, а у <code>Product</code> нет переопределённого <code>equals</code> — <code>contains</code> вернёт <code>false</code>, даже если такой товар в корзине лежит. Решения: переопределить <code>equals</code> или сделать класс <code>record</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>hashCode: номер полки</h2>
+    <p>Самая важная и самая непонятная часть. Разберём медленно.</p>
+    <p><b>hashCode</b> — это целое число, которое метод <code>hashCode()</code> вычисляет из полей объекта («считает про себя»). Зачем? Ради скорости поиска. В модуле 13 будут <code>HashMap</code> и <code>HashSet</code> — коллекции, которые находят элемент среди миллиона почти мгновенно. Они делают это в два шага:</p>
+    <ol class="steps">
+      <li>Вызывают у объекта метод <code>hashCode()</code> и по возвращённому числу выбирают <b>полку</b> (по-научному — «корзину», bucket).</li>
+      <li>На этой полке перебирают немногих соседей и сравнивают их через <code>equals</code>.</li>
+    </ol>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: гардероб в театре</span>
+      <p>Ты сдаёшь куртку, тебе дают номерок 42. После спектакля гардеробщик не перебирает все 500 курток — он идёт сразу к крючку 42 и смотрит там. <b>Номерок — это hashCode</b>, а «да, это моя куртка» — это equals.</p>
+      <p>Теперь представь: ты приходишь с <b>правильной курткой в руках</b> (equals скажет «та же»), но номерок тебе выдали случайный — 17. Гардеробщик идёт к крючку 17, там пусто: «Нет вашей куртки». Хотя она висит на 42. Вот что бывает, когда равные объекты дают разный hashCode.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 300" role="img" aria-label="Коллекция из полок 0, 1, 2, 3. Точка (1,2) лежит на полке 2. Ищем равную точку: с правильным hashCode попадаем на полку 2 и находим, с hashCode от Object попадаем на полку 0 и не находим">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="360" y="24" text-anchor="middle" class="d-title">Коллекция «по номерам полок»</text>
+        <rect x="200" y="40" width="320" height="44" rx="8" class="d-soft"/>
+        <text x="216" y="67" class="d-small">полка 0</text>
+        <text x="300" y="67" class="d-small">пусто</text>
+        <rect x="200" y="90" width="320" height="44" rx="8" class="d-soft"/>
+        <text x="216" y="117" class="d-small">полка 1</text>
+        <text x="300" y="117" class="d-small">(5, 0)</text>
+        <rect x="200" y="140" width="320" height="44" rx="8" class="d-yellow"/>
+        <text x="216" y="167" class="d-small">полка 2</text>
+        <text x="300" y="167" class="d-mono-ink">(1, 2)</text>
+        <text x="380" y="167" class="d-mono-ink">(7, 7)</text>
+        <rect x="200" y="190" width="320" height="44" rx="8" class="d-soft"/>
+        <text x="216" y="217" class="d-small">полка 3</text>
+        <text x="300" y="217" class="d-small">(0, 4)</text>
+        <rect x="10" y="130" width="160" height="64" rx="12" class="d-green"/>
+        <text x="90" y="156" text-anchor="middle" class="d-text">ищем (1, 2)</text>
+        <text x="90" y="180" text-anchor="middle" class="d-small">hashCode → полка 2</text>
+        <path d="M172 162 H196" class="d-arrow"/>
+        <text x="90" y="216" text-anchor="middle" class="d-c-green d-small">✔ нашли через equals</text>
+        <rect x="550" y="36" width="160" height="64" rx="12" class="d-red"/>
+        <text x="630" y="62" text-anchor="middle" class="d-text">ищем (1, 2)</text>
+        <text x="630" y="86" text-anchor="middle" class="d-small">без своего hashCode</text>
+        <path d="M548 62 H524" class="d-arrow"/>
+        <text x="630" y="122" text-anchor="middle" class="d-c-red d-small">→ полка 0, пусто</text>
+        <text x="630" y="142" text-anchor="middle" class="d-c-red d-small">✘ «не найдено»</text>
+        <text x="360" y="268" text-anchor="middle" class="d-small">equals переопределён, а hashCode — нет: равные точки получают случайные номера полок</text>
+        <text x="360" y="288" text-anchor="middle" class="d-small">и коллекция ищет не там. Поэтому их переопределяют только вместе.</text>
+      </svg>
+      <figcaption>hashCode выбирает полку, equals сравнивает на полке. Ошибётся первый — до второго дело не дойдёт.</figcaption>
+    </figure>
+    <h3>Контракт hashCode</h3>
+    <ol class="steps">
+      <li><b>Равные объекты → равные hashCode.</b> Если <code>a.equals(b)</code>, то <code>a.hashCode() == b.hashCode()</code>. Это главное правило, его нарушение и ломает поиск.</li>
+      <li><b>Обратное не обязано.</b> Разные объекты могут случайно получить одинаковый hashCode — это называется <b>коллизия</b>. Ничего страшного: просто на одной полке окажутся двое, и equals их различит. Плохо только, если коллизий очень много — поиск станет медленным.</li>
+      <li><b>Постоянство.</b> Пока объект не менялся, hashCode у него один и тот же.</li>
+    </ol>
+    <p>Отсюда железное правило: <b>переопределил equals — переопредели hashCode</b>, по тем же полям. Самый простой способ:</p>
+<pre data-file="Point.java"><code class="java">import java.util.Objects;
+
+class Point {
+    // ... поля, конструктор, equals как выше
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);    // считает число из всех переданных полей
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: <code>return 42;</code> в hashCode — это нарушение контракта?</summary>
+      <p><b>Нет, контракт соблюдён</b>: у равных объектов hashCode равны (у всех 42). Но все объекты лягут на одну полку, и быстрый поиск превратится в перебор всего подряд. Корректно, но медленно. А вот <code>return (int) (Math.random() * 100);</code> — нарушение: у одного и того же объекта число меняется.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">IDEA напишет за тебя</span>
+      <p>В классе нажми <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>equals() and hashCode()</b>, отметь поля — IDEA сгенерирует оба метода согласованно. Там же есть <b>toString()</b>. Но сначала напиши руками пару раз, чтобы понимать, что там происходит: на собеседовании IDEA не будет.</p>
+    </div>
+    <div data-widget="ide" id="shot-generate">
+      <script type="application/json">
+      { "tree": false, "file": "Point.java", "statusPath": "module-10",
+        "code": "class Point {\n    private final int x;\n    private final int y;\n\n    Point(int x, int y) {\n        this.x = x;\n        this.y = y;\n    }\n\n}", "caretLine": 9,
+        "menu": { "at": "line-9", "title": "Generate", "items": ["Constructor", "Getter", "equals() and hashCode()", "toString()", "-", "Override Methods…", "Delegate Methods…", "Test…"], "hl": "equals() and hashCode()" },
+        "marks": [ { "n": 1, "target": "line-9", "side": "left", "text": "Курсор — внутри класса, на пустой строке. Жмём <kbd>Alt</kbd>+<kbd>Insert</kbd>" },
+                   { "n": 2, "target": "menu", "text": "Меню <b>Generate</b> («сгенерировать»). <b>equals() and hashCode()</b> — оба метода сразу, согласованно. Ниже — <b>toString()</b> и уже знакомый <b>Override Methods…</b> (то же, что <kbd>Ctrl</kbd>+<kbd>O</kbd>)" } ],
+        "caption": "Меню Generate (Alt+Insert)" }
+      </script>
+    </div>
+    <div data-widget="check" id="check-m10-05-mid">
+      <script type="application/json">
+      { "title": "Контракт equals и hashCode",
+        "items": [
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Если a.equals(b) — true, то a.hashCode() == b.hashCode() обязано быть true", "a": true },
+              { "s": "Если hashCode равны, то и equals обязательно true", "a": false, "why": "разные объекты могут случайно совпасть по hashCode — это коллизия, она разрешена." },
+              { "s": "Можно переопределить только equals, а hashCode оставить от Object", "a": false, "why": "тогда равные объекты получат разные hashCode и потеряются в HashMap/HashSet." },
+              { "s": "x.equals(null) должен вернуть false, а не бросить исключение", "a": true }
+            ] },
+          { "type": "single", "q": "Гардероб: равные объекты получили разные номерки. Что случится при поиске?",
+            "options": ["Найдётся, только медленнее", "Не найдётся: поиск пойдёт не на ту полку", "Программа не скомпилируется"], "answer": 1,
+            "why": "Коллекция сначала выбирает полку по hashCode. Не та полка — до equals дело не дойдёт." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>getClass: кто ты на самом деле?</h2>
+    <p><code>getClass()</code> возвращает сведения о <b>реальном</b> классе объекта — не о типе переменной. Его имя без пакета даёт <code>getClass().getSimpleName()</code>:</p>
+<pre data-file="WhoAmI.java"><code class="java">Animal a = new Cat("Мурка", 3);
+System.out.println(a.getClass().getSimpleName());   // Cat, а не Animal</code></pre>
+    <p>Это удобно в родительском <code>toString</code>: один метод на всю иерархию печатает правильное имя каждого наследника.</p>
+<pre data-file="Shop.java"><code class="java">class Shop {
+    @Override
+    public String toString() {
+        // Bakery открыт, FlowerShop открыт…
+        return getClass().getSimpleName() + " открыт";
+    }
+}</code></pre>
+    <details class="curious">
+      <summary>🔎 Для любопытных: getClass() или instanceof в equals?</summary>
+      <p>В рецепте мы проверяли <code>getClass() != o.getClass()</code>. Иногда пишут <code>if (!(o instanceof Point)) return false;</code>. Разница — в наследниках. Если есть <code>ColorPoint extends Point</code> со своим полем цвета, то с <code>instanceof</code> легко нарушить симметричность: <code>point.equals(colorPoint)</code> — true (цветная точка является точкой), а <code>colorPoint.equals(point)</code> — false. С <code>getClass()</code> объекты разных классов просто не равны. Для начала используй вариант с <code>getClass()</code> — его же генерирует IDEA по умолчанию.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>record делает всё сам. И пара слов о копиях</h2>
+    <p>Помнишь <code>record</code> из модуля 9? <code>record Point(int x, int y) {}</code> — компилятор сам генерирует для него <code>equals</code>, <code>hashCode</code> и <code>toString</code> по всем полям. Для «классов-значений» (точка, деньги, пара логин–пароль) это самый короткий и безопасный путь.</p>
+<pre data-file="RecordDemo.java"><code class="java">record Point(int x, int y) {}
+
+Point a = new Point(1, 2);
+Point b = new Point(1, 2);
+System.out.println(a);                              // Point[x=1, y=2]
+System.out.println(a.equals(b));                    // true
+System.out.println(a.hashCode() == b.hashCode());   // true</code></pre>
+    <details class="curious">
+      <summary>🔎 Для любопытных: присваивание не копирует объект, а clone() — копирует (но лучше без него)</summary>
+      <p>Ещё с модулей 6–7 знаешь: <code>Cat c2 = c1;</code> не создаёт второй объект — переменной <code>c2</code> присваивается копия <b>ссылки</b>, и обе переменные ссылаются на один объект. Чтобы получить настоящую копию, в Object есть метод <code>clone()</code>. Но он капризный: класс должен «разрешить» копирование (реализовать <code>Cloneable</code>, модуль 11), а копия по умолчанию <b>поверхностная</b> — поля-ссылки (массивы, другие объекты) остаются общими у оригинала и копии.</p>
+      <p>На практике чаще делают <b>конструктор копирования</b>: <code>Cat(Cat other) { this.name = other.name; this.age = other.age; }</code> — понятно, явно и без сюрпризов. Неизменяемые объекты (record, String) копировать вообще не нужно: их нельзя испортить через общую ссылку.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m10-05">
+      <script type="application/json">
+      { "title": "Object — главное",
+        "items": [
+          { "type": "predict", "q": "В Point переопределены equals и hashCode по x и y (как в уроке). Что выведет?",
+            "code": "Point a = new Point(3, 4);\nPoint b = new Point(3, 4);\nPoint c = a;\nSystem.out.println(a == b);\nSystem.out.println(a.equals(b));\nSystem.out.println(a == c);",
+            "answer": "false\ntrue\ntrue", "why": "a и b — разные объекты (== false), но равные по смыслу (equals true). c — та же ссылка, что a (== true)." },
+          { "type": "bug", "q": "Найди строку, из-за которой это НЕ переопределение equals",
+            "code": "class Money {\n    private final int amount;\n    Money(int amount) { this.amount = amount; }\n    public boolean equals(Money other) {\n        return amount == other.amount;\n    }\n}",
+            "answer": [4], "why": "Параметр Money вместо Object — это перегрузка. Коллекции и библиотеки вызывают equals(Object) и получат версию из Object, сравнивающую ссылки." },
+          { "type": "match", "q": "Соедини метод и что он делает",
+            "left": ["toString()", "equals(Object o)", "hashCode()", "getClass()"],
+            "right": ["текстовое представление объекта", "равны ли объекты по смыслу", "число для выбора «полки» в коллекции", "реальный класс объекта"],
+            "why": "Четыре метода Object, которые нужно знать наизусть." },
+          { "type": "single", "q": "Что напечатает <code>System.out.println(new Cat(\"Мурка\", 3));</code>, если в Cat нет toString?",
+            "options": ["Мурка 3", "Cat@ и шестнадцатеричное число", "Ошибка компиляции: нет toString"], "answer": 1,
+            "why": "Работает версия из Object: имя класса, @ и число из hashCode." },
+          { "type": "multi", "q": "Какие реализации hashCode корректны для Point с equals по x и y?",
+            "options": ["return Objects.hash(x, y);", "return 42;", "return x * 31 + y;", "return (int) (Math.random() * 1000);"],
+            "answer": [0, 1, 2], "why": "Корректно всё, где равные точки дают равные числа. 42 — корректно, но медленно. Random — нарушение: один объект даёт разные числа." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 10.5. Спроси меня про контракт equals и hashCode так, как спрашивают на собеседовании, и попроси привести пример, что сломается, если переопределить только equals»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Все классы наследуют <code>Object</code>; от него — <code>toString</code>, <code>equals</code>, <code>hashCode</code>, <code>getClass</code>.</li>
+        <li><code>toString</code> — для печати; переопределяй, это сильно помогает в отладке и в сообщениях об ошибках.</li>
+        <li><code>==</code> — тот же объект; <code>equals</code> — равен по смыслу. По умолчанию equals = <code>==</code>.</li>
+        <li>equals: параметр <code>Object</code>, проверка this, null и класса, приведение, сравнение полей.</li>
+        <li>hashCode выбирает полку, equals сравнивает на полке. Равные объекты → равные hashCode. Переопределяй их <b>только вместе</b>.</li>
+        <li><code>record</code> генерирует всё сам. Присваивание копирует ссылку, а не объект.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

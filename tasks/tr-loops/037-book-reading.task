@@ -1,0 +1,44 @@
+## id: tr-loops-037
+## title: Читаем книгу
+## file: trainer/loops/BookReadingDays.java
+## class: BookReadingDays
+## level: 2
+## category: Последовательности
+@@ description
+<p>Напиши класс <code>BookReadingDays</code>. Маша читает книгу из <code>P</code> страниц. В первый день она прочитала <code>k</code> страниц, а каждый следующий день читает на одну страницу больше, чем накануне. За сколько дней она дочитает книгу? В первой строке — <code>P</code> (P ≥ 1), во второй — <code>k</code> (k ≥ 1). Если в последний день страниц осталось меньше, чем она могла бы прочитать, день всё равно считается.</p>
+<pre class="terminal"><span class="out">ввод:  10
+       1
+вывод: 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>while (read &lt; pages) { … }</code> — повторять, пока книга не дочитана: число дней заранее неизвестно</li>
+</ul></div>
+@@ test: Десять страниц
+@@ input
+10
+1
+@@ expect
+4
+@@ test: Одна лишняя страница
+@@ input
+11
+1
+@@ expect
+5
+@@ test: За один день
+@@ input
+5
+10
+@@ expect
+1
+@@ test: Одна страница
+@@ input
+1
+1
+@@ expect
+1
+@@ test: Толстая книга
+@@ input
+1000
+20
+@@ expect
+30

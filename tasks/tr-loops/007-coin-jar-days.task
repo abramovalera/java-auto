@@ -1,0 +1,46 @@
+## id: tr-loops-007
+## title: Копилка по дням
+## file: trainer/loops/CoinJarDaysSum.java
+## class: CoinJarDaysSum
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>CoinJarDaysSum</code>. Петя копит монеты: в день номер <code>d</code> он кладёт в копилку <code>d</code> монет. В первой строке — номер первого дня <code>a</code>, во второй — номер последнего <code>b</code> (1 ≤ a, b ≤ 1 000 000). Сколько монет он положит с дня <code>a</code> по день <code>b</code> включительно? Если <code>a</code> больше <code>b</code>, таких дней нет — ответ 0.</p>
+<pre class="terminal"><span class="out">ввод:  1
+       10
+вывод: 55</span></pre>
+<p>Осторожно: за много дней монет наберётся больше, чем помещается в <code>int</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>long sum = 0;</code> — накопитель типа long: в него помещаются числа до 9·10<sup>18</sup></li>
+<li><code>sum += day;</code> — составное присваивание: прибавить к накопителю</li>
+</ul></div>
+@@ test: Первые десять дней
+@@ input
+1
+10
+@@ expect
+55
+@@ test: Один день
+@@ input
+7
+7
+@@ expect
+7
+@@ test: Начало позже конца
+@@ input
+10
+3
+@@ expect
+0
+@@ test: Сто тысяч дней — не влезет в int
+@@ input
+1
+100000
+@@ expect
+5000050000
+@@ test: Середина месяца
+@@ input
+50
+60
+@@ expect
+605

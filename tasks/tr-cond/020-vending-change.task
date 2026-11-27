@@ -1,0 +1,39 @@
+## id: tr-cond-020
+## title: Сдача в автомате
+## file: trainer/cond/VendingChange.java
+## class: VendingChange
+## level: 1
+## category: Деньги и тарифы
+@@ description
+<p>Напиши класс <code>VendingChange</code>. Программа читает два целых числа, каждое с новой строки: цену напитка и сколько денег внёс покупатель. Напечатай одно из трёх: <code>Не хватает N ₽</code>, <code>Спасибо, без сдачи</code> или <code>Ваша сдача: N ₽</code>.</p>
+<pre class="terminal"><span class="out">ввод:  80
+       100
+вывод: Ваша сдача: 20 ₽
+
+ввод:  80
+       50
+вывод: Не хватает 30 ₽</span></pre>
+@@ test: Нужна сдача
+@@ input
+80
+100
+@@ expect
+Ваша сдача: 20 ₽
+@@ test: Без сдачи
+@@ input
+80
+80
+@@ expect
+Спасибо, без сдачи
+@@ test: Денег не хватает
+@@ input
+80
+50
+@@ expect
+Не хватает 30 ₽
+@@ test: Крупная купюра
+@@ input
+45
+1000
+@@ expect
+Ваша сдача: 955 ₽

@@ -1,0 +1,41 @@
+## id: tr-vars-013
+## title: Код символа
+## file: trainer/vars/SymbolCodeNumber.java
+## class: SymbolCodeNumber
+## level: 1
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>SymbolCodeNumber</code>. Каждый символ внутри компьютера — это число, его код в таблице Unicode. Программа читает один символ и печатает <code>Код символа A: 65</code>.</p>
+<pre class="terminal"><span class="out">ввод:  A
+вывод: Код символа A: 65</span></pre>
+<p>Подвох: цифра <code>'0'</code> — это не ноль, у неё свой код.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.next().charAt(0)</code> — так читают один символ: метода <code>nextChar()</code> нет</li>
+<li><code>int code = letter;</code> — <code>char</code> сам превращается в <code>int</code>, его код</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+A
+@@ expect
+Код символа A: 65
+@@ test: Маленькая латинская
+@@ input
+a
+@@ expect
+Код символа a: 97
+@@ test: Цифра — не число
+@@ input
+0
+@@ expect
+Код символа 0: 48
+@@ test: Русская буква
+@@ input
+Я
+@@ expect
+Код символа Я: 1071
+@@ test: Знак препинания
+@@ input
+!
+@@ expect
+Код символа !: 33

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Интерфейсы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-02">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 11 · Урок 2</div>
+    <h1>Интерфейсы: контракт «умеет делать»</h1>
+    <p class="lead">Птица, самолёт и супермен — не родственники. Но все трое умеют летать. Как объяснить это Java? Знакомимся с самой важной идеей модуля.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔌 розетка и вилка</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m11-02-review">
+      <script type="application/json">
+      { "title": "Вспомним абстрактные классы", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "<code>abstract class Shape</code>. Какая строка скомпилируется?",
+            "options": ["Shape s = new Shape();", "Shape s = new Circle(1);", "Shape s = Shape();"], "answer": 1,
+            "why": "Объект абстрактного класса создать нельзя, а объявить переменную его типа — можно: она хранит ссылку на объект конкретного класса Circle." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "У абстрактного метода нет тела — сразу ;", "a": true },
+              { "s": "Наследник абстрактного класса может не реализовывать абстрактные методы, если сам объявлен abstract", "a": true },
+              { "s": "У абстрактного класса не может быть полей", "a": false, "why": "поля, конструкторы и обычные методы — пожалуйста, это и есть «общая часть»." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Общего родителя нет</h2>
+    <p>Делаем игру. В ней есть птица, самолёт и супермен, и все они должны уметь летать. Попробуем через абстрактный класс <code>Flyer</code> с абстрактным <code>fly()</code>?</p>
+    <p>Не выходит. Птица уже наследуется от <code>Animal</code> (у неё есть имя, возраст, она ест), самолёт — от <code>Machine</code> (бензин, ремонт), супермен — от <code>Hero</code>. А <b>родитель у класса в Java только один</b>: <code>class Bird extends Animal, Flyer</code> — ошибка компиляции.</p>
+    <div class="say" data-mood="think"><p>Да и по смыслу самолёт — не «разновидность летуна», как кот — разновидность животного. Полёт — это не <b>кто он такой</b>, а <b>что он умеет</b>. Для «умеет» в Java есть отдельный инструмент.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Интерфейс — список умений</h2>
+    <p><b>Интерфейс</b> — это контракт: набор методов, которые класс обещает уметь. Сам интерфейс ничего не делает, он только перечисляет заголовки методов — <b>объявляет</b> их без тела.</p>
+<pre data-file="Flyable.java"><code class="java">interface Flyable {
+    void fly();                  // кто подписал контракт — обязан уметь fly()
+}
+
+class Bird extends Animal implements Flyable {
+    @Override
+    public void fly() {
+        System.out.println("Птица машет крыльями");
+    }
+}
+
+class Plane extends Machine implements Flyable {
+    @Override
+    public void fly() {
+        System.out.println("Самолёт запускает двигатели");
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>interface Flyable</code><div><p><b>Объявление интерфейса</b>. Вместо <code>class</code> — слово <code>interface</code>. Имена часто заканчиваются на <i>-able</i> («способный к…»): <code>Flyable</code>, <code>Runnable</code>, <code>Comparable</code>.</p></div></div>
+      <div class="annot-row"><code>void fly();</code><div><p>Абстрактный метод — без тела. В интерфейсе он <b>автоматически</b> <code>public abstract</code> — писать эти слова не нужно.</p></div></div>
+      <div class="annot-row"><code>implements Flyable</code><div><p><b>Реализация интерфейса</b>: класс <b>реализует</b> интерфейс — «подписывает контракт». Теперь компилятор требует реализовать (написать с телом) все абстрактные методы интерфейса. Сначала <code>extends</code>, потом <code>implements</code>.</p></div></div>
+      <div class="annot-row"><code>public void fly()</code><div><p><b>public обязателен!</b> В интерфейсе метод публичный, и в реализации нельзя сузить модификатор доступа — сделать метод «закрытее».</p></div></div>
+    </div>
+    <p>Писать заголовки методов интерфейса руками не обязательно. Напиши <code>class Plane extends Machine implements Flyable { }</code> — IDEA подчеркнёт класс красным, как абстрактный класс в уроке 1. Поставь курсор внутрь класса и нажми <kbd>Ctrl</kbd>+<kbd>I</kbd>:</p>
+    <div data-widget="ide" id="shot-ctrl-i">
+      <script type="application/json">
+      { "tree": false, "file": "Flyable.java", "statusPath": "module-11",
+        "code": "interface Flyable {\n    void fly();\n}\n\nclass Plane extends Machine implements Flyable {\n    \n}", "caretLine": 6,
+        "errors": [ { "line": 5, "text": "class Plane extends Machine implements Flyable", "msg": "" } ],
+        "dialog": { "title": "Select Methods to Implement",
+                    "rows": [ { "label": "Flyable", "value": "ⓜ fly(): void", "type": "text", "hl": true } ],
+                    "note": "☑ Insert @Override", "buttons": ["OK", "Cancel"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "err-5", "side": "top", "text": "Пока <code>fly()</code> не написан, заголовок класса красный: контракт подписан (<code>implements</code>), а метод интерфейса не реализован" },
+                   { "n": 2, "target": "field-Flyable", "text": "Окно <b>Implement Methods</b> показывает только то, что класс <b>обязан</b> написать: метод <code>fly()</code> из интерфейса Flyable" },
+                   { "n": 3, "target": "btn-OK", "text": "OK — и IDEA вставит <code>@Override public void fly() { }</code>, сразу с нужным <code>public</code>. Останется написать тело" } ],
+        "caption": "Окно Implement Methods (Ctrl+I)" }
+      </script>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: розетка и вилка</span>
+      <p>Розетке всё равно, что в неё включают: чайник, лампу или зарядку. Ей важно одно — чтобы вилка подходила под стандарт. <b>Интерфейс — это стандарт розетки</b>, а классы — приборы с подходящей вилкой. Так же USB: в порт втыкается флешка, мышь, телефон — порт знает только «стандарт USB», а не марку устройства.</p>
+    </div>
+    <p>Забыл <code>public</code> — компилятор напомнит:</p>
+<pre class="terminal"><span class="err">error: fly() in Plane cannot implement fly() in Flyable
+    void fly() {
+         ^
+  attempting to assign weaker access privileges; was public</span></pre>
+    <div data-widget="ide" id="shot-iface-public">
+      <script type="application/json">
+      { "tree": false, "file": "Flyable.java", "statusPath": "module-11",
+        "code": "interface Flyable {\n    void fly();\n}\n\nclass Plane implements Flyable {\n    @Override\n    void fly() {\n        System.out.println(\"Самолёт запускает двигатели\");\n    }\n}",
+        "errors": [ { "line": 7, "text": "fly", "msg": "'fly()' in 'Plane' clashes with 'fly()' in 'Flyable'; attempting to assign weaker access privileges ('package-private'); was 'public'", "tip": true } ],
+        "gutterIcons": { "2": "⬇", "7": "⬆" },
+        "marks": [ { "n": 1, "target": "line-2", "text": "В интерфейсе <code>public</code> не написано — но он там есть невидимо: все методы интерфейса публичные" },
+                   { "n": 2, "target": "err-7", "side": "top", "text": "В классе <code>public</code> забыли — красным стало имя метода" },
+                   { "n": 3, "target": "tip", "text": "Знакомая по модулю 10 ошибка: <b>weaker access privileges ('package-private'); was 'public'</b> — «доступ слабее, чем был: без модификатора вместо public». Починка — дописать <code>public</code>" },
+                   { "n": 4, "target": "gicon-2", "side": "left", "text": "Значки на полях, как в модуле 10: <b>⬇</b> у метода интерфейса — «его кто-то реализует» (клик или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> покажет кто), <b>⬆</b> у метода класса — «реализует метод интерфейса»" } ],
+        "caption": "Реализация метода интерфейса без public" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Полиморфизм через интерфейс</h2>
+    <p>Главная сила интерфейса — переменная его типа. Она может хранить ссылку на <b>любой</b> объект, чей класс реализует интерфейс («подписал контракт»), даже если классы никак не связаны:</p>
+<pre data-file="Sky.java"><code class="java">Flyable[] flyers = { new Bird(), new Plane(), new Superman() };
+for (Flyable f : flyers) {
+    f.fly();
+}</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 330" role="img" aria-label="Bird, Plane и Superman наследуются от разных родителей, но все реализуют интерфейс Flyable">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="30" y="14" width="180" height="46" rx="10" class="d-soft"/>
+        <text x="120" y="43" text-anchor="middle" class="d-text">Animal</text>
+        <rect x="270" y="14" width="180" height="46" rx="10" class="d-soft"/>
+        <text x="360" y="43" text-anchor="middle" class="d-text">Machine</text>
+        <rect x="510" y="14" width="180" height="46" rx="10" class="d-soft"/>
+        <text x="600" y="43" text-anchor="middle" class="d-text">Hero</text>
+        <rect x="30" y="112" width="180" height="56" rx="12" class="d-green"/>
+        <text x="120" y="146" text-anchor="middle" class="d-title">🐦 Bird</text>
+        <rect x="270" y="112" width="180" height="56" rx="12" class="d-green"/>
+        <text x="360" y="146" text-anchor="middle" class="d-title">✈️ Plane</text>
+        <rect x="510" y="112" width="180" height="56" rx="12" class="d-green"/>
+        <text x="600" y="146" text-anchor="middle" class="d-title">🦸 Superman</text>
+        <path d="M120 110 V64" class="d-arrow"/>
+        <path d="M360 110 V64" class="d-arrow"/>
+        <path d="M600 110 V64" class="d-arrow"/>
+        <text x="128" y="92" class="d-small">extends</text>
+        <text x="368" y="92" class="d-small">extends</text>
+        <text x="608" y="92" class="d-small">extends</text>
+        <path d="M120 170 L300 248" class="d-dash"/>
+        <path d="M360 170 V248" class="d-dash"/>
+        <path d="M600 170 L420 248" class="d-dash"/>
+        <text x="170" y="222" class="d-small">implements</text>
+        <text x="368" y="212" class="d-small">implements</text>
+        <text x="480" y="222" class="d-small">implements</text>
+        <rect x="190" y="250" width="340" height="66" rx="14" class="d-accent" stroke-dasharray="8 5"/>
+        <text x="360" y="278" text-anchor="middle" class="d-title">🔌 interface Flyable</text>
+        <text x="360" y="302" text-anchor="middle" class="d-mono-ink">void fly();</text>
+      </svg>
+      <figcaption>Сверху — «кто ты» (один родитель). Снизу — «что умеешь» (контракт). Цикл видит только тип интерфейса Flyable — «розетку».</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: что напечатает цикл, если Superman печатает «Супермен вытягивает кулак вперёд»?</summary>
+<pre class="terminal"><span class="out">Птица машет крыльями
+Самолёт запускает двигатели
+Супермен вытягивает кулак вперёд</span></pre>
+      <p>Цикл не знает, кто перед ним. Он знает только, что у каждого есть <code>fly()</code>, а какая реализация <code>fly()</code> вызовется, зависит от объекта, на который указывает ссылка <code>f</code>, — тот же полиморфизм, что в модуле 10.</p>
+    </details>
+    <details class="predict">
+      <summary>Предскажи: у Plane есть метод <code>refuel()</code>. Скомпилируется ли <code>Flyable f = new Plane(); f.refuel();</code>?</summary>
+      <p>Нет. Через переменную типа <code>Flyable</code> можно вызвать только методы, объявленные в интерфейсе, — <code>fly()</code>. Что объект «на самом деле» самолёт, компилятор не знает. Это как розетка: она даёт ток, но не умеет нажимать кнопки на чайнике.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Несколько интерфейсов сразу</h2>
+    <p>Родитель у класса один, а контрактов — сколько угодно. Утка и летает, и плавает:</p>
+<pre data-file="Duck.java"><code class="java">interface Swimmable {
+    void swim();
+}
+
+class Duck extends Animal implements Flyable, Swimmable {
+    @Override
+    public void fly() {
+        System.out.println("Утка летит на юг");
+    }
+
+    @Override
+    public void swim() {
+        System.out.println("Утка плывёт по пруду");
+    }
+}</code></pre>
+    <p>Теперь утку можно положить и в «список летающих», и в «список плавающих»: ссылку на один объект <code>Duck</code> можно присвоить и переменной типа <code>Flyable</code>, и переменной типа <code>Swimmable</code>. Один объект — несколько «ролей»:</p>
+<pre data-file="Main.java"><code class="java">Duck duck = new Duck();
+Flyable f = duck;     // смотрим на утку как на летающую — видно только fly()
+Swimmable s = duck;   // смотрим как на плавающую — видно только swim()</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Как запомнить</span>
+      <p><code>extends</code> — <b>один</b> родитель: «кто я такой». <code>implements</code> — класс реализует <b>много</b> интерфейсов («контрактов») через запятую: «что я умею». Человек — один, а водительских, рыбацких и поварских удостоверений у него может быть сколько угодно.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: интерфейс может расширять интерфейс</summary>
+      <p>Интерфейсы тоже наследуются, и тут родителей может быть несколько: <code>interface Amphibian extends Flyable, Swimmable { }</code>. Класс, реализующий <code>Amphibian</code>, обязан написать и <code>fly()</code>, и <code>swim()</code>. Для интерфейсов слово — <code>extends</code>, не <code>implements</code>: интерфейс ничего не реализует, он только дополняет список.</p>
+      <p>И <code>instanceof</code> работает с интерфейсами: <code>if (obj instanceof Flyable f) { f.fly(); }</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Где это в настоящих программах</h2>
+    <p>Интернет-магазин принимает деньги картой, по QR-коду, электронным кошельком. Способ оплаты описывают интерфейсом <b>Payment</b>: «заплати сумму», «назови себя». А классы для карты, QR-кода и кошелька — его реализации. Кассу пишут против интерфейса — и она принимает любой способ. Вот эта идея в коде:</p>
+<pre data-file="Payments.java"><code class="java">interface Payment {
+    void pay(int amount);
+    String name();
+}
+
+class CardPayment implements Payment {
+    public void pay(int amount) {
+        System.out.println("Списываю с карты " + amount + " ₽");
+    }
+
+    public String name() { return "карта"; }
+}
+
+class QrPayment implements Payment {
+    public void pay(int amount) {
+        System.out.println("Оплата по QR-коду: " + amount + " ₽");
+    }
+
+    public String name() { return "QR-код"; }
+}
+
+class Checkout {
+    // кассе всё равно, чем платят
+    static void buy(Payment payment, int price) {
+        payment.pay(price);
+        System.out.println("Чек: оплачено, способ — " + payment.name());
+    }
+}</code></pre>
+    <p>Поменять способ оплаты = поменять одно слово — объект какого класса создаём и передаём аргументом: <code>buy(new CardPayment(), 500)</code> → <code>buy(new QrPayment(), 500)</code>. Сама касса не меняется. Именно поэтому в больших программах так много интерфейсов.</p>
+    <div class="say" data-mood="cool"><p>Запомни фразу, которую любят на собеседованиях: «<b>программируй на уровне интерфейсов, а не реализаций</b>». Это она и есть: параметр метода имеет тип интерфейса <code>Payment</code>, а не класса <code>CardPayment</code>.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m11-02">
+      <script type="application/json">
+      {
+       "title": "Интерфейсы — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Какое объявление скомпилируется?",
+         "options": [
+          "class Duck extends Animal, Bird",
+          "class Duck implements Flyable extends Animal",
+          "class Duck extends Animal implements Flyable, Swimmable"
+         ],
+         "answer": 2,
+         "why": "Один родитель через extends, потом сколько угодно интерфейсов через implements. Порядок важен: сначала extends."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "interface Greeter { String hello(); }\nclass En implements Greeter {\n    public String hello() { return \"Hi\"; }\n}\nclass Ru implements Greeter {\n    public String hello() { return \"Привет\"; }\n}\n\nGreeter[] gs = { new Ru(), new En(), new Ru() };\nfor (Greeter g : gs) {\n    System.out.print(g.hello() + \" \");\n}",
+         "answer": "Привет Hi Привет",
+         "why": "У каждого объекта вызывается реализация hello() из его класса. Хвостовой пробел при сравнении не важен."
+        },
+        {
+         "type": "bug",
+         "q": "В какой строке ошибка компиляции?",
+         "code": "interface Flyable { void fly(); }\nclass Plane implements Flyable {\n    public void fly() { }\n    void refuel() { }\n}\nFlyable f = new Plane();\nf.fly();\nf.refuel();",
+         "answer": [
+          8
+         ],
+         "why": "Через переменную типа Flyable можно вызвать только методы, объявленные в интерфейсе. refuel() в нём нет."
+        },
+        {
+         "type": "match",
+         "q": "Соедини",
+         "left": [
+          "extends",
+          "implements",
+          "interface",
+          "public в реализации"
+         ],
+         "right": [
+          "один родитель-класс",
+          "реализовать один или несколько интерфейсов",
+          "объявить интерфейс (контракт)",
+          "обязателен для методов интерфейса"
+         ],
+         "why": "Кто я — extends, что умею — implements, сам контракт — interface."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Можно создать объект: new Flyable()",
+           "a": false,
+           "why": "интерфейс — только контракт, объекта «просто умения летать» не бывает."
+          },
+          {
+           "s": "Переменная типа интерфейса может хранить ссылку на объект любого класса, который его реализует",
+           "a": true
+          },
+          {
+           "s": "Класс может реализовать несколько интерфейсов",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Придумай три класса из разных “семей”, которые умеют одно и то же, а я опишу для них интерфейс и цикл по массиву»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Интерфейс — контракт «умеет делать»: список абстрактных методов без тела (они автоматически <code>public abstract</code>).</li>
+        <li><code>implements</code> — класс реализует интерфейс («подписывает контракт»); реализации методов — обязательно <code>public</code>.</li>
+        <li>Родитель-класс один, интерфейсов — сколько угодно: <code>extends A implements X, Y</code>.</li>
+        <li>Переменная/массив типа интерфейса хранит ссылки на объекты любых классов, реализующих интерфейс, — даже из разных «семей». Вызвать можно только методы интерфейса.</li>
+        <li>Код пишут против интерфейсов (<code>Payment p = new CardPayment()</code>), чтобы менять реализацию одной строкой.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

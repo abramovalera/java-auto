@@ -1,0 +1,43 @@
+## id: tr-loops-042
+## title: Число-перевёртыш
+## file: trainer/loops/NumberPalindromeCheck.java
+## class: NumberPalindromeCheck
+## level: 2
+## category: Цифры числа
+@@ description
+<p>Напиши класс <code>NumberPalindromeCheck</code>. Программа читает целое число <code>n</code> (n ≥ 0) и печатает <code>Палиндром</code>, если оно одинаково читается слева направо и справа налево, иначе <code>Не палиндром</code>. Без строк — только арифметика.</p>
+<pre class="terminal"><span class="out">ввод:  12321
+вывод: Палиндром
+
+ввод:  123
+вывод: Не палиндром</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>переверни копию числа: исходное <code>n</code> понадобится для сравнения</li>
+<li><code>reversed == n</code> — сравнение перевёрнутого с исходным</li>
+</ul></div>
+@@ test: Нечётная длина
+@@ input
+12321
+@@ expect
+Палиндром
+@@ test: Чётная длина
+@@ input
+1221
+@@ expect
+Палиндром
+@@ test: Не палиндром
+@@ input
+123
+@@ expect
+Не палиндром
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Палиндром
+@@ test: Ноль в конце
+@@ input
+10
+@@ expect
+Не палиндром
+@@ forbid: StringBuilder|\.reverse\(|\.length\(\)|charAt|String\.valueOf|Integer\.toString | Проверь число арифметикой (% 10, / 10), а не через строки

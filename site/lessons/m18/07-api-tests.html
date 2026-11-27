@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API-тесты кратко · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-07">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 18 · Урок 7</div>
+    <h1>API-тесты кратко</h1>
+    <p class="lead">Средний этаж пирамиды. Тест разговаривает с сервером напрямую, без браузера: быстро, стабильно и очень востребовано на собеседованиях. Знакомимся с HTTP, JSON и REST Assured.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔌 HTTP и JSON</span><span>📖 код для чтения</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m18-07-review">
+      <script type="application/json">
+      { "title": "Вспомним проект и пирамиду", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Какой уровень пирамиды находится между юнит- и UI-тестами?",
+            "options": ["Smoke-тесты", "API-тесты", "Ручные тесты"], "answer": 1,
+            "why": "API-тесты проверяют сервер запросами — без браузера, но целиком, а не по одному методу." },
+          { "type": "single", "q": "Где в тестовом проекте хранить адрес стенда?",
+            "options": ["В каждом тесте", "В config.properties", "В имени класса"], "answer": 1,
+            "why": "Одно место + возможность подменить через -D при запуске." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Клиент, сервер и HTTP</h2>
+    <p>Когда ты жмёшь «В корзину», браузер не сам кладёт книгу в корзину. Он отправляет <b>запрос</b> на <b>сервер</b> — программу на другом компьютере (часто на Java!), — а тот присылает <b>ответ</b>. Правила этого разговора называются <b>HTTP</b>. А набор «вопросов», которые сервер умеет принимать, — его <b>API</b> (Application Programming Interface — «интерфейс для программ»).</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 260" role="img" aria-label="Клиент отправляет HTTP-запрос серверу, сервер возвращает ответ со статусом и JSON">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="70" width="150" height="110" rx="14" class="d-blue"/>
+        <text x="85" y="112" text-anchor="middle" class="d-title">Клиент</text>
+        <text x="85" y="136" text-anchor="middle" class="d-small">браузер, приложение</text>
+        <text x="85" y="156" text-anchor="middle" class="d-small">или твой тест</text>
+        <rect x="600" y="70" width="150" height="110" rx="14" class="d-violet"/>
+        <text x="675" y="112" text-anchor="middle" class="d-title">Сервер</text>
+        <text x="675" y="136" text-anchor="middle" class="d-small">магазин Nook</text>
+        <text x="675" y="156" text-anchor="middle" class="d-small">+ база данных</text>
+        <rect x="190" y="14" width="380" height="96" rx="10" class="d-code"/>
+        <text x="204" y="38" class="d-small">ЗАПРОС</text>
+        <text x="204" y="62" class="d-mono">GET /api/books/101</text>
+        <text x="204" y="84" class="d-mono">Accept: application/json</text>
+        <path d="M160 96 C176 96 176 60 190 60" class="d-line"/>
+        <path d="M570 60 C590 60 586 96 596 96" class="d-arrow"/>
+        <rect x="190" y="140" width="380" height="110" rx="10" class="d-code"/>
+        <text x="204" y="164" class="d-small">ОТВЕТ</text>
+        <text x="204" y="188" class="d-mono">200 OK</text>
+        <text x="204" y="210" class="d-mono">{"id": 101, "title": "Java для…",</text>
+        <text x="204" y="232" class="d-mono"> "price": 990, "inStock": true}</text>
+        <path d="M600 154 C586 154 586 190 570 190" class="d-line"/>
+        <path d="M190 190 C176 190 176 154 164 154" class="d-arrow"/>
+      </svg>
+      <figcaption>Клиент спрашивает, сервер отвечает. UI-тест говорит с сервером через браузер, API-тест — напрямую.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: ресторан</span>
+      <p>Ты (клиент) не идёшь на кухню (сервер) — заказываешь через официанта (HTTP) по меню (API): «принесите книгу номер 101». Кухня отвечает блюдом (данные) или вежливым «такого нет» (ошибка 404). API-тест — это ревизор, который делает заказы по меню и проверяет, что принесли, не любуясь интерьером зала (интерфейсом).</p>
+    </div>
+    <div class="callout try">
+      <span class="callout-title">Подсмотри запросы любого сайта</span>
+      <p><kbd>F12</kbd> → вкладка <b>Network</b> → фильтр <b>Fetch/XHR</b> → поделай что-нибудь на сайте. Ты увидишь все запросы, которые страница отправляет серверу, и ответы на них. Автоматизаторы смотрят сюда постоянно: «что ответил сервер, когда тест упал?»</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Из чего состоят запрос и ответ</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">📤</span><h4>Запрос</h4><p><b>Метод</b> HTTP — что сделать (GET, POST…; не путать с методом в Java). <b>Адрес</b> — с чем (<code>/api/books/101</code>). <b>Заголовки</b> — служебное: формат, токен входа. <b>Тело</b> — данные, если что-то отправляем.</p></div>
+      <div class="card"><span class="emoji">📥</span><h4>Ответ</h4><p><b>Статус-код</b> — получилось или нет (200, 404…). <b>Заголовки</b>. <b>Тело</b> — данные, обычно в формате JSON.</p></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Смысл</th><th>Пример</th></tr>
+        <tr><td><code>GET</code></td><td>получить, ничего не меняя</td><td><code>GET /api/books/101</code> — книга 101</td></tr>
+        <tr><td><code>POST</code></td><td>создать новое</td><td><code>POST /api/books</code> + книга в теле</td></tr>
+        <tr><td><code>PUT</code></td><td>заменить целиком</td><td><code>PUT /api/books/101</code> + новая версия</td></tr>
+        <tr><td><code>DELETE</code></td><td>удалить</td><td><code>DELETE /api/cart/items/7</code></td></tr>
+      </table>
+    </div>
+    <p><b>Статус-коды</b> — трёхзначные числа, первая цифра говорит главное:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Код</th><th>Значит</th><th>Когда видишь</th></tr>
+        <tr><td><code>200 OK</code></td><td>всё хорошо</td><td>получили данные</td></tr>
+        <tr><td><code>201 Created</code></td><td>создано</td><td>после успешного POST</td></tr>
+        <tr><td><code>204 No Content</code></td><td>сделано, тела нет</td><td>часто после DELETE</td></tr>
+        <tr><td><code>400 Bad Request</code></td><td>ты прислал что-то не то</td><td>цена «abc», пустое название</td></tr>
+        <tr><td><code>401 Unauthorized</code></td><td>не представился</td><td>нет токена входа</td></tr>
+        <tr><td><code>403 Forbidden</code></td><td>представился, но нельзя</td><td>покупатель лезет в админку</td></tr>
+        <tr><td><code>404 Not Found</code></td><td>такого нет</td><td>книги 999999 не существует</td></tr>
+        <tr><td><code>500 Internal Server Error</code></td><td>сервер сломался</td><td>это почти всегда баг!</td></tr>
+      </table>
+    </div>
+    <p>Запомнить просто: <b>2xx</b> — успех, <b>4xx</b> — ошибка клиента («ты не так попросил»), <b>5xx</b> — ошибка сервера («мы сломались»).</p>
+    <details class="predict">
+      <summary>Ты отправил заказ с отрицательным количеством книг (−3), а сервер ответил <code>500</code>. Это баг?</summary>
+      <p>Да. Неверные данные от клиента сервер должен отклонять вежливо — кодом <code>400</code> и понятным сообщением. <code>500</code> значит, что сервер не ожидал такого ввода и упал внутри (возможно, с исключением, как в модуле 12). Негативные проверки «прислали ерунду — получили 400» — обязательная часть API-тестов.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>JSON — формат данных</h2>
+    <p>Данные в API почти всегда передают в <b>JSON</b> (JavaScript Object Notation). Он похож на то, как мы описываем объекты в Java:</p>
+<pre data-file="book.json"><code>{
+  "id": 101,
+  "title": "Java для тестировщиков",
+  "price": 990,
+  "inStock": true,
+  "authors": ["Анна Петрова", "Борис Иванов"],
+  "publisher": null
+}</code></pre>
+    <ul>
+      <li><code>{ }</code> — объект: пары «ключ в кавычках: значение» через запятую.</li>
+      <li>Значения: строки в двойных кавычках, числа, <code>true</code>/<code>false</code>, <code>null</code>, массивы <code>[ ]</code> и вложенные объекты.</li>
+    </ul>
+    <p>Такой объект удобно превратить в Java-record из модуля 11 — библиотека (обычно <b>Jackson</b>) сделает это сама:</p>
+<pre data-file="Book.java"><code class="java">public record Book(int id, String title, int price, boolean inStock) {
+}</code></pre>
+    <p>JSON → Java-объект называется <b>десериализацией</b>, обратно — <b>сериализацией</b>. Лишние поля (authors, publisher) можно игнорировать, если они не нужны тесту.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>REST Assured: given / when / then</h2>
+    <p><b>REST</b> — самый распространённый стиль API: адреса описывают «вещи» (<code>/books/101</code>), методы — действия с ними. Для тестов таких API в Java есть библиотека <b>REST Assured</b>. Её главная идея — тест как одна <b>цепочка вызовов методов</b> из трёх частей, как фраза (каждый метод возвращает объект, у которого вызывается следующий):</p>
+    <ul>
+      <li><b>given</b> — «дано»: заголовки, тело, токен;</li>
+      <li><b>when</b> — «когда»: метод и адрес;</li>
+      <li><b>then</b> — «тогда»: проверки (assertions) статуса и тела ответа.</li>
+    </ul>
+    <p>Это та же схема «подготовка → действие → проверка», что и в любом хорошем JUnit-тесте. Прочитай пример — запускать его негде, наш сайт Nook выдуманный, но устройство настоящее:</p>
+<pre data-file="BooksApiTest.java"><code class="java">import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
+
+class BooksApiTest {
+
+    @BeforeAll
+    static void setUp() {
+        RestAssured.baseURI = "https://nook-shop.test";
+    }
+
+    @Test
+    void bookCanBeFetchedById() {
+        given()
+                .accept(ContentType.JSON)
+        .when()
+                .get("/api/books/{id}", 101)
+        .then()
+                .statusCode(200)
+                .body("title", equalTo("Java для тестировщиков"))
+                .body("price", greaterThan(0));
+    }
+
+    @Test
+    void newBookIsCreated() {
+        Book newBook = new Book(0, "Тестирование для всех", 1500, true);
+
+        Book created = given()
+                .contentType(ContentType.JSON)
+                .body(newBook)
+        .when()
+                .post("/api/books")
+        .then()
+                .statusCode(201)
+                .extract().as(Book.class);
+
+        assertThat(created.id()).isPositive();
+        assertThat(created.title()).isEqualTo("Тестирование для всех");
+    }
+
+    @Test
+    void unknownBookReturns404() {
+        given()
+        .when()
+                .get("/api/books/{id}", 999999)
+        .then()
+                .statusCode(404);
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>RestAssured.baseURI</code><div><p>Как <code>Configuration.baseUrl</code> у Selenide: адрес стенда — один раз, в настройке.</p></div></div>
+      <div class="annot-row"><code>.get("/api/books/{id}", 101)</code><div><p>Вызов метода <code>get</code> с двумя аргументами — шаблоном адреса и числом 101: <code>{id}</code> заменится на 101, и отправится GET-запрос.</p></div></div>
+      <div class="annot-row"><code>.body("title", equalTo(…))</code><div><p>Проверка поля в JSON-ответе: первый аргумент — имя поля, второй — «матчер» с ожидаемым значением. <code>equalTo</code>, <code>greaterThan</code> — матчеры (статические методы) из библиотеки Hamcrest, она приходит вместе с REST Assured.</p></div></div>
+      <div class="annot-row"><code>.body(newBook)</code><div><p>Аргумент — объект-record <code>newBook</code>: он превратится в JSON и уйдёт в теле запроса (нужна зависимость Jackson в <code>build.gradle.kts</code>: <code>testImplementation("com.fasterxml.jackson.core:jackson-databind:…")</code>).</p></div></div>
+      <div class="annot-row"><code>.extract().as(Book.class)</code><div><p>Метод <code>as</code> возвращает объект класса <code>Book</code>, собранный из ответа, — дальше проверяем привычным AssertJ: в <code>assertThat</code> передаём фактическое значение, в <code>isEqualTo</code> — ожидаемое.</p></div></div>
+      <div class="annot-row"><code>statusCode(404)</code><div><p>Негативный тест: несуществующая книга — ожидаемое значение статус-кода 404 «нет такой», а не 500 и не 200 с пустым телом.</p></div></div>
+    </div>
+    <p>Запустить этот пример негде, но вот как выглядело бы падение API-теста в IDEA: ожидаемое значение — 201 «создано», а фактическое — 400 «плохой запрос»:</p>
+    <div data-widget="ide" id="shot-restassured-fail">
+      <script type="application/json">
+      { "tree": false, "project": "nook-tests", "status": "nook-tests › src › test › java › BooksApiTest",
+        "file": "BooksApiTest.java", "runConfig": "BooksApiTest.newBookIsCreated", "gutterRun": [1, 4],
+        "code": "class BooksApiTest {\n\n    @Test\n    void newBookIsCreated() {\n        Book newBook = new Book(0, \"Тестирование для всех\", 1500, true);\n\n        given()\n                .contentType(ContentType.JSON)\n                .body(newBook)\n        .when()\n                .post(\"/api/books\")\n        .then()\n                .statusCode(201);\n    }\n}",
+        "tests": { "title": "BooksApiTest.newBookIsCreated", "summary": "Tests failed: 1 of 1 test – 412 ms",
+                   "tree": [ { "name": "BooksApiTest", "status": "fail", "time": "412 ms" },
+                             { "name": "newBookIsCreated()", "status": "fail", "depth": 1, "sel": true, "time": "412 ms" } ],
+                   "out": [ { "t": "err", "s": "java.lang.AssertionError: 1 expectation failed." },
+                            { "t": "err", "s": "Expected status code <201> but was <400>." },
+                            { "t": "err", "s": "\tat BooksApiTest.newBookIsCreated(BooksApiTest.java:13)" } ] },
+        "marks": [ { "n": 1, "target": "test-out", "text": "<b>1 expectation failed</b> — «не выполнилась одна проверка». Ниже — какая: ждали статус <b>201</b>, а пришёл <b>400</b>" },
+                   { "n": 2, "target": "link-1", "text": "Строка 13 — проверка <code>statusCode(201)</code>" },
+                   { "n": 3, "target": "test-summary", "text": "Заметь время: меньше полсекунды. UI-тест на то же действие шёл бы секунды" } ],
+        "caption": "Упавший API-тест (импорты и служебные строки stack trace не показаны)" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">400 — баг или нет?</span>
+      <p>Сначала посмотри, что ты отправил: может, в тесте не то тело запроса (опечатка в поле, пустое название). Чтобы увидеть запрос и ответ целиком, добавь в цепочку <code>.log().all()</code> после <code>given()</code> и после <code>then()</code> — REST Assured напечатает их в консоль теста.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Зачем автоматизатору API-тесты</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">⚡</span><h4>Быстро</h4><p>Запрос — миллисекунды, а не секунды загрузки страницы. Сотни проверок за минуту.</p></div>
+      <div class="card"><span class="emoji">🧱</span><h4>Стабильно</h4><p>Нет вёрстки, анимаций и локаторов — меньше поводов «мигать».</p></div>
+      <div class="card"><span class="emoji">🧰</span><h4>Подготовка данных</h4><p>UI-тесту корзины нужен пользователь с тремя книгами? Создай его API-запросами за долю секунды, а через браузер проверь только саму корзину.</p></div>
+    </div>
+    <p>Для ручного исследования API пользуются программой <b>Postman</b>: отправляешь запрос кнопкой и смотришь ответ. Хороший порядок работы: сначала «пощупать» запрос в Postman или DevTools, потом записать его автотестом.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m18-07">
+      <script type="application/json">
+      { "title": "API-тесты — главное",
+        "items": [
+          { "type": "match", "q": "Соедини статус-код со смыслом",
+            "left": ["200", "201", "404", "500"],
+            "right": ["Всё хорошо, вот данные", "Создано", "Такого нет", "Сервер сломался — скорее всего баг"],
+            "why": "2xx — успех, 4xx — ошибка клиента, 5xx — ошибка сервера." },
+          { "type": "single", "q": "Каким методом HTTP получают данные, ничего не меняя?",
+            "options": ["POST", "GET", "DELETE"], "answer": 1,
+            "why": "GET — только чтение. POST создаёт, DELETE удаляет." },
+          { "type": "order", "q": "Собери API-тест в правильном порядке",
+            "lines": ["given()", "        .accept(ContentType.JSON)", ".when()", "        .get(\"/api/books/{id}\", 101)", ".then()", "        .statusCode(200);"],
+            "code": true, "why": "Дано (заголовки) → когда (метод и адрес) → тогда (проверки)." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "API-тест не открывает браузер", "a": true },
+              { "s": "Ответ 500 на неверные данные — нормальное поведение", "a": false, "why": "на неверный ввод сервер должен отвечать 4xx (обычно 400). 500 — баг." },
+              { "s": "JSON-объект можно превратить в Java-record", "a": true },
+              { "s": "401 означает «ты вошёл, но тебе сюда нельзя»", "a": false, "why": "это 403. 401 — «не представился», нет входа." }
+            ] },
+          { "type": "single", "q": "Какая вкладка DevTools показывает запросы страницы к серверу?",
+            "options": ["Elements", "Console", "Network"], "answer": 2,
+            "why": "Network — список запросов с методами, адресами, статусами и телами ответов." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Опиши мне API маленькой библиотеки книг (3–4 запроса), а я придумаю к нему по одному позитивному и негативному тесту: метод, адрес, ожидаемый статус и что проверить в теле»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Клиент шлёт HTTP-запрос (метод, адрес, заголовки, тело), сервер отвечает (статус, заголовки, тело).</li>
+        <li>GET — получить, POST — создать, PUT — заменить, DELETE — удалить.</li>
+        <li>2xx — успех, 4xx — ошибка клиента, 5xx — ошибка сервера (почти всегда баг).</li>
+        <li>Данные — JSON; удобно превращать в record.</li>
+        <li>REST Assured: <code>given()</code> → <code>when()</code> → <code>then()</code>. API-тесты быстрые, стабильные и помогают готовить данные для UI-тестов.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

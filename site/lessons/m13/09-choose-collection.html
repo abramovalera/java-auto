@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Карта коллекций и как выбрать · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-09">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 13 · Урок 11</div>
+    <h1>Карта коллекций и как выбрать</h1>
+    <p class="lead">Список, множество, словарь, очередь — и у каждого по две-три реализации. Соберём всё в одну карту и дерево решений, чтобы в задаче выбирать коллекцию за пять секунд.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>🗺 карта коллекций</span><span>🎮 разложи задачи</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-09-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Как объявить обобщённый метод, возвращающий первый элемент списка любого типа?",
+            "options": ["static T first(List&lt;T&gt; list)", "static &lt;T&gt; T first(List&lt;T&gt; list)", "static first&lt;T&gt;(List list)"], "answer": 1,
+            "why": "Параметр типа объявляют в угловых скобках перед типом результата." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "List<Integer> a = new ArrayList<>(List.of(3, 1, 2));\nCollections.sort(a, Collections.reverseOrder());\nSystem.out.println(a);",
+            "answer": "[3, 2, 1]", "why": "reverseOrder — естественный порядок наоборот, то есть по убыванию." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step" id="collections-map">
+    <h2>Карта коллекций: вся семья</h2>
+    <p>Все коллекции Java — это <b>интерфейсы</b> (контракты «что умеет») и <b>классы</b>, которые эти контракты выполняют. Ниже — вся семья целиком. <b>Нажимай на любой блок</b>: слева появится, что это, в каком порядке хранит, пускает ли дубликаты и <code>null</code>, насколько быстрая, главные методы и когда её брать.</p>
+    <div data-widget="collmap" id="collections-map-widget">
+      <script type="application/json">
+      {"title":"Иерархия коллекций Java","start":"Collection","nodes":[{"id":"Iterable","label":"Iterable","kind":"iface","x":330,"y":36,"what":"Самый верх: «меня можно перебрать». Всё, что реализует <code>Iterable</code>, можно пройти циклом <code>for (x : коллекция)</code>.","methods":[["iterator()","даёт Iterator — «палец», который идёт по элементам и умеет удалять текущий"],["forEach(x -> …)","сделать что-то с каждым элементом"]],"lesson":"m13-03"},{"id":"Collection","label":"Collection","kind":"iface","x":330,"y":106,"parents":[{"to":"Iterable","rel":"extends"}],"what":"Общий контракт для <b>List</b>, <b>Set</b> и <b>Queue</b>: «группа элементов». Эти методы есть у всех трёх. <b>Map сюда не входит</b> — у него своя ветка ниже.","methods":[["add(x)","добавить"],["remove(x)","убрать элемент x"],["contains(x)","есть ли x"],["size() / isEmpty()","сколько / пусто ли"],["addAll(другая)","добавить все из другой коллекции"],["removeIf(x -> условие)","удалить всё, что подходит под условие"],["clear()","очистить"]],"when":"Как тип переменной — редко: обычно пишут конкретнее, <code>List</code> или <code>Set</code>.","lesson":"m13-01"},{"id":"List","label":"List","kind":"iface","x":110,"y":186,"parents":[{"to":"Collection","rel":"extends"}],"what":"Список: у каждого элемента есть номер (индекс с 0), порядок — как добавляли, дубликаты можно.","props":{"Порядок":"как добавляли, доступ по индексу","Дубликаты":"да","null":"можно"},"methods":[["get(i) / set(i, x)","взять / заменить элемент с номером i"],["add(i, x)","вставить на место i"],["remove(i)","убрать по номеру (у List&lt;Integer&gt; осторожно: remove(1) — это номер, а не число 1)"],["indexOf(x)","номер элемента или −1"],["subList(a, b)","кусок списка с a до b (не включая b)"],["sort(Comparator)","отсортировать"],["List.of(…)","готовый неизменяемый список"]],"when":"Нужен порядок и доступ по номеру — почти всегда List. Переменную объявляй так: <code>List&lt;String&gt; names = new ArrayList&lt;&gt;();</code>","lesson":"m13-01"},{"id":"ArrayList","label":"ArrayList","kind":"class","use":"hot","x":64,"y":276,"parents":[{"to":"List","rel":"implements"}],"what":"Список на массиве внутри. Когда место кончается, создаёт массив в полтора раза больше и переносит туда элементы — тебе об этом думать не надо.","props":{"Порядок":"как добавляли","Дубликаты":"да","null":"можно","Скорость":"<b>get(i)</b> — мгновенно, O(1); добавить в конец — быстро; вставить или удалить в начале/середине — медленно, O(n): сдвигает всех; <b>contains</b> — медленно, O(n)"},"methods":[["new ArrayList&lt;&gt;()","пустой список"],["new ArrayList&lt;&gt;(другая)","копия другой коллекции"],["add / get / set / remove","как у List"]],"when":"Список по умолчанию. В девяти случаях из десяти — он.","lesson":"m13-01"},{"id":"LinkedList","label":"LinkedList","kind":"class","use":"rare","x":175,"y":366,"parents":[{"to":"List","rel":"implements"},{"to":"Deque","rel":"implements"}],"what":"Цепочка узлов: каждый элемент знает соседа слева и справа. Он одновременно и список, и двусторонняя очередь.","props":{"Порядок":"как добавляли","Дубликаты":"да","null":"можно","Скорость":"в начало или конец — мгновенно, O(1); <b>get(i)</b> — медленно, O(n): идёт по цепочке от края; памяти занимает больше ArrayList"},"methods":[["addFirst(x) / addLast(x)","в начало / в конец"],["removeFirst() / removeLast()","забрать с краю"],["getFirst() / getLast()","посмотреть край"]],"when":"На практике редко: для списка лучше ArrayList, для очереди — ArrayDeque. Но «чем ArrayList отличается от LinkedList» — вопрос номер один на собеседовании.","lesson":"m13-12"},{"id":"Vector","label":"Vector","kind":"class","use":"legacy","x":64,"y":366,"parents":[{"to":"List","rel":"implements"}],"what":"Старый (Java 1.0, 1996 год) вариант ArrayList. Каждый метод в нём синхронизирован для многопоточности — поэтому он медленнее, даже когда поток один.","when":"Не бери. Нужен список — ArrayList. Нужен список для нескольких потоков — есть современные варианты (модуль 16).","lesson":"m13-12"},{"id":"Stack","label":"Stack","kind":"class","use":"legacy","x":64,"y":446,"parents":[{"to":"Vector","rel":"extends"}],"what":"Старый стек на основе Vector: <code>push</code>, <code>pop</code>, <code>peek</code>. Унаследовал от Vector лишнее — например, можно вставить элемент в середину стека, что для стека бессмысленно.","when":"Не бери. Для стека — <code>Deque&lt;…&gt; stack = new ArrayDeque&lt;&gt;()</code>: те же push, pop, peek, только быстрее.","lesson":"m13-12"},{"id":"Queue","label":"Queue","kind":"iface","x":330,"y":186,"parents":[{"to":"Collection","rel":"extends"}],"what":"Очередь: кладём в хвост, забираем из головы. Первым пришёл — первым ушёл (FIFO).","methods":[["offer(x)","в хвост (если нельзя — вернёт false)"],["poll()","забрать голову (пусто — вернёт null)"],["peek()","посмотреть голову, не забирая"],["add / remove / element","то же самое, но вместо false/null бросают исключение"]],"lesson":"m13-06"},{"id":"Deque","label":"Deque","kind":"iface","x":300,"y":276,"parents":[{"to":"Queue","rel":"extends"}],"what":"Двусторонняя очередь (читается «дэк»): работать можно с обоих концов. Поэтому годится и как очередь, и как стек.","methods":[["offerFirst / offerLast","положить в начало / в конец"],["pollFirst / pollLast","забрать с начала / с конца"],["peekFirst / peekLast","посмотреть края"],["push(x) / pop() / peek()","работа как со стеком: последним пришёл — первым ушёл"]],"lesson":"m13-06"},{"id":"ArrayDeque","label":"ArrayDeque","kind":"class","use":"hot","x":305,"y":366,"parents":[{"to":"Deque","rel":"implements"}],"what":"Deque на массиве, замкнутом в кольцо. Самая быстрая очередь и самый быстрый стек.","props":{"Порядок":"очередь или стек — как используешь","Дубликаты":"да","null":"нельзя — NullPointerException","Скорость":"всё с краёв — мгновенно, O(1)"},"methods":[["new ArrayDeque&lt;&gt;()","пустая очередь/стек"],["offer / poll / peek","как очередь"],["push / pop / peek","как стек"]],"when":"Нужна очередь или стек — бери его.","lesson":"m13-06"},{"id":"PriorityQueue","label":"PriorityQueue","kind":"class","use":"ok","x":430,"y":276,"parents":[{"to":"Queue","rel":"implements"}],"what":"Очередь по важности: <code>poll()</code> всегда отдаёт самый маленький элемент (или самый важный — по твоему Comparator).","props":{"Порядок":"голова — минимум; остальные лежат НЕ по порядку","Дубликаты":"да","null":"нельзя","Скорость":"peek — O(1); offer и poll — O(log n), быстро"},"methods":[["new PriorityQueue&lt;&gt;()","минимум — первым"],["new PriorityQueue&lt;&gt;(Comparator.reverseOrder())","максимум — первым"],["offer / poll / peek","как у очереди"]],"when":"Нужно каждый раз доставать «самое срочное»: задачи по приоритету, ближайшие события. Ловушка: <code>System.out.println(queue)</code> покажет элементы НЕ отсортированными — по порядку они выходят только через poll().","lesson":"m13-06"},{"id":"Set","label":"Set","kind":"iface","x":590,"y":186,"parents":[{"to":"Collection","rel":"extends"}],"what":"Множество: только уникальные элементы. Повтор просто не добавится — <code>add</code> вернёт <code>false</code>.","methods":[["add(x)","true — добавил, false — такой уже был"],["contains(x)","есть ли"],["remove(x)","убрать"],["Set.of(…)","готовое неизменяемое множество"]],"when":"Нужна уникальность или быстрая проверка «есть ли такой».","lesson":"m13-04"},{"id":"HashSet","label":"HashSet","kind":"class","use":"hot","x":560,"y":276,"parents":[{"to":"Set","rel":"implements"}],"what":"Множество на хеш-таблице: по <code>hashCode</code> элемент сразу попадает в свою «корзину», поэтому поиск мгновенный. Для своих классов нужны правильные <code>equals</code> и <code>hashCode</code>.","props":{"Порядок":"не гарантирован — может «прыгать»","Дубликаты":"нет","null":"один","Скорость":"add, contains, remove — мгновенно, O(1)"},"when":"Уникальность и быстрый contains, порядок не важен.","lesson":"m13-04"},{"id":"LinkedHashSet","label":"LinkedHashSet","kind":"class","use":"ok","x":560,"y":366,"parents":[{"to":"HashSet","rel":"extends"}],"what":"HashSet, который ещё и помнит порядок добавления.","props":{"Порядок":"как добавляли","Дубликаты":"нет","null":"один","Скорость":"как у HashSet, чуть больше памяти"},"when":"Убрать дубликаты, сохранив исходный порядок: например, уникальные email из списка в том же порядке.","lesson":"m13-04"},{"id":"SortedSet","label":"SortedSet","kind":"iface","x":692,"y":276,"parents":[{"to":"Set","rel":"extends"}],"what":"Множество, где элементы всегда отсортированы. У него есть расширение <code>NavigableSet</code> — с поиском ближайших: ceiling, floor, higher, lower.","methods":[["first() / last()","самый маленький / самый большой"],["headSet(x) / tailSet(x)","все меньше x / все от x"]],"lesson":"m13-04"},{"id":"TreeSet","label":"TreeSet","kind":"class","use":"ok","x":692,"y":366,"parents":[{"to":"SortedSet","rel":"implements"}],"what":"Множество на дереве (красно-чёрном): всегда отсортировано — по <code>compareTo</code> (Comparable) или по твоему Comparator.","props":{"Порядок":"по возрастанию","Дубликаты":"нет — одинаковым считается то, где сравнение дало 0","null":"нельзя","Скорость":"add, contains — O(log n): быстро, но чуть медленнее HashSet"},"methods":[["first() / last()","минимум / максимум"],["ceiling(x)","наименьший элемент ≥ x"],["floor(x)","наибольший элемент ≤ x"],["descendingSet()","в обратном порядке"]],"when":"Нужно уникальное и сразу отсортированное, или «найди ближайший к x».","lesson":"m13-04"},{"id":"Map","label":"Map","kind":"iface","x":330,"y":530,"what":"Словарь: ключ → значение. Ключи уникальны, значения могут повторяться. Map — <b>не наследник Collection</b>, поэтому у него нет add и его нельзя напрямую перебрать for-each (перебирают keySet, values или entrySet).","methods":[["put(k, v)","положить (старое значение по этому ключу заменится)"],["get(k)","значение или null, если ключа нет"],["getOrDefault(k, d)","значение или d"],["containsKey(k)","есть ли ключ"],["remove(k)","убрать пару"],["keySet() / values() / entrySet()","все ключи / все значения / все пары"],["putIfAbsent(k, v)","положить, только если ключа ещё нет"],["merge(k, 1, Integer::sum)","счётчик: +1 к значению или 1, если ключа не было"],["Map.of(k1, v1, …)","готовый неизменяемый словарь"]],"lesson":"m13-05"},{"id":"HashMap","label":"HashMap","kind":"class","use":"hot","x":285,"y":620,"parents":[{"to":"Map","rel":"implements"}],"what":"Словарь на хеш-таблице: ключ по <code>hashCode</code> попадает в корзину, внутри корзины ищется через <code>equals</code>. Поэтому у ключей должны быть правильные equals и hashCode.","props":{"Порядок":"не гарантирован","Дубликаты":"ключи — нет, значения — да","null":"один null-ключ, null-значения можно","Скорость":"get, put, containsKey — мгновенно, O(1)"},"when":"Словарь по умолчанию.","lesson":"m13-05"},{"id":"LinkedHashMap","label":"LinkedHashMap","kind":"class","use":"ok","x":285,"y":710,"parents":[{"to":"HashMap","rel":"extends"}],"what":"HashMap, который помнит порядок добавления ключей.","props":{"Порядок":"как добавляли ключи","Дубликаты":"ключи — нет","null":"как у HashMap","Скорость":"как у HashMap"},"when":"Нужен словарь с предсказуемым порядком: например, вывести отчёт в том же порядке, в каком пришли данные.","lesson":"m13-05"},{"id":"SortedMap","label":"SortedMap","kind":"iface","x":545,"y":620,"parents":[{"to":"Map","rel":"extends"}],"what":"Словарь, где ключи всегда по порядку. Его расширение — <code>NavigableMap</code>: ceilingKey, floorKey, headMap, tailMap.","methods":[["firstKey() / lastKey()","самый маленький / большой ключ"],["headMap(k) / tailMap(k)","пары с ключами меньше k / от k"]],"lesson":"m13-05"},{"id":"TreeMap","label":"TreeMap","kind":"class","use":"ok","x":545,"y":710,"parents":[{"to":"SortedMap","rel":"implements"}],"what":"Словарь на дереве: ключи всегда отсортированы.","props":{"Порядок":"по ключам, по возрастанию","Дубликаты":"ключи — нет","null":"null-ключ нельзя","Скорость":"get, put — O(log n)"},"when":"Нужен словарь, отсортированный по ключу: частоты слов по алфавиту, расписание по времени.","lesson":"m13-05"},{"id":"Hashtable","label":"Hashtable","kind":"class","use":"legacy","x":78,"y":620,"parents":[{"to":"Map","rel":"implements"}],"what":"Старый (Java 1.0) словарь: все методы синхронизированы, <code>null</code> нельзя ни в ключ, ни в значение. Да, «table» с маленькой буквы — тоже наследие старых времён.","when":"Не бери. Обычный словарь — HashMap, для нескольких потоков — ConcurrentHashMap.","lesson":"m13-12"},{"id":"ConcurrentHashMap","label":"ConcurrentHashMap","kind":"class","use":"rare","x":100,"y":710,"parents":[{"to":"Map","rel":"implements"}],"what":"Потокобезопасный словарь: много потоков могут читать и писать одновременно, без гонок данных. null нельзя.","when":"Только когда с одним словарём работают несколько потоков — например, на сервере, который обслуживает много покупателей сразу (модуль 16).","lesson":"m16-04"}]}
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Как это запомнить</span>
+      <p>Три вопроса к задаче: <b>нужен ли порядок по номеру?</b> → List. <b>Нужна ли уникальность?</b> → Set. <b>Нужно ли искать по ключу?</b> → Map. А дальше выбираешь «близнеца»: обычный (Hash…/ArrayList), с порядком добавления (LinkedHash…) или отсортированный (Tree…). Подробно близнецы сравниваются в уроке «Сравниваем близнецов».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Дерево решений</h2>
+    <p>Задай себе вопросы по очереди — сверху вниз:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 400" role="img" aria-label="Дерево решений: пары ключ-значение — Map; только уникальные — Set; порядок обработки FIFO или LIFO — ArrayDeque; иначе ArrayList">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="16" width="300" height="48" rx="12" class="d-soft"/><text x="170" y="46" text-anchor="middle" class="d-text">Ищу по ключу (имя → значение)?</text>
+        <path d="M320 40 H398" class="d-arrow"/><text x="358" y="32" text-anchor="middle" class="d-small">да</text>
+        <rect x="402" y="16" width="320" height="48" rx="12" class="d-violet"/><text x="562" y="38" text-anchor="middle" class="d-title">Map</text><text x="562" y="56" text-anchor="middle" class="d-small">HashMap / LinkedHashMap / TreeMap</text>
+        <path d="M170 64 V106" class="d-arrow"/><text x="184" y="90" class="d-small">нет</text>
+
+        <rect x="20" y="110" width="300" height="48" rx="12" class="d-soft"/><text x="170" y="140" text-anchor="middle" class="d-text">Нужны только уникальные?</text>
+        <path d="M320 134 H398" class="d-arrow"/><text x="358" y="126" text-anchor="middle" class="d-small">да</text>
+        <rect x="402" y="110" width="320" height="48" rx="12" class="d-green"/><text x="562" y="132" text-anchor="middle" class="d-title">Set</text><text x="562" y="150" text-anchor="middle" class="d-small">HashSet / LinkedHashSet / TreeSet</text>
+        <path d="M170 158 V200" class="d-arrow"/><text x="184" y="184" class="d-small">нет</text>
+
+        <rect x="20" y="204" width="300" height="48" rx="12" class="d-soft"/><text x="170" y="234" text-anchor="middle" class="d-text">Беру первый или последний?</text>
+        <path d="M320 228 H398" class="d-arrow"/><text x="358" y="220" text-anchor="middle" class="d-small">да</text>
+        <rect x="402" y="204" width="320" height="48" rx="12" class="d-yellow"/><text x="562" y="226" text-anchor="middle" class="d-title">ArrayDeque</text><text x="562" y="244" text-anchor="middle" class="d-small">очередь — offer/poll · стек — push/pop</text>
+        <path d="M170 252 V294" class="d-arrow"/><text x="184" y="278" class="d-small">нет</text>
+
+        <rect x="20" y="298" width="300" height="48" rx="12" class="d-soft"/><text x="170" y="328" text-anchor="middle" class="d-text">Беру по важности?</text>
+        <path d="M320 322 H398" class="d-arrow"/><text x="358" y="314" text-anchor="middle" class="d-small">да</text>
+        <rect x="402" y="298" width="320" height="48" rx="12" class="d-red"/><text x="562" y="328" text-anchor="middle" class="d-title">PriorityQueue</text>
+        <path d="M170 346 V366" class="d-line"/><text x="184" y="362" class="d-small">нет</text>
+        <rect x="20" y="368" width="702" height="28" rx="10" class="d-blue"/><text x="371" y="387" text-anchor="middle" class="d-text">ArrayList — выбор по умолчанию: порядок, дубликаты, доступ по номеру</text>
+      </svg>
+      <figcaption>Не подошло ничего особенного — бери ArrayList. Он закрывает большую часть задач.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Обрати внимание: дерево сначала выбирает <b>интерфейс</b> (что нужно), а уже потом <b>реализацию</b> (Hash, Linked или Tree — какой нужен порядок). Именно так и рассуждают на собеседовании вслух.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Сравнение коллекций в тестах</h2>
+    <p>Полная таблица «кто быстрее и в каком порядке хранит» — в уроке <a href="/lessons/m13/12-twins.html">«Сравниваем близнецов»</a>, все методы — в уроке <a href="/lessons/m13/13-methods.html">«Главные методы и ловушки»</a>. Здесь — одна важная для тестов деталь.</p>
+    <div class="callout tip">
+      <span class="callout-title">Сравнение коллекций в тестах: List против Set</span>
+      <p><code>list1.equals(list2)</code> — true, только если те же элементы <b>в том же порядке</b>. <code>set1.equals(set2)</code> — порядок не важен, только состав. Проверяешь «в заказе ровно эти товары, порядок любой» — сравнивай множества: <code>new HashSet&lt;&gt;(actual).equals(Set.of("Хлеб", "Молоко"))</code>. Порядок важен — сравнивай списки.</p>
+    </div>
+  
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Разложи задачи по коллекциям</h2>
+    <div data-widget="buckets" id="buckets-m13-09">
+      <script type="application/json">
+      { "title": "Какая коллекция нужна?", "icon": "🧺",
+        "buckets": [ { "id": "list", "label": "List", "style": "indigo" }, { "id": "set", "label": "Set", "style": "green" }, { "id": "map", "label": "Map", "style": "red" }, { "id": "deque", "label": "Queue / Deque", "style": "ghost" } ],
+        "items": [
+          { "emoji": "🛒", "text": "Товары в чеке — по порядку, могут повторяться", "bucket": "list", "why": "Порядок и дубликаты важны — список." },
+          { "emoji": "🆔", "text": "Проверить, что номера заказов не повторяются", "bucket": "set", "why": "Уникальность — множество: сравни его размер с размером списка." },
+          { "emoji": "📝", "text": "Тестовые данные формы: поле → значение", "bucket": "map", "why": "Поиск по имени поля — словарь." },
+          { "emoji": "↩️", "text": "История для кнопки «Назад»", "bucket": "deque", "why": "Последняя открытая — первой назад: стек на ArrayDeque." },
+          { "emoji": "📊", "text": "Сколько раз встречается каждое слово в логе", "bucket": "map", "why": "Слово → счётчик. Классика Map." },
+          { "emoji": "🎫", "text": "Заявки в поддержку: обслуживать по порядку прихода", "bucket": "deque", "why": "FIFO — очередь: offer/poll." },
+          { "emoji": "🏷️", "text": "Все разные категории товаров, по алфавиту", "bucket": "set", "why": "Уникальность + сортировка — TreeSet." },
+          { "emoji": "🔢", "text": "Оценки ученика по порядку, чтобы взять третью по номеру", "bucket": "list", "why": "Доступ по номеру — ArrayList." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-09">
+      <script type="application/json">
+      { "title": "Выбор коллекции",
+        "items": [
+          { "type": "match", "q": "Соедини требование с классом",
+            "left": ["Уникальные, в порядке добавления", "Уникальные, отсортированные", "Словарь, отсортированный по ключу", "Стек или очередь", "Доступ по номеру"],
+            "right": ["LinkedHashSet", "TreeSet", "TreeMap", "ArrayDeque", "ArrayList"],
+            "why": "Сначала интерфейс по смыслу, потом реализация по нужному порядку." },
+          { "type": "multi", "q": "Отметь коллекции, в которых не бывает дубликатов (у Map — дубликатов ключей)",
+            "options": ["ArrayList", "HashSet", "TreeMap", "ArrayDeque", "LinkedHashSet"], "answer": [1, 2, 4],
+            "why": "Множества и ключи словарей уникальны. Списки и очереди допускают повторы." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Map — наследник интерфейса Collection", "a": false, "why": "Map — отдельная ветка: она хранит пары, а не элементы." },
+              { "s": "List.of(1, 2).equals(List.of(2, 1)) — true", "a": false, "why": "списки равны, только если совпадает и порядок." },
+              { "s": "Set.of(1, 2).equals(Set.of(2, 1)) — true", "a": true },
+              { "s": "Если особых требований нет, по умолчанию берут ArrayList", "a": true }
+            ] },
+          { "type": "single", "q": "Нужно хранить логины тестовых пользователей и быстро проверять «этот логин уже занят?». Порядок не важен. Что выбрать?",
+            "options": ["ArrayList&lt;String&gt; и contains", "HashSet&lt;String&gt;", "TreeMap&lt;String, String&gt;"], "answer": 1,
+            "why": "Уникальность и быстрый contains — HashSet. У списка contains перебирает все элементы." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Придумай 5 задач из реальных программ (магазин, банк, игра), а я для каждой выберу коллекцию и объясню выбор по дереву решений»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Collection</code> → <code>List</code>, <code>Set</code>, <code>Queue/Deque</code>; <code>Map</code> — отдельно.</li>
+        <li>Дерево решений: по ключу → Map; уникальные → Set; с краёв → ArrayDeque; по важности → PriorityQueue; иначе → ArrayList.</li>
+        <li>Реализация выбирается по порядку: Hash — без порядка, Linked — порядок добавления, Tree — сортировка.</li>
+        <li><code>List.equals</code> учитывает порядок, <code>Set.equals</code> — нет.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

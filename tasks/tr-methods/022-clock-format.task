@@ -1,0 +1,47 @@
+## id: tr-methods-022
+## title: Табло секундомера
+## file: trainer/methods/StopwatchClockFormat.java
+## class: StopwatchClockFormat
+## level: 2
+## category: Перегрузка
+@@ description
+<p>Секундомер показывает время в виде <code>Ч:ММ:СС</code> — минуты и секунды всегда двумя цифрами. Создай класс <code>StopwatchClockFormat</code> и напиши два перегруженных метода:</p>
+<ul>
+<li><code>static String formatTime(int totalSeconds)</code> — превращает число секунд в строку <code>Ч:ММ:СС</code>;</li>
+<li><code>static String formatTime(int minutes, int seconds)</code> — то же для времени, записанного минутами и секундами (секунд может быть больше 59).</li>
+</ul>
+<p>main читает три целых числа через пробел: время первого круга в секундах, затем минуты и секунды второго круга. Печатает две строки: <code>Круг 1: …</code> и <code>Круг 2: …</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3725 1 75
+вывод: Круг 1: 1:02:05
+       Круг 2: 0:02:15</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>/</code> и <code>%</code> на целых: <code>3725 / 3600</code> — целые часы, <code>3725 % 3600</code> — что осталось</li>
+<li>маленький вспомогательный метод вроде <code>twoDigits(5)</code> → <code>"05"</code> избавит от повторов</li>
+<li>один перегруженный метод может вызывать другой</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3725 1 75
+@@ expect
+Круг 1: 1:02:05
+Круг 2: 0:02:15
+@@ test: Нули
+@@ input
+0 0 0
+@@ expect
+Круг 1: 0:00:00
+Круг 2: 0:00:00
+@@ test: Почти час
+@@ input
+59 59 59
+@@ expect
+Круг 1: 0:00:59
+Круг 2: 0:59:59
+@@ test: Много часов
+@@ input
+36000 120 0
+@@ expect
+Круг 1: 10:00:00
+Круг 2: 2:00:00
+@@ require: static\s+String\s+formatTime\s*\(\s*int\s+\w+\s*\) | Нужен метод static String formatTime(int totalSeconds)
+@@ require: static\s+String\s+formatTime\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен перегруженный метод static String formatTime(int minutes, int seconds)

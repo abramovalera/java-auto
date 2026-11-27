@@ -1,0 +1,45 @@
+## id: tr-cond-053
+## title: Три числа по возрастанию
+## file: trainer/cond/SortThreeAscending.java
+## class: SortThreeAscending
+## level: 3
+## category: Сравнения и максимум
+@@ description
+<p>Напиши класс <code>SortThreeAscending</code>. Программа читает три целых числа через пробел и печатает их по возрастанию через пробел. Массивы и готовую сортировку не используй — только переменные и условия.</p>
+<pre class="terminal"><span class="out">ввод:  3 1 2
+вывод: 1 2 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>обмен значений двух переменных: <code>int tmp = a; a = b; b = tmp;</code></li>
+<li>три сравнения с обменом: <code>a</code> и <code>b</code>, <code>b</code> и <code>c</code>, снова <code>a</code> и <code>b</code></li>
+</ul></div>
+@@ test: Вперемешку
+@@ input
+3 1 2
+@@ expect
+1 2 3
+@@ test: Уже по порядку
+@@ input
+1 2 3
+@@ expect
+1 2 3
+@@ test: В обратном порядке
+@@ input
+3 2 1
+@@ expect
+1 2 3
+@@ test: Два одинаковых
+@@ input
+5 5 1
+@@ expect
+1 5 5
+@@ test: Отрицательные
+@@ input
+-4 0 -10
+@@ expect
+-10 -4 0
+@@ test: Все равны
+@@ input
+7 7 7
+@@ expect
+7 7 7
+@@ forbid: new\s+int\s*\[|\{\s*-?\d+\s*,|Arrays\.|sort\s*\( | Обойдись без массивов и готовой сортировки — только переменные и if

@@ -1,0 +1,55 @@
+## id: m12-t02
+## title: Кто за кем: try, catch, finally
+## file: module-12/TryCatchFinallyOrder.java
+## class: TryCatchFinallyOrder
+## level: 1
+@@ description
+<p>Сделаем порядок выполнения видимым: каждый блок будет «отмечаться» в консоли. Напиши метод <code>static int parseOrZero(String text)</code>:</p>
+<ul>
+  <li>в блоке <code>try</code> напечатай <code>try: начало</code>, преврати текст в число через <code>Integer.parseInt</code>, напечатай <code>try: число N</code> и <b>верни</b> это число через <code>return</code> прямо из try;</li>
+  <li>в <code>catch (NumberFormatException e)</code> напечатай <code>catch: «текст» не число</code> (в ёлочках «») и верни <code>0</code>;</li>
+  <li>в <code>finally</code> напечатай <code>finally</code>.</li>
+</ul>
+<p>В <code>main</code> прочитай одну строку (<code>nextLine</code>), вызови метод и напечатай <code>main: результат N</code>.</p>
+<pre class="terminal"><span class="out">ввод: 42          ввод: abc
+try: начало       try: начало
+try: число 42     catch: «abc» не число
+finally           finally
+main: результат 42  main: результат 0</span></pre>
+<p>Подумай заранее: <code>return</code> уже стоит в try — успеет ли напечататься <code>finally</code>? Запусти и проверь свою догадку.</p>
+<p>📖 <a href="/lessons/m12/04-finally.html">finally: выполняется всегда</a></p>
+@@ test: Число
+@@ input
+42
+@@ expect
+try: начало
+try: число 42
+finally
+main: результат 42
+@@ test: Не число
+@@ input
+abc
+@@ expect
+try: начало
+catch: «abc» не число
+finally
+main: результат 0
+@@ test: Отрицательное число
+@@ input
+-7
+@@ expect
+try: начало
+try: число -7
+finally
+main: результат -7
+@@ test: Цифры с буквой
+@@ input
+12a
+@@ expect
+try: начало
+catch: «12a» не число
+finally
+main: результат 0
+@@ require: static\s+int\s+parseOrZero\s*\(\s*String | Нужен метод static int parseOrZero(String text)
+@@ require: catch\s*\(\s*NumberFormatException | Поймай NumberFormatException
+@@ require: finally\s*\{ | Нужен блок finally

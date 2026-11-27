@@ -1,0 +1,52 @@
+## id: tr-vars-015
+## title: Калории за день
+## file: trainer/vars/CaloriesLeftToday.java
+## class: CaloriesLeftToday
+## level: 1
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>CaloriesLeftToday</code>. Дневная норма — 2000 калорий; объяви её константой через <code>final</code>. Программа читает три целых числа, каждое с новой строки: калории завтрака, обеда и ужина. Напечатай две строки: сколько съедено и сколько осталось до нормы.</p>
+<pre class="terminal"><span class="out">ввод:  400
+       700
+       500
+вывод: Съедено: 1600
+       Осталось до нормы: 400</span></pre>
+<p>Если норму превысили, остаток получится отрицательным — так и печатай.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>final int DAILY_NORM = 2000;</code> — константа: после инициализации её нельзя изменить; имя пишут БОЛЬШИМИ буквами</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+400
+700
+500
+@@ expect
+Съедено: 1600
+Осталось до нормы: 400
+@@ test: Голодный день
+@@ input
+0
+0
+0
+@@ expect
+Съедено: 0
+Осталось до нормы: 2000
+@@ test: Перебор
+@@ input
+800
+900
+600
+@@ expect
+Съедено: 2300
+Осталось до нормы: -300
+@@ test: Ровно норма
+@@ input
+2000
+0
+0
+@@ expect
+Съедено: 2000
+Осталось до нормы: 0
+@@ require: \bfinal\s+int\s+\w+\s*=\s*2000 | Объяви норму константой: final int DAILY_NORM = 2000;

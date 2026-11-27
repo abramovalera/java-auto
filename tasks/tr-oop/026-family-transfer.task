@@ -1,0 +1,82 @@
+## id: tr-oop-026
+## title: Семейные переводы
+## file: trainer/oop/FamilyTransfer.java
+## class: FamilyTransfer
+## level: 2
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>FamilyTransfer</code> с методом <code>main</code>, а ниже в том же файле — класс <code>FamilyAccount</code> (счёт члена семьи):</p>
+<ul>
+<li>поля <code>private final String owner</code> и <code>private int balance</code>;</li>
+<li>конструктор <code>FamilyAccount(String owner, int balance)</code> — отрицательный начальный баланс заменяет на 0;</li>
+<li><code>boolean transferTo(FamilyAccount other, int amount)</code> — переводит деньги с этого счёта на счёт <code>other</code>. Перевод не проходит (метод возвращает <code>false</code> и ничего не меняет), если сумма не больше нуля или на счёте не хватает денег;</li>
+<li>геттер <code>getOwner()</code> и <code>toString()</code> — <code>Имя: N руб.</code></li>
+</ul>
+<p>Ввод: в первых двух строках — имя и баланс двух членов семьи (имена разные), в третьей — количество переводов <code>n</code>, дальше <code>n</code> строк «кто переводит, сумма». Деньги всегда уходят второму человеку. На каждый перевод печатай <code>Отправитель -&gt; Получатель: сумма</code> или <code>Отказ: Имя не может перевести сумма</code>, в конце — оба счёта.</p>
+<pre class="terminal"><span class="out">ввод:  Мама 5000
+       Сын 300
+       2
+       Мама 1000
+       Сын 2000
+вывод: Мама -&gt; Сын: 1000
+       Отказ: Сын не может перевести 2000
+       Мама: 4000 руб.
+       Сын: 1300 руб.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>other.balance += amount;</code> — внутри класса можно менять закрытое поле другого объекта того же класса</li>
+<li><code>name.equals(first.getOwner()) ? first : second</code> — выбрать нужный объект по имени</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Мама 5000
+Сын 300
+2
+Мама 1000
+Сын 2000
+@@ expect
+Мама -> Сын: 1000
+Отказ: Сын не может перевести 2000
+Мама: 4000 руб.
+Сын: 1300 руб.
+@@ test: Перевод всего баланса
+@@ input
+Аня 700
+Олег 0
+2
+Аня 700
+Аня 1
+@@ expect
+Аня -> Олег: 700
+Отказ: Аня не может перевести 1
+Аня: 0 руб.
+Олег: 700 руб.
+@@ test: Нулевая и отрицательная сумма
+@@ input
+Папа 1000
+Дочь 1000
+2
+Папа 0
+Дочь -500
+@@ expect
+Отказ: Папа не может перевести 0
+Отказ: Дочь не может перевести -500
+Папа: 1000 руб.
+Дочь: 1000 руб.
+@@ test: Деньги ходят туда-обратно
+@@ input
+Лена -100
+Петя 50
+3
+Лена 10
+Петя 50
+Лена 50
+@@ expect
+Отказ: Лена не может перевести 10
+Петя -> Лена: 50
+Лена -> Петя: 50
+Лена: 0 руб.
+Петя: 50 руб.
+@@ require: \bclass\s+FamilyAccount\b | Объяви в том же файле класс FamilyAccount
+@@ require: private\s+int\s+balance\b | Поле balance должно быть private
+@@ require: \bboolean\s+transferTo\s*\(\s*FamilyAccount\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод boolean transferTo(FamilyAccount other, int amount)
+@@ forbid: \bsetBalance\s*\( | Не делай сеттер setBalance — баланс меняется только переводом

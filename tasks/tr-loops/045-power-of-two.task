@@ -1,0 +1,48 @@
+## id: tr-loops-045
+## title: Степень двойки
+## file: trainer/loops/PowerOfTwoCheck.java
+## class: PowerOfTwoCheck
+## level: 2
+## category: Делители и простые
+@@ description
+<p>Напиши класс <code>PowerOfTwoCheck</code>. Программа читает целое число <code>n</code>. Если оно — степень двойки (1, 2, 4, 8, …), напечатай <code>2^k</code> с нужным показателем. Иначе напечатай <code>Нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1024
+вывод: 2^10
+
+ввод:  6
+вывод: Нет</span></pre>
+<p>Ноль и отрицательные числа — не степени двойки, а 1 = 2^0.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>while (n % 2 == 0) { n /= 2; … }</code> — дели на 2, пока делится; в конце должна остаться 1</li>
+</ul></div>
+@@ test: Тысяча двадцать четыре
+@@ input
+1024
+@@ expect
+2^10
+@@ test: Единица
+@@ input
+1
+@@ expect
+2^0
+@@ test: Шесть
+@@ input
+6
+@@ expect
+Нет
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Нет
+@@ test: Отрицательное
+@@ input
+-8
+@@ expect
+Нет
+@@ test: Большая степень
+@@ input
+1073741824
+@@ expect
+2^30
+@@ forbid: bitCount|Math\.log|toBinaryString | Проверь делением на 2 в цикле

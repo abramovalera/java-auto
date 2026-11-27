@@ -1,0 +1,38 @@
+## id: tr-streams-011
+## title: Список гостей по алфавиту
+## file: trainer/streams/GuestListAlphabet.java
+## class: GuestListAlphabet
+## level: 1
+## category: Сортировка и топ
+@@ description
+<p>Напиши класс <code>GuestListAlphabet</code>. Для таблички на входе нужен список гостей по алфавиту. В одной строке — имена через пробел (хотя бы одно, каждое с большой буквы, без буквы «ё»). Напечатай имена по алфавиту через запятую с пробелом. Тёзок не убирай.</p>
+<pre class="terminal"><span class="out">ввод:  Вика Аня Борис
+вывод: Аня, Борис, Вика</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.sorted()</code> — сортирует строки по алфавиту (в естественном порядке)</li>
+<li><code>Collectors.joining(", ")</code> — склеивает строки через запятую с пробелом</li>
+</ul></div>
+@@ test: Три гостя
+@@ input
+Вика Аня Борис
+@@ expect
+Аня, Борис, Вика
+@@ test: Тёзки остаются
+@@ input
+Оля Ира Оля
+@@ expect
+Ира, Оля, Оля
+@@ test: Один гость
+@@ input
+Тимур
+@@ expect
+Тимур
+@@ test: Похожие имена
+@@ input
+Анна Аня Антон Алла
+@@ expect
+Алла, Анна, Антон, Аня
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.sorted\s*\( | Отсортируй имена в стриме методом sorted

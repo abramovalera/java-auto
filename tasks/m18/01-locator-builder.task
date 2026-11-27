@@ -1,0 +1,64 @@
+## id: m18-t01
+## title: Построитель локаторов
+## file: module-18/NookLocatorBuilder.java
+## class: NookLocatorBuilder
+## level: 1
+@@ description
+<p>В автотестах одни и те же виды локаторов пишут сотни раз. Сделаем маленький «станок», который собирает локатор по короткой команде. Программа читает строки с клавиатуры до конца ввода. Каждая строка — команда: <b>тип</b>, пробел, данные. Для каждой команды напечатай готовый локатор на отдельной строке.</p>
+<div class="table-wrap"><table>
+<tr><th>Команда</th><th>Что напечатать</th></tr>
+<tr><td><code>id email</code></td><td><code>#email</code></td></tr>
+<tr><td><code>class btn-primary</code></td><td><code>.btn-primary</code></td></tr>
+<tr><td><code>testid login-button</code></td><td><code>[data-test-id='login-button']</code></td></tr>
+<tr><td><code>attr input name email</code> (тег, атрибут, значение)</td><td><code>input[name='email']</code></td></tr>
+<tr><td><code>xtestid cart</code></td><td><code>//*[@data-test-id='cart']</code></td></tr>
+<tr><td><code>xtext button Войти</code> (тег, потом текст — в тексте могут быть пробелы)</td><td><code>//button[text()='Войти']</code></td></tr>
+<tr><td><code>xcontains a Подробнее о книге</code></td><td><code>//a[contains(text(),'Подробнее о книге')]</code></td></tr>
+<tr><td>любой другой тип, например <code>name login</code></td><td><code>? не знаю тип: name</code></td></tr>
+</table></div>
+<p>Пустые строки пропускай. Кавычки внутри локатора — одинарные <code>'</code>, пробелов внутри локатора нет (кроме пробелов в тексте элемента).</p>
+<p><b>Устройство программы обязательно такое:</b> на каждый вид локатора — свой метод, который <b>возвращает</b> строку: <code>byId(id)</code>, <code>byClass(cssClass)</code>, <code>byTestId(testId)</code>, <code>byAttr(tag, attr, value)</code>, <code>xpathByTestId(testId)</code>, <code>xpathByText(tag, text)</code>, <code>xpathContainsText(tag, text)</code>. <code>main</code> только разбирает строку и печатает то, что вернул метод.</p>
+<p>Подсказка: <code>line.split(" ", 2)</code> режет строку максимум на 2 части — тип и «всё остальное» (модуль 8).</p>
+<p>📖 Урок: <a href="/lessons/m18/03-locators.html">Локаторы: CSS и XPath</a></p>
+@@ test: CSS-локаторы
+@@ input
+id email
+class btn-primary
+testid login-button
+attr input name email
+@@ expect
+#email
+.btn-primary
+[data-test-id='login-button']
+input[name='email']
+@@ test: XPath-локаторы, текст с пробелами
+@@ input
+xtestid cart
+xtext button Войти
+xcontains a Подробнее о книге
+xtext h1 Корзина пуста
+@@ expect
+//*[@data-test-id='cart']
+//button[text()='Войти']
+//a[contains(text(),'Подробнее о книге')]
+//h1[text()='Корзина пуста']
+@@ test: Неизвестный тип и пустая строка
+@@ input
+name login
+
+testid search
+attr button type submit
+@@ expect
+? не знаю тип: name
+[data-test-id='search']
+button[type='submit']
+@@ test: Пустой ввод — ничего не печатаем
+@@ input
+
+@@ expect
+
+@@ require: static\s+String\s+byTestId\s*\( | Нужен метод static String byTestId(String testId), который возвращает локатор
+@@ require: static\s+String\s+byAttr\s*\( | Нужен метод static String byAttr(String tag, String attr, String value)
+@@ require: static\s+String\s+xpathByText\s*\( | Нужен метод static String xpathByText(String tag, String text)
+@@ require: static\s+String\s+xpathContainsText\s*\( | Нужен метод static String xpathContainsText(String tag, String text)
+@@ forbid: data-test-id='login-button' | Не пиши готовые локаторы из тестов — собирай их в методах из данных

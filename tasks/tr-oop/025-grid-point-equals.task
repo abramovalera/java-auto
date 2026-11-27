@@ -1,0 +1,68 @@
+## id: tr-oop-025
+## title: Равные точки — equals и hashCode
+## file: trainer/oop/GridPointEquals.java
+## class: GridPointEquals
+## level: 2
+## category: Объект как значение
+@@ description
+<p>Создай класс <code>GridPointEquals</code> с методом <code>main</code>, а ниже в том же файле — класс <code>GridPoint</code> (точка на клетчатом поле):</p>
+<ul>
+<li>поля <code>private final int x</code> и <code>private final int y</code>, конструктор <code>GridPoint(int x, int y)</code>;</li>
+<li>переопредели <code>public boolean equals(Object o)</code> — точки равны, если у них одинаковые <code>x</code> и <code>y</code>. Для <code>null</code> и объектов другого класса — <code>false</code>;</li>
+<li>переопредели <code>public int hashCode()</code> — у равных точек хеш-коды обязаны совпадать;</li>
+<li><code>toString()</code> — <code>(x, y)</code>.</li>
+</ul>
+<p><code>main</code> читает через пробел четыре числа — координаты точек <code>a</code> и <code>b</code> — и печатает пять строк:</p>
+<pre class="terminal"><span class="out">ввод:  3 4 3 4
+вывод: a = (3, 4), b = (3, 4)
+       a == b: false
+       a.equals(b): true
+       Хеш-коды равны: true
+       a.equals(null): false</span></pre>
+<p>Вторая строка всегда <code>false</code>: <code>a</code> и <code>b</code> — два разных объекта, хоть и с одинаковыми полями.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>if (!(o instanceof GridPoint)) return false;</code> — заодно отсекает <code>null</code></li>
+<li><code>GridPoint other = (GridPoint) o;</code> — приведение типа, чтобы добраться до полей</li>
+<li><code>31 * x + y</code> — простой способ собрать хеш-код из двух чисел</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3 4 3 4
+@@ expect
+a = (3, 4), b = (3, 4)
+a == b: false
+a.equals(b): true
+Хеш-коды равны: true
+a.equals(null): false
+@@ test: Разные точки
+@@ input
+1 2 2 1
+@@ expect
+a = (1, 2), b = (2, 1)
+a == b: false
+a.equals(b): false
+Хеш-коды равны: false
+a.equals(null): false
+@@ test: Отличается только y
+@@ input
+-5 0 -5 1
+@@ expect
+a = (-5, 0), b = (-5, 1)
+a == b: false
+a.equals(b): false
+Хеш-коды равны: false
+a.equals(null): false
+@@ test: Начало координат
+@@ input
+0 0 0 0
+@@ expect
+a = (0, 0), b = (0, 0)
+a == b: false
+a.equals(b): true
+Хеш-коды равны: true
+a.equals(null): false
+@@ require: \bclass\s+GridPoint\b | Объяви в том же файле класс GridPoint
+@@ require: public\s+boolean\s+equals\s*\(\s*Object\s+\w+\s*\) | Переопредели public boolean equals(Object o) — параметр именно типа Object
+@@ require: public\s+int\s+hashCode\s*\(\s*\) | Переопредели public int hashCode()
+@@ require: \binstanceof\s+GridPoint\b | В equals проверь тип через instanceof GridPoint
+@@ require: @Override | Помечай переопределённые методы аннотацией @Override

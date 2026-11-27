@@ -1,0 +1,80 @@
+## id: tr-except-027
+## title: Бронь мест в кинозале
+## file: trainer/except/CinemaSeatBooking.java
+## class: CinemaSeatBooking
+## level: 3
+## category: Свои исключения
+@@ description
+<p>Напиши класс <code>CinemaSeatBooking</code>. В маленьком кинозале 10 мест, номера с 1 по 10; храни их в массиве <code>boolean[]</code> (занято/свободно).</p>
+<p>Объяви три своих исключения в том же файле: общее <code>CinemaBookingException</code> (наследник <code>Exception</code>) и два его наследника — <code>CinemaSeatTakenException</code> и <code>CinemaSeatFreeException</code>. Напиши методы:</p>
+<ul>
+<li><code>static void book(int seat)</code> — бронирует место; если оно уже занято, выбрасывает <code>CinemaSeatTakenException</code> с сообщением <code>место N уже занято</code>;</li>
+<li><code>static void cancel(int seat)</code> — снимает бронь; если место свободно, выбрасывает <code>CinemaSeatFreeException</code> с сообщением <code>место N и так свободно</code>.</li>
+</ul>
+<p>В первой строке ввода — количество команд n, дальше n строк вида <code>book N</code> или <code>cancel N</code> (всегда два слова через пробел). Что печатать, проверяя по порядку:</p>
+<ul>
+<li>команда не <code>book</code> и не <code>cancel</code> — <code>Не знаю команду X</code>;</li>
+<li>номер не целое число — <code>Номер места — целое число</code>;</li>
+<li>места с таким номером нет — <code>Места N в зале нет</code> (поймай выход за границы массива);</li>
+<li>ошибка брони — <code>Отказ: </code> и сообщение (оба своих исключения перехвати одним <code>catch</code> по общему родителю);</li>
+<li>иначе — <code>Место N забронировано</code> или <code>Бронь места N снята</code>.</li>
+</ul>
+<p>В конце — <code>Занято мест: K</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3             вывод: Место 5 забронировано
+       book 5               Отказ: место 5 уже занято
+       book 5               Места 11 в зале нет
+       book 11              Занято мест: 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>catch (CinemaBookingException e)</code> перехватит и наследников этого класса</li>
+<li><code>class B extends A</code> — своё исключение может наследовать другое своё</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+book 5
+book 5
+book 11
+@@ expect
+Место 5 забронировано
+Отказ: место 5 уже занято
+Места 11 в зале нет
+Занято мест: 1
+@@ test: Бронь и отмена
+@@ input
+5
+book 1
+book 10
+cancel 1
+cancel 1
+book 1
+@@ expect
+Место 1 забронировано
+Место 10 забронировано
+Бронь места 1 снята
+Отказ: место 1 и так свободно
+Место 1 забронировано
+Занято мест: 2
+@@ test: Неверные команды
+@@ input
+4
+reserve 3
+book три
+cancel 0
+book -2
+@@ expect
+Не знаю команду reserve
+Номер места — целое число
+Места 0 в зале нет
+Места -2 в зале нет
+Занято мест: 0
+@@ test: Отмена свободного места
+@@ input
+1
+cancel 7
+@@ expect
+Отказ: место 7 и так свободно
+Занято мест: 0
+@@ require: class\s+CinemaBookingException\s+extends\s+Exception | Объяви общее исключение CinemaBookingException extends Exception
+@@ require: class\s+CinemaSeatTakenException\s+extends\s+CinemaBookingException | CinemaSeatTakenException наследует CinemaBookingException
+@@ require: class\s+CinemaSeatFreeException\s+extends\s+CinemaBookingException | CinemaSeatFreeException наследует CinemaBookingException
+@@ require: catch\s*\(\s*CinemaBookingException | Перехвати оба своих исключения одним catch (CinemaBookingException e)

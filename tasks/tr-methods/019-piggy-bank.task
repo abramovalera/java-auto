@@ -1,0 +1,42 @@
+## id: tr-methods-019
+## title: Копилка по нарастающей
+## file: trainer/methods/PiggyBankSumUpTo.java
+## class: PiggyBankSumUpTo
+## level: 1
+## category: Вычисления
+@@ description
+<p>Мальчик в первый день кладёт в копилку 1 ₽, во второй — 2 ₽, в третий — 3 ₽ и так далее. Создай класс <code>PiggyBankSumUpTo</code> и напиши метод <code>static long sumUpTo(int n)</code>: он возвращает, сколько денег окажется в копилке через <code>n</code> дней (сумма чисел от 1 до <code>n</code>; при <code>n = 0</code> — ноль).</p>
+<p>main читает целое число <code>n</code> (до 100000) и печатает <code>Через N дн. в копилке: S ₽</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10    вывод: Через 10 дн. в копилке: 55 ₽</span></pre>
+<p>⚠️ Подвох: за 100000 дней набежит больше 5 миллиардов — в <code>int</code> не влезет.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>long sum = 0;</code> — накопитель типа <code>long</code></li>
+<li><code>sum += day;</code> — составное присваивание: прибавить к сумме</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+10
+@@ expect
+Через 10 дн. в копилке: 55 ₽
+@@ test: Один день
+@@ input
+1
+@@ expect
+Через 1 дн. в копилке: 1 ₽
+@@ test: Ещё не начал копить
+@@ input
+0
+@@ expect
+Через 0 дн. в копилке: 0 ₽
+@@ test: Чуть больше int
+@@ input
+65536
+@@ expect
+Через 65536 дн. в копилке: 2147516416 ₽
+@@ test: Сто тысяч дней
+@@ input
+100000
+@@ expect
+Через 100000 дн. в копилке: 5000050000 ₽
+@@ require: static\s+long\s+sumUpTo\s*\(\s*int\s+\w+\s*\) | Нужен метод static long sumUpTo(int n)
+@@ require: \WsumUpTo\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать sumUpTo(...) и передать ему n

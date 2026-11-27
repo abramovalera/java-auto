@@ -1,0 +1,41 @@
+## id: tr-loops-023
+## title: Сумма цифр
+## file: trainer/loops/SumDigitsOfNumber.java
+## class: SumDigitsOfNumber
+## level: 1
+## category: Цифры числа
+@@ description
+<p>Напиши класс <code>SumDigitsOfNumber</code>. Программа читает целое число (может быть отрицательным) и печатает сумму его цифр. Минус не учитывается: у <code>-505</code> сумма цифр 10.</p>
+<pre class="terminal"><span class="out">ввод:  1234
+вывод: 10</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 10</code> — последняя цифра числа</li>
+<li><code>n /= 10;</code> — отрезает последнюю цифру</li>
+<li><code>Math.abs(n)</code> — модуль числа: убирает минус (у отрицательного n остаток <code>n % 10</code> тоже отрицательный)</li>
+</ul></div>
+@@ test: Обычное число
+@@ input
+1234
+@@ expect
+10
+@@ test: Ноль
+@@ input
+0
+@@ expect
+0
+@@ test: Отрицательное
+@@ input
+-505
+@@ expect
+10
+@@ test: Одна цифра
+@@ input
+9
+@@ expect
+9
+@@ test: Девять девяток
+@@ input
+999999999
+@@ expect
+81
+@@ forbid: \.length\(\)|String\.valueOf|Integer\.toString|charAt | Разбери число на цифры арифметикой (% 10 и / 10), а не через строки

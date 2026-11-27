@@ -1,0 +1,34 @@
+## id: tr-arith-002
+## title: Год рождения
+## file: trainer/arith/BirthYearFromAge.java
+## class: BirthYearFromAge
+## level: 1
+## category: Время и календарь
+@@ description
+<p>Создай класс <code>BirthYearFromAge</code>. Программа читает два целых числа, каждое с новой строки: текущий год и возраст человека. Она печатает год рождения — разность этих чисел (считаем, что день рождения в этом году уже был).</p>
+<pre class="terminal"><span class="out">ввод:  2026
+       14
+вывод: Год рождения: 2012</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает с клавиатуры одно целое число</li>
+<li><code>"Текст: " + число</code> — склеивает строку и число в одну строку</li>
+</ul></div>
+@@ test: Школьник
+@@ input
+2026
+14
+@@ expect
+Год рождения: 2012
+@@ test: Младенец, ему ещё нет года
+@@ input
+2026
+0
+@@ expect
+Год рождения: 2026
+@@ test: Долгожитель
+@@ input
+2000
+100
+@@ expect
+Год рождения: 1900
+@@ require: nextInt\s*\( | Читай числа методом nextInt()

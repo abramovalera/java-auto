@@ -1,0 +1,42 @@
+## id: tr-methods-004
+## title: Поделить пиццу поровну
+## file: trainer/methods/PizzaSplitDivisible.java
+## class: PizzaSplitDivisible
+## level: 1
+## category: Методы-проверки
+@@ description
+<p>Друзья заказали пиццу и хотят, чтобы каждому досталось одинаковое число кусков, без остатка. Создай класс <code>PizzaSplitDivisible</code> и напиши метод <code>static boolean canSplitEvenly(int slices, int friends)</code>: он возвращает <code>true</code>, если куски делятся между друзьями поровну, иначе <code>false</code>.</p>
+<p>main читает два целых числа через пробел — число кусков и число друзей (друзей всегда хотя бы один) — и печатает то, что вернул метод.</p>
+<pre class="terminal"><span class="out">ввод:  12 4    вывод: true
+ввод:  10 3    вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a % b</code> — остаток от деления <code>a</code> на <code>b</code></li>
+<li>метод может сразу вернуть результат сравнения: <code>return x &gt; 0;</code></li>
+</ul></div>
+@@ test: Делится
+@@ input
+12 4
+@@ expect
+true
+@@ test: Не делится
+@@ input
+10 3
+@@ expect
+false
+@@ test: Пицца съедена — ноль кусков
+@@ input
+0 5
+@@ expect
+true
+@@ test: Один друг
+@@ input
+7 1
+@@ expect
+true
+@@ test: Друзей больше, чем кусков
+@@ input
+5 7
+@@ expect
+false
+@@ require: static\s+boolean\s+canSplitEvenly\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static boolean canSplitEvenly(int slices, int friends)
+@@ require: \WcanSplitEvenly\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать canSplitEvenly(...) и напечатать ответ

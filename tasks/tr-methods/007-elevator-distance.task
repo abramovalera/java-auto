@@ -1,0 +1,36 @@
+## id: tr-methods-007
+## title: Сколько этажей проедет лифт
+## file: trainer/methods/ElevatorFloorDistance.java
+## class: ElevatorFloorDistance
+## level: 1
+## category: Вычисления
+@@ description
+<p>Лифт едет с одного этажа на другой — вверх или вниз. Подземная парковка обозначается отрицательными этажами. Создай класс <code>ElevatorFloorDistance</code> и напиши метод <code>static int floorsBetween(int from, int to)</code>: он возвращает, на сколько этажей переместится лифт (всегда неотрицательное число).</p>
+<p>main читает два целых числа через пробел — откуда и куда едем — и печатает <code>Этажей в пути: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2 9     вывод: Этажей в пути: 7
+ввод:  9 2     вывод: Этажей в пути: 7</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.abs(x)</code> — возвращает модуль числа: <code>Math.abs(-5)</code> равно <code>5</code></li>
+</ul></div>
+@@ test: Вверх
+@@ input
+2 9
+@@ expect
+Этажей в пути: 7
+@@ test: Вниз
+@@ input
+9 2
+@@ expect
+Этажей в пути: 7
+@@ test: Никуда не едем
+@@ input
+5 5
+@@ expect
+Этажей в пути: 0
+@@ test: С парковки наверх
+@@ input
+-2 3
+@@ expect
+Этажей в пути: 5
+@@ require: static\s+int\s+floorsBetween\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int floorsBetween(int from, int to)
+@@ require: \WfloorsBetween\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать floorsBetween(...) и передать оба этажа

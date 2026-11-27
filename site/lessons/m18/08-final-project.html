@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоговый проект и что дальше · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-08">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 18 · Урок 8</div>
+    <h1>Итоговый проект и что дальше</h1>
+    <p class="lead">Пора собрать всё вместе: свой набор автотестов на настоящем сайте — первый проект в портфолио. А ещё чек-лист готовности к стажировке и вопросы, которые тебе зададут на собеседовании.</p>
+    <div class="meta"><span>⏱ 25 минут чтения</span><span>🛠️ проект на 1–2 недели</span><span>🎯 портфолио</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m18-08-review">
+      <script type="application/json">
+      { "title": "Вспомним API и Page Object", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Сервер ответил <code>500</code> на запрос с пустым названием книги. Что это?",
+            "options": ["Нормально: данные неверные", "Баг: на неверный ввод сервер должен отвечать 4xx", "Ошибка в тесте"], "answer": 1,
+            "why": "500 — сервер не справился сам с собой. Ожидаемый ответ на плохой ввод — 400 с понятным сообщением." },
+          { "type": "single", "q": "Что возвращает метод Page Object, после которого пользователь остаётся на той же странице?",
+            "options": ["null", "this", "новый объект BasePage"], "answer": 1,
+            "why": "return this — и цепочку можно продолжить методами той же страницы." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Итоговый проект: свой набор автотестов</h2>
+    <p><span class="ai-only">Задача — с нуля собрать в IDEA Gradle-проект с UI-тестами на Selenide + JUnit 5 + AssertJ по шаблону Page Object для настоящего сайта. Это не задача с автопроверкой: проект ты покажешь наставнику, как показывал бы тимлиду.</span><span class="free-only">Задача — с нуля собрать в IDEA Gradle-проект с UI-тестами на Selenide + JUnit 5 + AssertJ по шаблону Page Object для настоящего сайта. Это не задача с автопроверкой: проект ты покажешь <span class="ai-name">DeepSeek</span>, как показывал бы тимлиду.</span></p>
+    <p>Тренироваться нужно на сайтах, которые <b>для этого и созданы</b>. Например, <code>https://the-internet.herokuapp.com</code> — набор учебных страниц с типичными «трудными» элементами. Это только пример для самостоятельной практики: подойдёт любой учебный стенд. Тестировать чужие боевые сайты без разрешения не стоит — нагрузка от автотестов им ни к чему.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Страница учебного сайта</th><th>Что проверить</th><th>Чему научишься</th></tr>
+        <tr><td>Form Authentication (вход)</td><td>успешный вход и выход; неверный логин; неверный пароль. Логин и пароль для входа написаны прямо на странице</td><td>Page Object с переходом, негативные тесты, параметризация</td></tr>
+        <tr><td>Checkboxes</td><td>отметить, снять, проверить состояние</td><td>коллекции <code>$$</code>, условия <code>checked</code></td></tr>
+        <tr><td>Dropdown</td><td>выбрать пункт, проверить выбранный</td><td><code>selectOption</code>, <code>getSelectedOption</code></td></tr>
+        <tr><td>Add/Remove Elements</td><td>добавить N кнопок, удалить одну, посчитать</td><td><code>shouldHave(size(n))</code></td></tr>
+        <tr><td>Dynamic Loading</td><td>нажать Start и дождаться текста</td><td>ожидания без <code>sleep</code>, увеличенный таймаут</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="think"><p>На учебных сайтах обычно <b>нет</b> <code>data-test-id</code>. Это даже хорошо: потренируешься выбирать лучшее из того, что есть, — <code>id</code>, <code>name</code>, осмысленный класс, текст — и честно объяснять, почему выбрал именно его. Локаторы, как договорились, составляешь <b>сам</b>, проверяешь в DevTools.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>План по шагам</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 190" role="img" aria-label="Дорожная карта проекта: каркас, первый тест, страницы, данные, ожидания, Git и README">
+        <path d="M40 70 H720" class="d-line"/>
+        <circle cx="60" cy="70" r="20" class="d-accent"/><text x="60" y="76" text-anchor="middle" class="d-title">1</text>
+        <circle cx="190" cy="70" r="20" class="d-blue"/><text x="190" y="76" text-anchor="middle" class="d-title">2</text>
+        <circle cx="320" cy="70" r="20" class="d-teal"/><text x="320" y="76" text-anchor="middle" class="d-title">3</text>
+        <circle cx="450" cy="70" r="20" class="d-violet"/><text x="450" y="76" text-anchor="middle" class="d-title">4</text>
+        <circle cx="580" cy="70" r="20" class="d-yellow"/><text x="580" y="76" text-anchor="middle" class="d-title">5</text>
+        <circle cx="700" cy="70" r="20" class="d-green"/><text x="700" y="76" text-anchor="middle" class="d-title">6</text>
+        <text x="60" y="116" text-anchor="middle" class="d-text">Каркас</text>
+        <text x="60" y="136" text-anchor="middle" class="d-small">Gradle, пакеты</text>
+        <text x="60" y="154" text-anchor="middle" class="d-small">BaseTest</text>
+        <text x="190" y="116" text-anchor="middle" class="d-text">Первый тест</text>
+        <text x="190" y="136" text-anchor="middle" class="d-small">вход через</text>
+        <text x="190" y="154" text-anchor="middle" class="d-small">LoginPage</text>
+        <text x="320" y="116" text-anchor="middle" class="d-text">Страницы</text>
+        <text x="320" y="136" text-anchor="middle" class="d-small">ещё 3–4</text>
+        <text x="320" y="154" text-anchor="middle" class="d-small">Page Object</text>
+        <text x="450" y="116" text-anchor="middle" class="d-text">Данные</text>
+        <text x="450" y="136" text-anchor="middle" class="d-small">record, enum,</text>
+        <text x="450" y="154" text-anchor="middle" class="d-small">параметризация</text>
+        <text x="580" y="116" text-anchor="middle" class="d-text">Надёжность</text>
+        <text x="580" y="136" text-anchor="middle" class="d-small">ожидания,</text>
+        <text x="580" y="154" text-anchor="middle" class="d-small">3 прогона подряд</text>
+        <text x="700" y="116" text-anchor="middle" class="d-text">Git</text>
+        <text x="700" y="136" text-anchor="middle" class="d-small">README,</text>
+        <text x="700" y="154" text-anchor="middle" class="d-small">GitHub</text>
+        <text x="380" y="24" text-anchor="middle" class="d-small">после каждого шага — коммит и короткий показ наставнику</text>
+      </svg>
+      <figcaption>Шесть шагов. Не пытайся сделать всё за вечер: маленький рабочий шаг лучше большого сломанного.</figcaption>
+    </figure>
+    <ol class="steps">
+      <li><b>Каркас.</b> IDEA → New Project → Build system <b>Gradle</b>, DSL <b>Kotlin</b>, JDK 21. В <code>build.gradle.kts</code> — junit-jupiter, selenide, assertj через <code>testImplementation</code>, <code>useJUnitPlatform()</code> и проброс <code>-D</code> (урок 6). Пакеты <code>pages</code>, <code>tests</code>, <code>data</code>, <code>config</code>; <code>config.properties</code> с адресом сайта; <code>BaseTest</code>.</li>
+      <li><b>Первый тест.</b> <code>LoginPage</code> с приватными полями-элементами (локаторы внутри) и методами страницы <code>loginAs</code> / <code>loginExpectingError</code>, страница после входа — <code>SecureAreaPage</code>. Тест «успешный вход» зелёный — коммит.</li>
+      <li><b>Ещё страницы.</b> Checkboxes, Dropdown, Add/Remove, Dynamic Loading — по классу-странице и тест-классу на каждую.</li>
+      <li><b>Данные.</b> Пользователи — record + enum; негативные входы — параметризованный тест с <code>@CsvSource</code> «логин, пароль, ожидаемая ошибка».</li>
+      <li><b>Надёжность.</b> Ни одного <code>Thread.sleep</code>. Запусти все тесты три раза подряд через Gradle → test (или <code>gradle clean test</code>): все три раза зелёные? Запусти один тест отдельно — проходит?</li>
+      <li><b>Git и README.</b> Репозиторий, <code>.gitignore</code> (<code>build/</code>, <code>.gradle/</code>, <code>.idea/</code>; wrapper <code>gradlew</code> и <code>gradle/wrapper</code> — коммитить), README: что тестируется, как запустить, какие технологии. Выложи на GitHub — это твоё портфолио.</li>
+    </ol>
+    <p>Выложить проект на GitHub можно прямо из IDEA, без сайта: ☰ → <b>Git → GitHub → Share Project on GitHub</b> (если Git в проекте ещё не включён — ☰ → <b>VCS → Share Project on GitHub</b>):</p>
+    <div data-widget="ide" id="shot-share-github">
+      <script type="application/json">
+      { "project": "nook-tests", "status": "nook-tests › README.md",
+        "tree": [ { "name": "nook-tests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "folder", "depth": 1 },
+                  { "name": ".gitignore", "type": "file", "depth": 1 },
+                  { "name": "build.gradle.kts", "type": "file", "depth": 1 },
+                  { "name": "README.md", "type": "file", "depth": 1, "selected": true } ],
+        "dialog": { "title": "Share Project On GitHub",
+                    "rows": [ { "label": "Repository name", "value": "nook-tests", "hl": true },
+                              { "label": "Private", "value": "☐", "type": "text" },
+                              { "label": "Remote", "value": "origin" },
+                              { "label": "Description", "value": "UI-автотесты: Java 21, Selenide, JUnit 5, Page Object" },
+                              { "label": "Share by", "value": "твой аккаунт GitHub", "type": "select" } ],
+                    "buttons": ["Share", "Cancel"], "primary": "Share" },
+        "marks": [ { "n": 1, "target": "field-Repository name", "text": "Имя репозитория на GitHub — его увидят в ссылке на портфолио" },
+                   { "n": 2, "target": "field-Private", "text": "Галочку <b>не</b> ставь: портфолио должно быть открытым, иначе работодатель его не увидит" },
+                   { "n": 3, "target": "field-Share by", "text": "Аккаунт GitHub. Если его ещё нет в IDEA, она предложит войти через браузер" },
+                   { "n": 4, "target": "btn-Share", "side": "bottom", "text": "<b>Share</b> → IDEA спросит, какие файлы положить в первый коммит (проверь, что нет <code>target</code> и паролей), и сама сделает push" } ],
+        "caption": "Публикация проекта на GitHub из IDEA (упрощённо)" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Критерии: проект готов, когда…</h2>
+    <section class="goals">
+      <h3><span class="ai-only">Проект сдан наставнику, если</span><span class="free-only">Проект готов, если</span></h3>
+      <ul>
+        <li>минимум 10 тестов на 4+ страницах, все зелёные три прогона подряд;</li>
+        <li>в тестах нет ни одного локатора — только вызовы методов страниц;</li>
+        <li>локаторы — приватные, составлены руками, без абсолютных путей и номеров; про каждый можешь сказать, почему выбрал именно его;</li>
+        <li>нет <code>Thread.sleep</code>; ожидания — проверками состояния Selenide (<code>shouldBe</code>, <code>shouldHave</code>);</li>
+        <li>каждый тест можно запустить отдельно, и в любом порядке;</li>
+        <li>есть негативные тесты (неверный пароль и т.п.) и хотя бы один параметризованный;</li>
+        <li>адрес сайта и браузер — в <code>config.properties</code>, данные — в пакете <code>data</code>;</li>
+        <li>понятные имена тестов: по имени ясно, что проверяется;</li>
+        <li>проект в Git с README; коммиты — небольшие, с понятными сообщениями;</li>
+        <li>ты можешь объяснить любую строку своего кода.</li>
+      </ul>
+    </section>
+    <div class="callout ai">
+      <span class="callout-title">Как сдавать</span>
+      <p>Напиши наставнику: <em>«Хочу сдать итоговый проект. Вот путь к нему: …»</em>. Наставник прочитает код по критериям, попросит запустить тесты и объяснить пару решений — как на настоящем код-ревью. Замечания — это нормально: на работе ревью проходит каждый.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Чек-лист готовности к стажировке</h2>
+    <p>Честно отметь, что уже уверенно, а что надо подтянуть. Стажёру не нужно знать всё — нужно крепкое основание и умение учиться.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">☕</span><h4>Java</h4><p>Типы, условия, циклы, массивы, строки, методы; ООП и его три кита; интерфейсы, enum, record; исключения; коллекции и generics; лямбды и Stream API; equals/hashCode; основы потоков.</p></div>
+      <div class="card"><span class="emoji">🔍</span><h4>Теория тестирования</h4><p>Виды и уровни тестирования, тест-кейс и чек-лист, баг-репорт (шаги, ожидаемый и фактический результат), классы эквивалентности и граничные значения, регресс и smoke.</p></div>
+      <div class="card"><span class="emoji">🧰</span><h4>Инструменты</h4><p>IntelliJ IDEA и отладчик, Git (коммит, ветка, pull request), Gradle, DevTools (Elements, Console, Network), Postman.</p></div>
+      <div class="card"><span class="emoji">🤖</span><h4>Автоматизация</h4><p>JUnit 5, AssertJ, локаторы CSS/XPath, Selenide, Page Object, ожидания, основы API-тестов и REST Assured, свой проект на GitHub.</p></div>
+      <div class="card"><span class="emoji">📚</span><h4>Подтянуть дальше</h4><p>SQL (SELECT, WHERE, JOIN) — проверять данные в базе; основы командной строки Linux; CI (GitLab CI, Jenkins или GitHub Actions); Allure.</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Вопросы с собеседований автоматизатора</h2>
+    <p>Сначала ответь вслух, потом открывай. Ответ «потому что так принято» не засчитывается — только с объяснением «почему».</p>
+    <details class="predict"><summary>1. Что такое Page Object и зачем он нужен?</summary>
+      <p>Класс на каждую страницу: приватные поля-элементы с локаторами и публичные методы страницы — действия пользователя. Локаторы правятся в одном месте, тесты читаются как тест-кейсы, повторяющийся код уходит из тестов.</p></details>
+    <details class="predict"><summary>2. CSS или XPath — что выбрать?</summary>
+      <p>По умолчанию CSS: короче и понимает классы. XPath — когда нужен поиск по тексту или движение вверх по дереву (<code>..</code>, <code>ancestor::</code>). Главное не язык, а стабильный атрибут: <code>data-test-id</code>, <code>id</code>.</p></details>
+    <details class="predict"><summary>3. Почему <code>Thread.sleep</code> в тестах — плохо?</summary>
+      <p>Ждёт фиксированное время: если элемент появился раньше — время потеряно, если позже — тест всё равно упал. Нужны ожидания условия: проверка состояния <code>shouldBe(visible)</code> в Selenide, опрос с таймаутом для остального.</p></details>
+    <details class="predict"><summary>4. Что такое flaky-тест и что с ним делать?</summary>
+      <p>Тест, который то проходит, то падает без изменений кода. Причины: зависимость от других тестов и общих данных, sleep вместо ожиданий, нестабильные локаторы, нестабильный стенд. Не перезапускать до победы, а найти причину; пока не починен — пометить и не доверять.</p></details>
+    <details class="predict"><summary>5. Тест упал. Твои действия?</summary>
+      <p>Прочитать сообщение (ожидаемое значение, фактическое значение, где упало), посмотреть скриншот и шаги, воспроизвести руками. Решить: баг продукта (завести баг-репорт с шагами, ожидаемым и фактическим результатом) или проблема теста/стенда/данных (починить тест).</p></details>
+    <details class="predict"><summary>6. Чем отличаются <code>@BeforeEach</code> и <code>@BeforeAll</code>?</summary>
+      <p>Метод с аннотацией <code>@BeforeEach</code> — перед каждым тестовым методом; с <code>@BeforeAll</code> — один раз перед всеми тестами класса, поэтому метод <code>static</code> (объекта класса ещё нет — JUnit создаёт новый объект на каждый тест).</p></details>
+    <details class="predict"><summary>7. Как сделать тесты независимыми?</summary>
+      <p>Каждый тест сам готовит данные (лучше через API) и состояние (<code>@BeforeEach</code>), не использует общие изменяемые <code>static</code>-поля, не рассчитывает на порядок запуска, по возможности убирает за собой. Свежий браузер на тест.</p></details>
+    <details class="predict"><summary>8. Классы эквивалентности и граничные значения — на примере «скидка от 1000 ₽»</summary>
+      <p>Классы: меньше 1000 (скидки нет) и от 1000 (скидка есть) — внутри класса поведение одинаковое, хватает одного значения. Границы: 999 и 1000 — именно там ошибаются (<code>&gt;</code> вместо <code>&gt;=</code>). Плюс невалидные: отрицательная сумма, пусто, не число.</p></details>
+    <details class="predict"><summary>9. Чем 401 отличается от 403? А 500?</summary>
+      <p>401 — не авторизован (не представился, нет токена). 403 — представился, но прав нет. 500 — сервер упал внутри; на неверный ввод правильный ответ — 400, поэтому 500 почти всегда баг.</p></details>
+    <details class="predict"><summary>10. Классика Java: чем <code>==</code> отличается от <code>equals</code>?</summary>
+      <p><code>==</code> у объектов сравнивает ссылки (один ли это объект), <code>equals</code> — содержимое, если класс его переопределил. Строки сравнивают через <code>equals</code>. Переопределил <code>equals</code> — переопредели и <code>hashCode</code>, иначе HashMap и HashSet сломаются.</p></details>
+    <details class="predict"><summary>11. Checked и unchecked исключения — в чём разница?</summary>
+      <p>Checked (наследники <code>Exception</code>, кроме <code>RuntimeException</code>) компилятор заставляет обработать или объявить в <code>throws</code> — например, <code>IOException</code>. Unchecked (<code>RuntimeException</code> и наследники) — нет: <code>NullPointerException</code>, <code>IllegalArgumentException</code>. Кстати, упавшая проверка (assertion) в тесте — это <code>AssertionError</code>, вообще не <code>Exception</code>, а <code>Error</code>.</p></details>
+    <details class="predict"><summary>12. Что автоматизировать в первую очередь?</summary>
+      <p>Smoke и главный регресс: самые важные пользовательские сценарии, которые проверяются каждый выпуск и стабильны по требованиям. Не автоматизировать то, что меняется каждую неделю, разовые проверки и оценку удобства.</p></details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m18-08">
+      <script type="application/json">
+      { "title": "Готов к проекту?",
+        "items": [
+          { "type": "multi", "q": "Что из этого — признаки хорошего итогового проекта?",
+            "options": ["В тестах нет локаторов, только методы страниц", "Чтобы тесты успевали, везде добавлен Thread.sleep(3000)", "Любой тест проходит, если запустить его один", "Есть негативные и параметризованные тесты", "Локаторы скопированы через «Copy XPath» в DevTools"],
+            "answer": [0, 2, 3], "why": "sleep делает тесты медленными и всё равно мигающими, а скопированные XPath — длинные хрупкие пути." },
+          { "type": "single", "q": "Какие значения обязательно проверить для правила «бесплатная доставка от 3000 ₽»?",
+            "options": ["1000 и 5000", "2999 и 3000", "0 и 1 000 000"], "answer": 1,
+            "why": "Граничные значения: последнее «до» и первое «после». Ошибки любят прятаться именно на границе." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Тренироваться автотестам лучше на учебных сайтах, созданных для этого", "a": true },
+              { "s": "Упавший автотест — всегда баг продукта", "a": false, "why": "сначала выясни: возможно, сломался тест, стенд или данные." },
+              { "s": "README в проекте объясняет, что тестируется и как запустить", "a": true },
+              { "s": "AssertionError — это checked-исключение", "a": false, "why": "это Error, его компилятор не заставляет обрабатывать." }
+            ] },
+          { "type": "order", "q": "Расставь шаги итогового проекта",
+            "lines": ["Gradle-проект, зависимости, пакеты, BaseTest", "Первый Page Object и тест входа", "Ещё страницы и тесты", "Тестовые данные и параметризация", "Проверка надёжности: 3 прогона подряд", "Git, README, GitHub"],
+            "why": "Сначала каркас и один зелёный тест, потом наращиваем. Коммит после каждого шага." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Пробное собеседование</span>
+      <p>Напиши наставнику: <em>«Проведи со мной пробное собеседование на стажёра-автоматизатора: 10 вопросов по одному — Java, тестирование, Selenide, API. После каждого ответа — оценка и что добавить»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><span class="ai-only">Итоговый проект: свой Gradle-проект с Selenide, JUnit 5, AssertJ и Page Object на учебном сайте — проверяет наставник.</span><span class="free-only">Итоговый проект: свой Gradle-проект с Selenide, JUnit 5, AssertJ и Page Object на учебном сайте — код-ревью с <span class="ai-name">DeepSeek</span>.</span></li>
+        <li>Шесть шагов: каркас → первый тест → страницы → данные → надёжность → Git и README.</li>
+        <li>Критерии: без локаторов в тестах, без sleep, независимые тесты, негативные и параметризованные проверки, конфиг, README.</li>
+        <li>К стажировке: Java + теория тестирования + инструменты + автоматизация; дальше — SQL, Linux, CI, Allure.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

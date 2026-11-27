@@ -1,0 +1,43 @@
+## id: m17-t07
+## title: Охота на баг: бонусы кофейни
+## file: module-17/CoffeeBonusPointsTest.java
+## class: CoffeeBonusPointsTest
+## level: 3
+## mode: junit
+@@ description
+<p>Настоящая работа разработчика: есть <b>требования</b> и есть <b>код от коллеги</b>. Твоя задача — написать тесты по требованиям, найти баг, разобраться в нём отладчиком и исправить.</p>
+<p><b>Требования.</b> Кофейня начисляет бонусные баллы за покупку:</p>
+<ul>
+<li>за каждые <b>полные</b> 100 ₽ — 5 баллов (250 ₽ → 10 баллов, 99 ₽ → 0);</li>
+<li>если сумма покупки <b>1000 ₽ или больше</b> — баллы удваиваются;</li>
+<li>отрицательная сумма — ошибка <code>IllegalArgumentException</code>.</li>
+</ul>
+<p><b>Код коллеги</b> — набери его в файл <code>module-17/CoffeeBonusPointsTest.java</code> (без <code>public</code>) ровно так, как есть:</p>
+<pre><code class="java">class CoffeeBonusPoints {
+    static int pointsFor(int amount) {
+        if (amount &lt; 0) {
+            throw new IllegalArgumentException("Сумма не может быть отрицательной: " + amount);
+        }
+        int points = amount / 100 * 5;
+        if (amount &gt; 1000) {
+            points = points * 2;
+        }
+        return points;
+    }
+}</code></pre>
+<p>Порядок работы:</p>
+<ol>
+<li>Спланируй тесты по требованиям, <b>не глядя в код</b>: классы эквивалентности и границы (Мастерская из урока 17.7). Посчитай ожидаемые баллы руками.</li>
+<li>Напиши <code>public class CoffeeBonusPointsTest</code>: параметризованный тест <code>@CsvSource</code> «сумма, баллы» (или несколько <code>@Test</code>) и тест на исключение. Минимум 6 проверяемых сумм.</li>
+<li>Запусти. Какой-то тест покраснеет — это и есть баг. Поставь брейкпоинт в <code>pointsFor</code>, запусти тест через <b>Debug</b> и посмотри, почему так.</li>
+<li>Исправь <b>класс</b> (не тест!) — все тесты зелёные.</li>
+</ol>
+<p>При <code>/check</code> расскажи наставнику, какой тест поймал баг и как бы ты описал этот баг в баг-репорте (шаги, ожидаемый и фактический результат).</p>
+<p>📖 <a href="/lessons/m17/07-workshop-tests.html">Мастерская: какие тесты написать</a> · <a href="/lessons/m17/01-debugger.html">Отладчик</a></p>
+@@ require: @ParameterizedTest|(@Test[\s\S]*){6} | Нужен параметризованный тест или минимум 6 тестов с @Test
+@@ require: pointsFor\s*\(\s*1000\s*\)|"\s*1000\s*, | Проверь самую важную границу: ровно 1000 ₽
+@@ require: pointsFor\s*\(\s*999\s*\)|"\s*999\s*, | Проверь значение прямо перед границей: 999 ₽
+@@ require: assertThrows\s*\(\s*IllegalArgumentException\.class|assertThatThrownBy | Проверь, что отрицательная сумма — ошибка
+@@ require: class\s+CoffeeBonusPoints\b | Набери в файл класс CoffeeBonusPoints из условия
+@@ forbid: amount\s*>\s*1000\b | Баг в классе CoffeeBonusPoints ещё не исправлен — поймай его тестом по требованиям, разберись отладчиком и почини класс (не тест)
+@@ forbid: @Disabled | Выключенный тест — не тест. Убери @Disabled

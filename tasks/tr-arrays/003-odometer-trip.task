@@ -1,0 +1,40 @@
+## id: tr-arrays-003
+## title: Сколько проехали
+## file: trainer/arrays/OdometerTripDistance.java
+## class: OdometerTripDistance
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>OdometerTripDistance</code>. В поездке ты каждый вечер записывал показания одометра (счётчика пройденных километров). В первой строке — количество записей <code>n</code> (n ≥ 1), во второй — <code>n</code> показаний по порядку. Сколько километров проехали между первой и последней записью? Напечатай <code>Проехали: X км</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       15200 15530 15890 16010
+вывод: Проехали: 810 км</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a[0]</code> — первый элемент массива</li>
+<li><code>a[a.length - 1]</code> — обращение к последнему элементу массива</li>
+</ul></div>
+@@ test: Три дня
+@@ input
+4
+15200 15530 15890 16010
+@@ expect
+Проехали: 810 км
+@@ test: Одна запись
+@@ input
+1
+5000
+@@ expect
+Проехали: 0 км
+@@ test: Стояли на месте
+@@ input
+3
+700 700 700
+@@ expect
+Проехали: 0 км
+@@ test: Две записи
+@@ input
+2
+0 1
+@@ expect
+Проехали: 1 км
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

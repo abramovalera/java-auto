@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Переменные: коробки с ярлыками · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-01">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 2 · Урок 1</div>
+    <h1>Переменные: коробки с ярлыками</h1>
+    <p class="lead">Пока что твои программы умеют только повторять заученный текст. Научим их запоминать: числа, слова, «да» и «нет» — и менять запомненное по ходу работы.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>📦 главная идея модуля</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Зачем программе память</h2>
+    <p>В модуле 1 программа печатала только то, что ты заранее вписал в кавычки. Но настоящим программам нужно <b>помнить</b>:</p>
+    <ul>
+      <li>игра помнит очки, жизни и имя игрока;</li>
+      <li>интернет-магазин — сколько товаров в корзине и на какую сумму;</li>
+      <li>банковское приложение — номер счёта, баланс и сколько раз подряд ввели неверный ПИН-код.</li>
+    </ul>
+    <p>Для этого в любом языке программирования есть <b>переменные</b>. Переменная — это место в памяти компьютера, у которого есть <b>имя</b> и в котором лежит <b>значение</b>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: коробки на складе</span>
+      <p>Представь склад с коробками. На каждой наклеен ярлык с именем: <code>age</code>, <code>score</code>, <code>lives</code>. Внутри коробки лежит одно значение. Хочешь узнать, сколько очков, — находишь коробку по ярлыку и заглядываешь внутрь. Хочешь поменять — вынимаешь старое и кладёшь новое.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 230" role="img" aria-label="Три коробки-переменные с ярлыками age, score и lives и значениями 25, 120 и 3">
+        <path d="M20 200 H680" class="d-line"/>
+        <g>
+          <rect x="50" y="70" width="160" height="120" rx="12" class="d-yellow"/>
+          <rect x="80" y="40" width="100" height="34" rx="8" class="d-accent"/>
+          <text x="130" y="63" text-anchor="middle" class="d-mono-ink">age</text>
+          <text x="130" y="140" text-anchor="middle" class="d-title" style="font-size:30px">25</text>
+          <text x="130" y="178" text-anchor="middle" class="d-small">тип: int</text>
+        </g>
+        <g>
+          <rect x="270" y="70" width="160" height="120" rx="12" class="d-yellow"/>
+          <rect x="300" y="40" width="100" height="34" rx="8" class="d-accent"/>
+          <text x="350" y="63" text-anchor="middle" class="d-mono-ink">score</text>
+          <text x="350" y="140" text-anchor="middle" class="d-title" style="font-size:30px">120</text>
+          <text x="350" y="178" text-anchor="middle" class="d-small">тип: int</text>
+        </g>
+        <g>
+          <rect x="490" y="70" width="160" height="120" rx="12" class="d-yellow"/>
+          <rect x="520" y="40" width="100" height="34" rx="8" class="d-accent"/>
+          <text x="570" y="63" text-anchor="middle" class="d-mono-ink">lives</text>
+          <text x="570" y="140" text-anchor="middle" class="d-title" style="font-size:30px">3</text>
+          <text x="570" y="178" text-anchor="middle" class="d-small">тип: int</text>
+        </g>
+        <text x="350" y="222" text-anchor="middle" class="d-small">ярлык = имя переменной · содержимое = значение · форма коробки = тип</text>
+      </svg>
+      <figcaption>Три переменные: у каждой есть имя, тип и значение.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Ярлык у коробки не меняется, а содержимое можно менять сколько угодно. Отсюда и слово «<b>пере</b>менная»: значение в ней может меняться, пока работает программа.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Объявление: заводим коробку</h2>
+    <p>Прежде чем класть что-то в коробку, её нужно завести. Это называется <b>объявление</b> переменной: мы сообщаем Java её тип и имя. Строку ниже читают так: «объявляем переменную <code>age</code> типа <code>int</code>»:</p>
+<pre data-file="Variables.java"><code class="java">int age;</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>int</code><div><p><b>Тип</b> переменной: какие значения в неё можно класть. <code>int</code> (от англ. <i>integer</i> — целое число) — коробка для целых чисел: 25, 0, −7.</p></div></div>
+      <div class="annot-row"><code>age</code><div><p><b>Имя</b> — ярлык на коробке. Придумываешь сам. Хорошее имя объясняет, что лежит внутри: <code>age</code> — возраст.</p></div></div>
+      <div class="annot-row"><code>;</code><div><p>Конец инструкции, как и в модуле 1.</p></div></div>
+    </div>
+    <p>Тип — это <b>форма коробки</b>. В коробку для целых чисел не получится положить текст или 3.5: компилятор заметит это ещё до запуска и покажет ошибку. Тип выбирается один раз и навсегда — поменять его у переменной нельзя. Про другие типы (дробные числа, текст, «да/нет») — в следующих уроках.</p>
+    <p>Переменные пока пишем внутри метода <code>main</code>, между его фигурными скобками:</p>
+<pre data-file="Variables.java"><code class="java">public class Variables {
+    public static void main(String[] args) {
+        int age;
+        age = 25;
+        System.out.println(age);
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">25</span></pre>
+    <dl class="terms">
+      <dt>Переменная</dt><dd>Именованное место в памяти, где лежит одно значение.</dd>
+      <dt>Объявление</dt><dd>Строка вида <code>тип имя;</code> — «заведи коробку такой формы с таким ярлыком».</dd>
+      <dt>Тип</dt><dd>Какие значения можно хранить в переменной: целые числа, дробные, текст…</dd>
+      <dt>Значение</dt><dd>То, что сейчас лежит внутри: <code>25</code>.</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Присваивание: <code>=</code> значит «положи»</h2>
+    <p>Строка <code>age = 25;</code> похожа на математику: «age равно 25». Но в Java знак <code>=</code> означает совсем другое. Это <b>оператор присваивания</b>: «вычисли то, что справа, и <b>положи</b> в коробку слева». А вся строка — <b>присваивание</b>: переменной <code>age</code> присваивается значение 25.</p>
+    <p>Читай такие строки <b>справа налево</b>: «переменной age присваиваем 25» — то есть кладём 25 в коробку age.</p>
+    <div class="callout warn">
+      <span class="callout-title"><code>=</code> — это не «равно»</span>
+      <p>В Java <code>=</code> — это команда, а не утверждение. Слева от неё всегда стоит переменная (коробка), справа — значение. Поэтому <code>25 = age;</code> — ошибка: числу 25 ничего присвоить нельзя, это не переменная. А сравнение «равны ли два значения» пишется двумя знаками <code>==</code>. Его разберём в модулях 3 и 4.</p>
+    </div>
+    <p>Объявить переменную и сразу присвоить ей значение можно одной строкой. Так пишут чаще всего:</p>
+<pre data-file="Variables.java"><code class="java">int age = 25;      // объявление + первое значение
+int lives = 3;</code></pre>
+    <p>Первое значение переменной называют <b>инициализацией</b> (от англ. <i>initial</i> — начальный). Строку <code>int age = 25;</code> читают так: «<b>объявляем</b> переменную <code>age</code> типа <code>int</code> и <b>инициализируем</b> её значением 25». А само число <code>25</code>, записанное прямо в коде, называют <b>литералом</b>.</p>
+    <details class="predict">
+      <summary>Что выведет программа?<br><code>int x = 5;</code><br><code>x = 7;</code><br><code>System.out.println(x);</code></summary>
+      <p><b>7.</b> В коробке помещается только одно значение. Когда переменной присваиваем 7, пятёрка выбрасывается навсегда — никакого «5 и 7» не будет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Новое значение из старого</h2>
+    <p>Самая важная строка этого урока:</p>
+<pre data-file="Score.java"><code class="java">int score = 120;
+score = score + 10;
+System.out.println(score);</code></pre>
+<pre class="terminal"><span class="out">130</span></pre>
+    <p>Для математика <code>score = score + 10</code> — бессмыслица: число не может быть равно самому себе плюс десять. Но для Java это присваивание: справа стоит <b>выражение</b> <code>score + 10</code> — кусочек кода, который вычисляется в одно значение. Всё делается в три простых действия:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 220" role="img" aria-label="Три шага: достать 120 из коробки score, вычислить 120 плюс 10, положить 130 обратно">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="60" width="150" height="100" rx="12" class="d-yellow"/>
+        <rect x="45" y="32" width="100" height="32" rx="8" class="d-accent"/>
+        <text x="95" y="54" text-anchor="middle" class="d-mono-ink">score</text>
+        <text x="95" y="122" text-anchor="middle" class="d-title" style="font-size:26px">120</text>
+        <text x="95" y="190" text-anchor="middle" class="d-small">① достаём 120</text>
+
+        <path d="M180 110 H262" class="d-arrow"/>
+
+        <rect x="272" y="70" width="176" height="80" rx="12" class="d-blue"/>
+        <text x="360" y="118" text-anchor="middle" class="d-mono-ink">120 + 10 = 130</text>
+        <text x="360" y="190" text-anchor="middle" class="d-small">② вычисляем выражение</text>
+
+        <path d="M458 110 H540" class="d-arrow"/>
+
+        <rect x="550" y="60" width="150" height="100" rx="12" class="d-green"/>
+        <rect x="575" y="32" width="100" height="32" rx="8" class="d-accent"/>
+        <text x="625" y="54" text-anchor="middle" class="d-mono-ink">score</text>
+        <text x="625" y="122" text-anchor="middle" class="d-title" style="font-size:26px">130</text>
+        <text x="625" y="190" text-anchor="middle" class="d-small">③ присваиваем результат</text>
+      </svg>
+      <figcaption>Сначала Java полностью вычисляет выражение справа, и только потом присваивает результат переменной слева — кладёт его в коробку.</figcaption>
+    </figure>
+    <p>Так устроены счётчики везде: очки в игре, товары в корзине, номер попытки ввода пароля. Запомни правило: <b>сначала вычисляется выражение справа целиком, потом результат присваивается переменной слева</b>.</p>
+    <details class="predict">
+      <summary>Ловушка. Что выведет программа?<br><code>int a = 2;</code><br><code>int b = a * 10;</code><br><code>a = 5;</code><br><code>System.out.println(b);</code></summary>
+      <p><b>20.</b> В строке 2 Java вычислила выражение <code>2 * 10</code> и инициализировала <code>b</code> результатом — числом 20. В коробке лежит готовое число, а не формула «a умножить на 10». Поэтому, когда <code>a</code> поменялась, <code>b</code> осталась прежней. Это не Excel, где ячейки пересчитываются сами.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Выполним программу по шагам</h2>
+    <p>Программисты постоянно делают это в голове: идут по коду строка за строкой и следят, что лежит в каждой переменной. Это называется <b>трассировка</b>. Нажимай «Шаг ▶», а где спросят — впиши значение сам.</p>
+    <div data-widget="trace" id="trace-wallet">
+      <script type="application/json">
+      { "title": "Кошелёк в игре",
+        "intro": "У игрока 10 монет. Он покупает зелье, потом цена растёт, и он покупает ещё одно. Нажимай «Шаг ▶» и следи за коробками справа.",
+        "code": "int coins = 10;\nint price = 3;\ncoins = coins - price;\nprice = price * 2;\ncoins = coins - price;\nSystem.out.println(\"Осталось: \" + coins);",
+        "steps": [
+          { "line": 1, "vars": { "coins": "10" }, "note": "Объявляем переменную <code>coins</code> и инициализируем её значением 10 — заводим коробку и кладём в неё 10." },
+          { "line": 2, "vars": { "coins": "10", "price": "3" }, "note": "Объявляем <code>price</code> и инициализируем значением 3 — вторая коробка." },
+          { "line": 3, "vars": { "coins": "7", "price": "3" }, "ask": ["coins"], "note": "Сначала вычисляется выражение справа: из coins достаём 10, из price достаём 3, вычитаем. Получилось 7 — этот результат присваивается переменной <code>coins</code>." },
+          { "line": 4, "vars": { "coins": "7", "price": "6" }, "ask": ["price"], "note": "Цена удвоилась: вычисляем выражение <code>price * 2</code> и присваиваем результат переменной <code>price</code>. Было 3, стало 6, а <code>coins</code> не тронули." },
+          { "line": 5, "vars": { "coins": "1", "price": "6" }, "ask": ["coins"], "note": "Опять сначала выражение справа. Из coins берём текущее значение, а не самое первое: 7 − 6 = 1." },
+          { "line": 6, "vars": { "coins": "1", "price": "6" }, "out": "Осталось: 1\n", "note": "Склеиваем текст и значение переменной. На экране — «Осталось: 1»." }
+        ] }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Трассировка на бумаге</span>
+      <p>Нарисуй таблицу: столбцы — переменные, строки — шаги. Записывай новое значение каждый раз, когда оно меняется. Это лучший способ понять чужой код, и на собеседованиях так решают задачи «что выведется?».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Печатаем переменные</h2>
+    <div class="cheat">
+      <h3>Выпиши себе: сокращения для переменных</h3>
+      <p>Как <code>sout</code> из урока 1.4: набираешь слово и жмёшь <kbd>Tab</kbd>.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Набери + Tab</th><th>Что вставит IDEA</th><th>Когда</th></tr>
+        <tr><td><code>soutv</code></td><td><code>System.out.println("age = " + age);</code> — печатает <b>имя и значение</b> ближайшей переменной (IDEA спросит, какой)</td><td>Подсмотреть, что лежит в коробке прямо сейчас</td></tr>
+        <tr><td><code>sout</code></td><td><code>System.out.println();</code></td><td>Напечатать что угодно</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>J</kbd></td><td>Список всех сокращений</td><td>Забыл, как называлось</td></tr>
+      </table></div>
+    </div>
+    <p>Чтобы напечатать значение, передай методу <code>println</code> имя переменной <b>без кавычек</b>:</p>
+<pre data-file="Print.java"><code class="java">int age = 25;
+System.out.println(age);        // 25 — значение из коробки
+System.out.println("age");      // age — просто текст из трёх букв
+System.out.println("Мне " + age + " лет");</code></pre>
+<pre class="terminal"><span class="out">25
+age
+Мне 25 лет</span></pre>
+    <p>В кавычках — строковый литерал: текст, который печатается как есть. Без кавычек — имя переменной, и Java подставит её значение — то, что лежит в коробке. Склейка через <code>+</code> работает так же, как в модуле 1: строка + число = строка.</p>
+    <details class="predict">
+      <summary>Помнишь ловушку «2 + 2 = 22»? Что выведет программа?<br><code>int age = 25;</code><br><code>System.out.println("Через год: " + age + 1);</code></summary>
+      <p><b>Через год: 251.</b> Вычисление идёт слева направо: <code>"Через год: " + age</code> — уже строка «Через год: 25», к ней приклеивается «1». Починка — скобки: <code>"Через год: " + (age + 1)</code> → «Через год: 26».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6б -->
+  <section class="step">
+    <h2>Переменные работают вместе</h2>
+    <p>В настоящей программе переменных много, и они <b>передают значения друг другу</b>, как эстафету. Одну заполнили, из неё посчитали вторую, из двух собрали третью. Поначалу именно это кажется самым запутанным, поэтому разберём медленно.</p>
+    <p>Задача: поздравить Артёма и сказать, сколько ему будет через год.</p>
+<pre data-file="Birthday.java"><code class="java">String name = "Артём";        // 1. кладём имя
+int age = 20;                 // 2. узнали у Артёма возраст
+int nextAge = age + 1;        // 3. из age считаем новое число
+String message = name + ", через год тебе " + nextAge;  // 4. собираем строку
+System.out.println(message);</code></pre>
+<pre class="terminal"><span class="out">Артём, через год тебе 21</span></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 310" role="img" aria-label="Значения перетекают между коробками: name и nextAge (посчитана из age) склеиваются в строку message">
+        <rect x="20" y="66" width="170" height="72" rx="12" class="d-yellow"/>
+        <rect x="50" y="40" width="110" height="30" rx="8" class="d-accent"/>
+        <text x="105" y="61" text-anchor="middle" class="d-mono-ink">name</text>
+        <text x="105" y="110" text-anchor="middle" class="d-mono-ink">"Артём"</text>
+        <text x="105" y="158" text-anchor="middle" class="d-small">String — текст</text>
+
+        <rect x="20" y="206" width="170" height="72" rx="12" class="d-yellow"/>
+        <rect x="50" y="180" width="110" height="30" rx="8" class="d-accent"/>
+        <text x="105" y="201" text-anchor="middle" class="d-mono-ink">age</text>
+        <text x="105" y="250" text-anchor="middle" class="d-title" style="font-size:24px">20</text>
+        <text x="105" y="298" text-anchor="middle" class="d-small">int — целое число</text>
+
+        <path d="M194 242 H284" class="d-arrow"/>
+        <text x="239" y="232" text-anchor="middle" class="d-small">age + 1</text>
+
+        <rect x="290" y="206" width="170" height="72" rx="12" class="d-blue"/>
+        <rect x="320" y="180" width="110" height="30" rx="8" class="d-accent"/>
+        <text x="375" y="201" text-anchor="middle" class="d-mono-ink">nextAge</text>
+        <text x="375" y="250" text-anchor="middle" class="d-title" style="font-size:24px">21</text>
+        <text x="375" y="298" text-anchor="middle" class="d-small">новое число из старого</text>
+
+        <path d="M194 102 H452" class="d-arrow"/>
+        <text x="323" y="92" text-anchor="middle" class="d-small">name + ", через год тебе "</text>
+        <path d="M464 238 C 540 238, 600 200, 600 150" class="d-arrow"/>
+        <text x="556" y="262" text-anchor="middle" class="d-small">+ nextAge</text>
+
+        <rect x="458" y="66" width="292" height="72" rx="12" class="d-green"/>
+        <rect x="548" y="40" width="112" height="30" rx="8" class="d-accent"/>
+        <text x="604" y="61" text-anchor="middle" class="d-mono-ink">message</text>
+        <text x="604" y="108" text-anchor="middle" class="d-mono-ink">"Артём, через год тебе 21"</text>
+        <text x="604" y="158" text-anchor="middle" class="d-small">String — одна готовая строка</text>
+      </svg>
+      <figcaption>Значения перетекают из коробки в коробку: имя и посчитанный возраст склеиваются в новую строку.</figcaption>
+    </figure>
+    <ol class="steps">
+      <li><b>Положили имя.</b> Объявили переменную <code>name</code> типа <code>String</code> и инициализировали её текстом «Артём».</li>
+      <li><b>Узнали возраст.</b> Объявили <code>age</code> и инициализировали числом 20. В модуле 2.5 его спросят с клавиатуры, а позже (модуль 7) — получат из другого метода. Для коробки это неважно: главное, что в ней теперь лежит число.</li>
+      <li><b>Посчитали новое значение.</b> Java вычислила выражение <code>age + 1</code> (достала 20 из <code>age</code>, прибавила 1) и результатом 21 инициализировала <b>новую</b> переменную <code>nextAge</code>. Сама <code>age</code> не изменилась — в ней по-прежнему 20.</li>
+      <li><b>Собрали строку.</b> Java достала «Артём» из <code>name</code>, приклеила текст «, через год тебе », потом приклеила 21 из <code>nextAge</code>. Получилась <b>одна новая строка</b> — ею и инициализировали переменную <code>message</code>.</li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">В коробке — готовый результат, а не связь</span>
+      <p>В <code>message</code> лежит готовый текст «Артём, через год тебе 21». Если потом присвоить <code>name</code> новое значение (<code>name = "Вика";</code>), <code>message</code> <b>не поменяется</b> — его уже собрали. Чтобы получить новую строку, её надо собрать заново. Это как фотография: снял — и картинка больше не меняется, что бы ни происходило с людьми на ней.</p>
+    </div>
+    <div data-widget="trace" id="trace-artem">
+      <script type="application/json">
+      { "title": "Эстафета значений",
+        "intro": "Нажимай «Шаг ▶». Где спросят — впиши, что окажется в коробке. Строки пиши без кавычек.",
+        "code": "String name = \"Артём\";\nint age = 20;\nint nextAge = age + 1;\nString message = name + \", через год тебе \" + nextAge;\nname = \"Вика\";\nSystem.out.println(message);",
+        "steps": [
+          { "line": 1, "vars": { "name": "\"Артём\"" }, "note": "Объявляем <code>name</code> типа String и инициализируем текстом «Артём»." },
+          { "line": 2, "vars": { "name": "\"Артём\"", "age": "20" }, "note": "Объявляем <code>age</code> типа int и инициализируем числом 20." },
+          { "line": 3, "vars": { "name": "\"Артём\"", "age": "20", "nextAge": "21" }, "ask": ["nextAge"], "note": "Вычисляем выражение age + 1 (20 + 1) и инициализируем результатом новую переменную nextAge. age не изменилась." },
+          { "line": 4, "vars": { "name": "\"Артём\"", "age": "20", "nextAge": "21", "message": "\"Артём, через год тебе 21\"" }, "ask": ["message"], "note": "Склейка слева направо: «Артём» + «, через год тебе » + 21. Получилась одна строка." },
+          { "line": 5, "vars": { "name": "\"Вика\"", "age": "20", "nextAge": "21", "message": "\"Артём, через год тебе 21\"" }, "note": "Присвоили name новое значение. А message? Его уже собрали — там по-прежнему Артём." },
+          { "line": 6, "vars": { "name": "\"Вика\"", "age": "20", "nextAge": "21", "message": "\"Артём, через год тебе 21\"" }, "out": "Артём, через год тебе 21\n", "note": "Печатаем то, что лежит в message, — готовую строку." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Правила и частые ошибки</h2>
+    <p>Компилятор строго следит за переменными. Вот что он скажет, если нарушить правила:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Код</th><th>Сообщение javac</th><th>Что не так</th></tr>
+        <tr><td><code>System.out.println(cost);</code></td><td><code>cannot find symbol</code></td><td>Переменной <code>cost</code> нет: её не объявили или опечатались в имени.</td></tr>
+        <tr><td><code>int x;</code><br><code>System.out.println(x);</code></td><td><code>variable x might not have been initialized</code></td><td>Переменная объявлена, но не инициализирована — коробка пустая. Читать из неё нельзя, сначала присвой ей значение.</td></tr>
+        <tr><td><code>int a = 1;</code><br><code>int a = 2;</code></td><td><code>variable a is already defined</code></td><td>Переменную <code>a</code> объявили дважды — две коробки с одним ярлыком. Для нового значения тип не пишут, это просто присваивание: <code>a = 2;</code></td></tr>
+        <tr><td><code>int n = "5";</code></td><td><code>incompatible types</code></td><td>Переменную типа <code>int</code> пытаемся инициализировать текстом — в коробку для чисел кладём строку.</td></tr>
+      </table>
+    </div>
+    <p>В таблице — слова компилятора <code>javac</code>. А в IDEA ты увидишь эти ошибки раньше, прямо в редакторе, и сформулированы они чуть иначе. Вот пустая коробка и коробка-двойник:</p>
+    <div data-widget="ide" id="shot-var-uninit">
+      <script type="application/json">
+      { "tree": false, "file": "Variables.java", "gutterRun": [1, 2],
+        "code": "public class Variables {\n    public static void main(String[] args) {\n        int x;\n        System.out.println(x);\n        int a = 1;\n        int a = 2;\n    }\n}",
+        "errors": [ { "line": 4, "text": "x", "msg": "Variable 'x' might not have been initialized", "tip": true, "fix": "Initialize variable 'x'" },
+                    { "line": 6, "text": "a", "msg": "Variable 'a' is already defined in the scope" } ],
+        "marks": [ { "n": 1, "target": "line-3", "side": "top", "text": "Переменную <code>x</code> объявили, но не инициализировали — коробка пустая. Сама эта строка законна" },
+                   { "n": 2, "target": "err-4", "text": "А вот прочитать переменную без значения нельзя — красным подчёркнуто имя <code>x</code>" },
+                   { "n": 3, "target": "tip", "text": "<b>Variable 'x' might not have been initialized</b> — «переменная x, возможно, не инициализирована», то есть не получила первого значения. IDEA предлагает её инициализировать (<kbd>Alt</kbd>+<kbd>Enter</kbd>)" },
+                   { "n": 4, "target": "err-6", "text": "Второй раз <code>int a</code> — нельзя. Наведёшь мышку — <b>Variable 'a' is already defined in the scope</b>: «a уже объявлена»" } ],
+        "caption": "Пустая коробка и коробка с тем же ярлыком" }
+      </script>
+    </div>
+    <p>А это — текст в коробке для чисел и опечатка в имени. Здесь же видно, что будет, если всё-таки нажать ▶: сборка остановится, и внизу откроется панель <b>Build</b> со словами <code>javac</code> из таблицы:</p>
+    <div data-widget="ide" id="shot-var-types">
+      <script type="application/json">
+      { "tree": false, "file": "Types.java", "gutterRun": [1, 2],
+        "code": "public class Types {\n    public static void main(String[] args) {\n        int n = \"5\";\n        System.out.println(cost);\n    }\n}",
+        "errors": [ { "line": 3, "text": "\"5\"", "msg": "Incompatible types. Found: 'java.lang.String', required: 'int'", "tip": true },
+                    { "line": 4, "text": "cost", "msg": "Cannot resolve symbol 'cost'" } ],
+        "build": { "file": "Types.java", "errors": [ { "msg": "incompatible types: String cannot be converted to int", "line": 3, "col": 17 }, { "msg": "cannot find symbol", "line": 4, "col": 28 } ] },
+        "marks": [ { "n": 1, "target": "tip", "text": "<b>Incompatible types</b> — «несовместимые типы». <b>Found</b> — что нашла (строку <code>String</code>), <b>required</b> — что нужно (<code>int</code>). Читай так: «переменную int инициализируем текстом, а ждали целое число»" },
+                   { "n": 2, "target": "err-4", "side": "top", "text": "<code>cost</code> нигде не объявлена — IDEA пишет <b>Cannot resolve symbol 'cost'</b>, «не знаю такого имени»" },
+                   { "n": 3, "target": "build-err-1", "text": "Те же ошибки словами <code>javac</code>: <b>String cannot be converted to int</b> — «String нельзя превратить в int»" },
+                   { "n": 4, "target": "build-err-2", "text": "<b>cannot find symbol</b> — то же, что Cannot resolve symbol в редакторе. Справа от ошибки — номер строки" } ],
+        "caption": "Incompatible types и неизвестное имя: в редакторе и в панели Build" }
+      </script>
+    </div>
+    <p>Правила для имён:</p>
+    <ul>
+      <li>буквы, цифры, <code>_</code> и <code>$</code>; <b>начинаться с цифры нельзя</b>: <code>2players</code> — ошибка, <code>player2</code> — можно;</li>
+      <li>без пробелов и дефисов: <code>my age</code> и <code>my-age</code> — ошибки;</li>
+      <li>регистр важен: <code>age</code> и <code>Age</code> — две разные переменные;</li>
+      <li>нельзя брать служебные слова Java: <code>int</code>, <code>class</code>, <code>public</code>…</li>
+    </ul>
+    <p>Как придумывать хорошие имена, разберём в уроке 2.3.</p>
+    <div data-widget="check" id="check-m02-01-mid">
+      <script type="application/json">
+      { "title": "Ошибки с переменными",
+        "items": [
+          { "type": "bug", "q": "В какой строке ошибка компиляции?", "code": "int apples = 4;\nint pears = 2;\nint apples = apples + pears;\nSystem.out.println(apples);", "answer": [3], "why": "apples уже объявлена в строке 1. Чтобы присвоить ей новое значение, тип не пишут: apples = apples + pears;" },
+          { "type": "bug", "q": "А здесь?", "code": "int total;\nint bonus = 5;\nSystem.out.println(total + bonus);", "answer": [3], "why": "total объявлена, но не инициализирована — читать из пустой коробки нельзя: variable total might not have been initialized. Сама строка 1 законна: объявить без значения можно." },
+          { "type": "multi", "q": "Какие имена переменных Java примет?", "options": ["player2", "2player", "my_score", "my score", "Class", "class"], "answer": [0, 2, 4], "why": "Начинать с цифры нельзя, пробелы нельзя, class — служебное слово. А Class с большой буквы — уже другое слово, его Java примет (хотя так называть переменную не стоит)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m02-01">
+      <script type="application/json">
+      {
+       "title": "Переменные — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Как правильно прочитать строку <code>lives = 3;</code>?",
+         "options": [
+          "lives равно трём",
+          "Присвой переменной lives значение 3",
+          "Проверь, равно ли lives трём"
+         ],
+         "answer": 1,
+         "why": "= в Java — оператор присваивания: вычисли правую часть и присвой результат переменной слева (положи в коробку). Проверка на равенство — это ==."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int a = 3;\nint b = a;\na = 10;\nSystem.out.println(a);\nSystem.out.println(b);",
+         "answer": "10\n3",
+         "why": "int b = a объявляет b и инициализирует её копией значения a — тройкой. Потом переменной a присваиваем 10, а в b по-прежнему 3."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "В одной переменной одновременно может лежать два значения",
+           "a": false,
+           "why": "коробка вмещает только одно значение — новое вытесняет старое."
+          },
+          {
+           "s": "Тип переменной можно поменять позже, если понадобится",
+           "a": false,
+           "why": "тип выбирается при объявлении один раз и навсегда."
+          },
+          {
+           "s": "<code>int count = 0;</code> — это объявление и инициализация в одной строке",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int x = 4;\nx = x * 2;\nx = x + 1;\nSystem.out.println(\"x = \" + x);",
+         "answer": "x = 9",
+         "why": "4 → 4 * 2 = 8 → 8 + 1 = 9. На каждом шаге берётся текущее значение."
+        },
+        {
+         "type": "order",
+         "q": "Собери программу, которая печатает 15",
+         "code": true,
+         "lines": [
+          "int price = 5;",
+          "int count = 3;",
+          "int total = price * count;",
+          "System.out.println(total);"
+         ],
+         "accept": [ ["int count = 3;", "int price = 5;", "int total = price * count;", "System.out.println(total);"] ],
+         "why": "Переменную можно использовать только после того, как она объявлена и инициализирована. Первые две строки можно поменять местами — они друг от друга не зависят."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 2.1. Дай мне три строчки кода с переменными, я сделаю трассировку в табличке, а ты проверь»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Переменная — коробка с ярлыком: у неё есть тип, имя и значение.</li>
+        <li><code>int age;</code> — объявление; <code>int age = 25;</code> — объявление с инициализацией (первым значением); <code>25</code> — литерал.</li>
+        <li><code>=</code> — оператор присваивания («положи»), а не «равно». Сначала вычисляется выражение справа, потом результат присваивается переменной слева.</li>
+        <li><code>score = score + 10</code> — вычислить выражение из старого значения и присвоить результат той же переменной.</li>
+        <li>В переменной лежит готовое значение, а не формула. Новое значение вытесняет старое.</li>
+        <li>Нельзя: читать пустую переменную, объявлять её дважды, присваивать значение не того типа.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

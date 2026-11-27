@@ -1,0 +1,41 @@
+## id: tr-loops-022
+## title: Сколько цифр в числе
+## file: trainer/loops/CountDigitsOfNumber.java
+## class: CountDigitsOfNumber
+## level: 1
+## category: Цифры числа
+@@ description
+<p>Напиши класс <code>CountDigitsOfNumber</code>. Программа читает целое число (оно может быть отрицательным) и печатает, сколько в нём цифр. Знак минус — не цифра. Считай арифметикой, без превращения числа в строку.</p>
+<pre class="terminal"><span class="out">ввод:  12345
+вывод: 5</span></pre>
+<p>Подвох: в числе <code>0</code> одна цифра.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n /= 10;</code> — отрезает последнюю цифру числа</li>
+<li><code>do { … } while (n != 0);</code> — цикл с постусловием: тело выполнится хотя бы один раз</li>
+</ul></div>
+@@ test: Пять цифр
+@@ input
+12345
+@@ expect
+5
+@@ test: Ноль
+@@ input
+0
+@@ expect
+1
+@@ test: Отрицательное
+@@ input
+-907
+@@ expect
+3
+@@ test: Одна цифра
+@@ input
+7
+@@ expect
+1
+@@ test: Самое большое int
+@@ input
+2147483647
+@@ expect
+10
+@@ forbid: \.length\(\)|String\.valueOf|Integer\.toString|Math\.log10 | Считай цифры арифметикой (/ 10), а не через строки

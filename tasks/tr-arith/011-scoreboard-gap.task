@@ -1,0 +1,38 @@
+## id: tr-arith-011
+## title: Разрыв на табло
+## file: trainer/arith/ScoreboardGap.java
+## class: ScoreboardGap
+## level: 1
+## category: Math и округление
+@@ description
+<p>На табло футбольного матча два числа: голы хозяев и голы гостей. Создай класс <code>ScoreboardGap</code>. Программа читает эти два числа (каждое с новой строки) и печатает, на сколько голов одна команда опережает другую — без минуса, кто бы ни вёл.</p>
+<pre class="terminal"><span class="out">ввод:  1       вывод: Разница в счёте: 2
+       3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.abs(x)</code> — возвращает модуль числа: <code>Math.abs(-2)</code> равно <code>2</code></li>
+</ul></div>
+@@ test: Ведут хозяева
+@@ input
+3
+1
+@@ expect
+Разница в счёте: 2
+@@ test: Ведут гости
+@@ input
+1
+3
+@@ expect
+Разница в счёте: 2
+@@ test: Ничья
+@@ input
+2
+2
+@@ expect
+Разница в счёте: 0
+@@ test: Разгром всухую
+@@ input
+0
+7
+@@ expect
+Разница в счёте: 7
+@@ require: Math\.abs | Модуль разности даёт метод Math.abs

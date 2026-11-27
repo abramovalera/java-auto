@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская: какие тесты написать · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-07">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 17 · Урок 7 · Мастерская</div>
+    <h1>Мастерская: какие тесты написать</h1>
+    <p class="lead">Писать тесты ты уже умеешь. Главный вопрос теперь другой: какие именно значения проверить, чтобы тестов было немного, а баги не проскочили? У этого вопроса есть метод — как у задач на алгоритмы.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🛠 тест-дизайн</span><span>🎯 классы и границы</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-07-review">
+      <script type="application/json">
+      { "title": "Вспомним параметризованные тесты", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Сколько раз запустится тест с <code>@CsvSource({\"1, 2\", \"3, 4\", \"5, 6\"})</code>?",
+            "options": ["1", "3", "6"], "answer": 1,
+            "why": "Одна строка CsvSource — один запуск. Значения в строке раскладываются по параметрам метода." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "assertThat(list).contains(\"a\") проверяет и порядок элементов", "a": false, "why": "порядок проверяет containsExactly." },
+              { "s": "@BeforeEach выполняется перед каждым тестом на новом объекте тестового класса", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Сколько тестов достаточно?</h2>
+    <p>Задача: метод переводит баллы за экзамен в оценку. Требования от преподавателя:</p>
+    <div class="callout fact">
+      <span class="callout-title">Требования</span>
+      <p>Баллы — целое число от 0 до 100. <b>0–49</b> → 2, <b>50–69</b> → 3, <b>70–84</b> → 4, <b>85–100</b> → 5. Баллы меньше 0 или больше 100 — ошибка <code>IllegalArgumentException</code>.</p>
+    </div>
+    <p>Проверить все 101 значение? Здесь ещё можно, но обычно входов бесконечно много: любые строки, любые суммы. Проверить «пару случайных»? Так баги и проскакивают. Нужен метод, и он похож на шаблон Мастерской, по которому ты решал задачи на алгоритмы:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Мастерская алгоритмов</th><th>Мастерская тестов</th></tr>
+        <tr><td>1. Пойми задачу: вход и выход</td><td>1. Прочитай <b>требования</b>: что на входе, что на выходе, что считается ошибкой</td></tr>
+        <tr><td>2. Реши руками на примерах</td><td>2. Раздели входы на <b>классы эквивалентности</b></td></tr>
+        <tr><td>3. Роли переменных</td><td>3. Найди <b>границы</b> между классами</td></tr>
+        <tr><td>4. Псевдокод</td><td>4. <b>Таблица тестов</b>: вход → ожидаемый результат</td></tr>
+        <tr><td>5. Код</td><td>5. Код теста (часто параметризованный)</td></tr>
+        <tr><td>6. Проверь трассировкой</td><td>6. Запусти; красный — разберись отладчиком</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Тестируй требования, а не код</span>
+      <p>Ожидаемые значения берутся <b>из требований</b>, а не из того, что сейчас возвращает метод. Если подглядеть в код и написать «ожидаю то, что он вернул», тест повторит ошибку кода и будет зелёным вместе с багом.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Классы эквивалентности и границы</h2>
+    <p><b>Класс эквивалентности</b> — группа входов, на которых программа должна вести себя <b>одинаково</b>. 55 и 60 баллов — оба «тройка»: если метод правильно работает для 55, почти наверняка и для 60. Значит, из каждого класса хватит одного-двух представителей.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: дегустация супа</span>
+      <p>Чтобы понять, посолен ли борщ, не нужно съесть всю кастрюлю — хватит ложки. Но если на плите пять разных кастрюль, ложку надо взять из <b>каждой</b>. Классы эквивалентности — это кастрюли.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 210" role="img" aria-label="Числовая прямая баллов, разбитая на классы: меньше нуля — ошибка, 0–49 оценка 2, 50–69 оценка 3, 70–84 оценка 4, 85–100 оценка 5, больше 100 — ошибка. Граничные значения отмечены">
+        <rect x="10" y="40" width="80" height="50" rx="8" class="d-red"/>
+        <text x="50" y="70" text-anchor="middle" class="d-small">ошибка</text>
+        <rect x="94" y="40" width="200" height="50" rx="8" class="d-soft"/>
+        <text x="194" y="70" text-anchor="middle" class="d-text">0–49 → 2</text>
+        <rect x="298" y="40" width="120" height="50" rx="8" class="d-blue"/>
+        <text x="358" y="70" text-anchor="middle" class="d-text">50–69 → 3</text>
+        <rect x="422" y="40" width="110" height="50" rx="8" class="d-teal"/>
+        <text x="477" y="70" text-anchor="middle" class="d-text">70–84 → 4</text>
+        <rect x="536" y="40" width="110" height="50" rx="8" class="d-green"/>
+        <text x="591" y="70" text-anchor="middle" class="d-text">85–100 → 5</text>
+        <rect x="650" y="40" width="80" height="50" rx="8" class="d-red"/>
+        <text x="690" y="70" text-anchor="middle" class="d-small">ошибка</text>
+
+        <path d="M92 100 V122" class="d-line"/><text x="92" y="142" text-anchor="middle" class="d-mono-ink">-1|0</text>
+        <path d="M296 100 V122" class="d-line"/><text x="296" y="142" text-anchor="middle" class="d-mono-ink">49|50</text>
+        <path d="M420 100 V122" class="d-line"/><text x="420" y="142" text-anchor="middle" class="d-mono-ink">69|70</text>
+        <path d="M534 100 V122" class="d-line"/><text x="534" y="142" text-anchor="middle" class="d-mono-ink">84|85</text>
+        <path d="M648 100 V122" class="d-line"/><text x="648" y="142" text-anchor="middle" class="d-mono-ink">100|101</text>
+        <text x="370" y="24" text-anchor="middle" class="d-small">6 классов эквивалентности</text>
+        <text x="370" y="186" text-anchor="middle" class="d-small">5 границ — на каждой проверяем значение по обе стороны</text>
+      </svg>
+      <figcaption>Классы — «кастрюли», границы — стыки между ними. Баги чаще всего живут именно на стыках.</figcaption>
+    </figure>
+    <p>Почему именно границы? Потому что в коде граница — это знак сравнения, а <code>&gt;</code> вместо <code>&gt;=</code> или <code>49</code> вместо <code>50</code> — самые частые ошибки на свете. Значение из середины класса (60) такой баг не заметит: и <code>points &gt; 50</code>, и <code>points &gt;= 50</code> для 60 дают одно и то же. А 50 — заметит.</p>
+    <details class="predict">
+      <summary>В коде написано <code>if (points &gt; 50) return 3;</code> вместо <code>&gt;= 50</code>. Какие из значений 49, 50, 51, 60 поймают баг?</summary>
+      <p><b>Только 50.</b> Для 49 оба варианта дают «не тройка», для 51 и 60 — «тройка». Отличаются они ровно в одной точке — на границе. Поэтому значение «на самой границе» обязательно.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Таблица тестов — это «псевдокод» для тестов</h2>
+    <p><span class="ai-only">Прежде чем писать код, составь таблицу. Её удобно показать коллеге или наставнику: ошибки в плане видно сразу.</span><span class="free-only">Прежде чем писать код, составь таблицу. Её удобно показать коллеге или <span class="ai-name">DeepSeek</span>: ошибки в плане видно сразу.</span></p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Баллы</th><th>Почему это значение</th><th>Ожидаем</th></tr>
+        <tr><td>-1</td><td>сразу за нижней границей</td><td>исключение</td></tr>
+        <tr><td>0</td><td>нижняя граница, класс «2»</td><td>2</td></tr>
+        <tr><td>49 / 50</td><td>стык «2» и «3»</td><td>2 / 3</td></tr>
+        <tr><td>69 / 70</td><td>стык «3» и «4»</td><td>3 / 4</td></tr>
+        <tr><td>84 / 85</td><td>стык «4» и «5»</td><td>4 / 5</td></tr>
+        <tr><td>100</td><td>верхняя граница</td><td>5</td></tr>
+        <tr><td>101</td><td>сразу за верхней границей</td><td>исключение</td></tr>
+      </table>
+    </div>
+    <p>Двенадцать значений вместо 101 — и все места, где реально может сидеть баг, покрыты. Это и есть <b>тест-дизайн</b>: два главных его приёма называются «классы эквивалентности» и «анализ граничных значений». Их спрашивают и на собеседованиях Java-разработчиков: хороший программист сам проверяет свой код на границах.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>От таблицы к коду</h2>
+    <p>Таблица почти дословно превращается в параметризованный тест: каждая строка таблицы — строка в аннотации <code>@CsvSource</code>, а её значения JUnit передаст тестовому методу как аргументы. Собери его:</p>
+    <div data-widget="parsons" id="grade-parsons" data-code data-title="Параметризованный тест оценок" data-icon="🧩"
+         data-hint="Сверху аннотации, потом данные из таблицы (строки — по возрастанию баллов), потом объявление тестового метода с двумя параметрами и проверка assertEquals."
+         data-success="🎉 Таблица тестов → @CsvSource строка в строку. Исключения проверим отдельным тестом с @ValueSource(ints = {-1, 101}).">
+      <script type="text/plain">
+@ParameterizedTest(name = "{0} баллов → {1}")
+@CsvSource({
+        "0, 2", "49, 2",
+        "50, 3", "69, 3",
+        "70, 4", "84, 4",
+        "85, 5", "100, 5"
+})
+void gradeByPoints(int points, int expectedGrade) {
+    assertEquals(expectedGrade, ExamGrade.gradeFor(points));
+}
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Тест покраснел: на каком шаге сломалось?</h2>
+    <p>Запускаем тест — и строка <code>85 баллов → 5</code> красная: <code>expected: &lt;5&gt; but was: &lt;4&gt;</code> — ожидаемое значение 5, фактическое 4. Остальные зелёные. Вот как это выглядит в IDEA (здесь <code>ExamGrade</code> лежит в отдельном файле, рядом с тестом):</p>
+    <div data-widget="ide" id="shot-grade-red">
+      <script type="application/json">
+      { "tree": false, "file": "ExamGradeTest.java", "tabs": ["ExamGradeTest.java", "ExamGrade.java"], "runConfig": "ExamGradeTest", "statusPath": "module-17", "gutterRun": [6, 14],
+        "code": "import org.junit.jupiter.params.ParameterizedTest;\nimport org.junit.jupiter.params.provider.CsvSource;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\n\npublic class ExamGradeTest {\n    @ParameterizedTest(name = \"{0} баллов → {1}\")\n    @CsvSource({\n            \"0, 2\", \"49, 2\",\n            \"50, 3\", \"69, 3\",\n            \"70, 4\", \"84, 4\",\n            \"85, 5\", \"100, 5\"\n    })\n    void gradeByPoints(int points, int expectedGrade) {\n        assertEquals(expectedGrade, ExamGrade.gradeFor(points));\n    }\n}",
+        "tests": { "title": "ExamGradeTest", "summary": "Tests failed: 1, passed: 7 of 8 tests – 52 ms",
+                   "tree": [ { "name": "ExamGradeTest", "status": "fail", "time": "52 ms" },
+                             { "name": "gradeByPoints(int, int)", "status": "fail", "depth": 1, "time": "52 ms" },
+                             { "name": "0 баллов → 2", "status": "pass", "depth": 2 },
+                             { "name": "49 баллов → 2", "status": "pass", "depth": 2 },
+                             { "name": "50 баллов → 3", "status": "pass", "depth": 2 },
+                             { "name": "69 баллов → 3", "status": "pass", "depth": 2 },
+                             { "name": "70 баллов → 4", "status": "pass", "depth": 2 },
+                             { "name": "84 баллов → 4", "status": "pass", "depth": 2 },
+                             { "name": "85 баллов → 5", "status": "fail", "depth": 2, "sel": true },
+                             { "name": "100 баллов → 5", "status": "pass", "depth": 2 } ],
+                   "out": [ { "t": "err", "s": "org.opentest4j.AssertionFailedError: expected: <5> but was: <4>" },
+                            "Expected :5",
+                            "Actual   :4",
+                            "<Click to see difference>",
+                            { "t": "err", "s": "\tat ExamGradeTest.gradeByPoints(ExamGradeTest.java:15)" } ] },
+        "marks": [ { "n": 1, "target": "test-9", "text": "Красная ровно одна строка — <b>85 баллов → 5</b>. Сразу видно, на каких данных сломалось" },
+                   { "n": 2, "target": "test-2", "text": "Метод тоже красный: если упал хоть один запуск, красный и он, и весь класс" },
+                   { "n": 3, "target": "test-out", "text": "Ждали 5, получили 4. Правый клик по красной строке в дереве → <b>Debug</b> — запустить под отладчиком только этот случай" },
+                   { "n": 4, "target": "link-1", "text": "Строка 15 — проверка в тесте. Но ошибка не в тесте, а в <code>gradeFor</code>: туда и ставим брейкпоинт" } ],
+        "caption": "Параметризованный тест: одна красная строка из восьми (служебные строки stack trace опущены)" }
+      </script>
+    </div>
+    <p>Запусти этот случай под отладчиком: брейкпоинт на первой строке тела метода <code>gradeFor</code>, Debug на тесте. Пройди сам и впиши значения условий:</p>
+    <div data-widget="trace" id="trace-grade-bug">
+      <script type="application/json">
+      { "title": "gradeFor(85) под отладчиком", "icon": "🐞", "kind": "Найди шаг с ошибкой",
+        "intro": "points = 85. По требованиям ждём 5. Шагай и вписывай, чему равно каждое условие.",
+        "code": "static int gradeFor(int points) {\n    if (points < 0 || points > 100) {\n        throw new IllegalArgumentException(\n                \"Баллы от 0 до 100: \" + points);\n    }\n    if (points > 85) {\n        return 5;\n    }\n    if (points >= 70) {\n        return 4;\n    }\n    if (points >= 50) {\n        return 3;\n    }\n    return 2;\n}",
+        "steps": [
+          { "line": 2, "vars": { "points": "85", "условие": "false" }, "ask": ["условие"], "note": "Проверяем, не выходят ли 85 баллов за пределы от 0 до 100. 85 не меньше 0 и не больше 100 — условие ложно, исключения не будет." },
+          { "line": 6, "vars": { "points": "85", "условие": "false" }, "ask": ["условие"], "note": "Сравниваем 85 с 85 строгим знаком «больше». 85 > 85 — ЛОЖЬ: 85 не больше самого себя. Вот он, подозрительный момент: по требованиям 85 — уже пятёрка." },
+          { "line": 9, "vars": { "points": "85", "условие": "true" }, "ask": ["условие"], "note": "Теперь 85 сравнивается с 70 нестрогим знаком. 85 >= 70 — истина. Метод сейчас вернёт 4." },
+          { "line": 10, "vars": { "points": "85", "результат": "4" }, "note": "Метод вернул 4 вместо 5. Ошибка в строке 6: граница 85 входит в «пятёрку», нужно points >= 85. Тест на значении из середины (например, 90) этот баг бы не поймал." }
+        ] }
+      </script>
+    </div>
+    <p>Второй шаг этой трассировки в настоящей IDEA — отладчик, запущенный из теста:</p>
+    <div data-widget="ide" id="shot-grade-debug">
+      <script type="application/json">
+      { "tree": false, "file": "ExamGrade.java", "tabs": ["ExamGrade.java", "ExamGradeTest.java"], "runConfig": "85 баллов → 5", "statusPath": "module-17", "caretLine": 6,
+        "code": "public class ExamGrade {\n    static int gradeFor(int points) {\n        if (points < 0 || points > 100) {\n            throw new IllegalArgumentException(\"Баллы от 0 до 100: \" + points);\n        }\n        if (points > 85) {\n            return 5;\n        }\n        if (points >= 70) {\n            return 4;\n        }\n        if (points >= 50) {\n            return 3;\n        }\n        return 2;\n    }\n}",
+        "breakpoints": [3], "execLine": 6, "vals": { "2": "points: 85" },
+        "debug": { "title": "85 баллов → 5", "frames": ["gradeFor:6, ExamGrade", "gradeByPoints:15, ExamGradeTest"],
+                   "vars": [ { "name": "points", "value": "85" } ] },
+        "marks": [ { "n": 1, "target": "bp-3", "side": "left", "text": "Брейкпоинт в начале <code>gradeFor</code>. Остановились на нём, нажали <kbd>F8</kbd> — и мы на строке 6" },
+                   { "n": 2, "target": "line-6", "side": "top", "text": "Подозрительная строка. Выдели <code>points &gt; 85</code> и нажми <kbd>Alt</kbd>+<kbd>F8</kbd> — Evaluate покажет, чему равно условие" },
+                   { "n": 3, "target": "frame-2", "text": "Ниже в стеке — сам тест: <code>gradeByPoints</code>, строка 15. А ещё ниже — кадры самой JUnit, которая вызвала тестовый метод (здесь они не показаны)" },
+                   { "n": 4, "target": "var-points", "text": "<code>points</code> = 85 — ровно тот случай, что упал. Отладчик запущен только для него" } ],
+        "caption": "Отладка одного случая параметризованного теста" }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p>Вот так работает связка «тест + отладчик»: тест говорит, <b>что</b> сломалось и на каких данных, отладчик — <b>где</b> и <b>почему</b>. После исправления этот тест остаётся в проекте навсегда и не даст багу вернуться. Такой тест называют <b>регрессионным</b>.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Хорошие привычки</h2>
+    <p>Несколько правил, по которым опытные коллеги отличают хорошие тесты и хороший код. Их часто называют аббревиатурой <b>FIRST</b>:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">⚡</span><h4>Fast — быстрые</h4><p>Медленные тесты перестают запускать. Юнит-тест — миллисекунды.</p></div>
+      <div class="card"><span class="emoji">🧱</span><h4>Independent — независимые</h4><p>Любой тест можно запустить один и в любом порядке.</p></div>
+      <div class="card"><span class="emoji">🔁</span><h4>Repeatable — повторяемые</h4><p>Сегодня, завтра, у тебя и на сервере — один результат. Никаких «упал, перезапустил — прошёл».</p></div>
+      <div class="card"><span class="emoji">✅</span><h4>Self-validating — сами решают</h4><p>Зелёный или красный без чтения вывода глазами. Есть проверка (assert) — есть решение.</p></div>
+      <div class="card"><span class="emoji">⏱️</span><h4>Timely — вовремя</h4><p>Тест пишут вместе с кодом или сразу после найденного бага, а не «когда-нибудь».</p></div>
+    </div>
+    <ul>
+      <li><b>Читаемые имена</b> — и для классов и методов, и для тестов. Через полгода ты сам будешь «коллегой», который читает этот код.</li>
+      <li><b>Нашёл баг — сначала тест, который его ловит</b> (красный), потом исправление (зелёный). Тест и исправление — в одном коммите: <code>Почини оценку для 85 баллов</code>.</li>
+      <li><b>Маленькие коммиты</b>: одна мысль — один коммит. Их легко ревьюить и легко откатить.</li>
+      <li><b>Код-ревью тестов</b> — такое же, как кода: есть ли assert, проверены ли границы, понятно ли имя, не зависит ли тест от соседей.</li>
+    </ul>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-07">
+      <script type="application/json">
+      { "title": "Тест-дизайн — главное",
+        "items": [
+          { "type": "multi", "q": "Доставка бесплатная от 2000 ₽, иначе 199 ₽; сумма ≤ 0 — ошибка. Какие значения — граничные? Отметь все",
+            "options": ["0", "1", "500", "1999", "2000", "10000"], "answer": [0, 1, 3, 4],
+            "why": "Стыки: 0|1 (ошибка/платно) и 1999|2000 (платно/бесплатно). 500 и 10000 — представители классов, тоже полезны, но не границы." },
+          { "type": "single", "q": "Откуда брать ожидаемое значение для теста?",
+            "options": ["Запустить метод и записать, что он вернул", "Из требований к программе", "Из кода метода"], "answer": 1,
+            "why": "Если ожидаемое взято из текущего поведения или кода, тест «узаконит» баг." },
+          { "type": "single", "q": "Скидка 5% для заказов от 1000 ₽. Какой тест поймает баг <code>sum &gt; 1000</code> вместо <code>sum &gt;= 1000</code>?",
+            "options": ["sum = 999", "sum = 1000", "sum = 1500"], "answer": 1,
+            "why": "Варианты > и >= отличаются только на самой границе — 1000." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Из каждого класса эквивалентности обычно хватает одного-двух значений", "a": true },
+              { "s": "Если все тесты зелёные, багов в программе точно нет", "a": false, "why": "тесты показывают только наличие багов, а не их отсутствие: проверено лишь то, что проверено." },
+              { "s": "Найденный баг полезно сначала закрепить красным тестом, а потом исправить", "a": true }
+            ] },
+          { "type": "order", "q": "Расставь шаги Мастерской тестов",
+            "lines": ["Прочитать требования: вход, выход, ошибки", "Разбить входы на классы эквивалентности", "Найти границы между классами", "Составить таблицу «вход → ожидаем»", "Написать параметризованный тест", "Запустить; красный — разобраться отладчиком"],
+            "why": "План до кода — и в алгоритмах, и в тестах." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Мастерская с наставником</span>
+      <p>Перед задачами <a href="/tasks.html?module=m17">«Билеты в кино»</a> и «Охота на баг» напиши: <em>«Вот моя таблица классов и границ для задачи …, проверь план, пока я не начал писать код»</em>. Наставник оценит план, а не только зелёные тесты.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Тесты строят по требованиям, а не по коду.</li>
+        <li>Классы эквивалентности: входы с одинаковым поведением — хватает представителя из каждого.</li>
+        <li>Границы: проверяй значение на стыке и рядом с ним — там живут <code>&gt;</code>/<code>&gt;=</code> и «плюс-минус один».</li>
+        <li>План — таблица «вход → ожидаем», код — параметризованный тест; красный тест разбирай отладчиком.</li>
+        <li>FIRST: быстрые, независимые, повторяемые, с assert, написанные вовремя. Баг → красный тест → исправление → коммит.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

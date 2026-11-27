@@ -1,0 +1,39 @@
+## id: tr-streams-001
+## title: Сколько тёплых дней
+## file: trainer/streams/WarmDaysCounter.java
+## class: WarmDaysCounter
+## level: 1
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>WarmDaysCounter</code>. Метеостанция записала температуру за несколько дней. Программа читает через <code>Scanner</code> одну строку — целые числа через пробел (хотя бы одно) — и печатает, сколько дней было теплее нуля: <code>Тёплых дней: N</code>. Ноль — это ещё не тепло.</p>
+<pre class="terminal"><span class="out">ввод:  3 -2 0 15 7 -10
+вывод: Тёплых дней: 3</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.stream(line.split(" "))</code> — стрим из частей строки</li>
+<li><code>.mapToInt(Integer::parseInt)</code> — превращает каждую строку-часть в число <code>int</code></li>
+<li><code>.filter(t -&gt; …)</code> — пропускает дальше только элементы, для которых условие истинно</li>
+<li><code>.count()</code> — возвращает количество элементов (тип <code>long</code>)</li>
+</ul></div>
+@@ test: Весенняя неделя
+@@ input
+3 -2 0 15 7 -10
+@@ expect
+Тёплых дней: 3
+@@ test: Сплошной мороз
+@@ input
+-5 -12 -1
+@@ expect
+Тёплых дней: 0
+@@ test: Ровно ноль — не тепло
+@@ input
+0 0 0
+@@ expect
+Тёплых дней: 0
+@@ test: Один день
+@@ input
+1
+@@ expect
+Тёплых дней: 1
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

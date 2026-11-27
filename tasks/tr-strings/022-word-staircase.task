@@ -1,0 +1,47 @@
+## id: tr-strings-022
+## title: Лесенка из слова
+## file: trainer/strings/WordStaircase.java
+## class: WordStaircase
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>WordStaircase</code>. Программа читает слово и рисует из него лесенку: в первой строке — первая буква, во второй — две первые буквы, и так далее до целого слова.</p>
+<pre class="terminal"><span class="out">ввод:  java
+вывод: j
+       ja
+       jav
+       java</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.substring(0, i)</code> — первые <code>i</code> символов</li>
+<li>Цикл <code>for</code> от 1 до <code>s.length()</code> включительно</li>
+</ul></div>
+@@ test: Пример
+@@ input
+java
+@@ expect
+j
+ja
+jav
+java
+@@ test: Одна буква
+@@ input
+я
+@@ expect
+я
+@@ test: Русское слово
+@@ input
+ступени
+@@ expect
+с
+ст
+сту
+ступ
+ступе
+ступен
+ступени
+@@ test: Две буквы
+@@ input
+ок
+@@ expect
+о
+ок

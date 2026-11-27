@@ -1,0 +1,49 @@
+## id: tr-streams-040
+## title: Два подарка на всю сумму
+## file: trainer/streams/GiftPairsWithSum.java
+## class: GiftPairsWithSum
+## level: 3
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>GiftPairsWithSum</code>. У Пети есть сертификат на <code>K</code> рублей, и он хочет купить ровно два разных подарка, чтобы потратить его целиком. В первой строке — цены подарков через пробел (хотя бы один; цены могут повторяться — это разные подарки), во второй — <code>K</code>. Напечатай, сколько есть пар подарков с суммой ровно <code>K</code>: <code>Пар: N</code>. Пара — это два разных подарка, порядок в паре не важен.</p>
+<pre class="terminal"><span class="out">ввод:  100 200 300 400 500
+       600
+вывод: Пар: 2</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>IntStream.range(0, n)</code> — стрим индексов массива</li>
+<li>внутри лямбды можно запустить ещё один стрим: <code>IntStream.range(i + 1, n)</code> — индексы правее <code>i</code></li>
+<li><code>.mapToLong(i -&gt; …)</code> и <code>.sum()</code> — сложить количества, посчитанные для каждого <code>i</code></li>
+</ul></div>
+@@ test: Две пары
+@@ input
+100 200 300 400 500
+600
+@@ expect
+Пар: 2
+@@ test: Одинаковые цены
+@@ input
+500 500 500
+1000
+@@ expect
+Пар: 3
+@@ test: Один подарок — пары нет
+@@ input
+300
+300
+@@ expect
+Пар: 0
+@@ test: Подарок с самим собой не считается
+@@ input
+250 100
+500
+@@ expect
+Пар: 0
+@@ test: Ничего не подходит
+@@ input
+1 2 3
+100
+@@ expect
+Пар: 0
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

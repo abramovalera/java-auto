@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Логические операции: И, ИЛИ, НЕ · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-04">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 3 · Урок 4</div>
+    <h1>Логические операции: И, ИЛИ, НЕ</h1>
+    <p class="lead">Одного сравнения часто мало: «логин верный <b>и</b> пароль верный», «студент <b>или</b> пенсионер». Соединяем вопросы в один — и узнаём, почему Java иногда даже не смотрит на правую половину выражения.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>💡 таблицы истинности</span><span>⚡ короткое замыкание</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m03-04-review">
+      <script type="application/json">
+      { "title": "Вспомним урок 3.3",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "int a = 10;\nSystem.out.println(a >= 10);\nSystem.out.println(a != 10);", "answer": "true\nfalse",
+            "why": "10 >= 10 — верно (равно тоже подходит). 10 != 10 — неверно." },
+          { "type": "single", "q": "Какая запись спрашивает «в x лежит 5?»", "options": ["<code>x = 5</code>", "<code>x == 5</code>", "<code>x := 5</code>"], "answer": 1,
+            "why": "Одно = — оператор присваивания, он кладёт значение. Два == — оператор сравнения, он спрашивает." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "<code>0.1 + 0.2 == 0.3</code> в Java даёт false", "a": true },
+              { "s": "<code>boolean b = 3 &lt; 5;</code> — правильная строка, b будет true", "a": true },
+              { "s": "<code>true &gt; false</code> даёт true", "a": false, "why": "у boolean нет «больше-меньше», это ошибка компиляции." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Три логических оператора</h2>
+    <p><b>Логические операторы</b> соединяют вопросы: их операнды — значения типа boolean, и результат тоже boolean. Их три:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🤝</span><h4><code>&amp;&amp;</code> — И</h4><p>true, только если <b>оба</b> true. «Логин верный <b>и</b> пароль верный» — пускаем.</p></div>
+      <div class="card"><span class="emoji">🔀</span><h4><code>||</code> — ИЛИ</h4><p>true, если <b>хотя бы один</b> true. «Студент <b>или</b> пенсионер» — скидка.</p></div>
+      <div class="card"><span class="emoji">🔄</span><h4><code>!</code> — НЕ</h4><p>Переворачивает: <code>!true</code> → false, <code>!false</code> → true. «<b>Не</b> заблокирован».</p></div>
+    </div>
+<pre data-file="Login.java"><code class="java">boolean loginOk = true;
+boolean passwordOk = false;
+boolean blocked = false;
+
+boolean canEnter = loginOk &amp;&amp; passwordOk &amp;&amp; !blocked;
+System.out.println(canEnter);     // false — пароль неверный</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: лампочка и выключатели</span>
+      <p>Представь электрическую цепь. Если два выключателя стоят <b>друг за другом</b>, лампа горит, только когда замкнуты оба — это <code>&amp;&amp;</code>. Если они стоят <b>параллельно</b>, хватит любого — это <code>||</code>.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Последовательные выключатели — это И, параллельные — это ИЛИ">
+        <text x="185" y="30" text-anchor="middle" class="d-title">A &amp;&amp; B — последовательно</text>
+        <path d="M40 70 H330 V190 H40 Z" class="d-line"/>
+        <rect x="95" y="56" width="56" height="28" rx="8" class="d-accent"/>
+        <text x="123" y="76" text-anchor="middle" class="d-text">A</text>
+        <rect x="205" y="56" width="56" height="28" rx="8" class="d-accent"/>
+        <text x="233" y="76" text-anchor="middle" class="d-text">B</text>
+        <circle cx="330" cy="130" r="22" class="d-yellow"/>
+        <text x="330" y="138" text-anchor="middle" font-size="22">💡</text>
+        <rect x="28" y="112" width="24" height="40" rx="5" class="d-blue"/>
+        <text x="40" y="138" text-anchor="middle" class="d-small">+</text>
+        <text x="185" y="225" text-anchor="middle" class="d-small">свет, только если замкнуты ОБА</text>
+
+        <text x="545" y="30" text-anchor="middle" class="d-title">A || B — параллельно</text>
+        <path d="M400 70 H690 V190 H400 Z" class="d-line"/>
+        <path d="M450 70 V125 H640 V70" class="d-line"/>
+        <rect x="517" y="56" width="56" height="28" rx="8" class="d-accent"/>
+        <text x="545" y="76" text-anchor="middle" class="d-text">A</text>
+        <rect x="517" y="111" width="56" height="28" rx="8" class="d-accent"/>
+        <text x="545" y="131" text-anchor="middle" class="d-text">B</text>
+        <circle cx="690" cy="160" r="22" class="d-yellow"/>
+        <text x="690" y="168" text-anchor="middle" font-size="22">💡</text>
+        <rect x="388" y="122" width="24" height="40" rx="5" class="d-blue"/>
+        <text x="400" y="148" text-anchor="middle" class="d-small">+</text>
+        <text x="545" y="225" text-anchor="middle" class="d-small">свет, если замкнут ХОТЯ БЫ ОДИН</text>
+      </svg>
+      <figcaption>Замкнутый выключатель — <code>true</code>, разомкнутый — <code>false</code>, горящая лампа — результат <code>true</code>.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Таблицы истинности</h2>
+    <p>Все возможные случаи для двух boolean-значений легко перечислить — их всего четыре. Такая табличка называется <b>таблицей истинности</b>:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th><code>a</code></th><th><code>b</code></th><th><code>a &amp;&amp; b</code></th><th><code>a || b</code></th><th><code>!a</code></th></tr>
+        <tr><td>true</td><td>true</td><td><b>true</b></td><td><b>true</b></td><td>false</td></tr>
+        <tr><td>true</td><td>false</td><td>false</td><td><b>true</b></td><td>false</td></tr>
+        <tr><td>false</td><td>true</td><td>false</td><td><b>true</b></td><td><b>true</b></td></tr>
+        <tr><td>false</td><td>false</td><td>false</td><td>false</td><td><b>true</b></td></tr>
+      </table>
+    </div>
+    <p>Заучивать не нужно — достаточно помнить две фразы: «<code>&amp;&amp;</code> — true только когда <b>всё</b> true», «<code>||</code> — false только когда <b>всё</b> false».</p>
+    <p>Теперь можно починить проверку диапазона из прошлого урока. «x от 1 до 10» — это «x не меньше 1 <b>И</b> x не больше 10»:</p>
+<pre data-file="Range.java"><code class="java">int x = 7;
+boolean inRange = x &gt;= 1 &amp;&amp; x &lt;= 10;      // true
+boolean outside = x &lt; 1 || x &gt; 10;         // false — то же самое «наоборот»
+boolean notBig = !(x &gt; 5);                  // false — то же, что x &lt;= 5</code></pre>
+    <details class="predict">
+      <summary>Температура t = 25. Что даст t &lt; 0 || t &gt; 40? А t &gt; 20 &amp;&amp; t &lt; 30?</summary>
+      <p><b>false и true.</b> 25 не меньше 0 и не больше 40 — оба вопроса «нет», значит, ИЛИ даёт false (не экстремальная погода). 25 больше 20 и меньше 30 — оба «да», И даёт true (тепло).</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Короткое замыкание</h2>
+    <p>Java ленива — в хорошем смысле. Если по <b>левой</b> части уже понятен ответ, правую она <b>не вычисляет вообще</b>:</p>
+    <ul>
+      <li><code>false &amp;&amp; …</code> — уже ясно, что false, что бы ни было справа.</li>
+      <li><code>true || …</code> — уже ясно, что true.</li>
+    </ul>
+    <p>Это называется <b>короткое замыкание</b> (short-circuit evaluation). Звучит как мелочь, но спасает от аварий:</p>
+<pre data-file="Average.java"><code class="java">int total = 50;
+int count = 0;
+// false, без ошибки
+boolean good = count != 0 &amp;&amp; total / count &gt; 10;
+// ArithmeticException: / by zero
+boolean bad = total / count &gt; 10 &amp;&amp; count != 0;</code></pre>
+    <p>В первой строке левый операнд <code>count != 0</code> — false, и до опасного деления в правом операнде дело не доходит. Во второй делим сразу — и программа падает. <b>Порядок проверок важен:</b> сначала «можно ли», потом «что получится».</p>
+    <p>Увидеть короткое замыкание своими глазами можно с помощью <code>++</code>: если правый операнд вычисляется, префиксный инкремент увеличит x. Проследи и впиши значения:</p>
+    <div data-widget="trace" id="trace-short">
+      <script type="application/json">
+      { "title": "Вычисляется ли правая часть?", "intro": "Следи за x: он растёт, только если Java действительно выполнила ++x.",
+        "code": "int x = 0;\nboolean a = false && ++x > 0;\nboolean b = true || ++x > 0;\nboolean c = true && ++x > 0;\nSystem.out.println(x + \" \" + a + \" \" + b + \" \" + c);",
+        "steps": [
+          { "line": 1, "vars": { "x": "0" }, "note": "Объявляем x и инициализируем нулём." },
+          { "line": 2, "vars": { "x": "0", "a": "false" }, "ask": ["x", "a"], "note": "Левый операнд && — false, ответ ясен сразу. Значит, a инициализируется значением false, а правый операнд ++x > 0 не вычислялся — x остался 0." },
+          { "line": 3, "vars": { "x": "0", "a": "false", "b": "true" }, "ask": ["x", "b"], "note": "Левый операнд || — true, ответ ясен сразу. Значит, b инициализируется значением true, а правый операнд снова пропустили — x всё ещё 0." },
+          { "line": 4, "vars": { "x": "1", "a": "false", "b": "true", "c": "true" }, "ask": ["x", "c"], "note": "Левый операнд true — для && этого мало, нужно вычислить правый. ++x делает x = 1, 1 > 0 — true. Значением true инициализируется c." },
+          { "line": 5, "vars": { "x": "1", "a": "false", "b": "true", "c": "true" }, "out": "1 false true true\n", "note": "x увеличился только один раз из трёх." }
+        ] }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: &amp; и | без короткого замыкания, ^ — «исключающее ИЛИ»</summary>
+      <p>У <code>&amp;&amp;</code> и <code>||</code> есть «полные» версии с одним символом: <code>&amp;</code> и <code>|</code>. Для boolean они дают тот же результат, но <b>всегда</b> вычисляют обе части. <code>false &amp; ++x &gt; 0</code> увеличит x. На практике почти всегда нужны двойные — про одинарные спрашивают на собеседованиях.</p>
+      <p><code>^</code> (XOR, «исключающее ИЛИ») — true, когда значения <b>разные</b>: <code>true ^ false</code> → true, <code>true ^ true</code> → false. «Либо чай, либо кофе, но не оба».</p>
+      <p>А ещё есть <b>законы де Моргана</b>: <code>!(a &amp;&amp; b)</code> — то же, что <code>!a || !b</code>, а <code>!(a || b)</code> — то же, что <code>!a &amp;&amp; !b</code>. «Неверно, что идёт дождь И холодно» = «нет дождя ИЛИ не холодно».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Кто главнее: &amp;&amp; или ||</h2>
+    <p>Как умножение главнее сложения, так и у логических операторов есть порядок: <b>сначала <code>!</code>, потом сравнения, потом <code>&amp;&amp;</code>, и только потом <code>||</code></b>.</p>
+<pre data-file="Discount.java"><code class="java">boolean isStudent = true;
+int age = 30;
+boolean hasCard = false;
+
+boolean discount = isStudent || age &gt;= 65 &amp;&amp; hasCard;
+// Java читает так:  isStudent || (age &gt;= 65 &amp;&amp; hasCard)
+// = true || (false &amp;&amp; false) = true</code></pre>
+    <p>Если бы задумка была «(студент или пенсионер) и при этом есть карта», результат был бы другим — <code>(true || false) &amp;&amp; false</code> = false. Компьютер не угадывает мысли — он следует приоритетам.</p>
+    <div class="say" data-mood="think"><p>Совет из реальной жизни: если в выражении есть и <code>&amp;&amp;</code>, и <code>||</code> — <b>ставь скобки</b>, даже когда они «не нужны». Код читают люди, и они не обязаны помнить таблицу приоритетов. Пригодится, например, в задаче про високосный год.</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: поразрядные операции — & | ^ ~ &lt;&lt; &gt;&gt; для чисел</summary>
+      <p>Операторы <code>&amp;</code>, <code>|</code>, <code>^</code> работают и с целыми числами — тогда они применяются к <b>каждому биту</b> (каждой двоичной цифре) отдельно. Число 6 в двоичной системе — <code>110</code>, число 3 — <code>011</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Выражение</th><th>В битах</th><th>Результат</th><th>Смысл</th></tr>
+          <tr><td><code>6 &amp; 3</code></td><td>110 &amp; 011 = 010</td><td>2</td><td>бит 1, где 1 в обоих</td></tr>
+          <tr><td><code>6 | 3</code></td><td>110 | 011 = 111</td><td>7</td><td>бит 1, где 1 хотя бы в одном</td></tr>
+          <tr><td><code>6 ^ 3</code></td><td>110 ^ 011 = 101</td><td>5</td><td>бит 1, где биты разные</td></tr>
+          <tr><td><code>~5</code></td><td>все биты наоборот</td><td>-6</td><td>«НЕ» для каждого бита</td></tr>
+          <tr><td><code>1 &lt;&lt; 3</code></td><td>1 → 1000</td><td>8</td><td>сдвиг влево = умножить на 2³</td></tr>
+          <tr><td><code>16 &gt;&gt; 2</code></td><td>10000 → 100</td><td>4</td><td>сдвиг вправо = разделить на 2²</td></tr>
+        </table>
+      </div>
+      <p>Где это встречается: флаги и права доступа (каждый бит — отдельное «можно/нельзя»), быстрая проверка чётности <code>(n &amp; 1) == 0</code>, хеш-функции. В обычном коде — редко, а на собеседованиях иногда спрашивают <code>&lt;&lt;</code> и <code>&gt;&gt;</code>. Есть ещё <code>&gt;&gt;&gt;</code> — сдвиг вправо, который не сохраняет знак минус.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m03-04">
+      <script type="application/json">
+      {
+       "title": "Логика — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини оператор с правилом",
+         "left": [
+          "<code>&amp;&amp;</code>",
+          "<code>||</code>",
+          "<code>!</code>"
+         ],
+         "right": [
+          "true, только если обе части true",
+          "true, если хотя бы одна часть true",
+          "переворачивает значение"
+         ],
+         "why": "И — оба, ИЛИ — хотя бы один, НЕ — наоборот."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int t = 25;\nboolean warm = t > 20 && t < 30;\nboolean extreme = t < 0 || t > 40;\nSystem.out.println(warm + \" \" + extreme);",
+         "answer": "true false",
+         "why": "Для warm оба операнда && — true (25 подходит под «тепло»). Для extreme оба операнда || — false, «экстремально» не подходит."
+        },
+        {
+         "type": "single",
+         "q": "Чему равно выражение?",
+         "code": "true || false && false",
+         "options": [
+          "true",
+          "false",
+          "Ошибка компиляции"
+         ],
+         "answer": 0,
+         "why": "&& главнее ||: true || (false && false) = true || false = true."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int x = 5;\nboolean r = x > 10 && x++ > 0;\nSystem.out.println(x + \" \" + r);",
+         "answer": "5 false",
+         "why": "Левый операнд x > 10 — false, поэтому правый операнд с x++ не вычислялся: короткое замыкание."
+        },
+        {
+         "type": "single",
+         "q": "Какая строка безопасна, если count может быть нулём?",
+         "options": [
+          "<code>count != 0 &amp;&amp; sum / count &gt; 2</code>",
+          "<code>sum / count &gt; 2 &amp;&amp; count != 0</code>",
+          "Обе одинаково безопасны"
+         ],
+         "answer": 0,
+         "why": "В первой при count == 0 левый операнд false, и деление не выполняется. Во второй деление идёт первым — авария."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>!(x &gt; 5)</code> — то же самое, что <code>x &lt;= 5</code>",
+           "a": true
+          },
+          {
+           "s": "<code>||</code> всегда вычисляет обе части",
+           "a": false,
+           "why": "если левый операнд true, правый не вычисляется — ответ уже ясен."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне 3 правила из жизни (скидка, вход на сайт, прогноз погоды) — я переведу их в логические выражения на Java, а ты проверь скобки и порядок»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>&amp;&amp;</code> — И (всё true), <code>||</code> — ИЛИ (хоть что-то true), <code>!</code> — НЕ.</li>
+        <li>Диапазон: <code>x &gt;= 1 &amp;&amp; x &lt;= 10</code>, а не <code>1 &lt;= x &lt;= 10</code>.</li>
+        <li>Короткое замыкание: <code>false &amp;&amp; …</code> и <code>true || …</code> не вычисляют правую часть. Сначала «можно ли», потом «что получится».</li>
+        <li>Приоритет: <code>!</code> → сравнения → <code>&amp;&amp;</code> → <code>||</code>. Смешал <code>&amp;&amp;</code> и <code>||</code> — поставь скобки.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

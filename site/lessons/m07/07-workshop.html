@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская: задача по кусочкам · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-07">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 7 · Урок 7 · Мастерская алгоритмов</div>
+    <h1>Мастерская: разбиваем задачу на методы</h1>
+    <p class="lead">Большую задачу трудно решить целиком — и не нужно. Учимся резать её на маленькие методы с понятными именами, каждый из которых решить легко. Это называется декомпозиция.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🛠️ шаблон решения</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m07-07-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Какой тип возвращаемого значения у метода, который отвечает на вопрос «да или нет»?",
+            "options": ["void", "int", "boolean", "String"], "answer": 2,
+            "why": "boolean — ровно два значения, true и false. Вызов такого метода можно сразу ставить в условие if." },
+          { "type": "predict", "q": "Повторим остаток от деления (модуль 3). Что выведет?",
+            "code": "System.out.println(12 % 5);\nSystem.out.println(12 % 4);\nSystem.out.println(12 % 4 == 0);",
+            "answer": "2\n0\ntrue", "why": "Оператор % даёт остаток; остаток 0 означает, что число делится нацело: 4 — делитель 12, а 5 — нет." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "У рекурсивного метода должен быть базовый случай", "a": true },
+              { "s": "Метод может вызвать другой метод, который объявлен ниже него в классе", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Задача и шаг 1: пойми её</h2>
+    <div class="callout try">
+      <span class="callout-title">Задача: совершенные числа</span>
+      <p>Число называется <b>совершенным</b>, если оно равно сумме всех своих делителей, кроме себя самого. Например, 6: его делители 1, 2, 3, и 1 + 2 + 3 = 6. Пользователь вводит N — выведи через пробел все совершенные числа от 1 до N.</p>
+    </div>
+    <p>Шаблон Мастерской ты знаешь с модуля 4. Первый шаг — <b>понять задачу</b>: что на входе, что на выходе, и пара примеров руками, включая граничные.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вход N</th><th>Выход</th><th>Почему</th></tr>
+        <tr><td>10</td><td><code>6</code></td><td>до 10 совершенное только 6</td></tr>
+        <tr><td>30</td><td><code>6 28</code></td><td>28 = 1 + 2 + 4 + 7 + 14</td></tr>
+        <tr><td>5</td><td>пустая строка</td><td>совершенных чисел меньше 6 нет</td></tr>
+        <tr><td>1, 0 или −7</td><td>пустая строка</td><td>у 1 делителей «кроме себя» нет, сумма 0 ≠ 1; числа ≤ 0 не перебираем</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="think"><p>Если сразу начать писать код, голова будет держать всё одновременно: ввод, перебор чисел, перебор делителей, сумму, сравнение, печать. Это как готовить обед из трёх блюд, не разделив его на блюда. Разделим.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Шаг 2: реши руками и найди подзадачи</h2>
+    <p>Проверим руками пару чисел и запишем, что мы делали:</p>
+    <ul>
+      <li><b>6</b>: делители меньше 6 — это 1, 2, 3. Сумма 6. Совпало с числом — совершенное ✓.</li>
+      <li><b>12</b>: делители 1, 2, 3, 4, 6. Сумма 16. Не совпало ✗.</li>
+    </ul>
+    <p>Что повторялось? Для каждого числа мы делали одно и то же: <b>нашли сумму делителей</b> → <b>сравнили с числом</b>. А всё вместе — <b>для каждого числа от 1 до N</b>. Получилось три подзадачи, вложенные друг в друга. Каждая — кандидат в метод:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 330" role="img" aria-label="Дерево декомпозиции: main, printPerfectUpTo, isPerfect, sumOfDivisors">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="240" y="10" width="260" height="54" rx="12" class="d-soft"/>
+        <text x="370" y="34" text-anchor="middle" class="d-mono-ink">main</text>
+        <text x="370" y="54" text-anchor="middle" class="d-small">прочитать N, запустить печать</text>
+        <path d="M370 64 V92" class="d-arrow"/>
+        <rect x="200" y="94" width="340" height="54" rx="12" class="d-blue"/>
+        <text x="370" y="118" text-anchor="middle" class="d-mono-ink">printPerfectUpTo(n)</text>
+        <text x="370" y="138" text-anchor="middle" class="d-small">для i от 1 до n: если совершенное — печать</text>
+        <path d="M370 148 V176" class="d-arrow"/>
+        <rect x="200" y="178" width="340" height="54" rx="12" class="d-teal"/>
+        <text x="370" y="202" text-anchor="middle" class="d-mono-ink">isPerfect(number) → boolean</text>
+        <text x="370" y="222" text-anchor="middle" class="d-small">равна ли сумма делителей самому числу?</text>
+        <path d="M370 232 V260" class="d-arrow"/>
+        <rect x="200" y="262" width="340" height="54" rx="12" class="d-accent"/>
+        <text x="370" y="286" text-anchor="middle" class="d-mono-ink">sumOfDivisors(number) → int</text>
+        <text x="370" y="306" text-anchor="middle" class="d-small">сумма всех d &lt; number, которые делят нацело</text>
+        <text x="600" y="120" class="d-small">«что сделать»</text>
+        <text x="600" y="204" class="d-small">«проверить»</text>
+        <text x="600" y="288" class="d-small">«посчитать»</text>
+        <text x="30" y="120" class="d-small">сверху — общая</text>
+        <text x="30" y="140" class="d-small">картина</text>
+        <text x="30" y="288" class="d-small">снизу — мелкие</text>
+        <text x="30" y="308" class="d-small">кирпичики</text>
+      </svg>
+      <figcaption>Декомпозиция «сверху вниз»: большая задача делится на подзадачи, пока каждая не станет простой. Каждый прямоугольник — будущий метод.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Декомпозиция</dt><dd>Разбиение большой задачи на маленькие независимые части. Главный навык программиста — важнее знания синтаксиса.</dd>
+    </dl>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: ремонт квартиры</span>
+      <p>Никто не делает «ремонт» одним действием. Это «снять обои», «выровнять стены», «поклеить новые». А «выровнять стены» — это «зашпаклевать» и «зашкурить». Делишь, пока каждый кусок не станет понятным действием, которое можно поручить одному мастеру. Метод — это и есть такой мастер.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Шаги 3–4: роли переменных и псевдокод</h2>
+    <p>Теперь каждую подзадачу решаем <b>отдельно</b>, не думая об остальных. Начнём снизу.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Роли переменных</th><th>Псевдокод</th></tr>
+        <tr><td><code>sumOfDivisors(number)</code></td><td><code>d</code> — шагающая (кандидаты в делители), <code>sum</code> — накопитель</td><td>sum = 0; для d от 1 до number − 1: если number делится на d — прибавь d к sum; верни sum</td></tr>
+        <tr><td><code>isPerfect(number)</code></td><td>— (одна проверка)</td><td>верни «сумма делителей number равна number»</td></tr>
+        <tr><td><code>printPerfectUpTo(n)</code></td><td><code>i</code> — шагающая (числа от 1 до n)</td><td>для i от 1 до n: если i совершенное — напечатай i и пробел; в конце переведи строку</td></tr>
+        <tr><td><code>main</code></td><td><code>n</code> — ввод</td><td>прочитай n; напечатай совершенные до n</td></tr>
+      </table>
+    </div>
+    <p>Заметь: псевдокод <code>printPerfectUpTo</code> говорит «если i совершенное» — и <b>не объясняет, как это проверить</b>. Это не его забота: он просто доверяет методу <code>isPerfect</code>. Каждый метод видит только свой кусочек задачи.</p>
+    <div class="callout tip">
+      <span class="callout-title">Как выбирать, что станет методом</span>
+      <p>Если кусок решения можно назвать коротким глаголом («посчитать сумму делителей», «проверить, совершенное ли») и описать вход (параметры) и выход (возвращаемое значение) — делай из него метод. Признак, что метод слишком большой: в его имени просится «и» (<code>readAndPrintAndCheck</code>), или он не помещается на экран.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Шаг 5: код — переводим псевдокод</h2>
+    <p>Удобный приём: начни с <b>main</b> и пиши вызовы так, будто нужные методы уже объявлены. IDEA подчеркнёт незнакомое имя красным — поставь на него курсор, нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Create method</b>, и IDEA сама создаст заготовку — объявление метода с правильными параметрами. Потом заполняешь заготовки одну за другой.</p>
+    <div data-widget="ide" id="shot-create-method">
+      <script type="application/json">
+      { "tree": false, "file": "PerfectNumbers.java", "gutterRun": [3, 4], "statusPath": "module-07", "caretLine": 7,
+        "code": "import java.util.Scanner;\n\npublic class PerfectNumbers {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int n = scanner.nextInt();\n        printPerfectUpTo(n);\n    }\n}",
+        "errors": [ { "line": 7, "text": "printPerfectUpTo", "msg": "Cannot resolve method 'printPerfectUpTo' in 'PerfectNumbers'" } ],
+        "menu": { "at": "err-7", "items": ["Create method 'printPerfectUpTo' in 'PerfectNumbers'", "Rename reference"], "hl": "Create method 'printPerfectUpTo' in 'PerfectNumbers'" },
+        "marks": [ { "n": 1, "target": "err-7", "side": "left", "text": "Метода ещё нет — имя красное. Наведи мышку: <b>Cannot resolve method</b> — «не могу найти метод»" },
+                   { "n": 2, "target": "menu", "text": "Курсор на красном имени → <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Create method…</b>. IDEA допишет ниже заготовку <code>private static void printPerfectUpTo(int n) { }</code> — тип и имя параметра она возьмёт из аргумента вызова. Слово <code>private</code> пока можно стереть: о нём — в модуле 9" } ],
+        "caption": "Пишем вызов необъявленного метода — IDEA создаёт заготовку" }
+      </script>
+    </div>
+<pre data-file="PerfectNumbers.java"><code class="java">import java.util.Scanner;
+
+public class PerfectNumbers {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        printPerfectUpTo(n);
+    }
+
+    static void printPerfectUpTo(int n) {
+        for (int i = 1; i &lt;= n; i++) {
+            if (isPerfect(i)) {
+                System.out.print(i + " ");
+            }
+        }
+        System.out.println();
+    }
+
+    static boolean isPerfect(int number) {
+        return sumOfDivisors(number) == number;
+    }
+
+    static int sumOfDivisors(int number) {
+        int sum = 0;
+        for (int d = 1; d &lt; number; d++) {
+            if (number % d == 0) {
+                sum += d;
+            }
+        }
+        return sum;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>if (isPerfect(i)) {</code><div><p>Вызов метода с типом возвращаемого значения <code>boolean</code> ставится прямо в условие, аргумент — счётчик <code>i</code>. Читается как текст: «если i совершенное».</p></div></div>
+      <div class="annot-row"><code>return sumOfDivisors(number) == number;</code><div><p>Сравнение <code>==</code> — само по себе выражение со значением true или false. Не нужно писать <code>if (…) return true; else return false;</code> — возвращаем значение выражения сразу.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что вернёт <code>isPerfect(1)</code>? А что выведет программа при N = 0?</summary>
+      <p><code>isPerfect(1)</code> вернёт <b>false</b>: тело цикла в sumOfDivisors не выполнится ни разу (1 &lt; 1 — ложь), метод вернёт 0, а 0 ≠ 1. При N = 0 тело цикла в printPerfectUpTo тоже не выполнится — выведется пустая строка. Граничные случаи отработали без единого лишнего if.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Шаг 6: проверь трассировкой</h2>
+    <p>Проверим самый нижний кирпичик на числе 6. Впиши значения <code>sum</code> сам — это и есть таблица трассировки «шаг | d | sum».</p>
+    <div data-widget="trace" id="trace-m07-07-perfect">
+      <script type="application/json">
+      { "title": "isPerfect(6): три фрейма и цикл",
+        "intro": "main вызывает isPerfect(6), тот — sumOfDivisors(6). Следи за стеком и за накопителем <code>sum</code>.",
+        "code": "public class PerfectCheck {\n    public static void main(String[] args) {\n        System.out.println(isPerfect(6));\n    }\n\n    static boolean isPerfect(int number) {\n        return sumOfDivisors(number) == number;\n    }\n\n    static int sumOfDivisors(int number) {\n        int sum = 0;\n        for (int d = 1; d < number; d++) {\n            if (number % d == 0) {\n                sum += d;\n            }\n        }\n        return sum;\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "note": "Чтобы передать аргумент в println, нужно сначала вызвать isPerfect с аргументом 6." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } } ], "note": "Параметр number инициализирован значением 6. isPerfect, в свою очередь, сначала вызывает sumOfDivisors(number)." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } }, { "frame": "sumOfDivisors", "vars": { "number": "6", "sum": "0" } } ], "note": "Третий фрейм. Объявляем локальную переменную-накопитель sum и инициализируем нулём." },
+          { "line": 14, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } }, { "frame": "sumOfDivisors", "vars": { "number": "6", "sum": "1", "d": "1" } } ], "vars": { "sum": "1", "d": "1" }, "ask": ["sum"], "note": "Делится ли 6 на 1 и что станет с накопителем? 6 % 1 == 0 — true, составное присваивание sum += d: 0 + 1 = 1." },
+          { "line": 14, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } }, { "frame": "sumOfDivisors", "vars": { "number": "6", "sum": "3", "d": "2" } } ], "vars": { "sum": "3", "d": "2" }, "ask": ["sum"], "note": "Теперь d = 2, проверь делимость. 6 % 2 == 0 — да, sum = 1 + 2 = 3." },
+          { "line": 14, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } }, { "frame": "sumOfDivisors", "vars": { "number": "6", "sum": "6", "d": "3" } } ], "vars": { "sum": "6", "d": "3" }, "ask": ["sum"], "note": "Теперь d = 3, проверь делимость. 6 % 3 == 0 — да, sum = 3 + 3 = 6." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } }, { "frame": "sumOfDivisors", "vars": { "number": "6", "sum": "6", "d": "4" } } ], "vars": { "sum": "6", "d": "4" }, "note": "d = 4: 6 % 4 = 2, не делится. sum не меняется." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } }, { "frame": "sumOfDivisors", "vars": { "number": "6", "sum": "6", "d": "5" } } ], "vars": { "sum": "6", "d": "5" }, "note": "d = 5: не делится. Дальше d = 6, а 6 &lt; 6 — false, цикл закончен." },
+          { "line": 17, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } }, { "frame": "sumOfDivisors", "vars": { "number": "6", "sum": "6" } } ], "note": "return sum — метод возвращает 6. Фрейм sumOfDivisors снимается." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": {} }, { "frame": "isPerfect", "vars": { "number": "6" } } ], "note": "Вызов заменился значением 6. Выражение 6 == 6 — true, isPerfect возвращает true." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "out": "true\n", "note": "6 — совершенное число. Кирпичик работает — можно доверять ему в printPerfectUpTo." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p>Главный плюс методов: каждый можно <b>проверить отдельно</b>. Сомневаешься в <code>sumOfDivisors</code> — вызови его из main с аргументами 6, 12, 1 и посмотри на возвращаемые значения. Именно так устроены тесты в реальных проектах: каждый тест проверяет один метод на нескольких входах. Через десять модулей ты будешь делать это с JUnit.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Как придумывать имена методов</h2>
+    <p>Хорошее имя — половина декомпозиции. Читая <code>if (isPerfect(i))</code>, ты понимаешь код, даже не заглядывая в метод. Правила:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что делает метод</th><th>Как назвать</th><th>Примеры</th></tr>
+        <tr><td>Действие, ничего не возвращает</td><td>глагол + что</td><td><code>printReceipt</code>, <code>showMenu</code>, <code>reverseArray</code></td></tr>
+        <tr><td>Считает и возвращает значение (return)</td><td>глагол <code>calculate</code>/<code>count</code>/<code>find</code> + что, или существительное-результат</td><td><code>calculateTotal</code>, <code>countVowels</code>, <code>findMax</code>, <code>sumOfDivisors</code></td></tr>
+        <tr><td>Отвечает «да/нет» (boolean)</td><td>вопрос: <code>is</code>/<code>has</code>/<code>can</code> + что</td><td><code>isPrime</code>, <code>isEven</code>, <code>hasDiscount</code>, <code>canBuy</code></td></tr>
+      </table>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">👎</span><h4>Плохие имена</h4><p><code>doIt</code>, <code>method1</code>, <code>calc</code>, <code>process</code>, <code>check</code> — непонятно, что делают. <code>prime</code> для boolean-метода — это вопрос или число?</p></div>
+      <div class="card"><span class="emoji">👍</span><h4>Хорошие имена</h4><p>По имени ясно, что метод делает и что вернёт: <code>isPrime(n)</code> — вопрос «простое ли n?», возвращаемое значение true/false.</p></div>
+      <div class="card"><span class="emoji">🇬🇧</span><h4>По-английски</h4><p>Java позволяет русские имена, но в работе их не пишут: код читают коллеги по всему миру. Не знаешь слово — посмотри в переводчике, это нормально.</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Твоя очередь: простые числа</h2>
+    <p>Тот же приём ты применишь в задаче «Простые числа до N» на странице практики. Код не дадим — но шаблон Мастерской пройдём вместе на уровне плана.</p>
+    <ol class="steps">
+      <li><b>Пойми.</b> Простое число — больше 1 и делится нацело только на 1 и на себя. 2, 3, 5, 7, 11… А 1 — <b>не</b> простое, 0 и отрицательные — тоже. Пример: N = 10 → <code>2 3 5 7</code>.</li>
+      <li><b>Подзадачи.</b> «Проверить одно число» → метод <code>isPrime(n)</code> с типом возвращаемого значения boolean. «Перебрать числа до N и напечатать простые» → метод <code>printPrimesUpTo(n)</code>.</li>
+      <li><b>Роли.</b> В isPrime — шагающая переменная (счётчик цикла) перебирает кандидатов в делители. Нашёлся делитель — ответ ясен сразу (вспомни, что return заканчивает выполнение метода).</li>
+      <li><b>Граничные случаи.</b> Что вернёт твой isPrime для 1, для 2, для 0? Проверь до запуска тестов.</li>
+    </ol>
+    <div data-widget="check" id="check-m07-07">
+      <script type="application/json">
+      { "title": "Декомпозиция и имена — главное",
+        "items": [
+          { "type": "match", "q": "Подбери методу хорошее имя",
+            "left": ["отвечает, чётное ли число", "печатает таблицу умножения", "считает среднее элементов массива", "проверяет, есть ли в массиве ноль"],
+            "right": ["isEven", "printMultiplicationTable", "calculateAverage", "hasZero"],
+            "why": "Вопросы да/нет — is/has, действия — глагол + что, вычисления — calculate/count/find + что." },
+          { "type": "order", "q": "Расставь шаги Мастерской по порядку",
+            "lines": ["Понять вход и выход, примеры руками", "Решить руками и выделить подзадачи-методы", "Найти роли переменных", "Записать псевдокод", "Перевести псевдокод в код", "Проверить трассировкой и граничными случаями"],
+            "why": "Код — только пятый шаг. Всё, что до него, и есть «думать как программист»." },
+          { "type": "single", "q": "Какой заголовок лучше для метода «простое ли число»?",
+            "options": ["static void isPrime(int n)", "static boolean isPrime(int n)", "static int prime(int n)", "static boolean check(int n)"], "answer": 1,
+            "why": "Вопрос да/нет — тип возвращаемого значения boolean, имя-вопрос is + что. void ничего не вернёт, а check не говорит, что проверяется." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "public class Evens {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 6; i++) {\n            if (isEven(i)) {\n                System.out.print(i + \" \");\n            }\n        }\n    }\n\n    static boolean isEven(int n) {\n        return n % 2 == 0;\n    }\n}",
+            "answer": "2 4 6", "why": "Вызов isEven возвращает true для аргументов 2, 4, 6 — их и печатаем. Хвостовой пробел при сравнении не важен." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Если в имени метода просится «и» (readAndCheckAndPrint), его стоит разбить на несколько", "a": true },
+              { "s": "Вызов метода, который возвращает boolean, можно сразу ставить в условие if", "a": true },
+              { "s": "Чем меньше методов, тем понятнее программа", "a": false, "why": "один огромный main читать труднее, чем несколько коротких методов с говорящими именами." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл Мастерскую 7.7. Дай мне задачу, а я сначала нарисую дерево методов и напишу псевдокод — без кода. Проверь мой план»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Декомпозиция: делим задачу сверху вниз, пока каждый кусок не станет простым методом с одной работой.</li>
+        <li>Каждый метод решаем отдельно и доверяем остальным: <code>printPerfectUpTo</code> не знает, как устроен <code>isPerfect</code>.</li>
+        <li>Удобно начинать с main, вызывая ещё не объявленные методы, а заготовки объявлений создавать через <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
+        <li>Имена: действие — глагол + что, вычисление — calculate/count/find, вопрос — is/has/can. По-английски, в camelCase.</li>
+        <li>Короткие методы легко проверить по отдельности — на этом построено тестирование с JUnit (модуль 17).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# ===== Личные данные ученика =====
+# Не попадают в репозиторий курса, поэтому обновление курса (git pull) их никогда не затрёт.
+/workspace/*
+!/workspace/README.md
+/progress.md
+
+# ===== IntelliJ IDEA и сборка =====
+.idea/
+*.iml
+out/
+*.class
+
+# ===== Локальные настройки Claude Code =====
+.claude/settings.local.json
+
+# сквозной проект ученика — у него свой Git-репозиторий
+/MiniBank/

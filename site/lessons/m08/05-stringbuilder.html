@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StringBuilder · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-05">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 8 · Урок 5</div>
+    <h1>StringBuilder: изменяемая строка</h1>
+    <p class="lead">Строки неизменяемы, и склейка в цикле каждый раз создаёт новую. Для сборки текста по кусочкам в Java есть специальный «черновик» — <code>StringBuilder</code>. Узнаем, зачем он, как им пользоваться и во сколько раз он быстрее.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 память по шагам</span><span>⚡ скорость</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-05-review">
+      <script type="application/json">
+      { "title": "Символы и неизменяемость", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "String r = \"\";\nfor (char c : \"abc\".toCharArray()) {\n    r = c + r;\n}\nSystem.out.println(r);",
+            "answer": "cba", "why": "На каждой итерации вычисляется выражение c + r — символ приклеивается в начало, и результат присваивается r: «a» → «ba» → «cba»." },
+          { "type": "single", "q": "Сколько новых объектов String создаст присваивание <code>r = r + c;</code> в теле цикла из 1000 итераций?",
+            "options": ["Ни одного — строка дописывается", "1000 — по одному на каждую склейку", "Один — в конце цикла"], "answer": 1,
+            "why": "Строки неизменяемы: каждая склейка — новый объект, а старый уходит в мусор." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что не так со склейкой в цикле</h2>
+    <p>Посмотрим, что творится в памяти, когда мы собираем строку из трёх букв обычной склейкой:</p>
+    <div data-widget="trace" id="trace-m08-05-concat">
+      <script type="application/json">
+      { "title": "result = result + c — каждый раз заново",
+        "intro": "Следи за кучей: сколько объектов появится и сколько станет мусором.",
+        "code": "String result = \"\";\nfor (int i = 0; i < 3; i++) {\n    result = result + 'a';\n}\nSystem.out.println(result);",
+        "steps": [
+          { "line": 1, "vars": { "result": "→#1" }, "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"\"" } } ], "note": "Объявляем result и инициализируем пустой строкой — объект #1." },
+          { "line": 3, "vars": { "result": "→#2", "i": "0" }, "heap": [ { "id": "#1", "label": "String · мусор", "fields": { "текст": "\"\"" } }, { "id": "#2", "label": "String", "fields": { "текст": "\"a\"" } } ], "note": "Склейка: Java создала новый объект #2, <b>скопировала</b> в него старое содержимое плюс «a» и присвоила result ссылку на него. #1 больше не нужен." },
+          { "line": 3, "vars": { "result": "→#3", "i": "1" }, "heap": [ { "id": "#1", "label": "String · мусор", "fields": { "текст": "\"\"" } }, { "id": "#2", "label": "String · мусор", "fields": { "текст": "\"a\"" } }, { "id": "#3", "label": "String", "fields": { "текст": "\"aa\"" } } ], "note": "Ещё раз: новый объект #3, копируем «a» и добавляем «a». Копий становится всё больше." },
+          { "line": 3, "vars": { "result": "→#4", "i": "2" }, "heap": [ { "id": "#1", "label": "String · мусор", "fields": { "текст": "\"\"" } }, { "id": "#2", "label": "String · мусор", "fields": { "текст": "\"a\"" } }, { "id": "#3", "label": "String · мусор", "fields": { "текст": "\"aa\"" } }, { "id": "#4", "label": "String", "fields": { "текст": "\"aaa\"" } } ], "note": "Три буквы — четыре объекта, три из них мусор. И каждый раз старый текст копировался целиком." },
+          { "line": 5, "vars": { "result": "→#4" }, "heap": [ { "id": "#4", "label": "String", "fields": { "текст": "\"aaa\"" } } ], "out": "aaa\n", "note": "Сборщик мусора убрал лишнее. Результат правильный, но какой ценой — посчитаем в шаге 4." }
+        ] }
+      </script>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: переписывать письмо начисто</span>
+      <p>Представь, что после каждого нового слова ты берёшь чистый лист и <b>переписываешь всё письмо заново</b> плюс одно слово. Первые строчки — быстро. На сотой странице ты уже переписываешь роман ради одной запятой. Так работает <code>result = result + c</code> в цикле.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>StringBuilder — черновик, который можно дописывать</h2>
+    <p><code>StringBuilder</code> («строитель строк») — это <b>изменяемая</b> строка. Внутри у него массив символов с запасом места. Вызов метода <code>append</code> дописывает аргумент в конец <b>того же</b> объекта — без копирования всего текста.</p>
+<pre data-file="BuilderDemo.java"><code class="java">StringBuilder sb = new StringBuilder();   // пустой черновик
+sb.append("Привет");                      // дописали строку
+sb.append(", ");
+sb.append("мир").append('!');             // можно цепочкой — и char тоже
+sb.append(2026);                          // и число
+String result = sb.toString();            // готово — превращаем в String
+System.out.println(result);               // Привет, мир!2026</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>new StringBuilder()</code><div><p>Создаём объект оператором <code>new</code> — как массив — и инициализируем им переменную <code>sb</code>. Можно сразу передать начальный текст аргументом: <code>new StringBuilder("abc")</code>.</p></div></div>
+      <div class="annot-row"><code>sb.append(x)</code><div><p>Вызываем метод <code>append</code> у объекта <code>sb</code> и передаём аргумент — строку, символ, число, boolean: он дописывается в конец. Метод меняет <b>сам объект</b> — присваивать возвращаемое значение не нужно (в отличие от методов String!).</p></div></div>
+      <div class="annot-row"><code>.append('!')</code><div><p><code>append</code> возвращает ссылку на тот же самый <code>sb</code>, поэтому вызовы можно нанизывать цепочкой.</p></div></div>
+      <div class="annot-row"><code>sb.toString()</code><div><p>Когда собрали — вызов <code>toString()</code> возвращает обычную неизменяемую <code>String</code>, ею инициализируем <code>result</code>. Почти все методы Java ждут аргументом именно String.</p></div></div>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 230" role="img" aria-label="Слева: склейка строк создаёт цепочку новых объектов. Справа: StringBuilder — один объект, в который дописываются символы">
+        <rect x="10" y="10" width="340" height="210" rx="14" class="d-soft"/>
+        <text x="180" y="38" text-anchor="middle" class="d-title">String: + в цикле</text>
+        <rect x="30" y="56" width="60" height="36" rx="6" class="d-red"/><text x="60" y="80" text-anchor="middle" class="d-mono-ink">a</text>
+        <rect x="30" y="102" width="90" height="36" rx="6" class="d-red"/><text x="75" y="126" text-anchor="middle" class="d-mono-ink">ab</text>
+        <rect x="30" y="148" width="120" height="36" rx="6" class="d-red"/><text x="90" y="172" text-anchor="middle" class="d-mono-ink">abc</text>
+        <rect x="170" y="148" width="150" height="36" rx="6" class="d-green"/><text x="245" y="172" text-anchor="middle" class="d-mono-ink">abcd</text>
+        <text x="180" y="206" text-anchor="middle" class="d-small">4 объекта, 3 — мусор, текст копируется заново</text>
+
+        <rect x="370" y="10" width="340" height="210" rx="14" class="d-soft"/>
+        <text x="540" y="38" text-anchor="middle" class="d-title">StringBuilder</text>
+        <rect x="400" y="90" width="280" height="56" rx="10" class="d-blue"/>
+        <rect x="414" y="100" width="36" height="36" rx="6" class="d-box"/><text x="432" y="124" text-anchor="middle" class="d-mono-ink">a</text>
+        <rect x="456" y="100" width="36" height="36" rx="6" class="d-box"/><text x="474" y="124" text-anchor="middle" class="d-mono-ink">b</text>
+        <rect x="498" y="100" width="36" height="36" rx="6" class="d-box"/><text x="516" y="124" text-anchor="middle" class="d-mono-ink">c</text>
+        <rect x="540" y="100" width="36" height="36" rx="6" class="d-green"/><text x="558" y="124" text-anchor="middle" class="d-mono-ink">d</text>
+        <rect x="582" y="100" width="36" height="36" rx="6" class="d-dash"/>
+        <rect x="624" y="100" width="36" height="36" rx="6" class="d-dash"/>
+        <text x="540" y="76" text-anchor="middle" class="d-small">один объект, в запасе пустые ячейки</text>
+        <text x="540" y="180" text-anchor="middle" class="d-text">append('d') — просто следующая ячейка</text>
+        <text x="540" y="206" text-anchor="middle" class="d-small">места не хватит — расширится сам</text>
+      </svg>
+      <figcaption>Слева каждый шаг — новая строка с копией всего текста. Справа — один объект, буквы дописываются в свободные ячейки.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Насколько это быстрее — на пальцах</h2>
+    <p>Соберём строку из 100 000 букв «a». Посчитаем, сколько символов придётся <b>скопировать</b>.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th><code>s = s + "a"</code></th><th><code>sb.append("a")</code></th></tr>
+        <tr><td>Шаг 1</td><td>копируем 0 старых + 1 новый</td><td>пишем 1 символ</td></tr>
+        <tr><td>Шаг 2</td><td>копируем 1 + 1</td><td>пишем 1</td></tr>
+        <tr><td>Шаг 1000</td><td>копируем 999 + 1</td><td>пишем 1</td></tr>
+        <tr><td>Шаг 100 000</td><td>копируем 99 999 + 1</td><td>пишем 1</td></tr>
+        <tr><td><b>Всего</b></td><td>1 + 2 + … + 100 000 ≈ <b>5 миллиардов</b></td><td>≈ <b>100 тысяч</b> (плюс немного на расширения)</td></tr>
+      </table>
+    </div>
+    <p>Разница — в десятки тысяч раз по объёму работы. На обычном ноутбуке это примерно <b>секунда</b> против <b>нескольких миллисекунд</b>. А для миллиона букв склейка будет работать уже минуты, StringBuilder — всё так же мгновенно.</p>
+    <div class="callout try">
+      <span class="callout-title">Проверь сам в IDEA</span>
+      <p>Замерь время: <code>long start = System.currentTimeMillis();</code> перед циклом и <code>System.currentTimeMillis() - start</code> после — это миллисекунды. Попробуй оба варианта на 100 000 и на 300 000 итерациях. Заметь: у склейки время растёт гораздо быстрее, чем число итераций.</p>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Когда StringBuilder, а когда обычный +</span>
+      <p><b>В теле цикла</b> собираешь строку — StringBuilder. <b>Одна строчка</b> вроде <code>"Привет, " + name + "!"</code> — обычный <code>+</code>: компилятор сам превратит её в эффективный код. Не надо писать StringBuilder ради двух склеек — код станет только длиннее.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Что ещё умеет StringBuilder</h2>
+<pre data-file="BuilderMethods.java"><code class="java">StringBuilder sb = new StringBuilder("Java");
+sb.insert(0, "I love ");      // вставить в позицию 0   → "I love Java"
+sb.append('!');               // в конец                → "I love Java!"
+sb.reverse();                 // развернуть ЭТОТ объект  → "!avaJ evol I"
+sb.reverse();                 // и обратно              → "I love Java!"
+sb.setCharAt(0, 'U');         // заменить символ        → "U love Java!"
+sb.deleteCharAt(sb.length() - 1); // удалить последний → "U love Java"
+sb.delete(0, 2);              // удалить [0, 2)         → "love Java"
+System.out.println(sb.length());   // 9
+System.out.println(sb.charAt(0));  // l
+System.out.println(sb.indexOf("Java")); // 5</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает</th></tr>
+        <tr><td><code>append(x)</code></td><td>дописать в конец</td></tr>
+        <tr><td><code>insert(i, x)</code></td><td>вставить перед позицией i</td></tr>
+        <tr><td><code>reverse()</code></td><td>развернуть задом наперёд — <b>меняет сам объект</b></td></tr>
+        <tr><td><code>setCharAt(i, c)</code> / <code>deleteCharAt(i)</code></td><td>заменить / удалить один символ</td></tr>
+        <tr><td><code>delete(a, b)</code></td><td>удалить кусок, границы как у substring: a включительно, b нет</td></tr>
+        <tr><td><code>length()</code>, <code>charAt(i)</code>, <code>indexOf(s)</code></td><td>как у String</td></tr>
+        <tr><td><code>toString()</code></td><td>получить готовую String</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="wow"><p><code>new StringBuilder(s).reverse().toString()</code> — разворот строки в одну строчку. Красиво! Но на собеседовании скажут: «А теперь без reverse». Поэтому в Мастерской мы научимся разворачивать руками, а в задаче на сайте reverse будет запрещён 😉</p></div>
+    <details class="predict">
+      <summary>StringBuilder a = new StringBuilder("hi"); StringBuilder b = a; b.append("!"); System.out.println(a); — что выведется?</summary>
+      <p><b>hi!</b> StringBuilder изменяемый, как массив. Инициализация <code>b = a</code> скопировала ссылку — две стрелки на один объект. Меняем через <code>b</code> — видно через <code>a</code>. Вот она, цена изменяемости: со String такого бы не случилось.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ловушки</h2>
+    <div class="callout warn">
+      <span class="callout-title">1. equals у StringBuilder сравнивает ссылки</span>
+      <p><code>new StringBuilder("abc").equals(new StringBuilder("abc"))</code> → <b>false</b>! В отличие от String, у StringBuilder метод <code>equals</code> не сравнивает по содержимому — он сравнивает по ссылке, как <code>==</code>. Сравнивать нужно готовые строки, которые вернул <code>toString()</code>: <code>sb1.toString().equals(sb2.toString())</code>.</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">2. StringBuilder — не String</span>
+      <p><code>String s = sb;</code> не скомпилируется: инициализировать переменную типа String значением типа StringBuilder нельзя. Нужен вызов <code>sb.toString()</code>. А вот <code>System.out.println(sb)</code> работает — println сам вызывает toString у аргумента.</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">3. Методы String vs методы StringBuilder</span>
+      <p>У String «изменяющие» методы возвращают новую строку — <b>возвращаемое значение надо присвоить</b>. У StringBuilder методы меняют сам объект — <b>присваивать не нужно</b>. Если перепутать в одну сторону, изменения потеряются; в другую — ничего страшного, просто лишний код.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: StringBuffer — старший брат</summary>
+      <p>Есть ещё класс <code>StringBuffer</code> с теми же методами. Он старше (Java 1.0) и безопасен при работе из нескольких потоков одновременно, но из-за этого медленнее. В обычном коде берут <code>StringBuilder</code>. На собеседовании иногда спрашивают «String vs StringBuilder vs StringBuffer» — ответ: неизменяемая / изменяемая быстрая / изменяемая потокобезопасная. Про потоки — модуль 16.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Собери сам</h2>
+    <p>Программа печатает числа от 1 до n через запятую: <code>1, 2, 3, 4, 5</code> — без запятой в конце. Собери её.</p>
+    <div data-widget="parsons" id="parsons-m08-05-list" data-code data-title="Числа через запятую" data-icon="🧱"
+         data-hint="Объявление черновика — до цикла. Запятую ставим перед каждым числом, кроме первого. Печатаем после цикла."
+         data-success="🎉 Верно! «Запятая перед каждым, кроме первого» — классический приём против лишней запятой в конце.">
+      <script type="text/plain">
+int n = 5;
+StringBuilder sb = new StringBuilder();
+for (int i = 1; i <= n; i++) {
+    if (i > 1) {
+        sb.append(", ");
+    }
+    sb.append(i);
+}
+System.out.println(sb.toString());
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-05">
+      <script type="application/json">
+      {
+       "title": "StringBuilder",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "StringBuilder sb = new StringBuilder(\"кот\");\nsb.append(\"ик\");\nsb.insert(0, \"[\").append(\"]\");\nSystem.out.println(sb);",
+         "answer": "[котик]",
+         "why": "Вызов append дописал «ик», insert вставил «[» в начало, append — «]» в конец. Всё в одном объекте."
+        },
+        {
+         "type": "predict",
+         "q": "Строка vs черновик: что выведет?",
+         "code": "String s = \"ab\";\ns.concat(\"c\");\nStringBuilder sb = new StringBuilder(\"ab\");\nsb.append(\"c\");\nSystem.out.println(s + \" \" + sb);",
+         "answer": "ab abc",
+         "why": "Вызов <code>concat</code> у String вернул новую строку, а возвращаемое значение потеряли. Вызов <code>append</code> у StringBuilder изменил сам объект."
+        },
+        {
+         "type": "single",
+         "q": "Когда StringBuilder действительно нужен?",
+         "options": [
+          "Для любой склейки двух строк",
+          "Когда строка собирается по кусочкам в цикле",
+          "Только для разворота строки"
+         ],
+         "answer": 1,
+         "why": "В теле цикла склейка через + на каждой итерации копирует весь текст. Одиночную склейку компилятор оптимизирует сам."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>sb.reverse()</code> разворачивает сам объект sb",
+           "a": true
+          },
+          {
+           "s": "<code>sb1.equals(sb2)</code> сравнивает содержимое двух StringBuilder",
+           "a": false,
+           "why": "у StringBuilder equals сравнивает по ссылке. Сравнивай строки, которые вернул <code>toString()</code>."
+          },
+          {
+           "s": "<code>String s = sb;</code> скомпилируется",
+           "a": false,
+           "why": "разные типы, нужен <code>sb.toString()</code>."
+          }
+         ]
+        },
+        {
+         "type": "order",
+         "q": "Расставь строки программы, которая печатает «a-b-c»",
+         "code": true,
+         "lines": [
+          "StringBuilder sb = new StringBuilder();",
+          "sb.append(\"a\").append(\"-\");",
+          "sb.append(\"b\").append(\"-\");",
+          "sb.append(\"c\");",
+          "System.out.println(sb);"
+         ],
+         "why": "Объявить переменную и создать черновик → вызывать append по порядку → передать sb в println."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Вопрос с собеседования</span>
+      <p>Напиши наставнику: <em>«Задай мне вопрос "чем String отличается от StringBuilder и когда что использовать". Я отвечу, а ты оцени, как на собеседовании»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Склейка <code>+</code> в теле цикла на каждой итерации создаёт новую строку и копирует весь текст — медленно.</li>
+        <li><code>StringBuilder</code> — изменяемая строка: <code>append</code>, <code>insert</code>, <code>reverse</code>, <code>delete…</code> меняют сам объект.</li>
+        <li>Готовый результат возвращает вызов <code>sb.toString()</code>.</li>
+        <li>100 000 склеек: миллиарды копий против сотни тысяч — секунда против миллисекунд.</li>
+        <li>Одну строчку с <code>+</code> оставляй как есть. <code>equals</code> у StringBuilder сравнивает ссылки.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

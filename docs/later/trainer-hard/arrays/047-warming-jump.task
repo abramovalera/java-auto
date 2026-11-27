@@ -1,0 +1,47 @@
+## id: tr-arrays-047
+## title: Самое сильное потепление
+## file: trainer/arrays/BiggestWarmingJump.java
+## class: BiggestWarmingJump
+## level: 3
+## category: Максимум и минимум
+@@ description
+<p>Напиши класс <code>BiggestWarmingJump</code>. По температурам за <code>n</code> дней найди самое сильное потепление: наибольшую разницу <code>t[j] - t[i]</code>, где день <code>j</code> идёт <b>позже</b> дня <code>i</code>. Если температура ни разу не поднималась (или день всего один), потепление равно 0. В первой строке — <code>n</code> (n ≥ 1), во второй — <code>n</code> температур. Напечатай <code>Потепление: X</code>.</p>
+<p>Можно решить двумя вложенными циклами, а можно — одним проходом. Попробуй одним.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       5 -3 2 8 -6 1
+вывод: Потепление: 11</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>идя слева направо, помни самую низкую температуру среди уже пройденных дней</li>
+<li>для каждого дня потепление «от самого холодного дня до сегодня» = <code>t[j] - min</code></li>
+</ul></div>
+@@ test: Весна
+@@ input
+6
+5 -3 2 8 -6 1
+@@ expect
+Потепление: 11
+@@ test: Только холодает
+@@ input
+4
+10 6 2 -1
+@@ expect
+Потепление: 0
+@@ test: Минимум позже максимума
+@@ input
+5
+9 12 1 3 4
+@@ expect
+Потепление: 3
+@@ test: Один день
+@@ input
+1
+7
+@@ expect
+Потепление: 0
+@@ test: Без изменений
+@@ input
+3
+0 0 0
+@@ expect
+Потепление: 0
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

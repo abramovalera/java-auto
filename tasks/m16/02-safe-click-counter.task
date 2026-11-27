@@ -1,0 +1,37 @@
+## id: m16-t02
+## title: Счётчик кликов без потерь
+## file: module-16/SafeClickCounter.java
+## class: SafeClickCounter
+## level: 2
+@@ description
+<p>Нагрузочный тест: много «пользователей» одновременно жмут кнопку, а программа считает клики. Прочитай с клавиатуры два числа: <code>threads</code> — сколько потоков-пользователей, и <code>clicks</code> — сколько кликов делает каждый. Каждый поток в цикле увеличивает <b>общий</b> счётчик на 1. Дождись всех потоков и выведи итог. Ввод <code>4 100000</code>:</p>
+<pre class="terminal"><span class="out">Потоков: 4
+Кликов: 400000</span></pre>
+<p>Итог должен быть <b>точным</b> при любом числе потоков. Обычный <code>count++</code> из нескольких потоков теряет клики (гонка), поэтому защити счётчик: <code>synchronized</code> или <code>AtomicInteger</code>. При <code>threads = 0</code> кликов, конечно, 0.</p>
+<p>📖 <a href="/lessons/m16/02-race-condition.html">Гонка данных → synchronized и AtomicInteger</a></p>
+@@ test: Пример из условия
+@@ input
+4 100000
+@@ expect
+Потоков: 4
+Кликов: 400000
+@@ test: Много потоков и кликов
+@@ input
+8 250000
+@@ expect
+Потоков: 8
+Кликов: 2000000
+@@ test: Один пользователь
+@@ input
+1 7
+@@ expect
+Потоков: 1
+Кликов: 7
+@@ test: Ноль потоков
+@@ input
+0 1000
+@@ expect
+Потоков: 0
+Кликов: 0
+@@ require: new\s+Thread|Executors | Клики должны идти из нескольких потоков
+@@ require: synchronized|Atomic(Integer|Long) | Защити общий счётчик: synchronized или AtomicInteger

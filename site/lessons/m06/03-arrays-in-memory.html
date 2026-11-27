@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Массив в памяти: ссылки · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m06-03">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 6 · Урок 3</div>
+    <h1>Массив в памяти: стек, куча и стрелки</h1>
+    <p class="lead">Почему, поменяв массив <code>b</code>, ты вдруг поменял и <code>a</code>? Заглянем в память и увидим: переменная хранит не массив, а стрелку на него.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 стек и куча</span><span>⚖️ == и Arrays.equals</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m06-03-review">
+      <script type="application/json">
+      { "title": "Стек, куча и обход", "icon": "🔁",
+        "items": [
+          { "type": "match", "q": "Где что живёт?",
+            "left": ["Локальная переменная int x = 5", "Объект, созданный через new", "Переменная со ссылкой на объект"],
+            "right": ["В стеке, прямо со значением", "В куче", "В стеке, а внутри — адрес объекта в куче"],
+            "why": "Стек — переменные методов, куча — объекты. Ссылка — это «адрес», по которому объект можно найти." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int[] a = {10, 20, 30};\nfor (int i = a.length - 1; i >= 0; i--) {\n    System.out.print(a[i] + \" \");\n}",
+            "answer": "30 20 10", "why": "Счётчик инициализируется последним индексом (2), шаг i-- ведёт к нулю — элементы печатаются задом наперёд." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Загадка</h2>
+    <p>Прежде чем читать дальше — честно предскажи:</p>
+<pre data-file="Mystery.java"><code class="java">int[] a = {1, 2, 3};
+int[] b = a;
+b[0] = 99;
+System.out.println(a[0]);</code></pre>
+    <details class="predict">
+      <summary>Что напечатается: 1 или 99?</summary>
+      <p><b>99</b>. Мы ни разу не присваивали ничего через <code>a</code>, а <code>a[0]</code> изменился. Почему так — весь этот урок. Если ты ответил 1 — не страшно, так отвечает почти каждый новичок. И многие на собеседовании.</p>
+    </details>
+    <p>С переменными примитивного типа всё было бы иначе:</p>
+<pre data-file="Mystery.java"><code class="java">int x = 1;
+int y = x;
+y = 99;
+System.out.println(x);   // 1 — x не изменился</code></pre>
+    <div class="say" data-mood="think"><p>Почему с <code>int</code> копия независимая, а с <code>int[]</code> — нет? Ответ в том, <b>что именно лежит в переменной</b>.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Переменная хранит ссылку, массив живёт в куче</h2>
+    <p>Вспомни две области памяти:</p>
+    <ul>
+      <li><b>Стек</b> — переменные метода <code>main</code>. Маленькие ячейки, у каждой своё имя.</li>
+      <li><b>Куча</b> — большой склад для объектов. Всё, что создаётся через <code>new</code>, появляется там.</li>
+    </ul>
+    <p>Массив — <b>объект</b>. Строка <code>int[] a = new int[3];</code> — объявление с инициализацией — делает две вещи: в куче создаёт сам массив (три ячейки плюс записанная длина), а в стеке — переменную <code>a</code>, в которой лежит <b>ссылка</b>: адрес массива в куче. На схемах ссылку рисуют стрелкой.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 260" role="img" aria-label="В стеке переменные x со значением 5 и a со ссылкой; ссылка ведёт стрелкой к массиву в куче">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="10" width="250" height="240" rx="14" class="d-soft"/>
+        <text x="135" y="40" text-anchor="middle" class="d-title">Стек (main)</text>
+        <rect x="30" y="70" width="210" height="56" rx="8" class="d-box"/>
+        <text x="48" y="104" class="d-mono-ink">int x</text>
+        <rect x="150" y="80" width="78" height="36" rx="6" class="d-yellow"/>
+        <text x="189" y="104" text-anchor="middle" class="d-title">5</text>
+        <rect x="30" y="150" width="210" height="56" rx="8" class="d-box"/>
+        <text x="48" y="184" class="d-mono-ink">int[] a</text>
+        <rect x="150" y="160" width="78" height="36" rx="6" class="d-violet"/>
+        <text x="189" y="184" text-anchor="middle" class="d-mono-ink">#1</text>
+        <text x="135" y="236" text-anchor="middle" class="d-small">значение или адрес</text>
+        <rect x="320" y="10" width="370" height="240" rx="14" class="d-soft"/>
+        <text x="505" y="40" text-anchor="middle" class="d-title">Куча (объекты)</text>
+        <rect x="350" y="120" width="320" height="100" rx="12" class="d-blue"/>
+        <text x="366" y="144" class="d-small">#1 · int[] · length = 3</text>
+        <rect x="366" y="156" width="90" height="48" rx="6" class="d-box"/><text x="411" y="186" text-anchor="middle" class="d-title">0</text>
+        <rect x="466" y="156" width="90" height="48" rx="6" class="d-box"/><text x="511" y="186" text-anchor="middle" class="d-title">0</text>
+        <rect x="566" y="156" width="90" height="48" rx="6" class="d-box"/><text x="611" y="186" text-anchor="middle" class="d-title">0</text>
+        <path d="M230 178 C290 178 300 150 346 150" class="d-arrow"/>
+      </svg>
+      <figcaption>В <code>x</code> лежит само число. В <code>a</code> — только адрес (#1). Сам массив — в куче.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: номерок в гардеробе</span>
+      <p>Ты сдал куртку — тебе дали номерок №1. Куртка висит в гардеробе (это куча), а в кармане у тебя только номерок (это переменная). Строка <code>int[] b = a;</code> — объявляем <code>b</code> и инициализируем её значением <code>a</code>, то есть ссылкой: это <b>второй номерок с тем же номером</b>, а не вторая куртка. Друг по своему номерку возьмёт твою куртку и пришьёт пуговицу — ты свою куртку получишь уже с пуговицей.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Смотрим по шагам: b = a — это не копия</h2>
+    <p>Слева код, справа память: стек с переменными и куча с объектами. Стрелка показывает, куда смотрит ссылка. Сначала — обычные <code>int</code>, потом массив.</p>
+    <div data-widget="trace" id="trace-m06-03-alias">
+      <script type="application/json">
+      { "title": "Два имени — один массив",
+        "intro": "Нажимай «Шаг ▶». Следи за стрелками: сколько их и куда они ведут.",
+        "code": "int x = 5;\nint y = x;\ny = 7;\nint[] a = {1, 2, 3};\nint[] b = a;\nb[0] = 99;\nint first = a[0];\nSystem.out.println(x + \" \" + first);",
+        "steps": [
+          { "line": 1, "vars": { "x": "5" }, "heap": [], "note": "Объявляем x и инициализируем литералом 5. Примитив int лежит прямо в стеке, своей пятёркой." },
+          { "line": 2, "vars": { "x": "5", "y": "5" }, "heap": [], "note": "Объявляем y и инициализируем значением x — оно скопировалось. Теперь у каждой переменной своя, отдельная пятёрка." },
+          { "line": 3, "vars": { "x": "5", "y": "7" }, "heap": [], "ask": ["x"], "note": "Присваивание изменило только y. Поэтому x = 5: копии примитивов независимы." },
+          { "line": 4, "vars": { "x": "5", "y": "7", "a": "→#1" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Объявляем a и инициализируем литералом массива: массив создан в куче под адресом #1. В стеке у переменной a — только ссылка на него (стрелка)." },
+          { "line": 5, "vars": { "x": "5", "y": "7", "a": "→#1", "b": "→#1" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Скопировалась <b>ссылка</b>, а не массив. Теперь две стрелки ведут к одному и тому же объекту #1. Второго массива нет!" },
+          { "line": 6, "vars": { "x": "5", "y": "7", "a": "→#1", "b": "→#1" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "99", "[1]": "2", "[2]": "3" } } ], "note": "Обращение b[0]: идём по стрелке b в объект #1 и присваиваем элементу [0] значение 99. Объект один — значит, изменение видно через обе переменные." },
+          { "line": 7, "vars": { "x": "5", "y": "7", "a": "→#1", "b": "→#1", "first": "99" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "99", "[1]": "2", "[2]": "3" } } ], "ask": ["first"], "note": "first инициализируется значением a[0]. Посмотри, куда ведёт стрелка a: в тот же #1, а там в элементе [0] уже 99." },
+          { "line": 8, "vars": { "x": "5", "y": "7", "a": "→#1", "b": "→#1", "first": "99" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "99", "[1]": "2", "[2]": "3" } } ], "out": "5 99\n", "note": "x не изменился (примитив), а a[0] изменился (общий массив). Загадка разгадана." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Правило на всю жизнь в Java</span>
+      <p>Оператор присваивания <code>=</code> всегда копирует то, что лежит в переменной. У примитивов (<code>int</code>, <code>double</code>, <code>boolean</code>, <code>char</code>…) там значение — копируется значение. У массивов и других объектов там ссылка — копируется ссылка. В модулях про классы и коллекции это правило будет работать точно так же.</p>
+    </div>
+    <p>Где это бьёт в реальной работе: тест сохранил «ожидаемый» массив присваиванием <code>expected = actual;</code>, потом программа поменяла элементы <code>actual</code> — и тест сравнивает массив сам с собой. Он всегда зелёный и ничего не проверяет.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Как сделать настоящую копию</h2>
+    <p>Нужен второй, независимый массив — значит, нужен второй объект в куче. Три способа:</p>
+<pre data-file="CopyDemo.java"><code class="java">import java.util.Arrays;
+…
+int[] a = {1, 2, 3};
+
+int[] c1 = Arrays.copyOf(a, a.length);   // 1. готовый метод класса Arrays
+int[] c2 = a.clone();                    // 2. «клонировать» массив
+
+int[] c3 = new int[a.length];            // 3. руками: новый массив + цикл
+for (int i = 0; i &lt; a.length; i++) {
+    c3[i] = a[i];
+}</code></pre>
+    <p>Во всех трёх случаях в куче появляется <b>новый</b> массив с теми же числами. В первых двух мы вызываем метод (<code>copyOf</code> у класса <code>Arrays</code>, <code>clone</code> у массива <code>a</code>), и метод возвращает ссылку на новый массив — ею инициализируется переменная. <code>Arrays.copyOf</code> умеет ещё и менять длину — второй аргумент задаёт длину копии: <code>Arrays.copyOf(a, 5)</code> даст <code>[1, 2, 3, 0, 0]</code> (лишние ячейки — нули), а <code>Arrays.copyOf(a, 2)</code> — <code>[1, 2]</code>. Так и «увеличивают» массив: создают новый побольше.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: ссылка на документ и копия документа</span>
+      <p>Ты отправил другу <b>ссылку</b> на свой Google-документ (<code>b = a</code>). Друг дописал строчку — ты видишь её у себя: документ-то один. А если нажать «Создать копию» (<code>Arrays.copyOf</code>), у друга будет свой документ, и его правки тебя не касаются.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Сравнение: == или Arrays.equals</h2>
+    <p>Раз в переменных лежат ссылки, то <code>a == b</code> сравнивает <b>ссылки</b>: «ведут ли стрелки в один и тот же объект?». Совпадение содержимого <code>==</code> не интересует. Чтобы сравнить содержимое поэлементно, есть <code>Arrays.equals(a, b)</code>: одинаковая длина и одинаковые элементы на тех же местах.</p>
+    <div data-widget="trace" id="trace-m06-03-equals">
+      <script type="application/json">
+      { "title": "Одинаковые или один и тот же?",
+        "intro": "Здесь появятся два объекта в куче. Перед сравнениями посмотри, куда ведут стрелки.",
+        "code": "int[] a = {1, 2, 3};\nint[] b = a;\nint[] c = Arrays.copyOf(a, a.length);\nboolean sameAB = (a == b);\nboolean sameAC = (a == c);\nboolean equalAC = Arrays.equals(a, c);\nc[0] = 50;\nSystem.out.println(a[0] + \" \" + c[0]);",
+        "steps": [
+          { "line": 1, "vars": { "a": "→#1" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Объявляем a и инициализируем литералом массива: массив #1 в куче, a ссылается на него." },
+          { "line": 2, "vars": { "a": "→#1", "b": "→#1" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Объявляем b и инициализируем значением a — той же ссылкой: стрелка в тот же #1." },
+          { "line": 3, "vars": { "a": "→#1", "b": "→#1", "c": "→#2" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } }, { "id": "#2", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Вызываем метод copyOf и передаём аргументы a и a.length. Метод создаёт <b>новый</b> объект #2, копирует туда числа и возвращает ссылку на него — ею инициализируется c." },
+          { "line": 4, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "sameAB": "true" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } }, { "id": "#2", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "ask": ["sameAB"], "note": "Оператор == сравнивает адреса, а не числа. a и b обе ведут в #1 — true." },
+          { "line": 5, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "sameAB": "true", "sameAC": "false" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } }, { "id": "#2", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "ask": ["sameAC"], "note": "Сравни адреса, а не числа внутри. #1 и #2 — разные объекты, поэтому false, хотя числа одинаковые." },
+          { "line": 6, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "sameAB": "true", "sameAC": "false", "equalAC": "true" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } }, { "id": "#2", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "ask": ["equalAC"], "note": "Вызов Arrays.equals(a, c) сравнивает содержимое поэлементно. Длины равны, числа на местах совпадают — метод возвращает true." },
+          { "line": 7, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "sameAB": "true", "sameAC": "false", "equalAC": "true" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } }, { "id": "#2", "label": "int[] · length 3", "fields": { "[0]": "50", "[1]": "2", "[2]": "3" } } ], "note": "Присваиваем элементу c[0] значение 50 — меняем копию #2. Оригинал #1 не тронут — копия настоящая." },
+          { "line": 8, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "sameAB": "true", "sameAC": "false", "equalAC": "true" }, "heap": [ { "id": "#1", "label": "int[] · length 3", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } }, { "id": "#2", "label": "int[] · length 3", "fields": { "[0]": "50", "[1]": "2", "[2]": "3" } } ], "out": "1 50\n", "note": "a[0] остался 1, c[0] стал 50. Обрати внимание: equalAC всё ещё true — переменная запомнила результат на строке 6 и сама не пересчитывается." }
+        ] }
+      </script>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Выражение</th><th>Что сравнивает</th><th>Когда true</th></tr>
+        <tr><td><code>a == b</code></td><td>ссылки (адреса)</td><td>обе переменные ведут в <b>один и тот же</b> объект</td></tr>
+        <tr><td><code>Arrays.equals(a, b)</code></td><td>содержимое</td><td>одинаковая длина и равные элементы на тех же местах</td></tr>
+        <tr><td><code>a.equals(b)</code></td><td>⚠️ тоже ссылки!</td><td>как <code>==</code> — у массивов «умного» equals нет</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Что выведет: System.out.println(new int[]{1} == new int[]{1});</summary>
+      <p><b>false</b>. Два <code>new</code> — два разных объекта в куче, два разных адреса. Содержимое одинаковое, но <code>==</code> на него не смотрит.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Стрелку можно перевесить</h2>
+    <p>Переменной-ссылке можно присвоить ссылку на другой массив. Старый при этом никуда не копируется — просто стрелка начинает вести в другое место:</p>
+<pre data-file="Reassign.java"><code class="java">int[] a = {1, 2, 3};
+int[] b = a;          // a и b → #1
+a = new int[5];       // a → #2 (новый массив из нулей), b по-прежнему → #1
+System.out.println(b[0] + " " + a.length);   // 1 5</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 230" role="img" aria-label="После присваивания a ведёт к новому массиву из пяти нулей, а b остаётся у старого массива">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="10" width="200" height="210" rx="14" class="d-soft"/>
+        <text x="110" y="40" text-anchor="middle" class="d-title">Стек</text>
+        <rect x="30" y="66" width="160" height="50" rx="8" class="d-box"/><text x="46" y="97" class="d-mono-ink">a</text>
+        <rect x="110" y="74" width="66" height="34" rx="6" class="d-violet"/><text x="143" y="97" text-anchor="middle" class="d-mono-ink">#2</text>
+        <rect x="30" y="146" width="160" height="50" rx="8" class="d-box"/><text x="46" y="177" class="d-mono-ink">b</text>
+        <rect x="110" y="154" width="66" height="34" rx="6" class="d-violet"/><text x="143" y="177" text-anchor="middle" class="d-mono-ink">#1</text>
+        <rect x="270" y="10" width="420" height="210" rx="14" class="d-soft"/>
+        <text x="480" y="40" text-anchor="middle" class="d-title">Куча</text>
+        <rect x="300" y="56" width="370" height="64" rx="10" class="d-teal"/>
+        <text x="314" y="76" class="d-small">#2 · int[] · length 5</text>
+        <text x="314" y="106" class="d-mono-ink">[0, 0, 0, 0, 0]</text>
+        <rect x="300" y="140" width="370" height="64" rx="10" class="d-blue"/>
+        <text x="314" y="160" class="d-small">#1 · int[] · length 3</text>
+        <text x="314" y="190" class="d-mono-ink">[1, 2, 3]</text>
+        <path d="M178 91 C240 91 250 88 296 88" class="d-arrow"/>
+        <path d="M178 171 C240 171 250 172 296 172" class="d-arrow"/>
+      </svg>
+      <figcaption>a перевесили на новый массив #2. Старый #1 жив, пока на него смотрит b.</figcaption>
+    </figure>
+    <p>А если на старый массив не смотрит <b>ни одна</b> стрелка, до него больше никак не добраться. Такой объект — мусор, и его рано или поздно уберёт <b>сборщик мусора</b> (garbage collector) — помнишь его по модулю 1? Освобождать память руками в Java не нужно.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: null — ссылка в никуда</summary>
+      <p>Переменной-массиву можно присвоить <code>null</code> — «стрелки нет».</p>
+<pre data-file="NullDemo.java"><code class="java">int[] a = null;
+System.out.println(a);        // null — печатать можно
+System.out.println(a.length); // 💥 NullPointerException</code></pre>
+      <p>Пойти по стрелке, которой нет, нельзя — программа падает с <code>NullPointerException</code> (NPE). Это самое частое исключение в Java вообще, ты ещё не раз его встретишь. Не путай: <code>new int[0]</code> — это настоящий массив <b>длины 0</b> (пустой шкаф без ячеек), его <code>length</code> равен 0 и ничего не падает.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m06-03">
+      <script type="application/json">
+      {
+       "title": "Массивы и ссылки",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int[] p = {5, 6};\nint[] q = p;\nq[1] = 0;\nSystem.out.println(p[1]);",
+         "answer": "0",
+         "why": "Инициализация q = p скопировала ссылку. Массив один, присваивание элементу через q видно через p."
+        },
+        {
+         "type": "predict",
+         "q": "А эта?",
+         "code": "int[] p = {5, 6};\nint[] q = p.clone();\nq[1] = 0;\nSystem.out.println(p[1]);",
+         "answer": "6",
+         "why": "Вызов p.clone() вернул ссылку на новый массив. Меняем элемент копии — оригинал цел."
+        },
+        {
+         "type": "single",
+         "q": "<code>int[] a = {1, 2};</code> <code>int[] b = {1, 2};</code> Что вернёт <code>a == b</code>?",
+         "options": [
+          "true — числа одинаковые",
+          "false — это два разных объекта",
+          "Ошибка компиляции"
+         ],
+         "answer": 1,
+         "why": "Каждый литерал массива { } создаёт свой массив в куче. == сравнивает адреса, а они разные."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "int[] b = a; создаёт копию массива",
+           "a": false,
+           "why": "копируется только ссылка — стрелка на тот же массив."
+          },
+          {
+           "s": "Переменная-массив в стеке хранит адрес объекта в куче",
+           "a": true
+          },
+          {
+           "s": "a.equals(b) у массивов сравнивает элементы",
+           "a": false,
+           "why": "у массивов equals работает как == . Для содержимого — Arrays.equals(a, b)."
+          },
+          {
+           "s": "Arrays.copyOf(a, 10) может вернуть массив длиннее исходного",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Нарисую словами память для кода int[] b = a; b[0] = 5; — проверь, правильно ли я понимаю стрелки»</em>. Объяснить это вслух — лучший способ понять ссылки навсегда.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Массив — объект в куче. Переменная в стеке хранит <b>ссылку</b> (адрес) на него.</li>
+        <li><code>int[] b = a;</code> — <code>b</code> инициализируется копией ссылки: два имени, один массив. Изменения видны через оба.</li>
+        <li>Настоящая копия: <code>Arrays.copyOf(a, a.length)</code>, <code>a.clone()</code> или новый массив + цикл.</li>
+        <li><code>==</code> сравнивает ссылки, <code>Arrays.equals(a, b)</code> — содержимое, поэлементно. <code>a.equals(b)</code> у массивов = <code>==</code>.</li>
+        <li>На объект без единой ссылки придёт сборщик мусора. <code>null</code> — ссылки нет, обращение даст NullPointerException.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

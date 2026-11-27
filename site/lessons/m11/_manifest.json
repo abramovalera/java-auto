@@ -1,0 +1,14 @@
+{ "id": "m11", "num": "11", "title": "Интерфейсы, абстрактные классы, enum, record",
+  "summary": "Абстрактные классы, интерфейсы и обратный вызов (Comparator, Runnable), перечисления enum и неизменяемые record.",
+  "lessons": [
+    { "id": "m11-01", "title": "Абстрактные классы", "url": "/lessons/m11/01-abstract-classes.html" },
+    { "id": "m11-02", "title": "Интерфейсы: контракт «умеет делать»", "url": "/lessons/m11/02-interfaces.html" },
+    { "id": "m11-03", "title": "default, static и «когда что»", "url": "/lessons/m11/03-default-static.html" },
+    { "id": "m11-04", "title": "Обратный вызов: Comparator и Runnable", "url": "/lessons/m11/04-callbacks.html" },
+    { "id": "m11-05", "title": "Перечисления enum", "url": "/lessons/m11/05-enum.html" },
+    { "id": "m11-06", "title": "record подробно", "url": "/lessons/m11/06-records.html" },
+    { "id": "m11-07", "title": "Как выбрать тип", "url": "/lessons/m11/07-choosing.html" },
+    { "id": "m11-pz", "title": "Головоломки: что выведется?", "url": "/lessons/m11/08-puzzles.html" },
+    { "id": "m11-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m11/09-summary.html" }
+  ],
+  "taskCount": 8 }

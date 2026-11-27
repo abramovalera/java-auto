@@ -1,0 +1,56 @@
+## id: tr-colls-018
+## title: Свободен ли логин
+## file: trainer/colls/LoginAvailabilityCheck.java
+## class: LoginAvailabilityCheck
+## level: 1
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>LoginAvailabilityCheck</code>. На сайте логины не различают регистр: если занят <code>Kot</code>, то <code>kot</code> и <code>KOT</code> тоже заняты. В первой строке — количество занятых логинов <code>n</code>, во второй — <code>n</code> логинов через пробел, в третьей — логин, который хочет новый пользователь. Напечатай <code>Логин свободен</code> или <code>Логин занят</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       kot pes ezh
+       slon
+вывод: Логин свободен
+
+ввод:  3
+       Kot pes ezh
+       KOT
+вывод: Логин занят</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>приведи все логины к одному регистру ещё при добавлении в множество: <code>s.toLowerCase()</code></li>
+<li><code>set.contains(x)</code> — есть ли элемент в множестве</li>
+</ul></div>
+@@ test: Свободен
+@@ input
+3
+kot pes ezh
+slon
+@@ expect
+Логин свободен
+@@ test: Занят в другом регистре
+@@ input
+3
+Kot pes ezh
+KOT
+@@ expect
+Логин занят
+@@ test: Занят точно так же
+@@ input
+2
+anna boris
+boris
+@@ expect
+Логин занят
+@@ test: Пока никого нет
+@@ input
+0
+
+admin
+@@ expect
+Логин свободен
+@@ test: Похожий, но другой
+@@ input
+1
+max
+max1
+@@ expect
+Логин свободен

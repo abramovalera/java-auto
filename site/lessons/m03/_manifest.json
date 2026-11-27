@@ -1,0 +1,54 @@
+{
+  "id": "m03",
+  "num": "3",
+  "title": "Операторы и выражения",
+  "summary": "Арифметика и остаток от деления, ++ и +=, сравнения и boolean, логика И/ИЛИ/НЕ, приоритет операций, класс Math.",
+  "lessons": [
+    {
+      "id": "m03-01",
+      "title": "Арифметика: деление и остаток",
+      "url": "/lessons/m03/01-arithmetic.html"
+    },
+    {
+      "id": "m03-02",
+      "title": "++, -- и составные присваивания",
+      "url": "/lessons/m03/02-increment.html"
+    },
+    {
+      "id": "m03-03",
+      "title": "Сравнения и boolean",
+      "url": "/lessons/m03/03-comparison.html"
+    },
+    {
+      "id": "m03-04",
+      "title": "Логические операции: И, ИЛИ, НЕ",
+      "url": "/lessons/m03/04-logic.html"
+    },
+    {
+      "id": "m03-05",
+      "title": "Приоритет операций",
+      "url": "/lessons/m03/05-precedence.html"
+    },
+    {
+      "id": "m03-06",
+      "title": "Класс Math",
+      "url": "/lessons/m03/06-math.html"
+    },
+    {
+      "id": "m03-pz",
+      "title": "Головоломки: что выведется?",
+      "url": "/lessons/m03/07-puzzles.html"
+    },
+    {
+      "id": "m03-star",
+      "title": "★ МиниБанк: пополнение с комиссией",
+      "url": "/lessons/m03/95-minibank.html"
+    },
+    {
+      "id": "m03-sum",
+      "title": "Итоги модуля и экзамен",
+      "url": "/lessons/m03/08-summary.html"
+    }
+  ],
+  "taskCount": 10
+}

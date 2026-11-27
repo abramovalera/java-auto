@@ -1,0 +1,58 @@
+// Два повара готовят по 5 блюд. Для каждого блюда нужны ложка И половник.
+// Запусти программу: она зависнет и ничего не напечатает.
+// Найди, почему повара ждут друг друга вечно, и почини.
+// Ожидаемый вывод:
+// Аня приготовила блюд: 5
+// Борис приготовил блюд: 5
+// Всего блюд: 10
+public class TwoCooksDeadlockFix {
+    static final Object spoon = new Object();
+    static final Object ladle = new Object();
+    static int totalDishes = 0;
+
+    static void cookAnya(int[] myDishes) {
+        for (int d = 0; d < 5; d++) {
+            synchronized (spoon) {
+                sleepQuietly(10);           // пока Аня держит ложку, повар Борис тоже не спит
+                synchronized (ladle) {
+                    myDishes[0]++;
+                    totalDishes++;
+                }
+            }
+        }
+    }
+
+    static void cookBoris(int[] myDishes) {
+        for (int d = 0; d < 5; d++) {
+            synchronized (ladle) {
+                sleepQuietly(10);
+                synchronized (spoon) {
+                    myDishes[0]++;
+                    totalDishes++;
+                }
+            }
+        }
+    }
+
+    static void sleepQuietly(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        int[] anya = new int[1];
+        int[] boris = new int[1];
+        Thread cookA = new Thread(() -> cookAnya(anya));
+        Thread cookB = new Thread(() -> cookBoris(boris));
+        cookA.start();
+        cookB.start();
+        cookA.join();
+        cookB.join();
+        System.out.println("Аня приготовила блюд: " + anya[0]);
+        System.out.println("Борис приготовил блюд: " + boris[0]);
+        System.out.println("Всего блюд: " + totalDishes);
+    }
+}

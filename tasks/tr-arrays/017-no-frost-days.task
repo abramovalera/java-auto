@@ -1,0 +1,46 @@
+## id: tr-arrays-017
+## title: Были ли заморозки
+## file: trainer/arrays/AllDaysAboveFreezing.java
+## class: AllDaysAboveFreezing
+## level: 1
+## category: Поиск
+@@ description
+<p>Напиши класс <code>AllDaysAboveFreezing</code>. Дачник записывал ночную температуру за <code>n</code> дней (n ≥ 1). Заморозок — это ночь с температурой <b>0 или ниже</b>. В первой строке — <code>n</code>, во второй — <code>n</code> целых температур. Если заморозков не было, напечатай <code>Без заморозков</code>, иначе — <code>Первый заморозок: день D</code>, где D — номер дня (дни нумеруются с 1).</p>
+<pre class="terminal"><span class="out">ввод:  5
+       6 3 -2 4 -1
+вывод: Первый заморозок: день 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>break</code> — выход из цикла, как только нашёл первый подходящий день</li>
+<li><code>int frostDay = -1;</code> — значение «не нашли» до начала поиска</li>
+</ul></div>
+@@ test: Весна
+@@ input
+5
+6 3 -2 4 -1
+@@ expect
+Первый заморозок: день 3
+@@ test: Тепло всю неделю
+@@ input
+4
+8 11 5 1
+@@ expect
+Без заморозков
+@@ test: Ноль — тоже заморозок
+@@ input
+3
+2 0 3
+@@ expect
+Первый заморозок: день 2
+@@ test: С первого дня
+@@ input
+2
+-4 -1
+@@ expect
+Первый заморозок: день 1
+@@ test: Один тёплый день
+@@ input
+1
+15
+@@ expect
+Без заморозков
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

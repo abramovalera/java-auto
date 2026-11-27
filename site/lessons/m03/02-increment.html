@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Инкремент, декремент и составные присваивания · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-02">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 3 · Урок 2</div>
+    <h1>++, -- и составные присваивания</h1>
+    <p class="lead">Счётчики живут в каждой программе: лайки, попытки входа, номер заказа, очки в игре. Для них в Java есть короткие операторы — и одна знаменитая ловушка, которую обожают на собеседованиях.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка с вопросами</span><span>💼 классика собеседований</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m03-02-review">
+      <script type="application/json">
+      { "title": "Вспомним урок 3.1",
+        "items": [
+          { "type": "single", "q": "Чему равно <code>23 % 10</code>?", "options": ["2", "3", "2.3"], "answer": 1,
+            "why": "10 помещается в 23 два раза (20), остаётся 3 — последняя цифра." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "double half = 7 / 2;\nSystem.out.println(half);", "answer": "3.0",
+            "why": "Сначала вычисляется выражение 7 / 2 — оба операнда int, получается 3. Потом этим значением инициализируется переменная half типа double, и 3 становится 3.0." },
+          { "type": "single", "q": "Что будет при запуске <code>System.out.println(10 % 0);</code>?", "options": ["Напечатает 0", "Ошибка компиляции: делить на ноль запрещено", "Программа упадёт с ArithmeticException"], "answer": 2,
+            "why": "Остаток от деления на ноль для целых чисел — та же авария, что и деление: / by zero." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>«Возьми, измени, положи обратно»</h2>
+    <p>Вспомни, как читается присваивание: <b>справа налево</b>. Строку <code>count = count + 1;</code> математик назвал бы бредом (число не может быть равно самому себе плюс один). А для Java это <b>присваивание</b>: вычисляется выражение <code>count + 1</code>, и результат записывается в <code>count</code>. По шагам — три действия:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 190" role="img" aria-label="count = count + 1: взять значение 4, прибавить 1, положить 5 обратно в count">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="60" width="140" height="70" rx="14" class="d-blue"/>
+        <text x="90" y="88" text-anchor="middle" class="d-small">переменная count</text>
+        <text x="90" y="115" text-anchor="middle" class="d-title">4 → 5</text>
+        <path d="M160 80 C230 30, 260 30, 300 60" class="d-arrow"/>
+        <text x="235" y="30" text-anchor="middle" class="d-small">① взять 4</text>
+        <rect x="300" y="60" width="150" height="70" rx="14" class="d-accent"/>
+        <text x="375" y="102" text-anchor="middle" class="d-title">4 + 1 = 5</text>
+        <text x="375" y="150" text-anchor="middle" class="d-small">② посчитать справа</text>
+        <path d="M300 115 C250 165, 210 165, 160 115" class="d-arrow"/>
+        <text x="232" y="178" text-anchor="middle" class="d-small">③ положить обратно</text>
+        <rect x="480" y="52" width="200" height="86" rx="12" class="d-code"/>
+        <text x="494" y="86" class="d-mono">count = count + 1;</text>
+        <text x="494" y="116" class="d-mono">count++;   // то же</text>
+      </svg>
+      <figcaption>Знак <code>=</code> в Java — не «равно», а оператор присваивания: «положи». Сравнение «равно» пишется <code>==</code> (это следующий урок).</figcaption>
+    </figure>
+    <p>Писать <code>count = count + 1</code> длинно, а делают это постоянно. Поэтому придумали сокращения.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кликер охранника</span>
+      <p>У охранника на входе в клуб есть кликер-счётчик: зашёл человек — щёлк, +1. Вышел — щёлк другой кнопкой, −1. Это и есть <b>инкремент</b> (увеличение на 1, <code>++</code>) и <b>декремент</b> (уменьшение на 1, <code>--</code>).</p>
+    </div>
+<pre data-file="Counter.java"><code class="java">int visitors = 0;
+visitors++;          // зашёл первый — 1
+visitors++;          // зашёл второй — 2
+visitors--;          // один ушёл    — 1
+System.out.println("В зале: " + visitors);   // В зале: 1</code></pre>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Составные присваивания</h2>
+    <p>А если нужно прибавить не 1, а 10? Для этого есть <b>составные присваивания</b>: оператор и <code>=</code> склеены вместе. Правило одно: <code>x ОП= y</code> значит <code>x = x ОП (y)</code>.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Коротко</th><th>Длинно</th><th>Где пригодится</th></tr>
+        <tr><td><code>score += 10;</code></td><td><code>score = score + 10;</code></td><td>начислить очки</td></tr>
+        <tr><td><code>balance -= 300;</code></td><td><code>balance = balance - 300;</code></td><td>списать деньги</td></tr>
+        <tr><td><code>price *= 2;</code></td><td><code>price = price * 2;</code></td><td>удвоить цену</td></tr>
+        <tr><td><code>total /= 3;</code></td><td><code>total = total / 3;</code></td><td>разделить поровну (с int — целочисленно!)</td></tr>
+        <tr><td><code>seconds %= 60;</code></td><td><code>seconds = seconds % 60;</code></td><td>оставить только «хвост»</td></tr>
+        <tr><td><code>text += "!";</code></td><td><code>text = text + "!";</code></td><td>со строками тоже работает — склейка</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>int k = 3; k *= 2 + 1; — чему равно k? 7 или 9?</summary>
+      <p><b>9.</b> Правая часть составного присваивания вычисляется <b>целиком</b> и только потом применяется: <code>k = k * (2 + 1)</code> = 3 × 3. Скобки как будто стоят сами.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: скрытое приведение типа в +=</summary>
+<pre data-file="HiddenCast.java"><code class="java">int x = 10;
+x += 2.7;          // компилируется! x = 12
+x = x + 2.7;       // ошибка: possible lossy conversion from double to int</code></pre>
+      <p>В IDEA это выглядит так:</p>
+      <div data-widget="ide" id="shot-hidden-cast">
+        <script type="application/json">
+        { "tree": false, "file": "HiddenCast.java", "gutterRun": [1, 2],
+          "code": "public class HiddenCast {\n    public static void main(String[] args) {\n        int x = 10;\n        x += 2.7;\n        x = x + 2.7;\n    }\n}",
+          "errors": [ { "line": 5, "text": "x + 2.7", "msg": "Incompatible types. Found: 'double', required: 'int'", "tip": true, "fix": "Cast expression to 'int'" } ],
+          "marks": [ { "n": 1, "target": "line-4", "side": "top", "text": "<code>x += 2.7</code> — ни волны, ни предупреждения. IDEA молчит, а дробная часть потеряется" },
+                     { "n": 2, "target": "err-5", "text": "А тут красная волна под правой частью: результат выражения <code>x + 2.7</code> — double, а переменная x — int" },
+                     { "n": 3, "target": "tip", "text": "<b>Incompatible types. Found: 'double', required: 'int'</b> — «несовместимые типы: найден double, нужен int». <code>javac</code> скажет то же другими словами: <code>possible lossy conversion from double to int</code> — «возможна потеря данных»" } ],
+          "caption": "Одно и то же действие: += компилируется, длинная запись — нет" }
+        </script>
+      </div>
+      <p>Почему одно можно, а другое нет? Составное присваивание <b>само</b> приводит результат к типу переменной: <code>x += 2.7</code> на самом деле значит <code>x = (int) (x + 2.7)</code>. 12.7 молча обрезается до 12. Удобно, но опасно: дробная часть теряется без предупреждения. Отличный вопрос для собеседования.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>i++ или ++i: в чём разница</h2>
+    <p>Оператор можно поставить после переменной (<code>i++</code>, <b>постфиксный инкремент</b>) или перед ней (<code>++i</code>, <b>префиксный инкремент</b>). Когда строка состоит только из него — разницы нет, оба просто прибавят 1. Разница появляется, когда <code>i++</code> стоит <b>внутри выражения</b>: у него, как у любого выражения, есть значение.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Постфикс a++ сначала отдаёт старое значение, потом увеличивает. Префикс ++a сначала увеличивает, потом отдаёт новое">
+        <rect x="16" y="16" width="334" height="218" rx="16" class="d-soft"/>
+        <text x="183" y="46" text-anchor="middle" class="d-title">int b = a++;   (a было 5)</text>
+        <rect x="36" y="66" width="294" height="62" rx="12" class="d-teal"/>
+        <text x="52" y="92" class="d-text">① отдать СТАРОЕ значение</text>
+        <text x="52" y="116" class="d-small">b получает 5</text>
+        <rect x="36" y="142" width="294" height="62" rx="12" class="d-accent"/>
+        <text x="52" y="168" class="d-text">② увеличить a</text>
+        <text x="52" y="192" class="d-small">a становится 6</text>
+        <text x="183" y="226" text-anchor="middle" class="d-mono-ink">итог: a = 6, b = 5</text>
+
+        <rect x="370" y="16" width="334" height="218" rx="16" class="d-soft"/>
+        <text x="537" y="46" text-anchor="middle" class="d-title">int c = ++a;   (a было 5)</text>
+        <rect x="390" y="66" width="294" height="62" rx="12" class="d-accent"/>
+        <text x="406" y="92" class="d-text">① увеличить a</text>
+        <text x="406" y="116" class="d-small">a становится 6</text>
+        <rect x="390" y="142" width="294" height="62" rx="12" class="d-teal"/>
+        <text x="406" y="168" class="d-text">② отдать НОВОЕ значение</text>
+        <text x="406" y="192" class="d-small">c получает 6</text>
+        <text x="537" y="226" text-anchor="middle" class="d-mono-ink">итог: a = 6, c = 6</text>
+      </svg>
+      <figcaption>Порядок слов подсказывает порядок действий: в <code>a++</code> сначала «a» (отдать), потом «++» (увеличить). В <code>++a</code> — наоборот.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: электронная очередь</span>
+      <p>Автомат с талонами в банке. <b>Постфикс</b> <code>n++</code>: автомат печатает тебе талон с текущим номером, а потом переключает табло на следующий. <b>Префикс</b> <code>++n</code>: сначала переключает табло, а потом печатает талон уже с новым номером.</p>
+    </div>
+    <p>Теперь самое интересное. Пройди программу по шагам и впиши значения сам — это та самая трассировочная таблица, которую на собеседовании просят нарисовать на бумажке.</p>
+    <div data-widget="trace" id="trace-incr">
+      <script type="application/json">
+      { "title": "a++, ++a, a--, --a в одной программе", "intro": "Считай внимательно: на каждом шаге важно, какое значение ОТДАЁТ оператор и каким становится a.",
+        "code": "int a = 5;\nint b = a++;\nint c = ++a;\nint d = a-- - --a;\nSystem.out.println(a + \" \" + b + \" \" + c + \" \" + d);",
+        "steps": [
+          { "line": 1, "vars": { "a": "5" }, "note": "Объявляем a и инициализируем значением 5." },
+          { "line": 2, "vars": { "a": "6", "b": "5" }, "ask": ["a", "b"], "note": "Постфиксный инкремент сначала отдаёт старое значение, а потом увеличивает. Выражение a++ дало 5 — им инициализирована b, а a стал 6." },
+          { "line": 3, "vars": { "a": "7", "b": "5", "c": "7" }, "ask": ["c"], "note": "Префиксный инкремент сначала увеличивает, а потом отдаёт новое значение. ++a сделал a = 7 и отдал 7 — им инициализирована c." },
+          { "line": 4, "vars": { "a": "5", "b": "5", "c": "7", "d": "2" }, "ask": ["d"], "note": "Операнды вычисляются слева направо. Постфиксный декремент a-- отдаёт 7, a становится 6. Потом префиксный --a уменьшает a до 5 и отдаёт 5. d инициализируется значением 7 − 5 = 2, а a в итоге 5." },
+          { "line": 5, "vars": { "a": "5", "b": "5", "c": "7", "d": "2" }, "out": "5 5 7 2\n", "note": "Выражение склеивает четыре значения через пробел, результат передаём аргументом в println." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Если запутался — это нормально, такой код путает и опытных. Поэтому в реальных проектах <code>++</code> пишут <b>отдельной строкой</b> и не прячут внутрь выражений. А на собеседовании такие загадки проверяют, умеешь ли ты выполнять код в голове строго по правилам.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Знаменитая ловушка: i = i++</h2>
+<pre data-file="Trap.java"><code class="java">int i = 5;
+i = i++;
+System.out.println(i);</code></pre>
+    <details class="predict">
+      <summary>Что выведет программа: 5 или 6?</summary>
+      <p><b>5!</b> Разбираем по правилам. Сначала вычисляется правая часть: <code>i++</code> <b>отдаёт</b> старое значение 5 и увеличивает i до 6. Потом выполняется присваивание: переменной i присваивается значение правой части — 5. Шестёрка затёрта. Строка, которая «должна увеличить i», ничего не изменила. Хочешь увеличить — пиши просто <code>i++;</code>.</p>
+    </details>
+    <p>Ещё пара правил, которые помогут не ошибаться:</p>
+    <ul>
+      <li><code>++</code> и <code>--</code> работают только с <b>переменными</b>: <code>5++</code> не скомпилируется — 5 это литерал, у него нет «коробки», куда положить 6.</li>
+      <li>Они работают с <code>int</code>, <code>long</code>, <code>double</code> и даже <code>char</code>: <code>char c = 'A'; c++;</code> — и в <code>c</code> уже <code>'B'</code> (следующий код символа, помнишь коды из модуля 2?).</li>
+      <li><code>i++</code> и <code>i += 1</code> для int делают одно и то же.</li>
+    </ul>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m03-02">
+      <script type="application/json">
+      {
+       "title": "++, -- и составные присваивания",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int a = 5;\nint b = a++;\nSystem.out.println(a + \" \" + b);",
+         "answer": "6 5",
+         "why": "Выражение a++ дало старое значение 5 — им инициализирована b, а сам a стал 6."
+        },
+        {
+         "type": "predict",
+         "q": "А теперь с префиксом?",
+         "code": "int a = 5;\nint b = ++a;\nSystem.out.println(a + \" \" + b);",
+         "answer": "6 6",
+         "why": "++a сначала увеличил a до 6, потом отдал 6 — им инициализирована b."
+        },
+        {
+         "type": "match",
+         "q": "Соедини короткую запись с длинной",
+         "left": [
+          "<code>x += 3</code>",
+          "<code>x -= 3</code>",
+          "<code>x *= 3</code>",
+          "<code>x %= 3</code>"
+         ],
+         "right": [
+          "<code>x = x + 3</code>",
+          "<code>x = x - 3</code>",
+          "<code>x = x * 3</code>",
+          "<code>x = x % 3</code>"
+         ],
+         "why": "x ОП= y — это x = x ОП (y)."
+        },
+        {
+         "type": "single",
+         "q": "Чему равно k?",
+         "code": "int k = 3;\nk *= 2 + 1;",
+         "options": [
+          "7",
+          "9",
+          "6"
+         ],
+         "answer": 1,
+         "why": "Выражение справа вычисляется целиком: k = 3 * (2 + 1) = 9."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "На отдельной строке <code>i++;</code> и <code>++i;</code> делают одно и то же",
+           "a": true
+          },
+          {
+           "s": "После <code>int i = 5; i = i++;</code> переменная i равна 6",
+           "a": false,
+           "why": "i++ отдаёт 5, и оператор присваивания записывает эту 5 обратно в i."
+          },
+          {
+           "s": "<code>5++</code> — правильная запись, получится 6",
+           "a": false,
+           "why": "++ работает только с переменной: у литерала 5 нет места, куда положить результат."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне три задачки на i++ и ++i уровня собеседования. Я нарисую трассировочную таблицу, а ты проверь»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>x = x + 1</code> — вычисляется выражение <code>x + 1</code>, результат присваивается <code>x</code>: «возьми, посчитай справа, положи обратно».</li>
+        <li>Инкремент <code>++</code> / декремент <code>--</code> — плюс/минус 1. Составные присваивания <code>+= -= *= /= %=</code> — то же для любого числа, правая часть считается целиком.</li>
+        <li>Постфиксный <code>a++</code> отдаёт старое значение, потом увеличивает. Префиксный <code>++a</code> — сначала увеличивает, потом отдаёт новое.</li>
+        <li><code>i = i++</code> ничего не меняет. В рабочем коде пиши <code>++</code> отдельной строкой.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

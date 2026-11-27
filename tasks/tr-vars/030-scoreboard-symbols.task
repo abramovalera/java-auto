@@ -1,0 +1,41 @@
+## id: tr-vars-030
+## title: Сколько места на табло
+## file: trainer/vars/ScoreboardSymbols.java
+## class: ScoreboardSymbols
+## level: 2
+## category: Буквы и длина строки
+@@ description
+<p>Напиши класс <code>ScoreboardSymbols</code>. Электронное табло показывает целое число, и под каждый символ нужна отдельная ячейка. Программа читает целое число и печатает <code>Символов на табло: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2025
+вывод: Символов на табло: 4</span></pre>
+<p>Минус занимает отдельную ячейку. Нули впереди табло не показывает: если ввели <code>007</code>, на табло будет <code>7</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>"" + 42</code> — склейка с пустой строкой превращает число в строку <code>"42"</code></li>
+<li><code>s.length()</code> — возвращает количество символов в строке</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2025
+@@ expect
+Символов на табло: 4
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Символов на табло: 1
+@@ test: Отрицательное
+@@ input
+-15
+@@ expect
+Символов на табло: 3
+@@ test: Нули впереди
+@@ input
+007
+@@ expect
+Символов на табло: 1
+@@ test: Самое большое int
+@@ input
+2147483647
+@@ expect
+Символов на табло: 10

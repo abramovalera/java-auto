@@ -1,0 +1,43 @@
+## id: tr-arrays-020
+## title: Очки двух игроков
+## file: trainer/arrays/CombinedRoundScores.java
+## class: CombinedRoundScores
+## level: 1
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>CombinedRoundScores</code>. Два игрока выступают одной командой, и за каждый раунд их очки складываются. В первой строке — количество раундов <code>n</code>, во второй — <code>n</code> очков первого игрока, в третьей — <code>n</code> очков второго (за штраф бывает минус). Создай третий массив, в котором элемент с индексом <code>i</code> — сумма очков обоих игроков в раунде <code>i</code>, и напечатай его через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       10 20 30
+       5 0 7
+вывод: [15, 20, 37]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>sum[i] = a[i] + b[i];</code> — элементы с одинаковым индексом складываются в одном цикле</li>
+<li><code>Arrays.toString(a)</code> — возвращает строку вида <code>[1, 2, 3]</code> (нужен <code>import java.util.Arrays;</code>)</li>
+</ul></div>
+@@ test: Три раунда
+@@ input
+3
+10 20 30
+5 0 7
+@@ expect
+[15, 20, 37]
+@@ test: Штрафы
+@@ input
+4
+-5 3 0 8
+5 -10 0 2
+@@ expect
+[0, -7, 0, 10]
+@@ test: Один раунд
+@@ input
+1
+100
+1
+@@ expect
+[101]
+@@ test: Раундов не было
+@@ input
+0
+@@ expect
+[]
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString

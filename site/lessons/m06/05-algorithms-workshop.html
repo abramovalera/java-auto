@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская алгоритмов: массивы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m06-05">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 6 · Урок 5 · Мастерская алгоритмов</div>
+    <h1>Мастерская: думаем как программист</h1>
+    <p class="lead">Сумма, максимум, подсчёт, поиск — четыре кирпичика, из которых собирается почти любая задача на массивы. А потом по всем правилам разберём классику собеседований: разворот массива.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🛠 шаблон решения</span><span>👉👈 два указателя</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m06-05-review">
+      <script type="application/json">
+      { "title": "Роли переменных и Arrays", "icon": "🔁",
+        "items": [
+          { "type": "match", "q": "Соедини роль переменной с её поведением",
+            "left": ["Шагающая", "Накопитель", "Максимум", "Временная"],
+            "right": ["Проходит значения по порядку: 0, 1, 2…", "Собирает результат: sum += …", "Помнит лучшее из увиденного", "Ненадолго хранит значение, чтобы его не потерять"],
+            "why": "Роли — это язык, на котором удобно думать о решении. Сегодня понадобятся все четыре." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int[] a = {5, 1, 4};\nArrays.sort(a);\nSystem.out.println(a[a.length - 1]);",
+            "answer": "5", "why": "После вызова sort массив [1, 4, 5]; обращение по индексу a.length - 1 даёт последний элемент — самый большой." }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: отладчик IDEA</h3>
+      <p>Сегодня будем проверять алгоритмы трассировкой — и на сайте, и в настоящем <b>отладчике</b> (debugger) IDEA. Он останавливает программу на нужной строке и показывает все переменные. Если ты уже выписал эти клавиши в уроке 5.7 — сверь и допиши недостающее.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td>Щелчок по полю слева от номера строки или <kbd>Ctrl</kbd>+<kbd>F8</kbd></td><td>Ставит (и снимает) <b>точку останова</b> — красный кружок</td><td>«Здесь хочу остановиться и посмотреть»</td></tr>
+        <tr><td>Жук 🐞 рядом с ▶ или <kbd>Shift</kbd>+<kbd>F9</kbd></td><td>Запускает программу в режиме отладки (Debug)</td><td>Вместо ▶, когда нужно смотреть по шагам</td></tr>
+        <tr><td><kbd>F8</kbd> (Step Over)</td><td>Выполнить текущую строку и встать на следующую</td><td>Идёшь по коду шаг за шагом</td></tr>
+        <tr><td><kbd>F9</kbd> (Resume)</td><td>Бежать дальше до следующей точки останова</td><td>Пропустить скучное — например, до следующей итерации цикла</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F2</kbd></td><td>Остановить программу</td><td>Насмотрелся или программа зависла</td></tr>
+      </table></div>
+      <p style="margin-top:10px">Панель <b>Debug</b> откроется внизу сама. В ней слева — <b>Frames</b> (где сейчас программа), справа — <b>Variables</b> (переменные и их значения).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Шаблон решения — снова с нами</h2>
+    <p>На LeetCode задача «разверни массив» пугает не кодом, а пустым экраном: с чего начать? Начинать надо не с кода. Шесть шагов, одинаковых для любой задачи:</p>
+    <ol class="steps">
+      <li><b>Пойми задачу.</b> Что на входе, что на выходе? 2–3 примера, обязательно граничные: один элемент, все одинаковые, отрицательные.</li>
+      <li><b>Реши руками</b> на бумаге и запиши, что ты делал. Какие действия повторялись?</li>
+      <li><b>Найди роли переменных:</b> шагающая, накопитель, счётчик, максимум, флаг, временная.</li>
+      <li><b>Псевдокод на русском</b> — план без синтаксиса.</li>
+      <li><b>Код</b> — перевод псевдокода строка в строку.</li>
+      <li><b>Трассировка:</b> таблица «шаг | переменные» руками или отладчиком IDEA, потом граничные случаи.</li>
+    </ol>
+    <div class="say" data-mood="cool"><p>Сначала соберём четыре базовых приёма — коротко, по одной идее. Потом разворот массива — подробно, по всем шести шагам.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Приём 1–2: сумма, среднее, максимум</h2>
+    <h3>Сумма и среднее</h3>
+    <p>Роль: <b>накопитель</b> <code>sum</code>, инициализируем нулём. Обход: for-each, индексы не нужны.</p>
+<pre data-file="Average.java"><code class="java">int sum = 0;
+for (int x : a) {
+    sum += x;
+}
+double avg = (double) sum / a.length;</code></pre>
+    <details class="predict">
+      <summary>Почему не просто sum / a.length? Что будет для массива {1, 2}?</summary>
+      <p><code>3 / 2</code> — деление двух операндов типа <code>int</code>, дробная часть отбрасывается: получится <b>1</b>, а не 1.5. Поэтому один из операндов приводим к <code>double</code> (приведение типа): <code>(double) sum / a.length</code> = 1.5. Ловушка из модуля 3 никуда не делась.</p>
+    </details>
+
+    <h3>Максимум и его позиция</h3>
+    <p>Роли: <b>максимум</b> <code>max</code> («лучшее из увиденного») и <code>maxIndex</code> — где мы его видели. Руками это так: смотришь на первое число — пока оно самое большое. Идёшь дальше: встретил больше — запоминаешь новое и его место.</p>
+    <div class="callout warn">
+      <span class="callout-title">Главная ловушка: int max = 0</span>
+      <p>Если начать с нуля, а все числа отрицательные (температуры зимой: −4, −9, −1), ни одно не окажется больше нуля — и программа гордо скажет, что максимум 0. Которого в массиве нет! Инициализируй <code>max</code> <b>первым элементом</b>: <code>int max = a[0];</code></p>
+    </div>
+    <div data-widget="trace" id="trace-m06-05-max">
+      <script type="application/json">
+      { "title": "Самая тёплая ночь недели",
+        "intro": "Массив зимних температур. Ищем максимум и его индекс. Предскажи, что окажется в max и maxIndex.",
+        "code": "int[] a = {-4, -9, -1, -7};\nint max = a[0];\nint maxIndex = 0;\nfor (int i = 1; i < a.length; i++) {\n    if (a[i] > max) {\n        max = a[i];\n        maxIndex = i;\n    }\n}\nSystem.out.println(max + \" на позиции \" + maxIndex);",
+        "steps": [
+          { "line": 1, "vars": { "a": "[-4, -9, -1, -7]" }, "note": "Объявляем a и инициализируем литералом массива. Все числа отрицательные — специально, чтобы поймать ловушку с нулём." },
+          { "line": 2, "vars": { "a": "[-4, -9, -1, -7]", "max": "-4" }, "note": "Объявляем max и инициализируем значением первого элемента a[0] — пока он лучший из увиденных." },
+          { "line": 3, "vars": { "a": "[-4, -9, -1, -7]", "max": "-4", "maxIndex": "0" }, "note": "maxIndex инициализируем нулём: максимум стоит на позиции 0." },
+          { "line": 4, "vars": { "a": "[-4, -9, -1, -7]", "max": "-4", "maxIndex": "0", "i": "1" }, "note": "Счётчик цикла инициализируется единицей: нулевой элемент мы уже учли." },
+          { "line": 5, "vars": { "a": "[-4, -9, -1, -7]", "max": "-4", "maxIndex": "0", "i": "1" }, "note": "Обращаемся к a[1] — это -9. Условие a[i] > max: -9 > -4? false — пропускаем." },
+          { "line": 4, "vars": { "a": "[-4, -9, -1, -7]", "max": "-4", "maxIndex": "0", "i": "2" }, "note": "i = 2." },
+          { "line": 5, "vars": { "a": "[-4, -9, -1, -7]", "max": "-4", "maxIndex": "0", "i": "2" }, "note": "a[2] = -1. Условие -1 > -4 — true! (-1 теплее, чем -4)." },
+          { "line": 6, "vars": { "a": "[-4, -9, -1, -7]", "max": "-1", "maxIndex": "0", "i": "2" }, "ask": ["max"], "note": "Присваиваем max новое лучшее значение: max = a[2] = -1." },
+          { "line": 7, "vars": { "a": "[-4, -9, -1, -7]", "max": "-1", "maxIndex": "2", "i": "2" }, "ask": ["maxIndex"], "note": "И где его видели: maxIndex присваивается значение счётчика i = 2." },
+          { "line": 4, "vars": { "a": "[-4, -9, -1, -7]", "max": "-1", "maxIndex": "2", "i": "3" }, "note": "i = 3." },
+          { "line": 5, "vars": { "a": "[-4, -9, -1, -7]", "max": "-1", "maxIndex": "2", "i": "3" }, "note": "a[3] = -7. Больше, чем -1? Нет." },
+          { "line": 4, "vars": { "a": "[-4, -9, -1, -7]", "max": "-1", "maxIndex": "2", "i": "4" }, "note": "i = 4, условие 4 &lt; 4 — false, цикл окончен." },
+          { "line": 10, "vars": { "a": "[-4, -9, -1, -7]", "max": "-1", "maxIndex": "2" }, "out": "-1 на позиции 2\n", "note": "С int max = 0 программа напечатала бы «0 на позиции 0» — неправда." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>В массиве {3, 8, 8, 2} два максимума. Какой индекс найдёт этот код? А если заменить &gt; на &gt;=?</summary>
+      <p>С <code>&gt;</code> — <b>1</b>: вторая восьмёрка не больше первой, и maxIndex ничего не присваивается. С <code>&gt;=</code> — <b>2</b>: равный тоже «перебивает» рекорд. Один оператор решает, какой из одинаковых максимумов ты найдёшь — первый или последний. Минимум ищется так же, только со знаком <code>&lt;</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Приём 3–4: подсчёт и поиск</h2>
+    <h3>Подсчёт по условию</h3>
+    <p>Роль: <b>счётчик</b> (инициализируем нулём, увеличиваем инкрементом). «Сколько чётных?», «сколько оценок ниже 3?», «сколько товаров дороже 1000?» — один шаблон, меняется только условие в <code>if</code>.</p>
+<pre data-file="CountEven.java"><code class="java">int count = 0;
+for (int x : a) {
+    // условие — единственное, что меняется от задачи к задаче
+    if (x % 2 == 0) {
+        count++;
+    }
+}</code></pre>
+    <h3>Поиск элемента: есть или нет?</h3>
+    <p>Роли: <b>флаг</b> <code>found</code> и позиция <code>index</code>. Нашли — присвоили <code>index</code> значение счётчика и <b>сразу вышли из цикла</b> через <code>break</code>: дальше смотреть незачем.</p>
+<pre data-file="Search.java"><code class="java">int target = 7;
+int index = -1;                 // -1 = «пока не нашли»: такого индекса нет
+for (int i = 0; i &lt; a.length; i++) {
+    if (a[i] == target) {
+        index = i;
+        break;                  // первое вхождение найдено — выходим
+    }
+}
+if (index != -1) {
+    System.out.println("Нашёл на позиции " + index);
+} else {
+    System.out.println("Нет такого");
+}</code></pre>
+    <p>Тут флаг спрятан внутрь <code>index</code>: «−1» значит «не нашли». Этот приём ты встретишь в самой Java: метод <code>indexOf</code>, который вызывают у строк (модуль 8), возвращает −1, если ничего не нашёл.</p>
+    <div class="callout warn">
+      <span class="callout-title">Частая ошибка: else внутри цикла</span>
+<pre data-file="WrongSearch.java"><code class="java">for (int i = 0; i &lt; a.length; i++) {
+    if (a[i] == target) {
+        System.out.println("Нашёл");
+    } else {
+        // ❌ печатается для КАЖДОГО неподходящего элемента
+        System.out.println("Нет такого");
+    }
+}</code></pre>
+      <p>«Нет» можно сказать, только посмотрев <b>все</b> элементы, то есть <b>после</b> цикла. На одной итерации ты знаешь лишь «этот элемент не подходит».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Разворот массива. Шаги 1–3: понять, руками, роли</h2>
+    <p><b>Задача</b> (классика собеседований и LeetCode): развернуть массив <b>на месте</b> — переставить элементы в обратном порядке в том же массиве, без второго массива.</p>
+    <p><b>Шаг 1. Вход и выход, примеры:</b></p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вход</th><th>Выход</th><th>Зачем этот пример</th></tr>
+        <tr><td><code>[1, 2, 3, 4, 5]</code></td><td><code>[5, 4, 3, 2, 1]</code></td><td>обычный, нечётная длина</td></tr>
+        <tr><td><code>[1, 2, 3, 4]</code></td><td><code>[4, 3, 2, 1]</code></td><td>чётная длина: середины нет</td></tr>
+        <tr><td><code>[7]</code></td><td><code>[7]</code></td><td>граничный: один элемент</td></tr>
+        <tr><td><code>[]</code></td><td><code>[]</code></td><td>граничный: пустой массив, код не должен упасть</td></tr>
+      </table>
+    </div>
+    <p><b>Шаг 2. Руками.</b> Положи пять карточек 1 2 3 4 5 на стол. Как развернуть, не беря новых карточек? Поменять местами <b>крайние</b>: 1 и 5. Потом следующие с краёв: 2 и 4. Тройка в середине стоит на месте. Пальцы двигаются навстречу друг другу, пока не встретятся.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 300" role="img" aria-label="Два указателя left и right меняют местами крайние элементы и сдвигаются навстречу друг другу">
+        <text x="20" y="40" class="d-small">шаг 1</text>
+        <rect x="110" y="16" width="70" height="44" rx="6" class="d-accent"/><text x="145" y="45" text-anchor="middle" class="d-title">1</text>
+        <rect x="190" y="16" width="70" height="44" rx="6" class="d-box"/><text x="225" y="45" text-anchor="middle" class="d-title">2</text>
+        <rect x="270" y="16" width="70" height="44" rx="6" class="d-box"/><text x="305" y="45" text-anchor="middle" class="d-title">3</text>
+        <rect x="350" y="16" width="70" height="44" rx="6" class="d-box"/><text x="385" y="45" text-anchor="middle" class="d-title">4</text>
+        <rect x="430" y="16" width="70" height="44" rx="6" class="d-accent"/><text x="465" y="45" text-anchor="middle" class="d-title">5</text>
+        <path d="M145 62 C145 92 465 92 465 62" class="d-dash"/>
+        <text x="145" y="110" text-anchor="middle" class="d-c-blue d-small">left = 0</text>
+        <text x="465" y="110" text-anchor="middle" class="d-c-violet d-small">right = 4</text>
+        <text x="540" y="45" class="d-small">меняем 1 ↔ 5</text>
+
+        <text x="20" y="160" class="d-small">шаг 2</text>
+        <rect x="110" y="136" width="70" height="44" rx="6" class="d-green"/><text x="145" y="165" text-anchor="middle" class="d-title">5</text>
+        <rect x="190" y="136" width="70" height="44" rx="6" class="d-accent"/><text x="225" y="165" text-anchor="middle" class="d-title">2</text>
+        <rect x="270" y="136" width="70" height="44" rx="6" class="d-box"/><text x="305" y="165" text-anchor="middle" class="d-title">3</text>
+        <rect x="350" y="136" width="70" height="44" rx="6" class="d-accent"/><text x="385" y="165" text-anchor="middle" class="d-title">4</text>
+        <rect x="430" y="136" width="70" height="44" rx="6" class="d-green"/><text x="465" y="165" text-anchor="middle" class="d-title">1</text>
+        <path d="M225 182 C225 208 385 208 385 182" class="d-dash"/>
+        <text x="225" y="226" text-anchor="middle" class="d-c-blue d-small">left = 1</text>
+        <text x="385" y="226" text-anchor="middle" class="d-c-violet d-small">right = 3</text>
+        <text x="540" y="165" class="d-small">меняем 2 ↔ 4</text>
+
+        <text x="20" y="270" class="d-small">готово</text>
+        <rect x="110" y="246" width="70" height="44" rx="6" class="d-green"/><text x="145" y="275" text-anchor="middle" class="d-title">5</text>
+        <rect x="190" y="246" width="70" height="44" rx="6" class="d-green"/><text x="225" y="275" text-anchor="middle" class="d-title">4</text>
+        <rect x="270" y="246" width="70" height="44" rx="6" class="d-yellow"/><text x="305" y="275" text-anchor="middle" class="d-title">3</text>
+        <rect x="350" y="246" width="70" height="44" rx="6" class="d-green"/><text x="385" y="275" text-anchor="middle" class="d-title">2</text>
+        <rect x="430" y="246" width="70" height="44" rx="6" class="d-green"/><text x="465" y="275" text-anchor="middle" class="d-title">1</text>
+        <text x="540" y="275" class="d-small">left = right = 2: стоп</text>
+      </svg>
+      <figcaption>Два «пальца» — left и right — меняют крайние пары и идут навстречу друг другу.</figcaption>
+    </figure>
+    <p><b>Шаг 3. Роли переменных.</b></p>
+    <dl class="terms">
+      <dt>left</dt><dd><b>Шагающая</b> слева направо: инициализируем индексом 0, потом 1, 2…</dd>
+      <dt>right</dt><dd><b>Шагающая</b> справа налево: инициализируем последним индексом <code>a.length - 1</code>, потом на один меньше…</dd>
+      <dt>tmp</dt><dd><b>Временная</b>. Без неё обмен не сделать: присваивание <code>a[left] = a[right];</code> затрёт старое значение <code>a[left]</code> навсегда.</dd>
+    </dl>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: два стакана</span>
+      <p>В одном стакане сок, в другом молоко. Поменять содержимое, не смешав, можно только через <b>третий, пустой стакан</b>: сок → в пустой, молоко → в стакан из-под сока, сок из третьего → в стакан из-под молока. <code>tmp</code> — это третий стакан.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Разворот. Шаги 4–6: псевдокод, код, трассировка</h2>
+    <p><b>Шаг 4. Псевдокод:</b></p>
+<pre class="terminal"><span class="out">left ← первая позиция, right ← последняя
+пока left левее right:
+    поменять местами a[left] и a[right] (через tmp)
+    left сдвинуть вправо, right сдвинуть влево</span></pre>
+    <p><b>Шаг 5. Код</b> — строка в строку:</p>
+<pre data-file="ReverseDemo.java"><code class="java">int left = 0;
+int right = a.length - 1;
+while (left &lt; right) {
+    int tmp = a[left];
+    a[left] = a[right];
+    a[right] = tmp;
+    left++;
+    right--;
+}</code></pre>
+    <p><b>Шаг 6. Трассировка.</b> Пройди сам и предскажи значения — так проверяют любой алгоритм, прежде чем ему поверить.</p>
+    <div data-widget="trace" id="trace-m06-05-reverse">
+      <script type="application/json">
+      { "title": "Разворот двумя указателями",
+        "intro": "Следи за left, right и tmp. Массив a показан целиком в первой строке таблицы.",
+        "code": "int[] a = {1, 2, 3, 4, 5};\nint left = 0;\nint right = a.length - 1;\nwhile (left < right) {\n    int tmp = a[left];\n    a[left] = a[right];\n    a[right] = tmp;\n    left++;\n    right--;\n}\nSystem.out.println(Arrays.toString(a));",
+        "steps": [
+          { "line": 1, "vars": { "a": "[1, 2, 3, 4, 5]" }, "note": "Объявляем a и инициализируем литералом массива: пять элементов, индексы 0…4." },
+          { "line": 2, "vars": { "a": "[1, 2, 3, 4, 5]", "left": "0" }, "note": "Объявляем left и инициализируем нулём: левый палец — на первом элементе." },
+          { "line": 3, "vars": { "a": "[1, 2, 3, 4, 5]", "left": "0", "right": "4" }, "ask": ["right"], "note": "right инициализируем результатом выражения a.length - 1: последний индекс — это длина минус один, 5 - 1 = 4." },
+          { "line": 4, "vars": { "a": "[1, 2, 3, 4, 5]", "left": "0", "right": "4" }, "note": "Условие 0 &lt; 4 — true: пальцы ещё не встретились, первая итерация." },
+          { "line": 5, "vars": { "a": "[1, 2, 3, 4, 5]", "left": "0", "right": "4", "tmp": "1" }, "ask": ["tmp"], "note": "Объявляем tmp и инициализируем значением a[left] — сохраняем то, что сейчас затрём. tmp = a[0] = 1 — сок в третий стакан." },
+          { "line": 6, "vars": { "a": "[5, 2, 3, 4, 5]", "left": "0", "right": "4", "tmp": "1" }, "note": "Присваиваем элементу a[0] значение a[4]. Пятёрка теперь в двух местах, а единица жива только в tmp." },
+          { "line": 7, "vars": { "a": "[5, 2, 3, 4, 1]", "left": "0", "right": "4", "tmp": "1" }, "note": "Присваиваем a[4] значение tmp. Обмен завершён: 1 и 5 поменялись." },
+          { "line": 8, "vars": { "a": "[5, 2, 3, 4, 1]", "left": "1", "right": "4", "tmp": "1" }, "note": "Инкремент left++: левый палец вправо." },
+          { "line": 9, "vars": { "a": "[5, 2, 3, 4, 1]", "left": "1", "right": "3", "tmp": "1" }, "ask": ["right"], "note": "Декремент right--: правый палец влево на один. right = 3." },
+          { "line": 4, "vars": { "a": "[5, 2, 3, 4, 1]", "left": "1", "right": "3" }, "note": "tmp объявлена в теле цикла, её область видимости кончилась вместе с итерацией. Проверка условия: 1 &lt; 3 — следующая итерация." },
+          { "line": 5, "vars": { "a": "[5, 2, 3, 4, 1]", "left": "1", "right": "3", "tmp": "2" }, "ask": ["tmp"], "note": "Посмотри, что сейчас лежит в a[left]. Это a[1] = 2, его и спасаем в tmp." },
+          { "line": 6, "vars": { "a": "[5, 4, 3, 4, 1]", "left": "1", "right": "3", "tmp": "2" }, "note": "a[1] = a[3] = 4." },
+          { "line": 7, "vars": { "a": "[5, 4, 3, 2, 1]", "left": "1", "right": "3", "tmp": "2" }, "note": "a[3] = tmp = 2. Вторая пара поменялась." },
+          { "line": 8, "vars": { "a": "[5, 4, 3, 2, 1]", "left": "2", "right": "3", "tmp": "2" }, "note": "left = 2." },
+          { "line": 9, "vars": { "a": "[5, 4, 3, 2, 1]", "left": "2", "right": "2", "tmp": "2" }, "note": "right = 2. Пальцы встретились на середине." },
+          { "line": 4, "vars": { "a": "[5, 4, 3, 2, 1]", "left": "2", "right": "2" }, "note": "2 &lt; 2 — false. Цикл окончен: средний элемент менять не с кем." },
+          { "line": 11, "vars": { "a": "[5, 4, 3, 2, 1]", "left": "2", "right": "2" }, "out": "[5, 4, 3, 2, 1]\n", "note": "Готово за два обмена. Для массива из n элементов обменов будет n / 2." }
+        ] }
+      </script>
+    </div>
+    <p>То же самое можно сделать в IDEA с настоящей программой. Поставь точку останова на строку <code>left++;</code> и запусти жуком 🐞. Программа остановится после первого обмена — и отладчик покажет те же значения, что и таблица выше:</p>
+    <div data-widget="ide" id="shot-reverse-debug">
+      <script type="application/json">
+      { "tree": false, "file": "ReverseDemo.java", "runConfig": "ReverseDemo", "statusPath": "module-06",
+        "code": "import java.util.Arrays;\n\npublic class ReverseDemo {\n    public static void main(String[] args) {\n        int[] a = {1, 2, 3, 4, 5};\n        int left = 0;\n        int right = a.length - 1;\n        while (left < right) {\n            int tmp = a[left];\n            a[left] = a[right];\n            a[right] = tmp;\n            left++;\n            right--;\n        }\n        System.out.println(Arrays.toString(a));\n    }\n}",
+        "breakpoints": [12], "execLine": 12, "vals": { "5": "a: [5, 2, 3, 4, 1]", "6": "left: 0", "7": "right: 4", "9": "tmp: 1" },
+        "debug": { "title": "ReverseDemo", "frames": ["main:12, ReverseDemo"],
+          "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]" },
+                    { "name": "a", "type": "int[5]@813", "value": "[5, 2, 3, 4, 1]", "open": true },
+                    { "name": "0", "value": "5", "depth": 1 },
+                    { "name": "1", "value": "2", "depth": 1 },
+                    { "name": "2", "value": "3", "depth": 1 },
+                    { "name": "3", "value": "4", "depth": 1 },
+                    { "name": "4", "value": "1", "depth": 1 },
+                    { "name": "left", "value": "0" },
+                    { "name": "right", "value": "4" },
+                    { "name": "tmp", "value": "1" } ] },
+        "marks": [ { "n": 1, "target": "bp-12", "side": "left", "text": "<b>Точка останова</b> — красный кружок. Ставится щелчком по полю у номера строки" },
+                   { "n": 2, "target": "line-12", "text": "Синяя полоса — здесь программа сейчас стоит. Эта строка <b>ещё не выполнена</b>: <code>left</code> пока 0" },
+                   { "n": 3, "target": "var-a", "text": "Массив целиком: в фигурных скобках тип и длина (<code>int[5]</code>) и номер объекта после @, дальше — содержимое. Значок ⌄ раскрывает ячейки по индексам" },
+                   { "n": 4, "target": "var-tmp", "text": "Остальные переменные — как столбцы в таблице трассировки. Первая пара уже поменялась: 1 и 5, а единица ещё лежит в <code>tmp</code>" },
+                   { "n": 5, "target": "resume", "text": "<b>▶ Resume</b> (<kbd>F9</kbd>) — бежать до следующей остановки, то есть до следующей итерации цикла. Правее — <b>Step Over</b> (<kbd>F8</kbd>): выполнить одну строку" } ],
+        "caption": "Отладчик остановился после первого обмена: панели Frames и Variables" }
+      </script>
+    </div>
+    <p><b>Граничные случаи</b> проверь в голове: <code>[7]</code> — left = 0, right = 0, условие <code>0 &lt; 0</code> ложно сразу, массив не меняется. Пустой <code>[]</code> — right инициализируется значением −1, <code>0 &lt; -1</code> ложно, тело цикла не выполнится ни разу и ничего не упадёт. Отлично.</p>
+    <details class="predict">
+      <summary>Новичок написал for (int i = 0; i &lt; a.length; i++) и меняет a[i] с a[a.length - 1 - i]. Что получится?</summary>
+      <p>Массив <b>не изменится</b>! Первая половина цикла развернёт массив, а вторая — развернёт его обратно: каждую пару поменяют дважды. Идти нужно только до середины — условие <code>i &lt; a.length / 2</code>. Это та же логика «пока пальцы не встретились», записанная через один индекс.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Бонус: сдвиг на один вправо</h2>
+    <p><b>Задача:</b> сдвинуть элементы на одну позицию вправо по кругу: последний становится первым. <code>[1, 2, 3, 4, 5]</code> → <code>[5, 1, 2, 3, 4]</code>.</p>
+    <p><b>Руками:</b> пятёрку убираем «в карман» (временная переменная <code>tmp</code>, инициализированная последним элементом), остальные сдвигаем вправо, освободившееся первое место занимает пятёрка из кармана.</p>
+    <div class="callout warn">
+      <span class="callout-title">Двигаться нужно с конца</span>
+      <p>Если идти слева направо (<code>a[1] = a[0]</code>, потом <code>a[2] = a[1]</code>…), единица «протечёт» по всему массиву: получится <code>[1, 1, 1, 1, 1]</code>. Каждое присваивание затирает число, которое ещё не перенесено. Идём справа налево: <code>a[4] = a[3]</code>, <code>a[3] = a[2]</code>… — затирается только то, что уже скопировано.</p>
+    </div>
+    <div data-widget="parsons" id="parsons-m06-05-shift" data-code data-title="Сдвиг вправо по кругу" data-icon="➡️"
+         data-hint="Сначала спрячь последний элемент, потом цикл с конца, потом верни спрятанный в начало."
+         data-success="🎉 Верно! tmp спасает последний элемент, цикл идёт справа налево, а в конце a[0] = tmp.">
+      <script type="text/plain">
+int tmp = a[a.length - 1];
+for (int i = a.length - 1; i > 0; i--) {
+    a[i] = a[i - 1];
+}
+a[0] = tmp;
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Почему в условии i &gt; 0, а не i &gt;= 0?</summary>
+      <p>В теле цикла есть обращение <code>a[i - 1]</code>. При <code>i = 0</code> это <code>a[-1]</code> — ArrayIndexOutOfBoundsException. Да и не нужно: элементу с индексом 0 мы присваиваем <code>tmp</code> после цикла.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m06-05">
+      <script type="application/json">
+      {
+       "title": "Мастерская: массивы",
+       "items": [
+        {
+         "type": "order",
+         "q": "Расставь псевдокод поиска максимума по порядку",
+         "lines": [
+          "max ← первый элемент, maxIndex ← 0",
+          "для i от 1 до конца массива:",
+          "    если a[i] больше max:",
+          "        max ← a[i], maxIndex ← i",
+          "напечатать max и maxIndex"
+         ],
+         "code": true,
+         "why": "Инициализация первым элементом, сравнение с рекордом, присваивание нового рекорда и его места, печать после цикла."
+        },
+        {
+         "type": "bug",
+         "q": "Программа ищет минимум, но для {4, 6, 9} печатает 0. Где ошибка?",
+         "code": "int[] a = {4, 6, 9};\nint min = 0;\nfor (int x : a) {\n    if (x < min) {\n        min = x;\n    }\n}\nSystem.out.println(min);",
+         "answer": [
+          2
+         ],
+         "why": "min инициализирован нулём — это меньше всех элементов, его никто не «перебьёт». Нужно инициализировать первым элементом: int min = a[0];"
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int[] a = {2, 7, 4, 7};\nint index = -1;\nfor (int i = 0; i < a.length; i++) {\n    if (a[i] == 7) {\n        index = i;\n        break;\n    }\n}\nSystem.out.println(index);",
+         "answer": "1",
+         "why": "Первая семёрка на позиции 1: index присваивается 1, и break сразу выходит из цикла."
+        },
+        {
+         "type": "single",
+         "q": "Сколько обменов сделает разворот двумя указателями для массива из 8 элементов?",
+         "options": [
+          "8",
+          "4",
+          "7"
+         ],
+         "answer": 1,
+         "why": "Каждый обмен ставит на место два элемента: 8 / 2 = 4."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет этот «сдвиг»?",
+         "code": "int[] a = {1, 2, 3};\nfor (int i = 1; i < a.length; i++) {\n    a[i] = a[i - 1];\n}\nSystem.out.println(Arrays.toString(a));",
+         "answer": "[1, 1, 1]",
+         "why": "Идём слева направо: элементу a[1] присваивается 1, потом a[2] = a[1], а там уже 1. Единица «протекла». Сдвиг вправо делают с конца."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Тренируй план, а не код</span>
+      <p>Напиши наставнику: <em>«Дай задачу на массивы уровня собеседования. Я сначала напишу только примеры, роли переменных и псевдокод — проверь план до того, как я начну кодить»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Сумма — накопитель; среднее — выражение <code>(double) sum / a.length</code> с приведением типа.</li>
+        <li>Максимум и позиция: инициализируем значением <code>a[0]</code> и индексом 0, никогда не нулём. <code>&gt;</code> найдёт первый из равных, <code>&gt;=</code> — последний.</li>
+        <li>Подсчёт: счётчик + условие. Поиск: инициализируем <code>index = -1</code>, нашли — присвоили индекс и <code>break</code>; «нет» говорим только после цикла.</li>
+        <li>Разворот на месте: два указателя навстречу, обмен через <code>tmp</code>, пока <code>left &lt; right</code>.</li>
+        <li>Сдвиг вправо: спрятать последний, двигать с конца, положить спрятанный в начало.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,52 @@
+## id: tr-loops-010
+## title: Таблица температур
+## file: trainer/loops/CelsiusFahrenheitTable.java
+## class: CelsiusFahrenheitTable
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>CelsiusFahrenheitTable</code>. Для туристов из США нужна табличка перевода градусов. В первой строке — начальная температура <code>a</code>, во второй — конечная <code>b</code> (оба числа кратны 10, a ≤ b). Напечатай строки для температур <code>a</code>, <code>a + 10</code>, <code>a + 20</code>, … до <code>b</code> в виде <code>C C = F F</code>, где F считается по формуле <code>F = C * 9 / 5 + 32</code> в целых числах.</p>
+<pre class="terminal"><span class="out">ввод:  0
+       30
+вывод: 0 C = 32 F
+       10 C = 50 F
+       20 C = 68 F
+       30 C = 86 F</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>for (int c = a; c &lt;= b; c += 10)</code> — счётчик шагает по 10</li>
+<li><code>int f = c * 9 / 5 + 32;</code> — для чисел, кратных 10, деление получается нацело</li>
+</ul></div>
+@@ test: От нуля до тридцати
+@@ input
+0
+30
+@@ expect
+0 C = 32 F
+10 C = 50 F
+20 C = 68 F
+30 C = 86 F
+@@ test: Морозы
+@@ input
+-40
+0
+@@ expect
+-40 C = -40 F
+-30 C = -22 F
+-20 C = -4 F
+-10 C = 14 F
+0 C = 32 F
+@@ test: Одна строка
+@@ input
+20
+20
+@@ expect
+20 C = 68 F
+@@ test: Жара
+@@ input
+90
+120
+@@ expect
+90 C = 194 F
+100 C = 212 F
+110 C = 230 F
+120 C = 248 F

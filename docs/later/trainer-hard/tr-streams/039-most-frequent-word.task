@@ -1,0 +1,48 @@
+## id: tr-streams-039
+## title: Самое частое слово
+## file: trainer/streams/MostFrequentWord.java
+## class: MostFrequentWord
+## level: 3
+## category: Optional
+@@ description
+<p>Напиши класс <code>MostFrequentWord</code>. Редактор ищет слово-паразит. Программа читает строку слов через пробел (без знаков препинания и без «ё»); строка может быть пустой. Регистр не важен: «Ну» и «ну» — одно слово. Напечатай самое частое слово маленькими буквами и сколько раз оно встретилось: <code>слово: N</code>. Если таких слов несколько — первое по алфавиту. Для пустой строки напечатай <code>слов нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  ну я ну пошла Ну домой
+вывод: ну: 3
+
+ввод:  (пустая строка)
+вывод: слов нет</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Collectors.groupingBy(w -&gt; w, TreeMap::new, Collectors.counting())</code> — «слово → сколько раз», слова по алфавиту</li>
+<li><code>map.entrySet().stream()</code> — стрим пар ключ-значение</li>
+<li><code>.max(Map.Entry.comparingByValue())</code> — пара с наибольшим значением в <code>Optional</code>; при равенстве остаётся та, что раньше</li>
+<li><code>e.getKey()</code>, <code>e.getValue()</code> — ключ и значение пары</li>
+</ul></div>
+@@ test: Слово-паразит
+@@ input
+ну я ну пошла Ну домой
+@@ expect
+ну: 3
+@@ test: Ничья — первое по алфавиту
+@@ input
+кот лис лис кот волк
+@@ expect
+кот: 2
+@@ test: Все разные
+@@ input
+вода огонь земля
+@@ expect
+вода: 1
+@@ test: Одно слово
+@@ input
+Java
+@@ expect
+java: 1
+@@ test: Пустая строка
+@@ input
+
+@@ expect
+слов нет
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: groupingBy\s*\(|toMap\s*\( | Посчитай слова коллектором groupingBy

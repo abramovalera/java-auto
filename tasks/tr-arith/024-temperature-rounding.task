@@ -1,0 +1,56 @@
+## id: tr-arith-024
+## title: Три способа округлить
+## file: trainer/arith/TemperatureRoundingTrio.java
+## class: TemperatureRoundingTrio
+## level: 2
+## category: Math и округление
+@@ description
+<p>Приложение погоды показывает температуру целым числом, и разработчики спорят, как округлять. Создай класс <code>TemperatureRoundingTrio</code>. Программа читает температуру (дробное число) и печатает три строки: округление вниз, вверх и по правилам математики. Числа печатаются целыми, без <code>.0</code>.</p>
+<pre class="terminal"><span class="out">ввод:  -2.5
+вывод: Вниз: -3
+       Вверх: -2
+       По правилам: -2</span></pre>
+<p>Обрати внимание на отрицательные числа: «вниз» для <code>-2.5</code> — это <code>-3</code>, а не <code>-2</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.floor(x)</code> и <code>Math.ceil(x)</code> — округляют вниз и вверх, но возвращают <code>double</code> (<code>-3.0</code>)</li>
+<li><code>(int) x</code> — приведение к <code>int</code> убирает <code>.0</code></li>
+<li><code>Math.round(x)</code> — округляет по правилам и сразу возвращает целое (<code>long</code>)</li>
+</ul></div>
+@@ test: Обычное число
+@@ input
+2.4
+@@ expect
+Вниз: 2
+Вверх: 3
+По правилам: 2
+@@ test: Ровно половина
+@@ input
+2.5
+@@ expect
+Вниз: 2
+Вверх: 3
+По правилам: 3
+@@ test: Отрицательная половина
+@@ input
+-2.5
+@@ expect
+Вниз: -3
+Вверх: -2
+По правилам: -2
+@@ test: Отрицательное число
+@@ input
+-2.6
+@@ expect
+Вниз: -3
+Вверх: -2
+По правилам: -3
+@@ test: Уже целое
+@@ input
+7.0
+@@ expect
+Вниз: 7
+Вверх: 7
+По правилам: 7
+@@ require: Math\.floor | Округление вниз — метод Math.floor
+@@ require: Math\.ceil | Округление вверх — метод Math.ceil
+@@ require: Math\.round | Округление по правилам — метод Math.round

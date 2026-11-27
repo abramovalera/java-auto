@@ -1,0 +1,57 @@
+## id: tr-arrays-051
+## title: Общие свободные дни
+## file: trainer/arrays/CommonFreeDays.java
+## class: CommonFreeDays
+## level: 3
+## category: Повторы и уникальность
+@@ description
+<p>Напиши класс <code>CommonFreeDays</code>. Двое друзей хотят встретиться и выписали свои свободные дни месяца (числа от 1 до 31) — в любом порядке и иногда с повторами. Ввод: в первой строке — <code>n</code>, во второй — <code>n</code> дней первого друга, в третьей — <code>m</code>, в четвёртой — <code>m</code> дней второго. Напечатай общие дни по возрастанию, каждый по одному разу, в одну строку через пробел. Если общих нет — <code>Общих дней нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       12 3 25 3 7
+       4
+       7 30 12 1
+вывод: 7 12</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>boolean[] free = new boolean[32];</code> — отметка по номеру дня: <code>free[day] = true</code></li>
+<li>пройди по дням от 1 до 31 и проверь отметки обоих друзей</li>
+</ul></div>
+@@ test: Есть общие
+@@ input
+5
+12 3 25 3 7
+4
+7 30 12 1
+@@ expect
+7 12
+@@ test: Нет общих
+@@ input
+2
+1 2
+2
+3 4
+@@ expect
+Общих дней нет
+@@ test: Повторы у обоих
+@@ input
+3
+5 5 5
+2
+5 5
+@@ expect
+5
+@@ test: У одного нет свободных
+@@ input
+0
+3
+1 2 3
+@@ expect
+Общих дней нет
+@@ test: Крайние дни
+@@ input
+3
+31 1 15
+3
+1 31 16
+@@ expect
+1 31
+@@ forbid: \b(ArrayList|LinkedList|HashSet|TreeSet|HashMap|TreeMap|List|Set|Map)\s*<|\.stream\s*\( | Здесь только массивы: коллекции и стримы будут позже

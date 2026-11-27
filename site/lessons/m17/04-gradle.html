@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Сборка проекта: Gradle · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-04">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 17 · Урок 4</div>
+    <h1>Сборка проекта: Gradle</h1>
+    <p class="lead">Настоящий проект — это десятки чужих библиотек: JUnit, AssertJ, библиотеки для работы с JSON, базами данных и сетью, логгер. Скачивать их руками и следить за версиями — ад. Этим занимается сборщик. В нашем курсе это <b>Gradle</b>.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>📦 зависимости</span><span>🐘 build.gradle.kts по частям</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-04-review">
+      <script type="application/json">
+      { "title": "Вспомним Git в команде", "icon": "🔁",
+        "items": [
+          { "type": "order", "q": "Расставь шаги работы над задачей",
+            "lines": ["git pull — обновить main", "Создать ветку под задачу", "Коммиты в ветке", "git push ветки", "Merge request, ревью и CI", "Merge в main"],
+            "why": "Свежий main → ветка → коммиты → push → MR → merge." },
+          { "type": "single", "q": "В трёхпанельном окне merge что находится в центре?",
+            "options": ["Твоя версия", "Версия из вливаемой ветки", "Результат, который ты собираешь"], "answer": 2,
+            "why": "Слева — твоё, справа — чужое, в центре — итог слияния." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШПАРГАЛКА -->
+  <section class="step">
+    <h2>Выпиши себе: Gradle в IDEA</h2>
+    <p>Сначала таблица, потом объяснения. <b>Выпиши её руками</b> — к концу урока каждая строка станет понятной, а в модуле 18 ты будешь пользоваться ими каждый день.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: Gradle</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Что сделать</th><th>Где в IDEA / что нажать</th><th>Команда Gradle</th></tr>
+        <tr><td>Создать Gradle-проект</td><td><b>File → New → Project</b> → Java, <b>Build system: Gradle</b>, <b>Gradle DSL: Kotlin</b></td><td>—</td></tr>
+        <tr><td>Добавить библиотеку</td><td>В <code>build.gradle.kts</code> внутри <code>dependencies { }</code> — вызов <code>testImplementation("группа:имя:версия")</code></td><td>—</td></tr>
+        <tr><td>Загрузить изменения build-файла</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> или значок слона со стрелкой в углу редактора — <b>Load Gradle Changes</b></td><td>—</td></tr>
+        <tr><td>Открыть окно Gradle</td><td>Значок слона 🐘 на правой полоске окна IDEA</td><td>—</td></tr>
+        <tr><td>Запустить все тесты</td><td>Окно Gradle → <b>Tasks → verification</b> → двойной щелчок по <b>test</b></td><td><code>./gradlew test</code></td></tr>
+        <tr><td>Собрать с нуля и прогнать тесты</td><td><kbd>Ctrl</kbd>, <kbd>Ctrl</kbd> (дважды Ctrl — Run Anything) → набрать <code>gradle clean test</code> → <kbd>Enter</kbd></td><td><code>./gradlew clean test</code></td></tr>
+        <tr><td>Удалить результаты сборки</td><td>Tasks → build → <b>clean</b></td><td><code>./gradlew clean</code></td></tr>
+        <tr><td>Собрать всё: jar + тесты</td><td>Tasks → build → <b>build</b></td><td><code>./gradlew build</code></td></tr>
+        <tr><td>Посмотреть дерево зависимостей</td><td>Окно Gradle → <b>Dependencies</b></td><td><code>./gradlew dependencies</code></td></tr>
+        <tr><td>Узнать, почему выбрана версия</td><td>Run Anything → <code>gradle dependencyInsight --dependency имя</code></td><td><code>./gradlew dependencyInsight …</code></td></tr>
+        <tr><td>Отчёт о тестах</td><td>Файл <code>build/reports/tests/test/index.html</code> → открыть в браузере</td><td>—</td></tr>
+        <tr><td>Посмотреть скачанные библиотеки</td><td>Дерево проекта → <b>External Libraries</b></td><td>—</td></tr>
+      </table></div>
+      <p>В Run Anything пишут просто <code>gradle …</code> — IDEA сама запустит его через wrapper проекта (что это — чуть ниже). На Windows в терминале та же команда выглядит как <code>gradlew test</code> или <code>.\gradlew test</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем нужен сборщик</h2>
+    <p>До сих пор у тебя были только классы JDK — <code>String</code>, <code>ArrayList</code>, <code>Scanner</code>. Но в работе ты будешь пользоваться чужим кодом: JUnit для тестов, AssertJ для проверок, Jackson для JSON, драйвер базы данных, логгер. Такой готовый чужой код, упакованный в файл <code>.jar</code>, называется <b>библиотекой</b>, а библиотека, которая нужна проекту, — <b>зависимостью</b> (dependency).</p>
+    <p>Без сборщика пришлось бы: найти сайт библиотеки, скачать <code>.jar</code> нужной версии, скачать ещё пять <code>.jar</code>, без которых она не работает, подключить всё в IDEA — и повторить это на компьютере каждого коллеги и на сервере CI. Через месяц никто не помнит, какие версии где лежат.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: список покупок и курьер</span>
+      <p>Ты не ездишь по складам сам. Ты пишешь <b>список покупок</b> — «молоко 3,2%, 1 л; хлеб бородинский» — и отдаёшь курьеру. Курьер знает, где склад, привезёт ровно это и сложит в холодильник. <b>Список — это файл <code>build.gradle.kts</code></b>, <b>курьер — Gradle</b>, <b>склад — Maven Central</b>, <b>холодильник — папка <code>~/.gradle/caches</code></b> на твоём компьютере.</p>
+    </div>
+    <p><b>Gradle</b> — один из двух главных сборщиков Java-проектов (второй — Maven, о нём в конце урока). Он умеет три главные вещи:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">📦</span><h4>Зависимости</h4><p>Читает список библиотек и сам скачивает их нужных версий — вместе с зависимостями зависимостей.</p></div>
+      <div class="card"><span class="emoji">🏗️</span><h4>Сборка</h4><p>Компилирует код, собирает его в один <code>.jar</code>, который можно запустить где угодно.</p></div>
+      <div class="card"><span class="emoji">🧪</span><h4>Запуск тестов</h4><p>Одна команда <code>./gradlew test</code> прогоняет все тесты проекта — так их и запускает сервер CI.</p></div>
+    </div>
+    <div class="say" data-mood="think"><p>Почему склад называется <b>Maven</b> Central, если сборщик у нас Gradle? Склад исторически завёл Maven, и теперь им пользуются все: Gradle, Maven и даже сама IDEA. Библиотеки одни и те же — меняется только «курьер».</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Структура Gradle-проекта</h2>
+    <p>У Gradle есть правила, где что лежит. Это удобно: открыл любой Java-проект на Gradle — и сразу знаешь, где код, а где тесты. Принцип называется «соглашения вместо настройки».</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 430" role="img" aria-label="Дерево Gradle-проекта: build.gradle.kts, settings.gradle.kts, gradlew и gradlew.bat, папка gradle/wrapper, src/main/java для кода, src/main/resources, src/test/java для тестов, build для результатов сборки">
+        <rect x="20" y="16" width="380" height="400" rx="14" class="d-code"/>
+        <text x="40" y="48" class="d-mono">📁 shop-autotests/</text>
+        <text x="64" y="78" class="d-mono">📄 build.gradle.kts</text>
+        <text x="64" y="108" class="d-mono">📄 settings.gradle.kts</text>
+        <text x="64" y="138" class="d-mono">📄 gradlew, gradlew.bat</text>
+        <text x="64" y="168" class="d-mono">📁 gradle/wrapper/</text>
+        <text x="64" y="198" class="d-mono">📁 src/</text>
+        <text x="88" y="228" class="d-mono">📁 main/</text>
+        <text x="112" y="258" class="d-mono">📁 java/</text>
+        <text x="112" y="286" class="d-mono">📁 resources/</text>
+        <text x="88" y="316" class="d-mono">📁 test/</text>
+        <text x="112" y="346" class="d-mono">📁 java/</text>
+        <text x="64" y="392" class="d-mono">📁 build/</text>
+
+        <path d="M245 74 H420" class="d-dash"/>
+        <rect x="420" y="56" width="300" height="36" rx="8" class="d-accent"/>
+        <text x="434" y="79" class="d-text">список покупок: зависимости, Java</text>
+        <path d="M270 104 H420" class="d-dash"/>
+        <rect x="420" y="100" width="300" height="36" rx="8" class="d-soft"/>
+        <text x="434" y="123" class="d-text">имя проекта</text>
+        <path d="M290 150 H420" class="d-dash"/>
+        <rect x="420" y="144" width="300" height="36" rx="8" class="d-violet"/>
+        <text x="434" y="167" class="d-text">wrapper: «Gradle с собой»</text>
+        <path d="M210 254 H420" class="d-dash"/>
+        <rect x="420" y="236" width="300" height="36" rx="8" class="d-blue"/>
+        <text x="434" y="259" class="d-text">код программы (что тестируем)</text>
+        <path d="M250 282 H420" class="d-dash"/>
+        <rect x="420" y="280" width="300" height="36" rx="8" class="d-soft"/>
+        <text x="434" y="303" class="d-text">настройки, файлы, картинки</text>
+        <path d="M210 342 H420" class="d-dash"/>
+        <rect x="420" y="326" width="300" height="36" rx="8" class="d-green"/>
+        <text x="434" y="349" class="d-text">тесты: JUnit, AssertJ…</text>
+        <path d="M170 388 H420" class="d-dash"/>
+        <rect x="420" y="372" width="300" height="36" rx="8" class="d-yellow"/>
+        <text x="434" y="395" class="d-text">результат сборки, в .gitignore</text>
+      </svg>
+      <figcaption>Код — в <code>src/main/java</code>, тесты — в <code>src/test/java</code>, всё собранное — в <code>build</code>.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>build.gradle.kts</dt><dd>Главный файл: какие библиотеки нужны, под какую Java собирать, как запускать тесты. Разберём его по строчкам в следующем шаге.</dd>
+      <dt>settings.gradle.kts</dt><dd>Настройки всего проекта. Главная строка там — <code>rootProject.name = "shop-autotests"</code>, имя проекта. IDEA может добавить туда и служебный плагин — трогать его не нужно.</dd>
+      <dt>build/</dt><dd>Сюда Gradle складывает скомпилированные классы, jar и отчёты о тестах. Папку можно удалить в любой момент (<code>./gradlew clean</code>), Gradle соберёт её заново. Поэтому она — в <code>.gitignore</code>, как и служебная папка <code>.gradle/</code> в корне проекта.</dd>
+    </dl>
+
+    <h3>Wrapper: почему <code>./gradlew</code>, а не просто <code>gradle</code></h3>
+    <p>У Gradle много версий, и build-файл, написанный под одну, может не заработать на другой. Чтобы у всех — у тебя, у коллеги, у сервера CI — сборка шла <b>одной и той же версией</b>, в проект кладут <b>wrapper</b> («обёртку»):</p>
+    <ul>
+      <li><code>gradlew</code> (для Linux и macOS) и <code>gradlew.bat</code> (для Windows) — маленькие скрипты запуска;</li>
+      <li><code>gradle/wrapper/gradle-wrapper.properties</code> — в нём записано, какая версия Gradle нужна проекту, например <code>gradle-8.12-bin.zip</code>;</li>
+      <li><code>gradle/wrapper/gradle-wrapper.jar</code> — программа, которая эту версию скачает.</li>
+    </ul>
+    <p>Запускаешь <code>./gradlew test</code> — wrapper смотрит, какая версия нужна, при первом запуске скачивает её в <code>~/.gradle/wrapper</code> и дальше работает ею. Устанавливать Gradle на компьютер вообще не нужно. Все эти файлы <b>коммитят в Git</b> вместе с кодом.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: шкаф из IKEA</span>
+      <p>В коробке со шкафом лежит свой шестигранник — ровно того размера, который нужен. Не надо искать у себя подходящий ключ и надеяться, что подойдёт. Wrapper — такой же «ключ в коробке»: инструмент нужной версии едет вместе с проектом.</p>
+    </div>
+    <div class="say" data-mood="cool"><p>Правило простое: код программы живёт в <code>src/main/java</code>, а тесты к нему — в <code>src/test/java</code>, рядом, но отдельно. В готовую программу тесты не попадают — они нужны только команде.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>build.gradle.kts по частям</h2>
+    <p>Сердце проекта — файл <code>build.gradle.kts</code>. Окончание <code>.kts</code> значит «скрипт на Kotlin» (Kotlin DSL). Kotlin — другой язык, который тоже работает на JVM, но учить его не нужно: build-файл читается как список настроек. Скобки и строки в кавычках — как в Java, только без точек с запятой. Вот файл проекта с тестами:</p>
+<pre data-file="build.gradle.kts"><code>plugins {
+    java
+}
+
+group = "ru.shop"
+version = "1.0-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+    testImplementation("org.assertj:assertj-core:3.27.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>plugins { java }</code><div><p>Блок <code>plugins</code> подключает плагин <b>java</b>. Плагин учит Gradle собирать Java: появляются задачи <code>compileJava</code>, <code>test</code>, <code>jar</code>, <code>build</code> и папки <code>src/main/java</code>, <code>src/test/java</code>. Без него Gradle не знает, что делать с <code>.java</code>-файлами.</p></div></div>
+      <div class="annot-row"><code>group / version</code><div><p>Свойствам <code>group</code> и <code>version</code> <b>присваиваем</b> строки — «адрес» самого проекта: <code>group</code> — организация (обычно перевёрнутый домен, как пакеты в Java), <code>version</code> — версия. Имя проекта лежит в <code>settings.gradle.kts</code>. <b>SNAPSHOT</b> — «версия в работе, ещё меняется». Готовые релизы — без этого слова: <code>1.0</code>, <code>5.11.4</code>.</p></div></div>
+      <div class="annot-row"><code>java { toolchain { … } }</code><div><p>Собирать и запускать тесты на <b>Java 21</b>. Если такого JDK на компьютере нет, Gradle сообщит об этом (или скачает сам, если настроено). Кодировку обычно отдельно не указывают: начиная с Java 18 кодировка по умолчанию — UTF-8, и русские буквы в строках не ломаются.</p></div></div>
+      <div class="annot-row"><code>repositories { mavenCentral() }</code><div><p>Откуда брать библиотеки: вызов функции <code>mavenCentral()</code> внутри блока <code>repositories</code> подключает склад <b>Maven Central</b>. Да, Gradle берёт библиотеки оттуда же, откуда Maven: склад общий. Скачанное хранится в <code>~/.gradle/caches</code>.</p></div></div>
+      <div class="annot-row"><code>testImplementation("…")</code><div><p>Список покупок. Каждая строка — <b>объявление зависимости</b>: вызываем функцию <code>testImplementation</code> и передаём ей <b>аргумент</b> — строку с <b>координатами</b> библиотеки <code>группа:имя:версия</code> через двоеточие: <code>org.assertj</code> — группа, <code>assertj-core</code> — имя, <code>3.27.3</code> — версия. Имя функции перед скобками — <b>конфигурация</b>: кому и когда нужна библиотека (таблица ниже).</p></div></div>
+      <div class="annot-row"><code>testRuntimeOnly(launcher)</code><div><p>Ещё одна зависимость, в конфигурации <code>testRuntimeOnly</code>, — «пусковой механизм» JUnit: нужен только в момент запуска тестов, в коде ты его не используешь. Версию писать не надо — её подскажет сам JUnit. В новых версиях Gradle без этой строки тесты не запускаются.</p></div></div>
+      <div class="annot-row"><code>tasks.test { useJUnitPlatform() }</code><div><p><b>Обязательно!</b> Вызов <code>useJUnitPlatform()</code> в настройках задачи <code>test</code> говорит ей: «тесты написаны на JUnit 5». Без этой строки Gradle ищет тесты старого JUnit 4, а твои тестовые методы с аннотацией <code>@Test</code> из JUnit 5 просто не видит — и пишет <b>0 тестов</b>.</p></div></div>
+    </div>
+    <p>Конфигурации — главное, что надо понять в блоке <code>dependencies</code>:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Конфигурация</th><th>Где видна библиотека</th><th>Пример</th></tr>
+        <tr><td><code>implementation</code></td><td>в коде программы <code>src/main/java</code> (и в тестах тоже)</td><td>библиотека для работы с JSON в самой программе</td></tr>
+        <tr><td><code>testImplementation</code></td><td><b>только в тестах</b> <code>src/test/java</code>; в итоговую программу не попадёт</td><td>JUnit, AssertJ</td></tr>
+        <tr><td><code>testRuntimeOnly</code></td><td>только при <b>запуске</b> тестов; в коде её классы не видны</td><td>junit-platform-launcher</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>JUnit подключён через <code>testImplementation</code>. Ты написал <code>import org.junit.jupiter.api.Test;</code> в классе из <code>src/main/java</code>. Что будет при сборке?</summary>
+      <p>Ошибка компиляции: <em>package org.junit.jupiter.api does not exist</em>. Для main-кода этой библиотеки не существует — она видна только тестам. Это защита: тестовые библиотеки не должны попадать в рабочую программу.</p>
+    </details>
+    <details class="predict">
+      <summary>Из build-файла случайно удалили <code>useJUnitPlatform()</code>. Тесты есть, код компилируется. Что покажет <code>./gradlew test</code>?</summary>
+      <p>Ни одного запущенного теста. Gradle по умолчанию ищет тесты JUnit 4, а аннотации JUnit 5 ему незнакомы. В старых версиях Gradle это выглядит как «всё зелёное», хотя проверено ноль тестов; в новых сборка ещё и падает с ошибкой. Увидел «0 тестов» — первым делом проверь <code>useJUnitPlatform()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Откуда берутся библиотеки</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 250" role="img" aria-label="Gradle читает build.gradle.kts, ищет библиотеку в локальном кэше ~/.gradle/caches, если нет — скачивает из Maven Central вместе с её зависимостями">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="30" width="200" height="80" rx="14" class="d-accent"/>
+        <text x="110" y="62" text-anchor="middle" class="d-title">📄 build.gradle.kts</text>
+        <text x="110" y="88" text-anchor="middle" class="d-small">нужен AssertJ</text>
+        <path d="M214 70 H246" class="d-arrow"/>
+        <rect x="250" y="30" width="140" height="80" rx="14" class="d-blue"/>
+        <text x="320" y="62" text-anchor="middle" class="d-title">🐘 Gradle</text>
+        <text x="320" y="88" text-anchor="middle" class="d-small">есть ли в кэше?</text>
+        <path d="M394 70 H446" class="d-arrow"/>
+        <rect x="450" y="20" width="280" height="100" rx="14" class="d-violet"/>
+        <text x="590" y="52" text-anchor="middle" class="d-title">🌍 Maven Central</text>
+        <text x="590" y="78" text-anchor="middle" class="d-small">огромный общий склад библиотек:</text>
+        <text x="590" y="98" text-anchor="middle" class="d-small">миллионы версий</text>
+        <path d="M590 124 V170 H400" class="d-arrow"/>
+        <text x="600" y="152" class="d-small">скачать один раз</text>
+        <rect x="150" y="150" width="246" height="86" rx="14" class="d-green"/>
+        <text x="273" y="180" text-anchor="middle" class="d-title">🧊 ~/.gradle/caches</text>
+        <text x="273" y="204" text-anchor="middle" class="d-small">assertj-core-3.27.3.jar</text>
+        <text x="273" y="224" text-anchor="middle" class="d-small">+ byte-buddy (зависимость)</text>
+      </svg>
+      <figcaption>Второй раз Gradle возьмёт библиотеку из локального кэша — без интернета и мгновенно.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Maven Central</dt><dd>Главное общедоступное хранилище Java-библиотек. Искать удобно на <b>mvnrepository.com</b> или <b>central.sonatype.com</b>: находишь библиотеку, выбираешь версию, открываешь вкладку <b>Gradle (Kotlin)</b> — и сайт показывает готовую строку для build-файла.</dd>
+      <dt>Транзитивные зависимости</dt><dd>«Зависимости зависимостей». AssertJ сам использует библиотеку byte-buddy — Gradle скачает её автоматически, тебе писать её в build-файл не нужно.</dd>
+      <dt>Локальный кэш</dt><dd>Папка <code>.gradle/caches</code> в твоей домашней папке. Там лежат все скачанные jar для всех Gradle-проектов.</dd>
+    </dl>
+    <p>Как это выглядит в IDEA — и структура проекта, и скачанные библиотеки:</p>
+    <div data-widget="ide" id="shot-gradle-tree">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": ".gradle", "type": "out", "depth": 1 },
+                  { "name": "build", "type": "out", "depth": 1, "note": "сборка" },
+                  { "name": "gradle", "type": "folder", "depth": 1, "open": true },
+                  { "name": "wrapper", "type": "folder", "depth": 2 },
+                  { "name": "src", "type": "folder", "depth": 1, "open": true },
+                  { "name": "main", "type": "folder", "depth": 2, "open": true },
+                  { "name": "java", "type": "src", "depth": 3, "note": "код" },
+                  { "name": "test", "type": "folder", "depth": 2, "open": true },
+                  { "name": "java", "type": "src", "depth": 3, "note": "тесты" },
+                  { "name": "build.gradle.kts", "type": "file", "depth": 1, "selected": true },
+                  { "name": "gradlew", "type": "file", "depth": 1 },
+                  { "name": "gradlew.bat", "type": "file", "depth": 1 },
+                  { "name": "settings.gradle.kts", "type": "file", "depth": 1 },
+                  { "name": "External Libraries", "type": "lib", "depth": 0, "open": true },
+                  { "name": "< temurin-21 >", "type": "lib", "depth": 1 },
+                  { "name": "Gradle: org.assertj:assertj-core:3.27.3", "type": "lib", "depth": 1 },
+                  { "name": "Gradle: org.junit.jupiter:junit-jupiter:5.11.4", "type": "lib", "depth": 1 },
+                  { "name": "Gradle: org.opentest4j:opentest4j:1.3.0", "type": "lib", "depth": 1 } ],
+        "file": "build.gradle.kts",
+        "code": "plugins {\n    java\n}\n\ngroup = \"ru.shop\"\nversion = \"1.0-SNAPSHOT\"\n\njava {\n    toolchain {\n        languageVersion = JavaLanguageVersion.of(21)\n    }\n}\n\nrepositories {\n    mavenCentral()\n}\n\ndependencies {\n    testImplementation(\"org.junit.jupiter:junit-jupiter:5.11.4\")\n    testImplementation(\"org.assertj:assertj-core:3.27.3\")\n    testRuntimeOnly(\"org.junit.platform:junit-platform-launcher\")\n}\n\ntasks.test {\n    useJUnitPlatform()\n}",
+        "marks": [ { "n": 1, "target": "tree-build.gradle.kts", "text": "<b>build.gradle.kts</b> в корне проекта — «список покупок». Открыт справа в редакторе" },
+                   { "n": 2, "target": "tree-gradlew", "text": "<b>gradlew</b>, <b>gradlew.bat</b> и папка <b>gradle/wrapper</b> — wrapper, «Gradle с собой». Их коммитят в Git" },
+                   { "n": 3, "target": "tree-test", "text": "<b>src/main/java</b> — код программы, <b>src/test/java</b> — тесты. IDEA сама помечает эти папки (папку с тестами — зелёным)" },
+                   { "n": 4, "target": "tree-build", "text": "<b>build</b> — сюда Gradle складывает собранное. Удаляется задачей <code>clean</code>, поэтому вместе с <b>.gradle</b> — в <code>.gitignore</code>" },
+                   { "n": 5, "target": "tree-Gradle: org.opentest4j:opentest4j:1.3.0", "text": "<b>External Libraries</b> — всё, что Gradle скачал. Этой библиотеки в build-файле нет — её притащил JUnit. Это и есть транзитивная зависимость" } ],
+        "caption": "Gradle-проект в дереве IDEA" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Gradle в IntelliJ IDEA</h2>
+    <ol class="steps">
+      <li><b>Новый проект:</b> <b>File → New → Project</b> → слева <b>Java</b>, <b>Build system: Gradle</b>, <b>Gradle DSL: Kotlin</b>, JDK 21 → <b>Create</b>. IDEA сама создаст <code>build.gradle.kts</code>, <code>settings.gradle.kts</code>, wrapper и папки <code>src/main/java</code>, <code>src/test/java</code>. Первая загрузка займёт минуту-две: wrapper скачивает сам Gradle.</li>
+      <li><b>Добавить зависимость:</b> открой <code>build.gradle.kts</code> и впиши строку внутрь <code>dependencies { }</code>. Готовую строку удобно скопировать с mvnrepository.com, вкладка <b>Gradle (Kotlin)</b>.</li>
+      <li><b>Загрузить изменения:</b> после правки build-файла в углу редактора появится значок <b>слона со стрелкой</b> — <b>Load Gradle Changes</b> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>). Пока не нажмёшь, IDEA не знает о новой библиотеке и подчёркивает импорты красным.</li>
+      <li><b>Окно Gradle:</b> справа значок слона → <b>Tasks</b> → <b>verification</b> → двойной щелчок по <b>test</b>. Это то же самое, что <code>./gradlew test</code> в терминале.</li>
+    </ol>
+    <p>Окно нового проекта:</p>
+    <div data-widget="ide" id="shot-gradle-new-project">
+      <script type="application/json">
+      { "tree": false, "project": "workspace",
+        "dialog": { "title": "New Project", "side": ["Java", "Kotlin", "Groovy", "Empty Project", "Maven Archetype", "JavaFX"], "sideHl": "Java",
+                    "rows": [ { "label": "Name", "value": "shop-autotests" },
+                              { "label": "Location", "value": "~\\IdeaProjects" },
+                              { "label": "Build system", "value": "IntelliJ    Maven    [ Gradle ]", "type": "text", "hl": true },
+                              { "label": "JDK", "value": "21  Eclipse Temurin", "type": "select" },
+                              { "label": "Gradle DSL", "value": "[ Kotlin ]    Groovy", "type": "text" },
+                              { "label": "GroupId", "value": "ru.shop" },
+                              { "label": "ArtifactId", "value": "shop-autotests" } ],
+                    "buttons": ["Create", "Cancel"], "primary": "Create" },
+        "marks": [ { "n": 1, "target": "field-Build system", "text": "Главное: <b>Build system — Gradle</b>. С вариантом IntelliJ получится обычный проект без build-файла, как папка нашего курса" },
+                   { "n": 2, "target": "field-Gradle DSL", "text": "<b>Kotlin</b> — файл будет называться <code>build.gradle.kts</code>. Groovy — старый вариант, файл <code>build.gradle</code> без <code>.kts</code>; смысл тот же, синтаксис чуть другой" },
+                   { "n": 3, "target": "field-GroupId", "text": "<b>GroupId</b> попадёт в <code>group</code>, <b>ArtifactId</b> — в имя проекта. В настоящем окне эти поля и версия Gradle спрятаны в раскрывающемся разделе <b>Advanced Settings</b> внизу" },
+                   { "n": 4, "target": "btn-Create", "side": "bottom", "text": "<b>Create</b> — IDEA создаст build-файлы, wrapper и папки src/main/java, src/test/java" } ],
+        "caption": "File → New → Project (упрощённо)" }
+      </script>
+    </div>
+    <p>А так выглядит тест, когда библиотеку в <code>build.gradle.kts</code> уже вписали, но изменения ещё не загрузили:</p>
+    <div data-widget="ide" id="shot-gradle-not-loaded">
+      <script type="application/json">
+      { "tree": false, "project": "shop-autotests", "status": "shop-autotests › src › test › java › ru.shop › DeliveryFeeTest",
+        "file": "DeliveryFeeTest.java", "tabs": ["DeliveryFeeTest.java", "build.gradle.kts"],
+        "code": "package ru.shop;\n\nimport org.assertj.core.api.Assertions;\nimport org.junit.jupiter.api.Test;\n\nclass DeliveryFeeTest {\n    @Test\n    void bigOrderIsFree() {\n        Assertions.assertThat(DeliveryFee.feeFor(2500)).isEqualTo(0);\n    }\n}",
+        "errors": [ { "line": 3, "text": "assertj", "msg": "Cannot resolve symbol 'assertj'", "tip": true, "fix": false },
+                    { "line": 9, "text": "Assertions", "msg": "Cannot resolve symbol 'Assertions'" } ],
+        "marks": [ { "n": 1, "target": "err-3", "text": "Красным — первое «непонятное» слово в адресе: IDEA ещё не знает библиотеку AssertJ" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot resolve symbol</b> — «не могу найти». Код правильный, просто библиотеку не загрузили" },
+                   { "n": 3, "target": "err-9", "text": "Из-за этого красное и там, где класс используется" },
+                   { "n": 4, "target": "problems", "text": "Лечение — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> (<b>Load Gradle Changes</b>) или значок слона со стрелкой в углу редактора build.gradle.kts. Через несколько секунд красное исчезнет" } ],
+        "caption": "build.gradle.kts поправили, а Load Gradle Changes не нажали" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">А как же наш курс?</span>
+      <p>Папка курса — не Gradle-проект, а обычный проект IDEA. Для задач модуля 17 мы подключим JUnit и AssertJ проще: через <b>Project Structure → Libraries → From Maven…</b> (это в следующем уроке; пункт меню так называется, потому что IDEA качает со склада Maven Central). Заметь: даже там ты будешь вводить те же координаты <code>группа:имя:версия</code> — и IDEA скачает jar из того же Maven Central.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Задачи и gradle test</h2>
+    <p>Всё, что умеет Gradle, разложено на <b>задачи</b> (tasks). Задача — одно действие: скомпилировать, прогнать тесты, упаковать jar. Задачи зависят друг от друга: попросишь <code>test</code> — Gradle сам сначала выполнит компиляцию кода и тестов. Главные:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что делает</th></tr>
+        <tr><td><code>clean</code></td><td>удаляет папку <code>build</code>, чтобы собрать всё с нуля</td></tr>
+        <tr><td><code>compileJava</code></td><td>компилирует <code>src/main/java</code> в <code>build/classes/java/main</code></td></tr>
+        <tr><td><code>test</code></td><td>компилирует <code>src/test/java</code> (и сперва main) и <b>запускает все тесты</b></td></tr>
+        <tr><td><code>build</code></td><td>всё вместе: компиляция, <b>тесты</b> и jar в <code>build/libs</code></td></tr>
+      </table>
+    </div>
+    <p>В IDEA задачи — это строчки в окне <b>Gradle</b>. Двойной щелчок по <b>test</b> — запустить тесты. А чтобы собрать с нуля, удобнее Run Anything: <kbd>Ctrl</kbd>, <kbd>Ctrl</kbd> → <code>gradle clean test</code> → <kbd>Enter</kbd>. Внизу откроется панель Run с выводом Gradle:</p>
+    <div data-widget="ide" id="shot-gradle-tasks">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [clean test]",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "Tasks", "type": "folder", "depth": 1, "open": true },
+                  { "name": "build", "type": "folder", "depth": 2, "open": true },
+                  { "name": "assemble", "type": "file", "depth": 3 },
+                  { "name": "build", "type": "file", "depth": 3 },
+                  { "name": "clean", "type": "file", "depth": 3 },
+                  { "name": "jar", "type": "file", "depth": 3 },
+                  { "name": "help", "type": "folder", "depth": 2 },
+                  { "name": "verification", "type": "folder", "depth": 2, "open": true },
+                  { "name": "check", "type": "file", "depth": 3 },
+                  { "name": "test", "type": "file", "depth": 3, "selected": true },
+                  { "name": "Dependencies", "type": "folder", "depth": 1 } ],
+        "file": "build.gradle.kts",
+        "code": "tasks.test {\n    useJUnitPlatform()\n}",
+        "console": { "title": "shop-autotests [clean test]", "lines": [
+          { "t": "cmd", "s": "10:15:32: Executing 'clean test'…" },
+          { "t": "out", "s": "> Task :clean" },
+          { "t": "out", "s": "> Task :compileJava" },
+          { "t": "out", "s": "> Task :compileTestJava" },
+          { "t": "out", "s": "> Task :test" },
+          { "t": "out", "s": "BUILD SUCCESSFUL in 4s" },
+          { "t": "out", "s": "10:15:36: Execution finished 'clean test'." } ] },
+        "marks": [ { "n": 1, "target": "tree-verification", "text": "Окно <b>Gradle</b> → <b>Tasks</b>: задачи по группам. В IDEA это окно справа (значок слона), здесь нарисовано на месте дерева проекта" },
+                   { "n": 2, "target": "tree-test", "side": "left", "text": "<b>verification → test</b> — двойной щелчок запускает все тесты. Рядом в группе <b>build</b> — <b>clean</b> и <b>build</b>" },
+                   { "n": 3, "target": "output", "text": "<code>&gt; Task :имя</code> — Gradle рассказывает, какие задачи выполняет. Мы просили clean и test, а компиляцию он добавил сам" },
+                   { "n": 4, "target": "output-5", "text": "<b>BUILD SUCCESSFUL</b> — всё собралось и все тесты зелёные. Упал хоть один — будет <b>BUILD FAILED</b>", "box": true } ],
+        "caption": "Окно Gradle и вывод gradle clean test (вывод сокращён: настоящий длиннее, а слева в панели Run ещё дерево тестов, как в уроке 17.5)" }
+      </script>
+    </div>
+    <p>А вот что будет, если один тест красный:</p>
+    <div data-widget="ide" id="shot-gradle-test-failed">
+      <script type="application/json">
+      { "tree": false, "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [test]",
+        "file": "DeliveryFeeTest.java",
+        "code": "    @Test\n    void bigOrderIsFree() {\n        Assertions.assertThat(DeliveryFee.feeFor(2500)).isEqualTo(0);\n    }",
+        "firstLine": 7,
+        "console": { "title": "shop-autotests [test]", "lines": [
+          { "t": "out", "s": "> Task :test FAILED" },
+          { "t": "err", "s": "DeliveryFeeTest > bigOrderIsFree() FAILED" },
+          { "t": "err", "s": "    org.opentest4j.AssertionFailedError at DeliveryFeeTest.java:9" },
+          { "t": "out", "s": "1 test completed, 1 failed" },
+          { "t": "err", "s": "Execution failed for task ':test'." },
+          { "t": "err", "s": "> There were failing tests. See the report at: file:///C:/Users/Misha/IdeaProjects/shop-autotests/build/reports/tests/test/index.html" },
+          { "t": "out", "s": "BUILD FAILED in 3s" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "Какой класс и какой тест упал: <code>Класс &gt; метод() FAILED</code>" },
+                   { "n": 2, "target": "error-2", "text": "Почему и где: исключение проверки и строка теста" },
+                   { "n": 3, "target": "error-4", "text": "Подробный отчёт лежит в <code>build/reports/tests/test/index.html</code> — открой в браузере: там все тесты, сообщения и полный stack trace" },
+                   { "n": 4, "target": "output-3", "text": "<b>BUILD FAILED</b> — сборка сломана. Сервер CI в этом случае пометит прогон красным" } ],
+        "caption": "Упавший тест в выводе gradle test (вывод сокращён)" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Ты запустил <code>./gradlew build</code>. Прогонятся ли тесты?</summary>
+      <p><b>Да.</b> <code>build</code> включает проверку <code>check</code>, а она — <code>test</code>. Упадёт тест — сборка остановится с BUILD FAILED. (Пропустить тесты можно флагом <code>-x test</code>, но в работе за это не хвалят.)</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Убрать, обновить, разобраться: уход за зависимостями</h2>
+    <p>Добавлять библиотеки научились. Но в живом проекте их ещё <b>убирают</b> (больше не нужна), <b>обновляют</b> (вышла версия с исправлениями) и <b>распутывают</b> (две библиотеки хотят разные версии третьей). Тестировщик сталкивается с этим постоянно: «у меня тесты падают, а у коллеги нет» очень часто означает разные версии зависимостей.</p>
+
+    <h3>Как убрать зависимость</h3>
+    <ol class="steps">
+      <li>Открой <code>build.gradle.kts</code> и удали строку <code>testImplementation(…)</code> с этой библиотекой. Удобно так: курсор на строку и <kbd>Ctrl</kbd>+<kbd>Y</kbd> — удалить строку целиком.</li>
+      <li>Нажми <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> — <b>Load Gradle Changes</b>. Библиотека исчезнет из <b>External Libraries</b>.</li>
+      <li>Пройдись по коду: всё, что использовало библиотеку, станет красным — <code>Cannot resolve symbol</code>, как на скрине выше. Перепиши эти места или удали. Лишние <code>import</code> уберёт <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>.</li>
+      <li>Запусти <code>gradle clean test</code> — убедись, что всё собирается и тесты зелёные.</li>
+    </ol>
+    <div data-widget="ide" id="shot-gradle-remove">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "tree": false,
+        "file": "build.gradle.kts", "tabs": ["build.gradle.kts", "DeliveryFeeTest.java"],
+        "code": "plugins {\n    java\n}\n\ngroup = \"ru.shop\"\nversion = \"1.0-SNAPSHOT\"\n\njava {\n    toolchain {\n        languageVersion = JavaLanguageVersion.of(21)\n    }\n}\n\nrepositories {\n    mavenCentral()\n}\n\ndependencies {\n    testImplementation(\"org.junit.jupiter:junit-jupiter:5.11.4\")\n    testImplementation(\"org.assertj:assertj-core:3.27.3\")\n    testRuntimeOnly(\"org.junit.platform:junit-platform-launcher\")\n}\n\ntasks.test {\n    useJUnitPlatform()\n}",
+        "selLines": [20], "caretLine": 20,
+        "marks": [ { "n": 1, "target": "line-20", "text": "Одна библиотека — одна строка. Удаляем её целиком (<kbd>Ctrl</kbd>+<kbd>Y</kbd>). Оставишь половину строки или лишнюю кавычку — build-файл станет «битым», и Load Gradle Changes покажет ошибку" },
+                   { "n": 2, "target": "line-22", "text": "Закрывающую скобку <code>}</code> блока <code>dependencies</code> не трогаем — это конец всего списка покупок" },
+                   { "n": 3, "target": "tab", "text": "После правки — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> (Load Gradle Changes). Без этого IDEA продолжит считать, что библиотека подключена" } ],
+        "caption": "Убираем AssertJ из build.gradle.kts" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">import — это не зависимость</span>
+      <p>Частая путаница. Строка <code>import org.assertj…</code> в Java-файле — только <b>сокращение имени</b> (урок 9.5), она ничего не подключает и не скачивает. Подключает библиотеку <b>только</b> build-файл. Удалил import — библиотека осталась в проекте. Удалил зависимость из <code>build.gradle.kts</code> — import стал красным.</p>
+    </div>
+
+    <h3>Как обновить версию</h3>
+    <p>Поменяй число версии в координатах зависимости и снова <b>Load Gradle Changes</b>. Свежую версию смотри на <b>mvnrepository.com</b>. Когда одна версия встречается в нескольких строках, её выносят в одно место. Самый простой способ — переменная прямо в build-файле:</p>
+<pre data-file="build.gradle.kts"><code>val junitVersion = "5.11.4"
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+}</code></pre>
+    <p><code>val</code> объявляет переменную в Kotlin и сразу инициализирует её; присвоить новое значение потом нельзя (как <code>final var</code> в Java). А <code>$junitVersion</code> внутри строкового литерала подставляет значение этой переменной. В больших проектах версии держат в отдельном файле — <b>version catalog</b> («каталог версий») <code>gradle/libs.versions.toml</code>:</p>
+<pre data-file="gradle/libs.versions.toml"><code>[versions]
+junit = "5.11.4"
+assertj = "3.27.3"
+
+[libraries]
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code></pre>
+<pre data-file="build.gradle.kts"><code>dependencies {
+    testImplementation(libs.junit)
+    testImplementation(libs.assertj)
+}</code></pre>
+    <p>В <code>[versions]</code> — номера версий, в <code>[libraries]</code> — библиотеки со ссылкой на версию, а в build-файле к ним обращаются коротко: <code>libs.имя</code>. Встретишь такой файл в проекте — обновляй версию в нём, а не в <code>build.gradle.kts</code>.</p>
+    <div class="callout tip">
+      <span class="callout-title">Правила безопасного обновления</span>
+      <p>Обновляй <b>по одной</b> библиотеке и после каждой прогоняй <code>gradle clean test</code> — тогда понятно, кто что сломал. Смотри на первую цифру версии: <code>5.11 → 5.12</code> — обычно безопасно, <code>5 → 6</code> — «большая» версия, может менять методы и ломать код. Перед таким обновлением читают <b>release notes</b> — список изменений на сайте библиотеки.</p>
+    </div>
+
+    <h3>Дерево зависимостей: кто кого притащил</h3>
+    <p>Помнишь транзитивные зависимости? Их бывают десятки. Посмотреть, откуда взялась каждая, можно двумя способами: в окне <b>Gradle</b> раскрыть узел <b>Dependencies</b> — или запустить задачу <code>gradle dependencies --configuration testRuntimeClasspath</code> (в IDEA: <kbd>Ctrl</kbd>, <kbd>Ctrl</kbd> → набери её → <kbd>Enter</kbd>). <code>testRuntimeClasspath</code> — «всё, что окажется рядом с тестами при запуске»; без этого уточнения Gradle напечатает деревья для всех конфигураций подряд.</p>
+    <div data-widget="ide" id="shot-gradle-deptree">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [dependencies]",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "Tasks", "type": "folder", "depth": 1 },
+                  { "name": "Dependencies", "type": "folder", "depth": 1, "open": true },
+                  { "name": "compileClasspath", "type": "folder", "depth": 2 },
+                  { "name": "runtimeClasspath", "type": "folder", "depth": 2 },
+                  { "name": "testCompileClasspath", "type": "folder", "depth": 2 },
+                  { "name": "testRuntimeClasspath", "type": "folder", "depth": 2, "open": true },
+                  { "name": "junit-jupiter:5.11.4", "type": "lib", "depth": 3, "open": true },
+                  { "name": "junit-jupiter-api:5.11.4", "type": "lib", "depth": 4 },
+                  { "name": "junit-jupiter-engine:5.11.4", "type": "lib", "depth": 4 },
+                  { "name": "assertj-core:3.27.3", "type": "lib", "depth": 3, "open": true },
+                  { "name": "byte-buddy:1.15.11", "type": "lib", "depth": 4, "selected": true },
+                  { "name": "junit-platform-launcher:1.11.4", "type": "lib", "depth": 3 } ],
+        "file": "build.gradle.kts",
+        "code": "dependencies {\n    testImplementation(\"org.junit.jupiter:junit-jupiter:5.11.4\")\n    testImplementation(\"org.assertj:assertj-core:3.27.3\")\n    testRuntimeOnly(\"org.junit.platform:junit-platform-launcher\")\n}",
+        "console": { "title": "shop-autotests [dependencies]", "lines": [
+          { "t": "out", "s": "testRuntimeClasspath - Runtime classpath of source set 'test'." },
+          { "t": "out", "s": "+--- org.junit.jupiter:junit-jupiter:5.11.4" },
+          { "t": "out", "s": "|    +--- org.junit.jupiter:junit-jupiter-api:5.11.4" },
+          { "t": "out", "s": "|    |    +--- org.opentest4j:opentest4j:1.3.0" },
+          { "t": "out", "s": "|    |    \\--- org.junit.platform:junit-platform-commons:1.11.4" },
+          { "t": "out", "s": "|    \\--- org.junit.jupiter:junit-jupiter-engine:5.11.4" },
+          { "t": "out", "s": "+--- org.assertj:assertj-core:3.27.3" },
+          { "t": "out", "s": "|    \\--- net.bytebuddy:byte-buddy:1.15.11" },
+          { "t": "out", "s": "\\--- org.junit.platform:junit-platform-launcher -> 1.11.4" },
+          { "t": "out", "s": "BUILD SUCCESSFUL in 1s" } ] },
+        "marks": [ { "n": 1, "target": "tree-testRuntimeClasspath", "text": "Окно <b>Gradle</b> → <b>Dependencies</b> → конфигурация. Верхний уровень — то, что написано в твоём build-файле. В IDEA это окно справа, здесь нарисовано на месте дерева проекта" },
+                   { "n": 2, "target": "tree-byte-buddy:1.15.11", "text": "Вложено — транзитивные: byte-buddy в build-файле нет, его притащил AssertJ" },
+                   { "n": 3, "target": "output-2", "text": "То же текстом: <code>+---</code> — «ещё одна ветка», <code>\\---</code> — «последняя ветка», <code>|</code> и отступ — уровень вложенности" },
+                   { "n": 4, "target": "output-8", "text": "<code>группа:имя:версия</code> — так быстро ищется, какой версии библиотека реально попала в проект (<kbd>Ctrl</kbd>+<kbd>F</kbd> по выводу)" },
+                   { "n": 5, "target": "output-9", "text": "Стрелка <code>-&gt;</code> значит «просили одно — получили другое». Здесь версию не писали вовсе, и её подставил JUnit. Такая же стрелка появится при конфликте версий — смотри ниже" } ],
+        "caption": "Дерево зависимостей: окно Gradle и gradle dependencies (вывод сокращён)" }
+      </script>
+    </div>
+
+    <h3>Конфликт версий</h3>
+    <p>Бывает, что две библиотеки тянут <b>одну и ту же третью, но разных версий</b>: условная библиотека A хочет <code>commons-io 2.11.0</code>, а B — <code>commons-io 2.16.1</code>. Две версии одного класса в проекте жить не могут, и Gradle выбирает одну. Правило у Gradle простое: <b>побеждает самая новая</b> из запрошенных версий. (У Maven правило другое — об этом в конце урока.)</p>
+    <p>Опасность в том, что компиляция проходит, а падает уже <b>во время запуска</b>: библиотеке A досталась версия новее, чем она ждала, а в новой версии какой-то старый метод убрали или переименовали. В консоли тогда <code>NoSuchMethodError</code> или <code>ClassNotFoundException</code> — это почти всегда конфликт версий. Найти его помогает то же дерево:</p>
+    <div data-widget="ide" id="shot-gradle-conflict">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [dependencies]", "tree": false,
+        "file": "build.gradle.kts", "code": "dependencies {\n    implementation(\"ru.example:library-a:1.0\")\n    implementation(\"ru.example:library-b:3.2\")\n}",
+        "console": { "title": "shop-autotests [dependencies]", "lines": [
+          { "t": "out", "s": "runtimeClasspath - Runtime classpath of source set 'main'." },
+          { "t": "out", "s": "+--- ru.example:library-a:1.0" },
+          { "t": "out", "s": "|    \\--- commons-io:commons-io:2.11.0 -> 2.16.1" },
+          { "t": "out", "s": "\\--- ru.example:library-b:3.2" },
+          { "t": "out", "s": "     \\--- commons-io:commons-io:2.16.1" },
+          { "t": "out", "s": "BUILD SUCCESSFUL in 1s" } ] },
+        "marks": [ { "n": 1, "target": "output-3", "text": "<code>2.11.0 -&gt; 2.16.1</code>: library-a просила <b>2.11.0</b>, а получит <b>2.16.1</b> — победила самая новая. Если в 2.16.1 нет метода, который нужен library-a, будет <code>NoSuchMethodError</code> при запуске" },
+                   { "n": 2, "target": "output-5", "text": "library-b получила ровно то, что просила" },
+                   { "n": 3, "target": "output-6", "text": "Сборка при этом <b>успешна</b> — конфликт не ошибка сборки, его надо искать глазами: <kbd>Ctrl</kbd>+<kbd>F</kbd> по <code>-&gt;</code>" } ],
+        "caption": "Конфликт версий в выводе gradle dependencies (library-a и library-b — условные примеры, вывод сокращён)" }
+      </script>
+    </div>
+    <p>Чтобы спросить Gradle прямо «почему у этой библиотеки такая версия?», есть задача <code>dependencyInsight</code>:</p>
+    <div data-widget="ide" id="shot-gradle-insight">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [dependencyInsight]", "tree": false,
+        "file": "build.gradle.kts", "code": "dependencies {\n    implementation(\"ru.example:library-a:1.0\")\n    implementation(\"ru.example:library-b:3.2\")\n}",
+        "console": { "title": "shop-autotests [dependencyInsight]", "lines": [
+          { "t": "cmd", "s": "10:20:05: Executing 'dependencyInsight --dependency commons-io --configuration runtimeClasspath'…" },
+          { "t": "out", "s": "commons-io:commons-io:2.16.1" },
+          { "t": "out", "s": "   Selection reasons:" },
+          { "t": "out", "s": "      - By conflict resolution: between versions 2.16.1 and 2.11.0" },
+          { "t": "out", "s": "commons-io:commons-io:2.16.1" },
+          { "t": "out", "s": "\\--- ru.example:library-b:3.2" },
+          { "t": "out", "s": "commons-io:commons-io:2.11.0 -> 2.16.1" },
+          { "t": "out", "s": "\\--- ru.example:library-a:1.0" },
+          { "t": "out", "s": "BUILD SUCCESSFUL in 1s" } ] },
+        "marks": [ { "n": 1, "target": "cmd", "text": "Что спрашиваем: <code>--dependency</code> — про какую библиотеку, <code>--configuration</code> — в каком наборе" },
+                   { "n": 2, "target": "output", "text": "Итог: в проекте будет <b>2.16.1</b>" },
+                   { "n": 3, "target": "output-3", "text": "Причина: <b>conflict resolution</b> — «разрешение конфликта» между 2.16.1 и 2.11.0" },
+                   { "n": 4, "target": "output-6", "text": "И кто чего хотел: library-b — 2.16.1, library-a — 2.11.0, но получила 2.16.1" } ],
+        "caption": "gradle dependencyInsight (вывод сокращён: настоящий подробнее)" }
+      </script>
+    </div>
+    <p>Как лечат — два способа:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">✂️</span><h4>Исключить лишнюю</h4><p>Внутри зависимости напиши <code>exclude(…)</code> — «не тащи с собой commons-io». Тогда останется версия от другой библиотеки.</p></div>
+      <div class="card"><span class="emoji">📌</span><h4>Зафиксировать версию</h4><p>Объяви <code>commons-io</code> сам и скажи «строго эта версия»: <code>strictly</code>. Выбирай версию, с которой работают <b>обе</b> библиотеки, и проверяй тестами.</p></div>
+    </div>
+<pre data-file="build.gradle.kts"><code>dependencies {
+    // способ 1: не брать commons-io вместе с library-b
+    implementation("ru.example:library-b:3.2") {
+        exclude(group = "commons-io", module = "commons-io")
+    }
+
+    // способ 2: строго эта версия, «самая новая» не победит
+    implementation("commons-io:commons-io") {
+        version { strictly("2.11.0") }
+    }
+}</code></pre>
+    <p>Это два разных способа — в проекте выбирают один. Исключение подходит, когда «лишняя» версия просто не нужна; <code>strictly</code> — когда точно знаешь, какая версия правильная.</p>
+    <div data-widget="check" id="check-m17-04-deps">
+      <script type="application/json">
+      { "title": "Уход за зависимостями",
+        "items": [
+          { "type": "tf", "q": "Верно или нет?", "statements": [
+            { "s": "Чтобы убрать библиотеку из проекта, достаточно удалить её import из Java-файла", "a": false, "why": "import — только сокращение имени. Библиотеку подключает и убирает build.gradle.kts." },
+            { "s": "После правки build.gradle.kts нужно нажать Load Gradle Changes (Ctrl+Shift+O)", "a": true },
+            { "s": "Если сборка прошла (BUILD SUCCESSFUL), конфликта версий точно нет", "a": false, "why": "Конфликт обычно проявляется только при запуске — NoSuchMethodError или ClassNotFoundException." },
+            { "s": "При конфликте Gradle по умолчанию берёт самую новую из запрошенных версий", "a": true } ] },
+          { "type": "single", "q": "В дереве зависимостей строка <code>commons-io:commons-io:2.11.0 -&gt; 2.16.1</code>. Что она значит?",
+            "options": ["Библиотеку обновили с 2.11.0 до 2.16.1 в build-файле", "Кто-то просил 2.11.0, но в проект попала 2.16.1", "В проекте будут обе версии"], "answer": 1,
+            "why": "Стрелка — «просили одно, получили другое». Обе версии одного класса в проекте жить не могут, Gradle выбрал более новую." },
+          { "type": "single", "q": "Тесты падают с <code>NoSuchMethodError</code> в чужой библиотеке, хотя код компилируется. С чего начать?",
+            "options": ["Переустановить IDEA", "Посмотреть дерево: gradle dependencies, а потом dependencyInsight", "Удалить все import"], "answer": 1,
+            "why": "NoSuchMethodError при успешной компиляции — классический признак конфликта версий. Дерево покажет стрелки ->, а dependencyInsight — почему выбрана версия." },
+          { "type": "match", "q": "Задача → что сделать",
+            "left": ["Библиотека больше не нужна", "Вышла версия с исправлениями", "Узнать, кто притащил byte-buddy", "B тащит неподходящую commons-io"],
+            "right": ["Удалить строку → Load Gradle Changes", "Поменять версию → Load Gradle Changes → gradle clean test", "Окно Gradle → Dependencies или gradle dependencies", "exclude в B или strictly-версия в своём build-файле"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Встретишь и такое: Maven</h2>
+    <p><b>Maven</b> — второй популярный сборщик и старший брат Gradle. Во многих компаниях проекты собирают именно им, так что прочитать его файл ты должен уметь. Идея та же: зависимости, сборка, тесты, тот же склад Maven Central, те же папки <code>src/main/java</code> и <code>src/test/java</code>. Отличается форма: вместо скрипта — файл <code>pom.xml</code> на <b>XML</b>, языке разметки, где данные лежат внутри парных тегов <code>&lt;тег&gt;значение&lt;/тег&gt;</code>, как коробки в коробках.</p>
+<pre data-file="pom.xml"><code>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+        &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+        &lt;version&gt;5.11.4&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+    <p>Те же координаты, только каждая часть в своём теге: <code>groupId</code> — группа, <code>artifactId</code> — имя, <code>version</code> — версия. <code>&lt;scope&gt;test&lt;/scope&gt;</code> — то же, что наш <code>testImplementation</code>. Тесты запускает команда <code>mvn test</code> (в IDEA — окно <b>Maven</b> справа → <b>Lifecycle</b> → <b>test</b>).</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>Gradle</th><th>Maven</th></tr>
+        <tr><td>Файл сборки</td><td><code>build.gradle.kts</code> (скрипт на Kotlin)</td><td><code>pom.xml</code> (XML)</td></tr>
+        <tr><td>Библиотека только для тестов</td><td><code>testImplementation(…)</code></td><td><code>&lt;scope&gt;test&lt;/scope&gt;</code></td></tr>
+        <tr><td>Результаты сборки</td><td><code>build/</code></td><td><code>target/</code></td></tr>
+        <tr><td>Запустить тесты</td><td><code>gradle test</code> (<code>./gradlew test</code>)</td><td><code>mvn test</code></td></tr>
+        <tr><td>Загрузить изменения в IDEA</td><td>Load Gradle Changes</td><td>Load Maven Changes</td></tr>
+        <tr><td>Локальный «холодильник»</td><td><code>~/.gradle/caches</code></td><td><code>~/.m2/repository</code></td></tr>
+        <tr><td>При конфликте версий побеждает</td><td>самая новая</td><td>ближайшая к проекту в дереве</td></tr>
+        <tr><td>Какие классы считаются тестами</td><td>все, где есть <code>@Test</code></td><td>по умолчанию только с именами <code>*Test</code>, <code>*Tests</code>, <code>Test*</code></td></tr>
+      </table>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: «ближайшая» версия у Maven</summary>
+      <p>Maven при конфликте берёт не самую новую, а ту, что <b>ближе</b> к твоему проекту в дереве зависимостей: чем короче путь от <code>pom.xml</code> до библиотеки, тем она главнее; при равной длине — та, что объявлена в pom раньше. Поэтому один и тот же набор библиотек в Maven и Gradle может дать <b>разные</b> версии. Дерево в Maven смотрят командой <code>mvn dependency:tree</code>, а лечат так же: исключением (<code>&lt;exclusions&gt;</code>) или явной версией в своём pom.</p>
+    </details>
+    <p>Зная один сборщик, второй читаешь за вечер: координаты библиотек, структура папок и смысл «тестовой» зависимости одинаковые.</p>
+  </section>
+
+  <!-- ШАГ 10 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-04">
+      <script type="application/json">
+      { "title": "Gradle — главное",
+        "items": [
+          { "type": "match", "q": "Соедини папку или файл с тем, что в нём лежит",
+            "left": ["src/main/java", "src/test/java", "build", "~/.gradle/caches", "gradle/wrapper"],
+            "right": ["Код программы", "Тесты", "Результаты сборки", "Скачанные библиотеки", "Какая версия Gradle нужна проекту"],
+            "why": "Код и тесты — раздельно; build можно удалить в любой момент (clean); кэш — общий «холодильник» библиотек; wrapper гарантирует всем одну версию Gradle." },
+          { "type": "single", "q": "Что делает <code>./gradlew test</code>?",
+            "options": ["Только запускает уже скомпилированные тесты", "Компилирует код и тесты, затем запускает все тесты", "Собирает jar и запускает программу"], "answer": 1,
+            "why": "Задача test зависит от компиляции: Gradle сам выполнит compileJava и compileTestJava, потом тесты." },
+          { "type": "bug", "q": "Load Gradle Changes завершился ошибкой: Gradle не может найти одну из библиотек. В какой строке ошибка?",
+            "code": "repositories {\n    mavenCentral()\n}\n\ndependencies {\n    testImplementation(\"org.junit.jupiter:junit-jupiter:5.11.4\")\n    testImplementation(\"org.assertj:assertj-core\")\n}",
+            "answer": [7],
+            "why": "У assertj-core нет версии: нужно три части группа:имя:версия. Gradle пишет Could not find org.assertj:assertj-core:. — с пустым местом после последнего двоеточия." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Зависимости зависимостей (транзитивные) Gradle скачивает сам", "a": true },
+              { "s": "После правки build.gradle.kts IDEA сразу знает о новой библиотеке, ничего нажимать не надо", "a": false, "why": "нужно Load Gradle Changes (Ctrl+Shift+O), иначе импорты будут красными." },
+              { "s": "Gradle берёт библиотеки из того же Maven Central, что и Maven", "a": true },
+              { "s": "Класс из src/main/java может использовать библиотеку из testImplementation", "a": false, "why": "test-зависимости видны только в src/test/java — будет ошибка компиляции." },
+              { "s": "Файлы gradlew и gradle/wrapper не нужны в Git — каждый поставит Gradle сам", "a": false, "why": "wrapper коммитят: благодаря ему у всех и на CI одна и та же версия Gradle." }
+            ] },
+          { "type": "single", "q": "В проекте есть тесты на JUnit 5, но <code>gradle test</code> не запустил ни одного. Что проверить первым?",
+            "options": ["Есть ли <code>useJUnitPlatform()</code> в <code>tasks.test { }</code>", "Есть ли <code>mavenCentral()</code>", "Название проекта в settings.gradle.kts"], "answer": 0,
+            "why": "Без useJUnitPlatform() Gradle ищет тесты старого JUnit 4 и не видит аннотации JUnit 5." },
+          { "type": "match", "q": "Gradle ↔ Maven",
+            "left": ["build.gradle.kts", "testImplementation", "build/", "gradle test"],
+            "right": ["pom.xml", "scope test", "target/", "mvn test"],
+            "why": "Смысл один, меняется форма записи." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Практика с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 17.4. Хочу создать в IDEA свой Gradle-проект, подключить JUnit и AssertJ и запустить gradle test — проверь меня по шагам»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Gradle управляет зависимостями, собирает проект и запускает тесты. Запускают его через wrapper: <code>./gradlew</code> — у всех одна версия.</li>
+        <li>Структура: <code>build.gradle.kts</code>, <code>settings.gradle.kts</code>, код в <code>src/main/java</code>, тесты в <code>src/test/java</code>, сборка в <code>build</code>.</li>
+        <li>Библиотека = координаты <code>группа:имя:версия</code>; берётся из Maven Central и кешируется в <code>~/.gradle/caches</code>.</li>
+        <li><code>testImplementation</code> — библиотека только для тестов; <code>useJUnitPlatform()</code> обязателен для JUnit 5.</li>
+        <li><code>gradle test</code> = компиляция + все тесты; красный тест → BUILD FAILED, отчёт — <code>build/reports/tests/test/index.html</code>.</li>
+        <li>Дерево — <code>gradle dependencies</code>; при конфликте Gradle берёт самую новую версию (<code>-&gt;</code> в дереве), лечат <code>exclude</code> или <code>strictly</code>.</li>
+        <li>Maven — то же самое в <code>pom.xml</code>: <code>scope test</code>, <code>target/</code>, <code>mvn test</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

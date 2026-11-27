@@ -1,0 +1,41 @@
+## id: m14-t04
+## title: Длинные слова через запятую
+## file: module-14/LongWordsJoiner.java
+## class: LongWordsJoiner
+## level: 2
+@@ description
+<p>В первой строке вводится число <code>N</code>, во второй — слова через пробел. Выведи в <b>одну строку через запятую с пробелом</b> все слова, которые <b>длиннее</b> <code>N</code> символов, в <b>верхнем регистре</b>, в том же порядке, что во вводе:</p>
+<pre class="terminal"><span class="out">ввод:  3
+       кот собака мышь слон крокодил
+
+СОБАКА, МЫШЬ, СЛОН, КРОКОДИЛ</span></pre>
+<p>Слово ровно из <code>N</code> букв <b>не подходит</b> — нужно строго длиннее. Если подходящих слов нет, выведи <code>Таких слов нет</code>.</p>
+<p>Склей результат коллектором <code>Collectors.joining(", ")</code>. Для верхнего регистра подойдёт ссылка на метод <code>String::toUpperCase</code>. Циклы запрещены.</p>
+<p>📖 <a href="/lessons/m14/07-collectors.html">Collectors: joining</a> · <a href="/lessons/m14/03-method-references.html">Ссылки на методы</a></p>
+@@ test: Пример из условия
+@@ input
+3
+кот собака мышь слон крокодил
+@@ expect
+СОБАКА, МЫШЬ, СЛОН, КРОКОДИЛ
+@@ test: Ровно N букв — не подходит
+@@ input
+4
+мышь слон кошка
+@@ expect
+КОШКА
+@@ test: Ничего не подошло
+@@ input
+10
+Java Stream lambda
+@@ expect
+Таких слов нет
+@@ test: N = 0 — подходят все
+@@ input
+0
+assert that is OK
+@@ expect
+ASSERT, THAT, IS, OK
+@@ require: Collectors\.joining\s*\( | Склей слова коллектором Collectors.joining
+@@ require: \.filter\s*\( | Отбери длинные слова методом filter
+@@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

@@ -1,0 +1,41 @@
+## id: tr-except-004
+## title: Вес посылки
+## file: trainer/except/ParcelWeightInput.java
+## class: ParcelWeightInput
+## level: 1
+## category: Плохой ввод
+@@ description
+<p>Напиши класс <code>ParcelWeightInput</code>. На почте вводят вес посылки в килограммах — дробным числом. Программа читает строку через <code>nextLine()</code>, превращает её в <code>double</code> и печатает <code>Вес посылки: X кг</code>. Если строка не похожа на число (например, дробь написали через запятую), напечатай <code>Ошибка: вес вводится числом через точку</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2.5     вывод: Вес посылки: 2.5 кг
+ввод:  2,5     вывод: Ошибка: вес вводится числом через точку</span></pre>
+<p>Целое число на входе всё равно станет дробным: <code>3</code> напечатается как <code>3.0</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Double.parseDouble(s)</code> — превращает строку в <code>double</code>; не может — выбрасывает <code>NumberFormatException</code></li>
+</ul></div>
+@@ test: Дробь через точку
+@@ input
+2.5
+@@ expect
+Вес посылки: 2.5 кг
+@@ test: Целое число
+@@ input
+3
+@@ expect
+Вес посылки: 3.0 кг
+@@ test: Меньше килограмма
+@@ input
+0.75
+@@ expect
+Вес посылки: 0.75 кг
+@@ test: Дробь через запятую
+@@ input
+2,5
+@@ expect
+Ошибка: вес вводится числом через точку
+@@ test: Словами
+@@ input
+пять
+@@ expect
+Ошибка: вес вводится числом через точку
+@@ require: parseDouble\s*\( | Преврати строку в число методом Double.parseDouble
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException

@@ -1,0 +1,60 @@
+## id: tr-oop-001
+## title: Комната на плане
+## file: trainer/oop/RoomFloorPlan.java
+## class: RoomFloorPlan
+## level: 1
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>RoomFloorPlan</code> с методом <code>main</code>. Ниже в том же файле объяви второй класс — <code>FloorRoom</code> (без <code>public</code>: в одном файле может быть только один публичный класс).</p>
+<p>Класс <code>FloorRoom</code> описывает прямоугольную комнату:</p>
+<ul>
+<li>поля <code>int width</code> и <code>int length</code> — ширина и длина в метрах;</li>
+<li>конструктор <code>FloorRoom(int width, int length)</code> — присваивает полям значения параметров;</li>
+<li><code>int area()</code> — возвращает площадь;</li>
+<li><code>int perimeter()</code> — возвращает периметр;</li>
+<li><code>boolean isSquare()</code> — возвращает <code>true</code>, если комната квадратная.</li>
+</ul>
+<p><code>main</code> читает два целых числа через пробел — ширину и длину, создаёт объект <code>FloorRoom</code> и печатает три строки, вызывая его методы:</p>
+<pre class="terminal"><span class="out">ввод:  4 5
+вывод: Площадь: 20
+       Периметр: 18
+       Квадрат: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>this.width = width;</code> — в конструкторе полю объекта присваивается значение параметра с тем же именем</li>
+<li><code>FloorRoom room = new FloorRoom(w, l);</code> — создание объекта с вызовом конструктора</li>
+<li><code>room.area()</code> — вызов метода у объекта</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4 5
+@@ expect
+Площадь: 20
+Периметр: 18
+Квадрат: false
+@@ test: Квадратная комната
+@@ input
+3 3
+@@ expect
+Площадь: 9
+Периметр: 12
+Квадрат: true
+@@ test: Узкий коридор
+@@ input
+1 12
+@@ expect
+Площадь: 12
+Периметр: 26
+Квадрат: false
+@@ test: Комната 1 на 1
+@@ input
+1 1
+@@ expect
+Площадь: 1
+Периметр: 4
+Квадрат: true
+@@ require: \bclass\s+FloorRoom\b | Объяви в том же файле класс FloorRoom
+@@ require: FloorRoom\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен конструктор FloorRoom(int width, int length)
+@@ require: new\s+FloorRoom\s*\( | В main создай объект: new FloorRoom(...)
+@@ require: \bint\s+area\s*\(\s*\) | Нужен метод int area()
+@@ require: \bint\s+perimeter\s*\(\s*\) | Нужен метод int perimeter()
+@@ require: \bboolean\s+isSquare\s*\(\s*\) | Нужен метод boolean isSquare()

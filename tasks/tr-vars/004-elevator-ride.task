@@ -1,0 +1,53 @@
+## id: tr-vars-004
+## title: Лифт
+## file: trainer/vars/ElevatorRide.java
+## class: ElevatorRide
+## level: 1
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>ElevatorRide</code>. Лифт стоит на каком-то этаже, сначала поднимается на несколько этажей, потом опускается. Программа читает три целых числа, каждое с новой строки: начальный этаж, на сколько этажей лифт поднялся, на сколько опустился. Напечатай <code>Лифт на этаже N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1
+       5
+       2
+вывод: Лифт на этаже 4</span></pre>
+<p>В доме есть подземная парковка, поэтому этаж может оказаться нулевым или отрицательным.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>floor = floor + up;</code> — переменной присваивается новое значение, старое теряется</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+1
+5
+2
+@@ expect
+Лифт на этаже 4
+@@ test: Спуск на парковку
+@@ input
+3
+0
+5
+@@ expect
+Лифт на этаже -2
+@@ test: Никуда не ехал
+@@ input
+7
+0
+0
+@@ expect
+Лифт на этаже 7
+@@ test: Вернулся на нулевой
+@@ input
+10
+7
+17
+@@ expect
+Лифт на этаже 0
+@@ test: Старт с парковки
+@@ input
+-2
+12
+1
+@@ expect
+Лифт на этаже 9

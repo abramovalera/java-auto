@@ -1,0 +1,68 @@
+## id: m13-t05
+## title: Очередь заявок в поддержку
+## file: module-13/TicketQueueProcessor.java
+## class: TicketQueueProcessor
+## level: 2
+@@ description
+<p>Служба поддержки обслуживает клиентов строго по порядку обращения. Программа читает команды — каждая с новой строки — до команды <code>END</code>:</p>
+<ul>
+<li><code>NEW Имя</code> — новый клиент встал в очередь (имя — одно слово). Ничего не печатать.</li>
+<li><code>NEXT</code> — оператор освободился: напечатать <code>Обслужен: Имя</code> для того, кто ждёт дольше всех, и убрать его из очереди. Если очередь пуста — напечатать <code>Очередь пуста</code>.</li>
+<li><code>END</code> — конец смены: напечатать <code>Осталось в очереди: N</code> и завершить программу.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:            вывод:
+NEW Аня          Обслужен: Аня
+NEW Борис        Обслужен: Борис
+NEXT             Очередь пуста
+NEXT             Осталось в очереди: 1
+NEXT
+NEW Вера
+END</span></pre>
+<p>Подсказка по чтению: команду читай через <code>scanner.next()</code>; если это <code>NEW</code> — следующим <code>next()</code> прочитай имя.</p>
+<p>📖 <a href="/lessons/m13/06-queue-stack.html">Очередь и стек</a></p>
+@@ test: Пример из условия
+@@ input
+NEW Аня
+NEW Борис
+NEXT
+NEXT
+NEXT
+NEW Вера
+END
+@@ expect
+Обслужен: Аня
+Обслужен: Борис
+Очередь пуста
+Осталось в очереди: 1
+@@ test: Вперемешку
+@@ input
+NEW Аня
+NEW Борис
+NEXT
+NEW Вера
+NEXT
+NEXT
+NEXT
+END
+@@ expect
+Обслужен: Аня
+Обслужен: Борис
+Обслужен: Вера
+Очередь пуста
+Осталось в очереди: 0
+@@ test: Пустая смена
+@@ input
+END
+@@ expect
+Осталось в очереди: 0
+@@ test: Никого не обслужили
+@@ input
+NEW a
+NEW b
+NEW c
+NEXT
+END
+@@ expect
+Обслужен: a
+Осталось в очереди: 2
+@@ require: \b(Queue|Deque|ArrayDeque)\b | Используй очередь: Queue и ArrayDeque с offer/poll

@@ -1,0 +1,54 @@
+## id: tr-methods-025
+## title: Найди книгу на полке
+## file: trainer/methods/BookshelfIndexOf.java
+## class: BookshelfIndexOf
+## level: 2
+## category: Методы и массивы
+@@ description
+<p>На полке стоят книги, у каждой есть номер. Создай класс <code>BookshelfIndexOf</code> и напиши метод <code>static int indexOf(int[] books, int target)</code>: он возвращает индекс <b>первой</b> книги с номером <code>target</code> или <code>-1</code>, если такой книги нет.</p>
+<p>main читает в первой строке количество книг <code>n</code> (может быть 0), во второй — <code>n</code> номеров через пробел, в третьей — номер, который ищем. Печатает <code>Книга X стоит на месте с индексом I</code> или <code>Книги X нет на полке</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       12 7 30 7 4
+       7
+вывод: Книга 7 стоит на месте с индексом 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>параметр метода может быть массивом: <code>static int имя(int[] arr, int x)</code></li>
+<li><code>return</code> внутри цикла сразу завершает метод — дальше искать не нужно</li>
+</ul></div>
+@@ test: Пример из условия — повтор
+@@ input
+5
+12 7 30 7 4
+7
+@@ expect
+Книга 7 стоит на месте с индексом 1
+@@ test: Нет такой книги
+@@ input
+3
+1 2 3
+9
+@@ expect
+Книги 9 нет на полке
+@@ test: Пустая полка
+@@ input
+0
+
+5
+@@ expect
+Книги 5 нет на полке
+@@ test: Последняя книга
+@@ input
+4
+8 6 4 2
+2
+@@ expect
+Книга 2 стоит на месте с индексом 3
+@@ test: Первая книга
+@@ input
+1
+42
+42
+@@ expect
+Книга 42 стоит на месте с индексом 0
+@@ require: static\s+int\s+indexOf\s*\(\s*int\s*\[\s*\]\s*\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int indexOf(int[] books, int target)
+@@ require: \WindexOf\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать indexOf(...) и передать массив и номер

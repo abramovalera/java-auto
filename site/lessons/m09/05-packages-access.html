@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Пакеты, import и модификаторы доступа · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-05">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 9 · Урок 5</div>
+    <h1>Пакеты, import и модификаторы доступа</h1>
+    <p class="lead">Где живут тысячи классов Java и как их найти. Почему <code>Scanner</code> надо импортировать, а <code>String</code> — нет. И как спрятать баланс счёта, чтобы никто не записал туда минус миллион.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>📦 пакеты</span><span>🔒 private, геттеры, сеттеры</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m09-05-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Какой из вызовов — static-метод?",
+            "options": ["name.trim()", "Math.abs(-5)", "cat.describe()"], "answer": 1,
+            "why": "Слева от точки класс Math — static. В остальных слева объект." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "В static-методе можно использовать this", "a": false, "why": "static-метод вызывают у класса, объекта там нет." },
+              { "s": "Scanner из модуля 2 подключали строкой import java.util.Scanner;", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Пакеты: папки для классов</h2>
+    <p>В Java тысячи готовых классов, а в рабочем проекте — ещё сотни своих. Чтобы в них не утонуть, классы раскладывают по <b>пакетам</b> (package). Пакет — это папка с классами плюс часть их полного имени.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Дерево пакетов: java.lang с String, System, Math; java.util со Scanner и Arrays; java.io с PrintStream">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="300" y="10" width="160" height="44" rx="12" class="d-soft"/>
+        <text x="380" y="38" text-anchor="middle" class="d-title">📁 java</text>
+        <path d="M340 54 L 130 92" class="d-line"/>
+        <path d="M380 54 L 380 92" class="d-line"/>
+        <path d="M420 54 L 630 92" class="d-line"/>
+
+        <rect x="20" y="92" width="220" height="140" rx="14" class="d-accent"/>
+        <text x="130" y="118" text-anchor="middle" class="d-title">📁 java.lang</text>
+        <text x="130" y="138" text-anchor="middle" class="d-small">подключён сам, без import</text>
+        <text x="40" y="166" class="d-mono-ink">String  System</text>
+        <text x="40" y="190" class="d-mono-ink">Math    Integer</text>
+        <text x="40" y="214" class="d-mono-ink">Object  Thread …</text>
+
+        <rect x="270" y="92" width="220" height="140" rx="14" class="d-blue"/>
+        <text x="380" y="118" text-anchor="middle" class="d-title">📁 java.util</text>
+        <text x="380" y="138" text-anchor="middle" class="d-small">нужен import</text>
+        <text x="290" y="166" class="d-mono-ink">Scanner  Arrays</text>
+        <text x="290" y="190" class="d-mono-ink">ArrayList  Random</text>
+        <text x="290" y="214" class="d-mono-ink">HashMap …</text>
+
+        <rect x="520" y="92" width="220" height="140" rx="14" class="d-teal"/>
+        <text x="630" y="118" text-anchor="middle" class="d-title">📁 java.io</text>
+        <text x="630" y="138" text-anchor="middle" class="d-small">ввод-вывод, нужен import</text>
+        <text x="540" y="166" class="d-mono-ink">PrintStream</text>
+        <text x="540" y="190" class="d-mono-ink">File  InputStream</text>
+        <text x="540" y="214" class="d-mono-ink">IOException …</text>
+      </svg>
+      <figcaption>Полное имя класса = пакет + имя: <code>java.util.Scanner</code>, <code>java.lang.String</code>, <code>java.io.PrintStream</code>.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: контакты в телефоне</span>
+      <p>Знакомых Саш у тебя пятеро. В телефоне они записаны как «Саша Петров (работа)», «Саша из спортзала». Полное имя снимает путаницу. В Java так же: классов <code>List</code> два — <code>java.util.List</code> (список) и <code>java.awt.List</code> (элемент окна). По полному имени не перепутаешь.</p>
+    </div>
+    <p>У твоих классов в <code>module-09</code> строки <code>package</code> нет — они лежат в так называемом <b>пакете по умолчанию</b> (безымянном). Для учебных задач это нормально. В рабочем проекте первой строкой файла всегда идёт пакет, а папки повторяют его имя:</p>
+<pre data-file="src/main/java/ru/shop/cart/Cart.java"><code class="java">package ru.shop.cart;     // файл лежит в папке ru/shop/cart
+
+public class Cart {
+    …
+}</code></pre>
+    <p>Имена пакетов пишут маленькими буквами, часто начиная с перевёрнутого домена компании: <code>org.junit.jupiter.api</code> — пакет библиотеки JUnit (модуль 17), <code>com.google.gson</code> — библиотека Google для работы с JSON.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>import — это просто сокращение</h2>
+    <p>Писать полное имя каждый раз долго:</p>
+<pre data-file="Input.java"><code class="java">// работает, но громоздко
+java.util.Scanner sc = new java.util.Scanner(System.in);</code></pre>
+    <p>Строка <code>import</code> говорит компилятору: «когда я пишу <code>Scanner</code>, я имею в виду <code>java.util.Scanner</code>»:</p>
+<pre data-file="Input.java"><code class="java">import java.util.Scanner;        // один класс
+import java.util.*;              // все классы пакета java.util
+
+public class Input { … }</code></pre>
+    <ul>
+      <li><code>import</code> <b>ничего не загружает и не копирует</b> — это только сокращение имени для компилятора. Байт-код с import и с полным именем одинаковый.</li>
+      <li>Пишется в начале файла, после <code>package</code> (если он есть) и до класса.</li>
+      <li>Классы из <b>того же пакета</b> импортировать не нужно — поэтому <code>CatDemo</code> видит <code>Cat</code> без import.</li>
+      <li>Пакет <b><code>java.lang</code> импортирован всегда сам</b>. Поэтому <code>String</code>, <code>System</code>, <code>Math</code>, <code>Integer</code> работают без единой строки import.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="callout-title">IDEA импортирует сама</span>
+      <p>Написал <code>Scanner</code>, а он красный? Нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Import class</b>. Если классов с таким именем несколько (как с <code>List</code>), IDEA спросит, какой нужен, — тут важно выбрать правильный пакет. Серые неиспользуемые import убирает <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>.</p>
+    </div>
+    <div data-widget="ide" id="shot-import">
+      <script type="application/json">
+      { "tree": false, "file": "Input.java", "gutterRun": [1, 2],
+        "code": "public class Input {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+        "errors": [ { "line": 3, "text": "Scanner", "msg": "Cannot resolve symbol 'Scanner'", "tip": true, "fix": "Import class" },
+                    { "line": 3, "col": 26, "len": 7, "msg": "Cannot resolve symbol 'Scanner'" } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "left", "text": "Строки <code>import</code> нет — компилятор не знает, что за <code>Scanner</code>, и оба упоминания красные" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot resolve symbol 'Scanner'</b> — «не понимаю имя Scanner». Ниже готовое лекарство: <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Import class</b>. IDEA допишет в начало файла <code>import java.util.Scanner;</code>" },
+                   { "n": 3, "target": "problems", "text": "<b>❗2</b> — две ошибки, но причина одна. После импорта исчезнут обе" } ],
+        "caption": "Класс из другого пакета без import" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли строка <code>java.lang.System.out.println("Hi");</code>?</summary>
+      <p><b>Да.</b> Это просто полное имя класса <code>System</code>. Импорт java.lang позволяет его сократить, но писать полностью никто не запрещает. В уроке 9.6 мы разберём эту строку по кусочкам.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Модификаторы доступа: кто что видит</h2>
+    <p>Перед объявлением класса, поля, метода или конструктора можно поставить модификатор доступа — слово, которое говорит, <b>кому он виден</b>. Таких уровней четыре:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Модификатор</th><th>Кому виден</th><th>Аналогия: дом</th></tr>
+        <tr><td><code>private</code></td><td>только внутри своего класса</td><td>личный дневник в ящике стола</td></tr>
+        <tr><td><i>(ничего не писать)</i></td><td>всем классам своего пакета</td><td>кухня — для всей семьи в доме</td></tr>
+        <tr><td><code>protected</code></td><td>своему пакету + классам-наследникам в других пакетах</td><td>семья + дети, которые переехали (наследование — модуль 10)</td></tr>
+        <tr><td><code>public</code></td><td>всем</td><td>почтовый ящик на улице</td></tr>
+      </table>
+    </div>
+    <p>Уровень «ничего не писать» называют <b>package-private</b> (доступ в пределах пакета). До сих пор у полей котов не было модификатора — поэтому <code>CatDemo</code> из того же пакета и мог обращаться к полю напрямую: <code>murzik.name</code>.</p>
+    <p><code>protected</code> по-настоящему понадобится в модуле 10. Сейчас главное — <code>private</code> и <code>public</code>.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Зачем прятать поля: private</h2>
+    <p>Счёт в банке. Если поле <code>balance</code> открыто, любой код может сделать с ним что угодно:</p>
+<pre data-file="Bank.java"><code class="java">class Account {
+    int balance;
+}
+
+// где-то в программе:
+Account acc = new Account();
+acc.balance = -1_000_000;     // и никто не помешал</code></pre>
+    <p>Закроем поле модификатором <code>private</code> и дадим «окошки» — методы объекта, которые сами проверяют, можно ли так делать:</p>
+<pre data-file="Bank.java"><code class="java">class Account {
+    private int balance;                 // снаружи не видно
+
+    void deposit(int amount) {
+        if (amount &gt; 0) {
+            balance += amount;
+        }
+    }
+
+    boolean withdraw(int amount) {
+        if (amount &gt; 0 &amp;&amp; amount &lt;= balance) {
+            balance -= amount;
+            return true;
+        }
+        return false;                    // денег не хватило
+    }
+
+    int getBalance() {
+        return balance;                  // посмотреть можно, поменять — нет
+    }
+}</code></pre>
+<pre class="terminal"><span class="err">Bank.java:28: error: balance has private access in Account
+        acc.balance = -1_000_000;
+           ^</span></pre>
+    <p>Это текст <code>javac</code> — так ошибку покажет сайт. А в редакторе IDEA:</p>
+    <div data-widget="ide" id="shot-private-access">
+      <script type="application/json">
+      { "tree": false, "file": "Bank.java", "gutterRun": [1, 2],
+        "code": "public class Bank {\n    public static void main(String[] args) {\n        Account acc = new Account();\n        acc.deposit(500);\n        acc.balance = -1_000_000;\n        System.out.println(acc.getBalance());\n    }\n}",
+        "errors": [ { "line": 5, "text": "balance", "msg": "'balance' has private access in 'Account'", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "line-4", "side": "top", "text": "Через метод — можно: <code>deposit</code> не <code>private</code>" },
+                   { "n": 2, "target": "err-5", "side": "left", "text": "Напрямую к полю — красное. Компилятор не пустит в «сейф»" },
+                   { "n": 3, "target": "tip", "text": "<b>'balance' has private access in 'Account'</b> — «поле balance закрыто (private) в классе Account». Не лечи это, убирая <code>private</code>: для того его и ставили" } ],
+        "caption": "Обращение к private-полю снаружи класса" }
+      </script>
+    </div>
+    <p>Теперь <code>acc.balance = …</code> снаружи — <b>ошибка компиляции</b>. Изменить баланс можно только вызовом методов <code>deposit</code> и <code>withdraw</code> у объекта, а они не пустят отрицательную сумму. Объект сам отвечает за то, чтобы его данные были правильными. Эта идея называется <b>инкапсуляция</b> — первый из «трёх китов» ООП, о них весь модуль 10.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: банкомат</span>
+      <p>Ты не открываешь сейф банкомата отвёрткой и не пересчитываешь купюры руками. У банкомата есть кнопки — «снять», «пополнить», «баланс». Внутри он проверяет ПИН и лимиты. Поля <code>private</code> — сейф, публичные методы — кнопки.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Геттеры и сеттеры</h2>
+    <p>Для закрытых (<code>private</code>) полей принято объявлять методы со стандартными именами:</p>
+<pre data-file="Cat.java"><code class="java">public class Cat {
+    private String name;
+    private int age;
+    private boolean vaccinated;
+
+    public Cat(String name, int age) {
+        this.name = name;
+        setAge(age);                           // проверка в одном месте
+    }
+
+    public String getName() {                  // геттер: get + Имя поля
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {              // сеттер: set + Имя поля
+        if (age &lt; 0) {
+            System.out.println("Возраст не может быть отрицательным");
+            return;
+        }
+        this.age = age;
+    }
+
+    public boolean isVaccinated() {            // для boolean — is…
+        return vaccinated;
+    }
+}</code></pre>
+    <ul>
+      <li><b>Геттер</b> (от get — «получить»): <code>getName()</code>, для <code>boolean</code> — <code>isVaccinated()</code>.</li>
+      <li><b>Сеттер</b> (от set — «установить»): <code>setAge(int age)</code>. Именно в нём живёт проверка.</li>
+      <li><b>Не каждому полю нужен сеттер.</b> Имя кота после рождения не меняется — сеттера <code>setName</code> нет, и это правильно. Поле, которое не должно меняться, можно даже сделать <code>private final</code>.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="callout-title">Alt+Insert</span>
+      <p>IDEA генерирует геттеры и сеттеры сама: <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>Getter and Setter</b>. Популярные библиотеки тоже понимают эти имена: например, Jackson, превращая объект в JSON, достаёт поле <code>name</code> через <code>getName()</code>. Поэтому соглашение об именах — не мелочь.</p>
+    </div>
+    <div data-widget="ide" id="shot-getters-setters">
+      <script type="application/json">
+      { "tree": false, "file": "Cat.java", "caretLine": 5,
+        "code": "public class Cat {\n    private String name;\n    private int age;\n    private boolean vaccinated;\n    \n}",
+        "dialog": { "title": "Select Fields to Generate Getters and Setters",
+                    "rows": [ { "label": "name", "value": "String", "type": "text", "hl": true },
+                              { "label": "age", "value": "int", "type": "text", "hl": true },
+                              { "label": "vaccinated", "value": "boolean", "type": "text" } ],
+                    "buttons": ["Cancel", "OK"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "dialog", "side": "left", "text": "Окно появляется после <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>Getter and Setter</b>: IDEA перечисляет поля класса" },
+                   { "n": 2, "target": "field-name", "text": "Выдели поля, для которых нужны методы (с <kbd>Ctrl</kbd> или <kbd>Shift</kbd> — несколько сразу). Помни: не каждому полю нужен сеттер — для имени достаточно геттера, его даёт пункт <b>Getter</b>" },
+                   { "n": 3, "target": "btn-OK", "side": "top", "text": "<b>OK</b> — и IDEA вставит <code>getName()</code>, <code>setName(…)</code>, <code>getAge()</code>, <code>setAge(…)</code> в класс. Проверку в сеттер (например, «возраст не меньше 0») всё равно допиши сам" } ],
+        "caption": "Выбор полей для геттеров и сеттеров" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: зачем конструктор вызывает <code>setAge(age)</code>, а не пишет <code>this.age = age</code>?</summary>
+      <p>Чтобы <b>проверка возраста жила в одном месте</b>. Если завтра правило поменяется («не старше 30»), менять придётся только сеттер — и конструктор тоже начнёт его соблюдать.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Файлы и классы: один public на файл</h2>
+    <p>Последний кусочек — как классы раскладываются по файлам. Правила:</p>
+    <ol class="steps">
+      <li>В файле может быть <b>сколько угодно классов</b>, но <b>public</b> — не больше одного.</li>
+      <li>Если public-класс есть, файл называется точно как он: <code>public class CatShelter</code> → <code>CatShelter.java</code>.</li>
+      <li>Остальные классы в файле — без модификатора (package-private): их видят только классы этого пакета.</li>
+      <li>Каждый класс компилируется в <b>свой</b> <code>.class</code>: из одного файла с тремя классами получится три файла байт-кода.</li>
+    </ol>
+<pre data-file="CatShelter.java"><code class="java">public class CatShelter {                    // public — имя файла
+    public static void main(String[] args) {
+        ShelterCat cat = new ShelterCat("Мурзик");
+        System.out.println(cat.getName());
+    }
+}
+
+class ShelterCat {                           // без public — в том же файле
+    private final String name;
+
+    ShelterCat(String name) {
+        this.name = name;
+    }
+
+    String getName() {
+        return name;
+    }
+}</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 150" role="img" aria-label="Один файл CatShelter.java компилируется в два файла: CatShelter.class и ShelterCat.class">
+        <rect x="20" y="30" width="220" height="90" rx="14" class="d-code"/>
+        <text x="130" y="62" text-anchor="middle" class="d-mono">CatShelter.java</text>
+        <text x="130" y="88" text-anchor="middle" class="d-small">public class CatShelter</text>
+        <text x="130" y="106" text-anchor="middle" class="d-small">class ShelterCat</text>
+        <path d="M242 75 H330" class="d-arrow"/>
+        <text x="286" y="64" text-anchor="middle" class="d-small">javac</text>
+        <rect x="340" y="14" width="200" height="52" rx="12" class="d-green"/>
+        <text x="440" y="46" text-anchor="middle" class="d-mono-ink">CatShelter.class</text>
+        <rect x="340" y="84" width="200" height="52" rx="12" class="d-green"/>
+        <text x="440" y="116" text-anchor="middle" class="d-mono-ink">ShelterCat.class</text>
+        <text x="560" y="46" class="d-small">запускаем этот</text>
+        <text x="560" y="64" class="d-small">(в нём main)</text>
+        <text x="560" y="116" class="d-small">вспомогательный</text>
+      </svg>
+      <figcaption>Один файл — два класса — два файла байт-кода в папке out.</figcaption>
+    </figure>
+    <div class="callout warn">
+      <span class="callout-title">Так пишем задачи этого курса</span>
+      <p>В задачах модуля 9 всё решение — в <b>одном файле</b>: сверху public-класс с <code>main</code> (его имя дано в условии), ниже — вспомогательные классы без <code>public</code>. Помни: все папки курса — один проект в пакете по умолчанию, поэтому имя <b>любого</b> класса, даже вспомогательного, должно быть уникальным на весь проект. Иначе IDEA скажет <em>duplicate class</em>. Поэтому в условиях задач имена классов уже придуманы — используй их.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: компактные файлы — main без класса</summary>
+      <p>В новых версиях Java (окончательно — с Java 25) для маленьких программ можно писать совсем коротко, без объявления класса и без <code>static</code>:</p>
+<pre data-file="Hi.java"><code class="java">void main() {
+    IO.println("Привет!");
+}</code></pre>
+      <p>Компилятор сам «завернёт» такой файл в класс. Это сделано для обучения и маленьких скриптов. Мы учимся на Java 21 и пишем по-классически: в рабочих проектах всё равно везде полноценные классы.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m09-05">
+      <script type="application/json">
+      {
+       "title": "Пакеты и доступ — главное",
+       "items": [
+        {
+         "type": "multi",
+         "q": "Какие классы можно использовать без import?",
+         "options": [
+          "String",
+          "Scanner",
+          "Math",
+          "Arrays",
+          "Класс из того же пакета"
+         ],
+         "answer": [
+          0,
+          2,
+          4
+         ],
+         "why": "String и Math — из java.lang, он подключён сам. Свой пакет тоже виден. Scanner и Arrays — из java.util, нужен import."
+        },
+        {
+         "type": "match",
+         "q": "Соедини модификатор с тем, кому виден",
+         "left": [
+          "private",
+          "без модификатора",
+          "protected",
+          "public"
+         ],
+         "right": [
+          "Только своему классу",
+          "Своему пакету",
+          "Своему пакету и наследникам",
+          "Всем"
+         ],
+         "why": "От самого закрытого к самому открытому: private → package-private → protected → public."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка в main не скомпилируется?",
+         "code": "class Wallet {\n    private int money;\n    int getMoney() { return money; }\n}\n\n// в main другого класса:\nWallet w = new Wallet();\nSystem.out.println(w.getMoney());\nw.money = 100;",
+         "answer": [
+          9
+         ],
+         "why": "money — private-поле: из другого класса обратиться к нему нельзя. Ошибка: money has private access in Wallet."
+        },
+        {
+         "type": "single",
+         "q": "В файле <code>Zoo.java</code> два класса: <code>public class Zoo</code> и <code>public class Lion</code>. Что скажет компилятор?",
+         "options": [
+          "Всё в порядке",
+          "Ошибка: public class Lion должен быть в файле Lion.java",
+          "Скомпилирует только Zoo"
+         ],
+         "answer": 1,
+         "why": "public-класс в файле может быть только один, и имя файла — его. У Lion нужно убрать public или вынести его в Lion.java."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "import java.util.Scanner; копирует код Scanner в твой файл",
+           "a": false,
+           "why": "import — только сокращение имени для компилятора."
+          },
+          {
+           "s": "Каждый класс из файла компилируется в свой .class",
+           "a": true
+          },
+          {
+           "s": "Для каждого private-поля обязательно нужен сеттер",
+           "a": false,
+           "why": "сеттер делают, только если поле действительно можно менять снаружи."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясни, зачем делать поля private, если всё равно есть геттер и сеттер. Сначала я скажу свою версию»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пакет — папка с классами и часть полного имени: <code>java.util.Scanner</code>. <code>import</code> — сокращение имени, а не загрузка кода.</li>
+        <li><code>java.lang</code> (String, System, Math…) и свой пакет доступны без import.</li>
+        <li>Доступ: <code>private</code> (класс) → без слова (пакет) → <code>protected</code> (+ наследники) → <code>public</code> (все).</li>
+        <li>Поля прячут <code>private</code>, наружу дают методы: геттеры <code>getX()</code>/<code>isX()</code> и сеттеры <code>setX()</code> с проверками.</li>
+        <li>В файле один public-класс (имя = имя файла) и сколько угодно классов без public. Каждый класс — свой .class.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

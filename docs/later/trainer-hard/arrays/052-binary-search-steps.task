@@ -1,0 +1,64 @@
+## id: tr-arrays-052
+## title: Бинарный поиск по шагам
+## file: trainer/arrays/BinarySearchGuessSteps.java
+## class: BinarySearchGuessSteps
+## level: 3
+## category: Поиск
+@@ description
+<p>Напиши класс <code>BinarySearchGuessSteps</code>. В библиотечном каталоге <code>n</code> номеров книг, отсортированных по возрастанию и без повторов. Найди нужный номер <b>бинарным поиском</b> — каждый раз смотри в середину оставшейся части и отбрасывай половину. Делай строго так:</p>
+<ul>
+<li><code>lo = 0</code>, <code>hi = n - 1</code>; пока <code>lo &lt;= hi</code>: <code>mid = (lo + hi) / 2</code>, это один шаг;</li>
+<li>если <code>a[mid]</code> равен искомому — нашли; если меньше — <code>lo = mid + 1</code>; если больше — <code>hi = mid - 1</code>.</li>
+</ul>
+<p>Ввод: в первой строке — <code>n</code>, во второй — <code>n</code> номеров, в третьей — искомый номер. Напечатай <code>Индекс X, шагов: S</code> или <code>Не найдено, шагов: S</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10
+       2 5 8 12 16 23 38 56 72 91
+       23
+вывод: Индекс 5, шагов: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>цикл <code>while (lo &lt;= hi)</code> и счётчик шагов, который увеличивается на каждой итерации</li>
+<li><code>break</code> — выход, когда нашли</li>
+</ul></div>
+@@ test: Нашли не сразу
+@@ input
+10
+2 5 8 12 16 23 38 56 72 91
+23
+@@ expect
+Индекс 5, шагов: 3
+@@ test: С первого шага
+@@ input
+5
+1 3 5 7 9
+5
+@@ expect
+Индекс 2, шагов: 1
+@@ test: Нет в каталоге
+@@ input
+6
+10 20 30 40 50 60
+35
+@@ expect
+Не найдено, шагов: 3
+@@ test: Меньше всех
+@@ input
+3
+4 8 15
+1
+@@ expect
+Не найдено, шагов: 2
+@@ test: Пустой каталог
+@@ input
+0
+7
+@@ expect
+Не найдено, шагов: 0
+@@ test: Последний
+@@ input
+7
+1 2 3 4 5 6 7
+7
+@@ expect
+Индекс 6, шагов: 3
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];
+@@ require: while\s*\( | Бинарный поиск удобно писать циклом while (lo <= hi)

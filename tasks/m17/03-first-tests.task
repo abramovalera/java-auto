@@ -1,0 +1,32 @@
+## id: m17-t03
+## title: Первые тесты: скидка в магазине
+## file: module-17/ShopDiscountTest.java
+## class: ShopDiscountTest
+## level: 1
+## mode: junit
+@@ description
+<p>В этой задаче ты пишешь не программу, а <b>тесты</b> к ней. Сайт запустит их через JUnit 5 и засчитает задачу, если все тесты зелёные.</p>
+<p>Создай в <code>module-17</code> файл <code>ShopDiscountTest.java</code>. Сначала набери в него класс, который будем тестировать (без <code>public</code> — в файле может быть только один public-класс):</p>
+<pre><code class="java">class ShopDiscount {
+    // цена после скидки в процентах; скидка не больше 50%, копейки отбрасываем
+    static int priceAfterDiscount(int price, int percent) {
+        if (percent &gt; 50) {
+            percent = 50;
+        }
+        return price - price * percent / 100;
+    }
+}</code></pre>
+<p>Ниже — <code>public class ShopDiscountTest</code> с тестами. Напиши <b>минимум 3 теста</b> с <code>@Test</code> и <code>assertEquals</code>:</p>
+<ul>
+<li>обычная скидка: 1000 ₽ со скидкой 10% → 900;</li>
+<li>скидка 0% — цена не меняется;</li>
+<li>скидка больше 50% обрезается до 50% (например, 1000 ₽ и 70% → 500);</li>
+<li>по желанию — ещё: ровно 50%, копейки (99 ₽ и 10%).</li>
+</ul>
+<p>Не забудь импорты: <code>org.junit.jupiter.api.Test</code> и <code>static org.junit.jupiter.api.Assertions.assertEquals</code>. В <code>assertEquals</code> первым идёт <b>ожидаемое</b>, вторым — <b>фактическое</b>. Имена тестов — по смыслу: <code>discountAboveFiftyIsCut</code>, а не <code>test3</code>.</p>
+<p>Запусти тесты в IDEA зелёным ▶ у класса. Потом специально испорти ожидаемое число в одном тесте — посмотри на красный тест и сообщение <code>expected: … but was: …</code> — и верни обратно.</p>
+<p>📖 <a href="/lessons/m17/05-junit.html">Тестирование и JUnit 5</a></p>
+@@ require: (@Test[\s\S]*){3} | Нужно минимум 3 теста с аннотацией @Test
+@@ require: assertEquals\s*\( | Проверяй результат через assertEquals(ожидаемое, фактическое)
+@@ require: class\s+ShopDiscount\b | Набери в файл класс ShopDiscount из условия — его и тестируем
+@@ forbid: @Disabled | Выключенный тест — не тест. Убери @Disabled

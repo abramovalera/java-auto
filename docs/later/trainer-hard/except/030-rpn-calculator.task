@@ -1,0 +1,69 @@
+## id: tr-except-030
+## title: Калькулятор с обратной записью
+## file: trainer/except/RpnCalculatorSafe.java
+## class: RpnCalculatorSafe
+## level: 3
+## category: Свои исключения
+@@ description
+<p>Напиши класс <code>RpnCalculatorSafe</code>. В обратной польской записи операция пишется после чисел: <code>3 4 +</code> — это 3 + 4, а <code>2 3 4 * +</code> — это 2 + 3 × 4. Считают её так: идём по элементам слева направо; число кладём на верх стопки, а операция снимает два верхних числа (сначала второе, потом первое), считает <code>первое операция второе</code> и кладёт результат обратно. В конце в стопке должно остаться ровно одно число — это ответ.</p>
+<p>В первой строке ввода — количество выражений n, дальше n строк; элементы разделены пробелами. Операции: <code>+ - * /</code>, числа целые, деление целочисленное. Стопку сделай на массиве <code>int[]</code>.</p>
+<p>Напиши метод <code>static int evaluate(String expression)</code>. На каждое выражение программа печатает <code>= N</code> или <code>Ошибка: </code> и причину:</p>
+<ul>
+<li>для операции в стопке меньше двух чисел — <code>не хватает чисел для X</code>: объяви для этого исключение <code>RpnStackUnderflowException</code>;</li>
+<li>элемент не число и не операция — <code>непонятный символ X</code>;</li>
+<li>деление на ноль — <code>деление на ноль</code>;</li>
+<li>в конце в стопке не одно число — <code>лишние числа в конце</code>.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:  2              вывод: = 14
+       2 3 4 * +             Ошибка: не хватает чисел для +
+       5 +</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>массив <code>int[] stack</code> длиной в число элементов и счётчик <code>size</code> — сколько чисел сейчас в стопке</li>
+<li>перехвати <code>NumberFormatException</code> и выброси вместо него <code>IllegalArgumentException</code> со своим сообщением</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2
+2 3 4 * +
+5 +
+@@ expect
+= 14
+Ошибка: не хватает чисел для +
+@@ test: Порядок важен при вычитании и делении
+@@ input
+3
+10 3 -
+20 4 /
+7 2 /
+@@ expect
+= 7
+= 5
+= 3
+@@ test: Деление на ноль и непонятный символ
+@@ input
+2
+5 0 /
+2 x +
+@@ expect
+Ошибка: деление на ноль
+Ошибка: непонятный символ x
+@@ test: Лишние числа и одно число
+@@ input
+3
+1 2 3 +
+42
+-5 -3 *
+@@ expect
+Ошибка: лишние числа в конце
+= 42
+= 15
+@@ test: Длинное выражение
+@@ input
+1
+  5 1 2 + 4 * + 3 -
+@@ expect
+= 14
+@@ require: static\s+int\s+evaluate\s*\(\s*String | Объяви метод static int evaluate(String expression)
+@@ require: class\s+RpnStackUnderflowException\s+extends\s+Exception | Объяви класс RpnStackUnderflowException extends Exception
+@@ require: throw\s+new\s+RpnStackUnderflowException | Когда чисел для операции не хватает, выбрасывай RpnStackUnderflowException
+@@ require: int\s*\[\s*\] | Сделай стопку на массиве int[]

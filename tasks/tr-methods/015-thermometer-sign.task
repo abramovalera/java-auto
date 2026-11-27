@@ -1,0 +1,42 @@
+## id: tr-methods-015
+## title: Мороз, ноль или тепло
+## file: trainer/methods/ThermometerSignMethod.java
+## class: ThermometerSignMethod
+## level: 1
+## category: Строки и печать
+@@ description
+<p>Метеостанция присылает температуры за несколько часов. Создай класс <code>ThermometerSignMethod</code> и напиши метод <code>static String describe(int t)</code>: он возвращает слово <code>мороз</code> для отрицательной температуры, <code>ноль</code> для нуля и <code>тепло</code> для положительной.</p>
+<p>main читает в первой строке количество замеров <code>k</code>, во второй — <code>k</code> целых чисел через пробел, и печатает слова для всех замеров в одну строку через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       -5 0 12 -1
+вывод: мороз ноль тепло мороз</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>метод может возвращать строку: <code>static String имя(...)</code> и <code>return "текст";</code></li>
+<li><code>System.out.print(x + " ")</code> — печатает без перевода строки</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4
+-5 0 12 -1
+@@ expect
+мороз ноль тепло мороз
+@@ test: Один замер — ноль
+@@ input
+1
+0
+@@ expect
+ноль
+@@ test: Только жара
+@@ input
+3
+30 1 25
+@@ expect
+тепло тепло тепло
+@@ test: Сильный мороз
+@@ input
+2
+-40 -1
+@@ expect
+мороз мороз
+@@ require: static\s+String\s+describe\s*\(\s*int\s+\w+\s*\) | Нужен метод static String describe(int t)
+@@ require: \Wdescribe\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать describe(...) для каждого замера

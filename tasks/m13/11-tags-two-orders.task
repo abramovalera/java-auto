@@ -1,0 +1,43 @@
+## id: m13-t11
+## title: Теги двумя способами
+## file: module-13/TagsTwoOrders.java
+## class: TagsTwoOrders
+## level: 1
+@@ description
+<p>Автотесты помечают тегами: <code>smoke</code>, <code>login</code>, <code>api</code>… В отчёт нужно вывести все <b>разные</b> теги дважды: в порядке первого появления и по алфавиту.</p>
+<p>Создай класс <code>TagsTwoOrders</code>. Программа читает слова (через пробел или с новой строки) до слова <code>END</code> и печатает две строки:</p>
+<pre class="terminal"><span class="out">ввод:  smoke login api smoke ui login END
+вывод: По порядку: [smoke, login, api, ui]
+       По алфавиту: [api, login, smoke, ui]</span></pre>
+<p>Вспомни близнецов: какой Set помнит порядок добавления, а какой держит элементы отсортированными? Печатай множество целиком через <code>println</code> — квадратные скобки и запятые Java поставит сама.</p>
+<p>📖 <a href="/lessons/m13/12-twins.html">Сравниваем близнецов</a></p>
+@@ test: Пример из условия
+@@ input
+smoke login api smoke ui login END
+@@ expect
+По порядку: [smoke, login, api, ui]
+По алфавиту: [api, login, smoke, ui]
+@@ test: Все одинаковые
+@@ input
+api api api END
+@@ expect
+По порядку: [api]
+По алфавиту: [api]
+@@ test: Слова с новой строки
+@@ input
+zeta
+alpha
+mid
+alpha
+END
+@@ expect
+По порядку: [zeta, alpha, mid]
+По алфавиту: [alpha, mid, zeta]
+@@ test: Сразу END
+@@ input
+END
+@@ expect
+По порядку: []
+По алфавиту: []
+@@ require: LinkedHashSet | Для порядка добавления нужен LinkedHashSet
+@@ require: TreeSet | Для алфавитного порядка нужен TreeSet

@@ -1,0 +1,45 @@
+## id: tr-arith-004
+## title: Хватит ли на мороженое?
+## file: trainer/arith/EnoughMoneyForIceCream.java
+## class: EnoughMoneyForIceCream
+## level: 1
+## category: Логика: true/false
+@@ description
+<p>Создай класс <code>EnoughMoneyForIceCream</code>. Программа читает три целых числа, каждое с новой строки: сколько денег в кармане, цену одного мороженого и сколько штук хочется купить. Она печатает <code>true</code>, если денег хватает на всю покупку, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  100     вывод: true
+       30
+       3</span></pre>
+<p>Условий (<code>if</code>) мы ещё не проходили — и они не нужны: сравнение само даёт <code>true</code> или <code>false</code>, его можно сразу напечатать.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a &gt;= b</code> — сравнение «больше или равно», результат типа <code>boolean</code></li>
+<li><code>boolean ok = выражение;</code> — результат сравнения можно сохранить в переменную</li>
+</ul></div>
+@@ test: Денег с запасом
+@@ input
+100
+30
+3
+@@ expect
+true
+@@ test: Ровно впритык
+@@ input
+100
+25
+4
+@@ expect
+true
+@@ test: Не хватает
+@@ input
+100
+35
+3
+@@ expect
+false
+@@ test: Пустой карман
+@@ input
+0
+45
+1
+@@ expect
+false
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — напечатай результат сравнения напрямую

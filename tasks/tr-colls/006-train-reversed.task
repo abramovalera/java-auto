@@ -1,0 +1,39 @@
+## id: tr-colls-006
+## title: Поезд разворачивается
+## file: trainer/colls/TrainCarsReversed.java
+## class: TrainCarsReversed
+## level: 1
+## category: Списки
+@@ description
+<p>Напиши класс <code>TrainCarsReversed</code>. Поезд поехал в обратную сторону, и вагоны теперь идут в обратном порядке. В первой строке — количество вагонов <code>n</code>, во второй — <code>n</code> названий вагонов через пробел (от головы поезда к хвосту). Напечатай вагоны в обратном порядке через <code> - </code> (пробел, дефис, пробел). Если вагонов нет, напечатай <code>Вагонов нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       плацкарт купе ресторан СВ
+вывод: СВ - ресторан - купе - плацкарт</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Collections.reverse(list)</code> — разворачивает сам список задом наперёд</li>
+<li><code>String.join(" - ", list)</code> — склеивает строки списка через разделитель</li>
+<li><code>list.isEmpty()</code> — возвращает <code>true</code>, если в списке нет элементов</li>
+</ul></div>
+@@ test: Четыре вагона
+@@ input
+4
+плацкарт купе ресторан СВ
+@@ expect
+СВ - ресторан - купе - плацкарт
+@@ test: Один вагон
+@@ input
+1
+почтовый
+@@ expect
+почтовый
+@@ test: Одинаковые вагоны
+@@ input
+3
+купе купе плацкарт
+@@ expect
+плацкарт - купе - купе
+@@ test: Только локомотив
+@@ input
+0
+@@ expect
+Вагонов нет

@@ -1,0 +1,52 @@
+## id: tr-arith-015
+## title: Средняя температура за три дня
+## file: trainer/arith/ThreeDayAverageTemp.java
+## class: ThreeDayAverageTemp
+## level: 1
+## category: Math и округление
+@@ description
+<p>Метеостанция записала температуру в полдень три дня подряд. Создай класс <code>ThreeDayAverageTemp</code>. Программа читает три целых числа, каждое с новой строки, и печатает среднюю температуру, округлённую до одного знака после точки.</p>
+<pre class="terminal"><span class="out">ввод:  20
+       22
+       25
+вывод: Средняя: 22.3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Деление на <code>3.0</code>, а не на <code>3</code>, — чтобы не потерять дробную часть</li>
+<li><code>Math.round(x * 10) / 10.0</code> — округляет <code>x</code> до одного знака после точки</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+20
+22
+25
+@@ expect
+Средняя: 22.3
+@@ test: Зима
+@@ input
+-3
+-1
+0
+@@ expect
+Средняя: -1.3
+@@ test: Три одинаковых дня
+@@ input
+10
+10
+10
+@@ expect
+Средняя: 10.0
+@@ test: Округление вверх
+@@ input
+1
+2
+2
+@@ expect
+Средняя: 1.7
+@@ test: Чуть ниже нуля
+@@ input
+-1
+-1
+0
+@@ expect
+Средняя: -0.7
+@@ require: Math\.round | Округли ответ методом Math.round

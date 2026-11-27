@@ -1,0 +1,14 @@
+## id: m01-t01
+## title: Привет, мир!
+## file: module-01/HelloWorld.java
+## class: HelloWorld
+## level: 1
+@@ description
+<p>Традиция всех программистов: первая программа здоровается с миром. Напиши программу, которая печатает ровно одну строку:</p>
+<pre class="terminal"><span class="out">Hello, World!</span></pre>
+<p>Обрати внимание на заглавные буквы, запятую и восклицательный знак — проверка сравнивает вывод символ в символ.</p>
+<p>📖 Урок: <a href="/lessons/m01/04-first-program-idea.html">Первая программа в IntelliJ IDEA</a></p>
+@@ test: Печатает приветствие
+@@ expect
+Hello, World!
+@@ require: System\.out\.print | Для вывода используй System.out.println

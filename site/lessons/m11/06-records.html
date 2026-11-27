@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>record подробно · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-06">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 11 · Урок 6</div>
+    <h1>record: неизменяемые данные в одну строку</h1>
+    <p class="lead">Помнишь, сколько строк занимают конструктор, геттеры, equals, hashCode и toString? Для классов, которые «просто хранят данные», Java умеет написать всё это сама.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 память по шагам</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m11-06-review">
+      <script type="application/json">
+      { "title": "Вспомним enum и equals", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "enum Size { S, M, L }\n\nSize a = Size.valueOf(\"M\");\nSystem.out.println(a == Size.M);\nSystem.out.println(a.ordinal());",
+            "answer": "true\n1", "why": "Константа M — единственный объект, valueOf вернул ссылку на него же. ordinal считается с нуля." },
+          { "type": "single", "q": "Модуль 10: в классе Point (поля x и y) не переопределён equals. Что выведет <code>new Point(1, 2).equals(new Point(1, 2))</code>?",
+            "options": ["true — поля одинаковые", "false — сравниваются ссылки", "Ошибка компиляции"], "answer": 1,
+            "why": "equals из Object сравнивает ссылки, как ==. Чтобы сравнивать по полям, его переопределяют (и hashCode вместе с ним)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Сорок строк ради двух полей</h2>
+    <p>Товар в магазине: название и цена. Чтобы это был «правильный» класс-данные, по правилам модуля 10 нужно написать:</p>
+<pre data-file="Product.java"><code class="java">public final class Product {
+    private final String name;
+    private final int price;
+
+    public Product(String name, int price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() { return name; }
+    public int getPrice() { return price; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product)) return false;
+        Product other = (Product) o;
+        return price == other.price &amp;&amp; name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() { return 31 * name.hashCode() + price; }
+
+    @Override
+    public String toString() {
+        return "Product[name=" + name + ", price=" + price + "]";
+    }
+}</code></pre>
+    <p>Полезной информации тут — «название и цена». Остальное — однообразный шаблонный код, в котором легко ошибиться: добавил поле и забыл его в <code>equals</code> — получил хитрый баг. С Java 16 то же самое объявляется одной строкой — <b>record</b> (запись):</p>
+<pre data-file="Product.java"><code class="java">record Product(String name, int price) { }</code></pre>
+    <div class="say" data-mood="wow"><p>Одна строка — и у тебя уже есть всё из большого класса выше. Это не сокращение для ленивых: компилятор генерирует ровно те же методы, только без ошибок.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Что Java пишет за тебя</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 300" role="img" aria-label="Из одной строки record компилятор делает поля, конструктор, методы доступа, equals, hashCode и toString">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="16" y="110" width="250" height="80" rx="14" class="d-code"/>
+        <text x="36" y="146" class="d-mono">record Product(</text>
+        <text x="36" y="170" class="d-mono">  String name, int price)</text>
+        <path d="M272 150 H318" class="d-arrow"/>
+        <text x="295" y="136" text-anchor="middle" class="d-small">javac</text>
+        <rect x="326" y="14" width="378" height="272" rx="16" class="d-soft"/>
+        <rect x="342" y="28" width="346" height="34" rx="8" class="d-green"/>
+        <text x="356" y="51" class="d-mono-ink">private final String name; int price;</text>
+        <rect x="342" y="70" width="346" height="34" rx="8" class="d-blue"/>
+        <text x="356" y="93" class="d-mono-ink">Product(String name, int price)</text>
+        <rect x="342" y="112" width="346" height="34" rx="8" class="d-violet"/>
+        <text x="356" y="135" class="d-mono-ink">name()   price()</text>
+        <rect x="342" y="154" width="346" height="34" rx="8" class="d-yellow"/>
+        <text x="356" y="177" class="d-mono-ink">equals() и hashCode() по всем полям</text>
+        <rect x="342" y="196" width="346" height="34" rx="8" class="d-teal"/>
+        <text x="356" y="219" class="d-mono-ink">toString() → Product[name=…, price=…]</text>
+        <rect x="342" y="238" width="346" height="34" rx="8" class="d-red"/>
+        <text x="356" y="261" class="d-mono-ink">сеттеров НЕТ, наследников НЕТ</text>
+      </svg>
+      <figcaption>Слева — то, что пишешь ты. Справа — что получается в байт-коде.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Компоненты записи</dt><dd>То, что в круглых скобках после имени: <code>String name, int price</code>. По ним компилятор генерирует <code>private final</code>-поля.</dd>
+      <dt>Канонический конструктор</dt><dd>Конструктор, параметры которого — все компоненты по порядку. Он вызывается при создании объекта: <code>new Product("Чай", 120)</code>.</dd>
+      <dt>Методы доступа</dt><dd><code>name()</code> и <code>price()</code> — <b>без</b> «get»! Частая ошибка: <code>p.getName()</code> у record не существует.</dd>
+    </dl>
+<pre data-file="Shop.java"><code class="java">Product tea = new Product("Чай", 120);
+Product tea2 = new Product("Чай", 120);
+
+System.out.println(tea);                  // Product[name=Чай, price=120]
+System.out.println(tea.price());          // 120
+System.out.println(tea == tea2);          // ?
+System.out.println(tea.equals(tea2));     // ?</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатают две последние строки?</summary>
+      <p><code>false</code> и <code>true</code>. <code>==</code> по-прежнему сравнивает ссылки: объектов два. А <code>equals</code> record сравнивает <b>по всем компонентам</b> — название и цена совпали. Это ровно то поведение, ради которого в модуле 10 переопределяли equals.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Неизменяемость</h2>
+    <p>Все поля record — <code>final</code>, сеттеров нет. Создал объект — он навсегда такой. Такие объекты называют <b>неизменяемыми</b> (immutable).</p>
+<pre data-file="Shop.java"><code class="java">Product tea = new Product("Чай", 120);
+tea.price = 100;          // ✗ ошибка: поле private final — снаружи не изменить
+tea.setPrice(100);        // ✗ error: cannot find symbol — сеттеров нет</code></pre>
+    <div data-widget="ide" id="shot-record-immutable">
+      <script type="application/json">
+      { "tree": false, "tabs": ["Shop.java", "Product.java"], "statusPath": "module-11", "gutterRun": [1, 2],
+        "code": "public class Shop {\n    public static void main(String[] args) {\n        Product tea = new Product(\"Чай\", 120);\n        tea.price = 100;\n        tea.setPrice(100);\n        System.out.println(tea.price());\n    }\n}",
+        "errors": [ { "line": 4, "text": "price", "msg": "'price' has private access in 'Product'" },
+                    { "line": 5, "text": "setPrice", "msg": "Cannot resolve method 'setPrice' in 'Product'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Поле record — <code>private final</code>. Наведёшь мышь — <b>'price' has private access in 'Product'</b>, как с банковским счётом в модуле 10" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot resolve method 'setPrice'</b> — сеттеров у record нет вообще, IDEA не нашла такого метода" },
+                   { "n": 3, "target": "line-6", "text": "А читать можно: <code>price()</code> — метод доступа, который record написал сам. Обрати внимание: со скобками и без <code>get</code>" } ],
+        "caption": "record неизменяем: ни поля, ни сеттера" }
+      </script>
+    </div>
+    <p>Нужна скидка? Не меняем старый объект, а <b>создаём новый</b> объект на его основе:</p>
+<pre data-file="Shop.java"><code class="java">Product sale = new Product(tea.name(), tea.price() - 20);
+System.out.println(tea);    // Product[name=Чай, price=120] — старый не тронут
+System.out.println(sale);   // Product[name=Чай, price=100]</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: чек из магазина</span>
+      <p>Напечатанный чек не исправляют ручкой. Если ошиблись, пробивают <b>новый</b> чек. Зато любой, у кого в руках старый чек, может быть уверен: цифры в нём никто тайком не поменял. Так и record: передавай ссылку на него аргументом в любые методы — объект не изменится у тебя за спиной.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: неизменяемость «неглубокая»</summary>
+      <p>Если компонент record — массив, то ссылку на массив поменять нельзя, а вот <b>содержимое</b> массива — можно: <code>record Team(String[] names)</code> → <code>team.names()[0] = "Хакер"</code> сработает. Поэтому компонентами record делают неизменяемые типы: числа, строки, enum, другие record. А ещё у record с массивом <code>equals</code> сравнивает массивы по ссылкам, а не по содержимому.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Компактный конструктор: проверка на входе</h2>
+    <p>Товар с ценой −50 — бессмыслица. Проверить данные можно в особом <b>компактном конструкторе</b>: у него нет круглых скобок с параметрами — они и так известны из заголовка record.</p>
+<pre data-file="Product.java"><code class="java">record Product(String name, int price) {
+    // компактный конструктор: без ( )
+    Product {
+        if (price &lt; 0) {
+            throw new IllegalArgumentException(
+                    "Цена не может быть отрицательной: " + price);
+        }
+        name = name.strip();  // меняем ПАРАМЕТР, не поле
+        // дальше Java сама сделает this.name = name; this.price = price;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Product {</code><div><p>Компактный конструктор. Он выполняется <b>перед</b> тем, как Java присвоит значения параметров полям.</p></div></div>
+      <div class="annot-row"><code>throw new IllegalArgumentException(…)</code><div><p>На опережение (модуль 12): создаём объект исключения с сообщением и <code>throw</code> <b>выбрасывает</b> его — если никто не перехватит, программа остановится с ошибкой. Объект с неверной ценой просто не будет создан.</p></div></div>
+      <div class="annot-row"><code>name = name.strip();</code><div><p>Можно не только проверять, но и <b>исправлять</b>: убрать лишние пробелы, привести к нужному виду. Присваиваем параметру — а в поле уже попадёт исправленное.</p></div></div>
+    </div>
+    <p>Посмотри, в какой момент значения попадают в поля:</p>
+    <div data-widget="trace" id="trace-compact">
+      <script type="application/json">
+      { "title": "Как работает компактный конструктор", "icon": "🧾",
+        "intro": "Создаём товар с лишними пробелами в названии. Следи: параметры живут в стеке, а объект в куче получает значения только в самом конце.",
+        "code": "record Product(String name, int price) {\n    Product {\n        if (price < 0) { throw … }\n        name = name.strip();\n    }\n}\n// в main:\nProduct p = new Product(\"  Чай \", 120);\nSystem.out.println(p);",
+        "steps": [
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "p": "?" } } ], "heap": [], "note": "Создаём объект оператором new — вызывается конструктор с аргументами «  Чай » (с пробелами по краям) и 120." },
+          { "line": 2, "stack": [ { "frame": "main", "vars": { "p": "?" } }, { "frame": "Product(…)", "vars": { "name": "\"  Чай \"", "price": "120" } } ], "heap": [ { "id": "#1", "label": "Product", "fields": { "name": "null", "price": "0" } } ], "note": "Объект уже выделен в куче, но поля пока пустые. Параметры name и price — в стеке конструктора." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "p": "?" } }, { "frame": "Product(…)", "vars": { "name": "\"  Чай \"", "price": "120" } } ], "heap": [ { "id": "#1", "label": "Product", "fields": { "name": "null", "price": "0" } } ], "note": "Проверка: 120 < 0? Нет — исключения не будет, идём дальше." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "p": "?" } }, { "frame": "Product(…)", "vars": { "name": "\"Чай\"", "price": "120" } } ], "heap": [ { "id": "#1", "label": "Product", "fields": { "name": "null", "price": "0" } } ], "ask": ["name"], "note": "strip() убирает пробелы по краям. Меняется параметр в стеке — поле в куче пока не тронуто." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "p": "?" } }, { "frame": "Product(…)", "vars": { "name": "\"Чай\"", "price": "120" } } ], "heap": [ { "id": "#1", "label": "Product", "fields": { "name": "\"Чай\"", "price": "120" } } ], "note": "Конец тела. Только сейчас Java сама присваивает значения параметров final-полям. В поле попало уже исправленное название." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "p": "→#1" } } ], "heap": [ { "id": "#1", "label": "Product", "fields": { "name": "\"Чай\"", "price": "120" } } ], "note": "Конструктор завершён, p ссылается на готовый объект. Изменить его поля больше нельзя." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": { "p": "→#1" } } ], "heap": [ { "id": "#1", "label": "Product", "fields": { "name": "\"Чай\"", "price": "120" } } ], "out": "Product[name=Чай, price=120]\n", "note": "Автоматический toString: имя record и компоненты в квадратных скобках." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Частая ошибка</span>
+      <p>В компактном конструкторе нельзя писать <code>this.name = …</code> — будет ошибка компиляции: поля присвоит сама Java в конце. Меняй параметр: <code>name = …</code>.</p>
+    </div>
+    <p>А что будет, если цена всё-таки отрицательная? Вот что ты увидишь в консоли Run — это твой первый собственный «отказ», подробно разберём его в модуле 12:</p>
+    <div data-widget="ide" id="shot-record-throw">
+      <script type="application/json">
+      { "tree": false, "tabs": ["Shop.java", "Product.java"], "runConfig": "Shop", "statusPath": "module-11", "gutterRun": [1, 2],
+        "code": "public class Shop {\n    public static void main(String[] args) {\n        Product bad = new Product(\"Чай\", -50);\n        System.out.println(bad);\n    }\n}",
+        "console": { "title": "Shop", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Shop" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.IllegalArgumentException: Цена не может быть отрицательной: -50" },
+          { "t": "err", "s": "\tat Product.<init>(Product.java:4)" },
+          { "t": "err", "s": "\tat Shop.main(Shop.java:3)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "Тип исключения и <b>наше сообщение</b> из <code>throw</code> — с тем самым значением −50" },
+                   { "n": 2, "target": "link-1", "text": "Где выбросили: <b>Product.java</b>, строка 4 — строка с <code>throw</code>. <code>&lt;init&gt;</code> — так в stack trace называется конструктор" },
+                   { "n": 3, "target": "link-2", "text": "Кто вызвал: <code>main</code>, строка 3, где создавали объект <code>Product</code>" },
+                   { "n": 4, "target": "exit", "text": "Строка 4 с <code>println</code> не выполнилась: объект с плохой ценой так и не был создан" } ],
+        "caption": "Компактный конструктор отказал: исключение в консоли" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что можно и чего нельзя в record</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>В record можно</th><th>В record нельзя</th></tr>
+        <tr><td>свои методы: <code>int total() { return price * qty; }</code></td><td>дополнительные поля объекта: только компоненты из заголовка</td></tr>
+        <tr><td>static-поля и static-методы</td><td><code>extends</code>: record уже наследует <code>java.lang.Record</code></td></tr>
+        <tr><td>реализовать интерфейсы (<code>implements</code>)</td><td>наследоваться от record: он <code>final</code></td></tr>
+        <tr><td>компактный конструктор и дополнительные конструкторы через <code>this(…)</code></td><td>сеттеры: поля <code>final</code></td></tr>
+        <tr><td>переопределить <code>toString</code>, если нужен другой формат</td><td>абстрактные методы</td></tr>
+      </table>
+    </div>
+<pre data-file="OrderLine.java"><code class="java">record OrderLine(Product product, int qty) {
+    int total() {
+        return product.price() * qty;
+    }
+}
+
+OrderLine line = new OrderLine(new Product("Чай", 120), 3);
+System.out.println(line.total());    // 360</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>System.out.println(line);</code>?</summary>
+      <p><code>OrderLine[product=Product[name=Чай, price=120], qty=3]</code>. toString record вызывает toString у каждого компонента — а компонент сам record, у него тоже красивый toString.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Когда record, а когда class</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Бери record</th><th>Бери обычный class</th></tr>
+        <tr><td>объект — это «просто данные»: точка, товар, деньги, ответ сервера</td><td>у объекта есть поведение и жизнь: корзина, игровой персонаж, счёт в банке</td></tr>
+        <tr><td>данные не меняются после создания</td><td>поля должны меняться: добавить в корзину, пополнить счёт</td></tr>
+        <tr><td>два объекта с одинаковыми данными — «одно и то же»</td><td>каждый объект уникален сам по себе, даже с такими же полями</td></tr>
+        <tr><td>не нужен родитель</td><td>нужно наследование</td></tr>
+      </table>
+    </div>
+    <p>В программах record — идеальная форма для <b>данных о людях и вещах</b>. Например, участники форума:</p>
+<pre data-file="Forum.java"><code class="java">enum Role { ADMIN, MEMBER }
+
+record ForumUser(String login, String email, Role role) { }
+
+ForumUser admin = new ForumUser("admin", "admin@forum.ru", Role.ADMIN);
+ForumUser anna = new ForumUser("anna", "anna@mail.ru", Role.MEMBER);
+System.out.println("На форуме: " + admin.login() + " (" + admin.role() + ")");</code></pre>
+<pre class="terminal"><span class="out">На форуме: admin (ADMIN)</span></pre>
+    <p>Видишь союз record и enum? Данные пользователя — record, а набор ролей — enum. А если что-то пошло не так, <code>toString</code> record сразу показывает, с какими данными работала программа.</p>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m11-06">
+      <script type="application/json">
+      {
+       "title": "record — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "record Point(int x, int y) { }\n\nPoint a = new Point(1, 2);\nPoint b = new Point(1, 2);\nSystem.out.println(a == b);\nSystem.out.println(a.equals(b));\nSystem.out.println(a);",
+         "answer": "false\ntrue\nPoint[x=1, y=2]",
+         "why": "== сравнивает ссылки (объектов два), equals у record — по компонентам, toString — имя и компоненты в квадратных скобках."
+        },
+        {
+         "type": "bug",
+         "q": "Отметь обе строки, которые не скомпилируются",
+         "code": "record Point(int x, int y) { }\n\nPoint p = new Point(3, 4);\nint a = p.x();\nint b = p.getY();\np.x = 10;\nPoint q = new Point(p.x() + 1, p.y());",
+         "answer": [
+          5,
+          6
+         ],
+         "why": "Методы доступа без get: y(), а не getY(). Поля final — присвоить нельзя. «Изменить» = создать новый объект, как в последней строке."
+        },
+        {
+         "type": "single",
+         "q": "Как называется конструктор record без круглых скобок: <code>Product { … }</code>?",
+         "options": [
+          "Канонический",
+          "Компактный",
+          "Анонимный"
+         ],
+         "answer": 1,
+         "why": "Компактный конструктор: параметры уже известны из заголовка, поля Java присвоит сама после его тела."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "record автоматически получает equals, hashCode и toString",
+           "a": true
+          },
+          {
+           "s": "record может наследоваться от другого класса через extends",
+           "a": false,
+           "why": "record уже неявно наследует java.lang.Record. Зато implements — можно."
+          },
+          {
+           "s": "В record можно добавить свой метод, например total()",
+           "a": true
+          },
+          {
+           "s": "Корзину покупок, в которую всё время добавляют товары, удобно сделать record",
+           "a": false,
+           "why": "корзина меняется — это работа для обычного класса. record для неизменяемых данных."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Назови пять объектов из интернет-магазина, а я скажу, какие из них лучше сделать record, а какие — обычным классом, и почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>record Имя(тип a, тип b) { }</code> — класс-данные: private final поля, канонический конструктор, <code>a()</code>/<code>b()</code>, <code>equals</code>, <code>hashCode</code>, <code>toString</code>.</li>
+        <li>Методы доступа — без «get»: <code>p.price()</code>.</li>
+        <li>record неизменяем: «поменять» = создать новый объект.</li>
+        <li>Компактный конструктор <code>Имя { … }</code> проверяет и исправляет параметры; поля Java присвоит после него сама.</li>
+        <li>record — для данных (товары, пользователи форума, ответы сервера), class — для объектов с поведением и меняющимся состоянием.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: лямбды и стримы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 14 · Головоломки</div>
+    <h1>Лямбды и стримы: что будет?</h1>
+    <p class="lead">Про стримы на собеседованиях спрашивают почти всегда — и почти всегда про одно и то же: ленивость, порядок операций, одноразовость, Optional и effectively final. Запускать нельзя — только думать.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — для любопытных</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Как решать стримовые головоломки</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 140" role="img" aria-label="Четыре вопроса к любому стриму: есть ли терминальная операция, как идут элементы, где стоп-краны, что возвращает конец">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="20" width="158" height="104" rx="14" class="d-blue"/>
+        <text x="89" y="50" text-anchor="middle" class="d-title">① Терминал?</text>
+        <text x="89" y="76" text-anchor="middle" class="d-small">нет — не выполнится</text>
+        <text x="89" y="96" text-anchor="middle" class="d-small">ничего</text>
+        <path d="M170 72 H190" class="d-arrow"/>
+        <rect x="194" y="20" width="158" height="104" rx="14" class="d-violet"/>
+        <text x="273" y="50" text-anchor="middle" class="d-title">② По одному</text>
+        <text x="273" y="76" text-anchor="middle" class="d-small">элемент проходит</text>
+        <text x="273" y="96" text-anchor="middle" class="d-small">всю цепочку</text>
+        <path d="M354 72 H374" class="d-arrow"/>
+        <rect x="378" y="20" width="158" height="104" rx="14" class="d-yellow"/>
+        <text x="457" y="50" text-anchor="middle" class="d-title">③ Стоп-краны</text>
+        <text x="457" y="76" text-anchor="middle" class="d-small">sorted ждёт всех,</text>
+        <text x="457" y="96" text-anchor="middle" class="d-small">limit обрывает</text>
+        <path d="M538 72 H558" class="d-arrow"/>
+        <rect x="562" y="20" width="148" height="104" rx="14" class="d-green"/>
+        <text x="636" y="50" text-anchor="middle" class="d-title">④ Что в конце?</text>
+        <text x="636" y="76" text-anchor="middle" class="d-small">List, long,</text>
+        <text x="636" y="96" text-anchor="middle" class="d-small">boolean, Optional</text>
+      </svg>
+      <figcaption><span class="ai-only">Четыре вопроса к любому стриму. Ответ без объяснения «почему» не засчитывается — ни на собеседовании, ни у наставника.</span><span class="free-only">Четыре вопроса к любому стриму. Ответ без объяснения «почему» не засчитывается — ни на собеседовании, ни у <span class="ai-name">DeepSeek</span>.</span></figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Не жми «Проверить» сразу. Сначала скажи ответ вслух и объясни, почему так. Не уверен — набери код в IDEA и запусти: так работают настоящие программисты.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+    <div data-widget="check" id="check-m14-pz-out">
+      <script type="application/json">
+      { "title": "Что выведется?", "icon": "🖨️",
+        "items": [
+          { "type": "predict", "q": "1. Ленивость. Что напечатает программа?",
+            "code": "Stream.of(1, 2, 3)\n        .peek(System.out::println)\n        .map(x -> x * 2);\nSystem.out.println(\"конец\");",
+            "answer": "конец",
+            "why": "У стрима нет терминальной операции — конвейер не запускается, peek ни разу не вызван. Промежуточные операции только описывают работу." },
+          { "type": "predict", "q": "2. В каком порядке появятся строки?",
+            "code": "Stream.of(\"a\", \"b\")\n        .filter(x -> {\n            System.out.println(\"filter \" + x);\n            return true;\n        })\n        .forEach(x -> System.out.println(\"forEach \" + x));",
+            "answer": "filter a\nforEach a\nfilter b\nforEach b",
+            "why": "Элементы идут «вертикально»: «a» проходит весь конвейер до forEach, и только потом за ним выезжает «b». Не «сначала все filter, потом все forEach»." },
+          { "type": "predict", "q": "3. Сколько раз сработает peek? Напиши весь вывод.",
+            "code": "List<Integer> r = Stream.of(1, 2, 3, 4, 5)\n        .peek(x -> System.out.println(\"взял \" + x))\n        .filter(x -> x > 1)\n        .limit(2)\n        .toList();\nSystem.out.println(r);",
+            "answer": "взял 1\nвзял 2\nвзял 3\n[2, 3]",
+            "why": "1 отсеян фильтром, 2 и 3 прошли — limit(2) набрал своё и остановил конвейер. Элементы 4 и 5 даже не взяты из источника." },
+          { "type": "predict", "q": "4. А здесь? Обрати внимание на sorted.",
+            "code": "Stream.of(2, 1)\n        .peek(x -> System.out.println(\"peek \" + x))\n        .sorted()\n        .forEach(x -> System.out.println(\"out \" + x));",
+            "answer": "peek 2\npeek 1\nout 1\nout 2",
+            "why": "sorted — «стоп-кран»: он не может выдать первый элемент, пока не увидит все. Поэтому сначала оба peek, потом отсортированный вывод." },
+          { "type": "single", "q": "5. Что выведет?",
+            "code": "System.out.println(Stream.of(1, 2, 3).reduce(10, Integer::sum));",
+            "options": ["6", "16", "10"], "answer": 1,
+            "why": "Начальное значение участвует в сумме: 10 + 1 + 2 + 3 = 16. Для суммы identity должно быть 0." },
+          { "type": "predict", "q": "6. Пустой список. Что выведет?",
+            "code": "List<Integer> prices = List.of();\nSystem.out.println(prices.stream().allMatch(p -> p > 0));\nSystem.out.println(prices.stream().anyMatch(p -> p > 0));",
+            "answer": "true\nfalse",
+            "why": "allMatch на пустом стриме — true: нарушителей нет. anyMatch — false: подходящих тоже нет. Ловушка для проверок: «все цены > 0» пройдёт, даже если цен в списке нет вообще." },
+          { "type": "predict", "q": "7. Метод <code>make()</code> печатает «make» и возвращает «B». Что выведет программа?",
+            "code": "System.out.println(Optional.of(\"A\").orElse(make()));",
+            "answer": "make\nA",
+            "why": "Аргумент метода вычисляется до вызова — всегда. make() отработает, его «B» выбросится, а напечатается «A». С orElseGet(() -&gt; make()) было бы только «A»." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбор задачки 3 по шагам</h2>
+    <p>Задачка про <code>limit</code> — самая показательная. Пройди её и впиши, сколько элементов набрал <code>limit</code> на каждом шаге.</p>
+    <div data-widget="trace" id="trace-m14-pz-limit">
+      <script type="application/json">
+      { "title": "limit останавливает конвейер", "icon": "✂️", "kind": "Разбор по шагам",
+        "intro": "toList запускает конвейер и тянет элементы по одному. limit(2) считает, сколько уже пропустил.",
+        "code": "List<Integer> r = Stream.of(1, 2, 3, 4, 5)\n        .peek(x -> System.out.println(\"взял \" + x))\n        .filter(x -> x > 1)\n        .limit(2)\n        .toList();\nSystem.out.println(r);",
+        "steps": [
+          { "line": 2, "vars": { "элемент": "1", "limit набрал": "0", "r": "[]" }, "out": "взял 1\n", "note": "Терминальная операция toList попросила элемент. Источник выдал 1, peek напечатал." },
+          { "line": 3, "vars": { "элемент": "1", "limit набрал": "0", "r": "[]" }, "note": "1 > 1? Нет — лямбда фильтра вернула false, элемент выброшен. Берём следующий." },
+          { "line": 2, "vars": { "элемент": "2", "limit набрал": "0", "r": "[]" }, "out": "взял 2\n", "note": "Источник выдал 2." },
+          { "line": 4, "vars": { "элемент": "2", "limit набрал": "1", "r": "[2]" }, "ask": ["limit набрал"], "note": "Сколько элементов уже прошло через limit? 2 прошёл фильтр, limit пропустил его — это первый." },
+          { "line": 2, "vars": { "элемент": "3", "limit набрал": "1", "r": "[2]" }, "out": "взял 3\n", "note": "Источник выдал 3, фильтр пропустит." },
+          { "line": 4, "vars": { "элемент": "3", "limit набрал": "2", "r": "[2, 3]" }, "ask": ["limit набрал"], "note": "Считай дальше. Это второй элемент — limit набрал свои 2 и закрывает конвейер." },
+          { "line": 6, "vars": { "r": "[2, 3]" }, "out": "[2, 3]\n", "note": "Элементы 4 и 5 так и не покинули источник: «взял 4» не напечатано. Вот что значит «ленивый» конвейер." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Скомпилируется ли?</h2>
+    <div data-widget="check" id="check-m14-pz-compile">
+      <script type="application/json">
+      { "title": "Скомпилируется?", "icon": "🕵️",
+        "items": [
+          { "type": "single", "q": "8. Скомпилируется?",
+            "code": "int count = 0;\nList.of(\"a\", \"b\").forEach(s -> count++);",
+            "options": ["Да, count станет 2", "Да, но count останется 0", "Нет: локальную переменную нельзя менять внутри лямбды"], "answer": 2,
+            "why": "<em>local variables referenced from a lambda expression must be final or effectively final</em>. Лямбда получает копию значения, менять её запрещено. Посчитать правильно: <code>long count = list.stream().count();</code>" },
+          { "type": "single", "q": "9. А так? Внутри лямбды prefix не меняется.",
+            "code": "String prefix = \"Hi \";\nprefix = \"Hello \";\nList.of(\"Аня\").forEach(s -> System.out.println(prefix + s));",
+            "options": ["Да, выведет «Hello Аня»", "Нет: prefix не effectively final", "Да, выведет «Hi Аня»"], "answer": 1,
+            "why": "Effectively final — значит, переменной присвоили значение ровно один раз. Здесь два присваивания — уже не важно, где именно, лямбде такую переменную использовать нельзя. Выход: объявить новую переменную и инициализировать её значением prefix — <code>String greeting = prefix;</code> — и использовать в лямбде её." },
+          { "type": "single", "q": "10. Скомпилируется? <code>record Player(String name, int score)</code>",
+            "code": "players.sort(Comparator.comparing(p -> p.score()).reversed());",
+            "options": ["Да", "Нет: cannot find symbol — method score()"], "answer": 1,
+            "why": "Из-за .reversed() в конце компилятор не выводит тип параметра p и считает его Object, а у Object нет score(). Лечится: <code>Comparator.comparing(Player::score).reversed()</code> или <code>(Player p) -&gt; p.score()</code>." },
+          { "type": "single", "q": "11. Скомпилируется?",
+            "code": "interface Calc {\n    int apply(int a, int b);\n    int reset();\n}\nCalc plus = (a, b) -> a + b;",
+            "options": ["Да", "Нет: Calc — не функциональный интерфейс"], "answer": 1,
+            "why": "В Calc два абстрактных метода. Лямбда не знает, какой из них реализует: <em>Calc is not a functional interface</em>. Будь reset() default-методом — всё бы скомпилировалось." },
+          { "type": "bug", "q": "12. Какая строка не скомпилируется?",
+            "code": "List<String> names = List.of(\"Аня\", \"Борис\");\nlong a = names.stream().count();\nint b = names.stream().count();\nint c = names.size();",
+            "answer": [3],
+            "why": "count() возвращает long, а long в int без явного приведения не кладётся: <em>possible lossy conversion from long to int</em>. А size() у списка — int." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Скомпилируется, но что при запуске?</h2>
+    <div data-widget="check" id="check-m14-pz-run">
+      <script type="application/json">
+      { "title": "Что будет при запуске?", "icon": "💥",
+        "items": [
+          { "type": "single", "q": "13. Что будет?",
+            "code": "Stream<String> s = List.of(\"a\", \"b\").stream();\nSystem.out.println(s.count());\nSystem.out.println(s.count());",
+            "options": ["2 и 2", "2 и 0", "2, потом IllegalStateException"], "answer": 2,
+            "why": "Поток одноразовый: после терминальной операции он закрыт. Второй вызов — <em>stream has already been operated upon or closed</em>. Нужен новый: снова list.stream()." },
+          { "type": "single", "q": "14. Что будет?",
+            "code": "String name = List.of(\"Аня\", \"Борис\").stream()\n        .filter(n -> n.startsWith(\"Я\"))\n        .findFirst()\n        .get();\nSystem.out.println(name);",
+            "options": ["null", "Пустая строка", "NoSuchElementException: No value present"], "answer": 2,
+            "why": "Никто не начинается на «Я» — findFirst вернул пустой Optional, а get() на пустом выбрасывает исключение. Безопасно: <code>.orElse(\"не найден\")</code> или <code>.orElseThrow(() -&gt; new …)</code> с понятным сообщением." },
+          { "type": "single", "q": "15. Что будет?",
+            "code": "List<Integer> evens = Stream.of(1, 2, 3, 4)\n        .filter(x -> x % 2 == 0)\n        .toList();\nevens.add(6);\nSystem.out.println(evens);",
+            "options": ["[2, 4, 6]", "[2, 4]", "UnsupportedOperationException"], "answer": 2,
+            "why": "toList() возвращает неизменяемый список. Нужен изменяемый — <code>collect(Collectors.toList())</code> или <code>new ArrayList&lt;&gt;(…)</code>." },
+          { "type": "bug", "q": "16. Найди строку, которая упадёт при запуске.",
+            "code": "List<String> list = new ArrayList<>(List.of(\"a\", \"\"));\nlist.removeIf(String::isEmpty);\nMap<String, Integer> stock = Stream.of(\"чай\", \"кофе\", \"чай\")\n        .collect(Collectors.toMap(s -> s, s -> 1));\nSystem.out.println(list + \" \" + stock);",
+            "answer": [4],
+            "why": "Ключ «чай» встретился дважды, а функции слияния нет — <em>IllegalStateException: Duplicate key чай</em>. Строки 1–2 в порядке: removeIf работает на изменяемом ArrayList. Исправить toMap: третий аргумент <code>Integer::sum</code> — получится {чай=2, кофе=1} (порядок в HashMap может быть другим)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>★★★ Для любопытных</h2>
+    <details class="curious">
+      <summary>🔎 map и flatMap: «список списков» в один поток</summary>
+      <p><code>map</code> превращает каждый элемент ровно в один. А если каждый элемент сам содержит несколько — например, у каждого заказа список товаров? Тогда <code>map</code> даст «поток списков», а нужен поток товаров. Для этого есть промежуточная операция <code>flatMap</code>: её лямбда возвращает для каждого элемента <b>стрим</b>, а <code>flatMap</code> «расплющивает» все стримы в один.</p>
+<pre data-file="FlatMap.java"><code class="java">List&lt;List&lt;Integer&gt;&gt; orders = List.of(List.of(1, 2), List.of(3));
+
+// [2, 1]
+System.out.println(orders.stream().map(List::size).toList());
+// [1, 2, 3]
+System.out.println(orders.stream().flatMap(List::stream).toList());</code></pre>
+      <p>Классический пример — все слова из нескольких строк: <code>lines.stream().flatMap(l -&gt; Arrays.stream(l.split(" ")))</code>. На собеседовании любят спросить: «чем map отличается от flatMap?» Ответ: map — один в один, flatMap — один во много (0, 1, 2…), и всё сливается в общий поток.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Подвох: Stream.of(new int[]{1, 2, 3}).count()</summary>
+      <p>Ответ — <b>1</b>, а не 3. <code>Stream.of</code> принимает аргументами объекты, а массив <code>int[]</code> — это <b>один</b> объект. Получается стрим из одного элемента-массива. Для примитивного массива нужен <code>Arrays.stream(arr)</code> или <code>IntStream.of(1, 2, 3)</code>. С <code>Integer[]</code> такой проблемы нет: <code>Stream.of(new Integer[]{1, 2, 3})</code> даст три элемента.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Параллельные стримы: parallelStream()</summary>
+      <p>Если вместо <code>stream()</code> написать <code>parallelStream()</code>, Java разобьёт данные на части и обработает их на нескольких ядрах процессора одновременно. Звучит как бесплатное ускорение, но:</p>
+      <ul>
+        <li>на маленьких списках (а в учебных задачах они почти всегда маленькие) параллельный стрим <b>медленнее</b>: на разделение и сборку уходит больше времени, чем на работу;</li>
+        <li><code>forEach</code> в параллельном стриме печатает в <b>непредсказуемом порядке</b> — для порядка есть <code>forEachOrdered</code>;</li>
+        <li>лямбды, которые меняют общие данные (например, добавляют в один <code>ArrayList</code>), в параллельном стриме ломаются — это тема многопоточности (модуль 16).</li>
+      </ul>
+      <p>Правило: пиши обычные <code>stream()</code>. Параллельные — только когда данных очень много, операции независимы и ты измерил, что стало быстрее.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Теперь не «что выведется», а «что здесь написано». Прочитай каждую строку вслух правильными словами: <b>лямбда-выражение</b>, <b>параметр</b> и <b>тело</b> лямбды, <b>ссылка на метод</b>, <b>промежуточная</b> и <b>терминальная операция</b>, <code>Optional</code>. В одних заданиях выбери описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m14-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 14", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке?", "code": "Predicate<String> empty = s -> s.isEmpty();",
+            "options": ["Объявление переменной <code>empty</code> типа <code>Predicate&lt;String&gt;</code> и её инициализация лямбда-выражением с параметром <code>s</code>", "Вызов метода <code>isEmpty</code> у строки <code>s</code> и присваивание результата переменной <code>empty</code>", "Объявление метода <code>empty</code> с параметром <code>s</code>", "Создание объекта класса <code>Predicate</code> оператором <code>new</code>", "Сравнение строки <code>s</code> с пустой строкой"],
+            "answer": 0, "why": "Слева — объявление переменной типа функционального интерфейса <code>Predicate</code>, справа — лямбда-выражение. Его тело <code>s.isEmpty()</code> сейчас не выполняется: оно сработает потом, при вызове <code>empty.test(…)</code>." },
+          { "type": "single", "q": "Что здесь параметр, а что тело лямбды?", "code": "Function<Integer, Integer> twice = x -> x * 2;",
+            "options": ["<code>x</code> — аргумент, <code>x * 2</code> — параметр", "<code>twice</code> — параметр, <code>x</code> — тело", "<code>x</code> — параметр лямбды, <code>x * 2</code> — тело; его значение и есть возвращаемое значение", "<code>x * 2</code> — локальная переменная, <code>x</code> — её тип", "<code>-&gt;</code> — оператор сравнения, <code>x</code> и <code>x * 2</code> — операнды"],
+            "answer": 2, "why": "Слева от стрелки — параметры лямбды, справа — тело. Тело-выражение без фигурных скобок само возвращает своё значение, <code>return</code> не нужен. Аргумент появится при вызове: в <code>twice.apply(5)</code> аргумент — 5." },
+          { "type": "single", "q": "Что такое <code>User::name</code> в этой строке?", "code": "List<String> names = users.stream().map(User::name).toList();",
+            "options": ["Вызов статического метода <code>name</code> у класса <code>User</code>", "Обращение к полю <code>name</code> напрямую", "Создание объекта <code>User</code> с именем", "Ссылка на метод: у каждого элемента вызвать <code>name()</code> — то же, что лямбда <code>u -&gt; u.name()</code>", "Терминальная операция, которая возвращает список имён"],
+            "answer": 3, "why": "<code>Класс::метод</code> без скобок — ссылка на метод, а не вызов. Метод <code>name</code> не статический, поэтому Java вызывает его у каждого элемента, который приходит в <code>map</code>." },
+          { "type": "single", "q": "Какие операции в этом конвейере промежуточные, а какая терминальная?", "code": "long n = prices.stream().filter(p -> p > 0).map(p -> p * 2).count();",
+            "options": ["Все три — промежуточные", "<code>filter</code> — терминальная, <code>map</code> и <code>count</code> — промежуточные", "<code>stream</code> — терминальная, остальные — промежуточные", "<code>count</code> — промежуточная: она возвращает новый Stream", "<code>filter</code> и <code>map</code> — промежуточные, <code>count</code> — терминальная"],
+            "answer": 4, "why": "<code>filter</code> и <code>map</code> возвращают новый Stream — цепочку можно продолжать. <code>count</code> завершает конвейер и возвращает <code>long</code>, им и инициализируется переменная <code>n</code>." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "Optional<String> first = names.stream().filter(n -> n.startsWith(\"А\")).findFirst();",
+            "options": ["Переменной <code>first</code> присваивается первое имя, а если его нет — <code>null</code>", "Метод <code>findFirst</code> выбрасывает исключение, если имени на «А» нет", "Объявляем переменную <code>first</code> и инициализируем её возвращаемым значением терминальной операции <code>findFirst</code> — <code>Optional</code> с первым именем на «А» или пустым", "<code>filter</code> — терминальная операция, <code>findFirst</code> — промежуточная", "Создаём объект <code>Optional</code> оператором <code>new</code>"],
+            "answer": 2, "why": "<code>findFirst</code> может ничего не найти, поэтому возвращает не строку и не <code>null</code>, а <code>Optional</code> — «коробку», которая бывает пустой. Исключения здесь нет: оно возможно позже, если вызвать <code>get()</code> у пустой коробки." },
+          { "type": "single", "q": "<code>found</code> — это <code>Optional&lt;String&gt;</code>. Что происходит в строке?", "code": "String name = found.orElse(\"гость\");",
+            "options": ["Переменной <code>found</code> присваивается строка <code>\"гость\"</code>", "Если <code>found</code> пуст, <code>orElse</code> выбрасывает <code>NoSuchElementException</code>", "Аргумент <code>\"гость\"</code> вычисляется, только если <code>found</code> пуст", "Вызываем у объекта <code>found</code> метод <code>orElse</code> с аргументом <code>\"гость\"</code>; он возвращает значение из <code>Optional</code> или <code>\"гость\"</code>, если пусто, — этим инициализируем <code>name</code>", "Создаём новый <code>Optional</code> со значением <code>\"гость\"</code>"],
+            "answer": 3, "why": "<code>orElse</code> — безопасный способ открыть коробку: запасное значение вместо исключения. Аргумент любого метода вычисляется до вызова, поэтому <code>\"гость\"</code> вычисляется всегда — даже когда коробка полная." },
+          { "type": "build", "q": "Собери описание строки", "code": "names.forEach(n -> System.out.println(n));",
+            "answer": ["вызываем метод <code>forEach</code> у списка <code>names</code>", "и передаём ему аргументом лямбда-выражение", "с параметром <code>n</code>", "тело которого печатает <code>n</code>"],
+            "extra": ["объявляем переменную <code>n</code> типа <code>String</code>", "метод возвращает новый список", "и присваиваем <code>n</code> новое значение"] },
+          { "type": "build", "q": "Собери описание строки", "code": "List<String> titles = products.stream().filter(Product::inStock).map(Product::title).toList();",
+            "answer": ["объявляем переменную <code>titles</code>", "и инициализируем её результатом конвейера:", "промежуточные операции <code>filter</code> и <code>map</code> со ссылками на методы", "и терминальная операция <code>toList</code>"],
+            "extra": ["вызываем конструктор <code>Product</code>", "терминальные операции <code>filter</code> и <code>map</code>", "и меняем исходный список <code>products</code>"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Хочешь ещё?</h2>
+    <div class="callout ai">
+      <span class="callout-title">Головоломки от наставника</span>
+      <p>Напиши: <em>«Дай мне ещё 5 головоломок по стримам: что выведется, скомпилируется ли, что при запуске. По одной, с разбором после моего ответа»</em>. У наставника в запасе банк из двадцати с лишним задачек по этому модулю.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Без терминальной операции конвейер ничего не делает.</li>
+        <li>Элементы идут по одному через всю цепочку; <code>limit</code>/<code>findFirst</code>/<code>anyMatch</code> обрывают конвейер, <code>sorted</code> ждёт все элементы.</li>
+        <li>Поток одноразовый; <code>toList()</code> неизменяемый; <code>toMap</code> выбрасывает исключение на одинаковых ключах.</li>
+        <li><code>Optional.get()</code> на пустом — <code>NoSuchElementException</code>; аргумент <code>orElse</code> вычисляется всегда.</li>
+        <li>В теле лямбды — только effectively final локальные переменные снаружи; <code>count()</code> — это <code>long</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

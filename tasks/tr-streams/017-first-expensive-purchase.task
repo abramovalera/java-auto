@@ -1,0 +1,44 @@
+## id: tr-streams-017
+## title: Первая дорогая покупка
+## file: trainer/streams/FirstExpensivePurchase.java
+## class: FirstExpensivePurchase
+## level: 2
+## category: Optional
+@@ description
+<p>Напиши класс <code>FirstExpensivePurchase</code>. В первой строке — суммы покупок за месяц в порядке совершения (целые числа через пробел, хотя бы одна), во второй — порог <code>X</code>. Найди первую покупку <b>строго дороже</b> <code>X</code> и напечатай <code>Первая покупка дороже X: S</code>. Если такой нет — напечатай <code>не найдено</code>.</p>
+<pre class="terminal"><span class="out">ввод:  300 1200 450 5000 2000
+       1000
+вывод: Первая покупка дороже 1000: 1200</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.findFirst()</code> — возвращает <code>Optional</code> с первым элементом, дошедшим до конца конвейера</li>
+<li><code>optional.map(p -&gt; "…" + p)</code> — превращает содержимое коробки, если оно есть</li>
+<li><code>.orElse("не найдено")</code> — содержимое коробки или запасное значение, если коробка пустая</li>
+</ul></div>
+@@ test: Нашлась
+@@ input
+300 1200 450 5000 2000
+1000
+@@ expect
+Первая покупка дороже 1000: 1200
+@@ test: Ровно порог — не дороже
+@@ input
+1000 999 1001
+1000
+@@ expect
+Первая покупка дороже 1000: 1001
+@@ test: Все дешевле
+@@ input
+10 20 30
+100
+@@ expect
+не найдено
+@@ test: Первая же подходит
+@@ input
+700 800
+0
+@@ expect
+Первая покупка дороже 0: 700
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.findFirst\s*\( | Найди первую подходящую покупку методом findFirst

@@ -1,0 +1,43 @@
+## id: tr-cond-010
+## title: Лёд, вода или пар
+## file: trainer/cond/WaterStateByTemp.java
+## class: WaterStateByTemp
+## level: 1
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>WaterStateByTemp</code>. Программа читает температуру воды в градусах (целое число) и печатает её состояние: <code>Лёд</code> — при 0 и ниже, <code>Пар</code> — при 100 и выше, <code>Вода</code> — между ними.</p>
+<pre class="terminal"><span class="out">ввод:  25
+вывод: Вода</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>в цепочке <code>else if</code> выполняется только первая подходящая ветка — порядок проверок важен</li>
+</ul></div>
+@@ test: Комнатная температура
+@@ input
+25
+@@ expect
+Вода
+@@ test: Ровно 0 — лёд
+@@ input
+0
+@@ expect
+Лёд
+@@ test: Один градус
+@@ input
+1
+@@ expect
+Вода
+@@ test: Ровно 100 — пар
+@@ input
+100
+@@ expect
+Пар
+@@ test: 99 — ещё вода
+@@ input
+99
+@@ expect
+Вода
+@@ test: Мороз
+@@ input
+-15
+@@ expect
+Лёд

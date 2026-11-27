@@ -1,0 +1,44 @@
+## id: tr-colls-002
+## title: Подсказка светофора
+## file: trainer/colls/TrafficLightAdvice.java
+## class: TrafficLightAdvice
+## level: 1
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>TrafficLightAdvice</code>. Собери словарь «цвет → подсказка» через <code>Map.of</code>: <code>красный → Стой</code>, <code>жёлтый → Жди</code>, <code>зелёный → Иди</code>. Программа читает одно слово — цвет — и печатает подсказку. Цвет могут ввести в любом регистре. Если такого цвета в словаре нет, напечатай <code>Неизвестный сигнал</code>.</p>
+<pre class="terminal"><span class="out">ввод:  красный
+вывод: Стой
+
+ввод:  синий
+вывод: Неизвестный сигнал</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Map.of(k1, v1, k2, v2, k3, v3)</code> — создаёт неизменяемый словарь из пар</li>
+<li><code>map.getOrDefault(key, "…")</code> — возвращает значение по ключу, а если ключа нет — запасное значение</li>
+<li><code>s.toLowerCase()</code> — возвращает строку в нижнем регистре</li>
+</ul></div>
+@@ test: Красный
+@@ input
+красный
+@@ expect
+Стой
+@@ test: Зелёный
+@@ input
+зелёный
+@@ expect
+Иди
+@@ test: Цвета нет в словаре
+@@ input
+синий
+@@ expect
+Неизвестный сигнал
+@@ test: Большие буквы
+@@ input
+ЖЁЛТЫЙ
+@@ expect
+Жди
+@@ test: Первая буква большая
+@@ input
+Зелёный
+@@ expect
+Иди
+@@ require: Map\s*\.\s*of | Собери подсказки в словарь через Map.of(...)

@@ -1,0 +1,40 @@
+## id: tr-vars-002
+## title: Эхо в горах
+## file: trainer/vars/MountainEcho.java
+## class: MountainEcho
+## level: 1
+## category: Вывод и склейка строк
+@@ description
+<p>Напиши класс <code>MountainEcho</code>. Турист кричит в горах одно слово. Программа читает это слово и печатает две строки: что крикнул турист и что ответило эхо — слово три раза, после каждого раза многоточие, между ними пробел.</p>
+<pre class="terminal"><span class="out">ввод:  ау
+вывод: Ты крикнул: ау
+       Горы ответили: ау... ау... ау...</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.next()</code> — возвращает одно слово (до пробела или Enter)</li>
+<li><code>word + "... "</code> — к слову можно приклеить любой текст</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+ау
+@@ expect
+Ты крикнул: ау
+Горы ответили: ау... ау... ау...
+@@ test: Длинное слово
+@@ input
+Эгегей
+@@ expect
+Ты крикнул: Эгегей
+Горы ответили: Эгегей... Эгегей... Эгегей...
+@@ test: Латиница
+@@ input
+Java
+@@ expect
+Ты крикнул: Java
+Горы ответили: Java... Java... Java...
+@@ test: Один символ
+@@ input
+о
+@@ expect
+Ты крикнул: о
+Горы ответили: о... о... о...

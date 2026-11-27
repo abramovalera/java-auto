@@ -1,0 +1,48 @@
+## id: tr-arrays-006
+## title: Плюс, минус, ноль
+## file: trainer/arrays/AccountBalanceSigns.java
+## class: AccountBalanceSigns
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>AccountBalanceSigns</code>. Банк проверяет балансы счетов клиентов. В первой строке — количество счетов <code>n</code>, во второй — <code>n</code> целых балансов через пробел. Напечатай три строки: сколько счетов в плюсе, сколько в минусе и сколько ровно на нуле.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       1500 -200 0 30 -1 0
+вывод: В плюсе: 2
+       В минусе: 2
+       На нуле: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>три счётчика и цепочка <code>if</code> / <code>else if</code> / <code>else</code> внутри одного обхода массива</li>
+</ul></div>
+@@ test: Разные счета
+@@ input
+6
+1500 -200 0 30 -1 0
+@@ expect
+В плюсе: 2
+В минусе: 2
+На нуле: 2
+@@ test: Все в минусе
+@@ input
+3
+-5 -10 -1
+@@ expect
+В плюсе: 0
+В минусе: 3
+На нуле: 0
+@@ test: Все по нулям
+@@ input
+2
+0 0
+@@ expect
+В плюсе: 0
+В минусе: 0
+На нуле: 2
+@@ test: Счетов нет
+@@ input
+0
+@@ expect
+В плюсе: 0
+В минусе: 0
+На нуле: 0
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

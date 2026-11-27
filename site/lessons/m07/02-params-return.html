@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Параметры и return · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 7 · Урок 2</div>
+    <h1>Параметры и return</h1>
+    <p class="lead">Кнопка, которая всегда делает одно и то же, — скучно. Научим методы принимать данные через параметры и возвращать результат.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m07-02-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Что делает эта строка внутри main?", "code": "printLine();",
+            "options": ["Объявляет метод printLine", "Вызывает метод printLine", "Объявляет переменную printLine"], "answer": 1,
+            "why": "Имя + скобки + точка с запятой — это вызов. Объявление выглядит как static void printLine() { … }." },
+          { "type": "predict", "q": "Повторим массивы (модуль 6). Что выведет?",
+            "code": "int[] a = {4, 8, 15};\nint sum = 0;\nfor (int i = 0; i < a.length; i++) {\n    sum += a[i];\n}\nSystem.out.println(sum);",
+            "answer": "27", "why": "Накопитель sum на каждой итерации прибавляет элемент a[i]: 4 + 8 + 15 = 27." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "void в заголовке метода значит, что метод ничего не возвращает", "a": true },
+              { "s": "Метод можно объявить прямо внутри main", "a": false, "why": "методы объявляют рядом внутри класса, объявить один в теле другого нельзя." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Параметр — окошко для данных</h2>
+    <p>Наш <code>printLine()</code> печатает линию всегда одной длины. А если в одном месте нужна линия на 10 знаков, а в другом — на 30? Писать два метода? Нет — пусть метод <b>получает длину снаружи</b>.</p>
+<pre data-file="Lines.java"><code class="java">public class Lines {
+    public static void main(String[] args) {
+        printLine(10);
+        System.out.println("Заголовок");
+        printLine(30);
+    }
+
+    static void printLine(int length) {
+        for (int i = 0; i &lt; length; i++) {
+            System.out.print("-");
+        }
+        System.out.println();
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">----------
+Заголовок
+------------------------------</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>static void printLine(int length)</code><div><p>В скобках объявления — <b>параметр</b>: объявлена переменная <code>length</code> типа <code>int</code>. Это пустое окошко: «сюда положат число, когда вызовут».</p></div></div>
+      <div class="annot-row"><code>printLine(10);</code><div><p>В скобках вызова — <b>аргумент</b>: конкретное значение <code>10</code>. Вызываем метод и передаём аргумент 10 — им инициализируется параметр: в теле метода <code>length</code> равна 10.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: бланк заказа</span>
+      <p>В кафе у тебя бланк: «Напиток: ____, размер: ____». <b>Параметры</b> — это пустые графы бланка, они одинаковые для всех. <b>Аргументы</b> — то, что ты вписал: «капучино», «большой». Каждый заказ — свои аргументы, а бланк один.</p>
+    </div>
+    <dl class="terms">
+      <dt>Параметр</dt><dd>Переменная в <b>объявлении</b> метода: <code>int length</code>. У неё есть тип и имя.</dd>
+      <dt>Аргумент</dt><dd>Значение, которое передают при <b>вызове</b>: <code>10</code>, <code>x + 1</code>, <code>size</code>. Это может быть число, переменная или целое выражение — Java сначала вычислит его.</dd>
+    </dl>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>printLine(0);</code>?</summary>
+      <p>Пустую строку. Параметр <code>length</code> получит 0, тело цикла не выполнится ни разу (<code>0 &lt; 0</code> — ложь), а вызов <code>System.out.println()</code> после цикла просто переведёт строку. Граничные значения вроде 0 — первое, что стоит проверить у любого метода.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Несколько параметров</h2>
+    <p>Параметров может быть сколько угодно — через запятую, у каждого свой тип:</p>
+<pre data-file="Lines.java"><code class="java">static void printRow(String symbol, int count) {
+    for (int i = 0; i &lt; count; i++) {
+        System.out.print(symbol);
+    }
+    System.out.println();
+}
+
+// в main:
+printRow("=", 5);    // =====
+printRow("*", 3);    // ***</code></pre>
+    <p>Аргументы передаются в параметры <b>строго по порядку</b>: первый аргумент инициализирует первый параметр, второй — второй. Имена при вызове не пишутся, поэтому компилятор следит за количеством и типами:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вызов</th><th>Что скажет компилятор</th></tr>
+        <tr><td><code>printRow("=", 5)</code></td><td>✅ всё в порядке</td></tr>
+        <tr><td><code>printRow(5, "=")</code></td><td>❌ перепутан порядок: <code>incompatible types: int cannot be converted to String</code></td></tr>
+        <tr><td><code>printRow("=")</code></td><td>❌ не хватает аргумента: <code>method printRow in class Lines cannot be applied to given types</code>, ниже — <code>required: String,int</code> / <code>found: String</code></td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="think"><p>Сообщение <code>cannot be applied to given types</code> выглядит страшно, но читается легко: <b>required</b> — что метод ждёт, <b>found</b> — что ты ему дал. Сравни две строчки — и сразу видно, где промах.</p></div>
+    <p>В редакторе IDEA обе ошибки видны ещё до запуска. Формулировки у IDEA свои, но смысл тот же:</p>
+    <div data-widget="ide" id="shot-args-editor">
+      <script type="application/json">
+      { "tree": false, "file": "Lines.java", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class Lines {\n    public static void main(String[] args) {\n        printRow(\"=\", 5);\n        printRow(5, \"=\");\n        printRow(\"=\");\n    }\n\n    static void printRow(String symbol, int count) {\n        for (int i = 0; i < count; i++) {\n            System.out.print(symbol);\n        }\n        System.out.println();\n    }\n}",
+        "errors": [ { "line": 4, "text": "(5, \"=\")", "msg": "'printRow(java.lang.String, int)' in 'Lines' cannot be applied to '(int, java.lang.String)'" },
+                    { "line": 5, "text": "(\"=\")", "msg": "Expected 2 arguments but found 1", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-3", "text": "Правильный вызов: строка, потом число — как в заголовке метода" },
+                   { "n": 2, "target": "err-4", "text": "Перепутан порядок. Если навести мышку, IDEA скажет: метод <b>printRow(String, int)</b> нельзя применить к <b>(int, String)</b> — слева что метод ждёт, справа что ты дал" },
+                   { "n": 3, "target": "tip", "text": "Не хватает аргумента: <b>Expected 2 arguments but found 1</b> — «ожидалось 2 аргумента, а найден 1»" },
+                   { "n": 4, "target": "problems", "text": "❗2 — две ошибки, программа не запустится" } ],
+        "caption": "Неверные аргументы: так это выглядит в редакторе" }
+      </script>
+    </div>
+    <p>А если всё-таки нажать ▶, в панели <b>Build</b> будут сообщения <code>javac</code> — те самые, что в таблице выше:</p>
+    <div data-widget="ide" id="shot-args-build">
+      <script type="application/json">
+      { "tree": false, "file": "Lines.java", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class Lines {\n    public static void main(String[] args) {\n        printRow(\"=\", 5);\n        printRow(5, \"=\");\n        printRow(\"=\");\n    }\n\n    static void printRow(String symbol, int count) {\n        for (int i = 0; i < count; i++) {\n            System.out.print(symbol);\n        }\n        System.out.println();\n    }\n}",
+        "errors": [ { "line": 4, "text": "(5, \"=\")", "msg": "'printRow(java.lang.String, int)' in 'Lines' cannot be applied to '(int, java.lang.String)'" },
+                    { "line": 5, "text": "(\"=\")", "msg": "Expected 2 arguments but found 1" } ],
+        "build": { "file": "Lines.java", "path": "module-07", "sel": 1,
+          "errors": [ { "msg": "incompatible types: int cannot be converted to String", "line": 4, "col": 18 },
+                      { "msg": "method printRow in class Lines cannot be applied to given types;", "line": 5, "col": 9 } ],
+          "out": [ "C:\\Users\\Misha\\java-course\\workspace\\module-07\\Lines.java:5:9",
+                   "java: method printRow in class Lines cannot be applied to given types;",
+                   "  required: String,int",
+                   "  found:    String",
+                   "  reason: actual and formal argument lists differ in length" ] },
+        "marks": [ { "n": 1, "target": "build-err-1", "text": "Строка 4: первым аргументом пришло число, а метод ждёт строку — <code>int cannot be converted to String</code>" },
+                   { "n": 2, "target": "build-err-2", "text": "Строка 5: <b>cannot be applied to given types</b> — «нельзя применить к этим аргументам». Она выделена — справа подробности" },
+                   { "n": 3, "target": "build-out", "text": "Читай пару строк: <b>required</b> — что метод ждёт (String и int), <b>found</b> — что ты дал (только String). Ниже причина: списки аргументов разной длины" } ],
+        "caption": "Те же ошибки в панели Build" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>return: метод возвращает результат</h2>
+    <p>Пока наши методы только печатали. Но часто нужно, чтобы метод <b>посчитал</b> что-то и <b>вернул</b> результат тому, кто его вызвал. Для этого вместо <code>void</code> пишут <b>тип возвращаемого значения</b>, а в теле — <code>return</code>:</p>
+<pre data-file="Squares.java"><code class="java">static int square(int x) {
+    return x * x;
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>static int square(int x)</code><div><p><code>int</code> перед именем — <b>тип возвращаемого значения</b>: «этот метод отдаёт обратно целое число».</p></div></div>
+      <div class="annot-row"><code>    return x * x;</code><div><p><code>return</code> — «вернуть»: вычислить выражение и вернуть его значение туда, откуда метод вызвали. Выполнение метода на этом заканчивается.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: гонец в магазин</span>
+      <p>Ты отправляешь младшего брата в магазин и даёшь ему 100 рублей (аргумент). Он возвращается с хлебом — это <b>возвращаемое значение</b>. А если просишь «выключи свет в коридоре», он сходит и вернётся с пустыми руками — это метод <code>void</code>: дело сделано, приносить нечего.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 220" role="img" aria-label="Метод как машинка: аргументы входят, результат выходит через return">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="70" width="150" height="70" rx="12" class="d-code"/>
+        <text x="95" y="102" text-anchor="middle" class="d-mono">square(5)</text>
+        <text x="95" y="126" text-anchor="middle" class="d-small">вызов в main</text>
+        <path d="M170 92 H260" class="d-arrow"/>
+        <text x="215" y="80" text-anchor="middle" class="d-small">5 → x</text>
+        <rect x="260" y="40" width="200" height="130" rx="16" class="d-accent"/>
+        <text x="360" y="72" text-anchor="middle" class="d-title">square</text>
+        <text x="360" y="104" text-anchor="middle" class="d-mono-ink">int x = 5</text>
+        <text x="360" y="134" text-anchor="middle" class="d-mono-ink">return x * x;</text>
+        <path d="M460 120 H550" class="d-arrow"/>
+        <text x="505" y="108" text-anchor="middle" class="d-small">25</text>
+        <rect x="550" y="70" width="150" height="70" rx="12" class="d-green"/>
+        <text x="625" y="102" text-anchor="middle" class="d-title">25</text>
+        <text x="625" y="126" text-anchor="middle" class="d-small">встаёт на место</text>
+        <text x="625" y="196" text-anchor="middle" class="d-small">вызова square(5)</text>
+        <path d="M625 140 V180" class="d-dash"/>
+      </svg>
+      <figcaption>Аргумент инициализирует параметр, return возвращает результат наружу. Вызов <code>square(5)</code> в выражении превращается в возвращаемое значение 25.</figcaption>
+    </figure>
+    <p>Главное: <b>вызов метода, который что-то возвращает, — это выражение</b>. Его можно использовать везде, где можно написать число: инициализировать переменную, сложить, передать аргументом:</p>
+<pre data-file="Squares.java"><code class="java">int a = square(3);                        // a = 9
+int sum = square(3) + square(4);          // 9 + 16 = 25
+System.out.println(square(5));            // 25
+if (square(a) &gt; 50) {                     // square(9) = 81, условие истинно
+    System.out.println("Большой квадрат");
+}
+System.out.println(square(square(2)));    // square(4) = 16</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что выведет <code>square(1 + 2) * 2</code>?</summary>
+      <p><b>18.</b> Сначала Java вычисляет выражение-аргумент: <code>1 + 2 = 3</code>. Потом вызывает метод: <code>square(3)</code> возвращает 9. И только потом умножает возвращённое значение: <code>9 * 2 = 18</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Посмотрим по шагам</h2>
+    <p>Пройди трассировку. Обрати внимание, как у метода <code>add</code> появляется свой рабочий стол со своими переменными, а после <code>return</code> он исчезает — остаётся только возвращаемое значение.</p>
+    <div data-widget="trace" id="trace-m07-02-return">
+      <script type="application/json">
+      { "title": "Куда уходит результат return",
+        "intro": "Слева код, справа стек: у каждого работающего метода свой «рабочий стол» с переменными. Нажимай «Шаг ▶».",
+        "code": "public class Adder {\n    public static void main(String[] args) {\n        int total = add(2, 3) * 2;\n        System.out.println(total);\n    }\n\n    static int add(int a, int b) {\n        int result = a + b;\n        return result;\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "note": "Чтобы инициализировать <code>total</code>, нужно сначала вычислить выражение, а в нём — вызов <code>add(2, 3)</code>. Java вызывает метод и передаёт аргументы 2 и 3." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": {} }, { "frame": "add", "vars": { "a": "2", "b": "3" } } ], "note": "Новый стол для <code>add</code>. Аргументы 2 и 3 инициализировали параметры <code>a</code> и <code>b</code> — по порядку." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": {} }, { "frame": "add", "vars": { "a": "2", "b": "3", "result": "5" } } ], "vars": { "result": "5" }, "ask": ["result"], "note": "Сложи параметры метода. a + b = 2 + 3 = 5 — этим значением инициализируем <b>локальную переменную</b> <code>result</code> (объявлена в теле метода)." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "add", "vars": { "a": "2", "b": "3", "result": "5" } } ], "note": "<code>return result;</code> — метод возвращает 5 и заканчивается. Его стол со всеми переменными сейчас исчезнет." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "total": "10" } } ], "vars": { "total": "10" }, "ask": ["total"], "note": "Вызов add(2, 3) заменился возвращённым значением 5. Значит total инициализируется значением 5 * 2 = 10. Переменных a, b, result больше нет — их стол убран." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "total": "10" } } ], "vars": { "total": "10" }, "out": "10\n", "note": "Вызываем println и передаём аргумент total. Готово!" }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>return заканчивает метод сразу</h2>
+    <p><code>return</code> — это не просто «вот ответ», а ещё и <b>«уходим отсюда немедленно»</b>. Всё, что ниже, уже не выполнится. Поэтому в методе может быть несколько <code>return</code> — в разных ветках <code>if</code>:</p>
+<pre data-file="Signs.java"><code class="java">static String sign(int n) {
+    if (n &gt; 0) {
+        return "плюс";
+    }
+    if (n &lt; 0) {
+        return "минус";
+    }
+    return "ноль";
+}</code></pre>
+    <p>Если <code>n = 7</code>, сработает первый <code>return</code>, и до проверки <code>n &lt; 0</code> дело не дойдёт. Тип возвращаемого значения тут <code>String</code> — метод может возвращать любой тип: <code>int</code>, <code>double</code>, <code>boolean</code>, <code>String</code>, даже массив.</p>
+    <p>Компилятор строго следит за return. Две частые ошибки:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🚫</span><h4>missing return statement</h4><p>Метод обещал вернуть <code>int</code>, но есть путь, где <code>return</code> не встретится. Например, все <code>return</code> спрятаны внутри <code>if</code>, а после них ничего. Компилятор не гадает, что условие «точно выполнится», — он требует ответ на <b>каждом</b> пути.</p></div>
+      <div class="card"><span class="emoji">🧱</span><h4>unreachable statement</h4><p>Строка сразу после <code>return</code> в том же блоке. До неё выполнение никогда не дойдёт — «недостижимый код». Java считает это ошибкой, а не мелочью.</p></div>
+    </div>
+    <div data-widget="ide" id="shot-return-errors">
+      <script type="application/json">
+      { "tree": false, "file": "Returns.java", "statusPath": "module-07",
+        "code": "public class Returns {\n    static int twice(int n) {\n        return n * 2;\n        System.out.println(\"Готово\");\n    }\n\n    static int abs(int n) {\n        if (n < 0) {\n            return -n;\n        }\n    }\n}",
+        "errors": [ { "line": 4, "text": "System.out.println(\"Готово\");", "msg": "Unreachable statement" },
+                    { "line": 11, "col": 5, "len": 1, "msg": "Missing return statement", "tip": true, "fix": "Add 'return' statement" } ],
+        "marks": [ { "n": 1, "target": "err-4", "text": "<b>Unreachable statement</b> — «недостижимая инструкция»: строка стоит сразу после <code>return</code>, до неё выполнение никогда не дойдёт" },
+                   { "n": 2, "target": "err-11", "side": "left", "text": "Волна под <b>закрывающей скобкой</b> метода: сюда можно дойти (если <code>n</code> не отрицательное), а <code>return</code> по дороге не встретился" },
+                   { "n": 3, "target": "tip", "text": "<b>Missing return statement</b> — «не хватает return». <kbd>Alt</kbd>+<kbd>Enter</kbd> предложит дописать <code>return</code>, но какое значение вернуть — решаешь ты: здесь <code>return n;</code>" },
+                   { "n": 4, "target": "problems", "text": "❗2 — обе ошибки компиляции, программа не запустится" } ],
+        "caption": "Unreachable statement и Missing return statement в редакторе" }
+      </script>
+    </div>
+    <p>В методе <code>void</code> тоже можно написать <code>return;</code> — без значения. Это значит «выйти из метода прямо сейчас»:</p>
+<pre data-file="Ages.java"><code class="java">static void printAge(int age) {
+    if (age &lt; 0) {
+        System.out.println("Возраст не бывает отрицательным");
+        return;                       // дальше не идём
+    }
+    System.out.println("Тебе " + age + " лет");
+}</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Результат можно потерять</span>
+      <p>Строка <code>square(5);</code> сама по себе компилируется: метод вернёт 25 и… никуда его не денет. Возвращаемое значение молча выбросится. Хочешь им воспользоваться — инициализируй им переменную или сразу используй в выражении.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли метод <code>static int abs(int n) { if (n &lt; 0) { return -n; } }</code>?</summary>
+      <p><b>Нет</b>: <code>missing return statement</code>. Если <code>n</code> не отрицательное, метод дойдёт до конца, ничего не вернув. Нужно добавить <code>return n;</code> в конце.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Печатать или возвращать?</h2>
+    <p>Новички часто пишут методы, которые <b>печатают</b> ответ, вместо того чтобы его <b>возвращать</b> через <code>return</code>. Сравни:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🖨️</span><h4>Печатает</h4><p><code>static void printSquare(int x)</code> — показал число на экране, и всё. Сложить два таких квадрата, сравнить, сохранить — нельзя: число ушло в консоль.</p></div>
+      <div class="card"><span class="emoji">🎁</span><h4>Возвращает</h4><p><code>static int square(int x)</code> — вернул число в программу. Хочешь — печатай, хочешь — складывай, сравнивай, передавай в другой метод.</p></div>
+    </div>
+    <p>Правило: метод, который <b>считает</b>, должен <b>возвращать</b>. Печатать пусть будет main или отдельный метод «показать». Так методы можно собирать, как кубики.</p>
+    <div class="callout fact">
+      <span class="callout-title">Где это пригодится</span>
+      <p>В любом интернет-магазине это основа основ. Метод корзины <code>getCartTotal()</code> <b>возвращает</b> сумму, а программа использует возвращённое значение дальше: сравнивает с балансом карты, считает скидку, печатает чек — <code>if (balance &gt;= cart.getCartTotal()) { … }</code>. Если бы метод только печатал сумму, сделать с ней было бы нечего.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m07-02">
+      <script type="application/json">
+      {
+       "title": "Параметры и return — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "public class Calc {\n    public static void main(String[] args) {\n        int x = twice(3) + twice(4);\n        System.out.println(x);\n        System.out.println(twice(twice(1)));\n    }\n\n    static int twice(int n) {\n        return n * 2;\n    }\n}",
+         "answer": "14\n4",
+         "why": "twice(3) + twice(4) = 6 + 8 = 14. twice(twice(1)) = twice(2) = 4 — сначала выполняется внутренний вызов, его возвращаемое значение становится аргументом внешнего."
+        },
+        {
+         "type": "bug",
+         "q": "Найди строку с ошибкой компиляции",
+         "code": "static int half(int n) {\n    return n / 2;\n    System.out.println(\"Готово\");\n}",
+         "answer": [
+          3
+         ],
+         "why": "После return выполнение метода уже закончилось — инструкция недостижима (unreachable statement)."
+        },
+        {
+         "type": "match",
+         "q": "Соедини термин и пример",
+         "left": [
+          "Параметр",
+          "Аргумент",
+          "Тип возвращаемого значения",
+          "Возврат значения"
+         ],
+         "right": [
+          "int length в объявлении метода",
+          "10 в вызове printLine(10)",
+          "int перед именем метода",
+          "return x * x;"
+         ],
+         "why": "Параметр — графа бланка, аргумент — то, что в неё вписали, тип возвращаемого значения — что метод обещает вернуть, return — возвращает."
+        },
+        {
+         "type": "single",
+         "q": "Метод объявлен как static void printRow(String symbol, int count). Какой вызов скомпилируется?",
+         "options": [
+          "printRow(3, \"*\")",
+          "printRow(\"*\", 3)",
+          "printRow(\"*\")",
+          "int n = printRow(\"*\", 3)"
+         ],
+         "answer": 1,
+         "why": "Аргументы передаются по порядку параметров: сначала строка, потом число. А void-метод ничего не возвращает — инициализировать переменную его вызовом нельзя."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "В методе может быть несколько return",
+           "a": true
+          },
+          {
+           "s": "Если метод возвращает int, возвращаемым значением обязательно надо инициализировать переменную",
+           "a": false,
+           "why": "можно использовать сразу в выражении или вообще не использовать — тогда он молча пропадёт."
+          },
+          {
+           "s": "return; без значения можно писать в void-методе",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 7.2. Придумай мне три метода по описанию, а я скажу для каждого, какие у него параметры и тип результата — без кода тела»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Параметры</b> — переменные в объявлении метода: <code>static void printRow(String symbol, int count)</code>. <b>Аргументы</b> — значения, которые передают при вызове: <code>printRow("=", 5)</code>.</li>
+        <li>Аргументы передаются в параметры по порядку; число и типы должны совпасть.</li>
+        <li>Тип перед именем — <b>тип возвращаемого значения</b>. <code>return значение;</code> возвращает результат и сразу завершает метод.</li>
+        <li>Вызов метода, который что-то возвращает, — выражение: его значением можно инициализировать переменную, складывать, передавать аргументом дальше.</li>
+        <li>Ошибки: <code>missing return statement</code> — не на всех путях есть return; <code>unreachable statement</code> — код после return.</li>
+        <li>Метод, который считает, должен возвращать, а не печатать.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,39 @@
+## id: tr-strings-001
+## title: Длина ника
+## file: trainer/strings/NicknameLengthCheck.java
+## class: NicknameLengthCheck
+## level: 1
+## category: Подсчёт символов
+@@ description
+<p>Напиши класс <code>NicknameLengthCheck</code>. Игрок придумывает ник. Программа читает одну строку целиком и печатает, сколько в ней символов. Пробелы и знаки — тоже символы.</p>
+<pre class="terminal"><span class="out">ввод:  Neo            вывод: 3
+ввод:  Dark Knight    вывод: 11</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLine()</code> — читает всю строку целиком, вместе с пробелами</li>
+<li><code>s.length()</code> — возвращает количество символов в строке</li>
+</ul></div>
+@@ test: Короткий ник
+@@ input
+Neo
+@@ expect
+3
+@@ test: Ник с пробелом
+@@ input
+Dark Knight
+@@ expect
+11
+@@ test: Пробелы по краям тоже считаются
+@@ input
+  ace  
+@@ expect
+7
+@@ test: Кириллица и цифры
+@@ input
+Лиса_2010
+@@ expect
+9
+@@ test: Пустая строка
+@@ input
+
+@@ expect
+0

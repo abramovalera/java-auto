@@ -1,0 +1,50 @@
+## id: tr-loops-033
+## title: Перегруз лифта
+## file: trainer/loops/ElevatorLoadLimit.java
+## class: ElevatorLoadLimit
+## level: 2
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>ElevatorLoadLimit</code>. В лифт по очереди заходят люди. Лифт выдерживает не больше <code>C</code> килограммов. Как только следующий человек не помещается, лифт закрывает двери, и больше никто не заходит, даже если за ним стоит кто-то лёгкий. В первой строке — <code>C</code>, во второй — длина очереди <code>n</code> (n ≥ 0), в третьей — <code>n</code> весов через пробел. Напечатай <code>Вошли: K, вес: W</code>.</p>
+<pre class="terminal"><span class="out">ввод:  400
+       5
+       80 120 90 100 70
+вывод: Вошли: 4, вес: 390</span></pre>
+<p>Если вес ровно равен <code>C</code>, лифт едет.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>if (load + weight &gt; capacity) break;</code> — проверь до того, как добавлять вес</li>
+</ul></div>
+@@ test: Пятый не поместился
+@@ input
+400
+5
+80 120 90 100 70
+@@ expect
+Вошли: 4, вес: 390
+@@ test: Ровно впритык
+@@ input
+300
+3
+100 100 100
+@@ expect
+Вошли: 3, вес: 300
+@@ test: Первый не помещается
+@@ input
+100
+3
+150 20 30
+@@ expect
+Вошли: 0, вес: 0
+@@ test: После тяжёлого — лёгкий, но двери уже закрыты
+@@ input
+200
+4
+90 100 50 5
+@@ expect
+Вошли: 2, вес: 190
+@@ test: Очереди нет
+@@ input
+500
+0
+@@ expect
+Вошли: 0, вес: 0

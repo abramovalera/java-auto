@@ -1,0 +1,46 @@
+## id: tr-loops-016
+## title: Самая холодная ночь
+## file: trainer/loops/ColdestNightTemp.java
+## class: ColdestNightTemp
+## level: 1
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>ColdestNightTemp</code>. В первой строке — число ночей <code>n</code> (n ≥ 1), во второй — <code>n</code> целых температур через пробел. Напечатай самую низкую температуру.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       -3 -12 0 -7 2
+вывод: -12</span></pre>
+<p>Подвох: летом все ночи тёплые. Если начать поиск минимума с нуля, ответ выйдет неверным.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int coldest = scanner.nextInt();</code> — рекордсмен: инициализируй его первым числом из ввода</li>
+<li><code>if (t &lt; coldest) coldest = t;</code> — нашёлся новый рекорд — запоминаем</li>
+</ul></div>
+@@ test: Зима
+@@ input
+5
+-3 -12 0 -7 2
+@@ expect
+-12
+@@ test: Лето — все ночи тёплые
+@@ input
+4
+18 15 21 16
+@@ expect
+15
+@@ test: Одна ночь
+@@ input
+1
+-40
+@@ expect
+-40
+@@ test: Рекорд в конце
+@@ input
+3
+5 4 3
+@@ expect
+3
+@@ test: Одинаковые
+@@ input
+3
+7 7 7
+@@ expect
+7

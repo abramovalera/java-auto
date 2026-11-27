@@ -1,0 +1,15 @@
+{ "id": "m14", "num": "14", "title": "Лямбды и Stream API",
+  "summary": "Лямбды и функциональные интерфейсы, ссылки на методы, конвейер filter/map/sorted, терминальные операции, Optional, Collectors и Мастерская «цикл или стрим».",
+  "lessons": [
+    { "id": "m14-01", "title": "От анонимного класса к лямбде", "url": "/lessons/m14/01-lambdas.html" },
+    { "id": "m14-02", "title": "Встроенные функциональные интерфейсы", "url": "/lessons/m14/02-functional-interfaces.html" },
+    { "id": "m14-03", "title": "Ссылки на методы", "url": "/lessons/m14/03-method-references.html" },
+    { "id": "m14-04", "title": "Stream API: конвейер", "url": "/lessons/m14/04-stream-pipeline.html" },
+    { "id": "m14-05", "title": "Терминальные операции", "url": "/lessons/m14/05-terminal-ops.html" },
+    { "id": "m14-06", "title": "Optional: вместо null", "url": "/lessons/m14/06-optional.html" },
+    { "id": "m14-07", "title": "Collectors: группировка и склейка", "url": "/lessons/m14/07-collectors.html" },
+    { "id": "m14-08", "title": "Мастерская: цикл или стрим", "url": "/lessons/m14/08-workshop-loop-vs-stream.html" },
+    { "id": "m14-pz", "title": "Головоломки: что будет?", "url": "/lessons/m14/09-puzzles.html" },
+    { "id": "m14-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m14/10-summary.html" }
+  ],
+  "taskCount": 10 }

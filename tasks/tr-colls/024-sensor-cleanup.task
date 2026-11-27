@@ -1,0 +1,48 @@
+## id: tr-colls-024
+## title: Сбойные показания датчика
+## file: trainer/colls/SensorNegativesCleanup.java
+## class: SensorNegativesCleanup
+## level: 1
+## category: Списки
+@@ description
+<p>Напиши класс <code>SensorNegativesCleanup</code>. Датчик уровня воды иногда сбоит и выдаёт отрицательные числа. В первой строке — количество показаний <code>n</code>, во второй — <code>n</code> целых чисел через пробел. Сохрани их в список, удали из него все отрицательные значения <b>итератором во время обхода</b> и напечатай две строки: <code>Удалено: X</code> и оставшийся список (как его печатает <code>println</code>).</p>
+<pre class="terminal"><span class="out">ввод:  6
+       15 -1 20 18 -999 0
+вывод: Удалено: 2
+       [15, 20, 18, 0]</span></pre>
+<p>Удалять через <code>list.remove</code> внутри for-each нельзя — получишь <code>ConcurrentModificationException</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Iterator&lt;Integer&gt; it = list.iterator();</code> — получает итератор списка</li>
+<li><code>it.hasNext()</code> / <code>it.next()</code> — есть ли следующий элемент / взять его</li>
+<li><code>it.remove()</code> — безопасно удаляет элемент, который только что вернул <code>next()</code></li>
+</ul></div>
+@@ test: Два сбоя
+@@ input
+6
+15 -1 20 18 -999 0
+@@ expect
+Удалено: 2
+[15, 20, 18, 0]
+@@ test: Сбоев нет
+@@ input
+3
+4 5 6
+@@ expect
+Удалено: 0
+[4, 5, 6]
+@@ test: Одни сбои
+@@ input
+3
+-5 -5 -1
+@@ expect
+Удалено: 3
+[]
+@@ test: Сбои подряд
+@@ input
+5
+7 -2 -3 -4 8
+@@ expect
+Удалено: 3
+[7, 8]
+@@ require: \.iterator\s*\( | Удаляй итератором: list.iterator()
+@@ require: \.remove\s*\(\s*\) | Удаляй элемент методом итератора remove()

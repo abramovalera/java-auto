@@ -1,0 +1,38 @@
+## id: tr-loops-013
+## title: Выручка за день
+## file: trainer/loops/DailyRevenueTotal.java
+## class: DailyRevenueTotal
+## level: 1
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>DailyRevenueTotal</code>. Касса за день пробила <code>n</code> чеков. В первой строке — количество чеков <code>n</code> (n ≥ 0), во второй — <code>n</code> сумм чеков через пробел (целые, каждая до 2 000 000 000). Напечатай <code>Выручка: S</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       120 350 80 1000
+вывод: Выручка: 1550</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>for (int i = 0; i &lt; n; i++) { … scanner.nextInt() … }</code> — читает n чисел подряд: Scanner сам разбирает числа через пробел</li>
+<li><code>long revenue = 0;</code> — накопитель в long: сумма может не влезть в int</li>
+</ul></div>
+@@ test: Обычный день
+@@ input
+4
+120 350 80 1000
+@@ expect
+Выручка: 1550
+@@ test: Один чек
+@@ input
+1
+999
+@@ expect
+Выручка: 999
+@@ test: Чеков не было
+@@ input
+0
+@@ expect
+Выручка: 0
+@@ test: Крупные покупки
+@@ input
+3
+1500000000 1500000000 1000
+@@ expect
+Выручка: 3000001000

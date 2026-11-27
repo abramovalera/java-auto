@@ -1,0 +1,36 @@
+## id: tr-vars-016
+## title: Сейчас играет
+## file: trainer/vars/SongNowPlaying.java
+## class: SongNowPlaying
+## level: 1
+## category: Вывод и склейка строк
+@@ description
+<p>Напиши класс <code>SongNowPlaying</code>. Плеер показывает строку о текущей песне. Программа читает две строки: название песни и исполнителя — и печатает <code>Сейчас играет: "Название" — Исполнитель</code>. Название — в прямых двойных кавычках.</p>
+<pre class="terminal"><span class="out">ввод:  Кукушка
+       Кино
+вывод: Сейчас играет: "Кукушка" — Кино</span></pre>
+<p>Переменные объяви через <code>var</code> — пусть тип определит компилятор.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLine()</code> — возвращает всю строку до Enter, вместе с пробелами</li>
+<li><code>var title = scanner.nextLine();</code> — вывод типа: компилятор сам поймёт, что это <code>String</code></li>
+<li><code>"\""</code> — так внутри строки пишут двойную кавычку: перед ней ставят обратный слеш</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Кукушка
+Кино
+@@ expect
+Сейчас играет: "Кукушка" — Кино
+@@ test: Название из нескольких слов
+@@ input
+Bohemian Rhapsody
+Queen
+@@ expect
+Сейчас играет: "Bohemian Rhapsody" — Queen
+@@ test: Короткие строки
+@@ input
+Я
+Он
+@@ expect
+Сейчас играет: "Я" — Он
+@@ require: \bvar\s+\w+\s*= | Объяви переменные через var

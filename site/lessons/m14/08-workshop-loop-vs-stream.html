@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская: цикл или стрим · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-08">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 14 · Урок 8 · Мастерская</div>
+    <h1>Мастерская: цикл или стрим?</h1>
+    <p class="lead">Решим одну задачу двумя способами — по шаблону Мастерской. Увидишь, как каждая часть цикла превращается в операцию стрима, когда стрим понятнее, когда лучше цикл, и как отлаживать конвейер, если он врёт.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🛠 Мастерская</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m14-08-review">
+      <script type="application/json">
+      { "title": "Вспомним коллекторы", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Какой коллектор склеит имена в строку «a, b, c»?",
+            "options": ["Collectors.toList()", "Collectors.joining(\", \")", "Collectors.counting()"], "answer": 1,
+            "why": "joining с разделителем «, » ставит его только между элементами." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "Map<Boolean, List<Integer>> m = Stream.of(1, 2, 3, 4)\n        .collect(Collectors.partitioningBy(x -> x > 2));\nSystem.out.println(m.get(true));",
+            "answer": "[3, 4]", "why": "На полку true попали элементы больше 2." },
+          { "type": "single", "q": "Мастерская, модуль 5: как называется роль переменной <code>sum</code> в <code>for (…) sum += x;</code>?",
+            "options": ["Шагающая", "Накопитель", "Флаг"], "answer": 1,
+            "why": "Накопитель собирает результат по ходу цикла. В стримах его роль играют reduce и collect." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Шаг 1. Пойми задачу</h2>
+    <p>В интернет-магазине накопились заказы за день:</p>
+<pre data-file="UnpaidOrders.java"><code class="java">record Order(String item, int price, boolean paid) { }
+
+List&lt;Order&gt; orders = List.of(
+        new Order("чайник", 1200, true),
+        new Order("утюг", 3400, false),
+        new Order("кружка", 800, true),
+        new Order("пылесос", 5100, false),
+        new Order("лампа", 900, false));</code></pre>
+    <p><b>Задача:</b> вывести строку <code>Не оплачены: …</code> — товары из неоплаченных заказов через запятую, <b>от самого дорогого к самому дешёвому</b> (о дорогих заказах напоминают первыми — они важнее всего). Если неоплаченных нет — <code>Все заказы оплачены</code>.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вход</th><th>Выход</th></tr>
+        <tr><td>пример выше</td><td><code>Не оплачены: пылесос, утюг, лампа</code></td></tr>
+        <tr><td>все <code>paid = true</code></td><td><code>Все заказы оплачены</code></td></tr>
+        <tr><td>пустой список</td><td><code>Все заказы оплачены</code> (неоплаченных нет)</td></tr>
+        <tr><td>один неоплаченный</td><td><code>Не оплачены: утюг</code> — без запятой в конце!</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Шаги 2–4. Руками, роли, псевдокод</h2>
+    <p><b>Руками.</b> Иду по списку и выписываю неоплаченные: утюг (3400), пылесос (5100), лампа (900). Расставляю по цене от большей: пылесос, утюг, лампа. Беру названия, пишу через запятую.</p>
+    <p>Что я делал? Три разных действия: <b>отобрал</b>, <b>упорядочил</b>, <b>склеил</b>. Запомни это — дальше пригодится.</p>
+    <p><b>Роли переменных</b> для решения циклом:</p>
+    <ul>
+      <li><code>order</code> — <b>шагающая</b>: по очереди каждый заказ;</li>
+      <li><code>unpaid</code> — <b>накопитель</b>: список неоплаченных;</li>
+      <li><code>sb</code> — ещё один <b>накопитель</b>: строка ответа;</li>
+      <li><code>i</code> — шагающая по отсортированному списку, нужна, чтобы не ставить запятую перед первым названием.</li>
+    </ul>
+    <p><b>Псевдокод:</b></p>
+    <ol class="steps">
+      <li>для каждого заказа: если не оплачен — добавь в unpaid;</li>
+      <li>отсортируй unpaid по цене, от большей к меньшей;</li>
+      <li>если unpaid пуст — выведи «Все заказы оплачены» и закончи;</li>
+      <li>для каждого в unpaid: если не первый — допиши «, »; допиши название;</li>
+      <li>выведи «Не оплачены: » + строка.</li>
+    </ol>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Шаг 5. Код — двумя способами</h2>
+    <p><b>Циклом</b> — перевод псевдокода строка в строку:</p>
+<pre data-file="UnpaidOrders.java"><code class="java">List&lt;Order&gt; unpaid = new ArrayList&lt;&gt;();
+for (Order order : orders) {
+    if (!order.paid()) {
+        unpaid.add(order);
+    }
+}
+unpaid.sort(Comparator.comparingInt(Order::price).reversed());
+
+if (unpaid.isEmpty()) {
+    System.out.println("Все заказы оплачены");
+} else {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i &lt; unpaid.size(); i++) {
+        if (i &gt; 0) {
+            sb.append(", ");
+        }
+        sb.append(unpaid.get(i).item());
+    }
+    System.out.println("Не оплачены: " + sb);
+}</code></pre>
+    <p><b>Стримом</b> — те же три действия «отобрал, упорядочил, склеил»: промежуточные операции <code>filter</code>, <code>sorted</code>, <code>map</code> и терминальная <code>collect</code> с коллектором <code>joining</code>:</p>
+<pre data-file="UnpaidOrders.java"><code class="java">String unpaid = orders.stream()
+        .filter(o -&gt; !o.paid())
+        .sorted(Comparator.comparingInt(Order::price).reversed())
+        .map(Order::item)
+        .collect(Collectors.joining(", "));
+
+System.out.println(unpaid.isEmpty() ? "Все заказы оплачены" : "Не оплачены: " + unpaid);</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Соответствие частей цикла операциям стрима: if и add — filter, sort — sorted, get(i).item() — map, StringBuilder с запятыми — joining">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="180" y="24" text-anchor="middle" class="d-small">ЦИКЛ: КАК ДЕЛАТЬ</text>
+        <text x="600" y="24" text-anchor="middle" class="d-small">СТРИМ: ЧТО НУЖНО</text>
+
+        <rect x="10" y="40" width="340" height="50" rx="12" class="d-code"/>
+        <text x="26" y="70" class="d-mono">for + if (!paid) + add</text>
+        <path d="M356 65 H446" class="d-arrow"/>
+        <rect x="452" y="40" width="298" height="50" rx="12" class="d-violet"/>
+        <text x="470" y="70" class="d-mono-ink">filter(o -&gt; !o.paid())</text>
+
+        <rect x="10" y="102" width="340" height="50" rx="12" class="d-code"/>
+        <text x="26" y="132" class="d-mono">unpaid.sort(…)</text>
+        <path d="M356 127 H446" class="d-arrow"/>
+        <rect x="452" y="102" width="298" height="50" rx="12" class="d-yellow"/>
+        <text x="470" y="132" class="d-mono-ink">sorted(…)</text>
+
+        <rect x="10" y="164" width="340" height="50" rx="12" class="d-code"/>
+        <text x="26" y="194" class="d-mono">unpaid.get(i).item()</text>
+        <path d="M356 189 H446" class="d-arrow"/>
+        <rect x="452" y="164" width="298" height="50" rx="12" class="d-teal"/>
+        <text x="470" y="194" class="d-mono-ink">map(Order::item)</text>
+
+        <rect x="10" y="226" width="340" height="50" rx="12" class="d-code"/>
+        <text x="26" y="248" class="d-mono">StringBuilder + if (i &gt; 0)</text>
+        <text x="26" y="266" class="d-mono">  append(", ")</text>
+        <path d="M356 251 H446" class="d-arrow"/>
+        <rect x="452" y="226" width="298" height="50" rx="12" class="d-green"/>
+        <text x="470" y="256" class="d-mono-ink">collect(joining(", "))</text>
+      </svg>
+      <figcaption>Каждый кусок цикла превратился в одну операцию конвейера. Роли «накопитель» и «шагающая» спрятались внутрь стрима.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Ты заметил, куда делись переменные <code>i</code>, <code>unpaid</code>, <code>sb</code>? Их больше нет — меньше мест, где можно ошибиться. Особенно с запятой: в цикле её вечно ставят лишний раз в конце, а <code>joining</code> так не умеет ошибаться.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Шаг 6. Трассировка конвейера</h2>
+    <p>Пройди конвейер по шагам. Обрати внимание на промежуточную операцию <code>sorted</code>: он копит элементы, пока не увидит все, — и только потом пускает их дальше.</p>
+    <div data-widget="trace" id="trace-m14-08-report">
+      <script type="application/json">
+      { "title": "Неоплаченные заказы", "icon": "🛠", "kind": "Трассировка конвейера",
+        "intro": "Пять заказов едут по конвейеру. Следи за буфером sorted и за строкой, которую собирает joining.",
+        "code": "String unpaid = orders.stream()\n        .filter(o -> !o.paid())\n        .sorted(Comparator.comparingInt(Order::price).reversed())\n        .map(Order::item)\n        .collect(Collectors.joining(\", \"));\nSystem.out.println(\"Не оплачены: \" + unpaid);",
+        "steps": [
+          { "line": 1, "vars": { "orders": "чайник✓ утюг✗ кружка✓ пылесос✗ лампа✗", "буфер sorted": "[]", "joining": "\"\"" }, "note": "collect — терминальная операция, она и запускает конвейер. Элементы поедут по одному." },
+          { "line": 2, "vars": { "элемент": "чайник (1200, ✓)", "прошёл filter": "нет", "буфер sorted": "[]", "joining": "\"\"" }, "ask": ["прошёл filter"], "note": "Подумай, что значит !o.paid(). Чайник оплачен, значит, выражение !o.paid() равно false — лямбда возвращает false, и фильтр выбрасывает элемент." },
+          { "line": 2, "vars": { "элемент": "утюг (3400, ✗)", "прошёл filter": "да", "буфер sorted": "[утюг]", "joining": "\"\"" }, "note": "Утюг не оплачен — фильтр пропускает. Но дальше по ленте он не поедет: sorted кладёт его в буфер и ждёт остальных." },
+          { "line": 2, "vars": { "элемент": "кружка (800, ✓)", "прошёл filter": "нет", "буфер sorted": "[утюг]", "joining": "\"\"" }, "note": "Кружка оплачена — отсеяна." },
+          { "line": 2, "vars": { "элемент": "пылесос (5100, ✗)", "прошёл filter": "да", "буфер sorted": "[утюг, пылесос]", "joining": "\"\"" }, "note": "Пылесос не оплачен — в буфер sorted." },
+          { "line": 2, "vars": { "элемент": "лампа (900, ✗)", "прошёл filter": "да", "буфер sorted": "[утюг, пылесос, лампа]", "joining": "\"\"" }, "ask": ["прошёл filter"], "note": "Посмотри на флажок paid у лампы. Она не оплачена — фильтр пропускает, sorted кладёт в буфер. Элементы источника кончились." },
+          { "line": 3, "vars": { "буфер sorted": "[пылесос, утюг, лампа]", "первым поедет": "пылесос", "joining": "\"\"" }, "ask": ["первым поедет"], "note": "Теперь sorted видит всех и сортирует по цене от большей. Кто самый дорогой? Пылесос — 5100 ₽, он поедет первым." },
+          { "line": 4, "vars": { "элемент": "пылесос", "joining": "\"\"" }, "note": "map со ссылкой на метод Order::item заменяет весь заказ названием товара." },
+          { "line": 5, "vars": { "элемент": "пылесос", "joining": "пылесос" }, "note": "joining кладёт первое название — без запятой перед ним." },
+          { "line": 5, "vars": { "элемент": "утюг", "joining": "пылесос, утюг" }, "ask": ["joining"], "note": "Второй элемент: что joining ставит перед ним? Разделитель «, », затем название: пылесос, утюг." },
+          { "line": 5, "vars": { "элемент": "лампа", "joining": "пылесос, утюг, лампа" }, "note": "Третий — так же. После последнего запятая не ставится." },
+          { "line": 6, "vars": { "unpaid": "пылесос, утюг, лампа" }, "out": "Не оплачены: пылесос, утюг, лампа\n", "note": "Готово. Ни одного индекса, ни одного if для запятой." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Когда стрим, а когда цикл</h2>
+    <p>Стримы — не замена циклам во всём. Это инструмент для одного типа задач: <b>«взять набор данных → отобрать → преобразовать → собрать результат»</b>. Вот честное сравнение:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🌊</span><h4>Стрим понятнее</h4><p>Фильтр + преобразование + сбор. Подсчёт, группировка, проверки «все/хоть один/ни одного». Склейка через запятую. Цепочка читается как рецепт.</p></div>
+      <div class="card"><span class="emoji">🔁</span><h4>Цикл понятнее</h4><p>Нужен индекс или соседний элемент (<code>a[i]</code> и <code>a[i + 1]</code>). Меняется несколько переменных сразу. Сложная логика с <code>break</code> в середине. Изменение элементов на месте.</p></div>
+      <div class="card"><span class="emoji">⚠️</span><h4>Стрим — плохая идея</h4><p>Когда в теле лямбды хочется менять локальные переменные снаружи (<code>count++</code> не скомпилируется — и это подсказка), или когда в цепочке 15 операций и никто её не понимает.</p></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Правило большого пальца</span>
+      <p>Если, читая стрим вслух, ты получаешь понятное предложение — стрим хорош. Если приходится расшифровывать — перепиши циклом или разбей стрим на несколько шагов с понятными именами переменных.</p>
+    </div>
+    <details class="predict">
+      <summary>Задача: найти в массиве цен два соседних товара с самой большой разницей цен. Стрим или цикл?</summary>
+      <p><b>Цикл.</b> Нужны соседи <code>a[i]</code> и <code>a[i + 1]</code> — а стрим видит элементы по одному и не знает «соседа». Стримом можно извернуться через <code>IntStream.range</code> по индексам, но цикл здесь читается проще.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Отладка: стрим врёт — что делать?</h2>
+    <p>Стрим выдал не то, а точку останова внутрь цепочки так просто не поставишь. Три приёма:</p>
+    <p><b>1. peek — подглядеть.</b> Промежуточная операция, которая ничего не меняет: ей передают аргументом <code>Consumer</code> — действие с каждым проходящим элементом. Вставь её между шагами:</p>
+<pre data-file="DebugPeek.java"><code class="java">String unpaid = orders.stream()
+        .peek(o -&gt; System.out.println("до filter: " + o.item()))
+        .filter(o -&gt; !o.paid())
+        .peek(o -&gt; System.out.println("после filter: " + o.item()))
+        .map(Order::item)
+        .collect(Collectors.joining(", "));</code></pre>
+    <p><b>2. Разбить на шаги.</b> Объяви переменную с говорящим именем, инициализируй её промежуточным результатом — списком — и посмотри на него — глазами или в отладчике:</p>
+<pre data-file="DebugSteps.java"><code class="java">List&lt;Order&gt; unpaidOrders = orders.stream().filter(o -&gt; !o.paid()).toList();
+System.out.println(unpaidOrders);      // правильно ли отфильтровали?
+List&lt;Order&gt; sorted = unpaidOrders.stream()
+        .sorted(Comparator.comparingInt(Order::price).reversed())
+        .toList();
+System.out.println(sorted);            // правильный ли порядок?</code></pre>
+    <p><b>3. Отладчик IDEA.</b> Поставь точку останова на строку со стримом, запусти Debug, а на панели отладчика нажми кнопку <b>Trace Current Stream Chain</b> (иконка со стрелками-волнами). IDEA покажет каждую операцию отдельной вкладкой: какие элементы вошли и какие вышли. Это та же трассировка, что выше, только для твоего кода.</p>
+    <div class="callout warn">
+      <span class="callout-title">peek — только для отладки</span>
+      <p>Не пиши «полезную работу» в <code>peek</code>: Java вправе его пропустить, если результат можно получить и без него. Например, в <code>list.stream().peek(System.out::println).count()</code> современная Java вообще не напечатает ничего — размер списка и так известен. Отладил — убери <code>peek</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Собери конвейер и проверь себя</h2>
+    <p>Задача: из списка товаров получить названия трёх самых дешёвых <b>в наличии</b>, по возрастанию цены. Собери стрим из строк:</p>
+    <div data-widget="parsons" id="parsons-m14-08" data-code data-title="Три самых дешёвых в наличии" data-icon="🧩"
+         data-hint="Источник → отбор → порядок → первые три → превращение в названия → сбор."
+         data-success="🎉 Верно! Важно, что limit(3) стоит после sorted: сначала порядок, потом первые три.">
+      <script type="text/plain">
+List<String> cheapest = products.stream()
+        .filter(Product::inStock)
+        .sorted(Comparator.comparingInt(Product::price))
+        .limit(3)
+        .map(Product::title)
+        .toList();
+      </script>
+    </div>
+    <div data-widget="check" id="check-m14-08">
+      <script type="application/json">
+      { "title": "Мастерская — главное",
+        "items": [
+          { "type": "match", "q": "Какая операция стрима заменяет кусок цикла?",
+            "left": ["if (условие) list.add(x)", "result.add(x.name())", "Collections.sort(list)", "StringBuilder и запятые", "count++ при условии"],
+            "right": ["filter", "map", "sorted", "joining", "filter + count()"],
+            "why": "Отбор — filter, преобразование — map, порядок — sorted, склейка — joining, подсчёт — count." },
+          { "type": "single", "q": "Почему этот код не работает как задумано?",
+            "code": "List<String> top = products.stream()\n        .limit(3)\n        .sorted(Comparator.comparingInt(Product::price))\n        .map(Product::title)\n        .toList();",
+            "options": ["limit нельзя писать перед sorted — ошибка компиляции", "Он берёт первые три товара списка, а уже потом сортирует только их", "sorted не работает с record"], "answer": 1,
+            "why": "Порядок операций важен: limit отрезал первые три элемента источника, сортировка видит только их. Сначала sorted, потом limit." },
+          { "type": "multi", "q": "В каких задачах цикл будет понятнее стрима?",
+            "options": ["Найти максимальную разницу между соседними элементами массива", "Оставить цены больше нуля и собрать в список", "Посчитать, сколько слов каждой длины", "Обойти двумерное поле и найти путь с break в середине"], "answer": [0, 3],
+            "why": "Соседи по индексу и сложная логика с break — территория циклов. Отбор и группировка — территория стримов." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "peek удобно использовать для отладки стрима", "a": true },
+              { "s": "В peek можно спокойно класть важную логику — он вызывается всегда", "a": false, "why": "Java может пропустить peek, если результат известен без него (например, count у списка)." },
+              { "s": "Длинный стрим можно разбить на несколько шагов с промежуточными списками", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Мастерская 14.8. Дай мне задачу на обработку списка — я сначала напишу псевдокод, потом решу циклом и стримом, а ты скажешь, какое решение читается лучше и почему»</em>. А задачу «Частота символов» на странице практики реши по тому же шаблону.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Шаблон Мастерской работает и для стримов: пойми → руками → роли → псевдокод → код → трассировка.</li>
+        <li>Действия «отобрал, преобразовал, упорядочил, склеил, посчитал» = <code>filter</code>, <code>map</code>, <code>sorted</code>, <code>joining</code>, <code>count</code>.</li>
+        <li>Стрим — для «набор → отбор → преобразование → результат»; цикл — для индексов, соседей, сложных break и нескольких меняющихся переменных.</li>
+        <li>Порядок операций важен: <code>sorted</code> перед <code>limit</code>, <code>distinct</code> перед <code>limit</code>.</li>
+        <li>Отладка: <code>peek</code>, разбиение на шаги, Trace Current Stream Chain в отладчике IDEA.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

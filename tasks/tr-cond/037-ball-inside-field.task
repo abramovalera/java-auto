@@ -1,0 +1,46 @@
+## id: tr-cond-037
+## title: Мяч в поле или аут
+## file: trainer/cond/BallInsideFieldZone.java
+## class: BallInsideFieldZone
+## level: 2
+## category: Геометрия
+@@ description
+<p>Напиши класс <code>BallInsideFieldZone</code>. Футбольное поле — прямоугольник от точки (0, 0) до точки (100, 60). Мяч на линии считается в поле. Программа читает координаты мяча — два дробных числа через пробел — и печатает <code>В поле</code> или <code>Аут</code>.</p>
+<pre class="terminal"><span class="out">ввод:  50 30
+вывод: В поле
+
+ввод:  100.5 30
+вывод: Аут</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>мяч в поле, если <code>x</code> в пределах от 0 до 100 <b>и</b> <code>y</code> в пределах от 0 до 60</li>
+</ul></div>
+@@ test: Центр поля
+@@ input
+50 30
+@@ expect
+В поле
+@@ test: Угол поля — на линии
+@@ input
+100 60
+@@ expect
+В поле
+@@ test: Чуть за боковой
+@@ input
+100.5 30
+@@ expect
+Аут
+@@ test: За линией по x слева
+@@ input
+-1 10
+@@ expect
+Аут
+@@ test: Начало координат
+@@ input
+0 0
+@@ expect
+В поле
+@@ test: Выше верхней линии
+@@ input
+30 61
+@@ expect
+Аут

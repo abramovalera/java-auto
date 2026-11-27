@@ -1,0 +1,44 @@
+## id: tr-loops-036
+## title: Проверка контрольных
+## file: trainer/loops/ExamScoresUntilZero.java
+## class: ExamScoresUntilZero
+## level: 2
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>ExamScoresUntilZero</code>. Учитель вводит баллы за контрольные (от 1 до 100) через пробел или с новой строки, а в конце — <code>0</code>. Напечатай три строки: <code>Работ: K</code>, <code>Лучший: M</code> и <code>Средний: A</code>, где A — средний балл, округлённый до десятых (<code>Math.round(x * 10) / 10.0</code>). Если первым числом пришёл <code>0</code>, напечатай одну строку <code>Нет работ</code>.</p>
+<pre class="terminal"><span class="out">ввод:  78 91 64 85 0
+вывод: Работ: 4
+       Лучший: 91
+       Средний: 79.5</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>ввод до нуля: <code>while (score != 0) { … score = scanner.nextInt(); }</code></li>
+<li>три роли сразу: счётчик, накопитель суммы и рекордсмен</li>
+<li><code>(double) sum / count</code> — дробное деление</li>
+</ul></div>
+@@ test: Четыре работы
+@@ input
+78 91 64 85 0
+@@ expect
+Работ: 4
+Лучший: 91
+Средний: 79.5
+@@ test: Работ нет
+@@ input
+0
+@@ expect
+Нет работ
+@@ test: Одна работа
+@@ input
+100
+0
+@@ expect
+Работ: 1
+Лучший: 100
+Средний: 100.0
+@@ test: Округление среднего
+@@ input
+50 51 51 0
+@@ expect
+Работ: 3
+Лучший: 51
+Средний: 50.7

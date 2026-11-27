@@ -1,0 +1,41 @@
+## id: tr-arrays-011
+## title: Рекорд в игре
+## file: trainer/arrays/MaxScoreInGame.java
+## class: MaxScoreInGame
+## level: 1
+## category: Максимум и минимум
+@@ description
+<p>Напиши класс <code>MaxScoreInGame</code>. Ты сыграл <code>n</code> партий (n ≥ 1). За неудачную партию очки бывают отрицательными. В первой строке — <code>n</code>, во второй — очки за каждую партию. Найди лучший результат и напечатай <code>Рекорд: X</code>.</p>
+<p>Подумай, каким значением инициализировать максимум, чтобы программа не ошиблась, если все очки отрицательные.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       120 340 90 340 15
+вывод: Рекорд: 340</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int max = a[0];</code> — начинать поиск максимума с первого элемента надёжнее, чем с нуля</li>
+<li><code>for (int x : a)</code> — for-each: обход всех элементов по порядку</li>
+</ul></div>
+@@ test: Обычные партии
+@@ input
+5
+120 340 90 340 15
+@@ expect
+Рекорд: 340
+@@ test: Все минусы
+@@ input
+4
+-50 -7 -300 -12
+@@ expect
+Рекорд: -7
+@@ test: Одна партия
+@@ input
+1
+0
+@@ expect
+Рекорд: 0
+@@ test: Рекорд в конце
+@@ input
+3
+1 2 3
+@@ expect
+Рекорд: 3
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

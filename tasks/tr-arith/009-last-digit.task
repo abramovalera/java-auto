@@ -1,0 +1,46 @@
+## id: tr-arith-009
+## title: Последняя цифра
+## file: trainer/arith/LastDigitOfNumber.java
+## class: LastDigitOfNumber
+## level: 1
+## category: Деление и остаток
+@@ description
+<p>Создай класс <code>LastDigitOfNumber</code>. Программа читает целое число (оно может быть отрицательным) и печатает его последнюю цифру — всегда от 0 до 9.</p>
+<pre class="terminal"><span class="out">ввод:  2026    вывод: 6
+ввод:  -458    вывод: 8</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 10</code> — остаток от деления на 10, то есть последняя цифра</li>
+<li><code>Math.abs(x)</code> — возвращает модуль числа, без знака минус</li>
+</ul></div>
+@@ test: Год
+@@ input
+2026
+@@ expect
+6
+@@ test: Одна цифра
+@@ input
+7
+@@ expect
+7
+@@ test: Ноль
+@@ input
+0
+@@ expect
+0
+@@ test: Отрицательное число
+@@ input
+-458
+@@ expect
+8
+@@ test: Круглое число
+@@ input
+1000
+@@ expect
+0
+@@ test: Самое большое int
+@@ input
+2147483647
+@@ expect
+7
+@@ require: % | Последнюю цифру даёт остаток от деления на 10
+@@ forbid: charAt|String\.valueOf|Integer\.toString|length\s*\( | Здесь цифру нужно достать арифметикой, а не через строки

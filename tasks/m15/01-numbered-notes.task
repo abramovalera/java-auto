@@ -1,0 +1,59 @@
+## id: m15-t01
+## title: Заметки в файле с номерами
+## file: module-15/NumberedNotesFile.java
+## class: NumberedNotesFile
+## level: 1
+@@ description
+<p>Первая программа, которая оставляет след на диске. Она читает с клавиатуры число <code>N</code>, потом <code>N</code> строк-заметок и <b>записывает их в файл</b> <code>notes.txt</code> (каждая заметка — на своей строке). Затем <b>читает этот файл</b> и печатает, сколько в нём строк, и все строки с номерами:</p>
+<pre class="terminal"><span class="out">3
+купить молоко
+починить велосипед
+позвонить в поддержку</span></pre>
+<pre class="terminal"><span class="out">Записано в notes.txt: 3
+1. купить молоко
+2. починить велосипед
+3. позвонить в поддержку</span></pre>
+<p>Если заметок нет (<code>N = 0</code>), после первой строки выведи <code>Файл пуст</code>. Пустая заметка — тоже строка: она получит свой номер.</p>
+<p>Записывай через <code>Files.write</code> или <code>Files.writeString</code>, а номера и количество бери из <b>прочитанного файла</b> (<code>Files.readAllLines</code>), а не из того, что ввёл пользователь. Число <code>N</code> удобно читать так: <code>Integer.parseInt(sc.nextLine().trim())</code> — тогда следующий <code>nextLine()</code> вернёт первую заметку.</p>
+<p>Сайт запускает программу в пустой временной папке — файл она создаёт сама. Запустив в IDEA, найди <code>notes.txt</code> в корне проекта (File → Reload All from Disk).</p>
+<p>📖 <a href="/lessons/m15/02-reading.html">Чтение текстовых файлов</a> · <a href="/lessons/m15/03-writing.html">Запись в файл</a></p>
+@@ test: Три заметки
+@@ input
+3
+купить молоко
+починить велосипед
+позвонить в поддержку
+@@ expect
+Записано в notes.txt: 3
+1. купить молоко
+2. починить велосипед
+3. позвонить в поддержку
+@@ test: Одна заметка
+@@ input
+1
+одна заметка
+@@ expect
+Записано в notes.txt: 1
+1. одна заметка
+@@ test: Пустая заметка в середине
+@@ input
+4
+утро
+
+обед
+вечер
+@@ expect
+Записано в notes.txt: 4
+1. утро
+2.
+3. обед
+4. вечер
+@@ test: Заметок нет
+@@ input
+0
+@@ expect
+Записано в notes.txt: 0
+Файл пуст
+@@ require: Files\.write(String)?\s*\( | Запиши заметки в файл через Files.write или Files.writeString
+@@ require: Files\.(readAllLines|readString|lines)\s*\( | Прочитай файл обратно — например, Files.readAllLines
+@@ require: notes\.txt | Файл должен называться notes.txt

@@ -1,0 +1,43 @@
+## id: tr-methods-028
+## title: Лотерея: сколько совпало
+## file: trainer/methods/LotteryMatchCounter.java
+## class: LotteryMatchCounter
+## level: 2
+## category: Методы и массивы
+@@ description
+<p>В лотерее выпадает 6 разных чисел. Создай класс <code>LotteryMatchCounter</code> и напиши метод <code>static boolean contains(int[] numbers, int x)</code>: он возвращает <code>true</code>, если число <code>x</code> есть в массиве.</p>
+<p>main читает в первой строке 6 выигрышных чисел, во второй — 6 чисел из билета (всё через пробел). С помощью <code>contains</code> считает, сколько чисел билета есть среди выигрышных, и печатает <code>Совпало: N</code>. Если совпали все 6, следующей строкой печатает <code>Джекпот!</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4 15 23 8 42 16
+       1 15 4 30 16 7
+вывод: Совпало: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>for (int n : numbers)</code> — цикл по всем элементам массива</li>
+<li>метод-проверку удобно вызывать прямо в условии: <code>if (contains(arr, x))</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4 15 23 8 42 16
+1 15 4 30 16 7
+@@ expect
+Совпало: 3
+@@ test: Ничего не совпало
+@@ input
+1 2 3 4 5 6
+7 8 9 10 11 12
+@@ expect
+Совпало: 0
+@@ test: Джекпот в другом порядке
+@@ input
+5 10 15 20 25 30
+30 25 20 15 10 5
+@@ expect
+Совпало: 6
+Джекпот!
+@@ test: Совпало пять
+@@ input
+1 2 3 4 5 6
+1 2 3 4 5 36
+@@ expect
+Совпало: 5
+@@ require: static\s+boolean\s+contains\s*\(\s*int\s*\[\s*\]\s*\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static boolean contains(int[] numbers, int x)
+@@ require: \Wcontains\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать contains(...) для чисел билета

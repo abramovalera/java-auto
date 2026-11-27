@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Шпаргалка и собеседование · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<!-- Сгенерировано tools/build-cheatsheet.js — правь там, потом: node tools/build-cheatsheet.js -->
+<main class="content" data-page="cheatsheet" data-wide>
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Шпаргалка</div>
+    <h1>Шпаргалка и собеседование</h1>
+    <p class="lead">Всё главное из курса на одной странице: коротко по каждому модулю, вопросы, которые задают на собеседовании Java junior, горячие клавиши IDEA и сокращения.</p>
+  </header>
+
+  <nav class="cheat-toc" id="toc"><a href="#keys" class="cheat-toc-extra">⌨️ Горячие клавиши</a><a href="#abbr" class="cheat-toc-extra">🔤 Сокращения</a><a href="#reading" class="cheat-toc-extra">🗣 Как читать код</a><a href="#m01" data-mod="m01">1 · Знакомство с Java</a><a href="#m02" data-mod="m02">2 · Переменные и типы данных</a><a href="#m03" data-mod="m03">3 · Операторы и выражения</a><a href="#m04" data-mod="m04">4 · Условия: if и switch</a><a href="#m05" data-mod="m05">5 · Циклы</a><a href="#m06" data-mod="m06">6 · Массивы</a><a href="#m07" data-mod="m07">7 · Методы</a><a href="#m08" data-mod="m08">8 · Строки</a><a href="#m09" data-mod="m09">9 · Классы и объекты</a><a href="#m10" data-mod="m10">10 · ООП: инкапсуляция, наследование, полиморфизм</a><a href="#m11" data-mod="m11">11 · Интерфейсы, абстрактные классы, enum, record</a><a href="#m12" data-mod="m12">12 · Исключения</a><a href="#m13" data-mod="m13">13 · Коллекции и generics</a><a href="#m14" data-mod="m14">14 · Лямбды и Stream API</a><a href="#m15" data-mod="m15">15 · Файлы и ввод-вывод</a><a href="#m16" data-mod="m16">16 · Многопоточность: основы</a><a href="#m17" data-mod="m17">17 · Инструменты разработчика</a></nav>
+  <p class="cheat-legend">✓ — модуль пройден, бледные — ещё впереди.</p>
+
+  <div class="callout tip">
+    <span class="callout-title">Как готовиться к собеседованию</span>
+    <p>Закрой ответ и скажи свой вслух — как будто тебя спрашивают. Не получилось объяснить своими словами — вернись к уроку модуля. Заучивать дословно не нужно: на собеседовании ценят понимание и пример из своего кода.</p>
+  </div>
+
+  <section class="step cheat-mod" id="m01" data-mod="m01">
+    <h2>Модуль 1 · Знакомство с Java</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Путь программы: <code>.java</code> → компилятор <code>javac</code> → байт-код <code>.class</code> → его выполняет JVM.</li>
+      <li>JDK ⊃ JRE ⊃ JVM. Писать программы — нужен JDK.</li>
+      <li>Имя public-класса совпадает с именем файла; программа начинается с метода <code>main</code>.</li>
+      <li>Ошибки бывают трёх видов: компиляции, выполнения, логические.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем отличаются JDK, JRE и JVM?</summary><p>JVM выполняет байт-код. JRE — JVM плюс стандартные библиотеки, хватит, чтобы запускать. JDK — JRE плюс инструменты разработчика (компилятор javac, отладчик). Чтобы писать код, нужен JDK. С Java 11 отдельную JRE почти не выпускают — ставят сразу JDK.</p></details>
+    <details class="cheat-qa"><summary>Почему Java называют кроссплатформенной?</summary><p>Код компилируется не в машинный код, а в байт-код. Его выполняет JVM, а JVM есть для Windows, macOS и Linux. Один и тот же <code>.class</code> работает везде: «написал один раз — запускай где угодно».</p></details>
+    <details class="cheat-qa"><summary>Что такое байт-код?</summary><p>Промежуточный код в файлах <code>.class</code>: его делает <code>javac</code> из исходника, а выполняет JVM, превращая на ходу в команды процессора.</p></details>
+    <details class="cheat-qa"><summary>Как выглядит метод main и зачем он нужен?</summary><p><code>public static void main(String[] args)</code> — точка входа: с него JVM начинает выполнять программу. <code>static</code> — чтобы JVM могла вызвать его, не создавая объект (подробнее — модуль 9).</p></details>
+    <details class="cheat-qa"><summary>Какие бывают ошибки?</summary><p>Компиляции — код не собрался (забыта <code>;</code>, опечатка). Выполнения — программа упала с исключением во время работы. Логическая — программа работает, но результат неверный.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m01/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m02" data-mod="m02">
+    <h2>Модуль 2 · Переменные и типы данных</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Переменная — коробка с ярлыком: тип, имя, значение. <code>=</code> — «положи», а не «равно».</li>
+      <li>8 примитивов: <code>byte short int long float double char boolean</code>. <code>String</code> — не примитив, а объект.</li>
+      <li>Примитив хранит само значение; объект лежит в куче, а в переменной — ссылка на него.</li>
+      <li>Имена: переменные — <code>camelCase</code>, классы — <code>PascalCase</code>, константы — <code>UPPER_SNAKE_CASE</code>.</li>
+      <li>Всё в кавычках — строка: <code>"20"</code> ≠ <code>20</code>. Число из строки — <code>Integer.parseInt</code>, строка из числа — <code>String.valueOf</code>.</li>
+      <li>Сужение типа — только явно: <code>(int) 3.9</code> даст <code>3</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Какие примитивные типы есть в Java?</summary><p>Восемь: целые <code>byte</code>, <code>short</code>, <code>int</code>, <code>long</code>; дробные <code>float</code>, <code>double</code>; символ <code>char</code>; логический <code>boolean</code>.</p></details>
+    <details class="cheat-qa"><summary>String — это примитив?</summary><p>Нет. <code>String</code> — класс, строка — объект. Поэтому у неё есть методы (<code>length()</code>, <code>toUpperCase()</code>) и её сравнивают через <code>equals</code>.</p></details>
+    <details class="cheat-qa"><summary>Чем примитив отличается от ссылочного типа? Что такое стек и куча?</summary><p>Примитив хранит значение прямо в переменной. Объект создаётся в куче, а переменная хранит ссылку («адрес») на него. Локальные переменные живут в стеке, объекты — в куче.</p></details>
+    <details class="cheat-qa"><summary>Что будет при (int) 3.99 и при переполнении int?</summary><p><code>(int) 3.99</code> = <code>3</code>: дробная часть отбрасывается, не округляется. Переполнение: <code>Integer.MAX_VALUE + 1</code> станет самым маленьким отрицательным числом — без ошибки, тихо.</p></details>
+    <details class="cheat-qa"><summary>Что такое var?</summary><p>Тип локальной переменной выводит компилятор по значению справа: <code>var age = 20;</code> — это <code>int</code>. Тип всё равно фиксирован, просто его не пишут.</p></details>
+    <details class="cheat-qa"><summary>Как сделать константу?</summary><p><code>final</code>: <code>final int max = 100;</code> — второй раз присвоить нельзя. Настоящая константа класса — поле <code>static final</code> (модуль 9): <code>static final int MAX_SIZE = 100;</code> — такие пишут БОЛЬШИМИ_БУКВАМИ. Обычную локальную <code>final</code>-переменную называют, как всё остальное, в camelCase.</p></details>
+    <details class="cheat-qa"><summary>Как принято называть переменные, классы и константы?</summary><p>Переменные и методы — <b>camelCase</b>: слова слитно, первое с маленькой (<code>userName</code>, <code>getBalance</code>). Классы — <b>PascalCase</b>, с большой (<code>BankAccount</code>). Константы — <b>UPPER_SNAKE_CASE</b> (<code>MAX_SIZE</code>). Компилятор не заставляет, но так пишут все — и на код-ревью за другое поправят.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m02/08-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m03" data-mod="m03">
+    <h2>Модуль 3 · Операторы и выражения</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Целое / целое = целое: <code>7 / 2</code> = <code>3</code>. Остаток — <code>%</code>: <code>7 % 2</code> = <code>1</code>.</li>
+      <li><code>i++</code> — сначала значение, потом +1; <code>++i</code> — наоборот.</li>
+      <li><code>&amp;&amp;</code> и <code>||</code> «ленивые»: вторую часть не считают, если ответ уже ясен.</li>
+      <li><code>double</code> неточен: <code>0.1 + 0.2</code> ≠ <code>0.3</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чему равно 7 / 2, 7 % 2 и 7.0 / 2?</summary><p><code>3</code>, <code>1</code> и <code>3.5</code>. Если оба числа целые — деление целочисленное, дробь отбрасывается.</p></details>
+    <details class="cheat-qa"><summary>Чем i++ отличается от ++i?</summary><p>Оба увеличивают на 1. <code>i++</code> в выражении отдаёт старое значение, <code>++i</code> — новое: при <code>i = 5</code> <code>x = i++</code> даст 5, <code>x = ++i</code> — 6.</p></details>
+    <details class="cheat-qa"><summary>Чем && отличается от &?</summary><p><code>&amp;&amp;</code> — «короткое замыкание»: если левая часть false, правую не вычисляет. <code>&amp;</code> для boolean всегда вычисляет обе части. Поэтому <code>s != null &amp;&amp; s.length() &gt; 0</code> безопасно, а с <code>&amp;</code> упадёт на <code>null</code>. (Для чисел <code>&amp;</code> — это побитовое И, в курсе не нужно.)</p></details>
+    <details class="cheat-qa"><summary>Почему 0.1 + 0.2 != 0.3?</summary><p><code>double</code> хранит дроби в двоичном виде приближённо. Деньги в таких типах не считают: берут копейки в <code>long</code> или <code>BigDecimal</code>.</p></details>
+    <details class="cheat-qa"><summary>Как проверить, что число чётное?</summary><p><code>n % 2 == 0</code>.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m03/08-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m04" data-mod="m04">
+    <h2>Модуль 4 · Условия: if и switch</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li><code>if / else if / else</code> — проверяет условия сверху вниз, срабатывает первое истинное.</li>
+      <li>Сравнение — <code>==</code>, присваивание — <code>=</code>. Строки сравнивают через <code>equals</code>.</li>
+      <li>Тернарный оператор: <code>условие ? да : нет</code> — короткий if, который возвращает значение.</li>
+      <li>Стрелочный <code>switch</code> (<code>case 1 -&gt;</code>) не проваливается дальше, ему не нужен <code>break</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Какие типы можно использовать в обычном switch?</summary><p>В классическом switch по значениям: <code>int</code> и меньшие целые, <code>char</code>, <code>String</code>, <code>enum</code> и их обёртки. <code>long</code>, <code>double</code>, <code>float</code> и <code>boolean</code> — нельзя. (В новых версиях Java есть ещё switch по типам — pattern matching, в курсе его нет.)</p></details>
+    <details class="cheat-qa"><summary>Что будет, если в старом switch забыть break?</summary><p>«Проваливание»: выполнятся и следующие <code>case</code> до первого <code>break</code>. Стрелочный switch (<code>-&gt;</code>) так не делает.</p></details>
+    <details class="cheat-qa"><summary>Что такое тернарный оператор?</summary><p><code>a &gt; b ? a : b</code> — если условие истинно, берётся первое значение, иначе второе. Удобно для коротких выборов.</p></details>
+    <details class="cheat-qa"><summary>Зачем фигурные скобки у if с одной строкой?</summary><p>Без них к if относится только первая строка. Добавишь вторую — она будет выполняться всегда. Скобки защищают от такой ошибки.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m04/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m05" data-mod="m05">
+    <h2>Модуль 5 · Циклы</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li><code>while</code> — пока условие истинно; <code>do-while</code> — хотя бы один раз; <code>for</code> — когда знаешь, сколько шагов.</li>
+      <li><code>break</code> выходит из цикла, <code>continue</code> — переходит к следующему шагу.</li>
+      <li>Частые ошибки: бесконечный цикл, «на один больше/меньше» (<code>&lt;</code> против <code>&lt;=</code>).</li>
+      <li>Роли переменных: счётчик, накопитель (сумма), флаг, максимум.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем while отличается от do-while?</summary><p><code>while</code> сначала проверяет условие и может не выполниться ни разу. <code>do-while</code> сначала выполняет тело, потом проверяет — минимум один раз.</p></details>
+    <details class="cheat-qa"><summary>Чем break отличается от continue?</summary><p><code>break</code> — выйти из цикла совсем. <code>continue</code> — пропустить остаток текущего шага и перейти к следующему.</p></details>
+    <details class="cheat-qa"><summary>Задача: FizzBuzz</summary><p>Числа от 1 до 100: кратные 3 — «Fizz», кратные 5 — «Buzz», кратные обоим — «FizzBuzz». Ключ — <code>%</code> и порядок проверок: сначала «и 3, и 5». Частая задача на собеседованиях.</p></details>
+    <details class="cheat-qa"><summary>Задача: сумма цифр числа</summary><p>Пока число больше 0: прибавь <code>n % 10</code> (последняя цифра) к сумме и сделай <code>n = n / 10</code> (отрезать цифру).</p></details>
+    <details class="cheat-qa"><summary>Как получить бесконечный цикл и как из него выйти?</summary><p><code>while (true)</code> или условие, которое никогда не станет ложным. Выход — <code>break</code> по условию. Случайный бесконечный цикл останавливают кнопкой ■ (<code>Ctrl+F2</code>).</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m05/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m06" data-mod="m06">
+    <h2>Модуль 6 · Массивы</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Массив — ряд ячеек одного типа фиксированной длины. Индексы с 0, последний — <code>length - 1</code>.</li>
+      <li>У массива <code>length</code> без скобок, у строки — <code>length()</code>.</li>
+      <li>Массив — объект: <code>b = a</code> копирует ссылку, а не ячейки. Копия — <code>Arrays.copyOf</code>.</li>
+      <li><code>Arrays.toString</code> — печать, <code>Arrays.sort</code> — сортировка, <code>Arrays.equals</code> — сравнение.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Можно ли изменить длину массива?</summary><p>Нет, длина задаётся при создании. Нужен «резиновый» список — <code>ArrayList</code> (модуль 13).</p></details>
+    <details class="cheat-qa"><summary>Что будет при обращении к a[a.length]?</summary><p><code>ArrayIndexOutOfBoundsException</code>: последний индекс — <code>length - 1</code>.</p></details>
+    <details class="cheat-qa"><summary>Какие значения у нового массива?</summary><p>Числа — <code>0</code>, <code>boolean</code> — <code>false</code>, объекты (в том числе <code>String</code>) — <code>null</code>.</p></details>
+    <details class="cheat-qa"><summary>Почему a == b для двух одинаковых массивов даёт false?</summary><p><code>==</code> сравнивает ссылки: это два разных объекта. Содержимое сравнивает <code>Arrays.equals(a, b)</code>.</p></details>
+    <details class="cheat-qa"><summary>Задача: найти максимум / развернуть массив</summary><p>Максимум: запомни первый элемент, пройди циклом, обновляй, если нашёл больше. Разворот: меняй местами <code>a[i]</code> и <code>a[length - 1 - i]</code> до середины.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m06/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m07" data-mod="m07">
+    <h2>Модуль 7 · Методы</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Метод — именованный кусок кода: параметры на вход, <code>return</code> на выход.</li>
+      <li>Java передаёт аргументы по значению. Для объектов копируется ссылка.</li>
+      <li>Перегрузка — одно имя, разные параметры.</li>
+      <li>Каждый вызов кладёт кадр в стек вызовов; бесконечная рекурсия → <code>StackOverflowError</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>В Java передача по значению или по ссылке?</summary><p>Всегда по значению. Для примитива копируется число — метод не изменит переменную снаружи. Для объекта копируется ссылка: метод может поменять содержимое объекта, но не заменить сам объект у вызывающего.</p></details>
+    <details class="cheat-qa"><summary>Что такое перегрузка метода?</summary><p>Несколько методов с одним именем и разными параметрами (числом или типами): <code>print(int)</code>, <code>print(String)</code>. Тип возврата на перегрузку не влияет.</p></details>
+    <details class="cheat-qa"><summary>Что входит в сигнатуру метода?</summary><p>Имя и список типов параметров. Тип возврата в сигнатуру не входит.</p></details>
+    <details class="cheat-qa"><summary>Что такое рекурсия и чем она опасна?</summary><p>Метод вызывает сам себя. Нужен базовый случай, где вызовы прекращаются, иначе стек переполнится: <code>StackOverflowError</code>.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m07/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m08" data-mod="m08">
+    <h2>Модуль 8 · Строки</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Строка неизменяема: <code>toUpperCase()</code> и другие методы возвращают новую строку.</li>
+      <li>Сравнение строк — только <code>equals</code> (без регистра — <code>equalsIgnoreCase</code>), не <code>==</code>.</li>
+      <li>Много склеек в цикле — <code>StringBuilder</code>.</li>
+      <li><code>printf</code> / <code>String.format</code>: <code>%d</code> — целое, <code>%.2f</code> — дробь с 2 знаками, <code>%s</code> — строка.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем == отличается от equals для строк?</summary><p><code>==</code> проверяет, один ли это объект в памяти. <code>equals</code> сравнивает символы. Для строк всегда нужен <code>equals</code>.</p></details>
+    <details class="cheat-qa"><summary>Почему String неизменяемая?</summary><p>Так безопаснее: строку можно спокойно передавать куда угодно — её никто не испортит. А ещё одинаковые строки-литералы Java хранит один раз, в пуле строк, и может раздавать всем одну и ту же: раз строку нельзя изменить, это безопасно.</p></details>
+    <details class="cheat-qa"><summary>String, StringBuilder и StringBuffer — в чём разница?</summary><p><code>String</code> неизменяем. <code>StringBuilder</code> — изменяемая строка, быстрая для склеек. <code>StringBuffer</code> — то же, но потокобезопасный и медленнее; сейчас почти не нужен.</p></details>
+    <details class="cheat-qa"><summary>Задача: развернуть строку / проверить палиндром</summary><p><code>new StringBuilder(s).reverse().toString()</code> или цикл с конца строки. Палиндром — строка равна своей развёрнутой версии.</p></details>
+    <details class="cheat-qa"><summary>Задача: посчитать гласные в строке</summary><p>Приведи строку к одному регистру (<code>toLowerCase()</code>), потом цикл по <code>s.charAt(i)</code> и проверка, есть ли символ в <code>"аеёиоуыэюя"</code> через <code>indexOf</code>. Без <code>toLowerCase()</code> заглавные гласные не посчитаются — частая ошибка.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m08/10-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m09" data-mod="m09">
+    <h2>Модуль 9 · Классы и объекты</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Класс — чертёж, объект — вещь по чертежу (<code>new</code>).</li>
+      <li>Конструктор задаёт начальное состояние; <code>this</code> — «этот объект».</li>
+      <li><code>static</code> — общее для класса, а не для каждого объекта.</li>
+      <li>Доступ: <code>private</code> → без модификатора (пакет) → <code>protected</code> → <code>public</code>.</li>
+      <li><code>record</code> — короткий класс для данных: конструктор, геттеры, <code>equals</code>, <code>toString</code> — сами.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем класс отличается от объекта?</summary><p>Класс — описание (какие поля и методы). Объект — конкретный экземпляр в памяти со своими значениями полей.</p></details>
+    <details class="cheat-qa"><summary>Что такое конструктор? Есть ли конструктор по умолчанию?</summary><p>Специальный блок кода с именем класса и без типа возврата, вызывается при <code>new</code>. Похож на метод, но методом не считается: не наследуется и не вызывается по имени — это любимая ловушка собеседований. Если не написать ни одного конструктора, компилятор добавит пустой. Напишешь свой с параметрами — пустой пропадёт.</p></details>
+    <details class="cheat-qa"><summary>Что такое static? Почему из static-метода нельзя обратиться к обычному полю?</summary><p><code>static</code>-поле или метод принадлежат классу, а не объекту. У static-метода нет <code>this</code>: непонятно, поле какого объекта брать.</p></details>
+    <details class="cheat-qa"><summary>Какие есть модификаторы доступа?</summary><p><code>private</code> — только внутри класса; без модификатора — внутри пакета; <code>protected</code> — пакет и наследники; <code>public</code> — всем.</p></details>
+    <details class="cheat-qa"><summary>Что такое record?</summary><p>Класс для неизменяемых данных: <code>record Point(int x, int y)</code>. Сам создаёт конструктор, методы <code>x()</code>, <code>y()</code>, <code>equals</code>, <code>hashCode</code>, <code>toString</code>.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m09/10-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m10" data-mod="m10">
+    <h2>Модуль 10 · ООП: инкапсуляция, наследование, полиморфизм</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Инкапсуляция — поля <code>private</code>, доступ через методы с проверками.</li>
+      <li>Наследование — <code>extends</code>; <code>super</code> — обращение к родителю. Класс наследует только один класс.</li>
+      <li>Полиморфизм — переменная типа родителя, а работает метод настоящего объекта.</li>
+      <li>Переопределил <code>equals</code> — переопредели и <code>hashCode</code>.</li>
+      <li>Композиция («имеет») часто лучше наследования («является»).</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Назови принципы ООП и приведи примеры.</summary><p>Инкапсуляция — данные спрятаны в <code>private</code>-полях, наружу только методы: у счёта нельзя напрямую присвоить баланс, только вызвать <code>deposit()</code>. Наследование — общий родитель <code>Account</code> с общими полями и методами, от него наследуются <code>DebitAccount</code> и <code>CreditAccount</code>. Полиморфизм — переменная типа <code>Account</code> может хранить ссылку на <code>CreditAccount</code>, и вызовется его версия метода. Абстракция — показываем главное, прячем детали: вызываем <code>transfer()</code> и не думаем о проверках внутри. Самый частый вопрос на собеседовании.</p></details>
+    <details class="cheat-qa"><summary>Чем перегрузка отличается от переопределения?</summary><p>Перегрузка (overload) — то же имя, другие параметры, в одном классе. Переопределение (override) — та же сигнатура в наследнике, своя реализация, пишут <code>@Override</code>.</p></details>
+    <details class="cheat-qa"><summary>Какой контракт у equals и hashCode?</summary><p>Если <code>a.equals(b)</code>, то <code>a.hashCode() == b.hashCode()</code>. Обратное не обязательно. Нарушишь — объект «потеряется» в <code>HashSet</code> и <code>HashMap</code>.</p></details>
+    <details class="cheat-qa"><summary>Что значит final у класса, метода, переменной?</summary><p>Класс — нельзя наследовать (так сделан <code>String</code>). Метод — нельзя переопределить. Переменная — нельзя присвоить второй раз.</p></details>
+    <details class="cheat-qa"><summary>Есть ли в Java множественное наследование?</summary><p>Классов — нет, только один <code>extends</code>. Интерфейсов можно реализовать сколько угодно (модуль 11).</p></details>
+    <details class="cheat-qa"><summary>Какие методы есть у Object?</summary><p>Главные: <code>toString</code>, <code>equals</code>, <code>hashCode</code>, <code>getClass</code>. Их наследует любой класс.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m10/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m11" data-mod="m11">
+    <h2>Модуль 11 · Интерфейсы, абстрактные классы, enum, record</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Абстрактный класс — недоделанный родитель: есть общий код, часть методов без тела.</li>
+      <li>Интерфейс — контракт «умеет делать». Класс может реализовать много интерфейсов.</li>
+      <li><code>default</code>-метод — метод с телом прямо в интерфейсе.</li>
+      <li><code>enum</code> — фиксированный набор значений; <code>Comparable</code> / <code>Comparator</code> — правила сортировки.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем абстрактный класс отличается от интерфейса?</summary><p>Абстрактный класс может хранить состояние (поля) и конструктор, наследуется только один. Интерфейс — контракт без состояния, реализовать можно несколько. «Является» — абстрактный класс, «умеет» — интерфейс.</p></details>
+    <details class="cheat-qa"><summary>Можно ли создать объект абстрактного класса?</summary><p>Нет, только объект наследника, который реализовал все абстрактные методы.</p></details>
+    <details class="cheat-qa"><summary>Что такое функциональный интерфейс?</summary><p>Интерфейс ровно с одним абстрактным методом: <code>Runnable</code>, <code>Comparator</code>. Его можно записать лямбдой (модуль 14).</p></details>
+    <details class="cheat-qa"><summary>Comparable или Comparator?</summary><p><code>Comparable</code> — «естественный» порядок внутри класса (<code>compareTo</code>). <code>Comparator</code> — внешнее правило, их может быть сколько угодно: по имени, по возрасту.</p></details>
+    <details class="cheat-qa"><summary>Зачем enum, если есть строки-константы?</summary><p>Компилятор не даст передать несуществующее значение, работают <code>switch</code> и <code>values()</code>. Опечатку в строке он не поймает.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m11/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m12" data-mod="m12">
+    <h2>Модуль 12 · Исключения</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Исключение — объект-сигнал о проблеме. Stack trace читаем сверху: тип, сообщение, строка твоего кода.</li>
+      <li><code>try / catch / finally</code>; ресурсы закрывает <code>try-with-resources</code>.</li>
+      <li>Checked (проверяемые) компилятор заставляет обработать или объявить <code>throws</code>. Unchecked (<code>RuntimeException</code>) — нет.</li>
+      <li><code>throw</code> — бросить исключение, <code>throws</code> — предупредить в объявлении метода.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Какая иерархия исключений?</summary><p><code>Throwable</code> → <code>Error</code> (беды JVM, не ловим) и <code>Exception</code>. Внутри <code>Exception</code> — <code>RuntimeException</code> (unchecked) и остальные (checked).</p></details>
+    <details class="cheat-qa"><summary>Чем checked отличается от unchecked?</summary><p>Checked (<code>IOException</code>) — компилятор требует <code>try/catch</code> или <code>throws</code>. Unchecked (<code>NullPointerException</code>, <code>IllegalArgumentException</code>) — обычно ошибка в коде, обрабатывать не заставляют.</p></details>
+    <details class="cheat-qa"><summary>Всегда ли выполняется finally?</summary><p>Почти всегда: и после <code>return</code>, и после исключения. Не выполнится, если JVM остановили (<code>System.exit</code>) или она упала.</p></details>
+    <details class="cheat-qa"><summary>Чем throw отличается от throws?</summary><p><code>throw new X()</code> — бросить исключение здесь и сейчас. <code>throws X</code> — пометка в объявлении метода: «может бросить X».</p></details>
+    <details class="cheat-qa"><summary>Какие исключения встречал?</summary><p><code>NullPointerException</code>, <code>ArrayIndexOutOfBoundsException</code>, <code>NumberFormatException</code>, <code>ArithmeticException</code>, <code>ClassCastException</code>, <code>IllegalArgumentException</code>.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m12/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m13" data-mod="m13">
+    <h2>Модуль 13 · Коллекции и generics</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li><code>List</code> — порядок и повторы, <code>Set</code> — только уникальные, <code>Map</code> — ключ → значение.</li>
+      <li>В <code>&lt;&gt;</code> только объекты: <code>List&lt;Integer&gt;</code>, не <code>List&lt;int&gt;</code>. Автоупаковка переводит туда-обратно сама.</li>
+      <li><code>HashSet</code> / <code>HashMap</code> опираются на <code>hashCode</code> и <code>equals</code>.</li>
+      <li>Удалять из списка во время for-each нельзя → <code>removeIf</code> или <code>Iterator.remove()</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Какая иерархия коллекций?</summary><p><code>Collection</code> → <code>List</code>, <code>Set</code>, <code>Queue</code>. <code>Map</code> — отдельно, не наследник <code>Collection</code>.</p></details>
+    <details class="cheat-qa"><summary>ArrayList или LinkedList?</summary><p><code>ArrayList</code> — массив внутри: быстрый доступ по индексу, его берут почти всегда. <code>LinkedList</code> — цепочка узлов: быстрое добавление в начало, но медленный доступ по индексу.</p></details>
+    <details class="cheat-qa"><summary>Как устроен HashMap (коротко)?</summary><p>По <code>hashCode</code> ключа выбирается «корзина», внутри корзины ключ ищется через <code>equals</code>. Поэтому у ключа должны быть правильно переопределены оба метода. Ключи уникальны, порядок не гарантирован.</p></details>
+    <details class="cheat-qa"><summary>HashSet, LinkedHashSet, TreeSet — в чём разница?</summary><p><code>HashSet</code> — без порядка, самый быстрый. <code>LinkedHashSet</code> — помнит порядок добавления. <code>TreeSet</code> — хранит отсортированными.</p></details>
+    <details class="cheat-qa"><summary>Почему Integer a = 128, b = 128; a == b даёт false?</summary><p><code>==</code> сравнивает ссылки. Числа от -128 до 127 Java кэширует (один объект), 128 — уже разные объекты. Обёртки сравнивают через <code>equals</code>.</p></details>
+    <details class="cheat-qa"><summary>Что будет, если удалять элементы в for-each?</summary><p>Как правило — <code>ConcurrentModificationException</code>. Но не всегда: если удалить предпоследний элемент, цикл просто тихо закончится и последний элемент не проверится — это тоже ловушка. Правильно — <code>list.removeIf(x -&gt; …)</code> или <code>iterator.remove()</code>.</p></details>
+    <details class="cheat-qa"><summary>Чем HashMap отличается от Hashtable?</summary><p>Hashtable — устаревший класс из Java 1.0: все методы синхронизированы (медленнее), <code>null</code> нельзя ни в ключ, ни в значение. HashMap не синхронизирован и допускает один null-ключ. Для нескольких потоков вместо Hashtable берут <code>ConcurrentHashMap</code>.</p></details>
+    <details class="cheat-qa"><summary>Почему не Vector и не Stack?</summary><p>Оба — наследие Java 1.0 с лишней синхронизацией. Вместо Vector — <code>ArrayList</code>, вместо Stack — <code>ArrayDeque</code> через интерфейс <code>Deque</code> (те же push, pop, peek).</p></details>
+    <details class="cheat-qa"><summary>Чем List.of отличается от Arrays.asList и new ArrayList?</summary><p><code>List.of</code> — неизменяемый список без null: add и set бросают <code>UnsupportedOperationException</code>. <code>Arrays.asList</code> — фиксированного размера: set можно, add и remove нельзя. <code>new ArrayList&lt;&gt;(…)</code> — обычный изменяемый список.</p></details>
+    <details class="cheat-qa"><summary>Что такое O(1), O(log n), O(n)?</summary><p>Как растёт время операции с ростом числа элементов. O(1) — не зависит от размера (get у ArrayList, contains у HashSet). O(log n) — растёт очень медленно (TreeSet, TreeMap). O(n) — растёт вместе с размером (contains у List).</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m13/11-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m14" data-mod="m14">
+    <h2>Модуль 14 · Лямбды и Stream API</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Лямбда — короткая запись функционального интерфейса: <code>x -&gt; x * 2</code>.</li>
+      <li>Стрим — конвейер: источник → промежуточные операции (<code>filter</code>, <code>map</code>, <code>sorted</code>) → терминальная (<code>toList</code>, <code>count</code>, <code>collect</code>).</li>
+      <li>Без терминальной операции стрим ничего не делает. Повторно использовать стрим нельзя.</li>
+      <li><code>Optional</code> — «может быть пусто» вместо <code>null</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Что такое лямбда?</summary><p>Анонимная функция: реализация единственного метода функционального интерфейса в одну строку. <code>list.forEach(s -&gt; System.out.println(s))</code>.</p></details>
+    <details class="cheat-qa"><summary>Промежуточные и терминальные операции — в чём разница?</summary><p>Промежуточные (<code>filter</code>, <code>map</code>) возвращают новый стрим и ленивы. Терминальные (<code>collect</code>, <code>count</code>, <code>forEach</code>) запускают конвейер и дают результат.</p></details>
+    <details class="cheat-qa"><summary>Чем map отличается от filter?</summary><p><code>filter</code> оставляет элементы по условию. <code>map</code> превращает каждый элемент во что-то другое (строку — в её длину).</p></details>
+    <details class="cheat-qa"><summary>Зачем Optional?</summary><p>Явно показать, что результата может не быть, и не ловить <code>NullPointerException</code>: <code>findFirst().orElse("нет")</code>.</p></details>
+    <details class="cheat-qa"><summary>Назови функциональные интерфейсы из java.util.function</summary><p><code>Predicate</code> (проверка → boolean), <code>Function</code> (из одного в другое), <code>Consumer</code> (принять и сделать), <code>Supplier</code> (выдать значение).</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m14/10-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m15" data-mod="m15">
+    <h2>Модуль 15 · Файлы и ввод-вывод</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Путь к файлу — <code>Path.of("data", "a.txt")</code>; операции — класс <code>Files</code>.</li>
+      <li><code>Files.readAllLines</code> / <code>Files.readString</code> — прочитать, <code>Files.writeString</code> — записать.</li>
+      <li>Потоки (стримы ввода-вывода) закрывают через <code>try-with-resources</code>.</li>
+      <li>Кодировку указывают явно — UTF-8. Относительный путь считается от рабочей папки.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем абсолютный путь отличается от относительного?</summary><p>Абсолютный — от корня диска (<code>C:\data\a.txt</code>). Относительный — от рабочей папки программы (<code>data/a.txt</code>); в IDEA это обычно корень проекта.</p></details>
+    <details class="cheat-qa"><summary>Зачем try-with-resources?</summary><p>Сам закрывает файл или поток в конце блока, даже при исключении. Незакрытые файлы — утечка ресурсов и «занятые» файлы.</p></details>
+    <details class="cheat-qa"><summary>Байтовые и символьные потоки — в чём разница?</summary><p>Байтовые (<code>InputStream</code>) читают сырые байты: картинки, архивы. Символьные (<code>Reader</code>) — текст, с учётом кодировки.</p></details>
+    <details class="cheat-qa"><summary>Где в тестах хранить тестовые данные и настройки?</summary><p>В <code>src/test/resources</code>: файлы <code>.properties</code>, <code>.json</code>, <code>.csv</code>. Адрес стенда и логины — в настройках, не в коде.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m15/08-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m16" data-mod="m16">
+    <h2>Модуль 16 · Многопоточность: основы</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Поток — отдельная линия выполнения. Запуск — <code>start()</code>, не <code>run()</code>.</li>
+      <li>Гонка данных — потоки одновременно меняют общее поле. Лечится <code>synchronized</code> или атомиками.</li>
+      <li>Пул потоков — <code>ExecutorService</code>; результат — <code>Future</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем start() отличается от run()?</summary><p><code>start()</code> создаёт новый поток, и <code>run()</code> выполняется в нём. Прямой вызов <code>run()</code> — обычный метод в текущем потоке, без параллельности.</p></details>
+    <details class="cheat-qa"><summary>Что такое гонка данных и как её избежать?</summary><p>Два потока читают и пишут одно поле, результат зависит от случайности. Решения: <code>synchronized</code>, <code>AtomicInteger</code>, потокобезопасные коллекции, а лучше — не делить данные между потоками.</p></details>
+    <details class="cheat-qa"><summary>Что такое deadlock?</summary><p>Взаимная блокировка: поток A держит замок 1 и ждёт 2, поток B держит 2 и ждёт 1. Оба ждут вечно.</p></details>
+    <details class="cheat-qa"><summary>Что делает volatile?</summary><p>Гарантирует, что все потоки видят свежее значение переменной. Атомарность <code>count++</code> он не даёт.</p></details>
+    <details class="cheat-qa"><summary>Почему многопоточная программа иногда даёт разный результат?</summary><p>Потоки делят общие данные: общие <code>static</code>-поля, одна коллекция на всех. Порядок их работы каждый раз разный — отсюда «случайные» ошибки. Лечится так: каждому потоку свои данные, а общее — через <code>synchronized</code>, атомики или потокобезопасные коллекции.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m16/07-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m17" data-mod="m17">
+    <h2>Модуль 17 · Инструменты разработчика</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Отладчик: точка останова, шаги <code>F8</code> / <code>F7</code>, значения переменных на паузе.</li>
+      <li>Git: <code>commit</code> — сохранить у себя, <code>push</code> — отправить, <code>pull</code> — забрать. Работа — в своей ветке.</li>
+      <li>Gradle (<code>build.gradle.kts</code>) скачивает зависимости и запускает тесты: <code>gradlew test</code>.</li>
+      <li>JUnit 5: <code>@Test</code>, <code>@BeforeEach</code>, <code>@ParameterizedTest</code>; проверки — <code>assertEquals</code> / AssertJ <code>assertThat</code>.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
+    <details class="cheat-qa"><summary>Чем git fetch отличается от git pull?</summary><p><code>fetch</code> только скачивает чужие изменения, не трогая твою ветку. <code>pull</code> = <code>fetch</code> + влить их в твою ветку.</p></details>
+    <details class="cheat-qa"><summary>Что такое merge conflict и как его решать?</summary><p>Два человека поменяли одни и те же строки. Git не знает, что оставить: открываешь файл (в IDEA — окно Merge), выбираешь или совмещаешь правки, коммитишь.</p></details>
+    <details class="cheat-qa"><summary>Maven или Gradle? Что такое зависимость?</summary><p>Оба — сборщики: скачивают библиотеки (зависимости), компилируют, запускают тесты. Зависимость — чужая библиотека (например, JUnit), которую сборщик подтягивает по имени и версии. У Gradle настройки — скрипт на Kotlin (<code>build.gradle.kts</code>) или Groovy (<code>build.gradle</code>), у Maven — XML (<code>pom.xml</code>).</p></details>
+    <details class="cheat-qa"><summary>Какие аннотации JUnit 5 знаешь?</summary><p><code>@Test</code>, <code>@BeforeEach</code> / <code>@AfterEach</code> (до и после каждого теста), <code>@BeforeAll</code> / <code>@AfterAll</code> (один раз на класс), <code>@DisplayName</code>, <code>@Disabled</code>, <code>@ParameterizedTest</code> + <code>@ValueSource</code> / <code>@CsvSource</code>.</p></details>
+    <details class="cheat-qa"><summary>Чем assertEquals отличается от assertThat (AssertJ)?</summary><p>Оба проверяют. AssertJ читается как фраза (<code>assertThat(list).hasSize(3).contains("a")</code>) и даёт понятные сообщения при падении.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m17/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step" id="keys">
+    <h2>Горячие клавиши IntelliJ IDEA</h2>
+    <p>Сочетания для Windows. На macOS многие сочетания другие (не просто Ctrl → Cmd): точная таблица — в IDEA, меню <b>Help → Keyboard Shortcuts PDF</b>. Номер в колонке «Урок» — где клавиша объясняется, по нему можно перейти.</p>
+      <h3>Шаблоны кода (набери и нажми Tab)</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Клавиши</th><th>Что делает</th><th>Урок</th></tr>
+        <tr><td><code>psvm</code></td><td>метод main (то же — <code>main</code> + Tab)</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><code>sout</code></td><td>System.out.println()</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><code>soutv</code></td><td>печать переменной с именем: <code>age = 20</code></td><td><a href="/lessons/m02/01-variables.html" title="Переменные: коробки с ярлыками">2.1</a></td></tr>
+        <tr><td><code>souf</code></td><td>System.out.printf()</td><td><a href="/lessons/m08/06-format.html" title="Форматирование: printf и text blocks">8.6</a></td></tr>
+        <tr><td><code>serr</code></td><td>System.err.println() — красный вывод ошибок</td><td><a href="/lessons/m12/03-try-catch.html" title="try/catch: поймать и обработать">12.3</a></td></tr>
+        <tr><td><code>fori</code></td><td>цикл for с индексом</td><td><a href="/lessons/m06/02-traversal.html" title="Обход массива: for и for-each">6.2</a></td></tr>
+        <tr><td><code>iter</code></td><td>цикл for-each по массиву или списку</td><td><a href="/lessons/m06/02-traversal.html" title="Обход массива: for и for-each">6.2</a></td></tr>
+        <tr><td><code>itar</code></td><td>цикл по массиву с индексом</td><td><a href="/lessons/m06/02-traversal.html" title="Обход массива: for и for-each">6.2</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>J</kbd></td><td>список всех шаблонов</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
+      </table></div>
+      <h3>Править код</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Клавиши</th><th>Что делает</th><th>Урок</th></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>быстрое исправление: импорт, создать метод, починить ошибку</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Space</kbd></td><td>подсказка: чем можно закончить слово</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>какие параметры ждёт метод (курсор внутри скобок)</td><td><a href="/lessons/m08/01-string-object.html" title="String — это объект, и он не меняется">8.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>/</kbd></td><td>закомментировать / раскомментировать строку</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>дублировать строку</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>удалить строку</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>отменить</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>вернуть отменённое</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd></td><td>выровнять код (форматирование)</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td><td>убрать лишние import</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F6</kbd></td><td>переименовать везде сразу</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd></td><td>вынести выражение в переменную</td><td><a href="/lessons/m08/01-string-object.html" title="String — это объект, и он не меняется">8.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd></td><td>обернуть выделенное в try/catch, if, цикл</td><td><a href="/lessons/m12/03-try-catch.html" title="try/catch: поймать и обработать">12.3</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Insert</kbd></td><td>сгенерировать конструктор, геттеры, toString, equals/hashCode</td><td><a href="/lessons/m09/01-class-object.html" title="От чертежа к коду: класс и объект">9.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>переопределить метод родителя (Override Methods)</td><td><a href="/lessons/m10/03-overriding.html" title="Переопределение методов и final">10.3</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>I</kbd></td><td>реализовать методы интерфейса (Implement Methods)</td><td><a href="/lessons/m11/01-abstract-classes.html" title="Абстрактные классы">11.1</a></td></tr>
+      </table></div>
+      <h3>Ходить по коду и проекту</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Клавиши</th><th>Что делает</th><th>Урок</th></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>1</kbd></td><td>показать / спрятать панель Project</td><td><a href="/lessons/m09/06-println-under-the-hood.html" title="Что под капотом у System.out.println">9.6</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>B</kbd></td><td>перейти к объявлению (то же — клик с Ctrl)</td><td><a href="/lessons/m07/03-call-stack.html" title="Стек вызовов">7.3</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd></td><td>назад, туда, откуда прыгнул. На некоторых ноутбуках это сочетание поворачивает экран — тогда отключи его в настройках видеокарты или используй кнопку «назад» мыши</td><td><a href="/lessons/m07/03-call-stack.html" title="Стек вызовов">7.3</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>→</kbd></td><td>вперёд по своим следам</td><td><a href="/lessons/m09/06-println-under-the-hood.html" title="Что под капотом у System.out.println">9.6</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>G</kbd></td><td>перейти к строке по номеру — удобно со stack trace</td><td><a href="/lessons/m01/08-errors.html" title="Ошибки — твои друзья">1.7</a></td></tr>
+        <tr><td><kbd>F2</kbd></td><td>к следующей ошибке в файле</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>недавние файлы</td><td><a href="/lessons/m09/01-class-object.html" title="От чертежа к коду: класс и объект">9.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>найти класс по имени</td><td><a href="/lessons/m09/06-println-under-the-hood.html" title="Что под капотом у System.out.println">9.6</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F12</kbd></td><td>структура файла: все поля и методы</td><td><a href="/lessons/m09/06-println-under-the-hood.html" title="Что под капотом у System.out.println">9.6</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>документация по слову под курсором</td><td><a href="/lessons/m08/01-string-object.html" title="String — это объект, и он не меняется">8.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>H</kbd></td><td>иерархия класса: от кого он произошёл</td><td><a href="/lessons/m09/06-println-under-the-hood.html" title="Что под капотом у System.out.println">9.6</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd></td><td>к реализации метода</td><td><a href="/lessons/m10/03-overriding.html" title="Переопределение методов и final">10.3</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>U</kbd></td><td>к методу родителя, который переопределяешь</td><td><a href="/lessons/m10/03-overriding.html" title="Переопределение методов и final">10.3</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></td><td>от класса к его тесту и обратно (или создать тест)</td><td><a href="/lessons/m17/05-junit.html" title="Тестирование и JUnit 5">17.5</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></td><td>скопировать полный путь к файлу</td><td><a href="/lessons/m15/01-paths.html" title="Файлы и пути">15.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd></td><td>перечитать файлы с диска (показать новые файлы)</td><td><a href="/lessons/m15/01-paths.html" title="Файлы и пути">15.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Project Structure: JDK проекта</td><td><a href="/lessons/m00/03-setup.html" title="Подготовка: ставим всё с нуля">0.3</a></td></tr>
+      </table></div>
+      <h3>Запуск и отладка</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Клавиши</th><th>Что делает</th><th>Урок</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd></td><td>запустить открытый файл</td><td><a href="/lessons/m01/03-setup-idea.html" title="IntelliJ IDEA: твой проект и окно">1.3</a></td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F10</kbd></td><td>запустить выбранную вверху конфигурацию (обычно — последний запуск)</td><td><a href="/lessons/m01/03-setup-idea.html" title="IntelliJ IDEA: твой проект и окно">1.3</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F2</kbd></td><td>остановить программу</td><td><a href="/lessons/m05/01-while.html" title="Зачем циклы. Цикл while">5.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F8</kbd></td><td>поставить / убрать точку останова</td><td><a href="/lessons/m05/07-loop-mistakes.html" title="Типичные ошибки в циклах">5.7</a></td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F9</kbd></td><td>запуск в отладке (Debug)</td><td><a href="/lessons/m05/07-loop-mistakes.html" title="Типичные ошибки в циклах">5.7</a></td></tr>
+        <tr><td><kbd>F8</kbd></td><td>шаг через строку (Step Over)</td><td><a href="/lessons/m05/07-loop-mistakes.html" title="Типичные ошибки в циклах">5.7</a></td></tr>
+        <tr><td><kbd>F7</kbd></td><td>шаг внутрь метода (Step Into)</td><td><a href="/lessons/m07/03-call-stack.html" title="Стек вызовов">7.3</a></td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F7</kbd></td><td>выбрать, в какой из методов строки зайти (Smart Step Into)</td><td><a href="/lessons/m07/03-call-stack.html" title="Стек вызовов">7.3</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd></td><td>зайти даже в метод JDK (Force Step Into)</td><td><a href="/lessons/m07/03-call-stack.html" title="Стек вызовов">7.3</a></td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F8</kbd></td><td>выйти из метода (Step Out)</td><td><a href="/lessons/m07/03-call-stack.html" title="Стек вызовов">7.3</a></td></tr>
+        <tr><td><kbd>F9</kbd></td><td>бежать до следующей точки останова (Resume)</td><td><a href="/lessons/m05/07-loop-mistakes.html" title="Типичные ошибки в циклах">5.7</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>F9</kbd></td><td>бежать до строки с курсором (Run to Cursor)</td><td><a href="/lessons/m17/01-debugger.html" title="Отладчик IntelliJ IDEA">17.1</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>F8</kbd></td><td>вычислить выражение во время паузы</td><td><a href="/lessons/m17/01-debugger.html" title="Отладчик IntelliJ IDEA">17.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F8</kbd></td><td>все точки останова, остановка на исключении</td><td><a href="/lessons/m17/01-debugger.html" title="Отладчик IntelliJ IDEA">17.1</a></td></tr>
+      </table></div>
+      <h3>Git, терминал, сборка</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Клавиши</th><th>Что делает</th><th>Урок</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>коммит</td><td><a href="/lessons/m01/95-minibank.html" title="★ МиниБанк: открываем банк">1.9</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>0</kbd></td><td>окно Commit: что изменено</td><td><a href="/lessons/m17/02-git-basics.html" title="Git: машина времени для кода">17.2</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd></td><td>push — отправить коммиты на сервер</td><td><a href="/lessons/m17/03-git-team.html" title="Git в команде: push, pull, конфликты">17.3</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>pull — забрать чужие изменения (Update Project)</td><td><a href="/lessons/m17/03-git-team.html" title="Git в команде: push, pull, конфликты">17.3</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>9</kbd></td><td>окно Git: история коммитов</td><td><a href="/lessons/m01/95-minibank.html" title="★ МиниБанк: открываем банк">1.9</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd></td><td>откатить несохранённые правки (Rollback)</td><td><a href="/lessons/m01/95-minibank.html" title="★ МиниБанк: открываем банк">1.9</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>`</kbd></td><td>ветки: список и новая ветка</td><td><a href="/lessons/m17/02-git-basics.html" title="Git: машина времени для кода">17.2</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>`</kbd></td><td>все действия Git в одном меню (VCS Operations)</td><td><a href="/lessons/m17/02-git-basics.html" title="Git: машина времени для кода">17.2</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>F12</kbd></td><td>терминал внутри IDEA</td><td><a href="/lessons/m17/02-git-basics.html" title="Git: машина времени для кода">17.2</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></td><td>подтянуть изменения build.gradle.kts (Load Gradle Changes)</td><td><a href="/lessons/m17/04-gradle.html" title="Сборка проекта: Gradle">17.4</a></td></tr>
+      </table></div>
+    <p class="cheat-more"><a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step" id="reading">
+    <h2>Как читать код вслух</h2>
+    <p>Так говорят программисты на код-ревью и собеседованиях. Подробно — в уроке модуля 2 «Как читать код: правильные слова» и в тренажёрах «Читаем код» в каждом модуле.</p>
+    <div class="table-wrap"><table>
+        <tr><th>Код</th><th>Как читать</th><th>Модуль</th></tr>
+        <tr><td><code>int count;</code></td><td><b>объявление</b> переменной <code>count</code> типа <code>int</code></td><td>2</td></tr>
+        <tr><td><code>int count = 3;</code></td><td>объявляем <code>count</code> и <b>инициализируем</b> значением 3</td><td>2</td></tr>
+        <tr><td><code>count = 5;</code></td><td><b>присваиваем</b> переменной <code>count</code> значение 5</td><td>2</td></tr>
+        <tr><td><code>total = price * n;</code></td><td>вычисляется <b>выражение</b> <code>price * n</code>, результат присваивается <code>total</code></td><td>2</td></tr>
+        <tr><td><code>50, 4.5, "Аня", 'A', true</code></td><td><b>литералы</b> — значения прямо в коде</td><td>2</td></tr>
+        <tr><td><code>a + b</code></td><td><b>оператор</b> <code>+</code> и <b>операнды</b> <code>a</code>, <code>b</code></td><td>3</td></tr>
+        <tr><td><code>if (x &gt; 0) { … } else { … }</code></td><td>проверяется <b>условие</b> <code>x &gt; 0</code>; истинно — выполняется <b>тело</b> if, иначе — <b>ветка</b> else</td><td>4</td></tr>
+        <tr><td><code>for (int i = 0; i &lt; n; i++) { … }</code></td><td><b>заголовок</b> цикла: инициализация счётчика, условие, шаг; в скобках — <b>тело</b>; один проход — <b>итерация</b></td><td>5</td></tr>
+        <tr><td><code>int[] a = new int[5];</code></td><td>объявляем ссылку на массив и инициализируем <b>новым массивом</b> из 5 элементов</td><td>6</td></tr>
+        <tr><td><code>a[0] = 7;</code></td><td>присваиваем <b>элементу</b> с <b>индексом</b> 0 значение 7</td><td>6</td></tr>
+        <tr><td><code>static int sum(int a, int b) { … }</code></td><td><b>объявление метода</b>: <b>параметры</b> <code>a</code>, <code>b</code>, <b>тип возвращаемого значения</b> <code>int</code></td><td>7</td></tr>
+        <tr><td><code>int s = sum(2, 3);</code></td><td><b>вызываем метод</b> <code>sum</code> с <b>аргументами</b> 2 и 3; <b>возвращённое значение</b> инициализирует <code>s</code></td><td>7</td></tr>
+        <tr><td><code>name.toUpperCase()</code></td><td>вызываем метод у объекта <code>name</code>; он возвращает новую строку</td><td>8</td></tr>
+        <tr><td><code>Cat c = new Cat("Барсик");</code></td><td><b>создаём объект</b> (экземпляр) класса <code>Cat</code>, вызывается <b>конструктор</b>; <code>c</code> хранит <b>ссылку</b></td><td>9</td></tr>
+        <tr><td><code>this.name = name;</code></td><td><b>полю</b> <code>name</code> присваивается значение <b>параметра</b> <code>name</code></td><td>9</td></tr>
+        <tr><td><code>class Dog extends Animal</code></td><td>класс <code>Dog</code> <b>наследует</b> класс <code>Animal</code></td><td>10</td></tr>
+        <tr><td><code>throw new IllegalArgumentException(…)</code></td><td>создаём объект исключения и <b>выбрасываем</b> его</td><td>12</td></tr>
+        <tr><td><code>catch (IOException e) { … }</code></td><td><b>перехватываем</b> исключение типа <code>IOException</code></td><td>12</td></tr>
+        <tr><td><code>List&lt;String&gt; names = new ArrayList&lt;&gt;();</code></td><td>объявляем переменную типа интерфейса <code>List</code> с <b>параметром типа</b> <code>String</code> и инициализируем объектом <code>ArrayList</code></td><td>13</td></tr>
+        <tr><td><code>x -&gt; x * 2</code></td><td><b>лямбда-выражение</b>: параметр <code>x</code>, тело <code>x * 2</code></td><td>14</td></tr>
+        <tr><td><code>@Test void login() { … }</code></td><td><b>аннотация</b> <code>@Test</code> помечает метод как <b>тестовый</b></td><td>17</td></tr>
+    </table></div>
+    <p class="cheat-more"><a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step" id="abbr">
+    <h2>Сокращения и термины</h2>
+    <p>Встречаются в уроках, вакансиях и на собеседованиях. Номер урока — где сокращение появилось в курсе.</p>
+    <div class="table-wrap"><table>
+        <tr><th>Сокращение</th><th>Расшифровка</th><th>По-простому</th><th>Урок</th></tr>
+        <tr><td><b>JDK</b></td><td>Java Development Kit</td><td>набор программиста: компилятор javac, JVM, библиотеки. Нужен, чтобы писать на Java</td><td><a href="/lessons/m00/03-setup.html" title="Подготовка: ставим всё с нуля">0.3</a></td></tr>
+        <tr><td><b>JRE</b></td><td>Java Runtime Environment</td><td>JVM + библиотеки — хватит, чтобы только запускать. С Java 11 отдельно почти не поставляется</td><td><a href="/lessons/m01/02-how-java-works.html" title="Как Java запускает программу">1.2</a></td></tr>
+        <tr><td><b>JVM</b></td><td>Java Virtual Machine</td><td>виртуальная машина, которая выполняет байт-код из .class-файлов</td><td><a href="/lessons/m00/01-how-it-works.html" title="Как устроен этот курс">0.1</a></td></tr>
+        <tr><td><b>IDE</b></td><td>Integrated Development Environment</td><td>среда разработки: редактор, запуск, отладчик в одной программе. У нас — IntelliJ IDEA</td><td><a href="/lessons/m00/03-setup.html" title="Подготовка: ставим всё с нуля">0.3</a></td></tr>
+        <tr><td><b>SDK</b></td><td>Software Development Kit</td><td>набор для разработки; в IDEA так называют выбранный JDK (Project SDK)</td><td><a href="/lessons/m00/03-setup.html" title="Подготовка: ставим всё с нуля">0.3</a></td></tr>
+        <tr><td><b>ООП</b></td><td>объектно-ориентированное программирование</td><td>программа из объектов: инкапсуляция, наследование, полиморфизм, абстракция</td><td><a href="/lessons/m01/01-what-is-java.html" title="Что такое Java и где она живёт">1.1</a></td></tr>
+        <tr><td><b>API</b></td><td>Application Programming Interface</td><td>набор команд, через которые одна программа общается с другой: методы класса, адреса сервера</td><td><a href="/lessons/m13/11-summary.html" title="Итоги модуля и экзамен">13.13</a></td></tr>
+        <tr><td><b>JSON</b></td><td>JavaScript Object Notation</td><td>текстовый формат данных вида {"name": "Аня"} — так обычно отвечают серверы</td><td><a href="/lessons/m08/06-format.html" title="Форматирование: printf и text blocks">8.6</a></td></tr>
+        <tr><td><b>CSV</b></td><td>Comma-Separated Values</td><td>таблица в текстовом файле: значения через запятую, строка — запись</td><td><a href="/lessons/m15/06-csv-properties.html" title="Практика: CSV и properties">15.6</a></td></tr>
+        <tr><td><b>HTML</b></td><td>HyperText Markup Language</td><td>язык разметки веб-страниц: теги &lt;div&gt;, &lt;button&gt;…</td><td><a href="/lessons/m07/06-recursion.html" title="Рекурсия">7.6</a></td></tr>
+        <tr><td><b>DSL</b></td><td>Domain-Specific Language</td><td>мини-язык для одной задачи; build.gradle.kts написан на Kotlin DSL</td><td><a href="/lessons/m17/04-gradle.html" title="Сборка проекта: Gradle">17.4</a></td></tr>
+        <tr><td><b>CI</b></td><td>Continuous Integration</td><td>сервер, который сам собирает проект и гоняет тесты после каждого push</td><td><a href="/lessons/m17/03-git-team.html" title="Git в команде: push, pull, конфликты">17.3</a></td></tr>
+    </table></div>
+    <p class="cheat-more"><a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step">
+    <h2>Откуда вопросы</h2>
+    <p>Собраны по частым вопросам из подборок для Java junior и упрощены под этот курс:</p>
+    <ul>
+      <li><a href="https://thecode.media/voprosy-na-sobesedovanii-java/" target="_blank" rel="noopener">The Code: 50 вопросов на собеседовании Java junior и middle</a></li>
+      <li><a href="https://practicum.yandex.ru/blog/sobesedovanie-java-razrabotchika/" target="_blank" rel="noopener">Яндекс Практикум: собеседование Java-разработчика (2026)</a></li>
+      <li><a href="https://habr.com/ru/articles/529210/" target="_blank" rel="noopener">Хабр: шпаргалка к собеседованию Java-разработчика</a></li>
+      <li><a href="https://enigmai.ru/prep/backend-java/junior/" target="_blank" rel="noopener">Enigmai: вопросы Java junior по темам</a></li>
+    </ul>
+    <p class="cheat-more"><a href="#toc">↑ к оглавлению</a></p>
+  </section>
+</main>
+<script>
+// пройденные модули — ✓ в оглавлении; модули, где не прочитан ни один урок, — свёрнуты, чтобы не подсматривать ответы заранее
+document.addEventListener("jc:ready", () => {
+  const read = window.JC.readLessons();
+  for (const m of window.COURSE.modules) {
+    const done = m.lessons.filter((l) => read.has(l.id)).length;
+    const state = done === m.lessons.length ? "done" : done ? "now" : "future";
+    document.querySelectorAll('[data-mod="' + m.id + '"]').forEach((el) => el.classList.add("cheat-" + state));
+  }
+  document.querySelectorAll(".cheat-show").forEach((b) => b.addEventListener("click", () => b.closest(".cheat-mod").classList.remove("cheat-future")));
+  if (location.hash) { const t = document.querySelector(location.hash); if (t) { t.classList.remove("cheat-future"); t.scrollIntoView(); } }
+});
+</script>
+</body>
+</html>

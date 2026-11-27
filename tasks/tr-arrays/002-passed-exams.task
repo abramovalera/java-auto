@@ -1,0 +1,39 @@
+## id: tr-arrays-002
+## title: Сколько сдали экзамен
+## file: trainer/arrays/CountPassedExams.java
+## class: CountPassedExams
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>CountPassedExams</code>. Экзамен оценивают по 100-балльной шкале, сдал тот, кто набрал <b>60 и больше</b>. В первой строке — количество учеников <code>n</code>, во второй — <code>n</code> баллов через пробел. Напечатай <code>Сдали: K из N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       55 60 90 12 59 100
+вывод: Сдали: 3 из 6</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>for (int i = 0; i &lt; n; i++) { a[i] = scanner.nextInt(); }</code> — читает <code>n</code> чисел в массив</li>
+<li><code>count++</code> — инкремент: счётчик увеличивается на 1</li>
+</ul></div>
+@@ test: Класс
+@@ input
+6
+55 60 90 12 59 100
+@@ expect
+Сдали: 3 из 6
+@@ test: Ровно 60 — сдал
+@@ input
+1
+60
+@@ expect
+Сдали: 1 из 1
+@@ test: Все провалили
+@@ input
+3
+0 10 59
+@@ expect
+Сдали: 0 из 3
+@@ test: Никого нет
+@@ input
+0
+@@ expect
+Сдали: 0 из 0
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

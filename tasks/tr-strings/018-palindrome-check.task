@@ -1,0 +1,39 @@
+## id: tr-strings-018
+## title: Палиндром?
+## file: trainer/strings/PalindromeCheck.java
+## class: PalindromeCheck
+## level: 1
+## category: Переворот и палиндромы
+@@ description
+<p>Напиши класс <code>PalindromeCheck</code>. Программа читает одно слово и печатает <code>true</code>, если оно читается одинаково слева направо и справа налево, иначе <code>false</code>. Регистр учитывается: <code>Анна</code> — не палиндром, потому что <code>А</code> и <code>а</code> — разные символы.</p>
+<pre class="terminal"><span class="out">ввод:  шалаш    вывод: true
+ввод:  java     вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>new StringBuilder(s).reverse().toString()</code> — возвращает строку задом наперёд</li>
+<li><code>a.equals(b)</code> — сравнивает строки по содержимому (не <code>==</code>!)</li>
+</ul></div>
+@@ test: Палиндром
+@@ input
+шалаш
+@@ expect
+true
+@@ test: Не палиндром
+@@ input
+java
+@@ expect
+false
+@@ test: Одна буква
+@@ input
+а
+@@ expect
+true
+@@ test: Чётная длина
+@@ input
+abba
+@@ expect
+true
+@@ test: Разный регистр
+@@ input
+Анна
+@@ expect
+false

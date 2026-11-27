@@ -1,0 +1,42 @@
+## id: tr-methods-011
+## title: Сложится ли треугольник
+## file: trainer/methods/TriangleSidesCheck.java
+## class: TriangleSidesCheck
+## level: 1
+## category: Методы-проверки
+@@ description
+<p>У мальчика три палочки. Треугольник из них сложится, только если каждая палочка короче суммы двух других. Создай класс <code>TriangleSidesCheck</code> и напиши метод <code>static boolean isTriangle(int a, int b, int c)</code>.</p>
+<p>main читает три целых числа через пробел — длины палочек — и печатает <code>Треугольник построить можно</code> или <code>Треугольник построить нельзя</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3 4 5    вывод: Треугольник построить можно
+ввод:  1 2 3    вывод: Треугольник построить нельзя</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>&amp;&amp;</code> — «и»: выражение истинно, только если истинны обе части</li>
+<li>палочки 1, 2 и 3 сложатся в отрезок, а не в треугольник: «короче» — значит строго меньше</li>
+</ul></div>
+@@ test: Египетский треугольник
+@@ input
+3 4 5
+@@ expect
+Треугольник построить можно
+@@ test: Ровно сумма — не треугольник
+@@ input
+1 2 3
+@@ expect
+Треугольник построить нельзя
+@@ test: Длинная палочка первой
+@@ input
+5 1 1
+@@ expect
+Треугольник построить нельзя
+@@ test: Равносторонний
+@@ input
+7 7 7
+@@ expect
+Треугольник построить можно
+@@ test: Палочка нулевой длины
+@@ input
+0 4 4
+@@ expect
+Треугольник построить нельзя
+@@ require: static\s+boolean\s+isTriangle\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static boolean isTriangle(int a, int b, int c)
+@@ require: \WisTriangle\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать isTriangle(...) и передать три длины

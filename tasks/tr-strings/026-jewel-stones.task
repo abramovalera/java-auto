@@ -1,0 +1,42 @@
+## id: tr-strings-026
+## title: Драгоценные камни
+## file: trainer/strings/JewelStonesCount.java
+## class: JewelStonesCount
+## level: 1
+## category: Подсчёт символов
+@@ description
+<p>Напиши класс <code>JewelStonesCount</code>. Гном нашёл мешок камней. Каждый камень обозначен одним символом. Программа читает две строки: в первой — символы драгоценных камней, во второй — все камни из мешка (может быть пустой). Напечатай, сколько камней из мешка — драгоценные. Регистр важен: <code>a</code> и <code>A</code> — разные камни.</p>
+<pre class="terminal"><span class="out">ввод:  aA
+       aAAbbbb
+вывод: 3
+
+ввод:  z
+       ZZ
+вывод: 0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.indexOf(c)</code> — индекс символа <code>c</code> в строке или <code>-1</code>, если его там нет</li>
+</ul></div>
+@@ test: Пример
+@@ input
+aA
+aAAbbbb
+@@ expect
+3
+@@ test: Регистр важен
+@@ input
+z
+ZZ
+@@ expect
+0
+@@ test: Пустой мешок
+@@ input
+abc
+
+@@ expect
+0
+@@ test: Все драгоценные
+@@ input
+xyz
+zzyyx
+@@ expect
+5

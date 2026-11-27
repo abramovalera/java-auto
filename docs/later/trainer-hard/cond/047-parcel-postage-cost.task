@@ -1,0 +1,49 @@
+## id: tr-cond-047
+## title: Стоимость посылки
+## file: trainer/cond/ParcelPostageCost.java
+## class: ParcelPostageCost
+## level: 3
+## category: Деньги и тарифы
+@@ description
+<p>Напиши класс <code>ParcelPostageCost</code>. Почта считает доставку по весу посылки в килограммах:</p>
+<ul><li>до 1 кг включительно — 200 ₽;</li><li>больше 1 и до 5 кг включительно — 350 ₽;</li><li>больше 5 и до 20 кг включительно — 350 ₽ плюс 30 ₽ за каждый начатый килограмм сверх пяти (5.2 кг — это один начатый лишний килограмм);</li><li>тяжелее 20 кг — <code>Слишком тяжёлая посылка</code>;</li><li>вес 0 или меньше — <code>Неверный вес</code>.</li></ul>
+<p>Программа читает вес — дробное число — и печатает <code>Стоимость: N ₽</code> или одно из сообщений.</p>
+<pre class="terminal"><span class="out">ввод:  7
+вывод: Стоимость: 410 ₽
+
+ввод:  20.5
+вывод: Слишком тяжёлая посылка</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.ceil(x)</code> — округляет вверх до целого: <code>Math.ceil(0.2)</code> — это <code>1.0</code></li>
+<li><code>(int) x</code> — приведение <code>double</code> к <code>int</code></li>
+</ul></div>
+@@ test: Лёгкая посылка
+@@ input
+0.3
+@@ expect
+Стоимость: 200 ₽
+@@ test: Ровно 5 кг
+@@ input
+5
+@@ expect
+Стоимость: 350 ₽
+@@ test: 5.2 кг — начат лишний килограмм
+@@ input
+5.2
+@@ expect
+Стоимость: 380 ₽
+@@ test: 7 кг
+@@ input
+7
+@@ expect
+Стоимость: 410 ₽
+@@ test: Ровно 20 кг
+@@ input
+20
+@@ expect
+Стоимость: 800 ₽
+@@ test: Тяжелее 20 кг
+@@ input
+20.5
+@@ expect
+Слишком тяжёлая посылка

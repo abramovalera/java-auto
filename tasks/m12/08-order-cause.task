@@ -1,0 +1,60 @@
+## id: m12-t08
+## title: Исключение с причиной
+## file: module-12/OrderLineLoader.java
+## class: OrderLineLoader
+## level: 3
+@@ description
+<p>Низкоуровневое «For input string» мало что говорит человеку, который загружает заказ. Хорошая практика — поймать его и выбросить <b>своё</b> исключение с понятным сообщением, <b>сохранив исходное как причину</b> (cause). Так в stack trace появляется знакомое «Caused by».</p>
+<p>Сделай в файле <code>OrderLineLoader.java</code>:</p>
+<ul>
+  <li><code>class OrderLineRejectedException extends RuntimeException</code> с двумя конструкторами: <code>(String message)</code> и <code>(String message, Throwable cause)</code> — оба передают всё в <code>super</code>.</li>
+  <li>Метод <code>static int parseQuantity(String line, int lineNumber)</code>. Строка имеет вид <code>товар;количество</code>, количество — всё после <code>;</code> без пробелов по краям. Не число → поймай <code>NumberFormatException e</code> и выброси <code>new OrderLineRejectedException("строка 2: плохое количество", e)</code>. Число ≤ 0 → <code>OrderLineRejectedException("строка 3: количество должно быть больше нуля")</code> без причины.</li>
+  <li><code>main</code>: N, потом N строк. Суммируй количество хороших строк. На плохую печатай <code>Ошибка: </code> + сообщение, а если у исключения есть причина (<code>e.getCause() != null</code>) — ещё строку из двух пробелов, слова <code>причина: </code>, короткого имени класса причины и её сообщения.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод: 3          вывод: Ошибка: строка 2: плохое количество
+хлеб;2                    причина: NumberFormatException: For input string: "пять"
+молоко;пять             Всего товаров: 3, отклонено строк: 1
+сыр;1</span></pre>
+<p>Короткое имя класса любого объекта: <code>cause.getClass().getSimpleName()</code>. Сообщение <code>For input string: "пять"</code> придумала не ты — его пишет сам <code>Integer.parseInt</code>.</p>
+<p>📖 <a href="/lessons/m12/02-stack-trace.html">Caused by в stack trace</a> · <a href="/lessons/m12/07-good-practices.html">Хорошие практики: сохраняй причину</a></p>
+@@ test: Пример из условия
+@@ input
+3
+хлеб;2
+молоко;пять
+сыр;1
+@@ expect
+Ошибка: строка 2: плохое количество
+  причина: NumberFormatException: For input string: "пять"
+Всего товаров: 3, отклонено строк: 1
+@@ test: Ноль и минус — без причины
+@@ input
+3
+чай;0
+кофе; 4
+сок;-2
+@@ expect
+Ошибка: строка 1: количество должно быть больше нуля
+Ошибка: строка 3: количество должно быть больше нуля
+Всего товаров: 4, отклонено строк: 2
+@@ test: Пустое количество и слишком большое число
+@@ input
+2
+вода;
+хлеб;99999999999
+@@ expect
+Ошибка: строка 1: плохое количество
+  причина: NumberFormatException: For input string: ""
+Ошибка: строка 2: плохое количество
+  причина: NumberFormatException: For input string: "99999999999"
+Всего товаров: 0, отклонено строк: 2
+@@ test: Всё хорошо
+@@ input
+1
+яблоки;10
+@@ expect
+Всего товаров: 10, отклонено строк: 0
+@@ require: class\s+OrderLineRejectedException\s+extends\s+RuntimeException | Нужен класс OrderLineRejectedException extends RuntimeException
+@@ require: Throwable\s+\w+\s*\) | Нужен конструктор (String message, Throwable cause)
+@@ require: getCause\s*\( | Причину достают через e.getCause()
+@@ require: catch\s*\(\s*NumberFormatException | Поймай NumberFormatException и заверни его в своё исключение

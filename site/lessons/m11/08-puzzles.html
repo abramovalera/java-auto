@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: интерфейсы, enum, record · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 11 · Головоломки</div>
+    <h1>Что выведется? Скомпилируется ли?</h1>
+    <p class="lead">Абстрактные классы, интерфейсы, enum и record — любимая тема собеседований: тут много правил «можно / нельзя» и пара настоящих ловушек. Запускать нельзя — только думать.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — с подвохом</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Как решать</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 130" role="img" aria-label="Четыре вопроса к коду: кто тип переменной, кто объект, что разрешает компилятор, что произойдёт при запуске">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="20" width="158" height="96" rx="14" class="d-blue"/>
+        <text x="89" y="52" text-anchor="middle" class="d-title">① Тип слева</text>
+        <text x="89" y="78" text-anchor="middle" class="d-small">что видит</text>
+        <text x="89" y="96" text-anchor="middle" class="d-small">компилятор?</text>
+        <path d="M170 68 H190" class="d-arrow"/>
+        <rect x="194" y="20" width="158" height="96" rx="14" class="d-violet"/>
+        <text x="273" y="52" text-anchor="middle" class="d-title">② Объект</text>
+        <text x="273" y="78" text-anchor="middle" class="d-small">кто реально</text>
+        <text x="273" y="96" text-anchor="middle" class="d-small">лежит в памяти?</text>
+        <path d="M354 68 H374" class="d-arrow"/>
+        <rect x="378" y="20" width="158" height="96" rx="14" class="d-accent"/>
+        <text x="457" y="52" text-anchor="middle" class="d-title">③ Правила</text>
+        <text x="457" y="78" text-anchor="middle" class="d-small">abstract, public,</text>
+        <text x="457" y="96" text-anchor="middle" class="d-small">final, new?</text>
+        <path d="M538 68 H558" class="d-arrow"/>
+        <rect x="562" y="20" width="148" height="96" rx="14" class="d-green"/>
+        <text x="636" y="52" text-anchor="middle" class="d-title">④ Запуск</text>
+        <text x="636" y="78" text-anchor="middle" class="d-small">что напечатает</text>
+        <text x="636" y="96" text-anchor="middle" class="d-small">или где упадёт?</text>
+      </svg>
+      <figcaption>Компилятор смотрит на тип переменной, а при запуске вызывается метод того объекта, на который указывает ссылка. Половина ловушек — на разнице между ними.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Сначала ответь вслух и объясни «почему» — потом жми «Проверить». Не уверен — набери код в IDEA: так тоже честно.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+    <div data-widget="check" id="check-m11-pz-out">
+      <script type="application/json">
+      { "title": "Что выведется?", "icon": "🖨️",
+        "items": [
+          { "type": "predict", "q": "1. Общая часть и своя деталь",
+            "code": "abstract class Report {\n    String build() { return \"[\" + body() + \"]\"; }\n    abstract String body();\n}\nclass Brief extends Report {\n    String body() { return \"ok\"; }\n}\n\nReport r = new Brief();\nSystem.out.println(r.build() + r.body());",
+            "answer": "[ok]ok", "why": "build() унаследован от Report, но body() внутри вызывается переопределённый — из класса объекта Brief. Потом body() вызывается ещё раз напрямую." },
+          { "type": "predict", "q": "2. Номера констант",
+            "code": "enum Level { LOW, MEDIUM, HIGH }\n\nSystem.out.println(Level.HIGH.ordinal() + \" \" + Level.values()[0]);",
+            "answer": "2 LOW", "why": "ordinal считает с нуля: HIGH — третья, значит 2. values() — массив по порядку объявления, [0] — LOW." },
+          { "type": "predict", "q": "3. enum и ==",
+            "code": "enum Status { OK, FAIL }\n\nStatus a = Status.valueOf(\"OK\");\nStatus b = Status.OK;\nSystem.out.println(a == b);\nSystem.out.println(a.name().length());",
+            "answer": "true\n2", "why": "Каждая константа — единственный объект: valueOf вернул ссылку на тот же OK. name() — строка «OK», в ней 2 символа." },
+          { "type": "predict", "q": "4. Два одинаковых record",
+            "code": "record Point(int x, int y) { }\n\nPoint a = new Point(0, 5);\nPoint b = new Point(0, 5);\nSystem.out.println(a == b);\nSystem.out.println(a.equals(b));\nSystem.out.println(b);",
+            "answer": "false\ntrue\nPoint[x=0, y=5]", "why": "Два new — два объекта, == сравнивает ссылки. equals у record — по компонентам. toString сгенерирован." },
+          { "type": "predict", "q": "5. Вызов default из реализации",
+            "code": "interface Logger {\n    default String log(String m) { return \"LOG: \" + m; }\n}\nclass LoudLogger implements Logger {\n    public String log(String m) {\n        return Logger.super.log(m.toUpperCase()) + \"!\";\n    }\n}\n\nLogger l = new LoudLogger();\nSystem.out.println(l.log(\"привет\"));",
+            "answer": "LOG: ПРИВЕТ!", "why": "Вызывается переопределённый log из LoudLogger. Он передаёт строку большими буквами в версию по умолчанию через Logger.super и дописывает «!»." },
+          { "type": "predict", "q": "6. Компаратор наоборот",
+            "code": "Integer[] nums = { 3, 1, 2 };\nArrays.sort(nums, new Comparator<Integer>() {\n    public int compare(Integer a, Integer b) {\n        return Integer.compare(b, a);\n    }\n});\nSystem.out.println(nums[0] + \" \" + nums[2]);",
+            "answer": "3 1", "why": "Аргументы переставлены — сортировка по убыванию: 3, 2, 1. Первый элемент 3, последний 1. (Integer — «обёртка» над int, подробно в модуле 13.)" }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>★★★ Ловушка: конструктор абстрактного класса</h2>
+    <p>Эту задачку дают на собеседованиях уровня «выше джуна». Попробуй сначала сам: что напечатает <code>new Child()</code>?</p>
+<pre data-file="Trap.java"><code class="java">abstract class Base {
+    Base() {
+        System.out.println("Создаю: " + name());
+    }
+    abstract String name();
+}
+
+class Child extends Base {
+    private String n = "Ребёнок";
+
+    @Override
+    String name() {
+        return n;
+    }
+}
+
+new Child();</code></pre>
+    <details class="predict">
+      <summary>Подумал? Открой ответ</summary>
+      <p><code>Создаю: null</code>. Не «Ребёнок»! Разбери по шагам ниже, почему так.</p>
+    </details>
+    <div data-widget="trace" id="trace-ctor-trap">
+      <script type="application/json">
+      { "title": "Почему null?", "icon": "🪤",
+        "intro": "Главное правило: конструктор родителя выполняется ДО того, как инициализируются поля наследника.",
+        "code": "abstract class Base {\n    Base() {\n        System.out.println(\"Создаю: \" + name());\n    }\n    abstract String name();\n}\nclass Child extends Base {\n    private String n = \"Ребёнок\";\n    String name() { return n; }\n}\n// в main:\nnew Child();",
+        "steps": [
+          { "line": 12, "stack": [ { "frame": "main", "vars": {} } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "n": "null" } } ], "note": "Оператор new выделил память под объект Child. Все поля пока имеют значения по умолчанию: строка n — null." },
+          { "line": 2, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Base()", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "n": "null" } } ], "note": "Конструктор Child первым делом (неявно) вызывает super() — конструктор Base. Поле n ещё не заполнено!" },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Base()", "vars": { "this": "→#1" } }, { "frame": "name()", "vars": { "this.n": "null" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "n": "null" } } ], "ask": ["this.n"], "note": "Base вызывает name(). Объект — Child, поэтому работает переопределённая версия. Но она читает поле, которое ещё не инициализировано." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Base()", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "n": "null" } } ], "out": "Создаю: null\n", "note": "Склейка строки с null печатает слово null." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Child()", "vars": { "this": "→#1" } } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "n": "\"Ребёнок\"" } } ], "note": "Только после возврата из super() инициализируются поля Child: n = \"Ребёнок\". Поздно: строка уже напечатана." },
+          { "line": 12, "stack": [ { "frame": "main", "vars": {} } ], "heap": [ { "id": "#1", "label": "Child", "fields": { "n": "\"Ребёнок\"" } } ], "note": "Вывод: не вызывай из конструктора методы, которые наследник может переопределить." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Скомпилируется ли? Что при запуске?</h2>
+    <div data-widget="check" id="check-m11-pz-compile">
+      <script type="application/json">
+      { "title": "Скомпилируется? Запустится?", "icon": "🕵️",
+        "items": [
+          { "type": "single", "q": "7. Скомпилируется?",
+            "code": "abstract class Shape {\n    abstract double area();\n}\n\nShape s = new Shape();",
+            "options": ["Да, area() вернёт 0", "Нет: Shape is abstract; cannot be instantiated", "Скомпилируется, но упадёт при запуске"], "answer": 1,
+            "why": "Объект абстрактного класса создать нельзя — это проверяет компилятор, до запуска." },
+          { "type": "single", "q": "8. А это скомпилируется?",
+            "code": "interface Flyable { void fly(); }\n\nFlyable[] squad = new Flyable[3];\nSystem.out.println(squad[0]);",
+            "options": ["Нет: объект интерфейса создать нельзя", "Да, напечатает null", "Да, но упадёт с NullPointerException"], "answer": 1,
+            "why": "Создаётся массив из трёх ссылок, а не объекты интерфейса. Ссылки пустые — null. println(null) просто печатает null, вызова метода нет, падать нечему." },
+          { "type": "single", "q": "9. Скомпилируется?",
+            "code": "abstract class Animal {\n    abstract String voice() {\n        return \"...\";\n    }\n}",
+            "options": ["Да", "Нет: у абстрактного метода не может быть тела", "Нет: в абстрактном классе нельзя return"], "answer": 1,
+            "why": "abstract-метод — только заголовок и ;. Хочешь тело по умолчанию — убери abstract." },
+          { "type": "single", "q": "10. Скомпилируется?",
+            "code": "abstract class Animal {\n    abstract String voice();\n}\nclass Fish extends Animal {\n    String swim() { return \"плыву\"; }\n}",
+            "options": ["Да — рыбы молчат", "Нет: Fish не реализовал voice() и не объявлен abstract", "Да, voice() вернёт null"], "answer": 1,
+            "why": "Конкретный наследник обязан реализовать все абстрактные методы. Варианты: реализовать voice() или объявить Fish абстрактным." },
+          { "type": "single", "q": "11. Проблема ромба. Скомпилируется?",
+            "code": "interface Cat { default String sound() { return \"Мяу\"; } }\ninterface Dog { default String sound() { return \"Гав\"; } }\n\nclass CatDog implements Cat, Dog { }",
+            "options": ["Да, sound() вернёт «Мяу» — Cat записан первым", "Нет: CatDog наследует два разных default sound()", "Да, но sound() упадёт при вызове"], "answer": 1,
+            "why": "Java не выбирает за программиста. Надо переопределить sound() в CatDog и, например, вернуть Cat.super.sound()." },
+          { "type": "single", "q": "12. Скомпилируется?",
+            "code": "record Money(int amount) { }\n\nMoney m = new Money(100);\nm.amount = 200;",
+            "options": ["Да, теперь amount = 200", "Нет: поле private final — снаружи его не поменять", "Нет: у record нет поля amount, только метод"], "answer": 1,
+            "why": "У record есть поле amount, но оно private final. Изменить нельзя (и снаружи оно ещё и не видно). «Изменение» = new Money(200)." },
+          { "type": "single", "q": "13. Скомпилируется?",
+            "code": "interface Greeter { String hello(); }\n\nclass Ru implements Greeter {\n    String hello() { return \"Привет\"; }\n}",
+            "options": ["Да", "Нет: hello() в Ru должен быть public", "Нет: не хватает @Override"], "answer": 1,
+            "why": "Методы интерфейса public, а реализация без модификатора — package-private, то есть «закрытее». Ошибка: weaker access privileges. @Override не обязателен." },
+          { "type": "single", "q": "14. Скомпилируется, но что будет при запуске?",
+            "code": "enum Status { PASSED, FAILED }\n\nStatus s = Status.valueOf(\"passed\");\nSystem.out.println(s);",
+            "options": ["Напечатает PASSED — регистр не важен", "Напечатает null", "IllegalArgumentException: No enum constant Status.passed"], "answer": 2,
+            "why": "Компилятору всё равно, какая строка — проверка при запуске. valueOf ищет имя буква в букву и, не найдя, выбрасывает исключение. Сначала вызови у строки toUpperCase()." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Головоломки решаются быстрее, когда каждую строку читаешь правильными словами: «объявляем абстрактный метод», «класс реализует интерфейс», «переменная типа интерфейса хранит ссылку на объект». Выбери верное описание или собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m11-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 11", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке (внутри <code>abstract class Shape</code>)?", "code": "abstract double area();",
+            "options": ["Вызов метода <code>area()</code> у текущего объекта", "Объявление абстрактного метода <code>area()</code> — без тела", "Объявление поля <code>area</code> типа <code>double</code>, которое наследник обязан инициализировать", "Объявление локальной переменной <code>area</code>", "Переопределение метода <code>area()</code> родителя"],
+            "answer": 1, "why": "Есть тип возвращаемого значения и имя с круглыми скобками, но вместо тела — <code>;</code>, и стоит слово <code>abstract</code>. Это абстрактный метод: каждый конкретный наследник обязан его реализовать — переопределить с телом." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "class Bird extends Animal implements Flyable {",
+            "options": ["Класс <code>Bird</code> наследует интерфейс <code>Flyable</code> и реализует класс <code>Animal</code>", "Создание объекта <code>Bird</code> с аргументами <code>Animal</code> и <code>Flyable</code>", "Объявление интерфейса <code>Bird</code>, который расширяет <code>Animal</code> и <code>Flyable</code>", "Объявление класса <code>Bird</code>: он наследует <code>Animal</code> и реализует <code>Flyable</code>", "Класс <code>Bird</code> переопределяет конструкторы <code>Animal</code> и <code>Flyable</code>"],
+            "answer": 3, "why": "<code>extends</code> — наследование класса (родитель только один), <code>implements</code> — реализация интерфейса. Это объявление класса, никакой объект здесь не создаётся." },
+          { "type": "single", "q": "<code>Flyable</code> — интерфейс, <code>Plane</code> его реализует. Что происходит в строке?", "code": "Flyable f = new Plane();",
+            "options": ["Объявляем переменную <code>f</code> типа <code>Flyable</code> и инициализируем её ссылкой на новый объект <code>Plane</code>", "Создание объекта интерфейса <code>Flyable</code> оператором <code>new</code>", "Объявление класса <code>Plane</code>, реализующего <code>Flyable</code>", "Вызов метода <code>Plane()</code> у объекта <code>f</code>", "Приведение класса <code>Plane</code> к интерфейсу с созданием копии объекта"],
+            "answer": 0, "why": "Объект интерфейса создать нельзя: <code>new Plane()</code> создаёт объект класса <code>Plane</code> с вызовом конструктора. Переменная типа интерфейса хранит ссылку на него — через неё можно вызвать только методы интерфейса." },
+          { "type": "single", "q": "<code>TestStatus</code> — enum с константами <code>PASSED</code> и <code>FAILED</code>. Что происходит в строке?", "code": "TestStatus s = TestStatus.valueOf(\"FAILED\");",
+            "options": ["Создаём новый объект перечисления <code>FAILED</code> и присваиваем его <code>s</code>", "Объявляем константу перечисления <code>FAILED</code>", "Объявляем <code>s</code> и инициализируем её константой, которую вернул вызов статического метода <code>valueOf</code>", "Присваиваем переменной <code>s</code> строку <code>\"FAILED\"</code>", "Вызываем конструктор <code>TestStatus</code> с аргументом <code>\"FAILED\"</code>"],
+            "answer": 2, "why": "<code>valueOf</code> есть у каждого enum: по имени он возвращает ссылку на уже существующую константу. Новых объектов enum не создаётся, конструктор enum вызвать нельзя, а строку переменной типа <code>TestStatus</code> не присвоить." },
+          { "type": "single", "q": "В какой строке вызывается default-метод интерфейса?", "code": "interface Greeter {\n    default String hi() { return \"Привет\"; }\n}\nclass Ru implements Greeter { }\nGreeter g = new Ru();\nSystem.out.println(g.hi());",
+            "options": ["В строке 1", "В строке 2", "В строке 4", "В строке 5", "В строке 6"],
+            "answer": 4, "why": "Строка 2 — объявление default-метода с телом, строка 4 — объявление класса, который реализует интерфейс, строка 5 — создание объекта <code>Ru</code> и инициализация <code>g</code> ссылкой на него. Вызов <code>hi()</code> у объекта <code>g</code> — в строке 6: <code>Ru</code> метод не переопределил, поэтому вызывается default-версия из интерфейса." },
+          { "type": "build", "q": "Собери описание строки (<code>Shape</code> — абстрактный класс, <code>Circle</code> — его наследник)", "code": "Shape s = new Circle(2);",
+            "answer": ["объявляем переменную <code>s</code> типа <code>Shape</code>", "оператором <code>new</code> создаём объект <code>Circle</code>, вызывая конструктор с аргументом 2,", "и инициализируем <code>s</code> ссылкой на этот объект"],
+            "extra": ["создаём объект абстрактного класса <code>Shape</code>", "вызываем метод <code>Circle</code> у объекта <code>s</code>", "класс <code>Circle</code> реализует интерфейс <code>Shape</code>"] },
+          { "type": "build", "q": "Собери описание строки (<code>ByScoreDesc</code> реализует <code>Comparator&lt;Player&gt;</code>)", "code": "Arrays.sort(players, new ByScoreDesc());",
+            "answer": ["вызываем статический метод <code>sort</code> класса <code>Arrays</code>", "и передаём аргументами массив <code>players</code>", "и новый объект <code>ByScoreDesc</code> — компаратор,", "у которого <code>sort</code> сам вызывает <code>compare</code> (обратный вызов)"],
+            "extra": ["объявляем класс <code>ByScoreDesc</code>", "создаём объект интерфейса <code>Comparator</code>", "метод возвращает отсортированную копию массива"] },
+          { "type": "build", "q": "Собери описание строки", "code": "record Product(String name, int price) { }",
+            "answer": ["объявляем record <code>Product</code>", "с компонентами <code>name</code> и <code>price</code>;", "поля, канонический конструктор, методы доступа, <code>equals</code> и <code>toString</code> компилятор генерирует сам"],
+            "extra": ["создаём объект <code>Product</code>", "с сеттерами <code>setName</code> и <code>setPrice</code>", "и вызываем конструктор родителя через <code>super</code>"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Найди ошибки</h2>
+    <div data-widget="check" id="check-m11-pz-bugs">
+      <script type="application/json">
+      { "title": "Найди ошибки", "icon": "🐞",
+        "items": [
+          { "type": "bug", "q": "15. Тут две ошибки компиляции. Отметь обе строки",
+            "code": "interface Device {\n    void turnOn();\n}\nenum Color { RED, GREEN }\nrecord Lamp(Color color) implements Device {\n    public void turnOn() { System.out.println(color + \" горит\"); }\n}\nDevice d = new Device();\nColor c = new Color();\nLamp lamp = new Lamp(Color.RED);\nlamp.turnOn();",
+            "answer": [8, 9], "why": "Строка 8: объект интерфейса создать нельзя. Строка 9: объекты enum создаёт только Java. А record, реализующий интерфейс, — законно: строки 5–7 и 10–11 в порядке." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Ещё головоломок</span>
+      <p>Напиши наставнику: <em>«Дай мне 3 головоломки “скомпилируется ли?” по модулю 11 — я отвечу и объясню почему»</em>. Ошибся — попроси похожую через пару дней.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>new</code> нельзя: абстрактный класс, интерфейс, enum. Массив ссылок этих типов — можно.</li>
+        <li>abstract-метод — без тела; конкретный наследник обязан его реализовать.</li>
+        <li>Ромб из default-методов — ошибка компиляции, пока класс не переопределит метод сам (можно вызвать <code>X.super.m()</code>).</li>
+        <li>Константы enum сравниваются <code>==</code>; <code>valueOf</code> строг к регистру; <code>ordinal</code> — с нуля.</li>
+        <li>record: <code>equals</code> по данным, <code>==</code> по ссылкам, поля не меняются.</li>
+        <li>Не вызывай переопределяемые методы из конструктора родителя — поля наследника ещё не готовы.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,45 @@
+## id: tr-loops-029
+## title: Сколькими способами построиться
+## file: trainer/loops/LineUpWaysFactorial.java
+## class: LineUpWaysFactorial
+## level: 2
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>LineUpWaysFactorial</code>. <code>n</code> учеников встают в очередь в столовую. Сколькими разными способами они могут встать? Ответ — факториал: <code>n! = 1 · 2 · 3 · … · n</code>, а <code>0! = 1</code> (ноль учеников встают одним способом — никак). Программа читает <code>n</code> (n ≥ 0) и печатает <code>n!</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+вывод: 120</span></pre>
+<p>Факториал растёт очень быстро: уже 13! не помещается в <code>int</code>, а 21! — даже в <code>long</code>. Если <code>n</code> больше 20, напечатай <code>Слишком много</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>long ways = 1;</code> — накопитель произведения в long</li>
+<li><code>Long.MAX_VALUE</code> — самое большое значение long, около 9.2·10<sup>18</sup></li>
+</ul></div>
+@@ test: Пять учеников
+@@ input
+5
+@@ expect
+120
+@@ test: Никого нет
+@@ input
+0
+@@ expect
+1
+@@ test: Один ученик
+@@ input
+1
+@@ expect
+1
+@@ test: Тринадцать — уже не int
+@@ input
+13
+@@ expect
+6227020800
+@@ test: Двадцать — предел long
+@@ input
+20
+@@ expect
+2432902008176640000
+@@ test: Двадцать один
+@@ input
+21
+@@ expect
+Слишком много

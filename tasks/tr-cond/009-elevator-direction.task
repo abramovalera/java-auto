@@ -1,0 +1,48 @@
+## id: tr-cond-009
+## title: Куда едет лифт
+## file: trainer/cond/ElevatorDirection.java
+## class: ElevatorDirection
+## level: 1
+## category: Сравнения и максимум
+@@ description
+<p>Напиши класс <code>ElevatorDirection</code>. Программа читает два целых числа, каждое с новой строки: этаж, где сейчас лифт, и этаж, куда его вызвали. Этажи бывают и отрицательными (подземная парковка). Напечатай <code>Вверх</code>, <code>Вниз</code> или <code>Ты уже на этом этаже</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1
+       9
+вывод: Вверх
+
+ввод:  4
+       4
+вывод: Ты уже на этом этаже</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>if … else if … else</code> — цепочка: выполняется первая ветка, чьё условие истинно</li>
+</ul></div>
+@@ test: Едем вверх
+@@ input
+1
+9
+@@ expect
+Вверх
+@@ test: Едем вниз
+@@ input
+7
+3
+@@ expect
+Вниз
+@@ test: Тот же этаж
+@@ input
+4
+4
+@@ expect
+Ты уже на этом этаже
+@@ test: С парковки наверх
+@@ input
+-2
+1
+@@ expect
+Вверх
+@@ test: Спуск на парковку
+@@ input
+0
+-1
+@@ expect
+Вниз

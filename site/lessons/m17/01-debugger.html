@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Отладчик IntelliJ IDEA · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-01">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 17 · Урок 1</div>
+    <h1>Отладчик IntelliJ IDEA</h1>
+    <p class="lead">Программа запускается, ничего не падает — а ответ неверный. Можно гадать и обвешивать код <code>println</code>. А можно остановить время и посмотреть программе прямо в голову.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🐞 брейкпоинты и шаги</span><span>🎮 1 мини-игра</span></div>
+  </header>
+
+  <!-- ШПАРГАЛКА -->
+  <section class="step">
+    <h2>Прежде чем начать: выпиши себе</h2>
+    <p>Отладчиком управляют почти только с клавиатуры. С частью клавиш ты уже встречался, здесь — полный набор. <b>Выпиши таблицу руками</b> в свои заметки: в этом уроке каждую клавишу попробуешь на живой программе.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: отладчик IntelliJ IDEA</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F8</kbd> (или щелчок по полю у номера строки)</td><td>Поставить / убрать брейкпоинт — красную точку</td><td>Перед запуском: где остановиться</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F9</kbd> (жучок 🐞)</td><td>Запустить программу или тест в режиме отладки</td><td>Вместо обычного ▶</td></tr>
+        <tr><td><kbd>F8</kbd> — Step Over</td><td>Выполнить строку целиком, встать на следующую</td><td>Шагаешь по своему методу</td></tr>
+        <tr><td><kbd>F7</kbd> — Step Into</td><td>Зайти внутрь вызываемого метода</td><td>Хочешь увидеть, что творится внутри</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd> — Force Step Into</td><td>Зайти внутрь даже в классы JDK</td><td>Любопытно, как устроен <code>println</code></td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F8</kbd> — Step Out</td><td>Доделать текущий метод и вернуться к вызвавшему</td><td>Зашёл не туда</td></tr>
+        <tr><td><kbd>F9</kbd> — Resume</td><td>Бежать до следующего брейкпоинта или до конца</td><td>Здесь всё ясно, дальше</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>F9</kbd> — Run to Cursor</td><td>Бежать до строки с курсором</td><td>Одноразовая остановка без брейкпоинта</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>F8</kbd> — Evaluate Expression</td><td>Вычислить любое выражение прямо сейчас</td><td>Подозрительный кусок формулы</td></tr>
+        <tr><td><kbd>F2</kbd> в панели Variables</td><td>Поменять значение переменной на ходу</td><td>«А что, если бы тут было 5?»</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F8</kbd></td><td>Окно всех брейкпоинтов, остановка на исключении</td><td>Ловишь, откуда летит исключение</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F2</kbd> (красный ■)</td><td>Остановить программу совсем</td><td>Нашёл ошибку — идёшь чинить</td></tr>
+      </table></div>
+      <p style="margin-top:10px">На ноутбуке F-клавиши иногда работают только вместе с <kbd>Fn</kbd>. На macOS сочетания другие — смотри Help → Keyboard Shortcuts PDF.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Зачем нужен отладчик</h2>
+    <p>Ты уже встречал <b>логические ошибки</b>: программа компилируется, работает, но выдаёт не то. Компилятор их не видит, исключения нет. Как найти, где именно всё пошло не так?</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">📝</span><h4>Способ 1: println</h4><p>Вставить <code>System.out.println("total = " + total)</code> в десять мест, запустить, прочитать простыню вывода, потом не забыть всё удалить.</p></div>
+      <div class="card"><span class="emoji">⏸️</span><h4>Способ 2: отладчик</h4><p>Поставить <b>точку остановки</b>, запустить программу в режиме отладки и выполнять её <b>по одной строке</b>, видя все переменные сразу. Код не меняется вообще.</p></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: видеоповтор в футболе</span>
+      <p>Обычный запуск — матч в прямом эфире: всё пролетает за секунду, и ты видишь только счёт. Отладчик — видеоповтор: можно поставить на паузу, прокрутить по кадру, приблизить любого игрока. Спорный момент сразу виден.</p>
+    </div>
+    <dl class="terms">
+      <dt>Отладчик (debugger)</dt><dd>Инструмент IDEA, который запускает программу под присмотром: останавливает её в нужном месте и показывает, что лежит в переменных.</dd>
+      <dt>Отладка (debugging)</dt><dd>Поиск и исправление ошибок. Слово «баг» (bug, жук) — с тех времён, когда в огромный компьютер залетела настоящая моль и сломала реле.</dd>
+      <dt>Брейкпоинт (breakpoint)</dt><dd>Точка остановки: строка, на которой программа замрёт <b>перед</b> её выполнением.</dd>
+    </dl>
+    <div class="say" data-mood="cool"><p>Для разработчика отладчик — инструмент номер один. Программа посчитала не ту сумму заказа? Запускаешь её через Debug, останавливаешься перед подозрительной строкой — и видишь, что на самом деле лежит в переменных и что пришло из файла или от сервера.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Брейкпоинт и кнопка Debug</h2>
+    <p>Возьмём программу, которая считает очки в игре. Набери её в <code>module-17</code> — будем на ней тренироваться.</p>
+<pre data-file="GameScore.java"><code class="java">public class GameScore {
+    public static void main(String[] args) {
+        int[] hits = {3, 5, 2};
+        int score = 0;
+        for (int i = 0; i &lt; hits.length; i++) {
+            score += points(hits[i]);
+        }
+        System.out.println("Очки: " + score);
+    }
+
+    static int points(int hitCount) {
+        int base = hitCount * 10;
+        return base + bonus(hitCount);
+    }
+
+    static int bonus(int hitCount) {
+        return hitCount &gt;= 5 ? 50 : 0;
+    }
+}</code></pre>
+    <ol class="steps">
+      <li><b>Поставь брейкпоинт.</b> Щёлкни мышью по серой полосе слева от номера строки 4 (<code>int score = 0;</code> — объявление переменной <code>score</code> с инициализацией). Появится <b style="color:var(--red)">красная точка</b>. Щёлкнешь ещё раз — исчезнет. С клавиатуры: <kbd>Ctrl</kbd>+<kbd>F8</kbd> на текущей строке.</li>
+      <li><b>Запусти отладку.</b> Не зелёный ▶, а <b>жучок 🐞 Debug</b> рядом с ним (или <kbd>Shift</kbd>+<kbd>F9</kbd>). Либо щёлкни по ▶ у <code>main</code> и выбери <b>Debug 'GameScore.main()'</b>.</li>
+      <li><b>Программа замерла.</b> Строка 4 подсвечена синим — она <b>ещё не выполнена</b>. Внизу открылась панель <b>Debug</b>.</li>
+    </ol>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 450" role="img" aria-label="Схема окна отладки IntelliJ IDEA: брейкпоинт в редакторе, подсвеченная текущая строка, кнопки шагов, панели Frames и Variables">
+        <rect x="10" y="10" width="740" height="430" rx="14" class="d-box"/>
+        <rect x="10" y="10" width="740" height="42" rx="14" class="d-soft"/>
+        <text x="30" y="37" class="d-text">workspace</text>
+        <rect x="540" y="18" width="110" height="26" rx="6" class="d-box"/>
+        <text x="552" y="36" class="d-small">GameScore ▾</text>
+        <rect x="658" y="18" width="26" height="26" rx="6" class="d-green"/>
+        <text x="671" y="36" text-anchor="middle" class="d-text">▶</text>
+        <rect x="690" y="18" width="26" height="26" rx="6" class="d-accent"/>
+        <text x="703" y="36" text-anchor="middle" class="d-small">🐞</text>
+        <circle cx="734" cy="31" r="11" class="d-accent"/><text x="734" y="36" text-anchor="middle" class="d-small">1</text>
+
+        <rect x="18" y="60" width="724" height="160" rx="8" class="d-code"/>
+        <text x="58" y="88" class="d-mono">3      int[] hits = {3, 5, 2};</text>
+        <rect x="50" y="98" width="470" height="24" rx="4" class="d-blue"/>
+        <circle cx="34" cy="110" r="8" class="d-red"/>
+        <text x="58" y="115" class="d-mono-ink">4      int score = 0;</text>
+        <text x="300" y="115" class="d-small">hits: [3, 5, 2]</text>
+        <text x="58" y="142" class="d-mono">5      for (int i = 0; i &lt; hits.length; i++) {</text>
+        <text x="58" y="168" class="d-mono">6          score += points(hits[i]);</text>
+        <text x="58" y="194" class="d-mono">7      }</text>
+        <circle cx="560" cy="110" r="11" class="d-accent"/><text x="560" y="115" text-anchor="middle" class="d-small">3</text>
+        <circle cx="34" cy="80" r="11" class="d-accent"/><text x="34" y="85" text-anchor="middle" class="d-small">2</text>
+
+        <rect x="18" y="230" width="724" height="36" rx="8" class="d-soft"/>
+        <text x="30" y="253" class="d-small">Debug:</text>
+        <rect x="86" y="236" width="92" height="24" rx="6" class="d-box"/><text x="132" y="253" text-anchor="middle" class="d-small">▶ Resume F9</text>
+        <rect x="186" y="236" width="118" height="24" rx="6" class="d-box"/><text x="245" y="253" text-anchor="middle" class="d-small">⤼ Step Over F8</text>
+        <rect x="312" y="236" width="118" height="24" rx="6" class="d-box"/><text x="371" y="253" text-anchor="middle" class="d-small">↓ Step Into F7</text>
+        <rect x="438" y="236" width="148" height="24" rx="6" class="d-box"/><text x="512" y="253" text-anchor="middle" class="d-small">↑ Step Out ⇧F8</text>
+        <rect x="594" y="236" width="80" height="24" rx="6" class="d-red"/><text x="634" y="253" text-anchor="middle" class="d-small">■ Stop</text>
+        <circle cx="712" cy="248" r="11" class="d-accent"/><text x="712" y="253" text-anchor="middle" class="d-small">4</text>
+
+        <rect x="18" y="274" width="250" height="158" rx="8" class="d-soft"/>
+        <text x="30" y="298" class="d-title">Frames</text>
+        <rect x="26" y="310" width="234" height="26" rx="5" class="d-blue"/>
+        <text x="36" y="328" class="d-mono-ink">main:4, GameScore</text>
+        <text x="30" y="370" class="d-small">стек вызовов:</text>
+        <text x="30" y="390" class="d-small">кто кого вызвал</text>
+        <circle cx="244" cy="292" r="11" class="d-accent"/><text x="244" y="297" text-anchor="middle" class="d-small">5</text>
+
+        <rect x="276" y="274" width="466" height="158" rx="8" class="d-soft"/>
+        <text x="290" y="298" class="d-title">Variables</text>
+        <text x="296" y="328" class="d-mono-ink">args = String[0]</text>
+        <text x="296" y="354" class="d-mono-ink">▸ hits = int[3] [3, 5, 2]</text>
+        <text x="296" y="390" class="d-small">score пока нет: строка 4 ещё не выполнена</text>
+        <circle cx="726" cy="292" r="11" class="d-accent"/><text x="726" y="297" text-anchor="middle" class="d-small">6</text>
+      </svg>
+      <figcaption>① запуск в режиме Debug · ② брейкпоинт · ③ текущая строка и подсказка со значениями · ④ кнопки шагов · ⑤ стек вызовов · ⑥ переменные</figcaption>
+    </figure>
+    <p>А вот так это выглядит в самой IDEA:</p>
+    <div data-widget="ide" id="shot-debug-stop">
+      <script type="application/json">
+      { "tree": false, "file": "GameScore.java", "runConfig": "GameScore", "statusPath": "module-17", "gutterRun": [1, 2], "caretLine": 4,
+        "code": "public class GameScore {\n    public static void main(String[] args) {\n        int[] hits = {3, 5, 2};\n        int score = 0;\n        for (int i = 0; i < hits.length; i++) {\n            score += points(hits[i]);\n        }\n        System.out.println(\"Очки: \" + score);\n    }\n\n    static int points(int hitCount) {\n        int base = hitCount * 10;\n        return base + bonus(hitCount);\n    }\n\n    static int bonus(int hitCount) {\n        return hitCount >= 5 ? 50 : 0;\n    }\n}",
+        "breakpoints": [4], "execLine": 4, "vals": { "3": "hits: [3, 5, 2]" },
+        "debug": { "title": "GameScore", "frames": ["main:4, GameScore"],
+                   "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]" }, { "name": "hits", "type": "int[3]@813", "value": "[3, 5, 2]", "open": false } ] },
+        "marks": [ { "n": 1, "target": "bp-4", "side": "left", "text": "Красная точка — брейкпоинт. Щелчок по полю у номера строки или <kbd>Ctrl</kbd>+<kbd>F8</kbd>" },
+                   { "n": 2, "target": "line-4", "side": "top", "text": "Синяя строка — здесь программа стоит. Строка 4 <b>ещё не выполнена</b>" },
+                   { "n": 3, "target": "step-over", "side": "bottom", "text": "Кнопки шагов: ↷ Step Over (<kbd>F8</kbd>), ↘ Step Into (<kbd>F7</kbd>), ↗ Step Out (<kbd>Shift</kbd>+<kbd>F8</kbd>). Зелёный ▶ слева — Resume (<kbd>F9</kbd>), красный ■ — Stop" },
+                   { "n": 4, "target": "frames", "text": "<b>Frames</b> — стек вызовов. Пока один этаж: метод <code>main</code>, строка 4, класс GameScore" },
+                   { "n": 5, "target": "vars", "text": "<b>Variables</b>: <code>args</code> и <code>hits</code> уже есть, а <code>score</code> ещё нет. В фигурных скобках — тип и номер объекта в памяти, стрелочка › раскрывает массив по элементам" } ],
+        "caption": "Программа остановилась на брейкпоинте: внизу открылась панель Debug" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Программа остановилась на строке 4. Почему в Variables нет переменной <code>score</code>?</summary>
+      <p>Подсвеченная строка ещё <b>не выполнена</b>: отладчик останавливается <b>перед</b> ней. Переменная <code>score</code> будет объявлена и инициализирована, как только мы сделаем шаг. Это главное, что путают новички: «стою на строке» = «эта строка будет следующей».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Шагаем: Step Over, Step Into, Step Out</h2>
+    <p>Теперь программа в твоих руках. Четыре главные кнопки:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Кнопка</th><th>Клавиша</th><th>Что делает</th></tr>
+        <tr><td><b>Step Over</b> — шаг с обходом</td><td><kbd>F8</kbd></td><td>Выполнить текущую строку <b>целиком</b> и встать на следующую. Если в строке вызов метода — метод отработает «за кадром».</td></tr>
+        <tr><td><b>Step Into</b> — шаг внутрь</td><td><kbd>F7</kbd></td><td>Если в строке вызов <b>твоего</b> метода — зайти внутрь и встать на его первую строку.</td></tr>
+        <tr><td><b>Step Out</b> — шаг наружу</td><td><kbd>Shift</kbd>+<kbd>F8</kbd></td><td>Доделать текущий метод до конца и вернуться туда, откуда его вызвали.</td></tr>
+        <tr><td><b>Resume</b> — продолжить</td><td><kbd>F9</kbd></td><td>Бежать дальше без остановок — до следующего брейкпоинта или до конца программы.</td></tr>
+        <tr><td><b>Run to Cursor</b></td><td><kbd>Alt</kbd>+<kbd>F9</kbd></td><td>Бежать до строки, где стоит курсор, — как одноразовый брейкпоинт.</td></tr>
+      </table>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: рецепт со ссылкой</span>
+      <p>В рецепте пирога написано: «приготовь крем (см. стр. 40)». <b>Step Over</b> — веришь, что крем получится, делаешь его и идёшь к следующему пункту. <b>Step Into</b> — открываешь страницу 40 и выполняешь крем по пунктам. <b>Step Out</b> — дочитал страницу 40 до конца, вернулся к пирогу.</p>
+    </div>
+    <p>Пройди программу так, как прошёл бы её отладчик. Справа — то же, что в панелях <b>Frames</b> (стек вызовов) и <b>Variables</b>.</p>
+    <div data-widget="trace" id="trace-debug-steps">
+      <script type="application/json">
+      { "title": "GameScore под отладчиком", "icon": "🐞", "kind": "Отладчик по шагам",
+        "intro": "Брейкпоинт стоит на строке 4. Жми «Шаг ▶» — это как нажимать F8 и F7 в IDEA. Следи за стеком: каждый вызов метода кладёт сверху новый фрейм.",
+        "code": "public class GameScore {\n    public static void main(String[] args) {\n        int[] hits = {3, 5, 2};\n        int score = 0;\n        for (int i = 0; i < hits.length; i++) {\n            score += points(hits[i]);\n        }\n        System.out.println(\"Очки: \" + score);\n    }\n\n    static int points(int hitCount) {\n        int base = hitCount * 10;\n        return base + bonus(hitCount);\n    }\n\n    static int bonus(int hitCount) {\n        return hitCount >= 5 ? 50 : 0;\n    }\n}",
+        "steps": [
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]" } } ], "note": "Остановились на брейкпоинте. Строка 4 ещё не выполнена — score в Variables пока нет." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "0" } } ], "note": "F8 (Step Over): строка 4 выполнена — переменная score объявлена и инициализирована значением 0." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "0", "i": "0" } } ], "note": "F8: вошли в цикл, счётчик i инициализирован нулём. В строке 6 — вызов метода points с аргументом hits[i]. Нажмём F7 (Step Into) — зайдём внутрь." },
+          { "line": 12, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "0", "i": "0" } }, { "frame": "points", "vars": { "hitCount": "3" } } ], "note": "F7: мы внутри points. В Frames теперь два фрейма: points сверху, main под ним. В Variables — только параметр hitCount = 3 и локальные переменные points: чужие локальные переменные метод не видит." },
+          { "line": 13, "vars": { "hitCount": "3", "base": "30" }, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "0", "i": "0" } }, { "frame": "points", "vars": { "hitCount": "3", "base": "30" } } ], "ask": ["base"], "note": "F8: в строке 12 объявлена переменная base и инициализирована результатом выражения hitCount * 10, то есть 30. Снова вызов метода — bonus. Зайдём и в него." },
+          { "line": 17, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "0", "i": "0" } }, { "frame": "points", "vars": { "hitCount": "3", "base": "30" } }, { "frame": "bonus", "vars": { "hitCount": "3" } } ], "note": "F7: третий фрейм — bonus. У него свой параметр hitCount, хоть имя то же. Условие тернарного оператора 3 >= 5 ложно — метод вернёт 0. Жмём Shift+F8 (Step Out)." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "0", "i": "0" } }, { "frame": "points", "vars": { "hitCount": "3", "base": "30" } } ], "note": "Step Out: bonus доделан и снят со стека, мы снова в points на строке 13. Ещё раз Shift+F8 — вернёмся в main." },
+          { "line": 6, "vars": { "hits": "[3, 5, 2]", "score": "30", "i": "0" }, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "30", "i": "0" } } ], "ask": ["score"], "note": "Вернулись в main: вызов points(3) вернул 30, и составное присваивание += прибавило это возвращаемое значение к score — стало 30. Дальше шагаем только F8 — внутрь не заходим." },
+          { "line": 6, "vars": { "hits": "[3, 5, 2]", "score": "130", "i": "1" }, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "130", "i": "1" } } ], "ask": ["score"], "note": "F8, F8: i = 1, hits[1] = 5. points(5) = 50 + бонус 50 = 100. Step Over выполнил весь вызов за один шаг: score = 130." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "150" } } ], "note": "Ещё круг: points(2) = 20, score = 150. Цикл кончился, i исчезла — её область видимости только цикл for." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": { "hits": "[3, 5, 2]", "score": "150" } } ], "out": "Очки: 150\n", "note": "F8: вызов println напечатал строку в консоль Debug. Дальше F9 (Resume) — программа доработает до конца." }
+        ] }
+      </script>
+    </div>
+    <p>Вот четвёртый шаг трассировки — после <kbd>F7</kbd> — в настоящей IDEA:</p>
+    <div data-widget="ide" id="shot-debug-step-into">
+      <script type="application/json">
+      { "tree": false, "file": "GameScore.java", "runConfig": "GameScore", "statusPath": "module-17", "gutterRun": [1, 2], "caretLine": 12,
+        "code": "public class GameScore {\n    public static void main(String[] args) {\n        int[] hits = {3, 5, 2};\n        int score = 0;\n        for (int i = 0; i < hits.length; i++) {\n            score += points(hits[i]);\n        }\n        System.out.println(\"Очки: \" + score);\n    }\n\n    static int points(int hitCount) {\n        int base = hitCount * 10;\n        return base + bonus(hitCount);\n    }\n\n    static int bonus(int hitCount) {\n        return hitCount >= 5 ? 50 : 0;\n    }\n}",
+        "breakpoints": [4], "execLine": 12, "vals": { "11": "hitCount: 3" },
+        "debug": { "title": "GameScore", "frames": ["points:12, GameScore", "main:6, GameScore"],
+                   "vars": [ { "name": "hitCount", "value": "3" } ] },
+        "marks": [ { "n": 1, "target": "line-12", "side": "top", "text": "После <kbd>F7</kbd> мы внутри метода <code>points</code>. Серым справа от строки 11 — подсказка IDEA: <code>hitCount</code> сейчас равна 3" },
+                   { "n": 2, "target": "frame-1", "text": "Новый этаж стека сверху: <b>points</b>, строка 12" },
+                   { "n": 3, "target": "frame-2", "text": "Под ним — <b>main</b>, строка 6: оттуда вызвали <code>points</code>. Щёлкни по этой строке — Variables покажет переменные <code>main</code>" },
+                   { "n": 4, "target": "var-hitCount", "text": "Сейчас видны только переменные <code>points</code>: <code>hits</code> и <code>score</code> принадлежат <code>main</code>" },
+                   { "n": 5, "target": "step-out", "side": "bottom", "text": "↗ Step Out (<kbd>Shift</kbd>+<kbd>F8</kbd>) — доделать <code>points</code> и вернуться в <code>main</code>" } ],
+        "caption": "Step Into: отладчик зашёл в метод points" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Ты стоишь на строке 6 и нажимаешь F8, а внутри <code>points</code> стоит ещё один брейкпоинт. Где остановится программа?</summary>
+      <p>Внутри <code>points</code>, на брейкпоинте. Step Over не «перепрыгивает» брейкпоинты: если внутри вызываемого метода есть красная точка, отладчик на ней остановится.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Variables, Evaluate Expression и подсказки в коде</h2>
+    <p>Когда программа стоит на паузе, у тебя есть три способа узнать любое значение:</p>
+    <ul>
+      <li><b>Панель Variables.</b> Все переменные текущего метода. У массивов и объектов есть стрелочка ▸ — раскрой и увидишь элементы и поля. Правый клик → <b>Set Value</b> (<kbd>F2</kbd>) меняет значение прямо на ходу: «а что, если бы тут было 5?»</li>
+      <li><b>Подсказки в коде.</b> IDEA пишет значения серым прямо в строках (<code>hits: [3, 5, 2]</code>). Наведи мышь на переменную — всплывёт её значение.</li>
+      <li><b>Evaluate Expression</b> (<kbd>Alt</kbd>+<kbd>F8</kbd>). Окно-калькулятор: напиши любое выражение Java, и IDEA вычислит его <b>в текущем состоянии</b> программы: <code>hitCount * 10</code>, <code>bonus(7)</code>, <code>hits.length - 1</code>. Можно выделить кусок кода в редакторе и нажать <kbd>Alt</kbd>+<kbd>F8</kbd> — он подставится сам.</li>
+    </ul>
+    <div data-widget="ide" id="shot-debug-evaluate">
+      <script type="application/json">
+      { "tree": false, "file": "GameScore.java", "runConfig": "GameScore", "statusPath": "module-17", "gutterRun": [1, 2], "caretLine": 13,
+        "code": "public class GameScore {\n    public static void main(String[] args) {\n        int[] hits = {3, 5, 2};\n        int score = 0;\n        for (int i = 0; i < hits.length; i++) {\n            score += points(hits[i]);\n        }\n        System.out.println(\"Очки: \" + score);\n    }\n\n    static int points(int hitCount) {\n        int base = hitCount * 10;\n        return base + bonus(hitCount);\n    }\n\n    static int bonus(int hitCount) {\n        return hitCount >= 5 ? 50 : 0;\n    }\n}",
+        "breakpoints": [4], "execLine": 13, "vals": { "11": "hitCount: 3", "12": "base: 30" },
+        "debug": { "title": "GameScore", "frames": ["points:13, GameScore", "main:6, GameScore"],
+                   "vars": [ { "name": "hitCount", "value": "3" }, { "name": "base", "value": "30" } ] },
+        "dialog": { "title": "Evaluate",
+                    "rows": [ { "label": "Expression", "value": "base + bonus(hitCount)", "hl": true },
+                              { "label": "Result", "value": "result = 30", "type": "text" } ],
+                    "buttons": ["Evaluate", "Close"], "primary": "Evaluate" },
+        "marks": [ { "n": 1, "target": "field-Expression", "text": "Любое выражение Java. Переменные берутся из текущего момента программы: <code>base</code> = 30, <code>hitCount</code> = 3" },
+                   { "n": 2, "target": "btn-Evaluate", "side": "bottom", "text": "<b>Evaluate</b> (или <kbd>Enter</kbd>) — вычислить" },
+                   { "n": 3, "target": "field-Result", "text": "Ответ: 30. Значит, <code>bonus(3)</code> вернул 0 — проверили, не заходя в метод" },
+                   { "n": 4, "target": "vars", "text": "Те же значения видны в Variables — Evaluate нужен для того, чего там нет: формул и вызовов методов" } ],
+        "caption": "Окно Evaluate Expression (Alt+F8)" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Приём: дробим подозрительное выражение</span>
+      <p>Длинное выражение считает не то? Выделяй его по кусочкам и вычисляй каждый через Evaluate. Ошибка почти всегда прячется в одном маленьком кусочке — например, в целочисленном делении или в скобках не на месте.</p>
+    </div>
+    <details class="predict">
+      <summary>Программа стоит на строке <code>return price * (15 / 100);</code>, где <code>price = 200</code>. Что покажет Evaluate Expression для <code>15 / 100</code>? А для всего выражения?</summary>
+      <p><code>15 / 100</code> = <b>0</b>: оба операнда — целочисленные литералы, деление целочисленное (модуль 3). Значит, и всё выражение — <b>0</b>, скидка пропала. Evaluate сразу показывает, какой кусок «съел» значение. Починка: <code>price * 15 / 100</code> — сначала умножение, потом деление.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Осторожно с Evaluate</span>
+      <p>Evaluate <b>по-настоящему выполняет</b> код. Вычислишь вызов метода <code>list.remove(0)</code> — элемент действительно удалится, и программа дальше пойдёт уже с изменённым списком. Для «посмотреть» используй выражения без побочных эффектов.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Условный брейкпоинт</h2>
+    <p>Представь цикл на 365 дней, и ошибка только в 200-й день. Жать F8 двести раз? Нет: поставь брейкпоинт с <b>условием</b>.</p>
+<pre data-file="StepsYear.java"><code class="java">for (int day = 1; day &lt;= 365; day++) {
+    int steps = stepsForDay(day);
+    total += steps;          // ← брейкпоинт с условием day == 200
+}</code></pre>
+    <ol class="steps">
+      <li>Поставь обычный брейкпоинт на строку внутри цикла.</li>
+      <li>Щёлкни по красной точке <b>правой</b> кнопкой — появится окошко.</li>
+      <li>В поле <b>Condition</b> напиши логическое выражение Java: <code>day == 200</code>. Нажми <b>Done</b>. На точке появится знак вопроса.</li>
+      <li>Запусти Debug — программа пролетит 199 кругов и остановится ровно на двухсотом.</li>
+    </ol>
+    <div data-widget="ide" id="shot-debug-condition">
+      <script type="application/json">
+      { "tree": false, "file": "StepsYear.java", "statusPath": "module-17", "gutterRun": [1, 2],
+        "code": "public class StepsYear {\n    public static void main(String[] args) {\n        int total = 0;\n        for (int day = 1; day <= 365; day++) {\n            int steps = stepsForDay(day);\n            total += steps;\n        }\n        System.out.println(\"Шагов за год: \" + total);\n    }\n\n    static int stepsForDay(int day) {\n        return 5000 + day % 7 * 1000;\n    }\n}",
+        "breakpoints": [6],
+        "dialog": { "title": "StepsYear.java:6",
+                    "rows": [ { "label": "Enabled", "value": "☑", "type": "text" },
+                              { "label": "Suspend", "value": "◉ All    ○ Thread", "type": "text" },
+                              { "label": "Condition", "value": "day == 200", "hl": true } ],
+                    "buttons": ["More (Ctrl+Shift+F8)", "Done"], "primary": "Done" },
+        "marks": [ { "n": 1, "target": "bp-6", "side": "left", "text": "Правый клик по красной точке открывает её настройки" },
+                   { "n": 2, "target": "field-Condition", "text": "<b>Condition</b> — условие на Java. Остановка будет, только когда оно <code>true</code>. В поле работает автодополнение, как в редакторе" },
+                   { "n": 3, "target": "btn-Done", "side": "bottom", "text": "<b>Done</b> — готово. <b>More</b> откроет большое окно со всеми брейкпоинтами проекта" } ],
+        "caption": "Настройки брейкпоинта: условие остановки (окошко показано упрощённо)" }
+      </script>
+    </div>
+    <p>Условие — любое выражение типа <code>boolean</code>: <code>steps &lt; 0</code>, <code>name.equals("Аня")</code>, <code>total &gt; 1_000_000</code>. Так ловят «тот самый» случай, на котором всё ломается.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: остановка на исключении и брейкпоинт без остановки</summary>
+      <p><b>Exception Breakpoint.</b> <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F8</kbd> → «+» → <b>Java Exception Breakpoints</b> → например, <code>NullPointerException</code>. Программа остановится в момент, когда исключение <b>бросается</b>, — и ты увидишь все переменные прямо перед падением, а не только stack trace после.</p>
+      <p><b>Логирующий брейкпоинт.</b> В том же окошке брейкпоинта сними галочку <b>Suspend</b> и включи <b>Evaluate and log</b>: <code>"day=" + day + " total=" + total</code>. Программа не останавливается, а печатает в консоль — это <code>println</code> без правки кода.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Frames — это стек вызовов</h2>
+    <p>В модуле 7 ты узнал про <b>стек вызовов</b>: каждый вызов метода кладёт сверху новый «лист» со своими переменными, а <code>return</code> его снимает. Панель <b>Frames</b> показывает этот стек вживую. Щёлкни по нижнему фрейму — и Variables покажет переменные того метода, который вызвал текущий.</p>
+    <p>А помнишь из модуля 9, что <code>System.out.println(…)</code> — это вызов метода <code>println</code> у объекта <code>System.out</code> класса <code>PrintStream</code>, за которым прячется целая цепочка? Отладчик позволяет провалиться в неё самому:</p>
+    <ol class="steps">
+      <li>Поставь брейкпоинт на строку с <code>println</code> и запусти Debug.</li>
+      <li>Обычный Step Into (<kbd>F7</kbd>) в классы JDK <b>не заходит</b> — IDEA бережёт тебя от чужого кода. Нужен <b>Force Step Into</b>: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd>.</li>
+      <li>Ты внутри исходника <code>PrintStream.java</code>. Ещё пара Force Step Into — и в Frames уже несколько этажей:</li>
+    </ol>
+    <div data-widget="ide" id="shot-debug-frames-jdk">
+      <script type="application/json">
+      { "tree": false, "file": "GameScore.java", "tabs": ["GameScore.java", "PrintStream.java"], "runConfig": "GameScore", "statusPath": "module-17", "gutterRun": [1, 2], "caretLine": 8,
+        "code": "public class GameScore {\n    public static void main(String[] args) {\n        int[] hits = {3, 5, 2};\n        int score = 0;\n        for (int i = 0; i < hits.length; i++) {\n            score += points(hits[i]);\n        }\n        System.out.println(\"Очки: \" + score);\n    }\n\n    static int points(int hitCount) {\n        int base = hitCount * 10;\n        return base + bonus(hitCount);\n    }\n\n    static int bonus(int hitCount) {\n        return hitCount >= 5 ? 50 : 0;\n    }\n}",
+        "breakpoints": [8], "execLine": 8,
+        "debug": { "title": "GameScore", "sel": 3,
+                   "frames": ["implWriteln, PrintStream (java.io)", "writeln, PrintStream (java.io)", "println, PrintStream (java.io)", "main:8, GameScore"],
+                   "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]" }, { "name": "hits", "type": "int[3]@813", "value": "[3, 5, 2]", "open": false }, { "name": "score", "value": "150" } ] },
+        "marks": [ { "n": 1, "target": "frame-1", "text": "Верх стека — где мы сейчас: глубоко внутри <code>PrintStream</code> из JDK" },
+                   { "n": 2, "target": "frame-4", "text": "Низ — наш код: <code>main</code>, строка 8. Мы щёлкнули по нему…" },
+                   { "n": 3, "target": "line-8", "side": "top", "text": "…и редактор показал строку, откуда начался вызов, а рядом осталась открытой вкладка <b>PrintStream.java</b>" },
+                   { "n": 4, "target": "vars", "text": "Variables тоже переключились на переменные <code>main</code>: <code>score</code> = 150" } ],
+        "caption": "Панель Frames после нескольких Force Step Into (у методов JDK IDEA пишет ещё и номер строки — он зависит от версии JDK, поэтому мы его не показываем)" }
+      </script>
+    </div>
+    <p style="color:var(--muted);font-size:15px">Имена внутренних методов немного отличаются от версии к версии JDK — это нормально.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Панель Frames и stack trace — одно и то же: список вызовов, наш код внизу, текущий метод вверху">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="170" y="28" text-anchor="middle" class="d-title">Frames (отладчик)</text>
+        <rect x="40" y="44" width="260" height="40" rx="8" class="d-accent"/>
+        <text x="170" y="69" text-anchor="middle" class="d-mono-ink">implWriteln</text>
+        <rect x="40" y="92" width="260" height="40" rx="8" class="d-soft"/>
+        <text x="170" y="117" text-anchor="middle" class="d-mono-ink">writeln</text>
+        <rect x="40" y="140" width="260" height="40" rx="8" class="d-soft"/>
+        <text x="170" y="165" text-anchor="middle" class="d-mono-ink">println</text>
+        <rect x="40" y="188" width="260" height="40" rx="8" class="d-green"/>
+        <text x="170" y="213" text-anchor="middle" class="d-mono-ink">main:8 — наш код</text>
+
+        <path d="M318 136 H398" class="d-arrow"/>
+        <text x="358" y="124" text-anchor="middle" class="d-small">то же</text>
+        <text x="358" y="160" text-anchor="middle" class="d-small">самое</text>
+
+        <text x="560" y="28" text-anchor="middle" class="d-title">Stack trace (модуль 12)</text>
+        <rect x="410" y="44" width="300" height="184" rx="10" class="d-code"/>
+        <text x="422" y="74" class="d-mono">Exception in ...</text>
+        <text x="422" y="102" class="d-mono">  at A.implWriteln</text>
+        <text x="422" y="128" class="d-mono">  at A.writeln</text>
+        <text x="422" y="154" class="d-mono">  at A.println</text>
+        <text x="422" y="180" class="d-mono">  at GameScore.main</text>
+        <text x="422" y="212" class="d-small">читаем снизу вверх</text>
+      </svg>
+      <figcaption>Stack trace — это «фотография» панели Frames в момент, когда вылетело исключение. Отладчик показывает тот же стек, но живой.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Вот он, «под капотом println», только теперь не на картинке, а в настоящем исходнике JDK! Можешь дойти до самого низа, где Java передаёт байты операционной системе. Вернуться к себе — <kbd>Shift</kbd>+<kbd>F8</kbd> несколько раз или F9.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Отладчик или вывод в лог?</h2>
+    <p>Отладчик не всегда лучше. Если программа работает на сервере, ночью, или ошибка возникает только при одновременной работе нескольких потоков (модуль 16), остановить её не получится — нужны записи о том, что происходило: <b>лог</b>. Разложи ситуации:</p>
+    <div data-widget="buckets" id="debug-or-log">
+      <script type="application/json">
+      { "title": "Отладчик или лог?", "icon": "🧭",
+        "buckets": [ { "id": "dbg", "label": "🐞 Отладчик", "style": "indigo" }, { "id": "log", "label": "📝 Лог / вывод", "style": "green" } ],
+        "items": [
+          { "emoji": "🔁", "text": "Цикл на 10 000 кругов, ошибка где-то на 7342-м", "bucket": "dbg", "why": "Условный брейкпоинт остановит ровно там, где нужно." },
+          { "emoji": "🧩", "text": "Непонятно, по какой ветке if идёт чужой код", "bucket": "dbg", "why": "Шагаешь F8 и видишь путь своими глазами." },
+          { "emoji": "🌙", "text": "Автотест упал ночью на сервере сборки, а у тебя проходит", "bucket": "log", "why": "К ночному запуску на сервере не подключишься — читаешь лог и отчёт." },
+          { "emoji": "🧵", "text": "Ошибка появляется только когда два потока работают одновременно", "bucket": "log", "why": "Остановка в отладчике меняет тайминги, и ошибка «прячется». Нужны записи с временем и именем потока." },
+          { "emoji": "📦", "text": "Нужно посмотреть поля объекта со вложенным списком", "bucket": "dbg", "why": "В Variables раскрываешь объект стрелочкой и видишь всё дерево." },
+          { "emoji": "📈", "text": "Нужно знать, сколько раз в день сервис отклонил платёж", "bucket": "log", "why": "Это история работы программы во времени — её пишут в лог." },
+          { "emoji": "🧪", "text": "Свой тест красный, хочешь понять, что вернул метод", "bucket": "dbg", "why": "Debug на тесте, брейкпоинт перед проверкой — и видно фактическое значение." }
+        ] }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: чем лог лучше println</summary>
+      <p>В рабочих проектах вместо <code>System.out.println</code> используют <b>логгер</b> — библиотеку вроде SLF4J + Logback: <code>log.info("Заказ {} оплачен", id)</code>. Отличия: у каждой записи есть время, имя класса и <b>уровень</b> (<code>DEBUG</code>, <code>INFO</code>, <code>WARN</code>, <code>ERROR</code>); подробные DEBUG-записи можно выключить настройкой, не трогая код; записи можно писать в файл. Когда программа сломалась на сервере, где отладчик не подключишь, лог — первое, что читают.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-01">
+      <script type="application/json">
+      { "title": "Отладчик — главное",
+        "items": [
+          { "type": "match", "q": "Соедини кнопку с тем, что она делает",
+            "left": ["Step Over (F8)", "Step Into (F7)", "Step Out (Shift+F8)", "Resume (F9)"],
+            "right": ["Выполнить строку целиком и встать на следующую", "Зайти внутрь вызываемого метода", "Доделать текущий метод и вернуться к вызывающему", "Бежать до следующего брейкпоинта или до конца"],
+            "why": "Over — обойти вызов, Into — нырнуть внутрь, Out — вынырнуть, Resume — отпустить программу." },
+          { "type": "single", "q": "Программа стоит на брейкпоинте на строке <code>int x = 5;</code>. Чему сейчас равна <code>x</code>?",
+            "options": ["5", "Переменной x ещё нет", "0 — значение по умолчанию"], "answer": 1,
+            "why": "Отладчик останавливается ПЕРЕД выполнением строки. После F8 переменная x будет объявлена и инициализирована значением 5." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Панель Frames показывает стек вызовов: текущий метод сверху", "a": true },
+              { "s": "Evaluate Expression только показывает значения и никогда ничего не меняет", "a": false, "why": "выражение выполняется по-настоящему: list.remove(0) действительно удалит элемент." },
+              { "s": "Обычный Step Into по умолчанию не заходит в классы JDK вроде PrintStream", "a": true },
+              { "s": "Чтобы пользоваться отладчиком, в код нужно добавить специальные команды", "a": false, "why": "код не меняется: брейкпоинт — пометка в IDEA, а не строка в программе." }
+            ] },
+          { "type": "single", "q": "Цикл идёт по 5000 заказам, ошибка только у заказа с id 4711. Как быстрее всего остановиться на нём?",
+            "options": ["Нажать F8 много раз", "Брейкпоинт с условием <code>order.getId() == 4711</code>", "Добавить println в начало цикла"], "answer": 1,
+            "why": "Условный брейкпоинт: правый клик по красной точке → Condition." },
+          { "type": "order", "q": "Расставь шаги отладки по порядку",
+            "lines": ["Поставить брейкпоинт перед подозрительным местом", "Запустить программу кнопкой Debug", "Шагать F8/F7 и смотреть Variables", "Найти строку, после которой значение стало неверным", "Исправить код и запустить ещё раз"],
+            "why": "Сначала остановиться, потом наблюдать, потом чинить — и обязательно проверить исправление." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 17.1. Дай мне маленькую программу с логической ошибкой — я найду её отладчиком и расскажу, на каком шаге увидел проблему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Брейкпоинт — щелчок по полосе слева от строки; запуск — 🐞 Debug (<kbd>Shift</kbd>+<kbd>F9</kbd>). Программа замирает <b>перед</b> строкой.</li>
+        <li><kbd>F8</kbd> — шаг с обходом, <kbd>F7</kbd> — внутрь метода, <kbd>Shift</kbd>+<kbd>F8</kbd> — наружу, <kbd>F9</kbd> — дальше.</li>
+        <li>Variables — значения, Evaluate (<kbd>Alt</kbd>+<kbd>F8</kbd>) — любое выражение, условный брейкпоинт — остановка на нужном круге.</li>
+        <li>Frames — живой стек вызовов; stack trace — его снимок в момент исключения.</li>
+        <li>Отладчик — для «здесь и сейчас», лог — для сервера, ночных прогонов и потоков.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Приоритет операций · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-05">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 3 · Урок 5</div>
+    <h1>Приоритет операций</h1>
+    <p class="lead">Почему <code>"2 + 2 = " + 2 + 2</code> печатает 22, а <code>"Итог: " + 3 * 2</code> — честные 6? Всё решает порядок, в котором Java разбирает выражение. Научимся вычислять его по шагам, как компилятор.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🌳 дерево выражения</span><span>🔍 трассировка вычисления</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m03-05-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним урок 3.4",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "boolean sunny = true;\nboolean rain = false;\nSystem.out.println(sunny && !rain);",
+         "answer": "true",
+         "why": "!rain — true, и true && true = true."
+        },
+        {
+         "type": "single",
+         "q": "Что будет, если count == 0?",
+         "code": "boolean ok = count > 0 && 100 / count > 5;",
+         "options": [
+          "Программа упадёт с ArithmeticException",
+          "ok = false, ошибки нет",
+          "ok = true"
+         ],
+         "answer": 1,
+         "why": "Левый операнд count > 0 — false, и правый операнд с делением не вычисляется: короткое замыкание."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Как в школе, только операторов больше</h2>
+    <p>В школе учили: сначала скобки, потом умножение и деление, потом сложение и вычитание. <code>2 + 3 * 4</code> — это 14, а не 20. В Java то же самое, просто операторов больше. У каждого есть <b>приоритет</b> — «старшинство»: чем выше, тем раньше выполняется.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>№</th><th>Операторы</th><th>Что это</th><th>Порядок в группе</th></tr>
+        <tr><td>1</td><td><code>( )</code> &nbsp; <code>x++</code> <code>x--</code></td><td>скобки, постфиксные ++/--</td><td>—</td></tr>
+        <tr><td>2</td><td><code>++x</code> <code>--x</code> <code>-x</code> <code>!</code> <code>(int)</code></td><td>унарные (с одним операндом), приведение типа</td><td>справа налево</td></tr>
+        <tr><td>3</td><td><code>*</code> <code>/</code> <code>%</code></td><td>умножение, деление, остаток</td><td>слева направо</td></tr>
+        <tr><td>4</td><td><code>+</code> <code>-</code></td><td>сложение, вычитание, склейка строк</td><td>слева направо</td></tr>
+        <tr><td>5</td><td><code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td><td>сравнения</td><td>—</td></tr>
+        <tr><td>6</td><td><code>==</code> <code>!=</code></td><td>равенство</td><td>слева направо</td></tr>
+        <tr><td>7</td><td><code>&amp;&amp;</code></td><td>И</td><td>слева направо</td></tr>
+        <tr><td>8</td><td><code>||</code></td><td>ИЛИ</td><td>слева направо</td></tr>
+        <tr><td>9</td><td><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> …</td><td>присваивания</td><td><b>справа налево</b></td></tr>
+      </table>
+    </div>
+    <p style="color:var(--muted);font-size:15px">В полной таблице Java есть ещё сдвиги <code>&lt;&lt; &gt;&gt;</code> (между 4 и 5), поразрядные <code>&amp; ^ |</code> (между 6 и 7) и тернарный оператор <code>? :</code> (между 8 и 9) — до него дойдём в модуле 4.</p>
+    <div class="callout tip">
+      <span class="callout-title">Как запомнить</span>
+      <p>Сверху вниз: «действия с одной переменной → арифметика (сначала умножение) → сравнения → логика (сначала И) → присваивание в самом конце». Присваивание последнее — логично: сначала вычисли выражение справа, потом присвой результат переменной — положи в коробку.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Один приоритет — читаем слева направо</h2>
+    <p>Если рядом стоят операторы <b>одного</b> уровня, Java выполняет их по очереди слева направо. Это называется <b>ассоциативность</b>.</p>
+    <div class="annot">
+      <div class="annot-row"><code>100 / 10 / 5</code><div><p>(100 / 10) / 5 = 10 / 5 = <b>2</b>. Не 100 / 2 = 50!</p></div></div>
+      <div class="annot-row"><code>10 - 4 - 3</code><div><p>(10 − 4) − 3 = <b>3</b>. Не 10 − 1 = 9.</p></div></div>
+      <div class="annot-row"><code>7 / 2 * 2</code><div><p>(7 / 2) * 2 = 3 * 2 = <b>6</b>. Целочисленное деление съело половинку, и умножение её не вернёт.</p></div></div>
+      <div class="annot-row"><code>a = b = 5</code><div><p>Присваивание — справа налево: сначала переменной b присваивается 5, потом значение этого присваивания (5) присваивается переменной a. Обе переменные равны 5.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Загадка «2 + 2 = 22» — окончательно</h2>
+    <p>Ещё в модуле 1 ты видел эту ловушку. Теперь можно объяснить её до конца. Оператор <code>+</code> умеет две вещи: складывать числа и склеивать строки. Что именно он сделает — решается <b>в момент выполнения каждого плюса</b>: если хотя бы один операнд — строка, это склейка.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 280" role="img" aria-label="Дерево выражения: без скобок сначала строка склеивается с 2, потом ещё с 2. Со скобками сначала 2 + 2 = 4">
+        <text x="180" y="24" text-anchor="middle" class="d-title">"2 + 2 = " + 2 + 2</text>
+        <path d="M180 62 L110 122 M180 62 L270 122 M110 122 L70 196 M110 122 L170 196" class="d-line"/>
+        <circle cx="180" cy="62" r="20" class="d-accent"/><text x="180" y="68" text-anchor="middle" class="d-title">+</text>
+        <circle cx="110" cy="122" r="20" class="d-accent"/><text x="110" y="128" text-anchor="middle" class="d-title">+</text>
+        <rect x="248" y="106" width="44" height="32" rx="8" class="d-blue"/><text x="270" y="127" text-anchor="middle" class="d-mono-ink">2</text>
+        <rect x="16" y="180" width="108" height="32" rx="8" class="d-violet"/><text x="70" y="201" text-anchor="middle" class="d-mono-ink">"2 + 2 = "</text>
+        <rect x="148" y="180" width="44" height="32" rx="8" class="d-blue"/><text x="170" y="201" text-anchor="middle" class="d-mono-ink">2</text>
+        <text x="84" y="118" text-anchor="end" class="d-small">① склейка:</text>
+        <text x="84" y="136" text-anchor="end" class="d-small">"2 + 2 = 2"</text>
+        <text x="210" y="48" class="d-small">② склейка: "2 + 2 = 22"</text>
+        <text x="180" y="256" text-anchor="middle" class="d-c-red d-text">выведет 2 + 2 = 22</text>
+
+        <text x="540" y="24" text-anchor="middle" class="d-title">"2 + 2 = " + (2 + 2)</text>
+        <path d="M540 62 L450 122 M540 62 L620 122 M620 122 L580 196 M620 122 L660 196" class="d-line"/>
+        <circle cx="540" cy="62" r="20" class="d-accent"/><text x="540" y="68" text-anchor="middle" class="d-title">+</text>
+        <rect x="396" y="106" width="108" height="32" rx="8" class="d-violet"/><text x="450" y="127" text-anchor="middle" class="d-mono-ink">"2 + 2 = "</text>
+        <circle cx="620" cy="122" r="20" class="d-teal"/><text x="620" y="128" text-anchor="middle" class="d-title">+</text>
+        <rect x="558" y="180" width="44" height="32" rx="8" class="d-blue"/><text x="580" y="201" text-anchor="middle" class="d-mono-ink">2</text>
+        <rect x="638" y="180" width="44" height="32" rx="8" class="d-blue"/><text x="660" y="201" text-anchor="middle" class="d-mono-ink">2</text>
+        <text x="594" y="126" text-anchor="end" class="d-small">① 2 + 2 = 4</text>
+        <text x="570" y="48" class="d-small">② склейка</text>
+        <text x="540" y="256" text-anchor="middle" class="d-c-green d-text">выведет 2 + 2 = 4</text>
+      </svg>
+      <figcaption>Выражение — это дерево: Java вычисляет его снизу вверх. Скобки меняют форму дерева, а значит, и результат.</figcaption>
+    </figure>
+    <p>Ещё несколько примеров — проверь себя, прежде чем читать пояснение:</p>
+    <div class="annot">
+      <div class="annot-row"><code>1 + 2 + "3"</code><div><p>(1 + 2) — числа, 3. Потом 3 + "3" — склейка: <b>"33"</b>.</p></div></div>
+      <div class="annot-row"><code>"" + 1 + 2</code><div><p>"" + 1 = "1", потом "1" + 2 = <b>"12"</b>. Пустая строка в начале превращает всё в склейку.</p></div></div>
+      <div class="annot-row"><code>"Итог: " + 3 * 2</code><div><p><code>*</code> главнее <code>+</code>: сначала 3 * 2 = 6, потом склейка: <b>"Итог: 6"</b>.</p></div></div>
+      <div class="annot-row"><code>"Итог: " + 3 * 2 + 1</code><div><p>"Итог: 6", потом + 1 — склейка: <b>"Итог: 61"</b>.</p></div></div>
+      <div class="annot-row"><code>'a' + 1</code><div><p>Строк нет! char — это число-код: 97 + 1 = <b>98</b>. А <code>(char) ('a' + 1)</code> — это <b>'b'</b>.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Скомпилируется ли System.out.println("Разница: " + 10 - 5); ?</summary>
+      <p><b>Нет.</b> + и − одного уровня, идём слева направо: "Разница: " + 10 = "Разница: 10" (строка). Потом строка − 5 — вычитать из текста нельзя: <code>bad operand types for binary operator '-'</code>. Лечится скобками: <code>"Разница: " + (10 - 5)</code>.</p>
+      <p>Так эту ошибку покажет IDEA:</p>
+      <div data-widget="ide" id="shot-string-minus">
+        <script type="application/json">
+        { "tree": false, "file": "Diff.java", "gutterRun": [1, 2],
+          "code": "public class Diff {\n    public static void main(String[] args) {\n        System.out.println(\"Разница: \" + 10 - 5);\n    }\n}",
+          "errors": [ { "line": 3, "text": "\"Разница: \" + 10 - 5", "msg": "Operator '-' cannot be applied to 'java.lang.String', 'int'", "tip": true, "fix": false } ],
+          "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Волна под всем выражением в скобках <code>println</code>" },
+                     { "n": 2, "target": "tip", "text": "<b>Operator '-' cannot be applied to 'java.lang.String', 'int'</b> — «минус нельзя применить к строке и числу». <code>java.lang.String</code> — полное имя типа String. Значит, слева от минуса к этому моменту уже строка" } ],
+          "caption": "Вычитание из строки — ошибка компиляции" }
+        </script>
+      </div>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Трассировка выражения</h2>
+    <p>Длинное выражение Java тоже считает по шагам — по одной операции. Пройди вычисление сам: справа в таблице будут появляться промежуточные результаты. Впиши каждый, прежде чем смотреть ответ.</p>
+    <div data-widget="trace" id="trace-expr">
+      <script type="application/json">
+      { "title": "Считаем 20 - 3 * 4 / 2 + 10 % 3", "intro": "Каждый шаг — одна операция. Правило: сначала * / % слева направо, потом + − слева направо.",
+        "code": "int r = 20 - 3 * 4 / 2 + 10 % 3;\nSystem.out.println(r);",
+        "steps": [
+          { "line": 1, "vars": { "3 * 4": "12" }, "ask": ["3 * 4"], "note": "Самый старший уровень — * / %. Их три, идём слева направо: первая — 3 * 4." },
+          { "line": 1, "vars": { "3 * 4": "12", "12 / 2": "6" }, "ask": ["12 / 2"], "note": "Следующая на том же уровне — деление результата на 2." },
+          { "line": 1, "vars": { "3 * 4": "12", "12 / 2": "6", "10 % 3": "1" }, "ask": ["10 % 3"], "note": "Последняя из * / % — остаток от деления 10 на 3. 10 = 3 × 3 + 1." },
+          { "line": 1, "vars": { "3 * 4": "12", "12 / 2": "6", "10 % 3": "1", "20 - 6": "14" }, "ask": ["20 - 6"], "note": "Теперь + и − слева направо. Осталось 20 − 6 + 1, первое — вычитание." },
+          { "line": 1, "vars": { "3 * 4": "12", "12 / 2": "6", "10 % 3": "1", "20 - 6": "14", "r": "15" }, "ask": ["r"], "note": "Осталось сложение, а присваивание — самое последнее. 14 + 1 = 15, и этим значением инициализируется r." },
+          { "line": 2, "vars": { "r": "15" }, "out": "15\n", "note": "Вызываем println и передаём аргумент r. Промежуточные значения жили только во время вычисления выражения." }
+        ] }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: приоритет — это не порядок вычисления операндов</summary>
+      <p>Приоритет решает, как <b>расставить скобки</b>. А сами операнды Java всегда вычисляет <b>слева направо</b>. Обычно это незаметно, но с <code>++</code> разница видна:</p>
+<pre data-file="Order.java"><code class="java">int i = 2;
+int r = i + i++ * i;
+System.out.println(r + " " + i);   // 8 3</code></pre>
+      <p>Приоритет говорит: это <code>i + (i++ * i)</code>. Но левый операнд <code>i</code> Java вычислит первым, когда он ещё 2. Потом <code>i++</code> отдаст 2 и сделает i = 3, потом правое <code>i</code> — уже 3. Итого 2 + 2 × 3 = 8. Именно поэтому <code>++</code> внутри выражений — зло.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Скобки — лучший друг</h2>
+    <p>Классическая ошибка — средний балл:</p>
+<pre data-file="Average.java"><code class="java">int a = 4;
+int b = 5;
+int c = 3;
+double wrong = a + b + c / 3.0;     // 4 + 5 + 1.0 = 10.0 — средний балл 10?!
+double right = (a + b + c) / 3.0;   // 12 / 3.0 = 4.0</code></pre>
+    <p>Деление главнее сложения, поэтому на 3 поделилось только <code>c</code>. Компилятор не видит здесь ошибки — программа работает, просто считает не то. Это <b>логическая ошибка</b>, самая коварная.</p>
+    <div class="say" data-mood="cool"><p>Правило профи: не уверен в приоритете — ставь скобки. Лишние скобки ничего не стоят, а пропущенные стоят часов отладки. И да, в задачах этого модуля такая ошибка тебе ещё встретится 😉</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m03-05">
+      <script type="application/json">
+      {
+       "title": "Приоритет — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "System.out.println(\"Итог: \" + 3 * 2 + 1);",
+         "answer": "Итог: 61",
+         "why": "Сначала 3 * 2 = 6, потом слева направо склейка: \"Итог: 6\", потом \"Итог: 61\"."
+        },
+        {
+         "type": "predict",
+         "q": "А теперь?",
+         "code": "System.out.println(1 + 2 + \"3\" + 4 * 5);",
+         "answer": "3320",
+         "why": "4 * 5 = 20 считается раньше всех плюсов. Потом слева направо: 1 + 2 = 3, 3 + \"3\" = \"33\", \"33\" + 20 = \"3320\"."
+        },
+        {
+         "type": "single",
+         "q": "Чему равно <code>100 / 10 / 5</code>?",
+         "options": [
+          "50",
+          "2",
+          "0"
+         ],
+         "answer": 1,
+         "why": "Один уровень — слева направо: (100 / 10) / 5 = 2."
+        },
+        {
+         "type": "bug",
+         "q": "В какой строке средний балл считается неправильно?",
+         "code": "int a = 4;\nint b = 5;\nint c = 3;\ndouble avg = a + b + c / 3.0;\nSystem.out.println(avg);",
+         "answer": [
+          4
+         ],
+         "why": "Деление главнее сложения: на 3 делится только c. Нужно (a + b + c) / 3.0."
+        },
+        {
+         "type": "order",
+         "q": "В каком порядке Java вычислит <code>2 + 3 * 4 &gt; 10 &amp;&amp; !false</code>?",
+         "lines": [
+          "3 * 4 → 12",
+          "2 + 12 → 14",
+          "14 > 10 → true",
+          "!false → true",
+          "true && true → true"
+         ],
+         "why": "Левый операнд && вычисляется целиком первым: арифметика, потом сравнение. Потом правый (!false), и в самом конце &&."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>a = b = 5</code> присваивает 5 обеим переменным",
+           "a": true
+          },
+          {
+           "s": "<code>*</code> и <code>%</code> одного приоритета и выполняются слева направо",
+           "a": true
+          },
+          {
+           "s": "<code>&amp;&amp;</code> выполняется раньше, чем <code>==</code>",
+           "a": false,
+           "why": "сравнения главнее логических операций: сначала ==, потом &&."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне длинное выражение на приоритет, я распишу его вычисление по шагам, как в трассировке, а ты проверь каждый шаг»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Порядок: унарные → <code>* / %</code> → <code>+ -</code> → сравнения → <code>== !=</code> → <code>&amp;&amp;</code> → <code>||</code> → присваивание.</li>
+        <li>Один уровень — слева направо (кроме присваивания: справа налево).</li>
+        <li><code>+</code> со строкой — склейка, и решается это на каждом плюсе отдельно: <code>"2 + 2 = " + 2 + 2</code> → 22.</li>
+        <li>Не уверен — ставь скобки. <code>(a + b + c) / 3.0</code>, а не <code>a + b + c / 3.0</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

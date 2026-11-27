@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Map: ключ → значение · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-05">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 13 · Урок 5 · Мастерская алгоритмов</div>
+    <h1>Map: словарь «ключ → значение»</h1>
+    <p class="lead">Телефонная книга, гардероб с номерками, таблица «товар → цена». Map — самая полезная коллекция после списка. А в Мастерской решим классику собеседований: посчитать, сколько раз встречается каждое слово.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🛠 Мастерская</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-05-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Set<String> s = new TreeSet<>(List.of(\"в\", \"а\", \"б\", \"а\"));\nSystem.out.println(s);",
+            "answer": "[а, б, в]", "why": "TreeSet убирает повтор и сортирует." },
+          { "type": "single", "q": "Зачем HashSet нужен hashCode элемента?",
+            "options": ["Чтобы отсортировать элементы", "Чтобы выбрать корзину, в которой искать", "Чтобы посчитать размер"], "answer": 1,
+            "why": "hashCode — номер корзины, equals — сравнение внутри неё." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Словарь: по ключу — значение</h2>
+    <p>В списке элемент ищут по <b>номеру</b>: «дай третий». А часто нужно искать по <b>имени</b>: «дай телефон Ани», «сколько стоит хлеб». Для этого есть <code>Map</code> (по-русски — словарь, отображение): набор пар <b>ключ → значение</b>.</p>
+<pre data-file="Phones.java"><code class="java">Map&lt;String, String&gt; phones = new HashMap&lt;&gt;();
+phones.put("Аня", "+7 900 111-22-33");
+phones.put("Борис", "+7 900 444-55-66");
+
+System.out.println(phones.get("Аня"));    // +7 900 111-22-33
+System.out.println(phones.size());        // 2</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Map&lt;String, String&gt;</code><div><p>Два типа в скобках: первый — <b>ключ</b> (по чему ищем), второй — <b>значение</b> (что храним). Здесь «имя → телефон».</p></div></div>
+      <div class="annot-row"><code>phones.put("Аня", …)</code><div><p>Положить пару. Если ключ «Аня» уже есть, старое значение <b>заменится</b> новым.</p></div></div>
+      <div class="annot-row"><code>phones.get("Аня")</code><div><p>Найти значение по ключу. Быстро, без перебора — HashMap использует те же корзины, что и HashSet, только хеш считается от <b>ключа</b>.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: гардероб</span>
+      <p>Сдаёшь пальто — получаешь номерок. Номерок — <b>ключ</b>, пальто — <b>значение</b>. Номерки не повторяются (два одинаковых номерка — путаница), а вот пальто могут быть одинаковые. По номерку гардеробщик находит пальто сразу, не перебирая вешалки.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 230" role="img" aria-label="Map: уникальные ключи указывают на значения, значения могут повторяться">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="130" y="28" text-anchor="middle" class="d-title">Ключи (уникальны)</text>
+        <text x="520" y="28" text-anchor="middle" class="d-title">Значения (любые)</text>
+        <rect x="60" y="44" width="140" height="40" rx="8" class="d-accent"/><text x="130" y="69" text-anchor="middle" class="d-mono-ink">"хлеб"</text>
+        <rect x="60" y="100" width="140" height="40" rx="8" class="d-accent"/><text x="130" y="125" text-anchor="middle" class="d-mono-ink">"молоко"</text>
+        <rect x="60" y="156" width="140" height="40" rx="8" class="d-accent"/><text x="130" y="181" text-anchor="middle" class="d-mono-ink">"кефир"</text>
+        <rect x="450" y="44" width="140" height="40" rx="8" class="d-teal"/><text x="520" y="69" text-anchor="middle" class="d-mono-ink">45</text>
+        <rect x="450" y="128" width="140" height="40" rx="8" class="d-teal"/><text x="520" y="153" text-anchor="middle" class="d-mono-ink">89</text>
+        <path d="M200 64 H446" class="d-arrow"/>
+        <path d="M200 120 C320 120 330 148 446 148" class="d-arrow"/>
+        <path d="M200 176 C320 176 330 148 446 148" class="d-arrow"/>
+        <text x="320" y="214" text-anchor="middle" class="d-small">«молоко» и «кефир» стоят одинаково — это нормально. А второй ключ «хлеб» невозможен.</text>
+      </svg>
+      <figcaption>Map&lt;String, Integer&gt; prices: товар → цена. Каждая стрелка — одна пара (entry).</figcaption>
+    </figure>
+    <p>В реальных программах словари повсюду: корзина «товар → количество», цены «товар → цена», профиль пользователя «поле → значение», настройки «имя параметра → значение». Для готовых данных есть короткая запись <code>Map.of("email", "anna@mail.ru", "city", "Казань")</code> — как и <code>List.of</code>, она <b>неизменяемая</b>.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Методы и главная ловушка: null</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает</th></tr>
+        <tr><td><code>put(k, v)</code></td><td>положить пару; если ключ был — заменить значение (вернёт старое)</td></tr>
+        <tr><td><code>get(k)</code></td><td>значение по ключу или <b><code>null</code></b>, если ключа нет</td></tr>
+        <tr><td><code>getOrDefault(k, d)</code></td><td>значение по ключу или <code>d</code>, если ключа нет</td></tr>
+        <tr><td><code>containsKey(k)</code></td><td>есть ли такой ключ (быстро)</td></tr>
+        <tr><td><code>containsValue(v)</code></td><td>есть ли такое значение (медленно: перебор всех пар)</td></tr>
+        <tr><td><code>remove(k)</code></td><td>удалить пару по ключу</td></tr>
+        <tr><td><code>size()</code>, <code>isEmpty()</code></td><td>сколько пар; пуст ли словарь</td></tr>
+      </table>
+    </div>
+    <p>Самое важное в этой таблице — <code>get</code> возвращает <code>null</code>, если ключа нет. Исключения не будет — будет «пустота», которая выстрелит позже:</p>
+<pre data-file="Prices.java"><code class="java">Map&lt;String, Integer&gt; prices = new HashMap&lt;&gt;();
+prices.put("хлеб", 45);
+
+Integer a = prices.get("сыр");          // null — сыра нет, но это не ошибка
+// 💥 NullPointerException: распаковка null (урок 2)
+int b = prices.get("сыр");
+int c = prices.getOrDefault("сыр", 0);  // 0 — безопасно
+if (prices.containsKey("сыр")) { … }    // или сначала спросить</code></pre>
+    <p>IDEA заранее чует беду и подсвечивает опасную строку жёлтым. А при запуске — вот что получится:</p>
+    <div data-widget="ide" id="shot-map-npe">
+      <script type="application/json">
+      { "tree": false, "file": "Prices.java", "runConfig": "Prices", "gutterRun": [4, 5], "statusPath": "module-13",
+        "code": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Prices {\n    public static void main(String[] args) {\n        Map<String, Integer> prices = new HashMap<>();\n        prices.put(\"хлеб\", 45);\n        Integer a = prices.get(\"сыр\");\n        System.out.println(a);\n        int b = prices.get(\"сыр\");\n        System.out.println(b);\n    }\n}",
+        "warnings": [ { "line": 10, "text": "prices.get(\"сыр\")", "msg": "Unboxing of 'prices.get(\"сыр\")' may produce 'NullPointerException'", "tip": true } ],
+        "console": { "title": "Prices", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Prices" },
+          { "t": "out", "s": "null" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke \"java.lang.Integer.intValue()\" because the return value of \"java.util.Map.get(Object)\" is null" },
+          { "t": "err", "s": "\tat Prices.main(Prices.java:10)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "tip", "text": "Предупреждение: «распаковка <code>prices.get(\"сыр\")</code> может дать NullPointerException». IDEA знает, что <code>get</code> умеет возвращать <code>null</code>" },
+                   { "n": 2, "target": "output", "text": "Строка 9: <code>null</code> в <code>Integer</code> — не ошибка, просто печатается слово null" },
+                   { "n": 3, "target": "error", "side": "bottom", "text": "А распаковать не вышло: «не могу вызвать <code>intValue()</code>, потому что <b>результат <code>Map.get(Object)</code> — null</b>». Java прямо называет виновника" },
+                   { "n": 4, "target": "link-1", "text": "Строка <b>10</b> — та самая, жёлтая" } ],
+        "caption": "map.get вернул null, распаковка в int упала" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что напечатает: prices.put("хлеб", 50); System.out.println(prices.get("хлеб") + " " + prices.size());</summary>
+      <p><b>50 1.</b> Ключ «хлеб» уже был: <code>put</code> заменил 45 на 50, а не добавил вторую пару. Ключи в Map уникальны, как элементы в Set. (Кстати, множество ключей Map и правда хранит как Set.)</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Свои объекты в роли ключа</span>
+      <p>Всё, что ты узнал про HashSet, верно и для ключей HashMap: ключ ищется по <code>hashCode</code> + <code>equals</code>. Свой класс-ключ без них — словарь «не найдёт» то, что сам хранит. Лучшие ключи — строки, числа, enum и record.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Перебор словаря</h2>
+    <p>У Map нет итератора «по парам» напрямую. Зато она умеет отдать три вида на себя:</p>
+<pre data-file="PricesLoop.java"><code class="java">// 1. Только ключи
+for (String product : prices.keySet()) {
+    System.out.println(product);
+}
+
+// 2. Только значения
+int total = 0;
+for (int price : prices.values()) {
+    total += price;
+}
+
+// 3. Пары целиком — самый частый вариант
+for (Map.Entry&lt;String, Integer&gt; entry : prices.entrySet()) {
+    System.out.println(entry.getKey() + " стоит " + entry.getValue());
+}</code></pre>
+    <dl class="terms">
+      <dt>keySet()</dt><dd>множество ключей (<code>Set</code> — ведь ключи уникальны).</dd>
+      <dt>values()</dt><dd>все значения (могут повторяться).</dd>
+      <dt>entrySet()</dt><dd>множество пар. Каждая пара — объект <code>Map.Entry&lt;K, V&gt;</code> с методами <code>getKey()</code> и <code>getValue()</code>. Entry — «запись», строчка в телефонной книге.</dd>
+    </dl>
+    <div class="callout tip">
+      <span class="callout-title">keySet + get или entrySet?</span>
+      <p>Можно перебирать ключи и для каждого вызывать <code>get</code>. Работает, но это лишний поиск на каждом шаге. <code>entrySet</code> отдаёт ключ и значение сразу — так и пиши, когда нужны оба.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>HashMap, LinkedHashMap, TreeMap: порядок</h2>
+    <p>Тот же расклад, что у множеств, — и даже имена похожи:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Класс</th><th>Порядок пар при переборе и печати</th><th>Похож на</th></tr>
+        <tr><td><code>HashMap</code></td><td>не гарантирован</td><td>HashSet</td></tr>
+        <tr><td><code>LinkedHashMap</code></td><td>порядок добавления ключей</td><td>LinkedHashSet</td></tr>
+        <tr><td><code>TreeMap</code></td><td>отсортировано по ключам</td><td>TreeSet</td></tr>
+      </table>
+    </div>
+<pre data-file="Order.java"><code class="java">// тип TreeMap, а не Map: нужен его метод firstKey
+TreeMap&lt;String, Integer&gt; tree = new TreeMap&lt;&gt;();
+tree.put("молоко", 89);
+tree.put("кефир", 89);
+tree.put("хлеб", 45);
+System.out.println(tree);              // {кефир=89, молоко=89, хлеб=45}
+System.out.println(tree.firstKey());   // кефир — самый «маленький» ключ</code></pre>
+    <div data-widget="ide" id="shot-treemap-print">
+      <script type="application/json">
+      { "tree": false, "file": "Order.java", "runConfig": "Order", "gutterRun": [3, 4], "statusPath": "module-13",
+        "code": "import java.util.TreeMap;\n\npublic class Order {\n    public static void main(String[] args) {\n        TreeMap<String, Integer> tree = new TreeMap<>();\n        tree.put(\"молоко\", 89);\n        tree.put(\"кефир\", 89);\n        tree.put(\"хлеб\", 45);\n        System.out.println(tree);\n        System.out.println(tree.firstKey());\n    }\n}",
+        "console": { "title": "Order", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Order" },
+          { "t": "out", "s": "{кефир=89, молоко=89, хлеб=45}" },
+          { "t": "out", "s": "кефир" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Словарь — в <b>фигурных</b> скобках, каждая пара как <code>ключ=значение</code>. Добавляли молоко первым, а напечатан первым кефир: TreeMap держит ключи по алфавиту" },
+                   { "n": 2, "target": "output-2", "text": "<code>firstKey()</code> — самый первый ключ по порядку" } ],
+        "caption": "Как Map выглядит в консоли" }
+      </script>
+    </div>
+    <p>Словарь печатается в фигурных скобках: <code>{ключ=значение, …}</code>. TreeMap отсортировал пары по <b>ключам</b> (по алфавиту), а не по значениям. Нужен отсортированный результат — просто скопируй любой словарь в TreeMap: <code>new TreeMap&lt;&gt;(hashMap)</code>.</p>
+    <div class="say" data-mood="oops"><p>Классическая ошибка в тестах: напечатали HashMap, скопировали вывод в ожидаемый результат — а на другом компьютере порядок другой, и тест «моргает». Печатать и сравнивать с текстом — только LinkedHashMap или TreeMap.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Мастерская: частота слов. Шаги 1–3</h2>
+    <p><b>Задача</b> (классика собеседований и аналитики логов): дан список слов. Посчитать, сколько раз встречается каждое слово.</p>
+    <p><b>Шаг 1. Вход и выход, примеры:</b></p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вход</th><th>Выход</th><th>Зачем пример</th></tr>
+        <tr><td><code>[да, нет, да, может, да]</code></td><td>да — 3, может — 1, нет — 2</td><td>обычный</td></tr>
+        <tr><td><code>[ок, ок, ок]</code></td><td>ок — 3</td><td>все одинаковые</td></tr>
+        <tr><td><code>[раз]</code></td><td>раз — 1</td><td>одно слово</td></tr>
+        <tr><td><code>[]</code></td><td>ничего</td><td>пусто, не упасть</td></tr>
+      </table>
+    </div>
+    <p><b>Шаг 2. Руками.</b> Возьми листок и считай «палочками»: читаешь слово — ищешь его на листке. Нашёл — ставишь ещё одну палочку. Не нашёл — пишешь слово с одной палочкой. Листок «слово → палочки» — это и есть словарь <code>Map&lt;String, Integer&gt;</code>!</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="Подсчёт палочками: листок со словами и количеством, по одной палочке за каждое встреченное слово">
+        <text x="20" y="30" class="d-small">читаем по одному:</text>
+        <rect x="150" y="12" width="60" height="30" rx="6" class="d-green"/><text x="180" y="32" text-anchor="middle" class="d-mono-ink">да</text>
+        <rect x="216" y="12" width="60" height="30" rx="6" class="d-green"/><text x="246" y="32" text-anchor="middle" class="d-mono-ink">нет</text>
+        <rect x="282" y="12" width="60" height="30" rx="6" class="d-green"/><text x="312" y="32" text-anchor="middle" class="d-mono-ink">да</text>
+        <rect x="348" y="12" width="70" height="30" rx="6" class="d-accent"/><text x="383" y="32" text-anchor="middle" class="d-mono-ink">может</text>
+        <rect x="424" y="12" width="60" height="30" rx="6" class="d-box"/><text x="454" y="32" text-anchor="middle" class="d-mono-ink">да</text>
+        <text x="500" y="32" class="d-small">← сейчас читаем «может»</text>
+        <rect x="150" y="62" width="300" height="124" rx="12" class="d-yellow"/>
+        <text x="170" y="88" class="d-title">листок = Map</text>
+        <text x="170" y="118" class="d-mono-ink">да    → ||     (2)</text>
+        <text x="170" y="142" class="d-mono-ink">нет   → |      (1)</text>
+        <text x="170" y="166" class="d-mono-ink">может → |      (1) новое!</text>
+        <text x="470" y="118" class="d-small">слово есть — +1 палочка</text>
+        <text x="470" y="166" class="d-small">слова нет — записать с 1</text>
+      </svg>
+      <figcaption>Ключ — слово, значение — сколько палочек. Последнее «да» ещё впереди.</figcaption>
+    </figure>
+    <p><b>Шаг 3. Роли переменных.</b></p>
+    <dl class="terms">
+      <dt>word</dt><dd><b>Шагающая</b>: по очереди каждое слово списка.</dd>
+      <dt>counts</dt><dd><b>Накопитель</b> — но не одно число, а целый словарь накопителей: свой счётчик для каждого слова.</dd>
+      <dt>old</dt><dd><b>Временная</b>: сколько было у слова до этого шага (0, если слова ещё не было).</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Мастерская. Шаги 4–6: псевдокод, код, трассировка</h2>
+    <p><b>Шаг 4. Псевдокод:</b></p>
+<pre class="terminal"><span class="out">counts ← пустой словарь (слово → сколько раз)
+для каждого слова word:
+    old ← сколько уже насчитано у word (если нет — 0)
+    записать в counts: word → old + 1
+напечатать counts</span></pre>
+    <p><b>Шаг 5. Код</b> — строка в строку. «Если нет — 0» — это ровно <code>getOrDefault</code>:</p>
+<pre data-file="WordCountDemo.java"><code class="java">List&lt;String&gt; words = List.of("да", "нет", "да");
+// TreeMap — чтобы печать была по алфавиту
+Map&lt;String, Integer&gt; counts = new TreeMap&lt;&gt;();
+for (String word : words) {
+    int old = counts.getOrDefault(word, 0);
+    counts.put(word, old + 1);
+}
+System.out.println(counts);</code></pre>
+    <p><b>Шаг 6. Трассировка.</b> Предскажи значения сам:</p>
+    <div data-widget="trace" id="trace-m13-05-count">
+      <script type="application/json">
+      { "title": "Считаем слова",
+        "intro": "Следи за словарём counts. Главный вопрос на каждом шаге: какое значение вернёт getOrDefault?",
+        "code": "List<String> words = List.of(\"да\", \"нет\", \"да\");\nMap<String, Integer> counts = new TreeMap<>();\nfor (String word : words) {\n    int old = counts.getOrDefault(word, 0);\n    counts.put(word, old + 1);\n}\nSystem.out.println(counts);",
+        "steps": [
+          { "line": 1, "vars": { "words": "[да, нет, да]" }, "note": "Три слова, «да» дважды." },
+          { "line": 2, "vars": { "words": "[да, нет, да]", "counts": "{}" }, "note": "Пустой листок." },
+          { "line": 3, "vars": { "words": "[да, нет, да]", "counts": "{}", "word": "\"да\"" }, "note": "Первое слово — «да»." },
+          { "line": 4, "vars": { "words": "[да, нет, да]", "counts": "{}", "word": "\"да\"", "old": "0" }, "ask": ["old"], "note": "Ключа «да» ещё нет — getOrDefault вернул запасное значение 0." },
+          { "line": 5, "vars": { "words": "[да, нет, да]", "counts": "{да=1}", "word": "\"да\"", "old": "0" }, "note": "put(«да», 0 + 1). Новая пара в словаре." },
+          { "line": 3, "vars": { "words": "[да, нет, да]", "counts": "{да=1}", "word": "\"нет\"" }, "note": "Второе слово — «нет». old объявлена внутри цикла, на новом витке её ещё нет." },
+          { "line": 4, "vars": { "words": "[да, нет, да]", "counts": "{да=1}", "word": "\"нет\"", "old": "0" }, "note": "«нет» ещё не встречалось — 0." },
+          { "line": 5, "vars": { "words": "[да, нет, да]", "counts": "{да=1, нет=1}", "word": "\"нет\"", "old": "0" }, "note": "Добавили «нет» с единицей." },
+          { "line": 3, "vars": { "words": "[да, нет, да]", "counts": "{да=1, нет=1}", "word": "\"да\"" }, "note": "Третье слово — снова «да»." },
+          { "line": 4, "vars": { "words": "[да, нет, да]", "counts": "{да=1, нет=1}", "word": "\"да\"", "old": "1" }, "ask": ["old"], "note": "Теперь ключ «да» есть, его значение 1. getOrDefault вернул 1, а не 0." },
+          { "line": 5, "vars": { "words": "[да, нет, да]", "counts": "{да=2, нет=1}", "word": "\"да\"", "old": "1" }, "note": "put(«да», 2) заменил старое значение 1. Вторая пара «да» не появилась — ключи уникальны." },
+          { "line": 7, "vars": { "words": "[да, нет, да]", "counts": "{да=2, нет=1}" }, "out": "{да=2, нет=1}\n", "note": "Готово. Пустой список тоже не страшен: цикл не выполнится, напечатается {}." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>А если вместо getOrDefault написать int old = counts.get(word); ?</summary>
+      <p>На первом же новом слове <code>get</code> вернёт <code>null</code>, и распаковка в <code>int</code> бросит <b>NullPointerException</b>. Ровно та ловушка, о которой был шаг 3. Альтернатива без getOrDefault — <code>if (counts.containsKey(word)) … else …</code>.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: подсчёт одной строкой</summary>
+      <p>В модуле 14 появятся ссылки на методы, и тело цикла сократится до <code>counts.merge(word, 1, Integer::sum);</code> — «положи 1, а если ключ уже есть, сложи старое с 1». Но на собеседовании сначала спросят именно вариант с <code>getOrDefault</code> или <code>containsKey</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-05">
+      <script type="application/json">
+      {
+       "title": "Map — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Map<String, Integer> m = new TreeMap<>();\nm.put(\"b\", 1);\nm.put(\"a\", 2);\nm.put(\"b\", 3);\nSystem.out.println(m + \" \" + m.size());",
+         "answer": "{a=2, b=3} 2",
+         "why": "Второй put с ключом «b» заменил значение. TreeMap сортирует по ключам."
+        },
+        {
+         "type": "single",
+         "q": "Что вернёт <code>map.get(\"нет-такого-ключа\")</code> для <code>Map&lt;String, Integer&gt;</code>?",
+         "options": [
+          "0",
+          "null",
+          "Бросит исключение"
+         ],
+         "answer": 1,
+         "why": "get возвращает null, если ключа нет. А вот присвоить этот null в int — NullPointerException."
+        },
+        {
+         "type": "bug",
+         "q": "Программа падает с NullPointerException. В какой строке?",
+         "code": "Map<String, Integer> stock = new HashMap<>();\nstock.put(\"яблоки\", 10);\nint apples = stock.get(\"яблоки\");\nint pears = stock.get(\"груши\");\nSystem.out.println(apples + pears);",
+         "answer": [
+          4
+         ],
+         "why": "Груш нет — get вернул null, распаковка null в int падает. Безопасно: getOrDefault(\"груши\", 0)."
+        },
+        {
+         "type": "match",
+         "q": "Соедини словарь с порядком печати",
+         "left": [
+          "HashMap",
+          "LinkedHashMap",
+          "TreeMap"
+         ],
+         "right": [
+          "Не гарантирован",
+          "Порядок добавления ключей",
+          "По возрастанию ключей"
+         ],
+         "why": "Как у HashSet, LinkedHashSet и TreeSet."
+        },
+        {
+         "type": "order",
+         "q": "Расставь строки подсчёта частоты",
+         "lines": [
+          "Map<String, Integer> counts = new TreeMap<>();",
+          "for (String w : words) {",
+          "    counts.put(w, counts.getOrDefault(w, 0) + 1);",
+          "}",
+          "System.out.println(counts);"
+         ],
+         "code": true,
+         "why": "Пустой словарь → для каждого слова «было + 1» → печать после цикла."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Тренируй план</span>
+      <p>Напиши наставнику: <em>«Дай задачу на Map уровня собеседования. Я сначала распишу примеры, роли и псевдокод — проверь план до кода»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Map&lt;K, V&gt;</code> — пары «ключ → значение». Ключи уникальны, значения — любые.</li>
+        <li><code>put</code> заменяет значение у существующего ключа. <code>get</code> по отсутствующему ключу — <code>null</code> (опасно при распаковке в int), <code>getOrDefault</code> — безопасно.</li>
+        <li>Перебор: <code>keySet()</code>, <code>values()</code>, <code>entrySet()</code> с <code>getKey()</code>/<code>getValue()</code>.</li>
+        <li><code>HashMap</code> — без порядка, <code>LinkedHashMap</code> — порядок добавления, <code>TreeMap</code> — по ключам.</li>
+        <li>Частота: <code>counts.put(w, counts.getOrDefault(w, 0) + 1)</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

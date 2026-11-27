@@ -1,0 +1,63 @@
+## id: tr-strings-031
+## title: Анализ текста
+## file: trainer/strings/TextCharStats.java
+## class: TextCharStats
+## level: 2
+## category: Подсчёт символов
+@@ description
+<p>Напиши класс <code>TextCharStats</code>. Программа читает строку и считает в ней гласные буквы, согласные буквы, цифры и все прочие символы (пробелы, знаки). Гласные — русские <code>а е ё и о у ы э ю я</code> и английские <code>a e i o u</code>, в любом регистре. Согласная — любая другая буква (например, <code>й</code>, <code>ь</code>, <code>y</code>). Выведи четыре строки:</p>
+<pre class="terminal"><span class="out">гласных: …
+согласных: …
+цифр: …
+прочих: …</span></pre>
+<p>Пример:</p>
+<pre class="terminal"><span class="out">ввод:  Привет, мир 2024!
+вывод: гласных: 3
+       согласных: 6
+       цифр: 4
+       прочих: 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>"аеёиоуыэюяaeiou".indexOf(c) >= 0</code> — проверка «это гласная?» без десяти <code>||</code></li>
+<li><code>Character.isLetter(c)</code>, <code>Character.isDigit(c)</code> — буква? цифра?</li>
+<li><code>Character.toLowerCase(c)</code> — чтобы не думать о регистре</li>
+</ul></div>
+@@ test: Пример
+@@ input
+Привет, мир 2024!
+@@ expect
+гласных: 3
+согласных: 6
+цифр: 4
+прочих: 4
+@@ test: Английский
+@@ input
+Java 21
+@@ expect
+гласных: 2
+согласных: 2
+цифр: 2
+прочих: 1
+@@ test: Заглавные и ё
+@@ input
+ЁЖ и ёж
+@@ expect
+гласных: 3
+согласных: 2
+цифр: 0
+прочих: 2
+@@ test: Только знаки
+@@ input
+?!...
+@@ expect
+гласных: 0
+согласных: 0
+цифр: 0
+прочих: 5
+@@ test: Пустая строка
+@@ input
+
+@@ expect
+гласных: 0
+согласных: 0
+цифр: 0
+прочих: 0

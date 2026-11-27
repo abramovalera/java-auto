@@ -1,0 +1,45 @@
+## id: tr-loops-028
+## title: Лестница
+## file: trainer/loops/StaircaseOfHashes.java
+## class: StaircaseOfHashes
+## level: 1
+## category: Символы и узоры
+@@ description
+<p>Напиши класс <code>StaircaseOfHashes</code>. Программа читает число ступенек <code>n</code> (n ≥ 0) и рисует лестницу: в первой строке один символ <code>#</code>, во второй — два, в последней — <code>n</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+вывод: #
+       ##
+       ###
+       ####</span></pre>
+<p>При <code>n = 0</code> программа ничего не печатает.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>внутренний цикл зависит от внешнего: <code>for (int i = 1; i &lt;= row; i++)</code> — в строке row столько символов, каков её номер</li>
+</ul></div>
+@@ test: Четыре ступеньки
+@@ input
+4
+@@ expect
+#
+##
+###
+####
+@@ test: Одна ступенька
+@@ input
+1
+@@ expect
+#
+@@ test: Ступенек нет
+@@ input
+0
+@@ expect
+
+@@ test: Шесть ступенек
+@@ input
+6
+@@ expect
+#
+##
+###
+####
+#####
+######

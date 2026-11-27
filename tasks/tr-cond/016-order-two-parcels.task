@@ -1,0 +1,33 @@
+## id: tr-cond-016
+## title: Две посылки по весу
+## file: trainer/cond/OrderTwoParcels.java
+## class: OrderTwoParcels
+## level: 1
+## category: Сравнения и максимум
+@@ description
+<p>Напиши класс <code>OrderTwoParcels</code>. Программа читает веса двух посылок — два целых числа в одной строке через пробел — и печатает их по возрастанию через пробел: сначала лёгкую, потом тяжёлую.</p>
+<pre class="terminal"><span class="out">ввод:  7 3
+вывод: 3 7</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> читает числа и через пробел, и с новой строки</li>
+</ul></div>
+@@ test: Первая тяжелее
+@@ input
+7 3
+@@ expect
+3 7
+@@ test: Уже по порядку
+@@ input
+2 9
+@@ expect
+2 9
+@@ test: Одинаковый вес
+@@ input
+5 5
+@@ expect
+5 5
+@@ test: Большая разница
+@@ input
+120 1
+@@ expect
+1 120

@@ -1,0 +1,39 @@
+## id: tr-streams-030
+## title: Сумма корзины
+## file: trainer/streams/ShoppingCartTotal.java
+## class: ShoppingCartTotal
+## level: 2
+## category: filter и map
+@@ description
+<p>Напиши класс <code>ShoppingCartTotal</code>. Касса получает корзину одной строкой: позиции через пробел, каждая в виде <code>название:цена:количество</code> (хотя бы одна позиция, названия без пробелов). Опиши в том же файле record для позиции корзины, преврати каждую позицию в объект этого record, а потом посчитай и напечатай <code>Итого: X</code> — сумму <code>цена × количество</code> по всем позициям.</p>
+<pre class="terminal"><span class="out">ввод:  Хлеб:45:2 Молоко:80:1 Сыр:300:1
+вывод: Итого: 470</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>record CartLineItem(String title, int price, int qty) { }</code> — запись с тремя полями (без <code>public</code>, в том же файле)</li>
+<li><code>s.split(":")</code> — разрезает <code>Хлеб:45:2</code> на три части</li>
+<li><code>.mapToInt(item -&gt; …)</code> — превращает каждый объект в число <code>int</code></li>
+</ul></div>
+@@ test: Магазин у дома
+@@ input
+Хлеб:45:2 Молоко:80:1 Сыр:300:1
+@@ expect
+Итого: 470
+@@ test: Одна позиция
+@@ input
+Тетрадь:25:10
+@@ expect
+Итого: 250
+@@ test: Нулевое количество
+@@ input
+Чай:120:0 Сахар:90:1
+@@ expect
+Итого: 90
+@@ test: Крупная покупка
+@@ input
+Ноутбук:85000:2 Мышь:1500:3
+@@ expect
+Итого: 174500
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \brecord\s+\w+ | Опиши позицию корзины как record

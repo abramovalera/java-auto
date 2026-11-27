@@ -1,0 +1,33 @@
+## id: m05-t03
+## title: Почини обратный отсчёт
+## file: module-05/CountdownFix.java
+## class: CountdownFix
+## level: 1
+@@ description
+<p>Файл <code>workspace/module-05/CountdownFix.java</code> уже лежит в папке. Это обратный отсчёт перед стартом ракеты, но программист торопился: в цикле <b>две ошибки</b>.</p>
+<p>Сначала запусти его в IDEA как есть и посмотри, что происходит. Программа не остановится сама — останови её <b>красным квадратом Stop</b> в панели Run (или <kbd>Ctrl</kbd>+<kbd>F2</kbd>). Потом найди обе ошибки и исправь, не переписывая программу заново. Должно получиться:</p>
+<pre class="terminal"><span class="out">10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Пуск!</span></pre>
+<p>📖 <a href="/lessons/m05/01-while.html">Цикл while: бесконечный цикл</a> · <a href="/lessons/m05/07-loop-mistakes.html">Типичные ошибки в циклах</a></p>
+@@ test: Отсчёт от 10 до 1 и пуск
+@@ expect
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Пуск!

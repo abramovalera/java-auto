@@ -1,0 +1,54 @@
+## id: tr-except-014
+## title: Пульт от телевизора
+## file: trainer/except/TvRemoteChannel.java
+## class: TvRemoteChannel
+## level: 2
+## category: throw и свои исключения
+@@ description
+<p>Напиши класс <code>TvRemoteChannel</code>. На телевизоре каналы с 1 по 99. Программа читает строку через <code>nextLine()</code> и превращает её в число. Если номер вне диапазона, выброси <code>IllegalArgumentException</code> с сообщением <code>Канала N нет</code>. Программа печатает:</p>
+<ul>
+<li><code>Включаю канал N</code> — если всё в порядке;</li>
+<li><code>Нажимай только цифры</code> — если строка не число;</li>
+<li>сообщение исключения — если канала нет.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:  5       вывод: Включаю канал 5
+ввод:  100     вывод: Канала 100 нет
+ввод:  пять    вывод: Нажимай только цифры</span></pre>
+<p>Подвох: <code>NumberFormatException</code> — наследник <code>IllegalArgumentException</code>. Подумай, в каком порядке писать блоки <code>catch</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>блоки <code>catch</code> пишут от частного к общему: сначала потомок, потом родитель</li>
+<li><code>throw</code> можно написать прямо внутри <code>try</code> — исключение перехватит <code>catch</code> ниже</li>
+</ul></div>
+@@ test: Обычный канал
+@@ input
+5
+@@ expect
+Включаю канал 5
+@@ test: Последний канал
+@@ input
+99
+@@ expect
+Включаю канал 99
+@@ test: Сотого канала нет
+@@ input
+100
+@@ expect
+Канала 100 нет
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Канала 0 нет
+@@ test: Словом
+@@ input
+пять
+@@ expect
+Нажимай только цифры
+@@ test: Отрицательный
+@@ input
+-1
+@@ expect
+Канала -1 нет
+@@ require: throw\s+new\s+IllegalArgumentException | Выбрасывай IllegalArgumentException через throw new
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException
+@@ require: catch\s*\(\s*IllegalArgumentException | Перехвати IllegalArgumentException

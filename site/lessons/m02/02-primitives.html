@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Примитивные типы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 2 · Урок 2</div>
+    <h1>Примитивные типы: числа, «да/нет» и символы</h1>
+    <p class="lead">Целое число, дробное, «да или нет», одна буква — для каждого вида данных в Java своя коробка. Разберёмся, какие они бывают, сколько вмещают и что случается, когда коробка переполняется.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔢 8 типов</span><span>🎮 1 мини-игра</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <p>Сначала разомнёмся по прошлому уроку и модулю 1.</p>
+    <div data-widget="check" id="check-m02-02-review">
+      <script type="application/json">
+      {
+       "title": "Разминка",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int a = 5;\nint b = a + 2;\na = 1;\nSystem.out.println(a + b);",
+         "answer": "8",
+         "why": "b инициализирована результатом выражения 5 + 2, то есть готовым числом 7 — оно не пересчитывается. Потом переменной a присваивается 1, и 1 + 7 = 8."
+        },
+        {
+         "type": "single",
+         "q": "Что выведет <code>System.out.println(\"Итог: \" + 2 + 3);</code>?",
+         "options": [
+          "Итог: 5",
+          "Итог: 23",
+          "Ошибку компиляции"
+         ],
+         "answer": 1,
+         "why": "Выражение вычисляется слева направо: строка + 2 = строка «Итог: 2», потом приклеивается 3. Нужны скобки: (2 + 3)."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Разные данные — разные коробки</h2>
+    <p>На кухне соль хранят в солонке, молоко — в бутылке, а яйца — в лотке. Можно было бы всё сложить в одно ведро, но тогда неудобно и легко всё испортить. В Java так же: для каждого вида данных — своя «тара», свой <b>тип</b>.</p>
+    <p>Память компьютера состоит из <b>битов</b> — крошечных ячеек, в каждой 0 или 1. Восемь битов — это <b>байт</b>. Чем больше байтов у типа, тем больше разных значений в нём помещается. Например, <code>int</code> занимает 4 байта (32 бита), и в нём помещаются числа от −2 147 483 648 до 2 147 483 647 — примерно ±2 миллиарда.</p>
+    <p>В Java есть восемь встроенных типов. Их называют <b>примитивными</b> (простыми): они хранят одно простое значение, и пишутся они с маленькой буквы.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Тип</th><th>Что хранит</th><th>Размер</th><th>Диапазон / пример</th></tr>
+        <tr><td><code>int</code> ⭐</td><td>целое число</td><td>4 байта</td><td>±2,1 миллиарда · <code>42</code></td></tr>
+        <tr><td><code>long</code> ⭐</td><td>большое целое</td><td>8 байт</td><td>±9,2·10<sup>18</sup> · <code>8_100_000_000L</code></td></tr>
+        <tr><td><code>double</code> ⭐</td><td>дробное число</td><td>8 байт</td><td>~15–16 точных цифр · <code>3.14</code></td></tr>
+        <tr><td><code>boolean</code> ⭐</td><td>«да» или «нет»</td><td>—</td><td>только <code>true</code> или <code>false</code></td></tr>
+        <tr><td><code>char</code> ⭐</td><td>один символ</td><td>2 байта</td><td><code>'A'</code>, <code>'я'</code>, <code>'7'</code></td></tr>
+        <tr><td><code>byte</code></td><td>маленькое целое</td><td>1 байт</td><td>от −128 до 127</td></tr>
+        <tr><td><code>short</code></td><td>короткое целое</td><td>2 байта</td><td>от −32 768 до 32 767</td></tr>
+        <tr><td><code>float</code></td><td>дробное попроще</td><td>4 байта</td><td>~7 точных цифр · <code>3.14f</code></td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="cool"><p>Каждый день тебе понадобятся пять типов со звёздочкой ⭐. <code>byte</code>, <code>short</code> и <code>float</code> встречаются редко: знай, что они есть, и не пугайся, если увидишь в чужом коде.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Целые числа: int и long</h2>
+    <p><code>int</code> — главный тип для целых чисел: количество, возраст, номер, очки. Если число может вырасти больше двух миллиардов — бери <code>long</code>.</p>
+<pre data-file="Numbers.java"><code class="java">int players = 12;
+int temperature = -5;
+long population = 8_100_000_000L;     // население Земли
+long millis = 1_700_000_000_000L;     // миллисекунды — их всегда много</code></pre>
+    <p>Значение, написанное прямо в коде (<code>12</code>, <code>-5</code>, <code>8_100_000_000L</code>), называется <b>литерал</b>. У литералов тоже есть тип, и Java определяет его по внешнему виду:</p>
+    <ul>
+      <li>целое число без хвостика — это <code>int</code>;</li>
+      <li>с буквой <code>L</code> в конце — <code>long</code>. Пиши большую <code>L</code>: маленькую <code>l</code> легко спутать с единицей;</li>
+      <li>подчёркивания <code>_</code> внутри числа Java пропускает. Они нужны только людям, чтобы видеть разряды: <code>1_000_000</code> читается легче, чем <code>1000000</code>.</li>
+    </ul>
+    <details class="predict">
+      <summary>Скомпилируется ли строка <code>long big = 3000000000;</code>?</summary>
+      <p><b>Нет!</b> Ошибка <code>integer number too large</code>. Коробка <code>long</code> большая, но сам литерал <code>3000000000</code> без <code>L</code> считается <code>int</code>, а для int он слишком велик. Починка: <code>3000000000L</code>.</p>
+      <div data-widget="ide" id="shot-int-too-large">
+        <script type="application/json">
+        { "tree": false, "file": "Numbers.java", "gutterRun": [1, 2],
+          "code": "public class Numbers {\n    public static void main(String[] args) {\n        long big = 3000000000;\n        System.out.println(big);\n    }\n}",
+          "errors": [ { "line": 3, "text": "3000000000", "msg": "Integer number too large", "tip": true } ],
+          "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Подчёркнуто само число, а не <code>long</code>: IDEA ругается на литерал, ему нужна буква <code>L</code>" },
+                     { "n": 2, "target": "tip", "text": "<b>Integer number too large</b> — «целое число слишком большое» (для int). То же самое скажет и <code>javac</code>" } ],
+          "caption": "Литерал без L не помещается в int" }
+        </script>
+      </div>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Дробные числа: double</h2>
+<pre data-file="Numbers.java"><code class="java">double price = 99.90;
+double pi = 3.14159;
+double half = 0.5;
+double whole = 5;          // можно и целое: станет 5.0
+float weight = 72.5f;      // float — с буквой f</code></pre>
+    <p>Дробная часть отделяется <b>точкой</b>, а не запятой, как в английском. <code>3,14</code> Java поймёт как два разных числа через запятую — и выдаст ошибку. Число с точкой без хвостика — это <code>double</code>. Чтобы получился <code>float</code>, нужна буква <code>f</code> на конце.</p>
+    <details class="predict">
+      <summary>Что напечатает <code>System.out.println(0.1 + 0.2);</code>?</summary>
+      <p><b>0.30000000000000004</b> — не опечатка! Компьютер хранит дробные числа в двоичном виде, а 0.1 в двоичной системе — бесконечная дробь, как 1/3 = 0.3333… в десятичной. Хранится чуть-чуть неточное число, и при сложении погрешность вылезает наружу. Так работает почти любой язык программирования, не только Java.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Деньги в double не хранят</span>
+      <p>Из-за таких погрешностей в банках и магазинах деньги в <code>double</code> не держат. Их считают в копейках (целым числом в <code>long</code>) или используют специальный класс <code>BigDecimal</code> — его разберём позже. Для учебных задач <code>double</code> подходит.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>«Да/нет» и символы: boolean и char</h2>
+    <p><code>boolean</code> хранит только одно из двух значений: <code>true</code> (истина, «да») или <code>false</code> (ложь, «нет»). Это ответ на вопрос: залогинен ли пользователь? Оплачен ли заказ? Включён ли свет?</p>
+<pre data-file="Flags.java"><code class="java">boolean isLoggedIn = true;
+boolean testPassed = false;</code></pre>
+    <p>Литералы <code>true</code> и <code>false</code> пишутся без кавычек: <code>"true"</code> в кавычках — уже строковый литерал, текст, а не boolean. И нет, вместо них нельзя писать 1 и 0, как в некоторых языках. Такие переменные часто называют с <code>is</code> или <code>has</code>: <code>isVisible</code>, <code>hasError</code>. Настоящая сила boolean откроется в модуле 4, когда программа начнёт принимать решения.</p>
+    <p><code>char</code> (от англ. <i>character</i> — символ) хранит <b>ровно один символ</b> в <b>одинарных</b> кавычках:</p>
+<pre data-file="Chars.java"><code class="java">char grade = 'A';
+char letter = 'я';
+char digit = '7';      // символ «7», а не число 7
+char space = ' ';      // пробел — тоже символ</code></pre>
+    <p><code>'AB'</code> — ошибка: два символа в char не влезут. А <code>"A"</code> в двойных кавычках — это уже строка (String), не char. Помнишь головоломку из модуля 1 про <code>println('Hello')</code>? Вот откуда она.</p>
+    <div data-widget="ide" id="shot-char-too-many">
+      <script type="application/json">
+      { "tree": false, "file": "Chars.java", "gutterRun": [1, 2],
+        "code": "public class Chars {\n    public static void main(String[] args) {\n        char grade = 'A';\n        char two = 'AB';\n    }\n}",
+        "errors": [ { "line": 4, "text": "'AB'", "msg": "Too many characters in character literal", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-3", "side": "top", "text": "Один символ в одинарных кавычках — всё в порядке" },
+                   { "n": 2, "target": "err-4", "text": "Два символа — красная волна под всем <code>'AB'</code>" },
+                   { "n": 3, "target": "tip", "text": "<b>Too many characters in character literal</b> — «слишком много символов для char». А <code>javac</code> скажет непонятнее: <code>unclosed character literal</code> — «незакрытый символ»" } ],
+        "caption": "В char помещается ровно один символ" }
+      </script>
+    </div>
+    <div class="callout fact">
+      <span class="callout-title">Секрет char</span>
+      <p>На самом деле внутри char лежит <b>число</b> — номер символа в огромной таблице всех символов мира (Unicode). <code>'A'</code> — это 65, <code>'a'</code> — 97, <code>'Я'</code> — 1071. Поэтому <code>'A' + 'B'</code> даёт 131, а не «AB». Подробно — в уроке 2.6.</p>
+    </div>
+    <div data-widget="check" id="check-m02-02-mid">
+      <script type="application/json">
+      { "title": "Литералы и их типы",
+        "items": [
+          { "type": "match", "q": "Соедини литерал с его типом", "left": ["42", "42L", "4.2", "4.2f", "'4'", "true"], "right": ["int", "long", "double", "float", "char", "boolean"], "why": "Целое без хвостика — int, с L — long, с точкой — double, с f — float, в одинарных кавычках — char, true/false — boolean." },
+          { "type": "multi", "q": "Какие строки НЕ скомпилируются?", "options": ["char c = 'AB';", "double d = 7;", "boolean b = \"true\";", "char c = '9';", "double d = 2,5;"], "answer": [0, 2, 4], "why": "В char — ровно один символ; \"true\" в кавычках — строка, а не boolean; дробную часть пишут через точку. А double d = 7 законно: будет 7.0." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Какой тип выбрать?</h2>
+    <p>Новичков на собеседовании часто просят выбрать тип для данных из жизни. Потренируйся: для каждой карточки нажми подходящий тип.</p>
+    <div data-widget="buckets" id="pick-type">
+      <script type="application/json">
+      { "title": "Какой тип подойдёт?", "icon": "📦",
+        "buckets": [ { "id": "int", "label": "int", "style": "" }, { "id": "long", "label": "long", "style": "indigo" }, { "id": "double", "label": "double", "style": "green" }, { "id": "boolean", "label": "boolean", "style": "red" }, { "id": "char", "label": "char", "style": "ghost" } ],
+        "items": [
+          { "emoji": "🎂", "text": "Возраст человека", "bucket": "int", "why": "Целое число и точно меньше двух миллиардов — int." },
+          { "emoji": "🌍", "text": "Население Земли (8 миллиардов)", "bucket": "long", "why": "В int помещается только до 2,1 миллиарда — нужен long." },
+          { "emoji": "🌡️", "text": "Температура за окном: 21.5", "bucket": "double", "why": "Есть дробная часть — double." },
+          { "emoji": "💡", "text": "Включён ли свет", "bucket": "boolean", "why": "Ответ «да» или «нет» — boolean." },
+          { "emoji": "🅰️", "text": "Оценка по шкале от A до F", "bucket": "char", "why": "Одна буква — char." },
+          { "emoji": "🛒", "text": "Количество товаров в корзине", "bucket": "int", "why": "Целое и небольшое — int." },
+          { "emoji": "📏", "text": "Рост в метрах: 1.82", "bucket": "double", "why": "Дробное число — double." },
+          { "emoji": "✅", "text": "Оплачен ли заказ", "bucket": "boolean", "why": "Оплачен или нет — boolean." },
+          { "emoji": "⏱️", "text": "Миллисекунды с 1 января 1970 года", "bucket": "long", "why": "Их уже больше 1,7 триллиона. Именно поэтому время в Java хранят в long." },
+          { "emoji": "⌨️", "text": "Нажатая клавиша", "bucket": "char", "why": "Один символ — char." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Переполнение: когда коробка мала</h2>
+    <p>Самое большое число, которое влезает в <code>int</code>, хранится в готовой константе <code>Integer.MAX_VALUE</code>. Что будет, если прибавить к нему единицу?</p>
+<pre data-file="Overflow.java"><code class="java">int max = Integer.MAX_VALUE;
+System.out.println(max);
+System.out.println(max + 1);</code></pre>
+    <div data-widget="ide" id="shot-overflow">
+      <script type="application/json">
+      { "tree": false, "file": "Overflow.java", "runConfig": "Overflow", "gutterRun": [1, 2], "problems": true,
+        "code": "public class Overflow {\n    public static void main(String[] args) {\n        int max = Integer.MAX_VALUE;\n        System.out.println(max);\n        System.out.println(max + 1);\n    }\n}",
+        "console": { "title": "Overflow", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Overflow" },
+          { "t": "out", "s": "2147483647" },
+          { "t": "out", "s": "-2147483648" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "problems", "text": "Зелёная галочка: IDEA не видит в коде ничего подозрительного" },
+                   { "n": 2, "target": "output", "text": "Самое большое <code>int</code>" },
+                   { "n": 3, "target": "output-2", "text": "Прибавили 1 — и получили самое маленькое, с минусом", "box": true },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 0</b> — программа «довольна». Переполнение замечаешь только ты сам" } ],
+        "caption": "Переполнение int: ни ошибки, ни предупреждения" }
+      </script>
+    </div>
+    <p>Никакой ошибки, никакого предупреждения — просто самое большое число превратилось в самое маленькое. Это <b>переполнение</b> (англ. <i>overflow</i>).</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: счётчик пробега</span>
+      <p>У старой машины счётчик пробега на шесть цифр. Проехал 999 999 км, ещё километр — и на счётчике 000 000. Цифр больше нет, счёт пошёл по кругу. У <code>int</code> то же самое, только круг замыкается не на нуле, а на самом маленьком отрицательном числе.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 270" role="img" aria-label="Числа int идут по кругу: после 2147483647 сразу идёт -2147483648; справа счётчик пробега 999999 переходит в 000000">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <circle cx="190" cy="140" r="95" class="d-soft"/>
+        <circle cx="190" cy="140" r="4" class="d-head"/>
+        <text x="190" y="252" text-anchor="middle" class="d-mono-ink">0</text>
+        <circle cx="190" cy="235" r="5" class="d-head"/>
+        <circle cx="160" cy="50" r="6" class="d-head"/>
+        <circle cx="220" cy="50" r="6" class="d-head"/>
+        <text x="236" y="30" class="d-mono-ink">2 147 483 647</text>
+        <text x="144" y="30" text-anchor="end" class="d-mono-ink">−2 147 483 648</text>
+        <path d="M222 40 Q190 6 160 40" class="d-arrow-accent"/>
+        <text x="190" y="88" text-anchor="middle" class="d-c-accent d-title">+1</text>
+        <text x="296" y="150" class="d-small">растут</text>
+        <text x="84" y="150" text-anchor="end" class="d-small">растут</text>
+        <path d="M282 160 Q290 210 230 232" class="d-arrow"/>
+        <path d="M150 232 Q90 210 98 160" class="d-arrow"/>
+        <defs><marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker></defs>
+
+        <rect x="440" y="60" width="240" height="60" rx="10" class="d-code"/>
+        <text x="560" y="98" text-anchor="middle" class="d-mono" style="font-size:24px">999 999 км</text>
+        <path d="M560 128 V160" class="d-arrow"/>
+        <text x="580" y="150" class="d-small">+1 км</text>
+        <rect x="440" y="168" width="240" height="60" rx="10" class="d-code"/>
+        <text x="560" y="206" text-anchor="middle" class="d-mono" style="font-size:24px">000 000 км</text>
+      </svg>
+      <figcaption>Значения int идут по кругу: за самым большим сразу следует самое маленькое.</figcaption>
+    </figure>
+    <div class="callout fact">
+      <span class="callout-title">История: Gangnam Style сломал YouTube</span>
+      <p>В 2014 году клип «Gangnam Style» приблизился к 2 147 483 647 просмотрам — пределу 32-битного счётчика. Разработчикам YouTube пришлось срочно перевести счётчик на 64-битное число — то есть на аналог <code>long</code>. Переполнение — не учебная выдумка.</p>
+    </div>
+    <details class="predict">
+      <summary>Что выведет программа?<br><code>int a = 2_000_000_000;</code><br><code>int b = a + a;</code><br><code>System.out.println(b);</code></summary>
+      <p><b>−294967296.</b> 4 миллиарда в int не влезает, счёт ушёл по кругу в минус. Если ждёшь больших чисел — бери <code>long</code>. Но осторожно: <code>long b = a + a;</code> не спасёт! Выражение справа <code>a + a</code> вычисляется в int (обе переменные — int) и переполняется <b>до того</b>, как результат присвоится переменной long. Как это обойти — в уроке 2.6.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: почему после плюса получается минус</summary>
+      <p>Один из 32 битов int хранит знак: 0 — плюс, 1 — минус. Самое большое int — это 0 и дальше 31 единица. Прибавляем 1: единицы «переносятся», как 0999 + 1 = 1000 в десятичной системе, и в знаковом бите оказывается 1. Получается самое маленькое отрицательное число. Такая запись называется «дополнительный код». Учить её не нужно, главное — помнить, что int идёт по кругу.</p>
+      <p>Для long то же самое, только круг гораздо больше: <code>Long.MAX_VALUE</code> = 9 223 372 036 854 775 807.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m02-02">
+      <script type="application/json">
+      {
+       "title": "Примитивные типы — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Нужно хранить, сколько секунд прошло с 1970 года (сейчас это около 1,7 миллиарда, и число растёт). Какой тип надёжнее?",
+         "options": [
+          "int",
+          "long",
+          "double"
+         ],
+         "answer": 1,
+         "why": "Целое и скоро перевалит за 2,1 миллиарда: в 2038 году счётчик в int переполнится. Это реальная «проблема 2038 года»."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int max = Integer.MAX_VALUE;\nSystem.out.println(max + 1);",
+         "answer": "-2147483648",
+         "why": "Переполнение: int идёт по кругу, за самым большим сразу идёт самое маленькое."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>char c = \"A\";</code> — правильная строка",
+           "a": false,
+           "why": "в двойных кавычках — строка (String). Для char нужны одинарные: 'A'."
+          },
+          {
+           "s": "Внутри char на самом деле хранится число — код символа",
+           "a": true
+          },
+          {
+           "s": "Если переполнить int, Java сразу выдаст ошибку",
+           "a": false,
+           "why": "Java молча уйдёт по кругу в минус. Поэтому переполнение опасно."
+          },
+          {
+           "s": "<code>double d = 10;</code> скомпилируется, и в d будет 10.0",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Что напечатает <code>System.out.println(0.1 + 0.2);</code>?",
+         "options": [
+          "0.3",
+          "0.30000000000000004",
+          "Ошибку компиляции"
+         ],
+         "answer": 1,
+         "why": "0.1 и 0.2 хранятся в двоичном виде чуть неточно, и погрешность вылезает при сложении."
+        },
+        {
+         "type": "single",
+         "q": "Какой тип занимает в памяти больше всего?",
+         "options": [
+          "int",
+          "char",
+          "long"
+         ],
+         "answer": 2,
+         "why": "long и double — по 8 байт, int — 4, char — 2."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Назови мне 5 вещей из жизни, а я скажу, какой тип Java для них выбрать и почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Восемь примитивных типов; каждый день нужны пять: <code>int</code>, <code>long</code>, <code>double</code>, <code>boolean</code>, <code>char</code>.</li>
+        <li>Литералы: <code>42</code> — int, <code>42L</code> — long, <code>4.2</code> — double, <code>4.2f</code> — float, <code>'A'</code> — char, <code>true</code> — boolean.</li>
+        <li>Дробная часть — через точку. <code>0.1 + 0.2</code> ≠ 0.3 ровно: дробные числа хранятся с погрешностью.</li>
+        <li><code>char</code> — один символ в одинарных кавычках, внутри — числовой код.</li>
+        <li>int вмещает примерно ±2,1 миллиарда. <code>Integer.MAX_VALUE + 1</code> молча уходит в минус — это переполнение. Для больших чисел — <code>long</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

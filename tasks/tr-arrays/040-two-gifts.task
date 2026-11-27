@@ -1,0 +1,51 @@
+## id: tr-arrays-040
+## title: Два подарка на всю сумму
+## file: trainer/arrays/TwoGiftsForBudget.java
+## class: TwoGiftsForBudget
+## level: 2
+## category: Поиск
+@@ description
+<p>Напиши класс <code>TwoGiftsForBudget</code>. У тебя есть подарочный сертификат на сумму <code>S</code>, и потратить его нужно ровно на два <b>разных</b> подарка. В первой строке — количество подарков <code>n</code>, во второй — <code>n</code> цен, в третьей — <code>S</code>. Перебери все пары и найди первую подходящую: с наименьшим номером первого подарка, а при равенстве — второго. Напечатай <code>Подарки X и Y</code> (номера с 1, <code>X &lt; Y</code>) или <code>Не получится</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       300 700 500 200 500
+       1000
+вывод: Подарки 1 и 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>вложенный цикл: <code>for (int i = 0; i &lt; n; i++)</code> и внутри <code>for (int j = i + 1; j &lt; n; j++)</code></li>
+<li><code>j = i + 1</code> — чтобы не взять один подарок дважды и не проверять пару повторно</li>
+</ul></div>
+@@ test: Нашлась пара
+@@ input
+5
+300 700 500 200 500
+1000
+@@ expect
+Подарки 1 и 2
+@@ test: Одинаковые цены
+@@ input
+3
+400 100 400
+800
+@@ expect
+Подарки 1 и 3
+@@ test: Один подарок не считается дважды
+@@ input
+2
+500 600
+1000
+@@ expect
+Не получится
+@@ test: Не получится
+@@ input
+3
+100 200 300
+1000
+@@ expect
+Не получится
+@@ test: Нет подарков
+@@ input
+0
+100
+@@ expect
+Не получится
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

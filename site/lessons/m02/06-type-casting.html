@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Преобразования типов · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-06">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 2 · Урок 6</div>
+    <h1>Преобразования типов</h1>
+    <p class="lead">Что будет, если сложить int и double? Как превратить 3.9 в целое число, букву — в её код, а текст «42» — в настоящее число? Разберёмся, когда Java меняет тип сама, а когда нужно попросить её явно.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔄 int ↔ double ↔ char ↔ String</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m02-06-review">
+      <script type="application/json">
+      { "title": "Разминка", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Пользователь ввёл «Анна Мария». Что вернёт <code>scanner.next()</code>?", "options": ["«Анна Мария»", "«Анна»", "«Мария»"], "answer": 1, "why": "next() читает одно слово — до пробела." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "char c = 'Z';\nString s = \"Z\";\nSystem.out.println(s.length() + \" \" + c);", "answer": "1 Z", "why": "В строке \"Z\" один символ. char печатается как символ." },
+          { "type": "single", "q": "Что лежит в int-переменной после <code>int x = Integer.MAX_VALUE + 1;</code>?", "options": ["2147483648", "-2147483648", "Ошибка компиляции"], "answer": 1, "why": "Переполнение: int идёт по кругу в самый минус." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Когда типы встречаются</h2>
+    <p>Тип переменной выбирается навсегда, но данные постоянно приходится переводить из одного типа в другой: цена товара в рублях (double) нужна целым числом; пользователь ввёл текст «42», а считать нужно с числом; в файле с прайс-листом цена — это текст «1299», а сложить её с другими надо как число.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: переливаем воду</span>
+      <p>Из маленького стакана в большую банку переливать безопасно — всё поместится. Java делает это <b>сама</b>. А из большой банки в маленький стакан — часть может пролиться. Тут Java требует, чтобы ты сказал явно: «я понимаю, что часть пропадёт».</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="Расширение типов происходит автоматически по цепочке byte, short, int, long, float, double; char тоже автоматически превращается в int; в обратную сторону нужно явное приведение">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+          <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker>
+        </defs>
+        <rect x="10" y="40" width="80" height="44" rx="10" class="d-soft"/><text x="50" y="68" text-anchor="middle" class="d-mono-ink">byte</text>
+        <rect x="128" y="40" width="80" height="44" rx="10" class="d-soft"/><text x="168" y="68" text-anchor="middle" class="d-mono-ink">short</text>
+        <rect x="246" y="40" width="80" height="44" rx="10" class="d-green"/><text x="286" y="68" text-anchor="middle" class="d-mono-ink">int</text>
+        <rect x="364" y="40" width="80" height="44" rx="10" class="d-green"/><text x="404" y="68" text-anchor="middle" class="d-mono-ink">long</text>
+        <rect x="482" y="40" width="80" height="44" rx="10" class="d-soft"/><text x="522" y="68" text-anchor="middle" class="d-mono-ink">float</text>
+        <rect x="600" y="40" width="96" height="44" rx="10" class="d-green"/><text x="648" y="68" text-anchor="middle" class="d-mono-ink">double</text>
+        <path d="M92 62 H124" class="d-arrow"/>
+        <path d="M210 62 H242" class="d-arrow"/>
+        <path d="M328 62 H360" class="d-arrow"/>
+        <path d="M446 62 H478" class="d-arrow"/>
+        <path d="M564 62 H596" class="d-arrow"/>
+        <text x="360" y="24" text-anchor="middle" class="d-small">автоматически (расширение) →</text>
+
+        <rect x="246" y="124" width="80" height="44" rx="10" class="d-yellow"/><text x="286" y="152" text-anchor="middle" class="d-mono-ink">char</text>
+        <path d="M286 122 V88" class="d-arrow"/>
+        <text x="300" y="112" class="d-small">код символа</text>
+
+        <path d="M648 96 C648 186 420 186 340 156" class="d-arrow-accent"/>
+        <text x="530" y="192" text-anchor="middle" class="d-c-accent d-text">← обратно только явно: (int) 3.9</text>
+      </svg>
+      <figcaption>Вправо по стрелкам — безопасно и автоматически. Назад — только с явным приведением.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Автоматическое расширение</h2>
+<pre data-file="Widening.java"><code class="java">int count = 5;
+long big = count;          // int → long, сама
+double d = count;          // int → double: 5.0
+double sum = 10 + 2.5;     // int + double → double: 12.5</code></pre>
+    <p>Правило для выражений: если встретились два разных типа, <b>меньший подтягивается к большему</b>, и результат получается большего типа. <code>int + long</code> → <code>long</code>, <code>int + double</code> → <code>double</code>.</p>
+    <h3>Коротко про деление целых</h3>
+    <p>А если оба числа целые, то и результат — целый. Дробная часть при делении <b>отбрасывается</b>:</p>
+<pre data-file="Division.java"><code class="java">System.out.println(7 / 2);       // 3   — int / int = int
+System.out.println(7 / 2.0);     // 3.5 — int / double = double
+double half = 7 / 2;
+System.out.println(half);        // 3.0 — сначала 7 / 2 = 3, потом 3 → 3.0</code></pre>
+    <p>Последний пример коварный: переменная double, а результат всё равно без половинки. Java сначала вычисляет выражение справа по правилам int, получает 3, и только потом этим значением инициализирует переменную double — кладёт 3.0 в double-коробку. Деление и остаток подробно разберём в модуле 3.</p>
+    <details class="predict">
+      <summary>Вспомни урок 2.2. Почему <code>long seconds = days * 24 * 60 * 60;</code> может дать отрицательное число, если <code>days</code> — int, равный 30 000?</summary>
+      <p>Выражение справа вычисляется в <b>int</b> — все числа в нём int. 30 000 × 86 400 = 2 592 000 000 — больше предела int. Переполнение случается <b>до того</b>, как результат присвоится переменной long. Починка — сделать хотя бы одно число long с самого начала: <code>days * 24L * 60 * 60</code>. Тогда всё выражение считается в long.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Явное приведение: (тип)</h2>
+    <p>Присвоить значение double переменной int напрямую нельзя — компилятор не даст потерять дробную часть молча:</p>
+<pre data-file="Casting.java"><code class="java">int a = 3.99;          // ошибка компиляции</code></pre>
+    <div data-widget="ide" id="shot-lossy">
+      <script type="application/json">
+      { "tree": false, "file": "Casting.java", "gutterRun": [1, 2],
+        "code": "public class Casting {\n    public static void main(String[] args) {\n        int a = 3.99;\n        System.out.println(a);\n    }\n}",
+        "errors": [ { "line": 3, "text": "3.99", "msg": "Incompatible types. Found: 'double', required: 'int'", "tip": true } ],
+        "build": { "file": "Casting.java", "errors": [ { "msg": "incompatible types: possible lossy conversion from double to int", "line": 3, "col": 17 } ] },
+        "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Подчёркнут литерал <code>3.99</code>: типа double, им нельзя инициализировать переменную <code>int</code> — не влезает в коробку" },
+                   { "n": 2, "target": "tip", "text": "В редакторе IDEA пишет: <b>Found: 'double', required: 'int'</b> — «есть double, а нужен int». По <kbd>Alt</kbd>+<kbd>Enter</kbd> она предложит дописать приведение <code>(int)</code>" },
+                   { "n": 3, "target": "build-err-1", "text": "А <code>javac</code> при запуске ▶ объясняет причину: <b>possible lossy conversion from double to int</b> — «возможна потеря при переводе из double в int»" } ],
+        "caption": "double в int без приведения — ошибка компиляции" }
+      </script>
+    </div>
+    <p>«Возможна потеря при преобразовании». Если ты согласен на потерю, напиши нужный тип в скобках перед значением. Это <b>явное приведение типа</b> (англ. <i>cast</i>):</p>
+<pre data-file="Casting.java"><code class="java">int a = (int) 3.99;         // 3 — дробная часть отброшена
+int b = (int) -3.99;        // -3 — тоже отброшена, а не «вниз»
+int c = (int) 3_000_000_000L;  // -1294967296 — не влезло в int</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">(int) не округляет</span>
+      <p><code>(int) 3.99</code> — это 3, а не 4. Приведение просто отрезает всё после точки. Нужно округление по правилам математики — есть метод <code>Math.round(3.99)</code>, он вернёт 4 (результат типа long).</p>
+    </div>
+    <p>Приведение — это ты говоришь компилятору «я знаю, что делаю». Компилятор верит на слово. Если число не помещается, как в третьей строке, значение молча испортится, как при переполнении.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: что выведет <code>(byte) 200</code>?</summary>
+      <p><b>−56.</b> В byte помещаются числа от −128 до 127. 200 туда не влезает, и счёт уходит по кругу: 200 − 256 = −56. Тот же «счётчик пробега», что у int, только круг маленький — на 256 значений.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Символы — это числа</h2>
+    <p>Помнишь секрет из урока 2.2? Внутри char лежит код символа из таблицы Unicode. Поэтому char легко превращается в int, и обратно:</p>
+<pre data-file="Chars.java"><code class="java">char letter = 'A';
+int code = letter;                  // 65 — автоматически
+char next = (char) (letter + 1);    // 'B' — явно
+System.out.println(code);           // 65
+System.out.println(next);           // B
+System.out.println('A' + 1);        // 66 — char + int = int
+System.out.println('A' + 'B');      // 131 — два кода сложились
+System.out.println("" + 'A' + 'B'); // AB — строка в начале: склейка</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 150" role="img" aria-label="Кусочек таблицы Unicode: символ 0 имеет код 48, A — 65, B — 66, a — 97, кириллическая А — 1040, Я — 1071">
+        <rect x="20" y="30" width="100" height="90" rx="12" class="d-soft"/>
+        <text x="70" y="70" text-anchor="middle" class="d-title" style="font-size:26px">'0'</text><text x="70" y="104" text-anchor="middle" class="d-mono-ink">48</text>
+        <rect x="134" y="30" width="100" height="90" rx="12" class="d-blue"/>
+        <text x="184" y="70" text-anchor="middle" class="d-title" style="font-size:26px">'A'</text><text x="184" y="104" text-anchor="middle" class="d-mono-ink">65</text>
+        <rect x="248" y="30" width="100" height="90" rx="12" class="d-blue"/>
+        <text x="298" y="70" text-anchor="middle" class="d-title" style="font-size:26px">'B'</text><text x="298" y="104" text-anchor="middle" class="d-mono-ink">66</text>
+        <rect x="362" y="30" width="100" height="90" rx="12" class="d-teal"/>
+        <text x="412" y="70" text-anchor="middle" class="d-title" style="font-size:26px">'a'</text><text x="412" y="104" text-anchor="middle" class="d-mono-ink">97</text>
+        <rect x="476" y="30" width="100" height="90" rx="12" class="d-violet"/>
+        <text x="526" y="70" text-anchor="middle" class="d-title" style="font-size:26px">'А'</text><text x="526" y="104" text-anchor="middle" class="d-mono-ink">1040</text>
+        <rect x="590" y="30" width="100" height="90" rx="12" class="d-violet"/>
+        <text x="640" y="70" text-anchor="middle" class="d-title" style="font-size:26px">'Я'</text><text x="640" y="104" text-anchor="middle" class="d-mono-ink">1071</text>
+        <text x="360" y="142" text-anchor="middle" class="d-small">буквы идут подряд: 'A' + 1 = 'B', и у латиницы, и у кириллицы</text>
+      </svg>
+      <figcaption>Каждый символ — это номер в таблице Unicode. Цифра '0' — вовсе не 0, а 48.</figcaption>
+    </figure>
+    <div class="callout tip">
+      <span class="callout-title">'7' — не 7</span>
+      <p><code>char digit = '7';</code> хранит код 55. Поэтому <code>'7' + 1</code> = 56, а не 8. Превратить символ-цифру в число можно так: <code>digit - '0'</code> → 55 − 48 = 7.</p>
+    </div>
+    <details class="predict">
+      <summary>Что выведет <code>System.out.println('a' - 'A');</code>?</summary>
+      <p><b>32.</b> 97 − 65 = 32. Маленькие латинские буквы стоят в таблице ровно на 32 позиции дальше больших. На этом трюке раньше делали перевод букв в верхний регистр.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Строки и числа</h2>
+    <p>Строка «42» и число 42 для Java — совсем разные вещи. Перевести одно в другое помогают готовые методы:</p>
+<pre data-file="Parse.java"><code class="java">int n = Integer.parseInt("42");            // строка → int
+double d = Double.parseDouble("3.14");     // строка → double
+long big = Long.parseLong("9000000000");   // строка → long
+
+String s1 = String.valueOf(42);            // число → строка "42"
+String s2 = "" + 42;                       // тоже "42" — короткий трюк
+
+System.out.println("42" + 1);              // 421 — склейка
+System.out.println(n + 1);                 // 43  — сложение</code></pre>
+    <p>Если строка не похожа на число, программа упадёт с ошибкой <code>NumberFormatException</code>:</p>
+    <ul>
+      <li><code>Integer.parseInt("abc")</code> — не число;</li>
+      <li><code>Integer.parseInt("3.5")</code> — для int дробь не подходит;</li>
+      <li><code>Integer.parseInt(" 42")</code> — пробел тоже мешает;</li>
+      <li><code>Integer.parseInt("")</code> — пустая строка — не число.</li>
+    </ul>
+    <div data-widget="ide" id="shot-number-format">
+      <script type="application/json">
+      { "tree": false, "file": "Parse.java", "runConfig": "Parse", "gutterRun": [1, 2],
+        "code": "public class Parse {\n    public static void main(String[] args) {\n        String price = \"3.5\";\n        int n = Integer.parseInt(price);\n        System.out.println(n + 1);\n    }\n}",
+        "console": { "title": "Parse", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Parse" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NumberFormatException: For input string: \"3.5\"" },
+          { "t": "err", "s": "\tat java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)" },
+          { "t": "err", "s": "\tat java.base/java.lang.Integer.parseInt(Integer.java:662)" },
+          { "t": "err", "s": "\tat java.base/java.lang.Integer.parseInt(Integer.java:778)" },
+          { "t": "err", "s": "\tat Parse.main(Parse.java:4)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "<b>NumberFormatException</b> — «неверный формат числа». После двоеточия — сама строка, которая не превратилась в число: <b>\"3.5\"</b>" },
+                   { "n": 2, "target": "link-4", "text": "Твоя строка — <b>Parse.java:4</b>, вызов <code>Integer.parseInt</code>. Строки выше — внутри самой Java" },
+                   { "n": 3, "target": "exit", "text": "Программа упала при запуске — до <code>println</code> дело не дошло. Компилятор содержимое строк не проверяет — такая ошибка видна только при запуске" } ],
+        "caption": "Integer.parseInt получил дробь" }
+      </script>
+    </div>
+    <p>Заметь: <code>Double.parseDouble</code> всегда ждёт <b>точку</b>, в отличие от Scanner, который смотрит на язык системы.</p>
+    <div class="callout tip">
+      <span class="callout-title">Второй способ обойти ловушку Scanner</span>
+      <p>Помнишь ловушку nextInt + nextLine? Можно читать всё через <code>nextLine()</code> и переводить сам: <code>int age = Integer.parseInt(scanner.nextLine());</code> Здесь строку, которую вернул <code>nextLine()</code>, мы передаём аргументом методу <code>Integer.parseInt</code>, а его результатом инициализируем <code>age</code>. Enter съедается вместе со строкой, и ловушки нет.</p>
+    </div>
+    <div class="say" data-mood="cool"><p>В реальных программах это на каждом шагу: всё, что приходит из поля ввода, из файла или из интернета, — текст. Цена «1299», количество «3» — чтобы сравнить или сложить, сначала <code>Integer.parseInt</code>.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Все преобразования по шагам</h2>
+    <div data-widget="trace" id="trace-casting">
+      <script type="application/json">
+      { "title": "Превращения типов",
+        "intro": "Здесь собраны все виды преобразований из урока. Предскажи каждое значение до того, как увидишь его в таблице.",
+        "code": "double price = 9.99;\nint whole = (int) price;\nchar letter = 'C';\nint code = letter;\nchar next = (char) (code + 1);\nint num = Integer.parseInt(\"7\") + 1;\nString text = \"7\" + 1;",
+        "steps": [
+          { "line": 1, "vars": { "price": "9.99" }, "note": "Объявляем price и инициализируем литералом 9.99 — обычное дробное число." },
+          { "line": 2, "vars": { "price": "9.99", "whole": "9" }, "ask": ["whole"], "note": "Явное приведение значения price к int, результатом инициализируем whole. Приведение отрезает дробную часть без округления: получается 9." },
+          { "line": 3, "vars": { "price": "9.99", "whole": "9", "letter": "C" }, "note": "Инициализируем letter литералом 'C'. Внутри — его код." },
+          { "line": 4, "vars": { "price": "9.99", "whole": "9", "letter": "C", "code": "67" }, "ask": ["code"], "note": "code инициализируется значением letter: char в int — автоматически, это расширение. A — 65, B — 66, значит C — 67." },
+          { "line": 5, "vars": { "price": "9.99", "whole": "9", "letter": "C", "code": "67", "next": "D" }, "ask": ["next"], "note": "Выражение code + 1 — код следующей буквы по таблице. (char) приводит число обратно к символу, им инициализируем next: D." },
+          { "line": 6, "vars": { "price": "9.99", "whole": "9", "letter": "C", "code": "67", "next": "D", "num": "8" }, "ask": ["num"], "note": "Сначала вызов Integer.parseInt(\"7\") возвращает число 7. Потом обычное сложение: 7 + 1 = 8." },
+          { "line": 7, "vars": { "price": "9.99", "whole": "9", "letter": "C", "code": "67", "next": "D", "num": "8", "text": "\"71\"" }, "ask": ["text"], "note": "А здесь строка плюс число. Это склейка, никакого сложения: «71»." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m02-06">
+      <script type="application/json">
+      {
+       "title": "Преобразования — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "System.out.println((int) 7.8);\nSystem.out.println(7 / 2);\nSystem.out.println(7 / 2.0);",
+         "answer": "7\n3\n3.5",
+         "why": "(int) отрезает дробь; int / int = int; если хоть одно число double — результат double."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "double price = 19.5;\nlong total = 100;\nint rounded = price;\ndouble avg = total / 3.0;",
+         "answer": [
+          3
+         ],
+         "why": "Значение double нельзя присвоить переменной int без приведения: possible lossy conversion. Нужно (int) price."
+        },
+        {
+         "type": "match",
+         "q": "Соедини выражение с результатом",
+         "left": [
+          "'A' + 1",
+          "(char) ('A' + 1)",
+          "\"A\" + 1",
+          "Integer.parseInt(\"12\") + 1"
+         ],
+         "right": [
+          "66",
+          "B",
+          "A1",
+          "13"
+         ],
+         "why": "char + int = int (код); (char) превращает код в букву; со строкой + склеивает; parseInt возвращает настоящее число."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>(int) 3.99</code> равно 4",
+           "a": false,
+           "why": "приведение отрезает дробь, а не округляет: 3."
+          },
+          {
+           "s": "int в double Java переводит сама, без явного приведения",
+           "a": true
+          },
+          {
+           "s": "<code>Integer.parseInt(\"3.5\")</code> вернёт 3",
+           "a": false,
+           "why": "программа упадёт с NumberFormatException: «3.5» — не целое число."
+          },
+          {
+           "s": "<code>double x = 1 / 2;</code> — в x будет 0.0",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Как правильно посчитать миллисекунды в 30 днях, чтобы не было переполнения?",
+         "options": [
+          "long ms = 30 * 24 * 60 * 60 * 1000;",
+          "long ms = 30L * 24 * 60 * 60 * 1000;",
+          "int ms = 30 * 24 * 60 * 60 * 1000;"
+         ],
+         "answer": 1,
+         "why": "30 дней — это 2 592 000 000 мс, больше предела int. L у первого числа заставляет считать всё выражение в long. В первом варианте переполнение случится ещё до присваивания переменной long."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне 5 выражений с разными типами — я скажу тип результата и значение, а ты проверь»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Расширение (byte → short → int → long → float → double, char → int) Java делает сама.</li>
+        <li>В выражении меньший тип подтягивается к большему. int / int = int, дробь отбрасывается: <code>7 / 2</code> = 3.</li>
+        <li>Сужение — только явно: <code>(int) 3.99</code> = 3. Не округляет! Не влезло — значение испортится.</li>
+        <li>char ↔ int: <code>'A' + 1</code> = 66, <code>(char) 66</code> = 'B'. Цифра '0' — это код 48.</li>
+        <li>Строка → число: <code>Integer.parseInt</code>, <code>Double.parseDouble</code>, <code>Long.parseLong</code>. Число → строка: <code>String.valueOf(x)</code> или <code>"" + x</code>.</li>
+        <li>Не похоже на число — <code>NumberFormatException</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

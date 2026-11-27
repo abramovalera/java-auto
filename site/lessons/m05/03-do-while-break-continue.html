@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>do-while, break и continue · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m05-03">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 5 · Урок 3</div>
+    <h1>do-while, break и continue</h1>
+    <p class="lead">Третий цикл, который сначала делает и только потом спрашивает. И два «пульта управления»: выйти из цикла досрочно и перейти к следующей итерации.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔁 do-while</span><span>🛑 break · ⏭ continue</span><span>🎮 1 мини-игра</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m05-03-review">
+      <script type="application/json">
+      { "title": "Разминка: for",
+        "items": [
+          { "type": "predict", "q": "Что выведет код?", "code": "for (int i = 3; i >= 1; i--) {\n    System.out.print(i);\n}",
+            "answer": "321", "why": "Обратный отсчёт: 3, 2, 1. print не переводит строку — всё в одну строку." },
+          { "type": "single", "q": "Сколько раз выполнится тело?", "code": "for (int i = 0; i < 7; i += 2) { … }",
+            "options": ["3", "4", "7"], "answer": 1, "why": "i = 0, 2, 4, 6 — четыре итерации. Следующее 8 < 7 — ложь." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Шаг в заголовке for выполняется перед телом", "a": false, "why": "шаг написан в заголовке, но выполняется после тела." },
+              { "s": "Переменная i, объявленная в заголовке for, недоступна после цикла", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>do-while: сначала делай, потом спрашивай</h2>
+    <p><code>while</code> и <code>for</code> — осторожные: сначала проверяют условие, потом выполняют тело. Это циклы с <b>предусловием</b> (условие стоит перед телом). Иногда так неудобно. Например, программа просит ввести возраст и должна переспрашивать, пока не введут нормальное число. Спросить нужно <b>хотя бы один раз</b> — проверять ещё нечего.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: суп и соль</span>
+      <p>Ты не решаешь, солить ли суп, пока его не попробовал. Сначала пробуешь (действие), потом думаешь: «Пресно? — посолю и попробую ещё». Хотя бы одна ложка будет всегда.</p>
+    </div>
+<pre data-file="AskAge.java"><code class="java">Scanner scanner = new Scanner(System.in);
+int age;
+do {
+    System.out.print("Сколько тебе лет? ");
+    age = scanner.nextInt();
+} while (age &lt;= 0);
+System.out.println("Записал: " + age);</code></pre>
+    <div data-widget="ide" id="shot-ask-age">
+      <script type="application/json">
+      { "tree": false, "file": "AskAge.java", "runConfig": "AskAge", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class AskAge {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int age;\n        do {\n            System.out.print(\"Сколько тебе лет? \");\n            age = scanner.nextInt();\n        } while (age <= 0);\n        System.out.println(\"Записал: \" + age);\n    }\n}",
+        "console": { "title": "AskAge", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… AskAge" },
+          { "t": "out", "s": "Сколько тебе лет? " },
+          { "t": "in", "s": "-5", "inline": true },
+          { "t": "out", "s": "Сколько тебе лет? " },
+          { "t": "in", "s": "0", "inline": true },
+          { "t": "out", "s": "Сколько тебе лет? " },
+          { "t": "in", "s": "17", "inline": true },
+          { "t": "out", "s": "Записал: 17" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "side": "top", "text": "Первый вопрос задан сразу, без проверки: тело do-while выполняется хотя бы один раз" },
+                   { "n": 2, "target": "input", "text": "Ввели −5: условие <code>age &lt;= 0</code> верно — спрашиваем снова" },
+                   { "n": 3, "target": "input-2", "text": "0 — тоже не годится, ещё одна итерация" },
+                   { "n": 4, "target": "input-3", "text": "17 — условие ложно, выходим из цикла" },
+                   { "n": 5, "target": "output-4", "text": "Строка после цикла выполнилась один раз", "box": true } ],
+        "caption": "do-while переспрашивает, пока не введут нормальный возраст" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>do { … }</code><div><p>«Делай» [ду]. Тело цикла выполняется <b>сразу</b>, без проверки.</p></div></div>
+      <div class="annot-row"><code>while (age &lt;= 0);</code><div><p>Условие — <b>после</b> тела, поэтому do-while называют циклом с <b>постусловием</b>. Условие <code>true</code> — выполняется ещё одна итерация. Обрати внимание на <b>точку с запятой</b> в конце: в do-while она обязательна.</p></div></div>
+      <div class="annot-row"><code>int age;</code><div><p>Переменную <code>age</code> объявили <b>до</b> цикла, а значение ей присваивается в теле. Объяви её внутри <code>do { }</code> — условие <code>while</code> её бы уже не увидело: она живёт только внутри фигурных скобок. Подробно — в уроке 5.7.</p></div></div>
+    </div>
+    <figure class="fig">
+      <svg viewBox="0 0 640 260" role="img" aria-label="Сравнение: while сначала проверяет условие, потом выполняет тело; do-while сначала выполняет тело, потом проверяет условие">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="160" y="26" text-anchor="middle" class="d-title">while — сначала проверка</text>
+        <path d="M160 34 V52" class="d-arrow"/>
+        <path d="M160 56 L240 92 L160 128 L80 92 Z" class="d-yellow"/>
+        <text x="160" y="97" text-anchor="middle" class="d-text">условие?</text>
+        <path d="M160 128 V156" class="d-arrow"/>
+        <text x="170" y="148" class="d-small">да</text>
+        <rect x="90" y="160" width="140" height="40" rx="10" class="d-green"/>
+        <text x="160" y="185" text-anchor="middle" class="d-text">тело</text>
+        <path d="M90 180 H40 V92 H76" class="d-arrow"/>
+        <path d="M240 92 H290 V226" class="d-arrow"/>
+        <text x="248" y="84" class="d-small">нет</text>
+        <text x="290" y="248" text-anchor="middle" class="d-small">выход</text>
+        <text x="40" y="248" class="d-small">тело — 0 раз и больше</text>
+
+        <path d="M320 20 V250" class="d-dash"/>
+
+        <text x="480" y="26" text-anchor="middle" class="d-title">do-while — сначала дело</text>
+        <path d="M480 34 V52" class="d-arrow"/>
+        <rect x="410" y="56" width="140" height="40" rx="10" class="d-green"/>
+        <text x="480" y="81" text-anchor="middle" class="d-text">тело</text>
+        <path d="M480 96 V120" class="d-arrow"/>
+        <path d="M480 124 L560 160 L480 196 L400 160 Z" class="d-yellow"/>
+        <text x="480" y="165" text-anchor="middle" class="d-text">условие?</text>
+        <path d="M400 160 H360 V76 H406" class="d-arrow"/>
+        <text x="364" y="152" class="d-small">да</text>
+        <path d="M560 160 H610 V226" class="d-arrow"/>
+        <text x="568" y="152" class="d-small">нет</text>
+        <text x="610" y="248" text-anchor="middle" class="d-small">выход</text>
+        <text x="380" y="248" class="d-small">тело — минимум 1 раз</text>
+      </svg>
+      <figcaption>Единственная разница — где стоит проверка. Поэтому тело do-while выполняется хотя бы один раз.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Что напечатает: <code>int i = 10; do { System.out.println(i); i++; } while (i &lt; 5);</code>?</summary>
+      <p><b>10</b> — один раз. Тело цикла выполнилось до проверки условия, потом <code>11 &lt; 5</code> оказалось ложью. С обычным <code>while</code> не напечаталось бы ничего.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>break: нашёл — выходи</h2>
+    <p>Ищешь ключи по карманам. Нашёл во втором — остальные проверять не станешь. В Java для этого есть инструкция <code>break</code> [брейк] («прервать»): <b>выход из цикла</b> — немедленно, не дожидаясь, пока условие станет ложным. Ты уже встречал <code>break</code> в <code>switch</code> из модуля 4 — там он выходил из <code>switch</code>, здесь — из цикла.</p>
+    <p>Задача: найти первое число от 1 до 100, которое делится на 7 и заканчивается на 3.</p>
+<pre data-file="FindFirst.java"><code class="java">for (int i = 1; i &lt;= 100; i++) {
+    if (i % 7 == 0 &amp;&amp; i % 10 == 3) {
+        System.out.println("Нашёл: " + i);
+        break;
+    }
+}
+System.out.println("Поиск окончен");</code></pre>
+<pre class="terminal"><span class="out">Нашёл: 63
+Поиск окончен</span></pre>
+    <p>Без <code>break</code> цикл делал бы итерации до сотни впустую: ответ уже найден, а он всё крутится. А если бы подходящих чисел было несколько, напечатал бы все, хотя нужно только первое. С <code>break</code> — первое найденное, и сразу на выход. Остаток <code>% 10</code> — это последняя цифра числа; этот трюк станет главным героем урока 5.6.</p>
+    <div class="callout tip">
+      <span class="callout-title">В реальных программах</span>
+      <p>Классика — «повторить попытку»: связь с сервером иногда пропадает, поэтому приложение банка пробует отправить платёж до 5 раз и выходит из цикла через <code>break</code>, как только получилось. Похожий цикл крутится в любом мессенджере: он раз за разом спрашивает сервер, <b>пока</b> не придёт новое сообщение.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>continue: переходи к следующей итерации</h2>
+    <p>На конвейере рабочий видит бракованную деталь, откладывает её — и сразу берёт следующую. Конвейер не останавливается. Это инструкция <code>continue</code> [континью] («продолжай»): <b>переход к следующей итерации</b> — остаток тела пропускается, цикл продолжается.</p>
+<pre data-file="SkipThree.java"><code class="java">for (int i = 1; i &lt;= 10; i++) {
+    if (i % 3 == 0) {
+        continue;            // кратные 3 пропускаем
+    }
+    System.out.print(i + " ");
+}</code></pre>
+<pre class="terminal"><span class="out">1 2 4 5 7 8 10</span></pre>
+    <p>В <code>for</code> после <code>continue</code> программа прыгает на <b>шаг</b> (<code>i++</code>), а потом на условие. Разницу между <code>break</code> и <code>continue</code> проще всего увидеть по шагам:</p>
+    <div data-widget="trace" id="trace-break-continue">
+      <script type="application/json">
+      { "title": "break и continue по шагам",
+        "intro": "Чётные числа пропускаем через continue, а на числе больше 4 выходим через break. Следи, куда прыгает подсветка.",
+        "code": "for (int i = 1; i <= 6; i++) {\n    if (i % 2 == 0) {\n        continue;\n    }\n    if (i > 4) {\n        break;\n    }\n    System.out.print(i + \" \");\n}\nSystem.out.println(\"| конец\");",
+        "steps": [
+          { "line": 1, "vars": { "i": "1" }, "note": "Инициализация счётчика: i = 1. Условие 1 <= 6 — true, начинается первая итерация." },
+          { "line": 2, "vars": { "i": "1" }, "note": "Условие if: 1 % 2 = 1, не 0. Число нечётное, continue не выполняется." },
+          { "line": 5, "vars": { "i": "1" }, "note": "1 > 4 — нет, break не срабатывает." },
+          { "line": 8, "vars": { "i": "1" }, "out": "1 ", "note": "Печатаем 1." },
+          { "line": 1, "vars": { "i": "2" }, "ask": ["i"], "note": "Шаг i++ после тела. Было 1, стало 2. Условие 2 <= 6 — true, следующая итерация." },
+          { "line": 2, "vars": { "i": "2" }, "note": "2 % 2 = 0 — число чётное!" },
+          { "line": 3, "vars": { "i": "2" }, "note": "continue: остаток тела пропускаем, переходим к следующей итерации — сразу на шаг i++. Печати не будет." },
+          { "line": 1, "vars": { "i": "3" }, "ask": ["i"], "note": "После continue выполнился шаг. Было 2, стало 3." },
+          { "line": 2, "vars": { "i": "3" }, "note": "3 нечётное — идём дальше." },
+          { "line": 5, "vars": { "i": "3" }, "note": "3 > 4 — нет." },
+          { "line": 8, "vars": { "i": "3" }, "out": "3 ", "note": "Печатаем 3." },
+          { "line": 1, "vars": { "i": "4" }, "note": "Шаг: i = 4." },
+          { "line": 3, "vars": { "i": "4" }, "note": "4 чётное — снова continue." },
+          { "line": 1, "vars": { "i": "5" }, "ask": ["i"], "note": "Снова шаг после continue. Было 4, стало 5." },
+          { "line": 5, "vars": { "i": "5" }, "note": "5 нечётное, а 5 > 4 — да!" },
+          { "line": 6, "vars": { "i": "5" }, "note": "break: немедленный выход из цикла. Шаг не выполняется, условие не проверяется, i = 6 уже не будет." },
+          { "line": 10, "vars": {}, "out": "| конец\n", "note": "Первая строка после цикла. Итог: 1 3 | конец." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка: continue в while</span>
+      <p>В <code>while</code> шаг написан в теле цикла. Если <code>continue</code> стоит <b>выше</b> шага, шаг пропускается — и цикл зависает:</p>
+<pre data-file="Trap.java"><code class="java">int i = 0;
+while (i &lt; 10) {
+    if (i % 3 == 0) {
+        continue;      // i++ ниже не выполнится!
+    }
+    System.out.println(i);
+    i++;
+}</code></pre>
+      <p>При <code>i = 0</code> срабатывает <code>continue</code>, <code>i</code> так и остаётся нулём — бесконечный цикл. В <code>for</code> такого нет: там <code>continue</code> ведёт прямо на шаг.</p>
+    </div>
+    <p>Коварство в том, что такой цикл ничего не печатает. В панели Run пусто, и кажется, будто программа просто долго думает:</p>
+    <div data-widget="ide" id="shot-continue-hang">
+      <script type="application/json">
+      { "tree": false, "file": "Trap.java", "runConfig": "Trap", "gutterRun": [1, 2],
+        "code": "public class Trap {\n    public static void main(String[] args) {\n        int i = 0;\n        while (i < 10) {\n            if (i % 3 == 0) {\n                continue;\n            }\n            System.out.println(i);\n            i++;\n        }\n    }\n}",
+        "console": { "title": "Trap", "running": true, "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Trap" } ] },
+        "marks": [ { "n": 1, "target": "cmd", "text": "Кроме серой строки запуска — ничего. Ни чисел, ни <b>Process finished</b>" },
+                   { "n": 2, "target": "stop", "text": "Но квадрат <b>■ Stop</b> горит: программа работает — крутит цикл вхолостую. Подожди пару секунд: если ничего не меняется, останавливай (<kbd>Ctrl</kbd>+<kbd>F2</kbd>) и ищи цикл без шага" },
+                   { "n": 3, "target": "line-6", "side": "top", "text": "Виновник: <code>continue</code> перепрыгивает <code>i++</code>, и i навсегда 0" } ],
+        "caption": "Зависшая программа без вывода" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>while (true) + break: «пока не скажут стоп»</h2>
+    <p>Иногда условие выхода удобнее проверить в середине тела. Тогда пишут «вечный» цикл с условием-литералом <code>true</code> и выходят из него через <code>break</code>. Пример: пользователь вводит числа, ноль означает «хватит».</p>
+<pre data-file="SumUntilZero.java"><code class="java">Scanner scanner = new Scanner(System.in);
+int sum = 0;
+while (true) {
+    int x = scanner.nextInt();
+    if (x == 0) {
+        break;
+    }
+    sum += x;
+}
+System.out.println("Сумма: " + sum);</code></pre>
+    <div data-widget="ide" id="shot-sum-until-zero">
+      <script type="application/json">
+      { "tree": false, "file": "SumUntilZero.java", "runConfig": "SumUntilZero", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class SumUntilZero {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int sum = 0;\n        while (true) {\n            int x = scanner.nextInt();\n            if (x == 0) {\n                break;\n            }\n            sum += x;\n        }\n        System.out.println(\"Сумма: \" + sum);\n    }\n}",
+        "console": { "title": "SumUntilZero", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… SumUntilZero" },
+          { "t": "in", "s": "5" },
+          { "t": "in", "s": "10" },
+          { "t": "in", "s": "-3" },
+          { "t": "in", "s": "0" },
+          { "t": "out", "s": "Сумма: 12" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Все зелёные строки ввёл ты — по числу на строку, после каждого Enter. Каждый Enter — одна итерация цикла" },
+                   { "n": 2, "target": "output", "text": "Ввели 0 — сработал <code>break</code>, цикл закончился, и выполнилась строка после него. Сам ноль в сумму не попал: 5 + 10 − 3 = 12", "box": true },
+                   { "n": 3, "target": "exit", "text": "Программа закончилась сама, без кнопки Stop" } ],
+        "caption": "Ввод чисел до стоп-сигнала" }
+      </script>
+    </div>
+    <p>Ноль здесь — <b>стоп-сигнал</b>: само число в сумму не идёт, оно только говорит «конец». Такой приём встречается часто: «введи пустую строку, чтобы закончить», «нажми q для выхода».</p>
+    <details class="predict">
+      <summary>Что будет, если убрать <code>break</code> из этой программы?</summary>
+      <p>Программа <b>даже не скомпилируется</b>! Из <code>while (true)</code> без <code>break</code> выйти нельзя, и компилятор это видит: строка с итоговой суммой после цикла не выполнится никогда. Такой код Java считает ошибкой — <b>недостижимый код</b>:</p>
+      <div data-widget="ide" id="shot-unreachable">
+        <script type="application/json">
+        { "tree": false, "file": "SumUntilZero.java", "gutterRun": [3, 4],
+          "code": "import java.util.Scanner;\n\npublic class SumUntilZero {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int sum = 0;\n        while (true) {\n            int x = scanner.nextInt();\n            sum += x;\n        }\n        System.out.println(\"Сумма: \" + sum);\n    }\n}",
+          "errors": [ { "line": 11, "text": "System.out.println(\"Сумма: \" + sum);", "msg": "Unreachable statement", "tip": true, "fix": false } ],
+          "build": { "file": "SumUntilZero.java", "path": "src/module-05", "fullPath": "C:\\Users\\Misha\\java-course\\workspace\\module-05\\SumUntilZero.java", "errors": [ { "msg": "unreachable statement", "line": 11, "col": 9 } ] },
+          "marks": [ { "n": 1, "target": "line-7", "side": "top", "text": "<code>while (true)</code> без <code>break</code> — выхода из цикла нет" },
+                     { "n": 2, "target": "tip", "text": "<b>Unreachable statement</b> — «до этой команды выполнение никогда не дойдёт». Подчёркнута вся строка после цикла" },
+                     { "n": 3, "target": "build-err-1", "text": "Запустить не получится: в панели Build — <b>unreachable statement</b> и номер строки <b>:11</b>" } ],
+          "caption": "Недостижимый код после вечного цикла" }
+        </script>
+      </div>
+      <p>А если бы после цикла ничего не было, программа скомпилировалась бы — и стала по-настоящему бесконечной: даже после нуля ждала бы новых чисел, а выйти можно было бы только кнопкой Stop. Вывод: у <code>while (true)</code> обязательно должен быть путь к <code>break</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Какой цикл выбрать?</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Ситуация</th><th>Цикл</th></tr>
+        <tr><td>Число итераций известно или считается заранее: «от 1 до N», «10 раз»</td><td><code>for</code></td></tr>
+        <tr><td>Крутим, пока что-то не случится; возможно, ни разу</td><td><code>while</code></td></tr>
+        <tr><td>Нужно сделать хотя бы один раз, а потом решить, повторять ли</td><td><code>do-while</code></td></tr>
+      </table>
+    </div>
+    <p>Любой цикл можно переписать через любой другой — это вопрос удобства и читаемости. Потренируйся выбирать:</p>
+    <div data-widget="buckets" id="which-loop">
+      <script type="application/json">
+      { "title": "Какой цикл подойдёт лучше?", "icon": "🔁",
+        "buckets": [ { "id": "for", "label": "for", "style": "indigo" }, { "id": "while", "label": "while", "style": "green" }, { "id": "do", "label": "do-while", "style": "red" } ],
+        "items": [
+          { "emoji": "🔢", "text": "Напечатать числа от 1 до 100", "bucket": "for", "why": "Число итераций известно заранее: 100. Классика для for." },
+          { "emoji": "🔑", "text": "Спрашивать пароль, пока не введут правильный (спросить нужно хотя бы раз)", "bucket": "do", "why": "Сначала спросить, потом проверить — ровно do-while." },
+          { "emoji": "⏳", "text": "Ждать, пока загрузится страница (возможно, она уже загружена)", "bucket": "while", "why": "Неизвестно, сколько ждать, и может быть, ждать вообще не нужно — while проверит условие до первой итерации." },
+          { "emoji": "⭐", "text": "Нарисовать N звёздочек", "bucket": "for", "why": "N известно до старта цикла." },
+          { "emoji": "🎲", "text": "Показать меню игры, а после партии спросить «Сыграем ещё?»", "bucket": "do", "why": "Первая партия будет в любом случае, вопрос — после неё." },
+          { "emoji": "✂️", "text": "Отрывать от числа последнюю цифру, пока число не станет нулём", "bucket": "while", "why": "Сколько цифр — заранее неизвестно, крутим до условия. Этим займёмся в уроке 5.6." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m05-03">
+      <script type="application/json">
+      {
+       "title": "Быстрая проверка: do-while, break, continue",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "for (int i = 1; i <= 5; i++) {\n    if (i == 3) {\n        continue;\n    }\n    System.out.print(i);\n}",
+         "answer": "1245",
+         "why": "На i = 3 выполнился continue — остаток тела с печатью пропущен, цикл перешёл к следующей итерации."
+        },
+        {
+         "type": "predict",
+         "q": "А если заменить continue на break?",
+         "code": "for (int i = 1; i <= 5; i++) {\n    if (i == 3) {\n        break;\n    }\n    System.out.print(i);\n}",
+         "answer": "12",
+         "why": "break выходит из цикла целиком: 4 и 5 уже не проверяются."
+        },
+        {
+         "type": "single",
+         "q": "Сколько раз выполнится тело?",
+         "code": "int n = 100;\ndo {\n    n++;\n} while (n < 50);",
+         "options": [
+          "Ни разу",
+          "Один раз",
+          "Бесконечно"
+         ],
+         "answer": 1,
+         "why": "do-while — цикл с постусловием: сначала выполняет тело, потом проверяет условие: 101 < 50 — false, выход."
+        },
+        {
+         "type": "bug",
+         "q": "Этот цикл должен напечатать нечётные числа до 9, но зависает. Где ошибка?",
+         "code": "int i = 0;\nwhile (i < 10) {\n    if (i % 2 == 0) {\n        continue;\n    }\n    System.out.println(i);\n    i++;\n}",
+         "answer": [
+          4
+         ],
+         "why": "continue перепрыгивает i++ — при i = 0 счётчик не меняется никогда. Нужно увеличить i до continue или переписать через for."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "break выходит из цикла сразу, не проверяя условие",
+           "a": true
+          },
+          {
+           "s": "continue завершает весь цикл",
+           "a": false,
+           "why": "continue завершает только текущую итерацию; цикл переходит к следующей."
+          },
+          {
+           "s": "Тело do-while выполняется минимум один раз",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Придумай 3 жизненные ситуации, а я скажу, какой цикл тут нужен — for, while или do-while — и объясню почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>do { … } while (условие);</code> — цикл с постусловием: сначала тело, потом проверка. Тело выполнится хотя бы раз. Точка с запятой в конце обязательна.</li>
+        <li><code>break</code> — немедленный выход из цикла. «Нашёл — выходи».</li>
+        <li><code>continue</code> — переход к следующей итерации: остаток тела пропускается. В <code>while</code> следи, чтобы он не перепрыгнул шаг.</li>
+        <li><code>while (true)</code> + <code>break</code> — цикл с выходом из середины, например по стоп-сигналу 0.</li>
+        <li>Число итераций известно — <code>for</code>; «пока не случится» — <code>while</code>; «хотя бы раз» — <code>do-while</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Цикл for · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m05-02">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 5 · Урок 2</div>
+    <h1>Цикл for</h1>
+    <p class="lead">Самый популярный цикл Java. Инициализация счётчика, условие и шаг собраны в одну строку — в заголовок цикла, — и забыть шаг становится почти невозможно.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔁 for</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m05-02-review">
+      <script type="application/json">
+      { "title": "Разминка: while и условия",
+        "items": [
+          { "type": "single", "q": "Сколько раз напечатается «Привет»?",
+            "code": "int i = 0;\nwhile (i < 3) {\n    System.out.println(\"Привет\");\n    i++;\n}",
+            "options": ["2", "3", "4"], "answer": 1, "why": "Счётчик i принимает значения 0, 1, 2 — три итерации. При i = 3 условие 3 < 3 ложно." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "while проверяет условие перед каждой итерацией", "a": true },
+              { "s": "Если забыть шаг, цикл просто выполнится один раз", "a": false, "why": "условие не изменится и будет верным вечно — получится бесконечный цикл." }
+            ] },
+          { "type": "predict", "q": "Модуль 4: что выведет этот код?",
+            "code": "int n = 15;\nif (n % 3 == 0 && n % 5 == 0) {\n    System.out.println(\"обоим\");\n} else if (n % 3 == 0) {\n    System.out.println(\"на 3\");\n} else {\n    System.out.println(\"нет\");\n}",
+            "answer": "обоим", "why": "15 делится и на 3, и на 5 — срабатывает первая ветка, остальные уже не проверяются." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>while, собранный в одну строку</h2>
+    <p>В прошлом уроке три части цикла были разбросаны по коду: подготовка — над циклом, условие — в скобках, шаг — где-то в конце тела. В длинной программе шаг легко потерять. Цикл <b>for</b> [фор] («для») собирает все три части в <b>заголовок цикла</b> — строку <code>for (…)</code>:</p>
+<pre data-file="WhileVersion.java"><code class="java">int i = 1;
+while (i &lt;= 5) {
+    System.out.println(i);
+    i++;
+}</code></pre>
+<pre data-file="ForVersion.java"><code class="java">for (int i = 1; i &lt;= 5; i++) {
+    System.out.println(i);
+}</code></pre>
+    <p>Эти две программы делают <b>одно и то же</b> — печатают числа от 1 до 5. Но во второй всё управление циклом видно в одной строке — в заголовке.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: тренер на стадионе</span>
+      <p>Тренер говорит: «<b>Начинаешь с первого круга</b>; бегаешь, <b>пока номер круга не больше пяти</b>; после каждого круга <b>номер на табло +1</b>». Вся тренировка описана одной фразой ещё до старта — это и есть заголовок <code>for</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Три части и порядок выполнения</h2>
+    <p>В скобках после <code>for</code> — три части через <b>точку с запятой</b> (не через запятую!): <b>инициализация счётчика</b> (объявляем <code>i</code> и сразу присваиваем начальное значение), <b>условие</b> продолжения и <b>шаг</b>:</p>
+    <figure class="fig">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Заголовок for: инициализация счётчика выполняется один раз, условие перед каждой итерацией, тело, потом шаг, потом снова условие">
+        <text x="30" y="46" class="d-mono-ink" style="font-size:20px">for (</text>
+        <rect x="100" y="18" width="140" height="42" rx="10" class="d-blue"/>
+        <text x="170" y="46" text-anchor="middle" class="d-mono-ink" style="font-size:19px">int i = 1</text>
+        <text x="246" y="46" class="d-mono-ink" style="font-size:20px">;</text>
+        <rect x="266" y="18" width="120" height="42" rx="10" class="d-yellow"/>
+        <text x="326" y="46" text-anchor="middle" class="d-mono-ink" style="font-size:19px">i &lt;= 5</text>
+        <text x="392" y="46" class="d-mono-ink" style="font-size:20px">;</text>
+        <rect x="412" y="18" width="80" height="42" rx="10" class="d-accent"/>
+        <text x="452" y="46" text-anchor="middle" class="d-mono-ink" style="font-size:19px">i++</text>
+        <text x="500" y="46" class="d-mono-ink" style="font-size:20px">) {</text>
+        <text x="170" y="84" text-anchor="middle" class="d-title">① инициализация</text>
+        <text x="170" y="104" text-anchor="middle" class="d-small">один раз, в начале</text>
+        <text x="326" y="84" text-anchor="middle" class="d-title">② условие</text>
+        <text x="326" y="104" text-anchor="middle" class="d-small">перед каждой итерацией</text>
+        <text x="452" y="84" text-anchor="middle" class="d-title">④ шаг</text>
+        <text x="452" y="104" text-anchor="middle" class="d-small">после тела</text>
+        <rect x="100" y="126" width="392" height="44" rx="10" class="d-green"/>
+        <text x="296" y="154" text-anchor="middle" class="d-text">③ тело: System.out.println(i);</text>
+        <text x="30" y="196" class="d-mono-ink" style="font-size:20px">}</text>
+        <rect x="20" y="214" width="600" height="72" rx="12" class="d-soft"/>
+        <text x="40" y="242" class="d-title">Порядок:</text>
+        <text x="130" y="242" class="d-text">① → ② → ③ → ④ → ② → ③ → ④ → … </text>
+        <text x="40" y="270" class="d-text">…пока однажды ② не окажется false — тогда выход из цикла.</text>
+      </svg>
+      <figcaption>Инициализация счётчика — один раз. Потом на каждой итерации: условие, тело, шаг. Шаг выполняется <b>после</b> тела, хотя написан в заголовке.</figcaption>
+    </figure>
+    <p>Главная ловушка для новичка: шаг <code>i++</code> стоит в заголовке, <b>до</b> тела, а выполняется <b>после</b> тела. Проверь это в трассировщике — он покажет каждый прыжок. Напоминание из модуля 3: <code>i -= 2</code> — то же самое, что <code>i = i - 2</code>.</p>
+    <div data-widget="trace" id="trace-for">
+      <script type="application/json">
+      { "title": "for по шагам: обратный отсчёт через 2",
+        "intro": "Следи, как подсветка прыгает внутри заголовка for: условие и шаг — в одной строке, но выполняются в разные моменты.",
+        "code": "for (int i = 6; i >= 0; i -= 2) {\n    System.out.print(i + \" \");\n}\nSystem.out.println();\nSystem.out.println(\"Пуск!\");",
+        "steps": [
+          { "line": 1, "vars": { "i": "6" }, "note": "① Инициализация: объявляем счётчик i и инициализируем его значением 6. Выполняется один раз — при входе в цикл." },
+          { "line": 1, "vars": { "i": "6" }, "note": "② Условие: 6 >= 0 — true. Первая итерация: идём в тело цикла." },
+          { "line": 2, "vars": { "i": "6" }, "out": "6 ", "note": "③ Тело: вызываем print и передаём аргумент — значение i с пробелом. Печатается 6 и пробел; print не переводит строку." },
+          { "line": 1, "vars": { "i": "4" }, "ask": ["i"], "note": "④ Шаг: составное присваивание i -= 2 уменьшает i на 2. Было 6, стало 4. Итерация закончена — сразу после шага снова условие." },
+          { "line": 1, "vars": { "i": "4" }, "note": "② 4 >= 0 — верно." },
+          { "line": 2, "vars": { "i": "4" }, "out": "4 ", "note": "③ Печатаем 4." },
+          { "line": 1, "vars": { "i": "2" }, "ask": ["i"], "note": "④ Шаг ещё раз: было 4, стало 2." },
+          { "line": 1, "vars": { "i": "2" }, "note": "② 2 >= 0 — верно." },
+          { "line": 2, "vars": { "i": "2" }, "out": "2 ", "note": "③ Печатаем 2." },
+          { "line": 1, "vars": { "i": "0" }, "ask": ["i"], "note": "④ Шаг: от двух отнимаем два. Получился 0." },
+          { "line": 1, "vars": { "i": "0" }, "note": "② 0 >= 0 — верно! Знак >= пропускает и ноль." },
+          { "line": 2, "vars": { "i": "0" }, "out": "0 ", "note": "③ Печатаем 0." },
+          { "line": 1, "vars": { "i": "-2" }, "ask": ["i"], "note": "④ Шаг: из нуля вычитаем два. Число стало отрицательным: −2." },
+          { "line": 1, "vars": { "i": "-2" }, "note": "② −2 >= 0 — неверно. Цикл окончен." },
+          { "line": 4, "vars": {}, "out": "\n", "note": "Мы за пределами цикла. Переменной i больше нет: объявленная в заголовке for, она живёт только внутри цикла. println() переводит строку." },
+          { "line": 5, "vars": {}, "out": "Пуск!\n", "note": "Готово: 6 4 2 0 и «Пуск!»." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Вперёд, назад, через одно</h2>
+    <p>Меняя три части, можно заставить <code>i</code> пройти почти любой путь:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Нужно получить</th><th>Заголовок</th></tr>
+        <tr><td>1 2 3 … 10</td><td><code>for (int i = 1; i &lt;= 10; i++)</code></td></tr>
+        <tr><td>10 9 8 … 1 (обратный отсчёт)</td><td><code>for (int i = 10; i &gt;= 1; i--)</code></td></tr>
+        <tr><td>2 4 6 … 20 (чётные)</td><td><code>for (int i = 2; i &lt;= 20; i += 2)</code></td></tr>
+        <tr><td>0 5 10 … 100</td><td><code>for (int i = 0; i &lt;= 100; i += 5)</code></td></tr>
+        <tr><td>1 2 4 8 … 1024 (удвоение)</td><td><code>for (int i = 1; i &lt;= 1024; i *= 2)</code></td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Что напечатает <code>for (int i = 1; i &lt; 100; i *= 3) System.out.print(i + " ");</code>?</summary>
+      <p><b>1 3 9 27 81</b>. Следующее значение было бы 243, но <code>243 &lt; 100</code> — ложь. Кстати, фигурные скобки здесь опущены: если тело цикла — одна инструкция, так можно. Но лучше ставь скобки всегда — так меньше ошибок.</p>
+    </details>
+    <details class="predict">
+      <summary>Обратный отсчёт: <code>for (int i = 10; i &gt;= 1; i++)</code>. Что не так?</summary>
+      <p>Начали с 10, условие «пока ≥ 1», а шаг <b>увеличивает</b> i: 10, 11, 12… Условие верно всегда — цикл (почти) бесконечный. Для отсчёта назад шаг должен быть <code>i--</code>. Проверяй: шаг двигает i <b>к</b> границе условия или <b>от</b> неё?</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Сколько раз выполнится?</h2>
+    <p>Этот вопрос задают на собеседованиях и в головоломках постоянно. Самые частые варианты:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Заголовок</th><th>Значения i</th><th>Сколько раз</th></tr>
+        <tr><td><code>for (int i = 0; i &lt; 5; i++)</code></td><td>0 1 2 3 4</td><td><b>5</b></td></tr>
+        <tr><td><code>for (int i = 1; i &lt;= 5; i++)</code></td><td>1 2 3 4 5</td><td><b>5</b></td></tr>
+        <tr><td><code>for (int i = 0; i &lt;= 5; i++)</code></td><td>0 1 2 3 4 5</td><td><b>6</b> ⚠️</td></tr>
+        <tr><td><code>for (int i = 1; i &lt; 5; i++)</code></td><td>1 2 3 4</td><td><b>4</b> ⚠️</td></tr>
+      </table>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Привычка программистов</span>
+      <p>«Повторить N раз» почти всегда пишут как <code>for (int i = 0; i &lt; n; i++)</code>: старт с 0 и строгое <code>&lt;</code>. Почему с нуля — станет ясно в модуле 6 про массивы: там нумерация начинается с 0. А если нужны сами числа 1…N — пиши <code>i = 1; i &lt;= n</code>. Главное — не смешивать: <code>0</code> и <code>&lt;=</code> дают лишнюю итерацию.</p>
+    </div>
+    <p>Проверяй по крайним значениям: какое <code>i</code> будет на <b>первой</b> итерации и какое на <b>последней</b>? Тогда «плюс-минус один» не застанет тебя врасплох. Подробно про эту ошибку — в уроке 5.7.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>for + Scanner: таблица квадратов</h2>
+    <p>Пользователь вводит N — программа печатает квадраты чисел от 1 до N. Сколько будет итераций, зависит от ввода:</p>
+<pre data-file="Squares.java"><code class="java">import java.util.Scanner;
+
+public class Squares {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("До какого числа? ");
+        int n = scanner.nextInt();
+        for (int i = 1; i &lt;= n; i++) {
+            System.out.println(i + " в квадрате = " + i * i);
+        }
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-squares-run">
+      <script type="application/json">
+      { "tree": false, "file": "Squares.java", "runConfig": "Squares", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Squares {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.print(\"До какого числа? \");\n        int n = scanner.nextInt();\n        for (int i = 1; i <= n; i++) {\n            System.out.println(i + \" в квадрате = \" + i * i);\n        }\n    }\n}",
+        "console": { "title": "Squares", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Squares" },
+          { "t": "out", "s": "До какого числа? " },
+          { "t": "in", "s": "4", "inline": true },
+          { "t": "out", "s": "1 в квадрате = 1" },
+          { "t": "out", "s": "2 в квадрате = 4" },
+          { "t": "out", "s": "3 в квадрате = 9" },
+          { "t": "out", "s": "4 в квадрате = 16" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Ввели <b>4</b> — значит, n = 4 и итераций будет четыре" },
+                   { "n": 2, "target": "output-2", "text": "Первая итерация: i = 1" },
+                   { "n": 3, "target": "output-5", "text": "Последняя итерация: i = 4. Дальше <code>5 &lt;= 4</code> — false, цикл окончен" } ],
+        "caption": "for + Scanner: число итераций задаёт ввод" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Ловушка из модуля 1: что выведется, если написать <code>"… = " + i + i</code> вместо <code>i * i</code>? Возьми i = 3.</summary>
+      <p><b>«3 в квадрате = 33»</b>. Выражение вычисляется слева направо: строка + 3 = строка, потом к ней приклеивается ещё 3. А вот <code>i * i</code> работает правильно: умножение выполняется раньше сложения, и к строке приклеивается уже готовое 9.</p>
+    </details>
+    <div class="say" data-mood="think">
+      <p>Когда брать <code>for</code>, а когда <code>while</code>? Простое правило: если число итераций <b>известно или его можно посчитать</b> до старта (от 1 до N) — <code>for</code>. Если крутим, <b>пока что-то не случится</b> (пока пользователь не введёт 0, пока страница не загрузится) — <code>while</code>. Подробнее — в следующем уроке.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m05-02">
+      <script type="application/json">
+      {
+       "title": "Быстрая проверка: цикл for",
+       "items": [
+        {
+         "type": "order",
+         "q": "В каком порядке выполняются части for на первых двух итерациях?",
+         "lines": [
+          "① инициализация счётчика int i = 0",
+          "② условие i < 2",
+          "③ тело",
+          "④ шаг i++",
+          "② условие i < 2",
+          "③ тело",
+          "④ шаг i++",
+          "② условие — false, выход"
+         ],
+         "why": "Инициализация счётчика — один раз, затем на каждой итерации: условие → тело → шаг."
+        },
+        {
+         "type": "single",
+         "q": "Сколько раз выполнится тело?",
+         "code": "for (int i = 0; i <= 10; i++) { … }",
+         "options": [
+          "10",
+          "11",
+          "9"
+         ],
+         "answer": 1,
+         "why": "От 0 до 10 включительно — это 11 чисел. Ноль тоже считается."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "for (int i = 1; i <= 16; i *= 2) {\n    System.out.print(i + \" \");\n}",
+         "answer": "1 2 4 8 16",
+         "why": "Шаг i *= 2 удваивает i: 1, 2, 4, 8, 16. Следующее 32 уже не проходит условие i <= 16. Пробел в конце строки не важен."
+        },
+        {
+         "type": "match",
+         "q": "Соедини задачу с заголовком for",
+         "left": [
+          "5 4 3 2 1",
+          "1 3 5 7 9",
+          "0 1 2 3 4",
+          "1 2 3 4 5"
+         ],
+         "right": [
+          "for (int i = 5; i >= 1; i--)",
+          "for (int i = 1; i <= 9; i += 2)",
+          "for (int i = 0; i < 5; i++)",
+          "for (int i = 1; i <= 5; i++)"
+         ],
+         "why": "Смотри на инициализацию счётчика (старт), на условие (последнее значение) и на шаг."
+        },
+        {
+         "type": "bug",
+         "q": "Программа должна напечатать числа от 0 до 4, но не останавливается. Где ошибка?",
+         "code": "for (int i = 0; i < 5; i--) {\n    System.out.println(i);\n}",
+         "answer": [
+          1
+         ],
+         "why": "Шаг i-- уводит i от границы: 0, −1, −2… Условие i < 5 всегда верно. Нужно i++."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Назови мне 4 последовательности чисел, а я напишу для каждой заголовок for. Проверь меня»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>for (инициализация; условие; шаг) { тело }</code> — все три части в <b>заголовке цикла</b>, через <code>;</code>.</li>
+        <li>Порядок: инициализация счётчика один раз → условие → тело → шаг → условие → …</li>
+        <li>Шаг может быть любым: <code>i--</code>, <code>i += 2</code>, <code>i *= 2</code>. Он должен вести к границе условия.</li>
+        <li><code>i = 0; i &lt; n</code> и <code>i = 1; i &lt;= n</code> — по N итераций. <code>0</code> и <code>&lt;=</code> — на одну больше.</li>
+        <li>Счётчик, объявленный в заголовке <code>for</code>, живёт только внутри цикла.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,39 @@
+## id: tr-arrays-009
+## title: Двойные бонусы
+## file: trainer/arrays/DoubleTheBonuses.java
+## class: DoubleTheBonuses
+## level: 1
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>DoubleTheBonuses</code>. В «чёрную пятницу» магазин удваивает бонусы всех покупателей. В первой строке — количество покупателей <code>n</code>, во второй — <code>n</code> целых чисел: сколько бонусов у каждого (у должников бывает минус). Умножь <b>каждый элемент массива</b> на 2 прямо в массиве и напечатай массив через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       10 0 25 3
+вывод: [20, 0, 50, 6]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.toString(a)</code> — возвращает строку вида <code>[1, 2, 3]</code> (нужен <code>import java.util.Arrays;</code>)</li>
+<li><code>a[i] = a[i] * 2;</code> — присваивание элементу по индексу</li>
+</ul></div>
+@@ test: Обычный день
+@@ input
+4
+10 0 25 3
+@@ expect
+[20, 0, 50, 6]
+@@ test: Должник
+@@ input
+3
+-5 7 -1
+@@ expect
+[-10, 14, -2]
+@@ test: Нет покупателей
+@@ input
+0
+@@ expect
+[]
+@@ test: Один покупатель
+@@ input
+1
+500
+@@ expect
+[1000]
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString

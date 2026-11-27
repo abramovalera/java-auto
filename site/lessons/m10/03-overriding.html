@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Переопределение методов и final · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m10-03">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 10 · Урок 3</div>
+    <h1>Переопределение методов и final</h1>
+    <p class="lead">Наследник получил метод родителя, но хочет делать это по-своему: все животные «подают голос», но кот мяукает, а собака лает. Учимся переопределять методы, дополнять родителя через super и запрещать переделки словом final.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>✍️ @Override, super.method()</span><span>🔐 final</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m10-03-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним наследование",
+       "kind": "Повторение",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет <code>new B();</code>?",
+         "code": "class A {\n    A() { System.out.println(\"A\"); }\n}\nclass B extends A {\n    B() { System.out.println(\"B\"); }\n}",
+         "answer": "A\nB",
+         "why": "Конструктор B первым делом вызывает невидимый super() — сначала строится часть родителя."
+        },
+        {
+         "type": "single",
+         "q": "Какое отношение описывает <code>extends</code>?",
+         "options": [
+          "«имеет» (has-a)",
+          "«является» (is-a)",
+          "«умеет» (can-do)"
+         ],
+         "answer": 1,
+         "why": "Наследник является разновидностью родителя: кот является животным."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA и наследование</h3>
+      <p>Сегодня появятся новые клавиши. Перепиши таблицу в свою тетрадь-шпаргалку руками — так запоминается лучше.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Override Methods: список методов родителя — выбери, и IDEA вставит заготовку с <code>@Override</code></td><td>Хочешь переопределить метод и не ошибиться в имени</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>U</kbd></td><td>Перейти к методу родителя, который ты переопределяешь</td><td>Посмотреть, что делала «бабушкина» версия</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd></td><td>Показать, где этот метод переопределён (или класс унаследован)</td><td>«У кого из наследников своя версия?»</td></tr>
+        <tr><td>Клик по значку на полях</td><td>Слева от переопределённого метода IDEA рисует круглый значок со стрелкой: вверх — «переопределяет метод родителя», вниз — «у наследников есть своя версия». Клик переносит туда</td><td>Быстро прыгнуть между версиями метода</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Одинаковое имя — своё поведение</h2>
+    <p>Пусть все животные умеют подавать голос. В классе <code>Animal</code> объявим общий метод, а классы <code>Cat</code> и <code>Dog</code> <b>переопределят</b> его — объявят метод с той же <b>сигнатурой</b> (то же имя и те же параметры), но со своим телом:</p>
+<pre data-file="Voices.java"><code class="java">public class Voices {
+    public static void main(String[] args) {
+        Animal a = new Animal();
+        Cat c = new Cat();
+        Dog d = new Dog();
+        a.speak();
+        c.speak();
+        d.speak();
+    }
+}
+
+class Animal {
+    void speak() { System.out.println("..."); }
+}
+
+class Cat extends Animal {
+    @Override
+    void speak() { System.out.println("Мяу"); }
+}
+
+class Dog extends Animal {
+    @Override
+    void speak() { System.out.println("Гав"); }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи вывод программы</summary>
+      <p><b>«...», «Мяу», «Гав».</b> У каждого объекта вызывается <b>его</b> версия метода. Версия наследника заслоняет версию родителя — как новая запись поверх старой. Это и есть <b>переопределение</b> (по-английски <i>override</i>).</p>
+    </details>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: семейный рецепт</span>
+      <p>Бабушка передала рецепт борща всей семье. Мама готовит строго по нему. Тётя заменила в рецепте свёклу на томаты — у неё «борщ» тоже есть, но свой. Рецепт называется так же, а результат другой. Переопределённый метод — это тётин борщ: имя то же, содержание своё.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>@Override: попроси компилятор проверить</h2>
+    <p><code>@Override</code> — это <b>аннотация</b>, пометка для компилятора: «я хочу переопределить метод родителя — проверь, что такой метод там действительно есть». Без неё код тоже работает. Зачем же она? Смотри:</p>
+<pre data-file="Typo.java"><code class="java">class Dog extends Animal {
+    void speek() { System.out.println("Гав"); }   // опечатка: speek, а не speak
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>new Dog().speak();</code>?</summary>
+      <p><b>«...»</b> — версию родителя! Из-за опечатки получился <b>новый</b> метод <code>speek</code>, а <code>speak</code> класс <code>Dog</code> просто унаследовал от <code>Animal</code>. Ошибки нет, программа молча делает не то. Такие баги ищут часами.</p>
+    </details>
+    <p>А с аннотацией компилятор поймает опечатку сразу:</p>
+<pre class="terminal"><span class="err">error: method does not override or implement a method from a supertype
+    @Override
+    ^</span></pre>
+    <p>В IDEA ждать запуска не нужно — красное появится, пока печатаешь:</p>
+    <div data-widget="ide" id="shot-override-typo">
+      <script type="application/json">
+      { "tree": false, "file": "Voices.java", "statusPath": "module-10",
+        "code": "class Animal {\n    void speak() { System.out.println(\"...\"); }\n}\n\nclass Dog extends Animal {\n    @Override\n    void speek() { System.out.println(\"Гав\"); }\n}",
+        "errors": [ { "line": 6, "text": "@Override", "msg": "Method does not override method from its superclass", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-6", "side": "left", "text": "Красной стала сама аннотация: <code>@Override</code> пообещала переопределение, а его нет" },
+                   { "n": 2, "target": "line-7", "text": "Причина — опечатка в имени: <code>speek</code> вместо <code>speak</code>" },
+                   { "n": 3, "target": "tip", "text": "<b>Method does not override method from its superclass</b> — «метод не переопределяет метод родителя». У <code>javac</code> те же слова чуть иначе: <code>method does not override or implement a method from a supertype</code>" } ],
+        "caption": "@Override поймала опечатку в имени метода" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Привычка с первого дня</span>
+      <p>Ставь <code>@Override</code> над <b>каждым</b> переопределённым методом. IDEA сама вставляет её, если набрать имя метода родителя и выбрать подсказку, или через <kbd>Ctrl</kbd>+<kbd>O</kbd> (Override Methods). Слева от строки появится значок ⬆ — по клику IDEA прыгнет к методу родителя.</p>
+    </div>
+    <div data-widget="ide" id="shot-gutter-icons">
+      <script type="application/json">
+      { "tree": false, "file": "Voices.java", "statusPath": "module-10",
+        "code": "class Animal {\n    void speak() { System.out.println(\"...\"); }\n}\n\nclass Cat extends Animal {\n    @Override\n    void speak() { System.out.println(\"Мяу\"); }\n}",
+        "gutterIcons": { "2": "⬇", "7": "⬆" },
+        "marks": [ { "n": 1, "target": "gicon-7", "side": "left", "text": "<b>⬆</b> у метода наследника: «этот метод переопределяет метод родителя». Клик — и IDEA откроет <code>Animal.speak()</code> (то же делает <kbd>Ctrl</kbd>+<kbd>U</kbd>)" },
+                   { "n": 2, "target": "gicon-2", "side": "left", "text": "<b>⬇</b> у метода родителя: «у наследников есть своя версия». Клик покажет список: кто переопределил (то же делает <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>)" },
+                   { "n": 3, "target": "line-6", "text": "Значка ⬆ нет? Значит, переопределения нет — проверь имя и параметры. Вместе с <code>@Override</code> это двойная страховка" } ],
+        "caption": "Значки переопределения на полях" }
+      </script>
+    </div>
+    <p>Вот как выглядит <kbd>Ctrl</kbd>+<kbd>O</kbd>. Поставь курсор внутрь класса-наследника и нажми — откроется окно со всеми методами, которые можно переопределить:</p>
+    <div data-widget="ide" id="shot-ctrl-o">
+      <script type="application/json">
+      { "tree": false, "file": "Voices.java", "statusPath": "module-10",
+        "code": "class Animal {\n    void speak() { System.out.println(\"...\"); }\n}\n\nclass Dog extends Animal {\n    \n}", "caretLine": 6,
+        "dialog": { "title": "Select Methods to Override",
+                    "rows": [ { "label": "Animal", "value": "ⓜ speak(): void", "type": "text", "hl": true },
+                              { "label": "java.lang.Object", "value": "ⓜ equals(obj: Object): boolean", "type": "text" },
+                              { "label": "", "value": "ⓜ hashCode(): int", "type": "text" },
+                              { "label": "", "value": "ⓜ toString(): String", "type": "text" } ],
+                    "note": "☑ Insert @Override", "buttons": ["OK", "Cancel"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "line-6", "side": "left", "text": "Курсор стоит внутри класса <code>Dog</code>, нажали <kbd>Ctrl</kbd>+<kbd>O</kbd>" },
+                   { "n": 2, "target": "field-Animal", "text": "Методы сгруппированы по классам-родителям. Сверху — прямой родитель <b>Animal</b>, ниже — прародитель всех классов <b>Object</b> (про него — урок 5)" },
+                   { "n": 3, "target": "btn-OK", "text": "Выбрал метод и нажал OK — IDEA вставит его с правильным заголовком и с <code>@Override</code> сверху. Опечатке взяться неоткуда" } ],
+        "caption": "Окно Override Methods (Ctrl+O)" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Правила переопределения</h2>
+    <p>Чтобы метод наследника считался переопределением, а не новым методом:</p>
+    <ol class="steps">
+      <li><b>Имя и параметры — те же самые</b>: те же типы в том же порядке. <code>speak(int times)</code> — уже другой метод.</li>
+      <li><b>Тип возвращаемого значения — тот же</b> (или тип-наследник, об этом ниже «для любопытных»).</li>
+      <li><b>Доступ не строже</b>, чем у родителя. Был <code>public</code> — у наследника тоже должен быть <code>public</code>. Иначе: <code>attempting to assign weaker access privileges</code>.</li>
+      <li><b>Нельзя переопределить</b> <code>private</code>-метод (наследник его не видит), <code>static</code>-метод (он принадлежит классу, а не объекту) и <code>final</code>-метод (запрещено, см. ниже).</li>
+    </ol>
+    <p>Не путай с <b>перегрузкой</b> из модуля 7 — названия похожи, смысл разный:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>Перегрузка (overload)</th><th>Переопределение (override)</th></tr>
+        <tr><td>Где</td><td>в одном классе</td><td>в наследнике</td></tr>
+        <tr><td>Имя</td><td>то же</td><td>то же</td></tr>
+        <tr><td>Параметры</td><td><b>разные</b></td><td><b>те же</b></td></tr>
+        <tr><td>Пример</td><td><code>print(int)</code> и <code>print(String)</code></td><td><code>Cat.speak()</code> вместо <code>Animal.speak()</code></td></tr>
+        <tr><td>Когда выбирается версия</td><td>при компиляции, по типам аргументов</td><td>при запуске, по реальному объекту (урок 4)</td></tr>
+      </table>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: «ковариантный» тип результата</summary>
+      <p>Если родитель возвращает <code>Animal</code>, наследник при переопределении может вернуть более узкий тип — <code>Cat</code>: <code>@Override Cat copy() { … }</code>. Кот является животным, так что обещание родителя «верну животное» выполнено. А вот вернуть <code>String</code> вместо <code>Animal</code> нельзя.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>super.method(): дополнить, а не заменить</h2>
+    <p>Часто наследник хочет не выбросить поведение родителя, а <b>добавить</b> к нему своё. Для этого внутри переопределённого метода <b>вызывают метод родителя</b> через <code>super</code>: <code>super.имяМетода()</code>. Пример — магазины на одной улице: каждый утром открывается одинаково, а булочная ещё и выкладывает хлеб:</p>
+<pre data-file="Shops.java"><code class="java">public class Shops {
+    public static void main(String[] args) {
+        Bakery bakery = new Bakery();
+        bakery.open();
+    }
+}
+
+class Shop {
+    void open() {
+        System.out.println("Открываю двери");
+        System.out.println("Включаю свет");
+    }
+}
+
+class Bakery extends Shop {
+    @Override
+    void open() {
+        super.open();  // общая часть — от родителя
+        System.out.println("Выкладываю свежий хлеб");  // своё — дописали
+    }
+}</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 220" role="img" aria-label="Вызов Bakery.open: сначала через super уходит в Shop.open, тот печатает две строки и возвращается, затем Bakery печатает свою строку">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="70" width="150" height="70" rx="12" class="d-soft"/>
+        <text x="95" y="100" text-anchor="middle" class="d-title">main</text>
+        <text x="95" y="124" text-anchor="middle" class="d-mono-ink">bakery.open()</text>
+        <rect x="230" y="40" width="210" height="140" rx="12" class="d-blue"/>
+        <text x="335" y="68" text-anchor="middle" class="d-title">Bakery.open()</text>
+        <text x="248" y="100" class="d-mono-ink">① super.open()</text>
+        <text x="248" y="150" class="d-mono-ink">③ "Выкладываю…"</text>
+        <rect x="500" y="40" width="200" height="140" rx="12" class="d-violet"/>
+        <text x="600" y="68" text-anchor="middle" class="d-title">Shop.open()</text>
+        <text x="516" y="100" class="d-mono-ink">② "Открываю…"</text>
+        <text x="516" y="124" class="d-mono-ink">   "Включаю…"</text>
+        <path d="M172 105 H226" class="d-arrow"/>
+        <path d="M380 95 C 430 80, 460 80, 496 92" class="d-arrow"/>
+        <path d="M496 130 C 460 140, 430 140, 400 136" class="d-arrow"/>
+        <text x="448" y="210" text-anchor="middle" class="d-small">версия родителя выполнилась и вернула управление наследнику</text>
+      </svg>
+      <figcaption>super.open() — вызов метода родителя: как «сначала сделай, как делал папа», а потом своё.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: что будет, если убрать строку <code>super.open();</code>?</summary>
+      <p>Напечатается только «Выкладываю свежий хлеб». Метод наследника <b>полностью заменяет</b> метод родителя; версия родителя сама по себе не вызывается. Забытый <code>super.open()</code> — частая логическая ошибка: двери магазина так и не открыли, а хлеб уже выкладывают.</p>
+    </details>
+    <p>Собери класс цветочного магазина сам — порядок строк важен:</p>
+    <div data-widget="parsons" id="parsons-m10-03" data-code data-title="Цветочный магазин дополняет родителя" data-icon="💐"
+         data-success="🎉 Верно! Объявили наследника, пометили @Override, сначала вызвали версию родителя, потом своё.">
+      <script type="text/plain">
+class FlowerShop extends Shop {
+    @Override
+    void open() {
+        super.open();
+        System.out.println("Ставлю цветы в воду");
+    }
+}
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>final: «переделывать запрещено»</h2>
+    <p>Иногда автор класса хочет, чтобы какой-то метод наследники <b>не могли</b> переопределить. Например, базовый рецепт задаёт порядок: подготовка → готовка → уборка. Если наследник переопределит этот порядок и забудет уборку, на кухне останется гора грязной посуды. Поэтому метод помечают <code>final</code>:</p>
+<pre data-file="Recipes.java"><code class="java">class Recipe {
+    final void cook() {         // порядок фиксирован
+        prepare();
+        mainStep();
+        cleanUp();
+    }
+    void prepare()  { System.out.println("Мою руки"); }
+    void mainStep() { System.out.println("Пустой рецепт"); }
+    void cleanUp()  { System.out.println("Мою посуду"); }
+}
+
+class Omelet extends Recipe {
+    @Override
+    void mainStep() { System.out.println("Взбиваю яйца"); }    // ✔ можно
+
+    @Override
+    void cook() { mainStep(); }     // ✗ ошибка компиляции
+}</code></pre>
+<pre class="terminal"><span class="err">error: cook() in Omelet cannot override cook() in Recipe
+  overridden method is final</span></pre>
+    <p>Наследник меняет только «шаги» (<code>mainStep</code>, при желании <code>prepare</code>), а «сценарий» <code>cook</code> — один на всех. Такой приём называют <b>шаблонным методом</b>, на нём построены многие библиотеки: библиотека сама решает порядок, а ты пишешь только содержимое шагов.</p>
+    <h3>final-класс: наследовать нельзя совсем</h3>
+    <p>Слово <code>final</code> перед классом запрещает создавать от него наследников. Самый известный пример — <code>String</code>:</p>
+<pre data-file="MyString.java"><code class="java">class MyString extends String { }   // ✗ cannot inherit from final String</code></pre>
+    <p>Обе ошибки с <code>final</code> в редакторе IDEA выглядят так:</p>
+    <div data-widget="ide" id="shot-final">
+      <script type="application/json">
+      { "tree": false, "file": "Recipes.java", "statusPath": "module-10",
+        "code": "class Recipe {\n    final void cook() {\n        mainStep();\n    }\n    void mainStep() { }\n}\n\nclass Omelet extends Recipe {\n    @Override\n    void cook() { mainStep(); }\n}\n\nclass MyString extends String { }",
+        "errors": [ { "line": 10, "text": "cook", "msg": "'cook()' cannot override 'cook()' in 'Recipe'; overridden method is final", "tip": true },
+                    { "line": 13, "col": 24, "len": 6, "msg": "Cannot inherit from final 'java.lang.String'" } ],
+        "marks": [ { "n": 1, "target": "line-2", "text": "<code>final</code> у метода родителя: «этот сценарий не переделывать»" },
+                   { "n": 2, "target": "tip", "text": "<b>cannot override … overridden method is final</b> — «нельзя переопределить: метод родителя final». Красное — на имени <code>cook</code> в наследнике" },
+                   { "n": 3, "target": "err-13", "side": "top", "text": "Наведёшь мышь сюда — IDEA напишет <b>Cannot inherit from final 'java.lang.String'</b>: «нельзя наследовать от final-класса String»" },
+                   { "n": 4, "target": "problems", "text": "<b>❗2</b> — в файле две ошибки. Пока они есть, программа не запустится" } ],
+        "caption": "final-метод и final-класс: обе ошибки ловит компилятор" }
+      </script>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">🔐</span><h4>Почему String — final</h4><p>Строки неизменяемы (модуль 8), на этом держится пул строк и безопасность: строкой передают пароли, адреса, имена файлов. Если бы можно было сделать «хитрую строку»-наследника, которая меняется после проверки, всё это сломалось бы.</p></div>
+      <div class="card"><span class="emoji">🧮</span><h4>Ещё final-классы</h4><p><code>Math</code>, <code>Integer</code>, <code>Double</code> и другие обёртки. Твои классы — тоже можно: <code>final class Money</code>, если наследники ему не нужны.</p></div>
+      <div class="card"><span class="emoji">📌</span><h4>Три значения final</h4><p>У переменной/поля — нельзя присвоить новое значение (модуль 2 и 9). У метода — нельзя переопределить. У класса — нельзя наследовать.</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m10-03">
+      <script type="application/json">
+      { "title": "Переопределение — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет <code>new Puppy().info();</code>?",
+            "code": "class Dog {\n    void info() { System.out.println(\"Собака\"); }\n}\nclass Puppy extends Dog {\n    @Override\n    void info() {\n        System.out.println(\"Щенок\");\n        super.info();\n    }\n}",
+            "answer": "Щенок\nСобака", "why": "Сначала печатает своё, потом вызывает версию родителя. Порядок определяет место вызова super.info()." },
+          { "type": "bug", "q": "Какая строка не скомпилируется?",
+            "code": "class Shape {\n    public double area() { return 0; }\n    final String kind() { return \"фигура\"; }\n}\nclass Circle extends Shape {\n    @Override\n    public double area() { return 3.14; }\n    @Override\n    String kind() { return \"круг\"; }\n}",
+            "answer": [9], "why": "kind() в Shape помечен final — переопределять его нельзя: overridden method is final." },
+          { "type": "single", "q": "Зачем ставить <code>@Override</code>?",
+            "options": ["Без неё метод не переопределится", "Компилятор проверит, что метод действительно переопределяет метод родителя, и поймает опечатку", "Она делает метод быстрее"], "answer": 1,
+            "why": "Переопределение работает и без аннотации, но опечатка тогда молча создаёт новый метод." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "speak(int times) в наследнике переопределяет speak() родителя", "a": false, "why": "параметры другие — это перегрузка, новый метод." },
+              { "s": "public-метод родителя нельзя переопределить как метод без модификатора", "a": true },
+              { "s": "От класса String можно унаследоваться, если очень нужно", "a": false, "why": "String — final-класс." }
+            ] },
+          { "type": "match", "q": "Соедини final и что он запрещает",
+            "left": ["final int x = 5;", "final void cook()", "final class Money"],
+            "right": ["переприсвоить x", "переопределить cook в наследнике", "создать наследника Money"],
+            "why": "Одно слово — три запрета, в зависимости от того, где стоит." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 10.3. Спроси меня, чем перегрузка отличается от переопределения, и дай пару примеров кода — я скажу, где что»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Переопределение — метод наследника с тем же именем и параметрами заменяет метод родителя.</li>
+        <li><code>@Override</code> — проверка компилятором; ставь всегда.</li>
+        <li>Правила: та же сигнатура, тот же тип возвращаемого значения, доступ не строже; private, static и final не переопределяются.</li>
+        <li><code>super.method()</code> — вызвать версию родителя и дописать своё.</li>
+        <li><code>final</code> у метода — нельзя переопределить; у класса — нельзя наследовать (<code>String</code>).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

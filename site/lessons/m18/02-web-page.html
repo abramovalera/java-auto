@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Как устроена веб-страница для тестировщика · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 18 · Урок 2</div>
+    <h1>Как устроена веб-страница для тестировщика</h1>
+    <p class="lead">Чтобы автотест нажал кнопку, он должен её найти. А чтобы найти, надо понимать, из чего сделана страница. Заглянем под капот любого сайта — клавишей F12.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🌐 HTML и DevTools</span><span>🧩 без Java-кода</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m18-02-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним прошлое",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Когда JUnit вызывает метод с <code>@BeforeEach</code>?",
+         "options": [
+          "Один раз перед всеми тестами класса",
+          "Перед каждым тестом",
+          "После каждого теста"
+         ],
+         "answer": 1,
+         "why": "Before Each — «перед каждым». Так каждый тест получает свежие объекты и не зависит от соседей."
+        },
+        {
+         "type": "single",
+         "q": "Какой уровень пирамиды тестов самый медленный и хрупкий?",
+         "options": [
+          "Юнит",
+          "API",
+          "UI"
+         ],
+         "answer": 2,
+         "why": "UI-тест управляет настоящим браузером и зависит от вёрстки — поэтому их мало."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Страница — это текст с тегами</h2>
+    <p>Когда ты открываешь сайт, браузер получает от сервера обычный текст на языке <b>HTML</b> (HyperText Markup Language — язык разметки). В нём содержимое страницы размечено <b>тегами</b> — словами в угловых скобках. Вот форма входа магазина Nook:</p>
+<pre data-file="login.html"><code>&lt;form id="login-form" class="card"&gt;
+  &lt;h1&gt;Вход&lt;/h1&gt;
+  &lt;input id="login" name="login" placeholder="Логин" data-test-id="login"&gt;
+  &lt;input type="password" name="password" data-test-id="password"&gt;
+  &lt;button type="submit" class="btn btn-primary"
+          data-test-id="login-button"&gt;Войти&lt;/button&gt;
+  &lt;div class="error hidden" data-test-id="error"&gt;&lt;/div&gt;
+&lt;/form&gt;</code></pre>
+    <p><code>&lt;button&gt;</code> — открывающий тег, <code>&lt;/button&gt;</code> — закрывающий, между ними — текст кнопки «Войти». Всё вместе — <b>элемент</b>. У некоторых тегов закрывающего нет, например у <code>&lt;input&gt;</code>: поле ввода не содержит текста внутри.</p>
+    <p>Элементы вложены друг в друга, как <code>{ }</code> в Java: форма внутри страницы, поля и кнопка — внутри формы. Браузер строит из этого <b>дерево элементов</b> — его называют <b>DOM</b> (Document Object Model, «объектная модель документа»).</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Дерево DOM: html, body, form с детьми h1, input, input, button, div">
+        <rect x="320" y="10" width="120" height="36" rx="10" class="d-soft"/>
+        <text x="380" y="34" text-anchor="middle" class="d-mono-ink">html</text>
+        <rect x="320" y="76" width="120" height="36" rx="10" class="d-soft"/>
+        <text x="380" y="100" text-anchor="middle" class="d-mono-ink">body</text>
+        <rect x="290" y="142" width="180" height="36" rx="10" class="d-accent"/>
+        <text x="380" y="166" text-anchor="middle" class="d-mono-ink">form#login-form</text>
+        <path d="M380 46 V76 M380 112 V142" class="d-line"/>
+        <path d="M380 178 V200 M76 200 H684 M76 200 V222 M228 200 V222 M380 200 V222 M532 200 V222 M684 200 V222" class="d-line"/>
+        <rect x="16" y="222" width="120" height="36" rx="10" class="d-box"/>
+        <text x="76" y="246" text-anchor="middle" class="d-mono-ink">h1</text>
+        <rect x="168" y="222" width="120" height="36" rx="10" class="d-blue"/>
+        <text x="228" y="246" text-anchor="middle" class="d-mono-ink">input</text>
+        <rect x="320" y="222" width="120" height="36" rx="10" class="d-blue"/>
+        <text x="380" y="246" text-anchor="middle" class="d-mono-ink">input</text>
+        <rect x="472" y="222" width="120" height="36" rx="10" class="d-green"/>
+        <text x="532" y="246" text-anchor="middle" class="d-mono-ink">button</text>
+        <rect x="624" y="222" width="120" height="36" rx="10" class="d-red"/>
+        <text x="684" y="246" text-anchor="middle" class="d-mono-ink">div.error</text>
+        <text x="76" y="282" text-anchor="middle" class="d-small">«Вход»</text>
+        <text x="228" y="282" text-anchor="middle" class="d-small">логин</text>
+        <text x="380" y="282" text-anchor="middle" class="d-small">пароль</text>
+        <text x="532" y="282" text-anchor="middle" class="d-small">«Войти»</text>
+        <text x="684" y="282" text-anchor="middle" class="d-small">ошибка (скрыта)</text>
+      </svg>
+      <figcaption>DOM — дерево: у каждого элемента есть родитель, у многих — дети. Автотест ищет элементы именно в этом дереве.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: склад</span>
+      <p>Страница — это склад. Стеллажи (форма) стоят в залах (страница), на стеллажах — коробки (поля, кнопки). Чтобы робот-погрузчик взял нужную коробку, ему нужен <b>адрес</b>: «зал 2, стеллаж с табличкой "Вход", коробка с наклейкой "login"». Такой адрес элемента и есть <b>локатор</b> — строка, по которой тест находит элемент на странице; о нём следующий урок.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Теги, которые встречаются в тестах чаще всего</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Тег</th><th>Что это</th><th>Что с ним делает автотест</th></tr>
+        <tr><td><code>&lt;input&gt;</code></td><td>поле ввода: текст, пароль, галочка (<code>type="checkbox"</code>)</td><td>вводит текст, отмечает галочку, читает значение</td></tr>
+        <tr><td><code>&lt;button&gt;</code></td><td>кнопка</td><td>нажимает, проверяет «активна ли»</td></tr>
+        <tr><td><code>&lt;a&gt;</code></td><td>ссылка, адрес — в атрибуте <code>href</code></td><td>переходит по ней, проверяет адрес</td></tr>
+        <tr><td><code>&lt;select&gt;</code> + <code>&lt;option&gt;</code></td><td>выпадающий список</td><td>выбирает пункт</td></tr>
+        <tr><td><code>&lt;div&gt;</code>, <code>&lt;span&gt;</code></td><td>«коробки» без особого смысла — из них собрана вёрстка</td><td>читает текст сообщений, карточек, счётчиков</td></tr>
+        <tr><td><code>&lt;h1&gt;</code>…<code>&lt;h6&gt;</code></td><td>заголовки</td><td>проверяет, что открылась нужная страница</td></tr>
+        <tr><td><code>&lt;ul&gt;</code>/<code>&lt;li&gt;</code>, <code>&lt;table&gt;</code>/<code>&lt;tr&gt;</code></td><td>списки и таблицы</td><td>считает строки, ищет нужную</td></tr>
+        <tr><td><code>&lt;form&gt;</code></td><td>форма, объединяет поля и кнопку отправки</td><td>обычно служит «контейнером» для поиска</td></tr>
+      </table>
+    </div>
+    <p>Учить HTML как верстальщик не нужно. Тестировщику достаточно <b>читать</b> его и понимать, где какой элемент.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Атрибуты: таблички на коробках</h2>
+    <p>Внутри открывающего тега пишут <b>атрибуты</b> — пары <code>имя="значение"</code>. Они уточняют элемент. Для автотестов важнее всего вот эти:</p>
+    <div class="annot">
+      <div class="annot-row"><code>id="login"</code><div><p><b>Уникальный номер</b> элемента на странице. По правилам HTML двух одинаковых <code>id</code> быть не должно (хотя на практике бывает — это баг вёрстки).</p></div></div>
+      <div class="annot-row"><code>class="btn btn-primary"</code><div><p><b>Классы оформления</b> — для дизайна (цвет, размер). Через пробел — несколько классов: здесь <code>btn</code> и <code>btn-primary</code>. Один класс носят много элементов сразу.</p></div></div>
+      <div class="annot-row"><code>name="login"</code><div><p>Имя поля, под которым значение уйдёт на сервер. Обычно у полей форм стабильное.</p></div></div>
+      <div class="annot-row"><code>type="password"</code><div><p>Вид поля или кнопки: <code>text</code>, <code>password</code>, <code>checkbox</code>, <code>submit</code>.</p></div></div>
+      <div class="annot-row"><code>placeholder="Логин"</code><div><p>Серая подсказка в пустом поле. Это текст для людей — его могут перевести или переписать.</p></div></div>
+      <div class="annot-row"><code>data-test-id="login-button"</code><div><p><b>Атрибут специально для тестов.</b> Всё, что начинается с <code>data-</code>, браузер не показывает и дизайн не трогает. Разработчики добавляют такие атрибуты по просьбе автоматизаторов — и обещают их не менять. Название бывает разным: <code>data-test-id</code>, <code>data-testid</code>, <code>data-qa</code>, <code>data-autotest</code>.</p></div></div>
+    </div>
+    <div class="say" data-mood="think"><p>Почему не искать кнопку по классу <code>btn-primary</code>? Потому что классы — для дизайна. Завтра дизайнер сделает кнопку зелёной, класс станет <code>btn-success</code>, и тест упадёт, хотя кнопка работает. А <code>data-test-id</code> никто, кроме тестов, не использует — его незачем трогать.</p></div>
+    <details class="predict">
+      <summary>У элемента <code>&lt;div class="error hidden" data-test-id="error"&gt;</code> сколько классов?</summary>
+      <p>Два: <code>error</code> и <code>hidden</code>. Классы в атрибуте разделяются пробелами. Класс <code>hidden</code> здесь, скорее всего, прячет блок ошибки, пока ошибки нет, — после неудачного входа его уберут, и блок станет видимым.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>DevTools: рентген для сайта</h2>
+    <p>В каждом браузере есть <b>инструменты разработчика</b> — DevTools. Открываются клавишей <kbd>F12</kbd> (или правый клик по странице → «Просмотреть код»). Это главный инструмент автоматизатора наравне с IDEA.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="Окно браузера с открытыми DevTools: страница слева, панель Elements справа, поиск по локатору внизу">
+        <rect x="10" y="10" width="740" height="310" rx="14" class="d-box"/>
+        <rect x="10" y="10" width="740" height="36" rx="14" class="d-soft"/>
+        <text x="30" y="34" class="d-small">nook.shop/login</text>
+        <rect x="24" y="60" width="300" height="246" rx="10" class="d-soft"/>
+        <text x="174" y="96" text-anchor="middle" class="d-title">Вход</text>
+        <rect x="54" y="116" width="240" height="34" rx="8" class="d-box"/>
+        <text x="66" y="138" class="d-small">Логин</text>
+        <rect x="54" y="162" width="240" height="34" rx="8" class="d-box"/>
+        <text x="66" y="184" class="d-small">••••••</text>
+        <rect x="54" y="210" width="240" height="38" rx="8" class="d-accent"/>
+        <text x="174" y="234" text-anchor="middle" class="d-text">Войти</text>
+        <circle cx="34" cy="229" r="11" class="d-accent"/><text x="34" y="234" text-anchor="middle" class="d-small">1</text>
+        <rect x="338" y="60" width="398" height="200" rx="10" class="d-code"/>
+        <text x="350" y="82" class="d-small">Elements</text>
+        <text x="350" y="108" class="d-mono">&lt;form id="login-form" class="card"&gt;</text>
+        <text x="366" y="130" class="d-mono">&lt;h1&gt;Вход&lt;/h1&gt;</text>
+        <text x="366" y="152" class="d-mono">&lt;input id="login" …&gt;</text>
+        <text x="366" y="174" class="d-mono">&lt;input type="password" …&gt;</text>
+        <rect x="358" y="182" width="370" height="26" rx="6" class="d-accent"/>
+        <text x="366" y="200" class="d-mono-ink">&lt;button … data-test-id="login-button"&gt;</text>
+        <text x="350" y="226" class="d-mono">&lt;/form&gt;</text>
+        <circle cx="722" cy="80" r="11" class="d-accent"/><text x="722" y="85" text-anchor="middle" class="d-small">2</text>
+        <rect x="338" y="270" width="398" height="36" rx="8" class="d-yellow"/>
+        <text x="350" y="293" class="d-mono-ink">[data-test-id='login-button']</text>
+        <text x="726" y="293" text-anchor="end" class="d-small">1 of 1</text>
+        <circle cx="338" cy="270" r="11" class="d-accent"/><text x="338" y="275" text-anchor="middle" class="d-small">3</text>
+      </svg>
+      <figcaption>① выбрал элемент на странице → ② панель Elements подсветила его HTML → ③ Ctrl+F проверяет локатор: «1 of 1» — найден ровно один.</figcaption>
+    </figure>
+    <ol class="steps">
+      <li><b>Найти элемент.</b> Нажми <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> (стрелочка в левом углу DevTools) и кликни по кнопке на странице. Во вкладке <b>Elements</b> подсветится её HTML со всеми атрибутами.</li>
+      <li><b>Прочитать атрибуты.</b> Есть <code>data-test-id</code>? <code>id</code>? Отлично. Есть только классы вида <code>css-1x8f3k</code>? Их генерирует сборщик — после следующей сборки они другие. Такие брать нельзя.</li>
+      <li><b>Проверить локатор.</b> Во вкладке Elements нажми <kbd>Ctrl</kbd>+<kbd>F</kbd> и впиши локатор. Справа появится «1 of 1» — локатор находит ровно один элемент. «1 of 3» — элементов три, локатор надо уточнить. «0 of 0» — ошибка в локаторе.</li>
+      <li><b>Консоль.</b> Во вкладке <b>Console</b> можно спросить: <code>$$("[data-test-id='login']")</code> — вернёт все элементы по CSS-селектору, <code>$x("//button")</code> — по XPath.</li>
+    </ol>
+    <div class="callout try">
+      <span class="callout-title">Попробуй прямо сейчас</span>
+      <p>Нажми <kbd>F12</kbd> на этой странице курса, затем <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> и кликни по заголовку урока. Найди его тег в Elements. Какой у него тег? Есть ли у него класс? Потом нажми <kbd>Ctrl</kbd>+<kbd>F</kbd> в Elements, впиши <code>h1</code> и посмотри, сколько нашлось.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Есть в HTML ≠ видно на экране</h2>
+    <p>Важная тонкость для тестировщика. Элемент может быть в дереве DOM, но пользователь его <b>не видит</b>: блок ошибки спрятан классом <code>hidden</code>, всплывающее окно ещё не открыто, элемент за краем экрана. Поэтому автотесты проверяют не «элемент существует», а «элемент <b>виден</b>» — как человек.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">👁️</span><h4>visible</h4><p>Элемент есть и показан на экране. Только по видимому элементу можно кликнуть.</p></div>
+      <div class="card"><span class="emoji">🫥</span><h4>hidden</h4><p>Элемент есть в DOM, но спрятан. Например, ошибка до первой попытки входа.</p></div>
+      <div class="card"><span class="emoji">🚫</span><h4>disabled</h4><p>Виден, но неактивен: серая кнопка «Купить», пока не выбран размер. Атрибут <code>disabled</code>.</p></div>
+    </div>
+    <p>Ещё одна тонкость: у поля ввода введённый текст лежит не между тегами, а в его <b>значении</b> (value). Поэтому «текст элемента» и «значение поля» в тестах проверяют с разными условиями — <code>text</code> и <code>value</code>, увидишь в уроке 4.</p>
+    <details class="predict">
+      <summary>Сайт показывает ошибку «Неверный пароль» через полсекунды после нажатия «Войти». Тест сразу после клика проверяет, что ошибка видна. Что будет?</summary>
+      <p>Если проверить мгновенно и один раз — тест упадёт: ошибка ещё не появилась. Это классическая причина «мигающих» тестов. Selenide решает это сам: его проверка состояния (<code>shouldBe</code>, <code>shouldHave</code>) не проверяет один раз, а ждёт до 4 секунд, пока условие выполнится. Подробно — в уроке 4.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m18-02">
+      <script type="application/json">
+      { "title": "Веб-страница — главное",
+        "items": [
+          { "type": "match", "q": "Соедини атрибут с его ролью",
+            "left": ["id", "class", "data-test-id", "placeholder"],
+            "right": ["Уникальный номер элемента на странице", "Оформление, один на много элементов", "Метка специально для автотестов", "Серая подсказка в пустом поле"],
+            "why": "Для поиска лучше всего data-test-id и id; класс и подсказка меняются вместе с дизайном и текстами." },
+          { "type": "single", "q": "Как в DevTools проверить, сколько элементов находит локатор?",
+            "options": ["Кликнуть по элементу правой кнопкой", "Ctrl+F во вкладке Elements и вписать локатор", "Перезагрузить страницу"], "answer": 1,
+            "why": "Справа появится «1 of N». Хороший локатор — «1 of 1»." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Элемент, который есть в HTML, всегда виден пользователю", "a": false, "why": "его могут прятать классом, стилем или он ещё не показан." },
+              { "s": "У элемента может быть несколько классов через пробел", "a": true },
+              { "s": "data-test-id меняет внешний вид элемента", "a": false, "why": "data-атрибуты браузер не показывает и дизайн они не трогают." },
+              { "s": "DOM — дерево элементов, которое браузер строит из HTML", "a": true }
+            ] },
+          { "type": "single", "q": "Сколько классов у элемента <code>&lt;button class=\"btn btn-primary large\"&gt;</code>?",
+            "options": ["Один", "Три", "Ни одного — это атрибут"], "answer": 1,
+            "why": "btn, btn-primary и large — три класса через пробел." },
+          { "type": "single", "q": "У кнопки только класс <code>css-7fk2q1</code>. Чем это плохо для теста?",
+            "options": ["Ничем, класс как класс", "Такие классы генерирует сборщик — после новой сборки имя изменится", "Классы нельзя использовать в локаторах"], "answer": 1,
+            "why": "Сгенерированные имена меняются при каждой сборке. Проси разработчиков добавить data-test-id." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я открыл DevTools на сайте ____. Вот HTML кнопки, которую я нашёл: … Какие атрибуты в нём стабильные, а какие могут поменяться?»</em></p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Страница — HTML: элементы из тегов, вложенные друг в друга. Браузер строит из них дерево — DOM.</li>
+        <li>Атрибуты уточняют элемент: <code>id</code> — уникальный, <code>class</code> — для дизайна, <code>data-test-id</code> — для тестов.</li>
+        <li>DevTools (<kbd>F12</kbd>): <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> — выбрать элемент, <kbd>Ctrl</kbd>+<kbd>F</kbd> в Elements — проверить локатор («1 of 1»).</li>
+        <li>Есть в DOM ≠ видно на экране. Тесты проверяют видимость, как человек.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

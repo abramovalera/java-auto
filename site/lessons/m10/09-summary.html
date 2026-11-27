@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 10 и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m10-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 10 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Три кита ООП пойманы: ты умеешь прятать данные, строить иерархии классов и писать код, который работает с любым наследником. Соберём всё в одну картинку, проверим себя — и на экзамен к наставнику.</span><span class="free-only">Три кита ООП пойманы: ты умеешь прятать данные, строить иерархии классов и писать код, который работает с любым наследником. Соберём всё в одну картинку, проверим себя — и на экзамен к <span class="ai-name">DeepSeek</span>.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 10: инкапсуляция, наследование, переопределение и final, полиморфизм, класс Object, приведение типов, композиция">
+        <path d="M380 220 L145 70" class="d-line"/>
+        <path d="M380 220 L615 70" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 370" class="d-line"/>
+        <path d="M380 220 L615 370" class="d-line"/>
+        <path d="M380 220 L380 395" class="d-line"/>
+
+        <rect x="40" y="16" width="210" height="104" rx="14" class="d-blue"/>
+        <text x="145" y="44" text-anchor="middle" class="d-title">🔒 Инкапсуляция</text>
+        <text x="56" y="72" class="d-small">private-поля + методы</text>
+        <text x="56" y="92" class="d-small">с проверками; инвариант</text>
+        <text x="56" y="112" class="d-small">детали спрятаны в классе</text>
+
+        <rect x="510" y="16" width="210" height="104" rx="14" class="d-violet"/>
+        <text x="615" y="44" text-anchor="middle" class="d-title">🧬 Наследование</text>
+        <text x="526" y="72" class="d-small">extends, «является»</text>
+        <text x="526" y="92" class="d-small">super(...) первой строкой</text>
+        <text x="526" y="112" class="d-small">один родитель, protected</text>
+
+        <rect x="10" y="172" width="210" height="96" rx="14" class="d-yellow"/>
+        <text x="115" y="200" text-anchor="middle" class="d-title">✍️ Переопределение</text>
+        <text x="26" y="228" class="d-small">@Override, super.method()</text>
+        <text x="26" y="248" class="d-small">final-метод, final-класс</text>
+
+        <rect x="540" y="172" width="210" height="96" rx="14" class="d-teal"/>
+        <text x="645" y="200" text-anchor="middle" class="d-title">🎭 Полиморфизм</text>
+        <text x="556" y="228" class="d-small">Animal a = new Cat()</text>
+        <text x="556" y="248" class="d-small">метод — по объекту</text>
+
+        <rect x="40" y="318" width="210" height="104" rx="14" class="d-green"/>
+        <text x="145" y="346" text-anchor="middle" class="d-title">🧱 Object</text>
+        <text x="56" y="374" class="d-small">toString, getClass</text>
+        <text x="56" y="394" class="d-small">equals + hashCode —</text>
+        <text x="56" y="414" class="d-small">только вместе</text>
+
+        <rect x="510" y="318" width="210" height="104" rx="14" class="d-red"/>
+        <text x="615" y="346" text-anchor="middle" class="d-title">↕️ Приведение</text>
+        <text x="526" y="374" class="d-small">вверх само, вниз (Cat) a</text>
+        <text x="526" y="394" class="d-small">instanceof Cat c</text>
+        <text x="526" y="414" class="d-small">ClassCastException</text>
+
+        <rect x="290" y="372" width="180" height="56" rx="14" class="d-soft"/>
+        <text x="380" y="396" text-anchor="middle" class="d-title">🧩 Композиция</text>
+        <text x="380" y="418" text-anchor="middle" class="d-small">«имеет» вместо «является»</text>
+
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 10</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Три кита ООП</text>
+      </svg>
+      <figcaption>Если про какой-то блок сказать нечего — вернись к уроку в меню слева.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>С этого модуля ты читаешь чужой Java-код совсем другими глазами: видишь, кто от кого наследуется, где спрятаны данные и почему один вызов делает разные вещи. Именно так устроены и большие библиотеки Java, с которыми ты будешь работать.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>назвать три кита ООП и объяснить каждого своими словами, с примером;</li>
+        <li>спрятать поля класса модификатором <code>private</code> и написать методы, которые охраняют его правила (баланс не уходит в минус);</li>
+        <li>объяснить, почему публичные поля и «сеттер без проверки» — плохо;</li>
+        <li>построить иерархию через <code>extends</code>, вызвать конструктор родителя <code>super(...)</code> и объяснить порядок создания объекта;</li>
+        <li>проверить, подходит ли наследование, вопросом «является ли A разновидностью B»;</li>
+        <li>переопределить метод с <code>@Override</code>, дополнить родителя через <code>super.method()</code>; отличить переопределение от перегрузки;</li>
+        <li>объяснить, что запрещает <code>final</code> у переменной, метода и класса, и почему <code>String</code> — final;</li>
+        <li>предсказать, чья версия метода выполнится для <code>Animal a = new Cat()</code>, и объяснить, что такое динамическая диспетчеризация;</li>
+        <li>назвать, что <b>не</b> полиморфно: поля, static- и private-методы;</li>
+        <li>переопределить <code>toString</code>, <code>equals</code> и <code>hashCode</code> и рассказать контракт equals/hashCode — с аналогией;</li>
+        <li>привести тип ссылки вниз безопасно через <code>instanceof</code> и pattern matching; объяснить, откуда берётся <code>ClassCastException</code>;</li>
+        <li>выбрать между наследованием и композицией и объяснить выбор.</li>
+      </ul>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Честная самопроверка</span>
+      <p><span class="ai-only">На каждый пункт спроси себя: «Смогу ли я объяснить это прямо сейчас, без подсказок, и написать пример?» Наставник на экзамене спросит про каждый.</span><span class="free-only">На каждый пункт спроси себя: «Смогу ли я объяснить это прямо сейчас, без подсказок, и написать пример?» <span class="ai-name">DeepSeek</span> на экзамене спросит про каждый.</span></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <p>Десять заданий по всему модулю. Ошибки вернутся в конце.</p>
+    <div data-widget="check" id="check-m10-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 10: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини кита ООП и его суть",
+         "left": [
+          "Инкапсуляция",
+          "Наследование",
+          "Полиморфизм"
+         ],
+         "right": [
+          "данные спрятаны, доступ через методы с проверками",
+          "новый класс получает всё от родителя и добавляет своё",
+          "один вызов — разное поведение в зависимости от объекта"
+         ],
+         "why": "Это первый вопрос почти любого собеседования по Java."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "class Shop {\n    Shop() { System.out.println(\"Shop\"); }\n    void open() { System.out.println(\"open shop\"); }\n}\nclass Bakery extends Shop {\n    Bakery() { System.out.println(\"Bakery\"); }\n    @Override\n    void open() {\n        super.open();\n        System.out.println(\"open bakery\");\n    }\n}\n\nShop s = new Bakery();\ns.open();",
+         "answer": "Shop\nBakery\nopen shop\nopen bakery",
+         "why": "Сначала конструктор родителя, потом наследника. open() выбирается по объекту (Bakery), а он через super.open() сначала выполняет версию родителя."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "Animal a = new Dog();\na.speak();\na.bark();\nDog d = (Dog) a;\nd.bark();",
+         "answer": [
+          3
+         ],
+         "why": "Через переменную типа Animal (ярлык) можно вызвать только методы Animal. После приведения (строка 4) bark() доступен."
+        },
+        {
+         "type": "single",
+         "q": "Зачем переопределять hashCode вместе с equals?",
+         "options": [
+          "Чтобы toString печатал красивее",
+          "Чтобы равные объекты давали равный hashCode и находились в HashMap/HashSet",
+          "Без этого equals не скомпилируется"
+         ],
+         "answer": 1,
+         "why": "Хэш-коллекции сначала ищут полку по hashCode, а потом сравнивают equals. Разные hashCode у равных объектов — поиск не на той полке."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "@Override обязательна, без неё метод не переопределится",
+           "a": false,
+           "why": "переопределение работает и без неё; аннотация — проверка компилятором."
+          },
+          {
+           "s": "final-метод нельзя переопределить, от final-класса нельзя наследовать",
+           "a": true
+          },
+          {
+           "s": "Поле, объявленное и в родителе, и в наследнике, выбирается по типу объекта",
+           "a": false,
+           "why": "поля не полиморфны — по типу переменной."
+          },
+          {
+           "s": "null instanceof Cat — это false",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Что будет?",
+         "code": "Animal a = new Cat();\nDog d = (Dog) a;",
+         "options": [
+          "Ошибка компиляции",
+          "ClassCastException при запуске",
+          "d станет собакой"
+         ],
+         "answer": 1,
+         "why": "Компилятор пропускает (животное может быть собакой), JVM видит кота и выбрасывает исключение ClassCastException."
+        },
+        {
+         "type": "multi",
+         "q": "Где правильный приём — композиция?",
+         "options": [
+          "Car и Engine",
+          "Warrior и Hero",
+          "Герой игры и его рюкзак",
+          "Kitten и Cat"
+         ],
+         "answer": [
+          0,
+          2
+         ],
+         "why": "Машина имеет двигатель, герой имеет рюкзак. Воин является героем, котёнок является котом."
+        },
+        {
+         "type": "predict",
+         "q": "★★★ Что выведет <code>new Child();</code>?",
+         "code": "class Base {\n    Base() { hello(); }\n    void hello() { System.out.println(\"Base\"); }\n}\nclass Child extends Base {\n    private int n = 5;\n    @Override\n    void hello() { System.out.println(\"n = \" + n); }\n}",
+         "answer": "n = 0",
+         "why": "Конструктор Base вызывает переопределённый hello() — выполняется версия Child. Но поле n ещё не инициализировано значением 5: инициализация полей наследника идёт после конструктора родителя. int по умолчанию — 0."
+        },
+        {
+         "type": "order",
+         "q": "Расставь шаги рецепта equals по порядку",
+         "lines": [
+          "if (this == o) return true;",
+          "if (o == null || getClass() != o.getClass()) return false;",
+          "Point other = (Point) o;",
+          "return x == other.x && y == other.y;"
+         ],
+         "code": true,
+         "accept": [ ["if (o == null || getClass() != o.getClass()) return false;", "if (this == o) return true;", "Point other = (Point) o;", "return x == other.x && y == other.y;"] ],
+         "why": "Сам с собой → null и другой класс → приведение → сравнение полей. Первые две проверки можно поменять местами — equals останется верным, но по традиции самую быструю проверку this == o ставят первой."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m10">странице практики</a> должны быть решены все восемь задач:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Счёт, который не уходит в минус ★</td><td>инкапсуляция — <a href="/lessons/m10/01-encapsulation.html">урок 10.1</a></td></tr>
+        <tr><td>2. Сумма площадей фигур ★★</td><td>иерархия, переопределение, массив родительского типа — <a href="/lessons/m10/03-overriding.html">10.3</a>, <a href="/lessons/m10/04-polymorphism.html">10.4</a></td></tr>
+        <tr><td>3. Зарплаты через полиморфизм ★★</td><td><code>super.salary()</code>, полиморфизм — <a href="/lessons/m10/04-polymorphism.html">10.4</a></td></tr>
+        <tr><td>4. Точка: toString, equals и hashCode ★★</td><td>методы Object — <a href="/lessons/m10/05-object-class.html">10.5</a></td></tr>
+        <tr><td>5. Перепись зоопарка ★★ 🛠</td><td>Мастерская: instanceof и счётчики — <a href="/lessons/m10/06-casting.html">10.6</a></td></tr>
+        <tr><td>6. Машина с двигателем ★★</td><td>композиция и делегирование — <a href="/lessons/m10/07-composition.html">10.7</a></td></tr>
+        <tr><td>7. Почини номера отеля ★★★</td><td>super(...), @Override, private, super.open()</td></tr>
+        <tr><td>8. Уровни мини-игры ★★★</td><td>всё вместе: final-метод, переопределение, полиморфизм</td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">И каждую зелёную задачу — разобрать с наставником: <code>/check m10-t01</code>, <code>/check m10-t02</code> и так далее.</span><span class="free-only">И каждую зелёную задачу — разобрать с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><strong>Пройди экзамен.</strong> Будут вопросы по теории («объясни полиморфизм на примере из жизни»), головоломки «что выведется / скомпилируется ли», вопрос про контракт equals/hashCode с аналогией и небольшая задача: спроектировать пару классов и решить, где наследование, а где композиция.</li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, какие темы повторить. Вернёшься, когда будешь готов.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, какие темы повторить. Вернёшься, когда будешь готов.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p>Особенно здесь: ООП спрашивают на каждом собеседовании, и заученные слова там не помогут. Важно, чтобы ты мог объяснить и показать сам.</p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Хочешь размяться — напиши: <em>«Давай пробный экзамен по модулю 10 без отметок в progress.md»</em>. А когда готов — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">📜</span><h4>Модуль 11: интерфейсы</h4><p>Отношение «умеет»: утка летает и плавает, самолёт летает. Интерфейсы, абстрактные классы, enum. Полиморфизм станет ещё сильнее.</p></div>
+      <div class="card"><span class="emoji">🗂️</span><h4>equals/hashCode пригодятся</h4><p>В модуле 13 — HashMap и HashSet. Там ты увидишь своими глазами, что бывает, если переопределить только equals.</p></div>
+      <div class="card"><span class="emoji">📚</span><h4>Чужой код понятнее</h4><p>Большие программы и библиотеки Java держатся на тех же трёх китах: наследование, инкапсуляция, полиморфизм. Ты уже понимаешь, как они устроены.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай все восемь задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все восемь задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Реши головоломки модуля — и напиши наставнику <code>/exam</code>.</span><span class="free-only">Реши головоломки модуля — и пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m10">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

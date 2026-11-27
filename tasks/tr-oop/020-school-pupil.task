@@ -1,0 +1,68 @@
+## id: tr-oop-020
+## title: Средний балл ученика
+## file: trainer/oop/SchoolPupilGrades.java
+## class: SchoolPupilGrades
+## level: 2
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>SchoolPupilGrades</code> с методом <code>main</code>, а ниже в том же файле — класс <code>SchoolPupil</code> (школьник):</p>
+<ul>
+<li>закрытые поля: имя, сумма оценок, количество оценок и лучшая оценка;</li>
+<li>конструктор <code>SchoolPupil(String name)</code>;</li>
+<li><code>boolean addGrade(int grade)</code> — принимает только оценки от 1 до 5 и возвращает <code>true</code>; любую другую не засчитывает и возвращает <code>false</code>;</li>
+<li><code>double average()</code> — средний балл (если оценок нет — 0);</li>
+<li>геттеры <code>getName()</code>, <code>getCount()</code>, <code>getBest()</code>.</li>
+</ul>
+<p>Ввод: в первой строке — имя, во второй — количество оценок <code>n</code>, в третьей — <code>n</code> целых чисел через пробел. На каждую неправильную оценку сразу печатай <code>Не принята оценка: X</code>. В конце — итог; средний балл округли до двух знаков: <code>Math.round(avg * 100) / 100.0</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Петя
+       4
+       5 4 7 4
+вывод: Не принята оценка: 7
+       Петя: средний балл 4.33, лучшая оценка 5</span></pre>
+<p>Если принятых оценок нет, итог такой: <code>Петя: оценок нет</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>(double) sum / count</code> — приведи к <code>double</code> до деления, иначе дробная часть потеряется</li>
+<li>хранить все оценки не обязательно: для среднего и лучшей хватит суммы, количества и максимума</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Петя
+4
+5 4 7 4
+@@ expect
+Не принята оценка: 7
+Петя: средний балл 4.33, лучшая оценка 5
+@@ test: Все оценки правильные
+@@ input
+Маша
+5
+5 5 4 5 5
+@@ expect
+Маша: средний балл 4.8, лучшая оценка 5
+@@ test: Ни одной принятой оценки
+@@ input
+Коля
+3
+0 6 -2
+@@ expect
+Не принята оценка: 0
+Не принята оценка: 6
+Не принята оценка: -2
+Коля: оценок нет
+@@ test: Оценок нет вообще
+@@ input
+Даша
+0
+@@ expect
+Даша: оценок нет
+@@ test: Одни двойки и единица
+@@ input
+Вова
+3
+2 1 2
+@@ expect
+Вова: средний балл 1.67, лучшая оценка 2
+@@ require: \bclass\s+SchoolPupil\b | Объяви в том же файле класс SchoolPupil
+@@ require: \bboolean\s+addGrade\s*\(\s*int\s+\w+\s*\) | Нужен метод boolean addGrade(int grade)
+@@ require: \bdouble\s+average\s*\(\s*\) | Нужен метод double average()
+@@ require: private\s+(final\s+)?String\s+name\b | Имя — закрытое поле private String name

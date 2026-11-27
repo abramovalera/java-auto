@@ -1,0 +1,49 @@
+## id: tr-arrays-012
+## title: Перепад температур
+## file: trainer/arrays/DailyTemperatureSwing.java
+## class: DailyTemperatureSwing
+## level: 1
+## category: Максимум и минимум
+@@ description
+<p>Напиши класс <code>DailyTemperatureSwing</code>. Метеостанция весь день записывала температуру. В первой строке — количество замеров <code>n</code> (n ≥ 1), во второй — <code>n</code> целых температур. Напечатай три строки: минимум, максимум и перепад (максимум минус минимум).</p>
+<pre class="terminal"><span class="out">ввод:  6
+       14 18 25 27 22 16
+вывод: Минимум: 14
+       Максимум: 27
+       Перепад: 13</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>минимум и максимум можно искать в одном цикле: две переменные, две проверки <code>if</code></li>
+</ul></div>
+@@ test: Летний день
+@@ input
+6
+14 18 25 27 22 16
+@@ expect
+Минимум: 14
+Максимум: 27
+Перепад: 13
+@@ test: Зима в минусе
+@@ input
+4
+-20 -8 -15 -3
+@@ expect
+Минимум: -20
+Максимум: -3
+Перепад: 17
+@@ test: Через ноль
+@@ input
+3
+-5 0 7
+@@ expect
+Минимум: -5
+Максимум: 7
+Перепад: 12
+@@ test: Один замер
+@@ input
+1
+12
+@@ expect
+Минимум: 12
+Максимум: 12
+Перепад: 0
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

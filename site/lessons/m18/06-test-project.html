@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Структура тестового проекта · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-06">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 18 · Урок 6</div>
+    <h1>Структура тестового проекта</h1>
+    <p class="lead">Отдельные тесты мы уже умеем. Теперь соберём из них настоящий проект — такой, какой ты увидишь в первый день на работе: Gradle, пакеты, базовый тест, тестовые данные, настройки и отчёт.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🏗️ Gradle-проект</span><span>🔗 модули 10–17 вместе</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m18-06-review">
+      <script type="application/json">
+      { "title": "Вспомним Page Object и Gradle", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Где по правилам Page Object живут локаторы?",
+            "options": ["В тестах", "В приватных полях класса страницы", "В отдельном файле на всех"], "answer": 1,
+            "why": "Локатор знает только своя страница — правка в одном месте." },
+          { "type": "single", "q": "Что Gradle берёт из <code>build.gradle.kts</code>?",
+            "options": ["Код тестов", "Описание сборки и список библиотек-зависимостей", "Настройки IDEA"], "answer": 1,
+            "why": "build.gradle.kts — паспорт сборки: плагины, версия Java, зависимости, настройки запуска тестов. Библиотеки Gradle скачает сам." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Тесты в Gradle-проекте лежат в src/test/java", "a": true },
+              { "s": "Метод с @AfterEach выполняется после каждого теста", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Карта проекта</h2>
+    <p>Тестовый проект — это обычный Gradle-проект из модуля 17, только почти весь код живёт в <code>src/test</code>. Внутри — пакеты по ролям:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 400" role="img" aria-label="Дерево проекта nook-tests: build.gradle.kts, пакеты pages, tests, data, config и файл config.properties">
+        <rect x="10" y="10" width="200" height="40" rx="10" class="d-accent"/>
+        <text x="110" y="36" text-anchor="middle" class="d-title">📁 nook-tests</text>
+        <path d="M40 50 V362 M40 82 H70 M40 132 H70" class="d-line"/>
+        <rect x="70" y="64" width="160" height="36" rx="8" class="d-yellow"/>
+        <text x="84" y="88" class="d-mono-ink">build.gradle.kts</text>
+        <text x="250" y="88" class="d-small">зависимости: junit, selenide, assertj</text>
+        <rect x="70" y="114" width="160" height="36" rx="8" class="d-soft"/>
+        <text x="84" y="138" class="d-mono-ink">src/test/java</text>
+        <path d="M100 150 V320 M100 180 H130 M100 228 H130 M100 276 H130 M100 320 H130" class="d-line"/>
+        <rect x="130" y="162" width="130" height="36" rx="8" class="d-blue"/>
+        <text x="144" y="186" class="d-mono-ink">pages</text>
+        <text x="276" y="178" class="d-small">LoginPage, CatalogPage, BasePage,</text>
+        <text x="276" y="196" class="d-small">components/Header — «пульты» страниц</text>
+        <rect x="130" y="210" width="130" height="36" rx="8" class="d-green"/>
+        <text x="144" y="234" class="d-mono-ink">tests</text>
+        <text x="276" y="226" class="d-small">BaseTest, LoginTest, CartTest —</text>
+        <text x="276" y="244" class="d-small">сами тесты, читаются как тест-кейсы</text>
+        <rect x="130" y="258" width="130" height="36" rx="8" class="d-teal"/>
+        <text x="144" y="282" class="d-mono-ink">data</text>
+        <text x="276" y="282" class="d-small">User (record), TestUsers (enum) — тестовые данные</text>
+        <rect x="130" y="302" width="130" height="36" rx="8" class="d-violet"/>
+        <text x="144" y="326" class="d-mono-ink">config</text>
+        <text x="276" y="326" class="d-small">TestConfig — читает настройки</text>
+        <path d="M40 362 H70" class="d-line"/>
+        <rect x="70" y="346" width="190" height="36" rx="8" class="d-soft"/>
+        <text x="84" y="370" class="d-mono-ink">src/test/resources</text>
+        <text x="276" y="370" class="d-small">config.properties — адрес стенда, браузер, таймаут</text>
+      </svg>
+      <figcaption>Каждый пакет отвечает за одно: страницы, тесты, данные, настройки. Новичок в команде сразу понимает, где что искать.</figcaption>
+    </figure>
+    <p>В дереве проекта IDEA та же карта выглядит так:</p>
+    <div data-widget="ide" id="shot-project-tree">
+      <script type="application/json">
+      { "project": "nook-tests", "status": "nook-tests › src › test › resources › config.properties",
+        "tree": [ { "name": "nook-tests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "folder", "depth": 1, "open": true },
+                  { "name": "test", "type": "folder", "depth": 2, "open": true },
+                  { "name": "java", "type": "src", "depth": 3, "open": true },
+                  { "name": "config", "type": "folder", "depth": 4, "open": true },
+                  { "name": "TestConfig", "type": "class", "depth": 5 },
+                  { "name": "data", "type": "folder", "depth": 4, "open": true },
+                  { "name": "TestUsers", "type": "class", "depth": 5 },
+                  { "name": "User", "type": "class", "depth": 5 },
+                  { "name": "pages", "type": "folder", "depth": 4, "open": true },
+                  { "name": "components", "type": "folder", "depth": 5 },
+                  { "name": "BasePage", "type": "class", "depth": 5 },
+                  { "name": "CatalogPage", "type": "class", "depth": 5 },
+                  { "name": "LoginPage", "type": "class", "depth": 5 },
+                  { "name": "tests", "type": "folder", "depth": 4, "open": true },
+                  { "name": "BaseTest", "type": "class", "depth": 5 },
+                  { "name": "CartTest", "type": "class", "depth": 5 },
+                  { "name": "LoginTest", "type": "class", "depth": 5 },
+                  { "name": "resources", "type": "folder", "depth": 3, "open": true },
+                  { "name": "config.properties", "type": "file", "depth": 4, "selected": true },
+                  { "name": "build.gradle.kts", "type": "file", "depth": 1 },
+                  { "name": "settings.gradle.kts", "type": "file", "depth": 1 },
+                  { "name": "External Libraries", "type": "lib", "depth": 0 } ],
+        "file": "config.properties",
+        "code": "base.url=https://nook-shop.test\nbrowser=chrome\ntimeout.ms=4000",
+        "marks": [ { "n": 1, "target": "tree-java", "text": "<b>src/test/java</b> — весь код проекта. <b>src/main</b> нет вовсе: продукт мы не пишем, только тестируем" },
+                   { "n": 2, "target": "tree-pages", "text": "Пакет <b>pages</b> — Page Object: «пульты» страниц и их кусков (<b>components</b>)" },
+                   { "n": 3, "target": "tree-tests", "text": "Пакет <b>tests</b> — сами тесты. Правый клик по нему запустит их все" },
+                   { "n": 4, "target": "tree-config.properties", "text": "Настройки в <b>src/test/resources</b> — открыты в редакторе справа" },
+                   { "n": 5, "target": "tree-build.gradle.kts", "text": "<b>build.gradle.kts</b> — зависимости и настройки запуска тестов; скачанное лежит в <b>External Libraries</b>. Папки <b>build</b>, <b>.gradle</b> и файлы wrapper здесь не показаны ради места" } ],
+        "caption": "Тестовый проект nook-tests в дереве IDEA" }
+      </script>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кухня ресторана</span>
+      <p><code>pages</code> — заготовки и инструменты (нарезанное, разложенное по местам), <code>data</code> — продукты, <code>config</code> — настройки плиты, <code>tests</code> — рецепты: «возьми заготовку, добавь продукты, проверь вкус». Повар-тест не бегает на склад за каждой морковкой.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>build.gradle.kts: три зависимости</h2>
+<pre data-file="build.gradle.kts"><code>plugins {
+    java
+}
+
+group = "shop.nook"
+version = "1.0"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+    testImplementation("com.codeborne:selenide:7.5.1")
+    testImplementation("org.assertj:assertj-core:3.27.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    // передать тестам -D из командной строки: gradle test -Dbrowser=firefox
+    listOf("browser", "base.url", "timeout.ms").forEach { key -&gt;
+        System.getProperty(key)?.let { systemProperty(key, it) }
+    }
+}</code></pre>
+    <ul>
+      <li><code>testImplementation</code> — так объявляют <b>зависимость</b> (подключаемую библиотеку), нужную только тестам; в «боевую» программу она не попадёт.</li>
+      <li><b>Selenide</b> сам подтянет Selenium — отдельно его добавлять не нужно. Такие «зависимости зависимостей» называются транзитивными.</li>
+      <li><code>useJUnitPlatform()</code> — «тесты на JUnit 5». Без этой строки Gradle не найдёт ни одного теста (урок 17.4). С ней Gradle отдаёт JUnit <b>все</b> классы тестов, и тот находит <b>тестовые методы</b> по аннотации <code>@Test</code> — имя класса неважно. Но классы всё равно называют <code>…Test</code>: так их сразу видно в дереве, а в Maven-проектах класс без такого окончания вообще не запустится.</li>
+      <li>Блок с <code>listOf(…)</code> — проброс настроек, о нём ниже, в разделе про настройки. Похоже на <code>List.of(…).forEach(key -&gt; …)</code> из модуля 14 — вызов <code>forEach</code> с лямбда-выражением: для каждого ключа — «если при запуске передали <code>-Dключ=…</code>, отдай его тестам». <code>?.let</code> в Kotlin значит «если не <code>null</code>, то сделай».</li>
+    </ul>
+    <p style="color:var(--muted);font-size:15px">Версии — актуальные на момент написания курса. Свежие смотри на mvnrepository.com (вкладка Gradle (Kotlin)); IDEA подсвечивает устаревшие сама.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>BaseTest: общее для всех тестов</h2>
+    <p>Настроить Selenide и закрыть браузер нужно в каждом тестовом классе. Общее выносим в родителя — наследование из модуля 10, теперь для тестов:</p>
+<pre data-file="BaseTest.java"><code class="java">package tests;
+
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
+import config.TestConfig;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+
+public abstract class BaseTest {
+
+    @BeforeAll
+    static void configureSelenide() {
+        Configuration.baseUrl = TestConfig.baseUrl();
+        Configuration.browser = TestConfig.browser();
+        Configuration.timeout = TestConfig.timeoutMs();
+    }
+
+    @AfterEach
+    void closeBrowser() {
+        Selenide.closeWebDriver();
+    }
+}</code></pre>
+<pre data-file="LoginTest.java"><code class="java">package tests;
+
+import data.TestUsers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import pages.LoginPage;
+
+class LoginTest extends BaseTest {
+    private LoginPage loginPage;
+
+    @BeforeEach
+    void openLoginPage() {
+        loginPage = new LoginPage().open();
+    }
+
+    @Test
+    void userCanLogIn() {
+        loginPage.loginAs(TestUsers.ANNA.user())
+                .shouldGreet("anna");
+    }
+
+    @Test
+    void blockedUserSeesError() {
+        loginPage.loginExpectingError(TestUsers.BLOCKED.user())
+                .shouldShowError("Пользователь заблокирован");
+    }
+}</code></pre>
+    <div class="callout fact">
+      <span class="callout-title">Порядок вызовов</span>
+      <p><code>@BeforeAll</code> — один раз на класс, до всех тестов (поэтому он <code>static</code>). Перед каждым тестом JUnit создаёт <b>новый объект</b> тестового класса, вызывает методы <code>@BeforeEach</code> — сначала родителя, потом наследника, — затем сам тестовый метод, затем методы <code>@AfterEach</code> — сначала наследника, потом родителя. Новый объект на каждый тест — ещё одна гарантия независимости: поля не переживают тест.</p>
+    </div>
+    <details class="predict">
+      <summary>В <code>LoginTest</code> три теста. Сколько раз вызовется <code>configureSelenide</code>, <code>openLoginPage</code> и <code>closeBrowser</code>?</summary>
+      <p>1, 3 и 3. <code>@BeforeAll</code> — однажды на класс, <code>@BeforeEach</code> и <code>@AfterEach</code> — вокруг каждого теста.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Тестовые данные: record и enum</h2>
+    <p>Логины и пароли, раскиданные строками по тестам, — тот же копипаст, что и локаторы. Данные описываем типами из модуля 11:</p>
+<pre data-file="User.java"><code class="java">package data;
+
+public record User(String login, String password) {
+}</code></pre>
+<pre data-file="TestUsers.java"><code class="java">package data;
+
+public enum TestUsers {
+    ANNA("anna", "qwerty123"),
+    BORIS("boris", "bookworm"),
+    BLOCKED("blocked", "secret");
+
+    private final String login;
+    private final String password;
+
+    TestUsers(String login, String password) {
+        this.login = login;
+        this.password = password;
+    }
+
+    public User user() {
+        return new User(login, password);
+    }
+}</code></pre>
+    <p>А в <code>LoginPage</code> — перегрузка (модуль 7): <code>loginAs(User user)</code> вызывает <code>loginAs(user.login(), user.password())</code> — передаёт аргументами значения, которые возвращают методы записи, и так же для <code>loginExpectingError(User user)</code>. Теперь тест говорит «войти как Анна», а не «ввести anna и qwerty123».</p>
+    <div class="callout warn">
+      <span class="callout-title">Настоящие пароли — не в коде</span>
+      <p>Тестовый проект лежит в Git, его видит вся компания. Пароли от общих стендов в код не пишут: их передают через переменные окружения или «секреты» CI и читают вызовом статического метода <code>System.getenv("NOOK_PASSWORD")</code>. В <code>enum</code> — только выдуманные пользователи учебного или локального стенда.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: данные из таблицы</summary>
+      <p>Параметризованные тесты из модуля 17 отлично дружат с enum: аннотация <code>@EnumSource(TestUsers.class)</code> прогонит тестовый метод для каждого пользователя, а <code>@CsvSource</code> или <code>@CsvFileSource(resources = "/users.csv")</code> возьмёт строки таблицы. Одна логика — много данных: так покрывают формы с десятками вариантов ввода. Попробуешь в задаче «Таблица данных».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Настройки: properties-файл</h2>
+    <p>Адрес стенда, браузер, таймаут меняются чаще, чем код: сегодня тестовый стенд, завтра предрелизный, на CI — другой браузер. Такие вещи держат в файле настроек (чтение файлов — модуль 15):</p>
+<pre data-file="src/test/resources/config.properties"><code>base.url=https://nook-shop.test
+browser=chrome
+timeout.ms=4000</code></pre>
+<pre data-file="TestConfig.java"><code class="java">package config;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Properties;
+
+public final class TestConfig {
+    private static final Properties PROPS = load();
+
+    private TestConfig() {
+    }
+
+    private static Properties load() {
+        Properties props = new Properties();
+        try (InputStream in = TestConfig.class.getResourceAsStream(
+                "/config.properties")) {
+            props.load(in);
+        } catch (IOException e) {
+            throw new UncheckedIOException(
+                    "Не удалось прочитать config.properties", e);
+        }
+        return props;
+    }
+
+    private static String get(String key) {
+        return System.getProperty(key, PROPS.getProperty(key));
+    }
+
+    public static String baseUrl() { return get("base.url"); }
+    public static String browser() { return get("browser"); }
+    public static long timeoutMs() { return Long.parseLong(get("timeout.ms")); }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>getResourceAsStream("/config.properties")</code><div><p>Файлы из <code>src/test/resources</code> Gradle кладёт в classpath тестов вместе со скомпилированными классами, поэтому их читают как «ресурс», а не по пути на диске. Тест одинаково работает на твоём ноутбуке и на CI.</p></div></div>
+      <div class="annot-row"><code>try (…)</code><div><p><b>try-с-ресурсами</b> (try-with-resources) из модуля 15: поток, объявленный в скобках, закроется сам.</p></div></div>
+      <div class="annot-row"><code>System.getProperty(key, …)</code><div><p>Метод возвращает «системное свойство», а если его нет — свой второй аргумент: значение из файла. Так значение можно подменить при запуске, не трогая код: <code>gradle test -Dbrowser=firefox</code>, на CI — <code>./gradlew test -Dbase.url=https://stage.nook-shop.test</code>.</p></div></div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Почему -D сам не доходит до тестов</span>
+      <p>Gradle запускает тесты в <b>отдельной JVM</b> — отдельной «копии» Java. А <code>-Dbrowser=firefox</code> из команды попадает в JVM самого Gradle. Тесты его не увидят, и <code>System.getProperty("browser")</code> вернёт <code>null</code>. Поэтому в <code>build.gradle.kts</code> мы написали проброс: для ключей <code>browser</code>, <code>base.url</code>, <code>timeout.ms</code> — «передали при запуске? отдай тестам через <code>systemProperty</code>». Не передали — ничего не делаем, и <code>TestConfig</code> возьмёт значение из файла.</p>
+    </div>
+    <p>Где это задать в IDEA. В Gradle-проекте IDEA по умолчанию запускает тесты <b>через Gradle</b>: щелчок по ▶ у теста создаёт конфигурацию запуска Gradle. Открыть её: список конфигураций вверху (рядом с ▶) → <b>Edit Configurations…</b></p>
+    <div data-widget="ide" id="shot-run-config-vm">
+      <script type="application/json">
+      { "tree": false, "project": "nook-tests", "runConfig": "LoginTest", "status": "nook-tests › src › test › java › tests › LoginTest",
+        "file": "LoginTest.java",
+        "code": "package tests;\n\nclass LoginTest extends BaseTest {\n}",
+        "dialog": { "title": "Run/Debug Configurations", "side": ["Gradle", "LoginTest", "CartTest"], "sideHl": "LoginTest",
+                    "rows": [ { "label": "Name", "value": "LoginTest" },
+                              { "label": "Run", "value": ":test --tests \"tests.LoginTest\" -Dbrowser=firefox", "hl": true },
+                              { "label": "Gradle project", "value": "nook-tests", "type": "select" },
+                              { "label": "Environment variables", "value": "" } ],
+                    "buttons": ["OK", "Cancel", "Apply"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "config", "text": "Сюда щёлкнуть → <b>Edit Configurations…</b>. Конфигурация появляется сама после первого запуска теста" },
+                   { "n": 2, "target": "field-Run", "text": "Команда для Gradle: задача <code>:test</code>, <code>--tests</code> — какой класс запустить (это IDEA написала сама). <code>-Dbrowser=firefox</code> дописали мы — благодаря пробросу в build.gradle.kts тест получит firefox, и файл настроек менять не придётся" },
+                   { "n": 3, "target": "btn-OK", "side": "bottom", "text": "OK — и следующий запуск LoginTest пойдёт в Firefox. Остальные конфигурации это не затронет" } ],
+        "caption": "Настройки запуска теста через Gradle (окно упрощено)" }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: если тесты запускает сама IDEA</summary>
+      <p>В <b>Settings → Build, Execution, Deployment → Build Tools → Gradle</b> есть пункт <b>Run tests using</b>. Если там выбрано <b>IntelliJ IDEA</b>, ▶ создаёт обычную конфигурацию JUnit, и <code>-Dbrowser=firefox</code> пишут в её поле <b>VM options</b> — тогда свойство попадает в тест напрямую, без Gradle. На CI тесты всегда идут через <code>./gradlew test</code>, поэтому проброс в build-файле нужен в любом случае.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Ожидания вместо sleep — везде</h2>
+    <p>В модуле 16 ты видел вызов статического метода <code>Thread.sleep</code>: он усыпляет текущий поток на фиксированное время. В автотестах это главный источник медленных и мигающих тестов. Правило одно: <b>ждём условие, а не время</b>.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Чего ждём</th><th>Как правильно</th></tr>
+        <tr><td>Элемент появился, исчез, получил текст</td><td><code>shouldBe(visible)</code>, <code>shouldNotBe(visible)</code>, <code>shouldHave(text(…))</code> — проверки состояния, Selenide ждёт сам</td></tr>
+        <tr><td>Долгая операция (загрузка отчёта)</td><td>та же проверка, вторым аргументом — увеличенный таймаут: <code>shouldBe(visible, Duration.ofSeconds(30))</code></td></tr>
+        <tr><td>Не про браузер: письмо пришло, запись в базе появилась</td><td>опрос «пока не выполнится или не выйдет время» — как в задаче «Умное ожидание»; есть готовая библиотека Awaitility: <code>await().atMost(10, SECONDS).until(() -&gt; mailbox.hasLetter())</code> — в <code>until</code> передаём лямбда-выражение без параметров, оно возвращает <code>true</code>, когда условие выполнено</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>В проекте 300 тестов, в каждом в среднем два <code>Thread.sleep(3000)</code>. Сколько времени они тратят впустую за прогон, если элементы обычно появляются за 0,5 с?</summary>
+      <p>Каждый sleep переплачивает ~2,5 с: 300 × 2 × 2,5 = 1500 с — <b>25 минут</b> каждого прогона уходит на сон. И всё равно, если стенд однажды «задумается» на 4 с, тесты покраснеют. Умные ожидания экономят время и делают тесты стабильнее одновременно.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Запуск и отчёт</h2>
+    <ol class="steps">
+      <li><b>Один тест или класс</b> — зелёный треугольник ▶ у метода или класса в IDEA. Так работаешь, пока пишешь тест.</li>
+      <li><b>Все тесты пакета</b> — правый клик по пакету <code>tests</code> → <b>Run 'Tests in tests'</b>.</li>
+      <li><b>Как на CI</b> — окно <b>Gradle</b> справа в IDEA → <b>Tasks → verification</b> → двойной клик по <b>test</b>. Это та же команда <code>./gradlew test</code>, которую запускает CI-сервер. HTML-отчёт Gradle кладёт в <code>build/reports/tests/test/index.html</code>, а результаты для CI — в <code>build/test-results/test</code>.</li>
+    </ol>
+    <div data-widget="ide" id="shot-run-package">
+      <script type="application/json">
+      { "project": "nook-tests", "status": "nook-tests › src › test › java › tests",
+        "tree": [ { "name": "nook-tests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "folder", "depth": 1, "open": true },
+                  { "name": "test", "type": "folder", "depth": 2, "open": true },
+                  { "name": "java", "type": "src", "depth": 3, "open": true },
+                  { "name": "config", "type": "folder", "depth": 4 },
+                  { "name": "data", "type": "folder", "depth": 4 },
+                  { "name": "pages", "type": "folder", "depth": 4 },
+                  { "name": "tests", "type": "folder", "depth": 4, "selected": true },
+                  { "name": "resources", "type": "folder", "depth": 3 },
+                  { "name": "build.gradle.kts", "type": "file", "depth": 1 } ],
+        "menu": { "at": "tree-tests", "items": ["New ›", "-", "Cut", "Copy", "Paste", "-", "Find in Files…", "Refactor ›", "-", "Run 'Tests in 'tests''\tCtrl+Shift+F10", "Debug 'Tests in 'tests''", "More Run/Debug ›", "-", "Open In ›"], "hl": "Run 'Tests in 'tests''" },
+        "marks": [ { "n": 1, "target": "tree-tests", "side": "left", "text": "Правый клик по пакету <b>tests</b>" },
+                   { "n": 2, "target": "menu", "text": "<b>Run 'Tests in 'tests''</b> — все тесты пакета разом. Тот же пункт есть у папки <b>java</b> и у всего проекта" } ],
+        "caption": "Запуск всех тестов пакета" }
+      </script>
+    </div>
+    <div data-widget="ide" id="shot-run-package-result">
+      <script type="application/json">
+      { "tree": false, "project": "nook-tests", "runConfig": "Tests in 'tests'", "status": "nook-tests › src › test › java › tests",
+        "file": "LoginTest.java",
+        "code": "package tests;\n\nclass LoginTest extends BaseTest {\n}",
+        "tests": { "title": "Tests in 'tests'", "summary": "Tests passed: 4 of 4 tests – 21 sec 305 ms",
+                   "tree": [ { "name": "Test Results", "status": "pass", "time": "21 sec 305 ms" },
+                             { "name": "CartTest", "status": "pass", "depth": 1, "time": "11 sec 92 ms" },
+                             { "name": "addsBookToCart()", "status": "pass", "depth": 2, "time": "5 sec 610 ms" },
+                             { "name": "removesBookFromCart()", "status": "pass", "depth": 2, "time": "5 sec 482 ms" },
+                             { "name": "LoginTest", "status": "pass", "depth": 1, "time": "10 sec 213 ms" },
+                             { "name": "userCanLogInWithValidPassword()", "status": "pass", "depth": 2, "time": "5 sec 377 ms" },
+                             { "name": "wrongPasswordShowsError()", "status": "pass", "depth": 2, "time": "4 sec 836 ms" } ] },
+        "marks": [ { "n": 1, "target": "test-summary", "text": "Все 4 теста зелёные. Заметь время: UI-тесты идут секунды, а не миллисекунды, как юнит-тесты" },
+                   { "n": 2, "target": "test-2", "text": "Результаты сгруппированы по классам — сразу видно, какой класс что проверяет" },
+                   { "n": 3, "target": "config", "text": "Сверху появилась конфигурация <b>Tests in 'tests'</b>: перезапуск всего пакета — кнопкой ▶ рядом или <kbd>Shift</kbd>+<kbd>F10</kbd>" } ],
+        "caption": "Результат прогона всех тестов пакета" }
+      </script>
+    </div>
+    <p><b>Отчёт.</b> На работе результаты прогона смотрят не в консоли, а в красивом отчёте. Самый популярный — <b>Allure Report</b>: подключается одной зависимостью (для Selenide есть готовый «слушатель» <code>AllureSelenide</code>) и показывает каждый тест по шагам, со скриншотами при падении, историей прогонов и графиками «сколько упало и почему». Глубоко разбираться в Allure пока рано — достаточно знать, что он есть, и уметь читать его отчёт: на собеседованиях о нём часто спрашивают.</p>
+    <div class="say" data-mood="cool"><p>Заметь, сколько модулей сошлось в одном проекте: классы и пакеты (9), наследование и инкапсуляция (10), record и enum (11), исключения (12), коллекции (13), файлы (15), потоки и sleep (16), Gradle и JUnit (17). Ты учил это не зря — это каркас профессии.</p></div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m18-06">
+      <script type="application/json">
+      { "title": "Тестовый проект — главное",
+        "items": [
+          { "type": "match", "q": "Соедини пакет с тем, что в нём лежит",
+            "left": ["pages", "tests", "data", "config"],
+            "right": ["LoginPage, Header, BasePage", "BaseTest, LoginTest", "User, TestUsers", "TestConfig"],
+            "why": "Страницы, тесты, данные и настройки — каждому своё место." },
+          { "type": "single", "q": "Класс с тестами назвали <code>LoginChecks</code>. Что будет при <code>gradle test</code>?",
+            "options": ["Запустятся: Gradle и JUnit ищут тесты по @Test", "Не запустятся: Gradle берёт только классы *Test", "Ошибка компиляции"], "answer": 0,
+            "why": "С useJUnitPlatform() Gradle отдаёт JUnit все классы тестов, имя неважно. А вот в Maven (плагин surefire) такой класс молча пропустится — там по умолчанию берутся только *Test / *Tests / Test*. Поэтому классы всё равно называют …Test." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "@BeforeAll вызывается перед каждым тестом", "a": false, "why": "один раз на класс, поэтому метод static." },
+              { "s": "@BeforeEach родительского BaseTest выполнится раньше @BeforeEach наследника", "a": true },
+              { "s": "Пароли от общего стенда удобно хранить прямо в enum в Git", "a": false, "why": "секреты передают через переменные окружения или секреты CI." },
+              { "s": "-Dbrowser=firefox при запуске может подменить значение из config.properties", "a": true },
+              { "s": "gradle test -Dbrowser=firefox сам передаст свойство тестам, в build.gradle.kts ничего писать не надо", "a": false, "why": "тесты идут в отдельной JVM, а -D попадает в JVM Gradle — нужен проброс через systemProperty в tasks.test." }
+            ] },
+          { "type": "order", "q": "Что выполняет JUnit для одного теста класса LoginTest extends BaseTest?",
+            "lines": ["Создаёт новый объект LoginTest", "@BeforeEach из BaseTest", "@BeforeEach из LoginTest", "Сам метод @Test", "@AfterEach (closeBrowser)"],
+            "why": "Свежий объект на каждый тест, «до» — от родителя к наследнику, потом тест, потом «после»." },
+          { "type": "single", "q": "Где правильно хранить адрес стенда?",
+            "options": ["В каждом тесте строкой", "В config.properties с возможностью подменить через -D", "В Page Object"], "answer": 1,
+            "why": "Одно место и возможность сменить стенд при запуске, не трогая код." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я хочу создать свой тестовый Gradle-проект для итогового проекта. Задай мне вопросы по структуре: какие пакеты, что в BaseTest, где настройки — а я отвечу, прежде чем начну»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Тестовый проект — Gradle: <code>build.gradle.kts</code> с junit-jupiter, selenide, assertj (<code>testImplementation</code>) и <code>useJUnitPlatform()</code>; код в <code>src/test/java</code>.</li>
+        <li>Пакеты по ролям: <code>pages</code>, <code>tests</code>, <code>data</code>, <code>config</code>.</li>
+        <li><code>BaseTest</code> — общая настройка (<code>@BeforeAll</code>) и закрытие браузера (<code>@AfterEach</code>); тесты его наследуют.</li>
+        <li>Данные — record и enum; секреты — не в Git. Настройки — <code>config.properties</code> + <code>-D</code> (с пробросом в <code>tasks.test</code>).</li>
+        <li>Ждём условие, а не время. Запуск — ▶ в IDEA или Gradle → test; отчёт — Allure.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

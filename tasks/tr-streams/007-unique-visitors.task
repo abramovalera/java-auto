@@ -1,0 +1,38 @@
+## id: tr-streams-007
+## title: Уникальные посетители
+## file: trainer/streams/UniqueVisitors.java
+## class: UniqueVisitors
+## level: 1
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>UniqueVisitors</code>. Охранник записывал имя каждого, кто входил в библиотеку, — кто-то заходил несколько раз. В одной строке — имена через пробел (хотя бы одно, имена пишутся одинаково). Напечатай, сколько разных людей побывало: <code>Уникальных посетителей: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Аня Борис Аня Вика Борис Аня
+вывод: Уникальных посетителей: 3</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.distinct()</code> — пропускает дальше только первые вхождения, повторы отбрасывает</li>
+<li><code>.count()</code> — количество элементов, дошедших до конца конвейера</li>
+</ul></div>
+@@ test: Утро в библиотеке
+@@ input
+Аня Борис Аня Вика Борис Аня
+@@ expect
+Уникальных посетителей: 3
+@@ test: Один заходил много раз
+@@ input
+Гоша Гоша Гоша
+@@ expect
+Уникальных посетителей: 1
+@@ test: Все разные
+@@ input
+Аня Борис Вика Гоша
+@@ expect
+Уникальных посетителей: 4
+@@ test: Один посетитель
+@@ input
+Дима
+@@ expect
+Уникальных посетителей: 1
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.distinct\s*\( | Убери повторы методом distinct

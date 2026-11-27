@@ -1,0 +1,47 @@
+## id: tr-cond-043
+## title: Карманный калькулятор
+## file: trainer/cond/PocketCalculatorOps.java
+## class: PocketCalculatorOps
+## level: 2
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>PocketCalculatorOps</code>. Программа читает одну строку вида <code>5 + 3</code>: дробное число, знак операции и ещё одно дробное число через пробелы. Операции: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>. Напечатай результат (это <code>double</code>, поэтому <code>5 + 3</code> даст <code>8.0</code>). При делении на ноль напечатай <code>Делить на ноль нельзя</code>, при другом знаке — <code>Неизвестная операция: …</code> и сам знак.</p>
+<pre class="terminal"><span class="out">ввод:  5 + 3
+вывод: 8.0
+
+ввод:  1 / 0
+вывод: Делить на ноль нельзя</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next()</code> — читает знак операции как строку</li>
+<li><code>switch (op) { case "+" -> …; }</code> — выбор по строке</li>
+</ul></div>
+@@ test: Сложение
+@@ input
+5 + 3
+@@ expect
+8.0
+@@ test: Деление с дробью
+@@ input
+7 / 2
+@@ expect
+3.5
+@@ test: Умножение на отрицательное
+@@ input
+4 * -2.5
+@@ expect
+-10.0
+@@ test: Деление на ноль
+@@ input
+1 / 0
+@@ expect
+Делить на ноль нельзя
+@@ test: Неизвестный знак
+@@ input
+2 % 3
+@@ expect
+Неизвестная операция: %
+@@ test: Вычитание в минус
+@@ input
+10 - 12.5
+@@ expect
+-2.5

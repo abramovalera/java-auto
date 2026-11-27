@@ -1,0 +1,56 @@
+## id: tr-colls-014
+## title: Место в рейтинге
+## file: trainer/colls/LeaderboardPosition.java
+## class: LeaderboardPosition
+## level: 1
+## category: Списки
+@@ description
+<p>Напиши класс <code>LeaderboardPosition</code>. В игре есть рейтинг: первым идёт лучший игрок. В первой строке — количество игроков <code>n</code>, во второй — <code>n</code> разных ников через пробел в порядке рейтинга, в третьей — ник, который ищем. Напечатай <code>Место: K</code> (места считаются с 1) или <code>Нет в рейтинге</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       Dragon Kitty Neo Bolt
+       Neo
+вывод: Место: 3
+
+ввод:  3
+       Ace Bee Cat
+       Dog
+вывод: Нет в рейтинге</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>list.indexOf(x)</code> — возвращает индекс элемента или <code>-1</code>, если его нет</li>
+</ul></div>
+@@ test: Середина рейтинга
+@@ input
+4
+Dragon Kitty Neo Bolt
+Neo
+@@ expect
+Место: 3
+@@ test: Чемпион
+@@ input
+3
+Ace Bee Cat
+Ace
+@@ expect
+Место: 1
+@@ test: Нет такого игрока
+@@ input
+3
+Ace Bee Cat
+Dog
+@@ expect
+Нет в рейтинге
+@@ test: Регистр важен
+@@ input
+2
+neo Neo
+Neo
+@@ expect
+Место: 2
+@@ test: Рейтинг пуст
+@@ input
+0
+
+Ace
+@@ expect
+Нет в рейтинге
+@@ require: indexOf | Найди позицию методом indexOf

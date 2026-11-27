@@ -1,0 +1,35 @@
+## id: tr-loops-024
+## title: Покупки до нуля
+## file: trainer/loops/ShoppingUntilZero.java
+## class: ShoppingUntilZero
+## level: 1
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>ShoppingUntilZero</code>. Кассир пробивает цены товаров, а в конце вводит <code>0</code>. Цены идут через пробел или с новой строки; сколько их — заранее неизвестно. Напечатай <code>Покупок: K, сумма: S</code>. Ноль — это конец ввода, а не товар.</p>
+<pre class="terminal"><span class="out">ввод:  150 30 499 0
+вывод: Покупок: 3, сумма: 679</span></pre>
+<p>Если первым же числом пришёл <code>0</code>, покупок не было.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>while (price != 0) { … price = scanner.nextInt(); }</code> — читай следующее число в конце тела, тогда условие проверит его</li>
+</ul></div>
+@@ test: Три товара
+@@ input
+150 30 499 0
+@@ expect
+Покупок: 3, сумма: 679
+@@ test: Пустой чек
+@@ input
+0
+@@ expect
+Покупок: 0, сумма: 0
+@@ test: Один товар
+@@ input
+1000
+0
+@@ expect
+Покупок: 1, сумма: 1000
+@@ test: Дорогие товары
+@@ input
+2000000000 2000000000 0
+@@ expect
+Покупок: 2, сумма: 4000000000

@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Класс Math · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-06">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 3 · Урок 6</div>
+    <h1>Класс Math — калькулятор в кармане</h1>
+    <p class="lead">Корень, степень, модуль, округление, случайное число — писать всё это самому не нужно. В Java есть готовый «инженерный калькулятор» — класс <code>Math</code>. Разбираемся, какие кнопки на нём есть и где он подкладывает свинью.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧮 10 функций</span><span>🎲 игральный кубик</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m03-06-review">
+      <script type="application/json">
+      { "title": "Вспомним урок 3.5",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "System.out.println(10 - 2 * 3);", "answer": "4",
+            "why": "У умножения приоритет выше: 2 * 3 = 6, потом 10 − 6 = 4." },
+          { "type": "single", "q": "Что напечатает <code>System.out.println(\"A\" + 1 + 2);</code>?", "options": ["A3", "A12", "Ошибка компиляции"], "answer": 1,
+            "why": "Слева направо: \"A\" + 1 = \"A1\", потом \"A1\" + 2 = \"A12\"." },
+          { "type": "single", "q": "Как правильно посчитать среднее трёх целых?", "options": ["<code>a + b + c / 3.0</code>", "<code>(a + b + c) / 3.0</code>", "<code>(double) ((a + b + c) / 3)</code>"], "answer": 1,
+            "why": "Скобки — чтобы делилась вся сумма, 3.0 — чтобы деление было дробным." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Как пользоваться Math</h2>
+    <p><code>Math</code> — это класс из стандартной библиотеки Java (из того самого пакета <code>java.lang</code>, что и <code>System</code>). Импортировать его не нужно — он доступен всегда. Внутри — готовые <b>методы</b>: маленькие программки, которые что-то считают и <b>возвращают</b> результат.</p>
+<pre data-file="MathDemo.java"><code class="java">double root = Math.sqrt(16);      // 4.0
+System.out.println(root);
+System.out.println(Math.max(3, 8));   // 8 — можно сразу печатать</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Math</code><div><p>Имя класса — «чей калькулятор».</p></div></div>
+      <div class="annot-row"><code>.sqrt</code><div><p>Точка и имя метода — «какая кнопка». sqrt — square root, квадратный корень.</p></div></div>
+      <div class="annot-row"><code>(16)</code><div><p>В скобках — <b>аргументы</b>: значения, которые передаём методу на вход. Если их несколько — через запятую.</p></div></div>
+      <div class="annot-row"><code>double root =</code><div><p><b>Вызов метода</b> — это выражение: метод возвращает значение (4.0). Им можно инициализировать переменную, как здесь <code>root</code>, напечатать его или подставить в другое выражение.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кофемашина</span>
+      <p>Кладёшь зёрна (аргументы), нажимаешь кнопку «эспрессо» (имя метода) — получаешь чашку кофе (возвращаемое значение). Как она устроена внутри, знать не обязательно. Свои такие «машины» — методы — научимся делать в модуле 7.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает</th><th>Пример</th><th>Результат</th></tr>
+        <tr><td><code>Math.abs(x)</code></td><td>модуль: убирает минус</td><td><code>Math.abs(-7)</code></td><td><code>7</code></td></tr>
+        <tr><td><code>Math.max(a, b)</code></td><td>большее из двух</td><td><code>Math.max(3, 8)</code></td><td><code>8</code></td></tr>
+        <tr><td><code>Math.min(a, b)</code></td><td>меньшее из двух</td><td><code>Math.min(-3, 2)</code></td><td><code>-3</code></td></tr>
+        <tr><td><code>Math.pow(a, b)</code></td><td>a в степени b</td><td><code>Math.pow(2, 10)</code></td><td><code>1024.0</code> ⚠️</td></tr>
+        <tr><td><code>Math.sqrt(x)</code></td><td>квадратный корень</td><td><code>Math.sqrt(16)</code></td><td><code>4.0</code></td></tr>
+        <tr><td><code>Math.round(x)</code></td><td>округлить до ближайшего целого</td><td><code>Math.round(2.5)</code></td><td><code>3</code> (long) ⚠️</td></tr>
+        <tr><td><code>Math.floor(x)</code></td><td>округлить вниз («пол»)</td><td><code>Math.floor(2.9)</code></td><td><code>2.0</code></td></tr>
+        <tr><td><code>Math.ceil(x)</code></td><td>округлить вверх («потолок»)</td><td><code>Math.ceil(2.1)</code></td><td><code>3.0</code></td></tr>
+        <tr><td><code>Math.random()</code></td><td>случайное дробное от 0 (включая) до 1 (не включая)</td><td><code>Math.random()</code></td><td>например, <code>0.7316…</code></td></tr>
+        <tr><td><code>Math.PI</code></td><td>число π (это не метод — без скобок)</td><td><code>Math.PI</code></td><td><code>3.141592653589793</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Ловушки типов</h2>
+    <p>Самое коварное в Math — <b>тип результата</b>. Значки ⚠️ в таблице не просто так:</p>
+<pre data-file="Traps.java"><code class="java">int power = Math.pow(2, 10);          // ошибка компиляции!
+int power2 = (int) Math.pow(2, 10);   // так можно: 1024
+
+int r = Math.round(2.7);              // ошибка компиляции!
+long r2 = Math.round(2.7);            // так можно: 3
+int r3 = (int) Math.round(2.7);       // и так: 3</code></pre>
+<pre class="terminal"><span class="err">Traps.java:1: error: incompatible types: possible lossy conversion from double to int</span></pre>
+    <p>Это текст <code>javac</code> (его покажет проверка на сайте). А в IDEA обе ошибки видны прямо в редакторе, ещё до запуска:</p>
+    <div data-widget="ide" id="shot-math-types">
+      <script type="application/json">
+      { "tree": false, "file": "Traps.java", "gutterRun": [1, 2],
+        "code": "public class Traps {\n    public static void main(String[] args) {\n        int power = Math.pow(2, 10);\n        int power2 = (int) Math.pow(2, 10);\n\n        int r = Math.round(2.7);\n        long r2 = Math.round(2.7);\n        int r3 = (int) Math.round(2.7);\n    }\n}",
+        "errors": [ { "line": 3, "text": "Math.pow(2, 10)", "msg": "Incompatible types. Found: 'double', required: 'int'" },
+                    { "line": 6, "text": "Math.round(2.7)", "msg": "Incompatible types. Found: 'long', required: 'int'", "tip": true, "fix": "Cast expression to 'int'" } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "<code>Math.pow</code> возвращает <b>double</b> — этим значением нельзя инициализировать переменную int без приведения" },
+                   { "n": 2, "target": "tip", "text": "<b>Found: 'long', required: 'int'</b> — у <code>Math.round</code> результат <b>long</b>. <kbd>Alt</kbd>+<kbd>Enter</kbd> предложит дописать <code>(int)</code>" },
+                   { "n": 3, "target": "problems", "text": "<b>❗2</b> — две ошибки в файле. Строки 4, 7 и 8 исправны: там тип совпадает или стоит приведение" } ],
+        "caption": "Методы Math возвращают double и long" }
+      </script>
+    </div>
+    <ul>
+      <li><code>pow</code>, <code>sqrt</code>, <code>floor</code>, <code>ceil</code> всегда возвращают <b>double</b> — даже если ответ «ровный». Поэтому <code>Math.floor(2.9)</code> печатается как <code>2.0</code>.</li>
+      <li><code>round</code> для double возвращает <b>long</b>. Присвоить значение long переменной int без приведения нельзя — вдруг не влезет (помнишь из модуля 2?).</li>
+      <li><code>abs</code>, <code>max</code>, <code>min</code> возвращают тот же тип, что у аргументов: <code>Math.max(3, 8)</code> → int 8, а <code>Math.max(3, 7.5)</code> → double 7.5.</li>
+    </ul>
+    <details class="predict">
+      <summary>Что выведет System.out.println(Math.ceil(7 / 2)); ?</summary>
+      <p><b>3.0</b>, а не 4.0! Сначала вычисляется выражение-аргумент <code>7 / 2</code> — целочисленное деление, 3. Округлять вверх уже нечего: <code>Math.ceil(3)</code> = 3.0. Чтобы получить 4.0, нужно <code>Math.ceil(7 / 2.0)</code>. Math не спасает от целочисленного деления — оно случается раньше.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Три способа округлить</h2>
+    <p><code>round</code> — к ближайшему, <code>floor</code> — всегда вниз, <code>ceil</code> — всегда вверх. «Вниз» значит к меньшему числу — и для отрицательных это сюрприз: вниз от −2.7 — это −3. А приведение <code>(int)</code> из модуля 2 вообще не округляет, а отрезает дробь — то есть двигается <b>к нулю</b>.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Числовые прямые: 2.7 и −2.7 и куда их переносят floor, ceil, round и приведение к int">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+          <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker>
+        </defs>
+        <path d="M80 80 H640" class="d-dash"/>
+        <path d="M80 68 V92 M640 68 V92" class="d-line"/>
+        <text x="80" y="114" text-anchor="middle" class="d-title">2</text>
+        <text x="640" y="114" text-anchor="middle" class="d-title">3</text>
+        <path d="M458 80 H90" class="d-arrow"/>
+        <path d="M486 80 H630" class="d-arrow-accent"/>
+        <circle cx="472" cy="80" r="9" class="d-accent"/>
+        <text x="472" y="114" text-anchor="middle" class="d-mono-ink">2.7</text>
+        <text x="96" y="34" class="d-small">floor(2.7) = 2.0</text>
+        <text x="96" y="54" class="d-small">(int) 2.7 = 2</text>
+        <text x="630" y="34" text-anchor="end" class="d-small">ceil(2.7) = 3.0</text>
+        <text x="630" y="54" text-anchor="end" class="d-small">round(2.7) = 3</text>
+
+        <path d="M80 190 H640" class="d-dash"/>
+        <path d="M80 178 V202 M640 178 V202" class="d-line"/>
+        <text x="80" y="224" text-anchor="middle" class="d-title">-3</text>
+        <text x="640" y="224" text-anchor="middle" class="d-title">-2</text>
+        <path d="M234 190 H90" class="d-arrow"/>
+        <path d="M262 190 H630" class="d-arrow-accent"/>
+        <circle cx="248" cy="190" r="9" class="d-accent"/>
+        <text x="248" y="224" text-anchor="middle" class="d-mono-ink">-2.7</text>
+        <text x="96" y="144" class="d-small">floor(-2.7) = -3.0</text>
+        <text x="96" y="164" class="d-small">round(-2.7) = -3</text>
+        <text x="630" y="144" text-anchor="end" class="d-small">ceil(-2.7) = -2.0</text>
+        <text x="630" y="164" text-anchor="end" class="d-small">(int) -2.7 = -2</text>
+      </svg>
+      <figcaption>floor — влево по прямой, ceil — вправо, round — к ближайшему концу, (int) — к нулю.</figcaption>
+    </figure>
+    <h3>Округление до копеек</h3>
+    <p>У <code>round</code> нет параметра «сколько знаков». Зато есть трюк: сдвинуть запятую, округлить, сдвинуть обратно.</p>
+    <div class="annot">
+      <div class="annot-row"><code>double price = 3.14159;</code><div><p>Хотим 3.14.</p></div></div>
+      <div class="annot-row"><code>price * 100</code><div><p>314.159 — сдвинули запятую на два знака вправо.</p></div></div>
+      <div class="annot-row"><code>Math.round(price * 100)</code><div><p>314 (long) — округлили до целого.</p></div></div>
+      <div class="annot-row"><code>Math.round(price * 100) / 100.0</code><div><p>3.14 — сдвинули обратно. Обязательно <b>100.0</b>: с <code>100</code> было бы целочисленное деление long на int, и получилось бы 3.</p></div></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Где пригодится</span>
+      <p>Цены, проценты, средние значения. В магазине — когда на ценнике должно быть «12.35 ₽», а твой код посчитал 12.3456: округли до копеек и только потом показывай и сравнивай.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Комбинируем: методы внутри выражений</h2>
+    <p>Раз вызов метода — это выражение, его можно подставлять куда угодно: в арифметику, в сравнения и даже в аргумент другого метода.</p>
+<pre data-file="Combine.java"><code class="java">int a = 7;
+int b = 12;
+int c = 9;
+int biggest = Math.max(a, Math.max(b, c));         // 12 — максимум из трёх
+
+double r = 5;
+double area = Math.PI * r * r;                     // площадь круга ≈ 78.54
+double hyp = Math.sqrt(3 * 3 + 4 * 4);             // гипотенуза 5.0
+
+int distance = Math.abs(a - c);                    // расстояние между a и c: 2
+boolean close = Math.abs(0.1 + 0.2 - 0.3) &lt; 1e-9;  // true — помнишь урок 3.3?</code></pre>
+    <p>Вложенный вызов Java выполняет <b>изнутри наружу</b>: сначала вызывается <code>Math.max(b, c)</code> и возвращает 12, это значение становится аргументом внешнего вызова <code>Math.max(7, 12)</code>, и он возвращает 12. А <code>1e-9</code> — это научная запись числа 0.000000001 (единица, умноженная на 10 в степени −9).</p>
+    <details class="predict">
+      <summary>Чему равно Math.min(Math.max(15, 0), 10)? А если вместо 15 подставить -4?</summary>
+      <p><b>10 и 0.</b> Это знаменитый приём «зажать в диапазон 0..10»: max не даёт опуститься ниже 0, min — подняться выше 10. Для 15: max(15, 0) = 15, min(15, 10) = 10. Для −4: max(−4, 0) = 0, min(0, 10) = 0. Так делают, например, громкость или здоровье персонажа в играх.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Math.random() и игральный кубик</h2>
+    <p><code>Math.random()</code> возвращает случайное дробное число от 0 до 1: ноль может выпасть, единица — никогда. Как превратить его в бросок кубика от 1 до 6? Растягиваем, отрезаем и сдвигаем:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 170" role="img" aria-label="Math.random() от 0 до 1, умножить на 6 — от 0 до 6, привести к int — от 0 до 5, плюс 1 — от 1 до 6">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="40" width="150" height="76" rx="14" class="d-blue"/>
+        <text x="85" y="70" text-anchor="middle" class="d-mono-ink">Math.random()</text>
+        <text x="85" y="98" text-anchor="middle" class="d-text">0 … 0.999</text>
+        <path d="M162 78 H190" class="d-arrow"/>
+        <rect x="194" y="40" width="150" height="76" rx="14" class="d-violet"/>
+        <text x="269" y="70" text-anchor="middle" class="d-mono-ink">* 6</text>
+        <text x="269" y="98" text-anchor="middle" class="d-text">0 … 5.999</text>
+        <path d="M346 78 H374" class="d-arrow"/>
+        <rect x="378" y="40" width="150" height="76" rx="14" class="d-teal"/>
+        <text x="453" y="70" text-anchor="middle" class="d-mono-ink">(int) ( … )</text>
+        <text x="453" y="98" text-anchor="middle" class="d-text">0, 1, 2, 3, 4, 5</text>
+        <path d="M530 78 H558" class="d-arrow"/>
+        <rect x="562" y="40" width="150" height="76" rx="14" class="d-green"/>
+        <text x="637" y="70" text-anchor="middle" class="d-mono-ink">+ 1</text>
+        <text x="637" y="98" text-anchor="middle" class="d-text">1 … 6 🎲</text>
+        <text x="360" y="152" text-anchor="middle" class="d-mono-ink">int dice = (int) (Math.random() * 6) + 1;</text>
+      </svg>
+      <figcaption>Растянуть (умножить), отрезать дробь (int), сдвинуть (+1). По этой формуле — любое случайное целое в нужном диапазоне.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>А что даст int dice = (int) Math.random() * 6 + 1; — без внутренних скобок?</summary>
+      <p><b>Всегда 1!</b> Приведение типа — унарный оператор, он главнее умножения (урок 3.5). Значит, сначала <code>(int) Math.random()</code> — а число от 0 до 0.999 после отрезания дроби всегда 0. Дальше 0 * 6 + 1 = 1. Кубик, который никогда не врёт 🙂</p>
+    </details>
+    <div class="callout fact">
+      <span class="callout-title">Случайность и повторяемость</span>
+      <p>Случайные числа помогают делать уникальные данные: например, промокод <code>"SALE" + (int) (Math.random() * 100000)</code> для покупателя. Но случайность мешает искать ошибки: если программа сломалась на одном случайном числе, при следующем запуске выпадет другое. Поэтому случайное значение обязательно печатают в лог — чтобы ошибку можно было повторить.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: четыре сюрприза Math</summary>
+      <ul>
+        <li><code>Math.round(-2.5)</code> → <code>-2</code>, а не −3: round округляет «половинку» всегда в сторону большего числа (вправо по прямой).</li>
+        <li><code>Math.sqrt(-1)</code> → <code>NaN</code>: корня из отрицательного числа нет, но программа не падает (как и с делением double на ноль).</li>
+        <li><code>Math.abs(-2147483648)</code> → <code>-2147483648</code>: у самого маленького int нет «положительной пары» — она не помещается в int, и происходит переполнение.</li>
+        <li><code>Math.floorMod(-7, 3)</code> → <code>2</code>, хотя <code>-7 % 3</code> → <code>-1</code>. floorMod всегда даёт неотрицательный остаток (для положительного делителя) — удобно для «часов», которые крутятся назад.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m03-06">
+      <script type="application/json">
+      {
+       "title": "Math — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини вызов с результатом",
+         "left": [
+          "<code>Math.abs(-7)</code>",
+          "<code>Math.pow(2, 3)</code>",
+          "<code>Math.sqrt(25)</code>",
+          "<code>Math.max(4, 9)</code>"
+         ],
+         "right": [
+          "7",
+          "8.0",
+          "5.0",
+          "9"
+         ],
+         "why": "pow и sqrt возвращают double — отсюда .0. abs и max с аргументами int возвращают int."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "System.out.println(Math.round(2.5));\nSystem.out.println(Math.floor(2.9));\nSystem.out.println(Math.ceil(2.1));",
+         "answer": "3\n2.0\n3.0",
+         "why": "round возвращает long — без .0. floor и ceil возвращают double."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "int a = Math.abs(-5);\nint b = Math.max(3, 8);\nint p = Math.pow(2, 10);\nSystem.out.println(a + b + p);",
+         "answer": [
+          3
+         ],
+         "why": "Math.pow возвращает double, а инициализировать переменную int значением double без приведения (int) нельзя."
+        },
+        {
+         "type": "single",
+         "q": "Какая формула даёт случайное целое от 1 до 6?",
+         "options": [
+          "<code>(int) (Math.random() * 6) + 1</code>",
+          "<code>(int) Math.random() * 6 + 1</code>",
+          "<code>(int) (Math.random() * 5) + 1</code>",
+          "<code>Math.random() * 6</code>"
+         ],
+         "answer": 0,
+         "why": "Сначала растянуть (* 6), потом отрезать дробь (int), потом +1. Без скобок (int) срабатывает первым и всегда даёт 0."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>Math.floor(-2.1)</code> равно -3.0",
+           "a": true
+          },
+          {
+           "s": "<code>Math.round(-2.5)</code> равно -3",
+           "a": false,
+           "why": "половинка округляется в сторону большего числа: −2."
+          },
+          {
+           "s": "Чтобы пользоваться Math, нужно написать import",
+           "a": false,
+           "why": "Math из пакета java.lang, он доступен всегда, как и System."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне 5 вызовов Math с подвохом по типу результата. Я скажу, что напечатается, а ты проверь»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Math.имя(аргументы)</code> — вызов готового метода: передаём аргументы, метод возвращает результат. Импорт не нужен.</li>
+        <li><code>pow, sqrt, floor, ceil</code> → double; <code>round</code> → long; <code>abs, max, min</code> → тот же тип.</li>
+        <li>До сотых: <code>Math.round(x * 100) / 100.0</code>. Вверх: <code>ceil</code>, вниз: <code>floor</code>, к нулю: <code>(int)</code>.</li>
+        <li>Кубик: <code>(int) (Math.random() * 6) + 1</code> — скобки обязательны.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

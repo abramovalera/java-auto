@@ -1,0 +1,52 @@
+## id: tr-vars-010
+## title: Забор вокруг дачи
+## file: trainer/vars/DachaPlotFence.java
+## class: DachaPlotFence
+## level: 1
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>DachaPlotFence</code>. Дачный участок — прямоугольник. Программа читает два целых числа, каждое с новой строки: длину и ширину участка в метрах. Напечатай две строки: сколько метров забора нужно, чтобы обнести участок со всех сторон, и площадь участка.</p>
+<pre class="terminal"><span class="out">ввод:  20
+       15
+вывод: Забор: 70 м
+       Площадь: 300 кв. м</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li>периметр прямоугольника — <code>(a + b) * 2</code>: скобки меняют порядок действий</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+20
+15
+@@ expect
+Забор: 70 м
+Площадь: 300 кв. м
+@@ test: Крошечный квадрат
+@@ input
+1
+1
+@@ expect
+Забор: 4 м
+Площадь: 1 кв. м
+@@ test: Узкая полоска
+@@ input
+30
+2
+@@ expect
+Забор: 64 м
+Площадь: 60 кв. м
+@@ test: Нулевая ширина
+@@ input
+10
+0
+@@ expect
+Забор: 20 м
+Площадь: 0 кв. м
+@@ test: Большое поле
+@@ input
+400
+250
+@@ expect
+Забор: 1300 м
+Площадь: 100000 кв. м

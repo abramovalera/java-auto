@@ -1,0 +1,42 @@
+## id: tr-colls-031
+## title: Частота слов в отзыве
+## file: trainer/colls/ReviewWordCounter.java
+## class: ReviewWordCounter
+## level: 2
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>ReviewWordCounter</code>. Программа читает одну строку — отзыв о кафе: слова разделены одним пробелом, знаков препинания нет. Посчитай, сколько раз встречается каждое слово, <b>без учёта регистра</b>, и напечатай <code>слово - количество</code> для каждого слова по алфавиту (слова — в нижнем регистре). Если строка пустая — <code>Пустой отзыв</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Очень вкусно и очень быстро вкусно
+вывод: быстро - 1
+       вкусно - 2
+       и - 1
+       очень - 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>line.split(" ")</code> — разбивает строку на массив слов</li>
+<li><code>line.isBlank()</code> — проверяет, что в строке нет ничего, кроме пробелов</li>
+<li><code>TreeMap&lt;String, Integer&gt;</code> держит слова по алфавиту</li>
+</ul></div>
+@@ test: Обычный отзыв
+@@ input
+Очень вкусно и очень быстро вкусно
+@@ expect
+быстро - 1
+вкусно - 2
+и - 1
+очень - 2
+@@ test: Одно слово
+@@ input
+Супер
+@@ expect
+супер - 1
+@@ test: Регистр разный
+@@ input
+кофе КОФЕ Кофе чай
+@@ expect
+кофе - 3
+чай - 1
+@@ test: Пустой отзыв
+@@ input
+
+@@ expect
+Пустой отзыв

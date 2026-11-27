@@ -1,0 +1,52 @@
+## id: tr-arrays-044
+## title: Лучшие k дней подряд
+## file: trainer/arrays/BestKDaysRevenue.java
+## class: BestKDaysRevenue
+## level: 2
+## category: Отрезки и серии
+@@ description
+<p>Напиши класс <code>BestKDaysRevenue</code>. Фермер продаёт ягоды и хочет понять, какие <code>k</code> дней подряд были самыми прибыльными. В первой строке — количество дней <code>n</code>, во второй — <code>n</code> чисел (прибыль, бывает минус), в третьей — <code>k</code> (1 ≤ k ≤ n). Найди отрезок из <code>k</code> подряд идущих дней с наибольшей суммой и напечатай <code>Сумма S, с дня D</code> (дни с 1; при равенстве — самый ранний).</p>
+<pre class="terminal"><span class="out">ввод:  7
+       5 1 8 2 9 4 3
+       3
+вывод: Сумма 19, с дня 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>перебери все стартовые индексы от 0 до <code>n - k</code> и для каждого посчитай сумму вложенным циклом</li>
+<li>начальный максимум — сумма первого отрезка, а не 0: прибыль может быть отрицательной</li>
+</ul></div>
+@@ test: Неделя, 3 дня
+@@ input
+7
+5 1 8 2 9 4 3
+3
+@@ expect
+Сумма 19, с дня 3
+@@ test: Один день
+@@ input
+5
+3 -1 7 7 2
+1
+@@ expect
+Сумма 7, с дня 3
+@@ test: Все дни
+@@ input
+3
+1 2 3
+3
+@@ expect
+Сумма 6, с дня 1
+@@ test: Убыточный сезон
+@@ input
+4
+-5 -2 -8 -1
+2
+@@ expect
+Сумма -7, с дня 1
+@@ test: Ничья — раньше
+@@ input
+4
+2 2 2 2
+2
+@@ expect
+Сумма 4, с дня 1
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

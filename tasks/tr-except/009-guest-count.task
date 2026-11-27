@@ -1,0 +1,41 @@
+## id: tr-except-009
+## title: Сколько гостей
+## file: trainer/except/RestaurantGuestCount.java
+## class: RestaurantGuestCount
+## level: 1
+## category: Плохой ввод
+@@ description
+<p>Напиши класс <code>RestaurantGuestCount</code>. Администратор ресторана вводит, сколько пришло гостей. Иногда он случайно ставит пробелы до или после числа — их нужно убрать. Программа читает строку через <code>nextLine()</code>, убирает пробелы по краям, превращает её в целое число и печатает <code>Гостей: N, готовим столик</code>. Если строка не превращается в число, программа печатает <code>Не понял, сколько вас</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4       вывод: Гостей: 4, готовим столик
+ввод:  двое    вывод: Не понял, сколько вас</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.trim()</code> — возвращает строку без пробелов в начале и в конце</li>
+<li><code>Integer.parseInt(s)</code> понимает знак: <code>"+3"</code> и <code>"-3"</code> — тоже числа</li>
+</ul></div>
+@@ test: Обычное число
+@@ input
+4
+@@ expect
+Гостей: 4, готовим столик
+@@ test: Пробелы по краям
+@@ input
+   6
+@@ expect
+Гостей: 6, готовим столик
+@@ test: Число со знаком плюс
+@@ input
++3
+@@ expect
+Гостей: 3, готовим столик
+@@ test: Словом
+@@ input
+двое
+@@ expect
+Не понял, сколько вас
+@@ test: Два числа через пробел
+@@ input
+4 5
+@@ expect
+Не понял, сколько вас
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException
+@@ require: \.trim\s*\( | Убери пробелы по краям методом trim()

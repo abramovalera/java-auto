@@ -1,0 +1,39 @@
+## id: tr-arith-014
+## title: Среднее двух оценок
+## file: trainer/arith/AverageOfTwoGrades.java
+## class: AverageOfTwoGrades
+## level: 1
+## category: Типы и переполнение
+@@ description
+<p>Создай класс <code>AverageOfTwoGrades</code>. Программа читает две оценки — целые числа, каждое с новой строки — и печатает их среднее арифметическое как дробное число.</p>
+<pre class="terminal"><span class="out">ввод:  4       вывод: Средний балл: 4.5
+       5</span></pre>
+<p>Осторожно: оценки целые, и <code>(4 + 5) / 2</code> даст <code>4</code> — дробная часть потеряется. Ответ должен быть <code>4.5</code>, а для двух пятёрок — <code>5.0</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Если хотя бы один операнд деления дробный, деление тоже дробное: <code>9 / 2.0</code> равно <code>4.5</code></li>
+<li><code>(double) x</code> — приведение типа: превращает <code>int</code> в <code>double</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4
+5
+@@ expect
+Средний балл: 4.5
+@@ test: Две пятёрки
+@@ input
+5
+5
+@@ expect
+Средний балл: 5.0
+@@ test: Двойка и тройка
+@@ input
+2
+3
+@@ expect
+Средний балл: 2.5
+@@ test: Двойка и пятёрка
+@@ input
+2
+5
+@@ expect
+Средний балл: 3.5

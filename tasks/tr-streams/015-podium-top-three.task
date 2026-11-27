@@ -1,0 +1,44 @@
+## id: tr-streams-015
+## title: Тройка призёров
+## file: trainer/streams/PodiumTopThree.java
+## class: PodiumTopThree
+## level: 1
+## category: Сортировка и топ
+@@ description
+<p>Напиши класс <code>PodiumTopThree</code>. В одной строке — очки участников турнира через пробел (целые числа, хотя бы одно). Напечатай через пробел три лучших результата по убыванию. Если участников меньше трёх — все результаты по убыванию. Одинаковые очки — разные участники, их не объединяй.</p>
+<pre class="terminal"><span class="out">ввод:  5 12 7 30 1
+вывод: 30 12 7</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.boxed()</code> — превращает <code>IntStream</code> в <code>Stream&lt;Integer&gt;</code>, чтобы сортировать с компаратором</li>
+<li><code>.sorted(Comparator.reverseOrder())</code> — сортирует по убыванию</li>
+<li><code>.limit(3)</code> — пропускает дальше не больше трёх первых элементов</li>
+</ul></div>
+@@ test: Пять участников
+@@ input
+5 12 7 30 1
+@@ expect
+30 12 7
+@@ test: Всего двое
+@@ input
+4 9
+@@ expect
+9 4
+@@ test: Ничья на вершине
+@@ input
+10 9 10 10 8
+@@ expect
+10 10 10
+@@ test: Один участник
+@@ input
+42
+@@ expect
+42
+@@ test: Отрицательные очки
+@@ input
+-5 -1 -3 -2
+@@ expect
+-1 -2 -3
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.limit\s*\( | Возьми первые три методом limit

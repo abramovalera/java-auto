@@ -1,0 +1,49 @@
+## id: tr-cond-031
+## title: Тариф такси
+## file: trainer/cond/TaxiFareByDistance.java
+## class: TaxiFareByDistance
+## level: 2
+## category: Деньги и тарифы
+@@ description
+<p>Напиши класс <code>TaxiFareByDistance</code>. Посадка в такси стоит 150 ₽, в неё входят первые 2 км. Каждый следующий километр — 30 ₽. Ночью к поездке добавляется 100 ₽. Программа читает две строки: длину поездки в километрах (целое число, не меньше 0) и слово <code>день</code> или <code>ночь</code>. Напечатай <code>Поездка: N ₽</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       день
+вывод: Поездка: 180 ₽
+
+ввод:  10
+       ночь
+вывод: Поездка: 490 ₽</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next()</code> — читает следующее слово</li>
+<li><code>s.equals("ночь")</code> — проверка, что строка равна слову «ночь»</li>
+</ul></div>
+@@ test: Ровно 2 км днём
+@@ input
+2
+день
+@@ expect
+Поездка: 150 ₽
+@@ test: 3 км днём
+@@ input
+3
+день
+@@ expect
+Поездка: 180 ₽
+@@ test: Короткая поездка
+@@ input
+1
+день
+@@ expect
+Поездка: 150 ₽
+@@ test: Длинная поездка ночью
+@@ input
+10
+ночь
+@@ expect
+Поездка: 490 ₽
+@@ test: Отмена ночью — только посадка
+@@ input
+0
+ночь
+@@ expect
+Поездка: 250 ₽

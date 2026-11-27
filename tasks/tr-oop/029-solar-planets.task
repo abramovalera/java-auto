@@ -1,0 +1,87 @@
+## id: tr-oop-029
+## title: Вес на других планетах
+## file: trainer/oop/SolarPlanetWeight.java
+## class: SolarPlanetWeight
+## level: 2
+## category: enum и record
+@@ description
+<p>Создай класс <code>SolarPlanetWeight</code> с методом <code>main</code>, а ниже в том же файле — перечисление <code>enum SolarPlanet</code>. У каждой планеты своя сила тяжести относительно Земли:</p>
+<pre class="terminal"><span class="out">MERCURY(0.38), VENUS(0.91), EARTH(1.0), MARS(0.38),
+JUPITER(2.53), SATURN(1.07), URANUS(0.89), NEPTUNE(1.14)</span></pre>
+<ul>
+<li>поле <code>private final double gravity</code> и конструктор перечисления;</li>
+<li>геттер <code>double getGravity()</code>;</li>
+<li><code>double weightOn(double kg)</code> — сколько покажут весы на этой планете: вес на Земле × <code>gravity</code>.</li>
+</ul>
+<p><code>main</code> читает вес на Земле (дробное число) и для каждой планеты по порядку печатает <code>ПЛАНЕТА: вес</code>, округлив вес до одного знака: <code>Math.round(w * 10) / 10.0</code>. В конце — на скольких планетах весы покажут меньше, чем на Земле.</p>
+<pre class="terminal"><span class="out">ввод:  50
+вывод: MERCURY: 19.0
+       VENUS: 45.5
+       EARTH: 50.0
+       MARS: 19.0
+       JUPITER: 126.5
+       SATURN: 53.5
+       URANUS: 44.5
+       NEPTUNE: 57.0
+       Легче, чем на Земле, на планетах: 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>SolarPlanet.values()</code> — массив всех констант по порядку объявления</li>
+<li><code>for (SolarPlanet p : SolarPlanet.values())</code> — перебрать все планеты</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+50
+@@ expect
+MERCURY: 19.0
+VENUS: 45.5
+EARTH: 50.0
+MARS: 19.0
+JUPITER: 126.5
+SATURN: 53.5
+URANUS: 44.5
+NEPTUNE: 57.0
+Легче, чем на Земле, на планетах: 4
+@@ test: Дробный вес
+@@ input
+72.5
+@@ expect
+MERCURY: 27.6
+VENUS: 66.0
+EARTH: 72.5
+MARS: 27.6
+JUPITER: 183.4
+SATURN: 77.6
+URANUS: 64.5
+NEPTUNE: 82.6
+Легче, чем на Земле, на планетах: 4
+@@ test: Невесомый груз
+@@ input
+0
+@@ expect
+MERCURY: 0.0
+VENUS: 0.0
+EARTH: 0.0
+MARS: 0.0
+JUPITER: 0.0
+SATURN: 0.0
+URANUS: 0.0
+NEPTUNE: 0.0
+Легче, чем на Земле, на планетах: 4
+@@ test: Котёнок
+@@ input
+1.2
+@@ expect
+MERCURY: 0.5
+VENUS: 1.1
+EARTH: 1.2
+MARS: 0.5
+JUPITER: 3.0
+SATURN: 1.3
+URANUS: 1.1
+NEPTUNE: 1.4
+Легче, чем на Земле, на планетах: 4
+@@ require: \benum\s+SolarPlanet\b | Объяви в том же файле перечисление enum SolarPlanet
+@@ require: JUPITER\s*\(\s*2\.53\s*\) | У Юпитера сила тяжести 2.53: JUPITER(2.53)
+@@ require: private\s+final\s+double\s+gravity\b | Нужно поле private final double gravity
+@@ require: \bdouble\s+weightOn\s*\(\s*double\s+\w+\s*\) | Объяви в перечислении метод double weightOn(double kg)
+@@ require: SolarPlanet\.values\s*\(\s*\) | Перебери планеты через SolarPlanet.values()

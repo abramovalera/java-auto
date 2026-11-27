@@ -1,0 +1,59 @@
+## id: tr-except-022
+## title: Калькулятор, который не падает
+## file: trainer/except/PocketCalculatorSafe.java
+## class: PocketCalculatorSafe
+## level: 2
+## category: throw и свои исключения
+@@ description
+<p>Напиши класс <code>PocketCalculatorSafe</code>. Программа читает одну строку — пример вида <code>число операция число</code> через пробелы (пробелов может быть несколько), считает в целых числах и печатает <code>Ответ: N</code>. Операции: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> (деление целочисленное).</p>
+<p>Напиши метод <code>static int calculate(String line)</code>, который возвращает результат или выбрасывает исключение. Что напечатать при ошибке:</p>
+<ul>
+<li>частей не три — <code>Пример пишут так: 2 + 3</code> (выброси <code>IllegalArgumentException</code> с этим сообщением);</li>
+<li>операция не из списка — <code>Не знаю операцию: X</code> (тоже <code>IllegalArgumentException</code>);</li>
+<li>число записано не целым числом — <code>Числа должны быть целыми</code>;</li>
+<li>деление на ноль — <code>На ноль делить нельзя</code>.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:  7 * 6    вывод: Ответ: 42
+ввод:  8 / 0    вывод: На ноль делить нельзя</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.trim().split("\\s+")</code> — режет строку по одному или нескольким пробелам</li>
+<li><code>default -> throw new IllegalArgumentException(…);</code> или <code>default: throw …;</code> — ветка <code>switch</code> для неизвестной операции</li>
+</ul></div>
+@@ test: Умножение
+@@ input
+7 * 6
+@@ expect
+Ответ: 42
+@@ test: Целочисленное деление
+@@ input
+8 / 3
+@@ expect
+Ответ: 2
+@@ test: Деление на ноль
+@@ input
+8 / 0
+@@ expect
+На ноль делить нельзя
+@@ test: Неизвестная операция
+@@ input
+2 ^ 3
+@@ expect
+Не знаю операцию: ^
+@@ test: Нет пробела после плюса
+@@ input
+5 +5
+@@ expect
+Пример пишут так: 2 + 3
+@@ test: Отрицательные и лишние пробелы
+@@ input
+-4   -   -6
+@@ expect
+Ответ: 2
+@@ test: Число словом
+@@ input
+два + 2
+@@ expect
+Числа должны быть целыми
+@@ require: static\s+int\s+calculate\s*\(\s*String | Объяви метод static int calculate(String line)
+@@ require: catch\s*\(\s*ArithmeticException | Перехвати ArithmeticException
+@@ require: throw\s+new\s+IllegalArgumentException | Выбрасывай IllegalArgumentException через throw new

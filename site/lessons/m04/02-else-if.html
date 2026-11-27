@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>else, else if и вложенные условия · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 4 · Урок 2</div>
+    <h1>else, else if и вложенные условия</h1>
+    <p class="lead">Один if умеет «сделать или пропустить». А жизнь чаще предлагает выбор: туда или сюда, а иногда — из пяти дорог. Учимся строить цепочки проверок и понимаем, почему в них важен порядок.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🪜 лестница условий</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m04-02-review">
+      <script type="application/json">
+      { "title": "Вспомним урок 4.1",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "int coins = 10;\nif (coins >= 10) {\n    coins = coins - 10;\n    System.out.println(\"Купил!\");\n}\nSystem.out.println(coins);", "answer": "Купил!\n0",
+            "why": "10 &gt;= 10 — true (границу включает знак <code>&gt;=</code>). Списали 10 монет, осталось 0." },
+          { "type": "single", "q": "Какое условие не скомпилируется? (<code>int n</code>)", "options": ["if (n > 0)", "if (n)", "if (n % 2 == 0)"], "answer": 1,
+            "why": "Условие должно быть boolean. Число n — не ответ «да/нет»." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>else — «иначе»</h2>
+    <p>Часто нужно сделать <b>одно из двух</b>: если условие верно — одно, если нет — другое. Для второй дороги есть ключевое слово <code>else</code> («иначе»). Получаются две <b>ветки</b> — два пути, по которым может пойти программа: тело <code>if</code> и ветка <code>else</code>.</p>
+<pre data-file="EvenOdd.java"><code class="java">int n = 7;
+if (n % 2 == 0) {
+    System.out.println(n + " — чётное");
+} else {
+    System.out.println(n + " — нечётное");
+}</code></pre>
+<pre class="terminal"><span class="out">7 — нечётное</span></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 250" role="img" aria-label="Развилка if-else: из ромба выходят две дороги, ровно одна из них выполняется, потом они сходятся">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <path d="M350 14 L470 64 L350 114 L230 64 Z" class="d-accent"/>
+        <text x="350" y="69" text-anchor="middle" class="d-mono-ink">n % 2 == 0 ?</text>
+        <path d="M230 64 H140 V138" class="d-arrow"/>
+        <text x="190" y="54" text-anchor="middle" class="d-c-green d-text">да (if)</text>
+        <path d="M470 64 H560 V138" class="d-arrow"/>
+        <text x="512" y="54" text-anchor="middle" class="d-c-red d-text">нет (else)</text>
+        <rect x="50" y="142" width="180" height="50" rx="10" class="d-green"/>
+        <text x="140" y="172" text-anchor="middle" class="d-text">«чётное»</text>
+        <rect x="470" y="142" width="180" height="50" rx="10" class="d-red"/>
+        <text x="560" y="172" text-anchor="middle" class="d-text">«нечётное»</text>
+        <path d="M140 192 V222 H338" class="d-arrow"/>
+        <path d="M560 192 V222 H362" class="d-arrow"/>
+        <circle cx="350" cy="222" r="9" class="d-soft"/>
+        <text x="350" y="246" text-anchor="middle" class="d-small">дальше программа идёт одной дорогой</text>
+      </svg>
+      <figcaption>С <code>else</code> всегда выполняется <b>ровно одна</b> из двух веток — никогда обе и никогда ни одной.</figcaption>
+    </figure>
+    <div class="callout warn">
+      <span class="callout-title">У else нет условия</span>
+      <p>Писать <code>else (n % 2 != 0)</code> нельзя — это ошибка компиляции. <code>else</code> означает «во всех остальных случаях», ему не нужен свой вопрос.</p>
+    </div>
+    <div data-widget="ide" id="shot-else-condition">
+      <script type="application/json">
+      { "tree": false, "file": "EvenOdd.java", "gutterRun": [1, 2],
+        "code": "public class EvenOdd {\n    public static void main(String[] args) {\n        int n = 7;\n        if (n % 2 == 0) {\n            System.out.println(n + \" — чётное\");\n        } else (n % 2 != 0) {\n            System.out.println(n + \" — нечётное\");\n        }\n    }\n}",
+        "errors": [ { "line": 6, "text": "(n % 2 != 0)", "msg": "Not a statement", "tip": true, "fix": false },
+                    { "line": 6, "col": 28, "len": 1, "msg": "';' expected" } ],
+        "marks": [ { "n": 1, "target": "err-6", "side": "top", "text": "Компилятор не считает скобки после <code>else</code> условием — для него это просто выражение, которое «повисло» в воздухе" },
+                   { "n": 2, "target": "tip", "text": "<b>Not a statement</b> — «это не инструкция» (statement — законченное действие программы)" },
+                   { "n": 3, "target": "err-6-2", "text": "Вторая волна, сразу за скобкой: <b>';' expected</b>. Компилятор ждёт, что эта «инструкция» закончится точкой с запятой" },
+                   { "n": 4, "target": "problems", "text": "<b>❗2</b> — две ошибки, а причина одна: лишнее условие у <code>else</code>. Убери его — исчезнут обе" } ],
+        "caption": "Условие после else — ошибка компиляции" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>else if — цепочка вопросов</h2>
+    <p>А если вариантов больше двух? Например, отметка по баллам за тест:</p>
+<pre data-file="Grade.java"><code class="java">int score = 82;
+if (score &gt;= 90) {
+    System.out.println("Отлично");
+} else if (score &gt;= 75) {
+    System.out.println("Хорошо");
+} else if (score &gt;= 60) {
+    System.out.println("Удовлетворительно");
+} else {
+    System.out.println("Пересдача");
+}</code></pre>
+<pre class="terminal"><span class="out">Хорошо</span></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: сортировка посылок</span>
+      <p>Посылка едет по ленте мимо нескольких ворот. У первых ворот спрашивают: «Тяжелее 20 кг?» — если да, посылку снимают в грузовой отдел, и <b>дальше она не едет</b>. Если нет — едет к следующим воротам: «Тяжелее 5 кг?» И так далее. Последние ворота (<code>else</code>) забирают всё, что доехало до конца.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 300" role="img" aria-label="Лестница else if: проверки идут сверху вниз, первая сработавшая ветка выполняется, остальные пропускаются">
+        <text x="20" y="22" class="d-small">score = 82</text>
+        <rect x="20" y="34" width="200" height="44" rx="22" class="d-soft"/>
+        <text x="120" y="61" text-anchor="middle" class="d-mono-ink">score &gt;= 90 ?</text>
+        <path d="M120 78 V102" class="d-arrow"/>
+        <text x="134" y="96" class="d-small">нет</text>
+        <rect x="20" y="106" width="200" height="44" rx="22" class="d-accent"/>
+        <text x="120" y="133" text-anchor="middle" class="d-mono-ink">score &gt;= 75 ?</text>
+        <path d="M120 150 V174" class="d-dash"/>
+        <rect x="20" y="178" width="200" height="44" rx="22" class="d-soft"/>
+        <text x="120" y="205" text-anchor="middle" class="d-mono-ink">score &gt;= 60 ?</text>
+        <path d="M120 222 V246" class="d-dash"/>
+        <rect x="20" y="250" width="200" height="40" rx="12" class="d-soft"/>
+        <text x="120" y="275" text-anchor="middle" class="d-mono-ink">else</text>
+        <path d="M220 56 H300" class="d-dash"/>
+        <rect x="304" y="38" width="170" height="36" rx="10" class="d-soft"/>
+        <text x="389" y="61" text-anchor="middle" class="d-small">«Отлично»</text>
+        <path d="M220 128 H300" class="d-arrow"/>
+        <text x="260" y="120" text-anchor="middle" class="d-c-green d-text">да!</text>
+        <rect x="304" y="110" width="170" height="36" rx="10" class="d-green"/>
+        <text x="389" y="133" text-anchor="middle" class="d-text">«Хорошо»</text>
+        <path d="M220 200 H300" class="d-dash"/>
+        <rect x="304" y="182" width="170" height="36" rx="10" class="d-soft"/>
+        <text x="389" y="205" text-anchor="middle" class="d-small">«Удовлетворительно»</text>
+        <path d="M220 270 H300" class="d-dash"/>
+        <rect x="304" y="252" width="170" height="36" rx="10" class="d-soft"/>
+        <text x="389" y="275" text-anchor="middle" class="d-small">«Пересдача»</text>
+        <path d="M474 128 H560" class="d-arrow"/>
+        <rect x="564" y="100" width="146" height="56" rx="12" class="d-blue"/>
+        <text x="637" y="124" text-anchor="middle" class="d-small">выход</text>
+        <text x="637" y="144" text-anchor="middle" class="d-small">из цепочки</text>
+        <text x="300" y="20" class="d-small">пунктир — до этих проверок дело не дошло</text>
+      </svg>
+      <figcaption>Проверки идут сверху вниз. Первая, что ответила «да», выполняется — и вся остальная цепочка пропускается.</figcaption>
+    </figure>
+    <p>Главное правило цепочки: <b>выполняется только первая подходящая ветка</b>. 82 подходит и под «&gt;= 75», и под «&gt;= 60», но до «&gt;= 60» Java даже не доходит. Поэтому во второй ветке не нужно писать <code>score &gt;= 75 &amp;&amp; score &lt; 90</code>: раз мы здесь, значит, первая проверка уже ответила «нет», и score точно меньше 90.</p>
+    <div class="say" data-mood="think"><p><code>else if</code> — это не отдельное ключевое слово, а просто <code>else</code>, в ветке которого сразу стоит новый условный оператор <code>if</code>. Поэтому цепочка может быть любой длины.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Порядок проверок важен</h2>
+    <p>Переставим ветки — вроде бы те же проверки, только снизу вверх:</p>
+<pre data-file="GradeBroken.java"><code class="java">int score = 95;
+if (score &gt;= 60) {
+    System.out.println("Удовлетворительно");
+} else if (score &gt;= 75) {
+    System.out.println("Хорошо");
+} else if (score &gt;= 90) {
+    System.out.println("Отлично");
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа для 95 баллов?</summary>
+      <p><b>«Удовлетворительно»</b>! 95 &gt;= 60 — правда, первая ветка сработала, остальные Java даже не смотрит. Ветки «Хорошо» и «Отлично» теперь <b>не выполнятся никогда</b>: любое число ≥ 75 уже поймано первой проверкой. Компилятор такую ошибку не заметит — она логическая.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Правило порядка</span>
+      <p>Когда условия «вложены» друг в друга (каждое следующее шире предыдущего), проверяй от самого <b>узкого</b> к самому <b>широкому</b>: «&gt;= 90» → «&gt;= 75» → «&gt;= 60» → всё остальное. Или наоборот, снизу: «&lt; 60» → «&lt; 75» → «&lt; 90». Главное — чтобы каждая ветка могла хоть когда-нибудь сработать.</p>
+    </div>
+    <p>Пройди правильную цепочку сам — с баллом на самой границе:</p>
+    <div data-widget="trace" id="trace-grade">
+      <script type="application/json">
+      { "title": "Цепочка else if: score = 75",
+        "intro": "Следи, какие условия проверяются, а какие пропускаются. Угадывай ответы на вопросы.",
+        "code": "int score = 75;\nif (score >= 90) {\n    System.out.println(\"Отлично\");\n} else if (score >= 75) {\n    System.out.println(\"Хорошо\");\n} else if (score >= 60) {\n    System.out.println(\"Удовлетворительно\");\n} else {\n    System.out.println(\"Пересдача\");\n}\nSystem.out.println(\"Готово\");",
+        "steps": [
+          { "line": 1, "vars": { "score": "75" }, "note": "Балл ровно на границе «хорошо»." },
+          { "line": 2, "vars": { "score": "75", "score >= 90": "false" }, "ask": ["score >= 90"], "note": "Условие 75 >= 90 — ложь. Тело if (строку 3) пропускаем, идём к следующему else if." },
+          { "line": 4, "vars": { "score": "75", "score >= 75": "true" }, "ask": ["score >= 75"], "note": "75 >= 75 — правда: знак >= включает границу. Заходим в эту ветку." },
+          { "line": 5, "vars": { "score": "75" }, "out": "Хорошо\n", "note": "Печатаем «Хорошо». Проверка score >= 60 и else даже не рассматриваются." },
+          { "line": 11, "vars": { "score": "75" }, "out": "Готово\n", "note": "Прыжок за конец всей цепочки. Ровно одна ветка из четырёх выполнилась." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Нужен ли последний else?</h2>
+    <p>Цепочка может заканчиваться и без <code>else</code>. Тогда, если ни одно условие не подошло, <b>не выполнится ни одна ветка</b>:</p>
+<pre data-file="Medal.java"><code class="java">int place = 7;
+if (place == 1) {
+    System.out.println("Золото");
+} else if (place == 2) {
+    System.out.println("Серебро");
+} else if (place == 3) {
+    System.out.println("Бронза");
+}
+// для 7-го места не напечатается ничего — и это нормально</code></pre>
+    <div class="table-wrap"><table>
+      <tr><th>Конструкция</th><th>Сколько веток выполнится</th></tr>
+      <tr><td><code>if</code></td><td>0 или 1</td></tr>
+      <tr><td><code>if … else</code></td><td>ровно 1</td></tr>
+      <tr><td><code>if … else if … else if</code></td><td>0 или 1</td></tr>
+      <tr><td><code>if … else if … else</code></td><td>ровно 1</td></tr>
+      <tr><td>несколько отдельных <code>if</code> подряд</td><td>от 0 до всех — каждый проверяется сам по себе</td></tr>
+    </table></div>
+    <details class="predict">
+      <summary>Предскажи: что напечатает этот код? Чем он отличается от цепочки?</summary>
+<pre data-file="Separate.java"><code class="java">int score = 95;
+if (score &gt;= 90) { System.out.println("Отлично"); }
+if (score &gt;= 75) { System.out.println("Хорошо"); }
+if (score &gt;= 60) { System.out.println("Удовлетворительно"); }</code></pre>
+      <p>Три строки: «Отлично», «Хорошо», «Удовлетворительно». Без <code>else</code> это три <b>независимых</b> вопроса, и каждый задаётся заново. Слово <code>else</code> как раз и связывает проверки в цепочку «только одна».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Вложенные if</h2>
+    <p>Внутри тела if может стоять другой if — <b>вложенный</b>. Это как вопрос, который имеет смысл задавать только после «да» на первый. Пример: вход в систему.</p>
+<pre data-file="Login.java"><code class="java">boolean userExists = true;
+boolean passwordOk = false;
+if (userExists) {
+    if (passwordOk) {
+        System.out.println("Добро пожаловать!");
+    } else {
+        System.out.println("Неверный пароль");
+    }
+} else {
+    System.out.println("Пользователь не найден");
+}</code></pre>
+<pre class="terminal"><span class="out">Неверный пароль</span></pre>
+    <p>Условие внешнего if — «есть ли такой пользователь?». Внутренний if проверяется, только если есть: он стоит в теле внешнего. Каждая ветка <code>else</code> относится к своему if — это видно по скобкам и отступам.</p>
+    <p>Иногда вложенность можно заменить на <code>&amp;&amp;</code>. Эти два варианта делают одно и то же:</p>
+<pre data-file="Ride.java"><code class="java">// вариант 1: вложенные if
+if (age &gt;= 12) {
+    if (height &gt;= 140) {
+        System.out.println("Проходи на аттракцион!");
+    }
+}
+
+// вариант 2: одно условие с &amp;&amp;
+if (age &gt;= 12 &amp;&amp; height &gt;= 140) {
+    System.out.println("Проходи на аттракцион!");
+}</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Что выбрать</span>
+      <p>Если в «промежуточном» случае ничего не надо делать — бери <code>&amp;&amp;</code>, так короче. Если на каждый вопрос нужен свой ответ («пользователь не найден» и «неверный пароль» — разные сообщения), — вложенные if. Глубже 2–3 уровней лучше не залезать: код становится «лесенкой», в которой легко заблудиться.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m04-02">
+      <script type="application/json">
+      { "title": "else и цепочки — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "int t = 0;\nif (t > 0) {\n    System.out.println(\"Тепло\");\n} else if (t < 0) {\n    System.out.println(\"Мороз\");\n} else {\n    System.out.println(\"Ноль\");\n}", "answer": "Ноль",
+            "why": "0 не больше и не меньше нуля — обе проверки false, срабатывает else." },
+          { "type": "single", "q": "Какая ветка не выполнится никогда?", "code": "if (n > 0) {          // A\n    ...\n} else if (n > 100) { // B\n    ...\n} else {              // C\n    ...\n}", "options": ["A", "B", "C"], "answer": 1,
+            "why": "Любое n &gt; 100 больше и нуля, поэтому его заберёт ветка A. До B такое число не доедет. Порядок надо поменять." },
+          { "type": "order", "q": "Собери цепочку: «Ребёнок» до 14 лет, «Подросток» с 14 до 17, иначе «Взрослый»", "code": true,
+            "lines": ["if (age < 14) {", "    System.out.println(\"Ребёнок\");", "} else if (age < 18) {", "    System.out.println(\"Подросток\");", "} else {", "    System.out.println(\"Взрослый\");", "}"],
+            "why": "Идём от меньшего возраста к большему. Во второй ветке уже известно, что age &gt;= 14, поэтому достаточно <code>age &lt; 18</code>." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "int a = 5;\nif (a > 2) {\n    System.out.println(\"X\");\n}\nif (a > 4) {\n    System.out.println(\"Y\");\n} else {\n    System.out.println(\"Z\");\n}", "answer": "X\nY",
+            "why": "Это два отдельных if, а не цепочка. Первый печатает X. Второй — своя развилка: 5 &gt; 4, поэтому Y." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "В цепочке if / else if / else всегда выполняется ровно одна ветка", "a": true },
+              { "s": "После else можно написать условие в скобках", "a": false, "why": "у else нет условия; для нового вопроса нужен else if." },
+              { "s": "В цепочке без последнего else может не выполниться ни одна ветка", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне цепочку else if с ошибкой в порядке веток — я найду ветку, которая никогда не сработает»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>if … else</code> — ровно одна из двух веток. У <code>else</code> нет условия.</li>
+        <li><code>else if</code> строит цепочку: проверки сверху вниз, выполняется <b>первая подходящая</b> ветка, остальные пропускаются.</li>
+        <li>Порядок важен: широкое условие сверху «съест» все узкие под ним.</li>
+        <li>Несколько отдельных if — независимые вопросы, могут сработать все.</li>
+        <li>Вложенный if — вопрос внутри ответа «да». Иногда его заменяет <code>&amp;&amp;</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

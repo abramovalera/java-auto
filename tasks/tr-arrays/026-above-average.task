@@ -1,0 +1,46 @@
+## id: tr-arrays-026
+## title: Выше среднего
+## file: trainer/arrays/AboveAverageSalaries.java
+## class: AboveAverageSalaries
+## level: 2
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>AboveAverageSalaries</code>. В отделе <code>n</code> сотрудников (n ≥ 1). В первой строке — <code>n</code>, во второй — <code>n</code> целых чисел: изменение зарплаты каждого за год (бывает и отрицательным). Посчитай среднее и напечатай <code>Выше среднего: K</code> — сколько чисел <b>строго больше</b> среднего.</p>
+<p>Нужно два прохода по массиву: сначала среднее, потом подсчёт. Осторожно: среднее бывает дробным.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       100 200 300 400 1000
+вывод: Выше среднего: 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>double avg = (double) sum / n;</code> — приведение к <code>double</code> до деления, иначе деление будет целым</li>
+</ul></div>
+@@ test: Отдел
+@@ input
+5
+100 200 300 400 1000
+@@ expect
+Выше среднего: 1
+@@ test: Все одинаковые
+@@ input
+4
+50 50 50 50
+@@ expect
+Выше среднего: 0
+@@ test: Дробное среднее
+@@ input
+3
+1 2 2
+@@ expect
+Выше среднего: 2
+@@ test: Отрицательные
+@@ input
+2
+-1 -2
+@@ expect
+Выше среднего: 1
+@@ test: Один сотрудник
+@@ input
+1
+700
+@@ expect
+Выше среднего: 0
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

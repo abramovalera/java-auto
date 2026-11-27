@@ -1,0 +1,48 @@
+## id: tr-cond-032
+## title: Что надеть
+## file: trainer/cond/OutfitForWeather.java
+## class: OutfitForWeather
+## level: 2
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>OutfitForWeather</code>. Программа читает две строки: температуру на улице (целое число) и будет ли дождь — <code>да</code> или <code>нет</code>. Одежда: ниже 0 — <code>Пуховик</code>, от 0 до 14 — <code>Куртка</code>, от 15 — <code>Футболка</code>. Если будет дождь, допиши <code> и зонт</code>. Всё — одной строкой.</p>
+<pre class="terminal"><span class="out">ввод:  -5
+       нет
+вывод: Пуховик
+
+ввод:  0
+       да
+вывод: Куртка и зонт</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>объяви переменную для ответа, присвой ей одежду, а потом при дожде допиши к ней зонт</li>
+</ul></div>
+@@ test: Мороз без дождя
+@@ input
+-5
+нет
+@@ expect
+Пуховик
+@@ test: Ровно 0 и дождь
+@@ input
+0
+да
+@@ expect
+Куртка и зонт
+@@ test: 14 градусов
+@@ input
+14
+нет
+@@ expect
+Куртка
+@@ test: 15 и дождь
+@@ input
+15
+да
+@@ expect
+Футболка и зонт
+@@ test: Жара
+@@ input
+30
+нет
+@@ expect
+Футболка

@@ -1,0 +1,53 @@
+## id: tr-arrays-043
+## title: Карусель
+## file: trainer/arrays/CarouselRotation.java
+## class: CarouselRotation
+## level: 2
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>CarouselRotation</code>. На карусели <code>n</code> лошадок по кругу. Каждый поворот сдвигает всех на одно место вправо, а последняя лошадка переезжает на первое место. В первой строке — <code>n</code> (n ≥ 1), во второй — <code>n</code> номеров лошадок, в третьей — число поворотов <code>k</code> (k ≥ 0, может быть больше <code>n</code>). Напечатай, в каком порядке стоят лошадки после <code>k</code> поворотов, в одну строку через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       1 2 3 4 5
+       2
+вывод: 4 5 1 2 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>после <code>k</code> поворотов элемент с индексом <code>i</code> окажется на индексе <code>(i + k) % n</code></li>
+<li>через <code>n</code> поворотов всё возвращается как было — поэтому большие <code>k</code> не страшны</li>
+<li>удобно записать результат в новый массив той же длины</li>
+</ul></div>
+@@ test: Два поворота
+@@ input
+5
+1 2 3 4 5
+2
+@@ expect
+4 5 1 2 3
+@@ test: Ноль поворотов
+@@ input
+3
+7 8 9
+0
+@@ expect
+7 8 9
+@@ test: Полный круг
+@@ input
+4
+1 2 3 4
+4
+@@ expect
+1 2 3 4
+@@ test: Больше длины
+@@ input
+3
+10 20 30
+7
+@@ expect
+30 10 20
+@@ test: Одна лошадка
+@@ input
+1
+5
+100
+@@ expect
+5
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

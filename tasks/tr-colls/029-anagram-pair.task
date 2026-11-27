@@ -1,0 +1,50 @@
+## id: tr-colls-029
+## title: Анаграммы
+## file: trainer/colls/AnagramPairCheck.java
+## class: AnagramPairCheck
+## level: 2
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>AnagramPairCheck</code>. Два слова — анаграммы, если одно получается из другого перестановкой букв: <code>Листок</code> и <code>столик</code>. Регистр не важен. Программа читает два слова (каждое с новой строки) и печатает <code>Анаграммы</code> или <code>Не анаграммы</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Листок
+       столик
+вывод: Анаграммы
+
+ввод:  аааб
+       абаб
+вывод: Не анаграммы</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Map&lt;Character, Integer&gt;</code> — сколько раз встречается каждая буква</li>
+<li><code>s.toLowerCase().toCharArray()</code> — массив символов строки в нижнем регистре</li>
+<li>словари сравниваются по содержимому: <code>map1.equals(map2)</code></li>
+</ul></div>
+@@ test: Листок и столик
+@@ input
+Листок
+столик
+@@ expect
+Анаграммы
+@@ test: Кот и ток
+@@ input
+кот
+ток
+@@ expect
+Анаграммы
+@@ test: Одно слово дважды
+@@ input
+Мама
+мама
+@@ expect
+Анаграммы
+@@ test: Буквы те же, а количество разное
+@@ input
+аааб
+абаб
+@@ expect
+Не анаграммы
+@@ test: Разная длина
+@@ input
+кот
+котик
+@@ expect
+Не анаграммы

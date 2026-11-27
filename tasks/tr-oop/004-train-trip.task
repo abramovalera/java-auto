@@ -1,0 +1,56 @@
+## id: tr-oop-004
+## title: Поездка на поезде
+## file: trainer/oop/TrainTripInfo.java
+## class: TrainTripInfo
+## level: 1
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>TrainTripInfo</code> с методом <code>main</code>, а ниже в том же файле — класс <code>TrainTrip</code>:</p>
+<ul>
+<li>поля <code>String from</code>, <code>String to</code> и <code>int minutes</code> — откуда, куда и сколько минут в пути;</li>
+<li>конструктор <code>TrainTrip(String from, String to, int minutes)</code>;</li>
+<li><code>String route()</code> — возвращает <code>Откуда -&gt; Куда</code>;</li>
+<li><code>String duration()</code> — возвращает время в пути: <code>1 ч 35 мин</code>. Если часов 0 — только минуты (<code>45 мин</code>), если минут 0 — только часы (<code>2 ч</code>).</li>
+</ul>
+<p><code>main</code> читает в одной строке через пробел два города (одним словом каждый) и число минут, создаёт поездку и печатает маршрут и <code>В пути: …</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Москва Тверь 95
+вывод: Москва -&gt; Тверь
+       В пути: 1 ч 35 мин</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>minutes / 60</code> и <code>minutes % 60</code> — целые часы и оставшиеся минуты</li>
+<li><code>return</code> внутри <code>if</code> сразу завершает метод</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Москва Тверь 95
+@@ expect
+Москва -> Тверь
+В пути: 1 ч 35 мин
+@@ test: Меньше часа
+@@ input
+Казань Зеленодольск 45
+@@ expect
+Казань -> Зеленодольск
+В пути: 45 мин
+@@ test: Ровно два часа
+@@ input
+Самара Тольятти 120
+@@ expect
+Самара -> Тольятти
+В пути: 2 ч
+@@ test: Сутки с минутой
+@@ input
+Москва Сочи 1441
+@@ expect
+Москва -> Сочи
+В пути: 24 ч 1 мин
+@@ test: Одна минута
+@@ input
+Депо Платформа 1
+@@ expect
+Депо -> Платформа
+В пути: 1 мин
+@@ require: \bclass\s+TrainTrip\b | Объяви в том же файле класс TrainTrip
+@@ require: TrainTrip\s*\(\s*String\s+\w+\s*,\s*String\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен конструктор TrainTrip(String from, String to, int minutes)
+@@ require: \bString\s+route\s*\(\s*\) | Нужен метод String route()
+@@ require: \bString\s+duration\s*\(\s*\) | Нужен метод String duration()

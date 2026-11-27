@@ -1,0 +1,39 @@
+## id: m03-t01
+## title: Чётное ли число?
+## file: module-03/EvenCheckExpression.java
+## class: EvenCheckExpression
+## level: 1
+@@ description
+<p>Программа читает с клавиатуры одно целое число и печатает <code>true</code>, если оно чётное, и <code>false</code>, если нечётное. Больше ничего печатать не нужно.</p>
+<pre class="terminal"><span class="out">14
+true</span></pre>
+<p>Условий <code>if</code> мы ещё не проходили — и они не нужны! Результат сравнения <em>сам</em> является значением <code>true</code> или <code>false</code>: его можно сразу положить в переменную <code>boolean</code> и напечатать.</p>
+<p>⚠️ Проверка подаёт и отрицательные числа. Подумай, чему равен <code>-7 % 2</code>.</p>
+<p>📖 Уроки: <a href="/lessons/m03/01-arithmetic.html">Арифметика и остаток</a>, <a href="/lessons/m03/03-comparison.html">Сравнения и boolean</a></p>
+@@ test: 14 — чётное
+@@ input
+14
+@@ expect
+true
+@@ test: 7 — нечётное
+@@ input
+7
+@@ expect
+false
+@@ test: 0 — тоже чётное
+@@ input
+0
+@@ expect
+true
+@@ test: Отрицательное нечётное
+@@ input
+-7
+@@ expect
+false
+@@ test: Отрицательное чётное
+@@ input
+-10
+@@ expect
+true
+@@ require: % | Чётность проверяется остатком от деления — оператором %
+@@ forbid: \bif\s*\( | if ещё не пройден — здесь хватит одного логического выражения

@@ -1,0 +1,52 @@
+## id: tr-except-016
+## title: Водяная горка
+## file: trainer/except/WaterSlideAdmission.java
+## class: WaterSlideAdmission
+## level: 2
+## category: throw и свои исключения
+@@ description
+<p>Напиши класс <code>WaterSlideAdmission</code>. На водяную горку пускают с ростом от 120 см. Объяви своё исключение — класс <code>WaterSlideHeightException</code>, наследник <code>Exception</code>, с конструктором, который принимает сообщение. Напиши его в том же файле, без <code>public</code>.</p>
+<p>Напиши метод <code>static void checkHeight(int height) throws WaterSlideHeightException</code>: если рост меньше 120, он выбрасывает это исключение с сообщением <code>нужно подрасти на X см</code>.</p>
+<p>В первой строке ввода — количество детей n, дальше n чисел (рост каждого, каждое с новой строки). Для каждого программа печатает <code>Проходи!</code> или <code>Стоп: </code> и сообщение исключения.</p>
+<pre class="terminal"><span class="out">ввод:  2       вывод: Проходи!
+       135            Стоп: нужно подрасти на 8 см
+       112</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>class MyException extends Exception { MyException(String message) { super(message); } }</code> — своё проверяемое исключение с сообщением</li>
+<li><code>throws</code> в сигнатуре метода объявляет, что метод может выбросить проверяемое исключение</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2
+135
+112
+@@ expect
+Проходи!
+Стоп: нужно подрасти на 8 см
+@@ test: Ровно 120
+@@ input
+1
+120
+@@ expect
+Проходи!
+@@ test: На сантиметр меньше
+@@ input
+1
+119
+@@ expect
+Стоп: нужно подрасти на 1 см
+@@ test: Вся группа
+@@ input
+4
+100
+150
+95
+121
+@@ expect
+Стоп: нужно подрасти на 20 см
+Проходи!
+Стоп: нужно подрасти на 25 см
+Проходи!
+@@ require: class\s+WaterSlideHeightException\s+extends\s+Exception | Объяви класс WaterSlideHeightException extends Exception
+@@ require: throws\s+WaterSlideHeightException | Объяви в сигнатуре checkHeight: throws WaterSlideHeightException
+@@ require: throw\s+new\s+WaterSlideHeightException | Выбрасывай своё исключение через throw new

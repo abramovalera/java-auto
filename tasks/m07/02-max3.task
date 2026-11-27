@@ -1,0 +1,40 @@
+## id: m07-t02
+## title: Максимум из трёх
+## file: module-07/Max3Method.java
+## class: Max3Method
+## level: 1
+@@ description
+<p>Напиши метод <code>static int max3(int a, int b, int c)</code>, который <b>возвращает</b> наибольшее из трёх чисел. Метод ничего не печатает — только возвращает.</p>
+<p>main читает три целых числа с клавиатуры (через <code>Scanner</code>), вызывает <code>max3</code> и печатает результат:</p>
+<pre class="terminal"><span class="out">3 9 5
+Максимум: 9</span></pre>
+<p>Первая строка — это ввод (его набираешь ты в консоли IDEA), вторая — вывод программы. Не печатай приглашений вроде «Введите числа» — проверка сравнивает вывод символ в символ.</p>
+<p><code>Math.max</code> не используй — напиши сравнение сам. Подумай: что, если максимум стоит первым? Последним? Если все числа равны? Если все отрицательные?</p>
+<p>📖 <a href="/lessons/m07/02-params-return.html">Параметры и return</a></p>
+@@ test: Максимум в середине
+@@ input
+3 9 5
+@@ expect
+Максимум: 9
+@@ test: Максимум первым
+@@ input
+10 2 7
+@@ expect
+Максимум: 10
+@@ test: Максимум последним
+@@ input
+1 2 3
+@@ expect
+Максимум: 3
+@@ test: Все отрицательные
+@@ input
+-7 -2 -9
+@@ expect
+Максимум: -2
+@@ test: Все равны
+@@ input
+4 4 4
+@@ expect
+Максимум: 4
+@@ require: static\s+int\s+max3\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int max3(int a, int b, int c)
+@@ forbid: Math\s*\.\s*max | Не используй Math.max — сравни числа сам

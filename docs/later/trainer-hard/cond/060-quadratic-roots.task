@@ -1,0 +1,47 @@
+## id: tr-cond-060
+## title: Корни квадратного уравнения
+## file: trainer/cond/QuadraticRoots.java
+## class: QuadraticRoots
+## level: 3
+## category: Геометрия
+@@ description
+<p>Напиши класс <code>QuadraticRoots</code>. Уравнение a·x² + b·x + c = 0 задано тремя целыми числами a, b, c через пробел (a ≠ 0). Посчитай дискриминант D = b² − 4ac. Если D &lt; 0 — напечатай <code>Корней нет</code>. Если D = 0 — <code>Один корень: x</code>. Если D &gt; 0 — <code>Два корня: x1 и x2</code>, где x1 &lt; x2. Корни: x = (−b ± √D) / (2a); каждый округли до двух знаков: <code>Math.round(x * 100) / 100.0</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1 -3 2
+вывод: Два корня: 1.0 и 2.0
+
+ввод:  1 0 1
+вывод: Корней нет</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.sqrt(d)</code> — квадратный корень</li>
+<li>если <code>a</code> отрицательное, «плюс» в формуле даёт меньший корень — проверь порядок</li>
+</ul></div>
+@@ test: Два целых корня
+@@ input
+1 -3 2
+@@ expect
+Два корня: 1.0 и 2.0
+@@ test: Один корень
+@@ input
+1 2 1
+@@ expect
+Один корень: -1.0
+@@ test: Корней нет
+@@ input
+1 0 1
+@@ expect
+Корней нет
+@@ test: a отрицательное
+@@ input
+-1 0 4
+@@ expect
+Два корня: -2.0 и 2.0
+@@ test: Корень — ноль
+@@ input
+2 0 0
+@@ expect
+Один корень: 0.0
+@@ test: Дробные корни
+@@ input
+1 1 -1
+@@ expect
+Два корня: -1.62 и 0.62

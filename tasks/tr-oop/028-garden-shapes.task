@@ -1,0 +1,65 @@
+## id: tr-oop-028
+## title: Клумбы разной формы
+## file: trainer/oop/GardenAreaSum.java
+## class: GardenAreaSum
+## level: 2
+## category: Наследование и интерфейсы
+@@ description
+<p>Садовник разбивает клумбы и хочет знать, сколько земли под них нужно. Создай класс <code>GardenAreaSum</code> с методом <code>main</code>, а ниже в том же файле:</p>
+<ul>
+<li>интерфейс <code>GardenShape</code> с методами <code>double area()</code> и <code>String title()</code>;</li>
+<li>класс <code>GardenCircle</code> (поле — радиус), название <code>Круг</code>, площадь <code>π × r²</code>;</li>
+<li>класс <code>GardenRectangle</code> (ширина и длина), название <code>Прямоугольник</code>;</li>
+<li>класс <code>GardenTriangle</code> (основание и высота), название <code>Треугольник</code>, площадь — половина основания на высоту.</li>
+</ul>
+<p>Все три класса реализуют <code>GardenShape</code>.</p>
+<p>Ввод: в первой строке — количество клумб <code>n</code>, дальше <code>n</code> строк: <code>circle r</code>, <code>rect w h</code> или <code>triangle a h</code> (числа дробные). Сложи клумбы в массив <code>GardenShape[]</code>, напечатай название и площадь каждой, а в конце — общую площадь. Все площади округляй до двух знаков: <code>Math.round(s * 100) / 100.0</code>; общую площадь считай из неокруглённых значений.</p>
+<pre class="terminal"><span class="out">ввод:  2
+       circle 1
+       rect 2 3.5
+вывод: Круг: 3.14
+       Прямоугольник: 7.0
+       Всего: 10.14</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>class GardenCircle implements GardenShape</code> — класс обещает реализовать все методы интерфейса</li>
+<li>методы интерфейса публичные, поэтому в классе пиши <code>public double area()</code></li>
+<li><code>Math.PI</code> — число π</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2
+circle 1
+rect 2 3.5
+@@ expect
+Круг: 3.14
+Прямоугольник: 7.0
+Всего: 10.14
+@@ test: Все три формы
+@@ input
+3
+triangle 3 4
+circle 2
+rect 5 5
+@@ expect
+Треугольник: 6.0
+Круг: 12.57
+Прямоугольник: 25.0
+Всего: 43.57
+@@ test: Одна треугольная клумба
+@@ input
+1
+triangle 1 1
+@@ expect
+Треугольник: 0.5
+Всего: 0.5
+@@ test: Нет клумб
+@@ input
+0
+@@ expect
+Всего: 0.0
+@@ require: \binterface\s+GardenShape\b | Объяви интерфейс GardenShape
+@@ require: \bclass\s+GardenCircle\s+implements\s+GardenShape\b | GardenCircle должен реализовать GardenShape: implements GardenShape
+@@ require: \bclass\s+GardenRectangle\s+implements\s+GardenShape\b | GardenRectangle должен реализовать GardenShape
+@@ require: \bclass\s+GardenTriangle\s+implements\s+GardenShape\b | GardenTriangle должен реализовать GardenShape
+@@ require: GardenShape\s*\[\s*\]\s*\w+\s*=\s*new\s+GardenShape\s*\[ | Сложи клумбы в массив: GardenShape[] beds = new GardenShape[n]
+@@ require: Math\.PI | Для круга используй Math.PI

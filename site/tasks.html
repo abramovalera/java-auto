@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Практика · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" id="tasks-main">
+  <header class="lesson-head">
+    <div class="kicker" id="kicker">Практика</div>
+    <h1 id="title">Задачи модуля</h1>
+    <p class="lead">Пиши решение в своём редакторе (IntelliJ IDEA), сохраняй файл в папку <code>workspace</code> и жми «Проверить». Сайт сам скомпилирует и запустит твою программу.</p>
+    <div class="progress" style="margin-top:16px"><span id="bar" style="width:0%"></span></div>
+    <p class="meta" style="margin-top:8px"><span id="count">…</span></p>
+  </header>
+
+  <div class="callout warn">
+    <span class="callout-title">Решения — только в проекте workspace</span>
+    <p>Задачи решаются в IntelliJ IDEA, в проекте <code>workspace</code> из папки курса: сайт проверяет файлы только там. IDEA ещё не настроена — начни с урока <a href="/lessons/m00/03-setup.html">0.3 «Подготовка»</a>, первая программа — в уроке <a href="/lessons/m01/04-first-program-idea.html">1.4</a>.</p>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-title">Как работать с задачей</span>
+    <ol class="steps" style="margin:6px 0 0">
+      <li>Прочитай условие задачи.</li>
+      <li>В IntelliJ IDEA, в синей папке <code class="mod-folder">module-01</code> проекта <code>workspace</code>, создай класс с именем из условия: правый клик по папке → New → Java Class.</li>
+      <li>Напиши код и запусти ▶ — убедись, что выводится то, что нужно.</li>
+      <li>Вернись сюда и нажми «Проверить». Сайт сам возьмёт твой файл и проверит вывод.</li>
+      <li class="ai-only">Всё зелёное — покажи решение наставнику: в чате Claude Code напиши <code>/check</code> и номер задачи (он указан под кнопкой). Застрял — напиши <code>/hint</code> и номер. <a href="/lessons/m00/01-how-it-works.html">Что такое наставник?</a></li>
+      <li class="free-only">Всё зелёное — разбери решение с <span class="ai-name">DeepSeek</span>: попроси объяснить, что можно улучшить, и задать тебе вопрос по твоему коду. Свой код не стесняйся показывать — решение уже твоё.</li>
+    </ol>
+  </div>
+
+  <div id="tasks"></div>
+</main>
+
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const moduleId = params.get("module") || "m01";
+  const mod = (window.COURSE.modules || []).find((m) => m.id === moduleId);
+  const topic = (window.TRAINING || []).find((t) => t.id === moduleId); // «Тренинг код»
+  document.querySelector("main").dataset.page = topic ? "training" : "tasks-" + moduleId;
+  if (topic) document.querySelector("main").dataset.topic = topic.id; // меню слева подсветит эту тему
+  document.querySelectorAll(".mod-folder").forEach((c) => { c.textContent = topic ? topic.folder : "module-" + moduleId.slice(1); });
+  if (topic) {
+    const after = topic.after && (window.COURSE.modules || []).find((m) => m.id === topic.after);
+    document.getElementById("kicker").innerHTML = '<a href="/training.html">🏋️ Тренинг код</a> · ' + topic.icon + " тема";
+    document.getElementById("title").textContent = topic.title;
+    document.title = "Тренинг код: " + topic.title + " · Java с нуля";
+    document.querySelector(".lesson-head .lead").innerHTML = (topic.summary ? topic.summary + " " : "") +
+      (after ? "Задачи на то, что пройдено к концу модуля " + after.num + " «" + after.title + "». " : "") +
+      "Каждая задача — новый класс в папке <code>" + topic.folder + "</code> проекта <code>workspace</code>. Сначала 🟢 лёгкие, потом 🟡 средние.";
+  }
+  if (mod) {
+    document.getElementById("kicker").textContent = "Модуль " + mod.num + " · Практика";
+    document.getElementById("title").textContent = "Задачи: " + mod.title;
+    document.title = "Практика: " + mod.title + " · Java с нуля";
+  }
+
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const levels = topic ? { "1": "🟢 лёгкая", "2": "🟡 средняя" } : { "1": "★ разминка", "2": "★★ чуть сложнее", "3": "★★★ с подвохом" };
+  const root = document.getElementById("tasks");
+  let statuses = {};
+  let tasks = [];
+
+  function paintProgress() {
+    const done = tasks.filter((t) => statuses[t.id] && statuses[t.id].status === "PASSED").length;
+    document.getElementById("count").textContent = `Решено ${done} из ${tasks.length}`;
+    document.getElementById("bar").style.width = tasks.length ? (100 * done / tasks.length) + "%" : "0%";
+  }
+
+  function badgeFor(t) {
+    const s = statuses[t.id];
+    if (!s) return `<span class="badge">не начата</span>`;
+    if (s.status === "PASSED") return `<span class="badge ok">✓ решена</span>`;
+    if (s.status === "MANUAL") return `<span class="badge open">🧑‍🏫 <span class="ai-only">у наставника</span><span class="free-only">проверь с ИИ</span></span>`;
+    return `<span class="badge fail">есть ошибки</span>`;
+  }
+
+  function renderTask(t, i) {
+    const el = document.createElement("article");
+    el.className = "task" + (statuses[t.id]?.status === "PASSED" ? " passed" : "");
+    el.id = t.id;
+    el.innerHTML = `
+      <div class="task-head" role="button" tabindex="0" aria-expanded="false">
+        <div class="task-num">${i + 1}</div>
+        <h3>${esc(t.title)}</h3>
+        <span class="badge-slot">${badgeFor(t)}</span>
+      </div>
+      <div class="task-body">
+        <p class="task-file">📄 Файл: <code>${esc(t.file)}</code> · класс <code>${esc(t.className)}</code> · ${levels[t.level] || ""}</p>
+        <div class="task-desc">${t.description}</div>
+        <div class="task-actions">
+          <button class="btn check-btn">▶ Проверить</button>
+          <span class="meta ai-only">ID задачи для наставника: <code>${esc(t.id)}</code></span>
+        </div>
+        <div class="result"></div>
+      </div>`;
+    const head = el.querySelector(".task-head");
+    const toggle = () => { el.classList.toggle("open"); head.setAttribute("aria-expanded", el.classList.contains("open")); };
+    head.addEventListener("click", toggle);
+    head.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+    el.querySelector(".check-btn").addEventListener("click", () => runCheck(t, el));
+    window.JC && window.JC.highlightAll(el);
+    return el;
+  }
+
+  function renderResult(r) {
+    let html = "";
+    if (r.status === "passed") {
+      html += `<div class="result-banner ok">🎉 ${esc(JC.msg(r.message))}</div>`;
+    } else if (r.status === "manual") {
+      html += `<div class="result-banner info">🧑‍🏫 ${esc(JC.msg(r.message))}</div>`;
+    } else if (r.status === "missing") {
+      html += `<div class="result-banner info">📄 ${esc(JC.msg(r.message))}</div>`;
+    } else if (r.status === "compile_error") {
+      html += `<div class="result-banner bad">🛠 ${esc(JC.msg(r.message))}</div>`;
+      html += `<pre class="terminal"><span class="err">${esc(r.compilerOutput)}</span></pre>`;
+    } else {
+      html += `<div class="result-banner bad">${esc(JC.msg(r.message || "Что-то пошло не так"))}</div>`;
+    }
+    const hints = [...(r.hints || []), ...(r.ruleFails || [])];
+    if (hints.length) html += `<ul class="hints">${hints.map((h) => `<li>💡 ${esc(h)}</li>`).join("")}</ul>`;
+    for (const t of r.tests || []) {
+      html += `<div class="test-row ${t.passed ? "ok" : "bad"}">
+        <div>${t.passed ? "✓" : "✗"} ${esc(t.name)}</div>`;
+      if (!t.passed) {
+        if (t.error) html += `<div style="padding:8px 14px">⚠️ ${esc(t.error)}</div>`;
+        if (t.diff) html += `<div style="padding:8px 14px">🔎 ${esc(t.diff)}</div>`;
+        html += `<div class="diff">
+            <div><small>Ожидалось</small><pre>${esc(t.expected)}</pre></div>
+            <div><small>Твоя программа вывела</small><pre>${esc(t.actual) || "(пусто)"}</pre></div>
+          </div>`;
+      }
+      html += `</div>`;
+    }
+    return html;
+  }
+
+  async function runCheck(t, el) {
+    const btn = el.querySelector(".check-btn");
+    const out = el.querySelector(".result");
+    btn.disabled = true; btn.textContent = "⏳ Компилирую и запускаю…";
+    try {
+      const resp = await fetch("/api/check/" + encodeURIComponent(t.id), { method: "POST" });
+      const r = await resp.json();
+      out.innerHTML = renderResult(r);
+      statuses[t.id] = { status: String(r.status).toUpperCase() };
+      el.classList.toggle("passed", r.status === "passed");
+      el.querySelector(".badge-slot").innerHTML = badgeFor(t);
+      paintProgress();
+    } catch (e) {
+      out.innerHTML = `<div class="server-down">Не получилось связаться с сервером проверки. Он запущен? В папке курса выполни <code>docker compose up -d</code>.</div>`;
+    } finally {
+      btn.disabled = false; btn.textContent = "▶ Проверить";
+    }
+  }
+
+  async function load() {
+    try {
+      const [tr, sr] = await Promise.all([
+        fetch("/api/tasks?module=" + encodeURIComponent(moduleId)),
+        fetch("/api/status")
+      ]);
+      tasks = await tr.json();
+      statuses = await sr.json();
+    } catch (e) {
+      root.innerHTML = `<div class="server-down">Сервер проверки не отвечает. Задачи показываются только когда курс запущен через Docker: в папке курса выполни <code>docker compose up -d</code> и открой <a href="http://localhost:7070">http://localhost:7070</a>.</div>`;
+      return;
+    }
+    if (!tasks.length) { root.innerHTML = `<p>В этом ${topic ? "разделе" : "модуле"} пока нет задач.</p>`; return; }
+    if (topic) renderByLevels(); else tasks.forEach((t, i) => root.appendChild(renderTask(t, i)));
+    const first = (location.hash && document.querySelector(location.hash)) ||
+      [...root.querySelectorAll(".task")].find((el) => !el.classList.contains("passed") && el.style.display !== "none");
+    if (first) first.classList.add("open");
+    paintProgress();
+  }
+
+  // «Тренинг код»: задачи сгруппированы по уровням; сверху два переключателя — уровень и категория
+  function renderByLevels() {
+    const names = { "1": "🟢 Лёгкие", "2": "🟡 Средние" };
+    const lvOf = (t) => String(t.level);
+    const catOf = (t) => t.category || "";
+    const present = ["1", "2"].filter((lv) => tasks.some((t) => lvOf(t) === lv));
+    const cats = [...new Set(tasks.map(catOf).filter(Boolean))];
+    const count = (pred) => tasks.filter(pred).length;
+
+    const lvBar = document.createElement("div");
+    lvBar.className = "lv-bar";
+    lvBar.innerHTML = `<button data-lv="all">Все уровни · ${tasks.length}</button>` +
+      present.map((lv) => `<button data-lv="${lv}">${names[lv]} · ${count((t) => lvOf(t) === lv)}</button>`).join("");
+    root.before(lvBar);
+    let catBar = null;
+    if (cats.length > 1) {
+      catBar = document.createElement("div");
+      catBar.className = "lv-bar cat-bar";
+      catBar.innerHTML = `<button data-cat="all">Все категории</button>` +
+        cats.map((c) => `<button data-cat="${esc(c)}">${esc(c)} · ${count((t) => catOf(t) === c)}</button>`).join("");
+      root.before(catBar);
+    }
+
+    let last = null;
+    tasks.forEach((t, i) => {
+      const lv = lvOf(t);
+      if (lv !== last && names[lv]) {
+        const h = document.createElement("h2");
+        h.className = "lv-head";
+        h.dataset.head = lv;
+        h.textContent = names[lv];
+        root.appendChild(h);
+        last = lv;
+      }
+      const el = renderTask(t, i);
+      el.dataset.lv = lv;
+      el.dataset.cat = catOf(t);
+      if (catOf(t)) el.querySelector(".task-file").insertAdjacentHTML("beforeend", ` · <span class="cat-tag">${esc(catOf(t))}</span>`);
+      root.appendChild(el);
+    });
+
+    const key = "jc.trf." + topic.id;
+    let state = { lv: "all", cat: "all" };
+    try { state = Object.assign(state, JSON.parse(localStorage.getItem(key) || "{}")); } catch (e) { /* без хранилища — без памяти */ }
+    if (state.lv !== "all" && !present.includes(state.lv)) state.lv = "all";
+    if (state.cat !== "all" && !cats.includes(state.cat)) state.cat = "all";
+
+    const apply = () => {
+      lvBar.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.lv === state.lv));
+      if (catBar) catBar.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.cat === state.cat));
+      const visible = {};
+      root.querySelectorAll(".task").forEach((el) => {
+        const show = (state.lv === "all" || el.dataset.lv === state.lv) && (state.cat === "all" || el.dataset.cat === state.cat);
+        el.style.display = show ? "" : "none";
+        if (show) visible[el.dataset.lv] = (visible[el.dataset.lv] || 0) + 1;
+      });
+      root.querySelectorAll(".lv-head").forEach((h) => {
+        const n = visible[h.dataset.head] || 0;
+        h.style.display = n ? "" : "none";
+        h.innerHTML = names[h.dataset.head] + ` <small>· ${n} ${n % 10 === 1 && n % 100 !== 11 ? "задача" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? "задачи" : "задач"}</small>`;
+      });
+      try { localStorage.setItem(key, JSON.stringify(state)); } catch (e) { /* не запомним — не страшно */ }
+    };
+    apply();
+    lvBar.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { state.lv = b.dataset.lv; apply(); } });
+    if (catBar) catBar.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { state.cat = b.dataset.cat; apply(); } });
+  }
+  document.addEventListener("DOMContentLoaded", load);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ссылки на методы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-03">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 14 · Урок 3</div>
+    <h1>Ссылки на методы: <code>::</code></h1>
+    <p class="lead">Иногда лямбда ничего не придумывает сама, а просто вызывает готовый метод. Тогда её можно сжать ещё сильнее — до имени этого метода через два двоеточия.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>🔗 4 вида ссылок</span><span>🧩 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m14-03-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлые уроки", "icon": "🔁",
+        "items": [
+          { "type": "match", "q": "Соедини интерфейс и его метод",
+            "left": ["Predicate", "Function", "Consumer", "Supplier"],
+            "right": ["test", "apply", "accept", "get"],
+            "why": "Эти четыре пары встречаются постоянно — их стоит знать наизусть." },
+          { "type": "single", "q": "Какой интерфейс у лямбды <code>s -&gt; System.out.println(s)</code>?",
+            "options": ["Supplier&lt;String&gt;", "Consumer&lt;String&gt;", "Predicate&lt;String&gt;"], "answer": 1,
+            "why": "Принимает строку и ничего не возвращает — Consumer." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Внутри лямбды можно увеличить локальную переменную метода: <code>count++</code>", "a": false, "why": "захваченные переменные должны быть effectively final." },
+              { "s": "<code>Comparator.comparing(…).thenComparing(…)</code> сортирует по второму полю, только если первые равны", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Лямбда-«передатчик»</h2>
+    <p>Посмотри на эти лямбды. Что у них общего?</p>
+<pre data-file="Relay.java"><code class="java">names.forEach(n -&gt; System.out.println(n));
+Function&lt;String, Integer&gt; parse = s -&gt; Integer.parseInt(s);
+Function&lt;String, String&gt; upper = s -&gt; s.toUpperCase();</code></pre>
+    <p>Каждая только <b>передаёт</b> свой параметр аргументом в вызов уже существующего метода — и больше ничего не делает. Для таких лямбд есть короткая запись — <b>ссылка на метод</b> (method reference): <code>Где::какойМетод</code>. Это имя готового метода, которое передают вместо лямбда-выражения.</p>
+<pre data-file="Relay.java"><code class="java">names.forEach(System.out::println);
+Function&lt;String, Integer&gt; parse = Integer::parseInt;
+Function&lt;String, String&gt; upper = String::toUpperCase;</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: «Переключаю на специалиста»</span>
+      <p>Звонишь в поддержку, а оператор говорит: «Соединяю с бухгалтерией» — и всё, сам ничего не решает. Такой оператор и есть лямбда-передатчик. Проще сразу дать номер бухгалтерии: <code>Бухгалтерия::ответить</code>.</p>
+    </div>
+    <p>Важно: ссылка на метод <b>не вызывает</b> метод прямо сейчас — после имени нет скобок. Это «адрес» метода, который вызовут потом, когда понадобится, — точно как с лямбдой.</p>
+    <details class="predict">
+      <summary>Скомпилируется ли <code>names.forEach(System.out::println());</code>?</summary>
+      <p><b>Нет.</b> Скобки после имени в ссылке на метод не пишут: <code>System.out::println</code>. Со скобками это выглядело бы как вызов метода, а <code>::</code> так не работает.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Четыре вида ссылок</h2>
+    <p>Слева от <code>::</code> может стоять класс, конкретный объект или даже <code>new</code>. От этого зависит, куда пойдут параметры лямбды:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 290" role="img" aria-label="Четыре вида ссылок на методы и лямбды, которые они заменяют">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="20" y="24" class="d-small">ЛЯМБДА</text>
+        <text x="470" y="24" class="d-small">ССЫЛКА НА МЕТОД</text>
+
+        <rect x="10" y="36" width="390" height="50" rx="12" class="d-code"/>
+        <text x="26" y="66" class="d-mono">s -&gt; Integer.parseInt(s)</text>
+        <path d="M408 61 H452" class="d-arrow"/>
+        <rect x="460" y="36" width="290" height="50" rx="12" class="d-blue"/>
+        <text x="476" y="58" class="d-mono-ink">Integer::parseInt</text>
+        <text x="476" y="77" class="d-small">① статический метод</text>
+
+        <rect x="10" y="98" width="390" height="50" rx="12" class="d-code"/>
+        <text x="26" y="128" class="d-mono">x -&gt; System.out.println(x)</text>
+        <path d="M408 123 H452" class="d-arrow"/>
+        <rect x="460" y="98" width="290" height="50" rx="12" class="d-teal"/>
+        <text x="476" y="120" class="d-mono-ink">System.out::println</text>
+        <text x="476" y="139" class="d-small">② метод конкретного объекта</text>
+
+        <rect x="10" y="160" width="390" height="50" rx="12" class="d-code"/>
+        <text x="26" y="190" class="d-mono">s -&gt; s.toUpperCase()</text>
+        <path d="M408 185 H452" class="d-arrow"/>
+        <rect x="460" y="160" width="290" height="50" rx="12" class="d-violet"/>
+        <text x="476" y="182" class="d-mono-ink">String::toUpperCase</text>
+        <text x="476" y="201" class="d-small">③ метод самого параметра</text>
+
+        <rect x="10" y="222" width="390" height="50" rx="12" class="d-code"/>
+        <text x="26" y="252" class="d-mono">() -&gt; new ArrayList&lt;&gt;()</text>
+        <path d="M408 247 H452" class="d-arrow"/>
+        <rect x="460" y="222" width="290" height="50" rx="12" class="d-yellow"/>
+        <text x="476" y="244" class="d-mono-ink">ArrayList::new</text>
+        <text x="476" y="263" class="d-small">④ конструктор</text>
+      </svg>
+      <figcaption>Слева — лямбда, справа — то же самое ссылкой. Смысл не меняется, только запись.</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вид</th><th>Запись</th><th>Куда идёт параметр лямбды</th></tr>
+        <tr><td>① статический метод</td><td><code>Integer::parseInt</code>, <code>Math::abs</code></td><td>в аргументы метода: <code>Integer.parseInt(s)</code></td></tr>
+        <tr><td>② метод конкретного объекта</td><td><code>System.out::println</code></td><td>в аргументы метода этого объекта: <code>System.out.println(x)</code></td></tr>
+        <tr><td>③ метод «любого объекта» типа</td><td><code>String::length</code>, <code>Student::name</code></td><td>параметр <b>сам становится объектом</b>, у которого вызывают метод: <code>s.length()</code>, <code>st.name()</code></td></tr>
+        <tr><td>④ конструктор</td><td><code>ArrayList::new</code></td><td>в конструктор: <code>new ArrayList&lt;&gt;()</code></td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="think"><p>Вид ③ — самый хитрый и самый частый. <code>String::length</code> выглядит как вызов статического метода, но <code>length</code> не статический! Java понимает так: «возьми пришедшую строку и вызови <b>у неё</b> <code>length()</code>». Именно поэтому для record-ов пишут <code>Student::name</code> — это «у каждого студента спроси имя».</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Где это в настоящих программах</h2>
+    <p>Ссылки на методы делают цепочки вызовов читаемыми почти как обычный текст. Вот как может выглядеть обработка корзины интернет-магазина:</p>
+<pre data-file="CartTexts.java"><code class="java">record CartItem(String title, int price) { }
+
+List&lt;CartItem&gt; cart = new ArrayList&lt;&gt;(List.of(
+        new CartItem("Монитор", 20000),
+        new CartItem("Мышь", 1500),
+        new CartItem("Коврик", 300)));
+
+cart.sort(Comparator.comparing(CartItem::price));   // по цене
+cart.forEach(System.out::println);                   // печать каждого</code></pre>
+<pre class="terminal"><span class="out">CartItem[title=Коврик, price=300]
+CartItem[title=Мышь, price=1500]
+CartItem[title=Монитор, price=20000]</span></pre>
+    <p>Заметь: <code>System.out::println</code> печатает record целиком — через его автоматический <code>toString()</code> из модуля 11.</p>
+    <details class="predict">
+      <summary>Какой тип подойдёт для <code>CartItem::title</code>?</summary>
+      <p><code>Function&lt;CartItem, String&gt;</code>: параметр — товар, возвращаемое значение — его название. Это вид ③ — параметр сам становится объектом, у которого вызывают <code>title()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Когда ссылку не сделать</h2>
+    <p>Правило: ссылка на метод возможна, если лямбда <b>только передаёт свои параметры</b> в один метод — в том же порядке, ничего не добавляя. Если она что-то делает сама, нужна обычная лямбда:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Лямбда</th><th>Можно ссылкой?</th><th>Почему</th></tr>
+        <tr><td><code>s -&gt; s.trim()</code></td><td>✅ <code>String::trim</code></td><td>только вызывает метод у параметра</td></tr>
+        <tr><td><code>s -&gt; s.substring(1)</code></td><td>❌</td><td>добавляет своё число <code>1</code></td></tr>
+        <tr><td><code>x -&gt; x * 2</code></td><td>❌</td><td>это оператор, а не вызов метода</td></tr>
+        <tr><td><code>s -&gt; "Привет, " + s</code></td><td>❌</td><td>склеивает сама</td></tr>
+        <tr><td><code>(a, b) -&gt; a.compareTo(b)</code></td><td>✅ <code>String::compareTo</code></td><td>первый параметр — объект, второй — аргумент</td></tr>
+        <tr><td><code>s -&gt; System.out.println("&gt; " + s)</code></td><td>❌</td><td>меняет аргумент перед передачей</td></tr>
+      </table>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">IDEA подскажет сама</span>
+      <p>Если лямбду можно заменить ссылкой, IDEA подсветит её серым. Нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Replace lambda with method reference</b>. И наоборот: на ссылке <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Replace method reference with lambda</b> — удобно, когда не понимаешь, что она делает.</p>
+    </div>
+    <div data-widget="ide" id="shot-lambda-to-ref">
+      <script type="application/json">
+      { "tree": false, "file": "Relay.java", "gutterRun": [3, 4], "statusPath": "module-14", "caretLine": 6,
+        "code": "import java.util.List;\n\npublic class Relay {\n    public static void main(String[] args) {\n        List<String> names = List.of(\"Аня\", \"Борис\");\n        names.forEach(n -> System.out.println(n));\n    }\n}",
+        "warnings": [ { "line": 6, "text": "n -> System.out.println(n)", "msg": "Lambda can be replaced with method reference" } ],
+        "menu": { "at": "err-6", "items": ["Replace lambda with method reference", "Replace lambda with anonymous class"], "hl": "Replace lambda with method reference" },
+        "marks": [ { "n": 1, "target": "err-6", "side": "top", "text": "IDEA выделила лямбду: «Lambda can be replaced with method reference» — её можно заменить ссылкой на метод. Это совет, не ошибка" },
+                   { "n": 2, "target": "problems", "text": "<b>⚠1</b> — предупреждение, программа запускается и без исправления" },
+                   { "n": 3, "target": "menu", "text": "Курсор на лямбде, <kbd>Alt</kbd>+<kbd>Enter</kbd> — и первым пунктом <b>Replace lambda with method reference</b>. Выбери — строка станет <code>names.forEach(System.out::println);</code>" } ],
+        "caption": "Подсказка IDEA: лямбду можно заменить ссылкой на метод" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Не увлекайся</span>
+      <p>Ссылка нужна для читаемости, а не ради краткости любой ценой. Если <code>s -&gt; s.getAddress().getCity()</code> понятнее — оставь лямбду. Ссылкой это всё равно не записать: тут два вызова подряд.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m14-03">
+      <script type="application/json">
+      {
+       "title": "Ссылки на методы — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини лямбду и равную ей ссылку",
+         "left": [
+          "s -&gt; s.length()",
+          "x -&gt; System.out.println(x)",
+          "s -&gt; Integer.parseInt(s)",
+          "() -&gt; new HashMap&lt;&gt;()"
+         ],
+         "right": [
+          "String::length",
+          "System.out::println",
+          "Integer::parseInt",
+          "HashMap::new"
+         ],
+         "why": "Метод у параметра, метод объекта System.out, статический метод, конструктор."
+        },
+        {
+         "type": "multi",
+         "q": "Какие лямбды можно заменить ссылкой на метод?",
+         "options": [
+          "<code>s -&gt; s.isBlank()</code>",
+          "<code>n -&gt; n + 1</code>",
+          "<code>p -&gt; p.price()</code>",
+          "<code>s -&gt; s.split(\",\")</code>",
+          "<code>n -&gt; Math.abs(n)</code>"
+         ],
+         "answer": [
+          0,
+          2,
+          4
+         ],
+         "why": "<code>String::isBlank</code>, <code>Product::price</code>, <code>Math::abs</code>. В <code>n + 1</code> нет метода, а в split лямбда добавляет свой аргумент <code>\",\"</code>."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "Function<String, String> f = String::toUpperCase;\nFunction<String, Integer> g = String::length;\nSystem.out.println(f.apply(\"java\") + g.apply(\"hello\"));",
+         "answer": "JAVA5",
+         "why": "f.apply возвращает строку \"JAVA\", g.apply — число 5. Строка + число = склейка."
+        },
+        {
+         "type": "single",
+         "q": "Что означает <code>Student::name</code> в <code>Comparator.comparing(Student::name)</code>?",
+         "options": [
+          "Вызвать статический метод name у класса Student",
+          "У каждого сравниваемого студента взять его name()",
+          "Создать нового студента с именем"
+         ],
+         "answer": 1,
+         "why": "Вид ③: параметр сам становится объектом. Это то же, что <code>s -&gt; s.name()</code>."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Урок 14.3. Дай мне 6 лямбд, а я скажу, какие можно превратить в ссылку на метод, какого она вида — и почему остальные нельзя»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Ссылка на метод</b> <code>Класс::метод</code> — сокращение лямбды, которая только передаёт параметры в один метод.</li>
+        <li>Четыре вида: статический (<code>Integer::parseInt</code>), метод объекта (<code>System.out::println</code>), метод параметра (<code>String::length</code>, <code>Student::name</code>), конструктор (<code>ArrayList::new</code>).</li>
+        <li>Скобок после имени нет: ссылка указывает на метод, а не вызывает его.</li>
+        <li>Лямбда что-то добавляет сама (число, склейку, оператор) — ссылкой её не заменить.</li>
+        <li><kbd>Alt</kbd>+<kbd>Enter</kbd> в IDEA переводит лямбду в ссылку и обратно.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

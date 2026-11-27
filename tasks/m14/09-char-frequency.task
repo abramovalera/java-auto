@@ -1,0 +1,51 @@
+## id: m14-t09
+## title: Частота символов
+## file: module-14/CharFrequencyCount.java
+## class: CharFrequencyCount
+## level: 3
+@@ description
+<p>🛠 <b>Мастерская.</b> Вводится строка. Посчитай, сколько раз встречается каждый символ, и выведи символы <b>по алфавиту</b> в формате <code>символ: количество</code>:</p>
+<pre class="terminal"><span class="out">ввод:  Мама мыла раму
+
+а: 4
+л: 1
+м: 4
+р: 1
+у: 1
+ы: 1</span></pre>
+<p>Правила: регистр не важен (<code>М</code> и <code>м</code> — один символ), пробелы не считаем.</p>
+<p>Сначала реши руками по шаблону Мастерской: что на входе, что на выходе, как бы ты считал на бумаге (подсказка: это похоже на задачу про группировку слов, только «слова» тут — отдельные символы). Как получить поток символов: <code>line.split("")</code> режет строку на строки из одной буквы. Посчитать в группах поможет <code>Collectors.counting()</code>, а порядок по алфавиту — <code>TreeMap</code>. Циклы запрещены.</p>
+<p>📖 <a href="/lessons/m14/07-collectors.html">Collectors: groupingBy + counting</a> · <a href="/lessons/m14/08-workshop-loop-vs-stream.html">Мастерская: цикл или стрим</a></p>
+@@ test: Пример из условия
+@@ input
+Мама мыла раму
+@@ expect
+а: 4
+л: 1
+м: 4
+р: 1
+у: 1
+ы: 1
+@@ test: Одна буква
+@@ input
+Я
+@@ expect
+я: 1
+@@ test: Латиница и цифры
+@@ input
+Java 21
+@@ expect
+1: 1
+2: 1
+a: 2
+j: 1
+v: 1
+@@ test: Пробелы по краям и подряд
+@@ input
+  aa   bA
+@@ expect
+a: 3
+b: 1
+@@ require: groupingBy\s*\( | Сгруппируй символы через Collectors.groupingBy
+@@ require: counting\s*\( | Посчитай группы через Collectors.counting()
+@@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

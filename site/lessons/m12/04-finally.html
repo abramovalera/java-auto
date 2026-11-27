@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>finally и try-с-ресурсами · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-04">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 12 · Урок 4</div>
+    <h1>finally и try-с-ресурсами</h1>
+    <p class="lead">Есть дела, которые нужно сделать при любом исходе: выключить плиту, закрыть соединение с базой данных, вернуть ключи. Для них в Java есть finally — блок, который выполняется всегда. Даже когда в try стоит return.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 головоломка с return</span><span>🔌 закрываем соединение</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m12-04-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет код?",
+            "code": "try {\n    System.out.println(\"1\");\n    int[] a = new int[2];\n    a[5] = 1;\n    System.out.println(\"2\");\n} catch (ArrayIndexOutOfBoundsException e) {\n    System.out.println(\"3\");\n}\nSystem.out.println(\"4\");",
+            "answer": "1\n3\n4", "why": "a[5] — за границей массива. Остаток try пропускается, срабатывает catch, потом код после." },
+          { "type": "single", "q": "В каком порядке писать catch (NumberFormatException) и catch (RuntimeException)?",
+            "options": ["Сначала RuntimeException", "Сначала NumberFormatException", "Неважно, Java сама разберётся по типу"], "answer": 1,
+            "why": "От частного к общему. Общий первым «съест» всё, и компилятор скажет: has already been caught." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>finally выполняется всегда</h2>
+    <p>После try и catch можно добавить третий блок — <b>блок <code>finally</code></b> («наконец»). Он выполняется <b>в любом случае</b>: было выброшено исключение или нет, перехватили его в catch или нет.</p>
+<pre data-file="Kitchen.java"><code class="java">try {
+    System.out.println("Включаю плиту и готовлю");
+    cook(dish);                       // может выбросить исключение
+    System.out.println("Ужин готов");
+} catch (IllegalStateException e) {
+    System.out.println("Ужин сгорел: " + e.getMessage());
+} finally {
+    System.out.println("Выключаю плиту");
+}</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 320" role="img" aria-label="Три сценария: без исключения, исключение перехвачено, исключение не перехвачено. Во всех трёх выполняется finally">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="130" y="24" text-anchor="middle" class="d-title">① всё хорошо</text>
+        <text x="380" y="24" text-anchor="middle" class="d-title">② перехватили</text>
+        <text x="630" y="24" text-anchor="middle" class="d-title">③ не перехватили</text>
+
+        <rect x="30" y="40" width="200" height="44" rx="10" class="d-blue"/><text x="130" y="67" text-anchor="middle" class="d-text">try целиком</text>
+        <rect x="280" y="40" width="200" height="44" rx="10" class="d-blue"/><text x="380" y="67" text-anchor="middle" class="d-text">try до 💥</text>
+        <rect x="530" y="40" width="200" height="44" rx="10" class="d-blue"/><text x="630" y="67" text-anchor="middle" class="d-text">try до 💥</text>
+
+        <rect x="30" y="106" width="200" height="44" rx="10" class="d-soft"/><text x="130" y="133" text-anchor="middle" class="d-small">catch пропущен</text>
+        <rect x="280" y="106" width="200" height="44" rx="10" class="d-red"/><text x="380" y="133" text-anchor="middle" class="d-text">catch — план Б</text>
+        <rect x="530" y="106" width="200" height="44" rx="10" class="d-soft"/><text x="630" y="133" text-anchor="middle" class="d-small">catch не подошёл по типу</text>
+
+        <rect x="30" y="172" width="200" height="44" rx="10" class="d-green"/><text x="130" y="199" text-anchor="middle" class="d-text">finally ✔</text>
+        <rect x="280" y="172" width="200" height="44" rx="10" class="d-green"/><text x="380" y="199" text-anchor="middle" class="d-text">finally ✔</text>
+        <rect x="530" y="172" width="200" height="44" rx="10" class="d-green"/><text x="630" y="199" text-anchor="middle" class="d-text">finally ✔</text>
+
+        <rect x="30" y="238" width="200" height="44" rx="10" class="d-accent"/><text x="130" y="265" text-anchor="middle" class="d-text">код после</text>
+        <rect x="280" y="238" width="200" height="44" rx="10" class="d-accent"/><text x="380" y="265" text-anchor="middle" class="d-text">код после</text>
+        <rect x="530" y="238" width="200" height="44" rx="10" class="d-red"/><text x="630" y="259" text-anchor="middle" class="d-small">исключение летит</text><text x="630" y="275" text-anchor="middle" class="d-small">дальше по стеку</text>
+
+        <path d="M130 86 V102" class="d-arrow"/><path d="M130 152 V168" class="d-arrow"/><path d="M130 218 V234" class="d-arrow"/>
+        <path d="M380 86 V102" class="d-arrow"/><path d="M380 152 V168" class="d-arrow"/><path d="M380 218 V234" class="d-arrow"/>
+        <path d="M630 86 V102" class="d-arrow"/><path d="M630 152 V168" class="d-arrow"/><path d="M630 218 V234" class="d-arrow"/>
+        <text x="380" y="308" text-anchor="middle" class="d-small">зелёная строка есть во всех трёх сценариях — в этом весь смысл finally</text>
+      </svg>
+      <figcaption>Даже когда исключение никто не перехватил (③), finally успевает выполниться перед тем, как исключение полетит дальше.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: уходя с кухни, выключи плиту</span>
+      <p>Ужин удался, сгорел или тебе срочно позвонили и пришлось убежать — плиту выключаешь в любом случае. finally — это «выключить плиту»: действие, которое нельзя пропустить ни при каком исходе.</p>
+    </div>
+    <p>Блок catch при этом не обязателен: бывает <code>try { … } finally { … }</code> без catch — «ловить не буду, но прибраться за собой обязан». А вот одинокий <code>try</code> без catch и без finally не скомпилируется: <code>'try' without 'catch', 'finally' or resource declarations</code>.</p>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа и в каком порядке? <code>try { print("A"); int x = 5 / 0; print("B"); } finally { print("C"); } print("D");</code> — catch нет.</summary>
+      <p><b>A, C</b>, а потом stack trace ArithmeticException. «B» пропущена — после исключения. «C» — finally выполняется даже без catch. «D» не напечатается: исключение никто не перехватил, оно полетело дальше по стеку и уронило программу. Это сценарий ③ со схемы.</p>
+      <div data-widget="ide" id="shot-finally-uncaught">
+        <script type="application/json">
+        { "tree": false, "file": "NoCatch.java", "runConfig": "NoCatch", "statusPath": "module-12", "gutterRun": [1, 2],
+          "code": "public class NoCatch {\n    public static void main(String[] args) {\n        try {\n            System.out.println(\"A\");\n            int x = 5 / 0;\n            System.out.println(\"B\");\n        } finally {\n            System.out.println(\"C\");\n        }\n        System.out.println(\"D\");\n    }\n}",
+          "warnings": [ { "line": 5, "text": "5 / 0", "msg": "Division by zero" } ],
+          "unused": [ { "line": 5, "text": "x" } ],
+          "console": { "title": "NoCatch", "lines": [
+            { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… NoCatch" },
+            { "t": "out", "s": "A" },
+            { "t": "out", "s": "C" },
+            { "t": "err", "s": "Exception in thread \"main\" java.lang.ArithmeticException: / by zero" },
+            { "t": "err", "s": "\tat NoCatch.main(NoCatch.java:5)" },
+            { "t": "exit", "s": "Process finished with exit code 1" } ] },
+          "marks": [ { "n": 1, "target": "output-2", "text": "<b>C</b> напечаталась: finally выполнился, хотя исключение никто не перехватил" },
+                     { "n": 2, "target": "error", "text": "Только после finally исключение полетело дальше и JVM напечатала stack trace" },
+                     { "n": 3, "target": "link-1", "text": "Упало на строке 5 — делении на ноль. Ни B, ни D в выводе нет" },
+                     { "n": 4, "target": "exit", "text": "<b>exit code 1</b>: finally прибрался, но аварию не отменил — это делает только catch" } ],
+          "caption": "Сценарий ③: finally есть, catch нет" }
+        </script>
+      </div>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Головоломка: finally и return</h2>
+    <p>Самый популярный вопрос про исключения на собеседовании. В try стоит <code>return</code> — метод вроде бы уже закончился. Выполнится ли finally?</p>
+<pre data-file="ReturnPuzzle.java"><code class="java">public class ReturnPuzzle {
+    public static void main(String[] args) {
+        System.out.println(check());
+    }
+
+    static String check() {
+        try {
+            System.out.println("try");
+            return "из try";
+        } finally {
+            System.out.println("finally");
+        }
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи вывод — три строки.</summary>
+      <p><b>try, finally, из try.</b> Да, finally выполняется <b>даже после return</b>. Посмотри по шагам, как это происходит.</p>
+    </details>
+    <div data-widget="trace" id="trace-m12-04-return">
+      <script type="application/json">
+      { "title": "return из try и finally", "icon": "🧩",
+        "intro": "Смотри на стек: return сначала вычисляет значение и «откладывает» его, потом выполняется finally, и только потом метод действительно заканчивается.",
+        "code": "public class ReturnPuzzle {\n    public static void main(String[] args) {\n        System.out.println(check());\n    }\n\n    static String check() {\n        try {\n            System.out.println(\"try\");\n            return \"из try\";\n        } finally {\n            System.out.println(\"finally\");\n        }\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "note": "Чтобы напечатать, нужно сначала вычислить аргумент — вызвать check()." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": {} }, { "frame": "check", "vars": {} } ], "out": "try\n", "note": "Внутри try печатаем «try»." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "check", "vars": { "(ответ)": "\"из try\"" } } ], "note": "return вычисляет значение «из try» и откладывает его в сторонку. Но выйти из метода пока нельзя: впереди finally." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "check", "vars": { "(ответ)": "\"из try\"" } } ], "out": "finally\n", "note": "finally выполняется перед выходом из метода." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "out": "из try\n", "note": "Теперь метод действительно закончился и вернул отложенное значение. main печатает его." }
+        ] }
+      </script>
+    </div>
+    <p>Два продолжения головоломки, оба любят на собеседованиях:</p>
+<pre data-file="ReturnPuzzle2.java"><code class="java">static int first() {
+    int x = 1;
+    try {
+        return x;
+    } finally {
+        x = 2;
+    }
+}
+
+static int second() {
+    try {
+        return 1;
+    } finally {
+        return 2;
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что вернут first() и second()?</summary>
+      <p><b>first() вернёт 1.</b> Значение для return вычислено и отложено <b>до</b> finally: в момент return x было 1. Изменение x в finally на отложенное значение уже не влияет.</p>
+      <p><b>second() вернёт 2.</b> return в finally «перебивает» return из try: отложенная 1 отбрасывается. Так делать нельзя никогда: return в finally ещё и тихо проглатывает исключение из try. IDEA подсветит это предупреждением.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Правило</span>
+      <p>В finally — только уборка: закрыть, освободить, выключить. Никаких <code>return</code> и никаких новых исключений. Если finally сам выбросит исключение, оно <b>заменит</b> исходное, и настоящая причина аварии потеряется.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Зачем finally: освобождаем ресурсы</h2>
+    <p><b>Ресурс</b> — то, что программа взяла у системы и обязана вернуть: открытый файл, соединение с базой данных, сетевое подключение к серверу. Не вернул — ресурс «утёк»: висит занятым, пока программа не закончится.</p>
+    <p>Классическая беда серверов: обработчик заказа открыл соединение с базой, упал на середине — и соединение так и осталось висеть. У базы их ограниченное число, скажем 100. После сотни упавших заказов свободных соединений нет, и магазин перестаёт отвечать всем покупателям. Решение — закрывать в finally:</p>
+<pre data-file="OrderSaver.java"><code class="java">DemoConnection db = new DemoConnection();
+try {
+    db.send("сохранить заказ №15");
+    // … ещё шаги, любой может упасть …
+} finally {
+    db.close();   // закроется при любом исходе
+}</code></pre>
+    <div class="say" data-mood="think"><p>В тестах на JUnit для такой уборки есть специальные методы, которые запускаются после каждого теста, — <code>@AfterEach</code>. Внутри JUnit они вызываются как раз в finally. Разберём их в модуле 17.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>try-с-ресурсами: закрывает само</h2>
+    <p>Писать <code>finally { x.close(); }</code> каждый раз скучно, и легко забыть. Поэтому в Java 7 появилась короткая запись — <b>try-with-resources</b> (try с ресурсами). Ресурс создаётся прямо в круглых скобках после <code>try</code> и закрывается автоматически:</p>
+<pre data-file="ConnectionDemo.java"><code class="java">public class ConnectionDemo {
+    public static void main(String[] args) {
+        try (DemoConnection db = new DemoConnection()) {
+            db.send("");
+            System.out.println("Заказ сохранён");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Заказ не сохранён: " + e.getMessage());
+        }
+    }
+}
+
+class DemoConnection implements AutoCloseable {
+    DemoConnection() {
+        System.out.println("Соединение открыто");
+    }
+
+    void send(String query) {
+        System.out.println("Отправляю «" + query + "»");
+        if (query.isEmpty()) {
+            throw new IllegalArgumentException("пустой запрос");
+        }
+    }
+
+    @Override
+    public void close() {
+        System.out.println("Соединение закрыто");
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-try-resources">
+      <script type="application/json">
+      { "tree": false, "file": "ConnectionDemo.java", "runConfig": "ConnectionDemo", "statusPath": "module-12", "gutterRun": [1, 2],
+        "code": "public class ConnectionDemo {\n    public static void main(String[] args) {\n        try (DemoConnection db = new DemoConnection()) {\n            db.send(\"\");\n            System.out.println(\"Заказ сохранён\");\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Заказ не сохранён: \" + e.getMessage());\n        }\n    }\n}",
+        "console": { "title": "ConnectionDemo", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ConnectionDemo" },
+          { "t": "out", "s": "Соединение открыто" },
+          { "t": "out", "s": "Отправляю «»" },
+          { "t": "out", "s": "Соединение закрыто" },
+          { "t": "out", "s": "Заказ не сохранён: пустой запрос" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-3", "text": "Ресурс создаётся в скобках после <code>try</code>" },
+                   { "n": 2, "target": "output-3", "text": "<b>Соединение закрыто</b> — метод <code>close()</code> вызвался автоматически, и <b>раньше</b> catch" },
+                   { "n": 3, "target": "output-4", "text": "Только потом сработал catch со своим сообщением" },
+                   { "n": 4, "target": "exit", "text": "exit code 0: исключение перехвачено, программа завершилась штатно, соединение не «утекло»" } ],
+        "caption": "try-с-ресурсами: порядок вывода в консоли Run" }
+      </script>
+    </div>
+    <ul>
+      <li>В скобки try можно положить только объект, который <b>реализует интерфейс <code>AutoCloseable</code></b> — помнишь интерфейсы из модуля 11? Это контракт «у меня есть метод <code>close()</code>». Scanner, файлы, соединения его реализуют.</li>
+      <li>Строка <code>throw new …</code> <b>создаёт объект исключения и выбрасывает</b> его — «бросает» исключение сами. Подробно в уроке 6.</li>
+      <li>Заметь порядок: «Соединение закрыто» напечаталось <b>раньше</b>, чем «Заказ не сохранён». Ресурс закрывается сразу при выходе из try — до catch и finally.</li>
+    </ul>
+    <p>Scanner — тоже ресурс. Поэтому IDEA иногда подчёркивает <code>new Scanner(System.in)</code> жёлтым: «ресурс не закрыт». Можно так:</p>
+<pre data-file="ScannerResource.java"><code class="java">try (Scanner scanner = new Scanner(System.in)) {
+    String name = scanner.nextLine();
+    System.out.println("Привет, " + name);
+}   // здесь scanner.close() вызовется сам</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Осторожно с System.in</span>
+      <p>Закрытый Scanner закрывает и <code>System.in</code> — клавиатуру до конца программы уже не прочитать, даже новым Scanner. Поэтому в маленьких программах курса Scanner для клавиатуры можно не закрывать. А для файлов try-с-ресурсами — правило хорошего тона. Подробно — в модуле 15 «Файлы и ввод-вывод».</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: когда finally всё-таки НЕ выполнится</summary>
+      <p>Почти всегда — выполнится. Исключения из правила: <code>System.exit(0)</code> внутри try (программа завершается немедленно, JVM просто останавливается), бесконечный цикл в try (до finally дело не дойдёт), «убийство» процесса извне (кнопка Stop в IDEA) или падение самой JVM. Обычные return, break, continue и исключения finally не обходят.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m12-04">
+      <script type="application/json">
+      { "title": "finally — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет код?",
+            "code": "try {\n    System.out.println(\"A\");\n    Integer.parseInt(\"x\");\n    System.out.println(\"B\");\n} catch (NumberFormatException e) {\n    System.out.println(\"C\");\n} finally {\n    System.out.println(\"D\");\n}\nSystem.out.println(\"E\");",
+            "answer": "A\nC\nD\nE", "why": "Исключение → B пропущена → catch (C) → finally (D) → код после (E)." },
+          { "type": "single", "q": "Что вернёт метод?",
+            "code": "static int f() {\n    int x = 10;\n    try {\n        return x;\n    } finally {\n        x = 20;\n    }\n}",
+            "options": ["10", "20", "Ошибка компиляции"], "answer": 0,
+            "why": "Значение для return вычислено до finally: 10. Изменение x в finally уже ничего не меняет." },
+          { "type": "single", "q": "Что вернёт метод?",
+            "code": "static int g() {\n    try {\n        return 1;\n    } finally {\n        return 2;\n    }\n}",
+            "options": ["1", "2", "Ошибка компиляции"], "answer": 1,
+            "why": "return в finally перебивает return из try. Компилируется, но так писать нельзя." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "finally выполняется, даже если исключение никто не перехватил", "a": true },
+              { "s": "try без catch и без finally — допустимая запись", "a": false, "why": "нужен хотя бы один из них (или ресурс в скобках)." },
+              { "s": "В try-с-ресурсами ресурс закрывается автоматически", "a": true },
+              { "s": "В скобки try (…) можно положить любой объект", "a": false, "why": "только объект, реализующий AutoCloseable." }
+            ] },
+          { "type": "order", "q": "Расставь вывод программы ConnectionDemo по порядку",
+            "lines": ["Соединение открыто", "Отправляю «»", "Соединение закрыто", "Заказ не сохранён: пустой запрос"],
+            "why": "Ресурс закрывается сразу при выходе из try — раньше, чем выполнится catch." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 12.4. Задай мне три головоломки про finally и return, а я объясню каждую»</em>. После этого реши задачу <a href="/tasks.html?module=m12">m12-t02 «Кто за кем: try, catch, finally»</a>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>finally выполняется всегда: без исключения, с перехваченным и с неперехваченным. Даже после return в try.</li>
+        <li>return сначала вычисляет значение, потом выполняется finally, потом метод возвращает отложенное значение.</li>
+        <li>В finally — только уборка. return или исключение в finally перебивают результат и прячут настоящее исключение.</li>
+        <li>Ресурсы (файл, соединение с базой, сетевое подключение) закрывают в finally — или короче, через <code>try (Ресурс r = …) { }</code>.</li>
+        <li>try-с-ресурсами работает с AutoCloseable и закрывает ресурс до catch и finally. Подробно — модуль 15.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

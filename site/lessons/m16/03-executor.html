@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ExecutorService: пул потоков · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m16-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 16 · Урок 3</div>
+    <h1>ExecutorService: пул потоков</h1>
+    <p class="lead">Создавать поток на каждую задачу — как нанимать нового официанта на каждого гостя. В настоящих программах работает смена из нескольких официантов. Знакомимся с пулом потоков, Callable и Future.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🏊 пул потоков</span><span>🎟 Future</span><span>🛠 Мастерская</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m16-03-review">
+      <script type="application/json">
+      { "title": "Вспомним уроки 16.1–16.2", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Почему <code>count++</code> из двух потоков теряет обновления?",
+            "options": ["Потому что int слишком мал", "Это три действия: прочитать, увеличить, записать — и потоки вклиниваются между ними", "Потому что потоки не видят static-поля"], "answer": 1,
+            "why": "Оба потока могут прочитать одно и то же значение, и одно увеличение перезапишет другое." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "AtomicInteger n = new AtomicInteger(5);\nSystem.out.println(n.getAndIncrement() + \" \" + n.get());",
+            "answer": "5 6", "why": "Метод getAndIncrement возвращает старое значение (5) и увеличивает. Следующий вызов get() возвращает 6." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "synchronized (new Object()) { count++; } надёжно защищает счётчик", "a": false, "why": "каждый раз новый объект — свой замок у каждого, никто не ждёт." },
+              { "s": "У главного потока есть имя — main", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Почему не создавать Thread вручную</h2>
+    <p>Поток — дорогая штука: операционная система выделяет ему память под стек (обычно около мегабайта) и следит за ним. Создай поток на каждую из 10 000 задач — программа потратит больше времени на наём и увольнение, чем на работу, а то и упадёт от нехватки памяти.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: смена официантов</span>
+      <p>В ресторане не нанимают нового официанта на каждого гостя. Работает <b>смена</b> из четырёх человек. Заказы копятся в очереди на кухне; освободился официант — берёт следующий. Гостей сто, а официантов по-прежнему четыре. Это и есть <b>пул потоков</b> (thread pool).</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 270" role="img" aria-label="Очередь задач и пул из трёх потоков: свободный поток берёт следующую задачу">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="20" y="22" class="d-title">Твой код: submit(задача)</text>
+        <rect x="20" y="50" width="330" height="70" rx="12" class="d-soft"/>
+        <text x="34" y="44" class="d-small">очередь задач</text>
+        <rect x="34" y="64" width="62" height="42" rx="8" class="d-yellow"/><text x="65" y="91" text-anchor="middle" class="d-text">з7</text>
+        <rect x="112" y="64" width="62" height="42" rx="8" class="d-yellow"/><text x="143" y="91" text-anchor="middle" class="d-text">з6</text>
+        <rect x="190" y="64" width="62" height="42" rx="8" class="d-yellow"/><text x="221" y="91" text-anchor="middle" class="d-text">з5</text>
+        <rect x="268" y="64" width="62" height="42" rx="8" class="d-yellow"/><text x="299" y="91" text-anchor="middle" class="d-text">з4</text>
+        <rect x="430" y="20" width="310" height="230" rx="14" class="d-box"/>
+        <text x="585" y="46" text-anchor="middle" class="d-title">Пул: 3 потока</text>
+        <rect x="450" y="62" width="270" height="48" rx="10" class="d-teal"/>
+        <text x="466" y="91" class="d-text">pool-1-thread-1: з1</text>
+        <rect x="450" y="124" width="270" height="48" rx="10" class="d-teal"/>
+        <text x="466" y="153" class="d-text">pool-1-thread-2: з2</text>
+        <rect x="450" y="186" width="270" height="48" rx="10" class="d-green"/>
+        <text x="466" y="215" class="d-text">pool-1-thread-3: свободен</text>
+        <path d="M350 92 C400 100 400 200 446 208" class="d-arrow"/>
+        <text x="200" y="170" text-anchor="middle" class="d-small">освободился поток —</text>
+        <text x="200" y="190" text-anchor="middle" class="d-small">берёт следующую задачу (з4)</text>
+        <text x="200" y="240" text-anchor="middle" class="d-small">потоки не умирают после задачи,</text>
+        <text x="200" y="258" text-anchor="middle" class="d-small">а ждут новую — их переиспользуют</text>
+      </svg>
+      <figcaption>Задачи встают в очередь, а фиксированная смена потоков разбирает их по одной.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>ExecutorService: submit и shutdown</h2>
+    <p>Пул в Java — интерфейс <code>ExecutorService</code> (executor — «исполнитель»). Готовые пулы возвращают статические методы класса <code>Executors</code>:</p>
+<pre data-file="Waiters.java"><code class="java">import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Waiters {
+    public static void main(String[] args) {
+        ExecutorService pool = Executors.newFixedThreadPool(3);
+        for (int i = 1; i &lt;= 5; i++) {
+            int order = i;
+            pool.submit(() -&gt; System.out.println("Заказ " + order
+                    + " несёт " + Thread.currentThread().getName()));
+        }
+        pool.shutdown();
+        System.out.println("Приём заказов закрыт");
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-waiters">
+      <script type="application/json">
+      { "tree": false, "file": "Waiters.java", "runConfig": "Waiters", "statusPath": "module-16", "gutterRun": [4, 5],
+        "code": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Waiters {\n    public static void main(String[] args) {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        for (int i = 1; i <= 5; i++) {\n            int order = i;\n            pool.submit(() -> System.out.println(\n                    \"Заказ \" + order + \" несёт \" + Thread.currentThread().getName()));\n        }\n        pool.shutdown();\n        System.out.println(\"Приём заказов закрыт\");\n    }\n}",
+        "console": { "title": "Waiters", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Waiters" },
+          { "t": "out", "s": "Заказ 1 несёт pool-1-thread-1" }, { "t": "out", "s": "Заказ 3 несёт pool-1-thread-3" }, { "t": "out", "s": "Приём заказов закрыт" },
+          { "t": "out", "s": "Заказ 2 несёт pool-1-thread-2" }, { "t": "out", "s": "Заказ 4 несёт pool-1-thread-1" }, { "t": "out", "s": "Заказ 5 несёт pool-1-thread-3" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Имена потоков пула: <b>pool-1-thread-1</b> … <b>thread-3</b> — «пул номер 1, официант номер такой-то». Их ровно три, как мы и просили" },
+                   { "n": 2, "target": "output-3", "text": "Главный поток не ждал официантов: напечатал своё, пока заказы ещё разносили" },
+                   { "n": 3, "target": "output-5", "text": "Заказ 4 взял снова thread-1: освободившийся поток берёт следующую задачу из очереди" },
+                   { "n": 4, "target": "exit", "text": "Программа завершилась — потому что мы вызвали <code>shutdown()</code>" } ],
+        "caption": "Пул из трёх потоков разносит пять заказов" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>Executors.newFixedThreadPool(3)</code><div><p>Вызов статического метода <code>newFixedThreadPool</code> с аргументом 3: метод возвращает пул ровно из трёх потоков — смена из трёх официантов.</p></div></div>
+      <div class="annot-row"><code>int order = i;</code><div><p>Лямбда-выражение может использовать только «фактически final» локальные переменные, а <code>i</code> меняется. Поэтому объявляем переменную <code>order</code> и инициализируем её текущим значением <code>i</code> — на каждой итерации своя.</p></div></div>
+      <div class="annot-row"><code>pool.submit(задача)</code><div><p>Вызываем метод <code>submit</code> у пула и передаём ему аргументом задачу (здесь — лямбда-выражение): она встаёт в очередь. Метод не ждёт выполнения задачи — возвращает управление сразу.</p></div></div>
+      <div class="annot-row"><code>pool.shutdown()</code><div><p>Вызов <code>shutdown()</code> — «новых заказов не принимаем». Уже принятые задачи доделываются, потом потоки пула завершаются.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Что будет, если забыть pool.shutdown()?</summary>
+      <p>Все заказы разнесут, но <b>программа не завершится</b>: потоки пула стоят и ждут новых задач, а Java не выключается, пока работает хоть один обычный поток. В IDEA красный квадратик ■ так и будет гореть. Правило: создал пул — закрой.</p>
+      <div data-widget="ide" id="shot-no-shutdown">
+        <script type="application/json">
+        { "tree": false, "file": "Waiters.java", "runConfig": "Waiters", "statusPath": "module-16", "gutterRun": [4, 5],
+          "code": "import java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\npublic class Waiters {\n    public static void main(String[] args) {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        for (int i = 1; i <= 5; i++) {\n            int order = i;\n            pool.submit(() -> System.out.println(\n                    \"Заказ \" + order + \" несёт \" + Thread.currentThread().getName()));\n        }\n        System.out.println(\"Приём заказов закрыт\");\n    }\n}",
+          "console": { "title": "Waiters", "running": true, "lines": [
+            { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Waiters" },
+            { "t": "out", "s": "Заказ 1 несёт pool-1-thread-1" }, { "t": "out", "s": "Заказ 2 несёт pool-1-thread-2" }, { "t": "out", "s": "Приём заказов закрыт" },
+            { "t": "out", "s": "Заказ 3 несёт pool-1-thread-3" }, { "t": "out", "s": "Заказ 4 несёт pool-1-thread-1" }, { "t": "out", "s": "Заказ 5 несёт pool-1-thread-2" } ] },
+          "marks": [ { "n": 1, "target": "line-11", "side": "top", "text": "После цикла нет строки <code>pool.shutdown()</code>" },
+                     { "n": 2, "target": "output-6", "text": "Все заказы разнесли…" },
+                     { "n": 3, "target": "stop", "text": "…а строки <b>Process finished</b> нет, и красный квадрат ■ <b>Stop</b> горит: программа всё ещё работает. Остановить её можно только этой кнопкой (<kbd>Ctrl</kbd>+<kbd>F2</kbd>)" } ],
+          "caption": "Забыли shutdown(): программа не завершается после всей работы" }
+        </script>
+      </div>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: подождать окончания и try-with-resources</summary>
+      <p><code>shutdown()</code> не ждёт. Чтобы главный поток дождался всех задач, после него вызывают <code>pool.awaitTermination(10, TimeUnit.SECONDS)</code> — «жду не дольше 10 секунд». <code>shutdownNow()</code> — «бросайте всё»: потокам пула отправляется <code>interrupt()</code>.</p>
+      <p>С Java 19 пул можно закрывать как файл из модуля 15 — через try-with-resources. Метод <code>close()</code> сам вызовет <code>shutdown()</code> и дождётся всех задач:</p>
+<pre data-file="AutoClosePool.java"><code class="java">try (ExecutorService pool = Executors.newFixedThreadPool(3)) {
+    pool.submit(() -&gt; System.out.println("Работаю"));
+}   // здесь пул закрыт, все задачи выполнены</code></pre>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Callable и Future: задача с результатом</h2>
+    <p>Задача <code>Runnable</code> ничего не возвращает (<code>void run()</code>). А если задача должна <b>посчитать</b> что-то? Для этого есть функциональный интерфейс <b><code>Callable&lt;V&gt;</code></b> с методом <code>V call()</code> — задача с результатом: метод возвращает значение типа <code>V</code>. Если тело лямбда-выражения, переданного аргументом в <code>submit</code>, возвращает значение, компилятор сам поймёт, что это <code>Callable</code>, а <code>submit</code> вернёт объект <code>Future</code>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: номерок в бургерной</span>
+      <p>Сделал заказ — получил <b>чек с номером</b>. Бургера ещё нет, но есть обещание. Можно пока сходить за салфетками. Потом подходишь к стойке и <b>ждёшь</b>, пока не выдадут заказ по номеру. Чек — это <code>Future</code> («будущий результат»), а ожидание у стойки — метод <code>get()</code>.</p>
+    </div>
+<pre data-file="BurgerOrder.java"><code class="java">import java.util.concurrent.*;
+
+public class BurgerOrder {
+    public static void main(String[] args)
+            throws InterruptedException, ExecutionException {
+        ExecutorService kitchen = Executors.newFixedThreadPool(2);
+
+        Future&lt;String&gt; ticket = kitchen.submit(() -&gt; {
+            Thread.sleep(300);              // готовим
+            return "бургер";
+        });
+
+        System.out.println("Взял салфетки");
+        String food = ticket.get();         // ждём у стойки
+        System.out.println("Получил: " + food);
+        kitchen.shutdown();
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-burger">
+      <script type="application/json">
+      { "tree": false, "file": "BurgerOrder.java", "runConfig": "BurgerOrder", "statusPath": "module-16", "gutterRun": [3, 4],
+        "code": "import java.util.concurrent.*;\n\npublic class BurgerOrder {\n    public static void main(String[] args) throws InterruptedException, ExecutionException {\n        ExecutorService kitchen = Executors.newFixedThreadPool(2);\n\n        Future<String> ticket = kitchen.submit(() -> {\n            Thread.sleep(300);              // готовим\n            return \"бургер\";\n        });\n\n        System.out.println(\"Взял салфетки\");\n        String food = ticket.get();         // ждём у стойки\n        System.out.println(\"Получил: \" + food);\n        kitchen.shutdown();\n    }\n}",
+        "console": { "title": "BurgerOrder", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… BurgerOrder" },
+          { "t": "out", "s": "Взял салфетки" }, { "t": "out", "s": "Получил: бургер" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Пока бургер готовится в пуле, главный поток успел сходить за салфетками" },
+                   { "n": 2, "target": "line-13", "side": "top", "text": "Здесь главный поток стоит и ждёт: вызов <code>get()</code> не вернёт управление, пока задача не вернёт результат (примерно 0,3 секунды)" },
+                   { "n": 3, "target": "output-2", "text": "Результат задачи пришёл через «чек» <code>Future</code>" } ],
+        "caption": "Callable и Future: вывод всегда в этом порядке" }
+      </script>
+    </div>
+    <p>Этот вывод <b>всегда</b> одинаковый: вызов <code>get()</code> не вернёт управление главному потоку, пока результат не готов. Сравни с первым уроком, где порядок был случайным.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th><code>Runnable</code></th><th><code>Callable&lt;V&gt;</code></th></tr>
+        <tr><td>Метод</td><td><code>void run()</code></td><td><code>V call() throws Exception</code></td></tr>
+        <tr><td>Результат</td><td>нет</td><td>есть — забираем через <code>Future.get()</code></td></tr>
+        <tr><td>Проверяемые исключения</td><td>бросать нельзя, только ловить внутри</td><td>можно бросать — поэтому <code>sleep</code> в примере без try</td></tr>
+        <tr><td>Где работает</td><td><code>new Thread(…)</code>, <code>submit</code></td><td>только <code>submit</code> пула</td></tr>
+      </table>
+    </div>
+    <dl class="terms">
+      <dt>future.get()</dt><dd>Вызов метода <code>get()</code> у объекта <code>Future</code>: ждёт результат задачи и возвращает его. Если задача упала с исключением, <code>get()</code> бросит <code>ExecutionException</code>, а настоящая причина — внутри, в <code>getCause()</code>.</dd>
+      <dt>future.get(2, TimeUnit.SECONDS)</dt><dd>Тот же метод с двумя аргументами: ждать не дольше двух секунд, потом — <code>TimeoutException</code>. Так не зависнешь навсегда.</dd>
+      <dt>future.isDone()</dt><dd>Готово ли уже? Не ждёт, просто отвечает <code>true</code>/<code>false</code>.</dd>
+    </dl>
+    <details class="predict">
+      <summary>В задаче вылетело ArithmeticException (деление на ноль). Что увидит главный поток?</summary>
+      <p>Пока он не вызвал <code>get()</code> — ничего: исключение тихо лежит внутри <code>Future</code>. На <code>get()</code> вылетит <code>ExecutionException</code>, причина — <code>ArithmeticException</code>. Поэтому результат задач всегда забирают через <code>get()</code>, иначе ошибки потеряются.</p>
+    </details>
+    <p>Вот как это выглядит в панели Run. Stack trace теперь из двух частей:</p>
+    <div data-widget="ide" id="shot-execution-exception">
+      <script type="application/json">
+      { "tree": false, "file": "BadOrder.java", "runConfig": "BadOrder", "statusPath": "module-16", "gutterRun": [3, 4],
+        "code": "import java.util.concurrent.*;\n\npublic class BadOrder {\n    public static void main(String[] args) throws InterruptedException, ExecutionException {\n        ExecutorService kitchen = Executors.newFixedThreadPool(2);\n        Future<Integer> ticket = kitchen.submit(() -> 10 / 0);\n        kitchen.shutdown();\n        System.out.println(\"Ждём заказ...\");\n        int result = ticket.get();\n        System.out.println(\"Готово: \" + result);\n    }\n}",
+        "warnings": [ { "line": 6, "text": "10 / 0", "msg": "Division by zero" } ],
+        "console": { "title": "BadOrder", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… BadOrder" },
+          { "t": "out", "s": "Ждём заказ..." },
+          { "t": "err", "s": "Exception in thread \"main\" java.util.concurrent.ExecutionException: java.lang.ArithmeticException: / by zero" },
+          { "t": "err", "s": "\tat BadOrder.main(BadOrder.java:9)" },
+          { "t": "err", "s": "Caused by: java.lang.ArithmeticException: / by zero" },
+          { "t": "err", "s": "\tat BadOrder.lambda$main$0(BadOrder.java:6)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "Главный поток получил <b>ExecutionException</b> — «задача в пуле упала». После двоеточия уже видна причина" },
+                   { "n": 2, "target": "link-1", "text": "Где это заметил главный поток: строка 9, вызов <code>get()</code>" },
+                   { "n": 3, "target": "error-3", "text": "<b>Caused by</b> — «вызвано тем, что…». Это и есть настоящая ошибка: деление на ноль" },
+                   { "n": 4, "target": "link-2", "text": "А случилась она в строке 6, в теле лямбды. <code>lambda$main$0</code> — так Java называет первую лямбду в методе <code>main</code>. Щёлкни по синей ссылке — IDEA откроет эту строку" } ],
+        "caption": "Ошибка задачи из пула: ExecutionException и Caused by (служебные строки JDK убраны для краткости)" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Читай stack trace до конца</span>
+      <p>Самое интересное часто не в первой строке, а ниже, после <b>Caused by</b>. Так бывает везде, где одно исключение «заворачивают» в другое: в пулах потоков, во фреймворках вроде Spring, в библиотеках для работы с сетью и базами данных.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Мастерская: делим работу на части</h2>
+    <p><b>Задача.</b> Сервер интернет-магазина записал, за сколько миллисекунд он ответил на каждый запрос. Нужно посчитать, сколько запросов <b>медленные</b> (дольше 1000 мс), разделив массив на <code>k</code> частей и посчитав каждую часть в своей задаче пула. Идём по шаблону.</p>
+    <p><b>Шаг 1. Вход и выход.</b> Вход — массив <code>times</code> длины <code>n</code> и число частей <code>k</code>. Выход — число медленных запросов. Примеры:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>times</th><th>k</th><th>Ответ</th><th>Зачем этот пример</th></tr>
+        <tr><td><code>[300, 1500, 800, 2000, 1200, 100, 900, 5000, 50, 1001]</code></td><td>3</td><td>5</td><td>обычный, части разного размера</td></tr>
+        <tr><td><code>[1500, 20]</code></td><td>4</td><td>1</td><td>частей больше, чем элементов</td></tr>
+        <tr><td><code>[]</code></td><td>2</td><td>0</td><td>граничный: пустой массив</td></tr>
+      </table>
+    </div>
+    <p><b>Шаг 2. Руками.</b> Как поделить 10 элементов на 3 части? 10 / 3 не делится нацело. Удобная формула: часть номер <code>i</code> начинается с индекса <code>i * n / k</code> и заканчивается перед <code>(i + 1) * n / k</code>. Деление целочисленное (модуль 3). Посчитаем:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>i</th><th>from = i·10/3</th><th>to = (i+1)·10/3</th><th>Индексы</th><th>Элементы</th><th>Медленных</th></tr>
+        <tr><td>0</td><td>0</td><td>3</td><td>0, 1, 2</td><td>300, 1500, 800</td><td>1</td></tr>
+        <tr><td>1</td><td>3</td><td>6</td><td>3, 4, 5</td><td>2000, 1200, 100</td><td>2</td></tr>
+        <tr><td>2</td><td>6</td><td>10</td><td>6 … 9</td><td>900, 5000, 50, 1001</td><td>2</td></tr>
+      </table>
+    </div>
+    <p>Части не пересекаются и покрывают весь массив: где кончилась одна, там началась следующая. Для <code>[1500, 20]</code> и <code>k = 4</code> границы 0, 0, 1, 1, 2 — первая и третья части пустые, и это нормально: цикл по пустой части просто не выполнится.</p>
+    <p><b>Шаг 3. Роли переменных.</b></p>
+    <dl class="terms">
+      <dt>i</dt><dd><b>Шагающая</b>: номер части, 0 … k − 1.</dd>
+      <dt>from, to</dt><dd><b>Временные</b> границы. Объявляются заново на каждой итерации — поэтому их можно использовать в лямбда-выражении.</dd>
+      <dt>slow</dt><dd><b>Счётчик</b> внутри задачи. У каждой задачи свой — никакой гонки.</dd>
+      <dt>parts</dt><dd>Список «чеков» <code>Future</code> — по одному на часть.</dd>
+      <dt>total</dt><dd><b>Накопитель</b> в главном потоке: складывает результаты частей.</dd>
+    </dl>
+    <p><b>Шаг 4. Псевдокод.</b></p>
+<pre class="terminal"><span class="out">создать пул из k потоков, пустой список чеков
+для i от 0 до k-1:
+    from ← i*n/k, to ← (i+1)*n/k
+    отдать пулу задачу: посчитать медленных в times[from..to), вернуть число
+    положить чек в список
+total ← 0
+для каждого чека: total ← total + чек.get()
+закрыть пул, напечатать total</span></pre>
+    <p><b>Шаг 5. Код</b> — строка в строку:</p>
+<pre data-file="SlowRequestsParallel.java"><code class="java">int[] times = {300, 1500, 800, 2000, 1200, 100, 900, 5000, 50, 1001};
+int n = times.length;
+int k = 3;
+
+ExecutorService pool = Executors.newFixedThreadPool(k);
+List&lt;Future&lt;Integer&gt;&gt; parts = new ArrayList&lt;&gt;();
+for (int i = 0; i &lt; k; i++) {
+    int from = i * n / k;
+    int to = (i + 1) * n / k;
+    parts.add(pool.submit(() -&gt; {
+        int slow = 0;
+        for (int j = from; j &lt; to; j++) {
+            if (times[j] &gt; 1000) slow++;
+        }
+        return slow;
+    }));
+}
+int total = 0;
+for (Future&lt;Integer&gt; part : parts) {
+    total += part.get();
+}
+pool.shutdown();
+System.out.println("Медленных запросов: " + total);</code></pre>
+    <p><b>Шаг 6. Трассировка.</b> Главный поток раздаёт части — посчитай границы сам.</p>
+    <div data-widget="trace" id="trace-m16-03-parts">
+      <script type="application/json">
+      { "title": "Раздаём части пулу", "icon": "✂️",
+        "intro": "n = 10, k = 3. Следим только за главным потоком: он считает границы и собирает чеки.",
+        "code": "for (int i = 0; i < k; i++) {\n    int from = i * n / k;\n    int to = (i + 1) * n / k;\n    parts.add(pool.submit(...));\n}\nint total = 0;\nfor (Future<Integer> part : parts) {\n    total += part.get();\n}",
+        "steps": [
+          { "line": 1, "vars": { "i": "0" }, "note": "Первая часть." },
+          { "line": 2, "vars": { "i": "0", "from": "0" }, "note": "0 * 10 / 3 = 0." },
+          { "line": 3, "vars": { "i": "0", "from": "0", "to": "3" }, "ask": ["to"], "note": "1 * 10 / 3 = 10 / 3 = 3 (целочисленно)." },
+          { "line": 4, "vars": { "i": "0", "from": "0", "to": "3", "parts": "[чек0]" }, "note": "Вызов submit положил задачу в пул и сразу вернул Future, его добавили в parts. Задача уже считает где-то в pool-1-thread-1. Главный поток не ждёт." },
+          { "line": 2, "vars": { "i": "1", "from": "3", "parts": "[чек0]" }, "ask": ["from"], "note": "1 * 10 / 3 = 3. Вторая часть начинается там, где кончилась первая." },
+          { "line": 3, "vars": { "i": "1", "from": "3", "to": "6", "parts": "[чек0]" }, "ask": ["to"], "note": "2 * 10 / 3 = 20 / 3 = 6." },
+          { "line": 4, "vars": { "i": "1", "from": "3", "to": "6", "parts": "[чек0, чек1]" }, "note": "Вторая задача в пуле." },
+          { "line": 3, "vars": { "i": "2", "from": "6", "to": "10", "parts": "[чек0, чек1]" }, "ask": ["to"], "note": "3 * 10 / 3 = 10 — ровно длина массива. Последняя часть доходит до конца." },
+          { "line": 4, "vars": { "i": "2", "from": "6", "to": "10", "parts": "[чек0, чек1, чек2]" }, "note": "Все три задачи отправлены. Возможно, некоторые уже посчитали." },
+          { "line": 8, "vars": { "parts": "[чек0, чек1, чек2]", "total": "1" }, "note": "Вызываем get() у первого Future: ждём, если ещё не готово; метод возвращает 1. В части 0 один медленный запрос." },
+          { "line": 8, "vars": { "parts": "[чек0, чек1, чек2]", "total": "3" }, "ask": ["total"], "note": "Во второй части медленных двое: 2000 и 1200. 1 + 2 = 3." },
+          { "line": 8, "vars": { "parts": "[чек0, чек1, чек2]", "total": "5" }, "ask": ["total"], "note": "В третьей ещё двое: 5000 и 1001. Итого 5 — и так при любом запуске, потому что собираем по порядку чеков." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Заметь: части <b>ничего не пишут в общие переменные</b>. Каждая считает своё и возвращает через <code>Future</code>, а складывает один главный поток. Нет общих изменяемых данных — нет гонки, и <code>synchronized</code> не нужен. Это самый надёжный способ писать многопоточный код.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m16-03">
+      <script type="application/json">
+      {
+       "title": "Пул потоков, Callable и Future",
+       "items": [
+        {
+         "type": "single",
+         "q": "Зачем нужен пул потоков вместо <code>new Thread</code> на каждую задачу?",
+         "options": [
+          "Потоки пула работают быстрее обычных",
+          "Потоки дорого создавать: пул переиспользует несколько потоков для многих задач",
+          "Без пула нельзя запустить больше одного потока"
+         ],
+         "answer": 1,
+         "why": "Пул — смена официантов: потоков немного, задач сколько угодно, и потоки не создаются заново."
+        },
+        {
+         "type": "match",
+         "q": "Соедини",
+         "left": [
+          "submit(задача)",
+          "shutdown()",
+          "future.get()",
+          "Callable"
+         ],
+         "right": [
+          "Положить задачу в очередь пула",
+          "Больше не принимать задачи, доделать принятые",
+          "Дождаться результата задачи",
+          "Задача, которая возвращает значение"
+         ],
+         "why": "Пул принимает задачи через submit, закрывается shutdown, результат — через get у Future."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "ExecutorService pool = Executors.newFixedThreadPool(2);\nFuture<Integer> f = pool.submit(() -> 6 * 7);\nSystem.out.println(\"Ответ: \" + f.get());\npool.shutdown();",
+         "answer": "Ответ: 42",
+         "why": "get() дождётся результата задачи и вернёт 42. Вывод детерминирован."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Если не вызвать shutdown(), программа может не завершиться",
+           "a": true
+          },
+          {
+           "s": "submit() ждёт, пока задача выполнится",
+           "a": false,
+           "why": "submit только ставит задачу в очередь и сразу возвращает Future."
+          },
+          {
+           "s": "Исключение внутри задачи главный поток увидит при вызове get() — как ExecutionException",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: виртуальные потоки (Java 21)</summary>
+      <p>Обычный поток Java — это поток операционной системы, их тысячи, не миллионы. В Java 21 появились <b>виртуальные потоки</b> — лёгкие, их можно создать миллион. Пока виртуальный поток ждёт (сеть, база, <code>sleep</code>), он не занимает настоящий поток. Пул для них: <code>Executors.newVirtualThreadPerTaskExecutor()</code> — по новому виртуальному потоку на каждую задачу. Код с <code>submit</code> и <code>Future</code> остаётся тем же. Для учёбы сейчас это не нужно, но слово на собеседовании могут упомянуть.</p>
+    </details>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 16.3. Объясню своими словами, что такое Future и зачем shutdown, — проверь меня. А потом дай задачу m16-t04»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пул потоков — смена официантов: несколько потоков разбирают очередь задач. В Java — <code>ExecutorService</code>, создаётся через <code>Executors.newFixedThreadPool(n)</code>.</li>
+        <li><code>submit</code> ставит задачу в очередь и сразу возвращает <code>Future</code>. <code>shutdown</code> закрывает приём задач — без него программа не завершится.</li>
+        <li>Задача <code>Callable</code> возвращает результат (метод <code>call()</code>) и может бросать проверяемые исключения; задача <code>Runnable</code> — нет.</li>
+        <li>Вызов <code>future.get()</code> ждёт и возвращает результат задачи; ошибку задачи приносит как <code>ExecutionException</code>.</li>
+        <li>Лучший многопоточный код — без общих изменяемых данных: каждая задача считает своё, главный поток собирает.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

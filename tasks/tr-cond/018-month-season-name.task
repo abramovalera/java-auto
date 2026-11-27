@@ -1,0 +1,46 @@
+## id: tr-cond-018
+## title: Время года
+## file: trainer/cond/MonthSeasonName.java
+## class: MonthSeasonName
+## level: 1
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>MonthSeasonName</code>. Программа читает номер месяца (1 — январь, 12 — декабрь) и печатает время года: <code>Зима</code>, <code>Весна</code>, <code>Лето</code> или <code>Осень</code>. Для чисел вне 1–12 — <code>Нет такого месяца</code>.</p>
+<pre class="terminal"><span class="out">ввод:  12
+вывод: Зима
+
+ввод:  13
+вывод: Нет такого месяца</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>case 12, 1, 2 -></code> — одна ветка для нескольких значений</li>
+</ul></div>
+@@ test: Декабрь — зима
+@@ input
+12
+@@ expect
+Зима
+@@ test: Январь — тоже зима
+@@ input
+1
+@@ expect
+Зима
+@@ test: Апрель
+@@ input
+4
+@@ expect
+Весна
+@@ test: Август
+@@ input
+8
+@@ expect
+Лето
+@@ test: Ноябрь
+@@ input
+11
+@@ expect
+Осень
+@@ test: 13-й месяц
+@@ input
+13
+@@ expect
+Нет такого месяца

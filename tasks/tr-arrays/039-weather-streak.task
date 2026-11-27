@@ -1,0 +1,48 @@
+## id: tr-arrays-039
+## title: Самая длинная серия погоды
+## file: trainer/arrays/LongestWeatherStreak.java
+## class: LongestWeatherStreak
+## level: 2
+## category: Отрезки и серии
+@@ description
+<p>Напиши класс <code>LongestWeatherStreak</code>. Дневник погоды: на каждый день — одно слово (<code>солнце</code>, <code>дождь</code>, <code>снег</code>…). В первой строке — количество дней <code>n</code> (n ≥ 1), во второй — <code>n</code> слов через пробел. Найди самую длинную серию <b>подряд идущих</b> одинаковых дней и напечатай <code>погода x длина</code>, например <code>дождь x3</code>. Если самых длинных серий несколько — первую.</p>
+<pre class="terminal"><span class="out">ввод:  7
+       солнце дождь дождь солнце дождь дождь дождь
+вывод: дождь x3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>String[] days = new String[n];</code> и <code>scanner.next()</code> — массив слов</li>
+<li>строки сравнивай через <code>a.equals(b)</code>, а не <code>==</code></li>
+<li>держи две длины: текущей серии и лучшей; текущая сбрасывается в 1, когда погода сменилась</li>
+</ul></div>
+@@ test: Неделя
+@@ input
+7
+солнце дождь дождь солнце дождь дождь дождь
+@@ expect
+дождь x3
+@@ test: Ничья — первая
+@@ input
+4
+снег снег туман туман
+@@ expect
+снег x2
+@@ test: Один день
+@@ input
+1
+туман
+@@ expect
+туман x1
+@@ test: Всё время одно
+@@ input
+3
+солнце солнце солнце
+@@ expect
+солнце x3
+@@ test: Без повторов
+@@ input
+3
+дождь снег солнце
+@@ expect
+дождь x1
+@@ require: String\s*\[\s*\] | Сохрани дни в массив String[]
+@@ require: \.equals\s*\( | Строки сравнивай через equals

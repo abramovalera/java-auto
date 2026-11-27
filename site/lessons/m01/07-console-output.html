@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вывод в консоль · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m01-07">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 1 · Урок 6</div>
+    <h1>Вывод в консоль</h1>
+    <p class="lead">Консоль — первый способ программы «поговорить» с тобой. Научимся печатать в ней что угодно: несколько строк, текст с кавычками, таблички и даже результаты вычислений.</p>
+    <div class="meta"><span>⏱ 25–30 минут</span><span>⌨️ много практики — открой IDEA</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Песочница в IDEA</h2>
+    <p><strong>Консоль</strong> — это панель Run внизу IDEA, куда программа печатает текст. Через неё программа сообщает результат, а программист подглядывает, что происходит внутри. Даже в больших программах консоль пригодится: туда пишут, какой шаг сейчас выполняется и что пошло не так.</p>
+    <div class="callout try">
+      <span class="callout-title">Как проходить этот урок</span>
+      <p>В твоём проекте есть синяя папка <code>training</code> — <b>тренировочная</b>: туда до конца курса пойдут все примеры из уроков (схема проекта — в <a href="/lessons/m01/03-setup-idea.html">уроке 1.3</a>). Один раз заведи в ней песочницу:</p>
+      <ol>
+        <li>Правый клик по папке <code>training</code> → <b>New → Java Class</b> → <code>Playground</code>.</li>
+        <li>Внутри — точка входа <code>main</code> (<code>psvm</code> + <kbd>Tab</kbd>), как в <a href="/lessons/m01/04-first-program-idea.html">уроке 1.4</a>.</li>
+      </ol>
+      <p>Нет папки <code>training</code> или она серая? Правый клик по <code>workspace</code> → New → Directory → <code>training</code>, затем правый клик по ней → Mark Directory as → Sources Root.</p>
+      <p>Дальше в уроках будут два вида кода. <b>Кусочек без класса</b> — набираешь внутрь <code>main</code> песочницы (старое можно стирать). <b>Целая программа с <code>class</code></b> — создаёшь в <code>training</code> новый класс с таким именем. Над каждым примером есть кнопка «✍️ Куда набирать?» — она напомнит. <strong>Набирай руками</strong> и перед каждым запуском ▶ пробуй угадать, что выведет программа.</p>
+    </div>
+    <div data-widget="ide" id="shot-playground">
+      <script type="application/json">
+      { "project": "workspace", "runConfig": "Playground",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "src", "depth": 1 },
+                  { "name": "training", "type": "src", "depth": 1, "open": true, "note": "примеры из уроков" },
+                  { "name": "Playground", "type": "class", "depth": 2, "selected": true } ],
+        "file": "Playground.java", "gutterRun": [1, 2],
+        "code": "public class Playground {\n    public static void main(String[] args) {\n        System.out.println(\"Песочница работает!\");\n    }\n}",
+        "console": { "title": "Playground", "lines": [ { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Playground" }, { "t": "out", "s": "Песочница работает!" }, { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tree-Playground", "text": "Песочница <code>Playground</code> в синей папке <code>training</code> — тут живут все примеры из уроков" },
+                   { "n": 2, "target": "line-3", "side": "top", "text": "Сюда, внутрь <code>main</code>, вставляешь строчки из примеров урока" },
+                   { "n": 3, "target": "console", "text": "<b>Консоль</b> — панель <b>Run</b> внизу. Её заголовок — имя запущенного класса" },
+                   { "n": 4, "target": "output", "text": "Всё, что напечатали <code>print</code> и <code>println</code>, появляется здесь, строка за строкой" } ],
+        "caption": "Песочница Playground и её консоль" }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p>Примеры ниже — это строчки для вставки <b>внутрь main</b> твоей песочницы. Класс и <code>main</code> вокруг них я не повторяю, чтобы не загромождать.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>print и println</h2>
+    <p>Ты уже знаешь метод <code>System.out.println</code>. У него есть «брат» — метод <code>System.out.print</code>, без <code>ln</code>. Разница в одном: что происходит <strong>после</strong> печати.</p>
+    <ul>
+      <li><code>println</code> (<em>print line</em>) — печатает текст и <strong>переходит на новую строку</strong>.</li>
+      <li><code>print</code> — печатает текст и <strong>остаётся на той же строке</strong>. Следующий вывод приклеится сразу за ним.</li>
+    </ul>
+    <p>Чтобы это увидеть, представь <strong>каретку</strong> — невидимый курсор в консоли, который показывает, куда попадёт следующий символ.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 312" role="img" aria-label="print оставляет каретку на той же строке, println переводит её на новую">
+        <text x="180" y="28" text-anchor="middle" class="d-title">print — каретка остаётся</text>
+        <rect x="20" y="42" width="320" height="88" rx="10" class="d-code"/>
+        <text x="34" y="70" class="d-mono">System.out.print("Раз, ");</text>
+        <text x="34" y="92" class="d-mono">System.out.print("два, ");</text>
+        <text x="34" y="114" class="d-mono">System.out.print("три!");</text>
+        <rect x="20" y="150" width="320" height="120" rx="10" class="d-box"/>
+        <text x="34" y="170" class="d-small">консоль</text>
+        <text x="34" y="196" class="d-mono-ink">Раз, два, три!</text>
+        <rect x="150" y="182" width="9" height="18" class="d-c-accent"/>
+        <text x="180" y="290" text-anchor="middle" class="d-small">всё на одной строке, каретка сразу за «!»</text>
+
+        <text x="560" y="28" text-anchor="middle" class="d-title">println — каретка переходит вниз</text>
+        <rect x="400" y="42" width="320" height="88" rx="10" class="d-code"/>
+        <text x="414" y="70" class="d-mono">System.out.println("Раз");</text>
+        <text x="414" y="92" class="d-mono">System.out.println("Два");</text>
+        <text x="414" y="114" class="d-mono">System.out.println("Три");</text>
+        <rect x="400" y="150" width="320" height="120" rx="10" class="d-box"/>
+        <text x="414" y="170" class="d-small">консоль</text>
+        <text x="414" y="196" class="d-mono-ink">Раз</text>
+        <text x="414" y="218" class="d-mono-ink">Два</text>
+        <text x="414" y="240" class="d-mono-ink">Три</text>
+        <rect x="414" y="248" width="9" height="17" class="d-c-accent"/>
+        <text x="560" y="284" text-anchor="middle" class="d-small">каждая на своей строке,</text><text x="560" y="300" text-anchor="middle" class="d-small">каретка уже на следующей</text>
+      </svg>
+      <figcaption>Оранжевый прямоугольник — каретка: сюда попадёт следующий символ.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: пишущая машинка</span>
+      <p>На старой пишущей машинке после каждой буквы каретка сдвигалась вправо, а чтобы начать новую строку, нужно было дёрнуть рычаг. <code>print</code> — печатает и не трогает рычаг. <code>println</code> — печатает и в конце дёргает рычаг.</p>
+    </div>
+    <details class="predict">
+      <summary>Что выведет: print("А"); println("Б"); print("В");</summary>
+<pre class="terminal"><span class="out">АБ
+В</span></pre>
+      <p><code>print("А")</code> оставил каретку после «А», и «Б» приклеилась к ней. <code>println</code> после «Б» перевёл строку, и «В» оказалась на новой.</p>
+    </details>
+    <p>Если вызвать <code>println</code> без аргумента — с пустыми скобками, — он просто переведёт строку. Так удобно делать пустую строку между блоками текста:</p>
+<pre data-file="Playground.java"><code class="java">System.out.println("Глава 1");
+System.out.println();            // пустая строка
+System.out.println("Жил-был код...");</code></pre>
+<pre class="terminal"><span class="out">Глава 1
+
+Жил-был код...</span></pre>
+    <div class="callout warn">
+      <span class="callout-title">А print() так нельзя</span>
+      <p>Вызов <code>System.out.print()</code> без аргумента, с пустыми скобками, — ошибка компиляции: «напечатай ничего и останься на месте» бессмысленно, и Java такого не разрешает. IDEA сразу подчеркнёт это красным.</p>
+    </div>
+    <div data-widget="ide" id="shot-print-empty">
+      <script type="application/json">
+      { "tree": false, "file": "Playground.java", "gutterRun": [1, 2],
+        "code": "public class Playground {\n    public static void main(String[] args) {\n        System.out.print(\"Привет\");\n        System.out.print();\n    }\n}",
+        "errors": [ { "line": 4, "text": "print()" } ],
+        "build": { "file": "Playground.java", "errors": [ { "msg": "no suitable method found for print(no arguments)", "line": 4, "col": 19 } ] },
+        "marks": [ { "n": 1, "target": "err-4", "text": "Красная волна под <code>print()</code>: вариант без аргументов IDEA найти не может" },
+                   { "n": 2, "target": "build-err-1", "text": "Если всё же нажать ▶ — сборка остановится. <b>no suitable method found for print(no arguments)</b> — «нет подходящего print без аргументов»" },
+                   { "n": 3, "target": "build-out", "text": "<b>:4:19</b> — строка 4, символ 19. Программа не запускалась, поэтому даже «Привет» из строки 3 не напечатан" } ],
+        "caption": "print() с пустыми скобками — ошибка компиляции" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Строки и спецсимволы</h2>
+    <p>Всё, что внутри кавычек, Java печатает как есть — даже если там что-то похожее на код:</p>
+<pre><code class="java">System.out.println("System.out.println(1 + 1);");</code></pre>
+<pre class="terminal"><span class="out">System.out.println(1 + 1);</span></pre>
+    <p>Но <strong>как напечатать саму кавычку?</strong> Ведь кавычка для Java значит «строка закончилась». Для этого есть <strong>спецсимволы</strong> (<em>escape-последовательности</em>): обратный слеш <code>\</code> и символ после него. Слеш говорит Java: «следующий символ — особенный, не понимай его буквально».</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Пишешь в строке</th><th>Что получится</th><th>Пример</th></tr></thead>
+        <tbody>
+          <tr><td><code>\n</code></td><td>перенос строки (<em>new line</em>)</td><td><code>"Раз\nДва"</code> → две строки</td></tr>
+          <tr><td><code>\t</code></td><td>табуляция — большой отступ, как клавиша <kbd>Tab</kbd></td><td><code>"Имя\tВозраст"</code> → <code>Имя&nbsp;&nbsp;&nbsp;&nbsp;Возраст</code></td></tr>
+          <tr><td><code>\"</code></td><td>двойная кавычка</td><td><code>"Он сказал: \"Привет\""</code> → <code>Он сказал: "Привет"</code></td></tr>
+          <tr><td><code>\\</code></td><td>сам обратный слеш</td><td><code>"C:\\Users"</code> → <code>C:\Users</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+<pre data-file="Playground.java"><code class="java">System.out.println("Строка 1\nСтрока 2");
+System.out.println("Товар\tЦена");
+System.out.println("Кофе\t150");
+System.out.println("Мама сказала: \"Иди обедать!\"");
+System.out.println("Папка: D:\\Games\\Java");</code></pre>
+<pre class="terminal"><span class="out">Строка 1
+Строка 2
+Товар   Цена
+Кофе    150
+Мама сказала: "Иди обедать!"
+Папка: D:\Games\Java</span></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: «внимание, шутка!»</span>
+      <p>Обратный слеш — как фраза «внимание, это не всерьёз» перед репликой. Без неё кавычка значит «конец строки», с ней — «просто нарисуй кавычку». <code>\n</code> — не «буква n», а «перенеси строку». <code>\\</code> — «нарисуй сам слеш».</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Слеш не тот</span>
+      <p>Спецсимволы начинаются с <strong>обратного</strong> слеша <code>\</code> (наклон влево, клавиша над <kbd>Enter</kbd>). Прямой слеш <code>/</code> — обычный символ: <code>"1/2"</code> печатается как есть.</p>
+    </div>
+    <p>А если после <code>\</code> стоит буква, которой нет в таблице, IDEA сразу покажет ошибку. Частый случай — путь к папке с одиночными слешами:</p>
+    <div data-widget="ide" id="shot-illegal-escape">
+      <script type="application/json">
+      { "tree": false, "file": "Playground.java", "gutterRun": [1, 2],
+        "code": "public class Playground {\n    public static void main(String[] args) {\n        System.out.println(\"Папка: D:\\Games\");\n    }\n}",
+        "errors": [ { "line": 3, "text": "\\G", "msg": "Illegal escape character in string literal", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Подчёркнуты два символа: <code>\\G</code>. Java прочитала слеш как «внимание, спецсимвол», а спецсимвола <code>\\G</code> не существует" },
+                   { "n": 2, "target": "tip", "text": "<b>Illegal escape character in string literal</b> — «недопустимый спецсимвол в строке». <code>javac</code> скажет короче: <code>illegal escape character</code>. Починка — удвоить слеш: <code>D:\\\\Games</code>" } ],
+        "caption": "Одиночный обратный слеш перед обычной буквой" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Как одним вызовом println вывести три строки: «Раз», «Два», «Три»?</summary>
+      <p>Поставить между словами <code>\n</code>: <code>System.out.println("Раз\nДва\nТри");</code>. Результат как от трёх отдельных вызовов <code>println</code>. Какой вариант выбрать — дело вкуса: три <code>println</code> обычно читать проще.</p>
+    </details>
+    <div data-widget="check" id="check-m01-07-a">
+      <script type="application/json">
+      {
+       "title": "Разминка: print, println и спецсимволы",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что напечатает этот код?",
+         "code": "System.out.print(\"Hi\");\nSystem.out.print(\"!\");\nSystem.out.println();\nSystem.out.println(\"Bye\");",
+         "answer": "Hi!\nBye",
+         "why": "<code>print</code> не переводит строку — «!» приклеился к «Hi». Пустой <code>println()</code> перевёл строку, и «Bye» — уже на новой."
+        },
+        {
+         "type": "predict",
+         "q": "А этот?",
+         "code": "System.out.println(\"a\\\\nb\");",
+         "answer": "a\\nb",
+         "why": "<code>\\\\</code> превращается в один обратный слеш, а следующая <code>n</code> — обычная буква. Переноса строки не будет."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "System.out.println(\"Путь: C:\\\\Java\");\nSystem.out.println(\"Путь: C:\\Java\");\nSystem.out.println(\"Путь: C:/Java\");",
+         "answer": [
+          2
+         ],
+         "why": "Одиночный <code>\\J</code> — такого спецсимвола нет: ошибка <em>illegal escape character</em>. Первая строка выведет <code>C:\\Java</code>, третья — <code>C:/Java</code>."
+        },
+        {
+         "type": "single",
+         "q": "Какая из инструкций не скомпилируется?",
+         "options": [
+          "System.out.println();",
+          "System.out.print();",
+          "System.out.print(\"\");"
+         ],
+         "answer": 1,
+         "why": "<code>println()</code> просто переводит строку, а <code>print()</code> без аргумента бессмыслен. <code>print(\"\")</code> законен: печатает пустую строку."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Склейка строк через +</h2>
+    <p>Знак <code>+</code> между строками их <strong>склеивает</strong> — по-научному <em>конкатенация</em>:</p>
+<pre><code class="java">System.out.println("Привет, " + "Вася" + "!");
+System.out.println("Привет," + "Вася");</code></pre>
+<pre class="terminal"><span class="out">Привет, Вася!
+Привет,Вася</span></pre>
+    <p>Видишь вторую строку? Java не добавляет пробелы сама: склейка — это буквально «приставить одно к другому». Пробел кладут внутрь одной из строк.</p>
+    <p>Строку можно склеивать и с числом — число превратится в текст:</p>
+<pre><code class="java">System.out.println("Мне " + 17 + " лет");</code></pre>
+<pre class="terminal"><span class="out">Мне 17 лет</span></pre>
+    <p>Зачем, если можно написать <code>"Мне 17 лет"</code> целиком? Сейчас — незачем. Но уже в модуле 2 вместо 17 будет стоять <strong>переменная</strong>, и склейка станет главным способом собрать текст из кусочков. Например, так собирают сообщения вроде <code>"Товаров в корзине: " + count</code>.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Java как калькулятор</h2>
+    <p>Если передать в <code>println</code> аргументом число без кавычек, Java напечатает число. А если написать в скобках <strong>пример</strong> — сначала посчитает, а потом выведет ответ:</p>
+<pre><code class="java">System.out.println(2 + 2);       // без кавычек — это пример
+System.out.println("2 + 2");     // в кавычках — просто текст
+System.out.println(10 - 3);
+System.out.println(6 * 7);       // * — умножение
+System.out.println(20 / 4);      // / — деление
+System.out.println(2 + 3 * 4);   // сначала умножение, как в школе
+System.out.println((2 + 3) * 4); // скобки меняют порядок</code></pre>
+<pre class="terminal"><span class="out">4
+2 + 2
+7
+42
+5
+14
+20</span></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Знак</th><th>Действие</th><th>Пример</th><th>Ответ</th></tr></thead>
+        <tbody>
+          <tr><td><code>+</code></td><td>сложение</td><td><code>7 + 3</code></td><td>10</td></tr>
+          <tr><td><code>-</code></td><td>вычитание</td><td><code>7 - 3</code></td><td>4</td></tr>
+          <tr><td><code>*</code></td><td>умножение (звёздочка, не «х»)</td><td><code>7 * 3</code></td><td>21</td></tr>
+          <tr><td><code>/</code></td><td>деление</td><td><code>21 / 3</code></td><td>7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Сюрприз с делением</span>
+      <p>Попробуй <code>System.out.println(7 / 2);</code>. Ответ будет <strong>3</strong>, а не 3.5! Целое число, делённое на целое, даёт целое: дробная часть отбрасывается. Почему так и как получить 3.5 — в модуле 3. Пока просто запомни, что так бывает.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ловушка: строка + число + число</h2>
+    <p>Хочется вывести красивое «2 + 2 = 4». Новички пишут так:</p>
+<pre><code class="java">System.out.println("2 + 2 = " + 2 + 2);</code></pre>
+    <details class="predict">
+      <summary>Как думаешь, что выведет эта строка? Подумай, прежде чем открывать.</summary>
+<pre class="terminal"><span class="out">2 + 2 = 22</span></pre>
+      <p>Не 4, а 22! Разбираемся ниже.</p>
+    </details>
+    <p>Java выполняет плюсы <strong>по очереди, слева направо</strong>. А знак <code>+</code> ведёт себя по-разному: между двумя числами — складывает, а если хотя бы с одной стороны строка — склеивает.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 384" role="img" aria-label="Пошаговое вычисление выражения со скобками и без">
+        <text x="20" y="28" class="d-title">Без скобок — Java идёт слева направо</text>
+        <rect x="20" y="40" width="360" height="38" rx="8" class="d-soft"/>
+        <text x="36" y="65" class="d-mono-ink">"2 + 2 = " + 2 + 2</text>
+        <text x="396" y="65" class="d-small">исходное выражение</text>
+
+        <rect x="20" y="88" width="360" height="38" rx="8" class="d-soft"/>
+        <text x="36" y="113" class="d-mono-ink">"2 + 2 = 2" + 2</text>
+        <text x="396" y="107" class="d-small">шаг 1: строка + число = строка</text>
+        <text x="396" y="123" class="d-small">(число 2 приклеилось как текст)</text>
+
+        <rect x="20" y="136" width="360" height="38" rx="8" class="d-red"/>
+        <text x="36" y="161" class="d-mono-ink">"2 + 2 = 22"</text>
+        <text x="396" y="161" class="d-small">шаг 2: снова строка + число → «22» ❌</text>
+
+        <path d="M20 196 H700" class="d-dash"/>
+
+        <text x="20" y="226" class="d-title">Со скобками — сначала то, что в скобках</text>
+        <rect x="20" y="238" width="360" height="38" rx="8" class="d-soft"/>
+        <text x="36" y="263" class="d-mono-ink">"2 + 2 = " + (2 + 2)</text>
+        <text x="396" y="263" class="d-small">исходное выражение</text>
+
+        <rect x="20" y="286" width="360" height="38" rx="8" class="d-soft"/>
+        <text x="36" y="311" class="d-mono-ink">"2 + 2 = " + 4</text>
+        <text x="396" y="311" class="d-small">шаг 1: скобки — число + число = 4</text>
+
+        <rect x="20" y="334" width="360" height="38" rx="8" class="d-green"/>
+        <text x="36" y="359" class="d-mono-ink">"2 + 2 = 4"</text>
+        <text x="396" y="359" class="d-small">шаг 2: приклеили 4 ✅</text>
+      </svg>
+      <figcaption>Плюс со строкой склеивает, плюс между числами складывает. Скобки заставляют сначала посчитать.</figcaption>
+    </figure>
+    <p>Починка простая — <strong>скобки</strong>: «сначала посчитай это, а потом приклеивай»:</p>
+<pre><code class="java">System.out.println("2 + 2 = " + (2 + 2));</code></pre>
+<pre class="terminal"><span class="out">2 + 2 = 4</span></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: снежный ком</span>
+      <p>Выражение катится слева направо, как снежный ком. Пока ком — число, к нему прибавляются числа. Но стоит ему налипнуть на строку, он сам становится строкой, и всё дальше просто прилипает сбоку как текст. Скобки — способ слепить отдельный комочек заранее и приклеить его целиком.</p>
+    </div>
+    <div class="say" data-mood="oops"><p>На этой ловушке спотыкаются все — и на собеседованиях её спрашивают постоянно. Правило одно: <b>смотри, что стоит слева от плюса</b>. Строка — дальше всё склеивается.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Практика</h2>
+    <p>Теперь всё готово для задач на <a href="/tasks.html?module=m01">странице практики</a>:</p>
+    <ul>
+      <li><strong>Задача 4 — OneLine</strong>: собрать одну строку из нескольких <code>print</code>.</li>
+      <li><strong>Задача 5 — Quotes</strong>: напечатать текст с кавычками, слешами и табуляцией.</li>
+      <li><strong>Задача 6 — Calc</strong>: пусть Java сама посчитает пример — писать ответ руками нельзя, проверка это заметит 😉</li>
+    </ul>
+    <p><span class="ai-only">Каждую решай в IDEA, запускай ▶, а когда вывод совпадёт с условием — жми «Проверить» на сайте и потом <code>/check</code> у наставника.</span><span class="free-only">Каждую решай в IDEA, запускай ▶, а когда вывод совпадёт с условием — жми «Проверить» на сайте и потом разбери решение с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+    <div class="callout try">
+      <span class="callout-title">Разминка в песочнице</span>
+      <p><span class="ai-only">Перед задачами попробуй в <code>Playground</code> нарисовать из символов <code>*</code>, <code>/</code>, <code>\</code> и <code>_</code> домик или кота. Подсказка: чтобы нарисовать <code>\</code>, его придётся написать дважды. Покажи результат наставнику — пусть оценит.</span><span class="free-only">Перед задачами попробуй в <code>Playground</code> нарисовать из символов <code>*</code>, <code>/</code>, <code>\</code> и <code>_</code> домик или кота. Подсказка: чтобы нарисовать <code>\</code>, его придётся написать дважды. Покажи результат <span class="ai-name">DeepSeek</span> — пусть оценит.</span></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m01-07">
+      <script type="application/json">
+      {
+       "title": "Вывод в консоль — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "System.out.println(\"10\" + 5);",
+         "answer": "105",
+         "why": "<code>\"10\"</code> в кавычках — строка, а не число. Строка + число = склейка."
+        },
+        {
+         "type": "predict",
+         "q": "А так?",
+         "code": "System.out.println(2 + 2 + \" = четыре\");",
+         "answer": "4 = четыре",
+         "why": "Слева направо: сначала <code>2 + 2</code> — оба числа, получается 4. Потом 4 + строка — склейка. Порядок решает всё!"
+        },
+        {
+         "type": "predict",
+         "q": "А здесь?",
+         "code": "System.out.println(\"Ответ: \" + 3 * 5);",
+         "answer": "Ответ: 15",
+         "why": "Умножение выполняется раньше сложения, как в школе: сначала 3 * 5 = 15, потом склейка. Со скобками <code>(3 * 5)</code> читать понятнее."
+        },
+        {
+         "type": "single",
+         "q": "Нужно вывести «5 * 3 = 15», причём 15 должна посчитать Java. Какой вариант правильный?",
+         "options": [
+          "System.out.println(\"5 * 3 = 15\");",
+          "System.out.println(\"5 * 3 = \" + (5 * 3));",
+          "System.out.println(\"5 * 3 = 5 * 3\");"
+         ],
+         "answer": 1,
+         "why": "В первом варианте ответ написан руками, в третьем всё в кавычках — это просто текст. Только во втором Java считает сама."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "println печатает и переводит строку, print — остаётся на той же",
+           "a": true
+          },
+          {
+           "s": "При склейке строк Java сама ставит между ними пробел",
+           "a": false,
+           "why": "склейка приставляет строки вплотную, пробел нужно добавить самому."
+          },
+          {
+           "s": "System.out.println(7 / 2); выведет 3.5",
+           "a": false,
+           "why": "целое делить на целое — дробная часть отбрасывается, будет 3."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши в Claude Code: <em>«Дай мне 5 задачек "предскажи вывод" на print, println, спецсимволы и склейку строк с числами. Я отвечу, а ты проверь»</em>. Ошибёшься — попроси объяснить на другой аналогии.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>println</code> печатает и переводит строку, <code>print</code> — печатает и остаётся на месте. Пустой <code>println()</code> — просто перевод строки.</li>
+        <li>Спецсимволы начинаются с <code>\</code>: <code>\n</code> — новая строка, <code>\t</code> — табуляция, <code>\"</code> — кавычка, <code>\\</code> — сам слеш.</li>
+        <li><code>+</code> со строкой склеивает, между числами — складывает. Пробелы сами не появляются.</li>
+        <li>Без кавычек Java считает: <code>+ - * /</code>, умножение раньше сложения. Целое делить на целое — дробь отбрасывается.</li>
+        <li>Ловушка: <code>"2 + 2 = " + 2 + 2</code> даёт «22». Лечится скобками: <code>"2 + 2 = " + (2 + 2)</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

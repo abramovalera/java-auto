@@ -1,0 +1,47 @@
+## id: tr-vars-017
+## title: Пример с ответом
+## file: trainer/vars/SumWithLabel.java
+## class: SumWithLabel
+## level: 2
+## category: Вывод и склейка строк
+@@ description
+<p>Напиши класс <code>SumWithLabel</code>. Программа читает два целых числа, каждое с новой строки, и печатает пример целиком: <code>a + b = сумма</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2
+       3
+вывод: 2 + 3 = 5</span></pre>
+<p>Подвох: <code>"= " + a + b</code> склеит числа как текст и даст <code>23</code> вместо <code>5</code>. Подумай, где нужны скобки.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li>склейка идёт слева направо: как только слева строка, <code>+</code> дальше клеит текст</li>
+<li><code>(a + b)</code> — скобки заставляют сначала сложить числа</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2
+3
+@@ expect
+2 + 3 = 5
+@@ test: Отрицательное первое
+@@ input
+-4
+10
+@@ expect
+-4 + 10 = 6
+@@ test: Нули
+@@ input
+0
+0
+@@ expect
+0 + 0 = 0
+@@ test: Отрицательное второе
+@@ input
+15
+-20
+@@ expect
+15 + -20 = -5
+@@ test: Большие числа
+@@ input
+1000000
+2500000
+@@ expect
+1000000 + 2500000 = 3500000

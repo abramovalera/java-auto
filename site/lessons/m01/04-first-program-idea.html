@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Первая программа в IntelliJ IDEA · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m01-04">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 1 · Урок 4</div>
+    <h1>Первая программа в IntelliJ IDEA</h1>
+    <p class="lead">Сейчас мы вместе напишем первую программу. Шаг за шагом: что нажать, что ты увидишь на экране и что это значит. Открой IDEA рядом и повторяй.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>⌨️ первый код</span><span>🖼 со скринами</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Прежде чем начать: выпиши себе</h2>
+    <p>Опытные программисты почти не пользуются мышкой: у IDEA есть сочетания клавиш и короткие слова-шаблоны, которые экономят кучу времени. <b>Возьми листочек или заметки в телефоне и выпиши эту таблицу руками</b> — так она запомнится быстрее. Ко всем пунктам мы ещё вернёмся в уроке.</p>
+    <p><b>Не надо запоминать сразу</b> — выпиши и подглядывай, через неделю пальцы запомнят сами.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA, часть 1</h3>
+      <p>Шаблоны набираешь в редакторе и жмёшь <kbd>Tab</kbd> (или <kbd>Enter</kbd> в подсказке).</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><code>psvm</code> + <kbd>Tab</kbd></td><td>Вставляет метод <code>main</code> целиком</td><td>Внутри класса, когда нужна точка входа</td></tr>
+        <tr><td><code>sout</code> + <kbd>Tab</kbd></td><td>Вставляет <code>System.out.println();</code></td><td>Внутри метода, когда нужно что-то напечатать</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd></td><td>Запустить открытую программу</td><td>Вместо клика по ▶</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd></td><td>Красиво выровнять весь код</td><td>Отступы «поехали»</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td><td>Убрать лишние (серые) импорты</td><td>После правок кода</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Удалить строку целиком</td><td>Вместо выделения мышкой и Delete</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Дублировать строку (копия ниже)</td><td>Нужна похожая строка</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>IDEA предлагает, как исправить подчёркнутое</td><td>Видишь красное или жёлтое</td></tr>
+      </table></div>
+      <p style="margin-top:10px">На macOS вместо <kbd>Ctrl</kbd> обычно <kbd>Cmd</kbd>.</p>
+    </div>
+    <div class="say" data-mood="think"><p>Про <kbd>Ctrl</kbd>+<kbd>Y</kbd>: в первый раз IDEA спросит, что назначить на эти клавиши — «Удалить строку» (Delete Line) или «Повторить» (Redo). Выбери <b>Delete Line</b> и подтверди — дальше строка будет удаляться одним нажатием.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Создаём класс</h2>
+    <p>Программа на Java живёт в <b>классе</b> — помнишь чертёж из урока 1.1? Создадим первый. В дереве проекта слева щёлкни <b>правой кнопкой по синей папке <code>module-01</code></b>, наведи на <b>New</b> и выбери <b>Java Class</b>:</p>
+    <div data-widget="ide" id="shot-new-class">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-01",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "src", "depth": 1, "open": true, "selected": true },
+                  { "name": "FixMe", "type": "class", "depth": 2 },
+                  { "name": "README.md", "type": "file", "depth": 1 } ],
+        "menu": { "at": "tree-module-01", "items": ["New ›", "-", "Cut", "Copy", "Paste", "-", "Find in Files…", "Mark Directory as ›"], "hl": "New",
+                  "sub": { "items": ["Java Class", "Kotlin Class/File", "File", "Directory", "-", "HTML File"], "hl": "Java Class" } },
+        "marks": [ { "n": 1, "target": "tree-module-01", "text": "Правый клик по папке <b>module-01</b> (она синяя — это папка с кодом)" },
+                   { "n": 2, "target": "menu", "side": "left", "text": "Наведи на <b>New</b> — «создать»" },
+                   { "n": 3, "target": "submenu", "text": "Выбери <b>Java Class</b>" } ],
+        "caption": "Контекстное меню папки в дереве проекта" }
+      </script>
+    </div>
+    <p>Появится окошко. Впиши имя класса <code>HelloWorld</code> — <b>без</b> <code>.java</code>, с большими H и W, без пробелов — и нажми <kbd>Enter</kbd>:</p>
+    <div data-widget="ide" id="shot-new-class-name">
+      <script type="application/json">
+      { "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "src", "depth": 1, "open": true, "selected": true },
+                  { "name": "FixMe", "type": "class", "depth": 2 } ],
+        "popup": { "title": "New Java Class", "input": "HelloWorld", "list": ["Class", "Interface", "Record", "Enum", "Annotation"], "hl": "Class" },
+        "marks": [ { "n": 1, "target": "popup", "text": "Имя класса: <b>HelloWorld</b>. Тип оставь <b>Class</b> и жми Enter" } ],
+        "caption": "Окно «New Java Class»" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>IDEA создала файл</h2>
+    <p>В дереве появился <code>HelloWorld</code>, а в редакторе открылся файл <code>HelloWorld.java</code> с пустой «коробкой» класса:</p>
+    <div data-widget="ide" id="shot-empty-class">
+      <script type="application/json">
+      { "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "src", "depth": 1, "open": true },
+                  { "name": "FixMe", "type": "class", "depth": 2 },
+                  { "name": "HelloWorld", "type": "class", "depth": 2, "selected": true } ],
+        "file": "HelloWorld.java", "code": "public class HelloWorld {\n    \n}", "caretLine": 2,
+        "marks": [ { "n": 1, "target": "tree-HelloWorld", "text": "Новый класс в дереве проекта. Значок Ⓒ — это класс Java" },
+                   { "n": 2, "target": "tab", "text": "Вкладка с файлом <b>HelloWorld.java</b>" },
+                   { "n": 3, "target": "line-1", "text": "IDEA сама написала начало и конец класса. Курсор стоит внутри фигурных скобок" } ],
+        "caption": "Пустой класс сразу после создания" }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Файл называется <b>HelloWorld.java</b>, а класс внутри — <b>HelloWorld</b>. В Java они обязаны совпадать буква в букву. IDEA следит за этим сама.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Точка входа: метод main</h2>
+    <p>Когда ты запускаешь программу, Java ищет, <b>с какой строчки начать</b>. Это место называется <b>точкой входа</b>, и в Java это всегда метод <code>main</code> — как входная дверь в дом. Без него программу нельзя запустить.</p>
+    <p>Можно набрать его целиком, а можно хитро: внутри класса напечатай <code>psvm</code> — IDEA покажет подсказку. Нажми <kbd>Tab</kbd> или <kbd>Enter</kbd>:</p>
+    <div data-widget="ide" id="shot-psvm">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "code": "public class HelloWorld {\n    psvm\n}", "caretLine": 2,
+        "menu": { "at": "line-2", "items": ["psvm\tmain() method declaration", "-", "Press Tab to insert"], "hl": "psvm" },
+        "marks": [ { "n": 1, "target": "line-2", "side": "left", "text": "Набрал <code>psvm</code> — это сокращение <b>p</b>ublic <b>s</b>tatic <b>v</b>oid <b>m</b>ain" },
+                   { "n": 2, "target": "menu", "text": "Подсказка IDEA. Жми <kbd>Tab</kbd> — и шаблон развернётся" } ],
+        "caption": "Шаблон psvm в редакторе" }
+      </script>
+    </div>
+    <p>IDEA вставит метод <code>main</code> целиком. Теперь внутри него таким же приёмом: <code>sout</code> + <kbd>Tab</kbd> превращается в <code>System.out.println();</code>. Курсор окажется между скобками — впиши туда текст в кавычках:</p>
+    <div data-widget="ide" id="shot-code">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}", "caretLine": 3, "gutterRun": [1, 2],
+        "marks": [ { "n": 1, "target": "line-2", "text": "Метод <b>main</b> — точка входа. Отсюда Java начнёт выполнять программу" },
+                   { "n": 2, "target": "line-3", "text": "Инструкция: напечатать в консоль текст в кавычках. В конце инструкции — точка с запятой <code>;</code>" },
+                   { "n": 3, "target": "gutter-1", "side": "left", "text": "Появились зелёные треугольники ▶ — значит, IDEA нашла точку входа и программу можно запускать" } ],
+        "caption": "Готовая программа" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Первые пару раз — руками</span>
+      <p>Шаблоны — это ускорение, а не замена понимания. Набери <code>public static void main(String[] args)</code> и <code>System.out.println</code> целиком хотя бы два-три раза — пальцы должны знать, что вставляет <code>psvm</code>. Что значит каждое слово, разберём в следующем уроке «Анатомия программы».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Запускаем ▶</h2>
+    <p>Нажми на <b>зелёный треугольник ▶</b> слева от строки <code>public class HelloWorld</code> и выбери <b>Run 'HelloWorld.main()'</b>. Или просто <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd> — из твоей шпаргалки.</p>
+    <div data-widget="ide" id="shot-run-menu">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}", "gutterRun": [1, 2],
+        "menu": { "at": "gutter-1", "items": ["▶  Run 'HelloWorld.main()'\tCtrl+Shift+F10", "🐞  Debug 'HelloWorld.main()'", "-", "Modify Run Configuration…"], "hl": "▶  Run 'HelloWorld.main()'" },
+        "marks": [ { "n": 1, "target": "gutter-1", "side": "left", "text": "Клик по зелёному ▶ на полях" },
+                   { "n": 2, "target": "menu", "text": "<b>Run</b> — запустить. (<b>Debug</b> — запуск в отладчике, он нам понадобится позже)" } ],
+        "caption": "Меню запуска у зелёного треугольника" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Смотрим в консоль</h2>
+    <p>Внизу откроется панель <b>Run</b> — это <b>консоль</b>: сюда программа печатает всё, что ты велел ей напечатать. Вот что ты увидишь:</p>
+    <div data-widget="ide" id="shot-console">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "runConfig": "HelloWorld", "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}", "gutterRun": [1, 2],
+        "console": { "title": "HelloWorld", "lines": [ { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… HelloWorld" }, { "t": "out", "s": "Hello, World!" }, { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "cmd", "text": "Серая строка — команда, которой IDEA запустила JVM (из того JDK, что скачали в уроке 0.3). Её можно не читать" },
+                   { "n": 2, "target": "output", "text": "<b>Hello, World!</b> — это напечатала твоя программа 🎉", "box": true },
+                   { "n": 3, "target": "exit", "text": "<b>exit code 0</b> — программа завершилась без ошибок. Другое число — что-то пошло не так" },
+                   { "n": 4, "target": "config", "side": "bottom", "text": "Сверху появилась конфигурация запуска <b>HelloWorld</b> — теперь её можно перезапускать кнопкой ▶ рядом" } ],
+        "caption": "Панель Run с выводом программы" }
+      </script>
+    </div>
+    <div class="say" data-mood="wow"><p>Поздравляю, ты программист! 🎉 Серьёзно: каждый разработчик в мире начинал ровно с этой строчки.</p></div>
+    <p>Под капотом кнопка ▶ сделала весь конвейер из урока 1.2: вызвала компилятор <code>javac</code>, положила <code>HelloWorld.class</code> в папку <code>out</code> (её видно в дереве проекта слева, если раскрыть; трогать её не нужно — IDEA сама её заполняет), запустила JVM — и показала тебе вывод.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Микроприёмы: попробуй прямо сейчас</h2>
+    <p>Пора опробовать шпаргалку. Каждый приём — 10 секунд, а экономит часы.</p>
+    <h3>Ctrl+Alt+L — выровнять код</h3>
+    <p>Специально «сломай» отступы: сдвинь строки как попало. Нажми <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> — IDEA всё расставит ровно:</p>
+    <div data-widget="ide" id="shot-format-before">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "code": "public class HelloWorld {\npublic static void main(String[] args) {\n            System.out.println(\"Hello, World!\");\n  }\n      }", "caretLine": 3,
+        "caption": "До Ctrl+Alt+L: отступы «поехали». После — станет как на скрине выше, в шаге «Точка входа»" }
+      </script>
+    </div>
+    <h3>Ctrl+Alt+O — убрать лишние импорты</h3>
+    <p>Проведём эксперимент. Добавь в самую первую строку файла <code>import java.util.Scanner;</code> (это «подключение» класса для ввода с клавиатуры — пройдём в модуле 2). Мы его нигде не используем, поэтому IDEA покажет строку <b>серой</b>:</p>
+    <div data-widget="ide" id="shot-imports">
+      <script type="application/json">
+      { "tree": false, "file": "HelloWorld.java", "code": "import java.util.Scanner;\n\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}", "dimLines": [1], "gutterRun": [3, 4],
+        "marks": [ { "n": 1, "target": "line-1", "text": "Серый импорт = «не используется». Удалять руками не нужно: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd> уберёт все лишние импорты сразу" } ],
+        "caption": "Неиспользуемый импорт IDEA рисует серым" }
+      </script>
+    </div>
+    <h3>Ctrl+D и Ctrl+Y — копия строки и удаление строки</h3>
+    <p>Поставь курсор на строку с <code>System.out.println</code> и нажми <kbd>Ctrl</kbd>+<kbd>D</kbd> — строка задублируется. Поменяй текст в копии и запусти: напечатаются две строки. Теперь удали копию: курсор на неё и <kbd>Ctrl</kbd>+<kbd>Y</kbd> (в первый раз выбери <b>Delete Line</b>). Никакого выделения мышкой.</p>
+    <div class="callout warn">
+      <span class="callout-title">Помощники, а не волшебники</span>
+      <p><kbd>Alt</kbd>+<kbd>Enter</kbd> иногда «чинит» не то, что нужно. Прежде чем соглашаться, прочитай, что он предлагает.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Первая задача и проверка</h2>
+    <p>Твой <code>HelloWorld</code> — это уже решение <b>задачи 1</b>! Открой страницу <a href="/tasks.html?module=m01">Практика</a>, найди «Привет, мир!» и нажми <b>Проверить</b>. Сайт сам скомпилирует и запустит твой файл.</p>
+    <div class="callout ai">
+      <span class="callout-title">Покажи наставнику</span>
+      <p>Когда проверка зелёная, напиши в Claude Code: <code>/check m01-t01</code>. Наставник посмотрит код и задаст пару вопросов — так задача засчитывается окончательно.</p>
+    </div>
+    <div data-widget="check" id="check-m01-04">
+      <script type="application/json">
+      { "title": "Первая программа — главное",
+        "items": [
+          { "type": "order", "q": "Расставь шаги по порядку — перетаскивай строки", "lines": ["Правый клик по module-01 → New → Java Class", "Ввести имя класса HelloWorld", "Набрать psvm + Tab, внутри — sout + Tab", "Нажать зелёный треугольник ▶ → Run", "Посмотреть вывод в панели Run внизу"],
+            "why": "Создал класс → написал код → запустил → смотришь результат." },
+          { "type": "match", "q": "Сочетание клавиш → что делает",
+            "left": ["Ctrl+Alt+L", "Ctrl+Alt+O", "Ctrl+D", "Ctrl+Y"],
+            "right": ["Выровнять код", "Убрать лишние импорты", "Дублировать строку", "Удалить строку"] },
+          { "type": "bug", "q": "В какой строке ошибка?",
+            "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Привет!\")\n    }\n}",
+            "answer": [3], "why": "В конце инструкции не хватает точки с запятой ; — IDEA подчеркнула бы это место красным." },
+          { "type": "single", "q": "Что значит «Process finished with exit code 0» в консоли?",
+            "options": ["Программа завершилась без ошибок", "Программа ничего не напечатала", "В программе 0 строк кода"], "answer": 0 },
+          { "type": "single", "q": "Класс называется HelloWorld. Как должен называться файл?",
+            "options": ["helloworld.java", "HelloWorld.java", "HelloWorld.class"], "answer": 1,
+            "why": "Имя файла = имя класса + .java, буква в букву. А .class появляется после компиляции." }
+        ] }
+      </script>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Новый класс: правый клик по <code>module-01</code> → New → Java Class.</li>
+        <li>Точка входа — метод <code>main</code> (<code>psvm</code> + Tab), печать — инструкция <code>System.out.println</code> (<code>sout</code> + Tab).</li>
+        <li>Запуск — зелёный ▶ или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>; вывод — в панели Run, <code>exit code 0</code> = всё хорошо.</li>
+        <li>Выписанная шпаргалка: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>, <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>, <kbd>Ctrl</kbd>+<kbd>D</kbd>, <kbd>Ctrl</kbd>+<kbd>Y</kbd> — пользуйся каждый день.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

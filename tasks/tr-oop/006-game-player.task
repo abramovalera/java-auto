@@ -1,0 +1,51 @@
+## id: tr-oop-006
+## title: Уровень игрока
+## file: trainer/oop/GamePlayerCard.java
+## class: GamePlayerCard
+## level: 1
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>GamePlayerCard</code> с методом <code>main</code>, а ниже в том же файле — класс <code>GamePlayer</code>:</p>
+<ul>
+<li>поля <code>String name</code> и <code>int level</code>;</li>
+<li>конструктор <code>GamePlayer(String name)</code> — запоминает имя, а уровень ставит равным 1;</li>
+<li><code>void levelUp()</code> — повышает уровень на 1, но выше 10 уровень не поднимается;</li>
+<li><code>toString()</code> — возвращает <code>Имя (уровень N)</code>.</li>
+</ul>
+<p><code>main</code> читает через пробел имя игрока и сколько раз он повысил уровень. Печатает игрока до и после:</p>
+<pre class="terminal"><span class="out">ввод:  Rex 3
+вывод: Было: Rex (уровень 1)
+       Стало: Rex (уровень 4)</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>в конструкторе можно присвоить полю значение, которого нет среди параметров: <code>this.level = 1;</code></li>
+<li><code>"Было: " + player</code> — при склейке со строкой Java сама вызывает <code>toString()</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Rex 3
+@@ expect
+Было: Rex (уровень 1)
+Стало: Rex (уровень 4)
+@@ test: Ни одного повышения
+@@ input
+Lina 0
+@@ expect
+Было: Lina (уровень 1)
+Стало: Lina (уровень 1)
+@@ test: Ровно до потолка
+@@ input
+Bolt 9
+@@ expect
+Было: Bolt (уровень 1)
+Стало: Bolt (уровень 10)
+@@ test: Выше 10 не поднимается
+@@ input
+Max 25
+@@ expect
+Было: Max (уровень 1)
+Стало: Max (уровень 10)
+@@ require: \bclass\s+GamePlayer\b | Объяви в том же файле класс GamePlayer
+@@ require: GamePlayer\s*\(\s*String\s+\w+\s*\) | Нужен конструктор GamePlayer(String name)
+@@ require: \bvoid\s+levelUp\s*\(\s*\) | Нужен метод void levelUp()
+@@ require: public\s+String\s+toString\s*\(\s*\) | Переопредели метод public String toString()
+@@ require: \.levelUp\s*\(\s*\) | В main повышай уровень вызовом levelUp() у объекта игрока

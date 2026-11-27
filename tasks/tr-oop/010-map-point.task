@@ -1,0 +1,52 @@
+## id: tr-oop-010
+## title: Две точки на карте
+## file: trainer/oop/MapPointDistance.java
+## class: MapPointDistance
+## level: 1
+## category: Объект как значение
+@@ description
+<p>Создай класс <code>MapPointDistance</code> с методом <code>main</code>, а ниже в том же файле — класс <code>MapPoint</code> (точка на карте):</p>
+<ul>
+<li>поля <code>double x</code> и <code>double y</code>;</li>
+<li>конструктор <code>MapPoint(double x, double y)</code>;</li>
+<li><code>double distanceTo(MapPoint other)</code> — возвращает расстояние от этой точки до точки <code>other</code>: корень из <code>(x1 − x2)² + (y1 − y2)²</code>;</li>
+<li><code>MapPoint midpoint(MapPoint other)</code> — возвращает <b>новую</b> точку посередине между этой и <code>other</code>;</li>
+<li><code>toString()</code> — возвращает <code>(x; y)</code>, числа печатаются как есть, например <code>(1.5; 2.0)</code>.</li>
+</ul>
+<p><code>main</code> читает через пробел четыре дробных числа <code>x1 y1 x2 y2</code>, создаёт две точки и печатает расстояние, округлённое до двух знаков (<code>Math.round(d * 100) / 100.0</code>), и середину:</p>
+<pre class="terminal"><span class="out">ввод:  0 0 3 4
+вывод: Расстояние: 5.0
+       Середина: (1.5; 2.0)</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.sqrt(x)</code> — квадратный корень</li>
+<li><code>other.x</code> — внутри класса можно читать поля другого объекта того же класса</li>
+<li><code>return new MapPoint(…, …);</code> — метод может создать и вернуть новый объект</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+0 0 3 4
+@@ expect
+Расстояние: 5.0
+Середина: (1.5; 2.0)
+@@ test: Одна и та же точка
+@@ input
+2 7 2 7
+@@ expect
+Расстояние: 0.0
+Середина: (2.0; 7.0)
+@@ test: Отрицательные координаты
+@@ input
+-1 -2 3 1
+@@ expect
+Расстояние: 5.0
+Середина: (1.0; -0.5)
+@@ test: Расстояние нужно округлить
+@@ input
+1 1 2 2
+@@ expect
+Расстояние: 1.41
+Середина: (1.5; 1.5)
+@@ require: \bclass\s+MapPoint\b | Объяви в том же файле класс MapPoint
+@@ require: \bdouble\s+distanceTo\s*\(\s*MapPoint\s+\w+\s*\) | Нужен метод double distanceTo(MapPoint other)
+@@ require: \bMapPoint\s+midpoint\s*\(\s*MapPoint\s+\w+\s*\) | Нужен метод MapPoint midpoint(MapPoint other)
+@@ require: public\s+String\s+toString\s*\(\s*\) | Переопредели метод public String toString()

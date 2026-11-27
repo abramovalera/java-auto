@@ -1,0 +1,63 @@
+## id: tr-arrays-045
+## title: Слить два списка
+## file: trainer/arrays/MergeSortedQueues.java
+## class: MergeSortedQueues
+## level: 2
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>MergeSortedQueues</code>. Две кассы выдали списки номеров заказов, каждый уже отсортирован по возрастанию. Нужно получить один общий список, тоже по возрастанию. Ввод: в первой строке — <code>n</code>, во второй — <code>n</code> чисел первого списка, в третьей — <code>m</code>, в четвёртой — <code>m</code> чисел второго. Слей их в новый массив длины <code>n + m</code> <b>без</b> <code>Arrays.sort</code> и напечатай через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       1 4 9
+       4
+       2 3 10 12
+вывод: [1, 2, 3, 4, 9, 10, 12]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>два индекса <code>i</code> и <code>j</code> — по одному на каждый список; на каждом шаге бери меньший из <code>a[i]</code> и <code>b[j]</code> и сдвигай его индекс</li>
+<li>когда один список закончился, допиши остаток другого</li>
+</ul></div>
+@@ test: Две кассы
+@@ input
+3
+1 4 9
+4
+2 3 10 12
+@@ expect
+[1, 2, 3, 4, 9, 10, 12]
+@@ test: Повторы
+@@ input
+3
+1 2 2
+2
+2 3
+@@ expect
+[1, 2, 2, 2, 3]
+@@ test: Первый пустой
+@@ input
+0
+3
+5 6 7
+@@ expect
+[5, 6, 7]
+@@ test: Второй пустой
+@@ input
+2
+-3 8
+0
+@@ expect
+[-3, 8]
+@@ test: Оба пустые
+@@ input
+0
+0
+@@ expect
+[]
+@@ test: Второй целиком меньше
+@@ input
+2
+10 20
+2
+1 2
+@@ expect
+[1, 2, 10, 20]
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString
+@@ forbid: Arrays\s*\.\s*sort | Здесь нужно слить списки самому, без Arrays.sort

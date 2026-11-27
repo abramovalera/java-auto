@@ -1,0 +1,51 @@
+## id: tr-methods-032
+## title: Рамка для картины
+## file: trainer/methods/PictureFrameBorder.java
+## class: PictureFrameBorder
+## level: 2
+## category: Строки и печать
+@@ description
+<p>Создай класс <code>PictureFrameBorder</code> и напиши метод <code>static void printFrame(int width, int height, char c)</code>: он печатает рамку шириной <code>width</code> и высотой <code>height</code> символов. Край рамки — из символа <code>c</code>, внутри — пробелы.</p>
+<p>main читает через пробел ширину, высоту (обе не меньше 1) и символ и вызывает метод.</p>
+<pre class="terminal"><span class="out">ввод:  5 3 *
+вывод: *****
+       *   *
+       *****</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>символ стоит на краю, если он в первой или последней строке, или в первом или последнем столбце</li>
+<li>вложенный цикл: внешний — по строкам, внутренний — по символам строки</li>
+<li><code>scanner.next().charAt(0)</code> — читает символ</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+5 3 *
+@@ expect
+*****
+*   *
+*****
+@@ test: Один символ
+@@ input
+1 1 #
+@@ expect
+#
+@@ test: Две строки — без пустого места
+@@ input
+4 2 +
+@@ expect
+++++
+++++
+@@ test: Узкая и высокая
+@@ input
+2 4 o
+@@ expect
+oo
+oo
+oo
+oo
+@@ test: Одна строка
+@@ input
+6 1 =
+@@ expect
+======
+@@ require: static\s+void\s+printFrame\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*,\s*char\s+\w+\s*\) | Нужен метод static void printFrame(int width, int height, char c)
+@@ require: \WprintFrame\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать printFrame(...)

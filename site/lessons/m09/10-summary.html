@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 9 и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 9 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead">Ты научился придумывать свои типы данных, строить объекты, прятать поля, отличать static от объекта — и разобрал <code>System.out.println</code> до операционной системы. Соберём всё в одну картинку и проверим себя.</p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 450" role="img" aria-label="Карта модуля 9: класс и объект, методы и this, конструкторы, static, пакеты и доступ, println под капотом, цепочка вызовов, record">
+        <path d="M380 225 L130 62" class="d-line"/>
+        <path d="M380 225 L380 62" class="d-line"/>
+        <path d="M380 225 L630 62" class="d-line"/>
+        <path d="M380 225 L120 225" class="d-line"/>
+        <path d="M380 225 L640 225" class="d-line"/>
+        <path d="M380 225 L130 388" class="d-line"/>
+        <path d="M380 225 L380 388" class="d-line"/>
+        <path d="M380 225 L630 388" class="d-line"/>
+
+        <rect x="20" y="14" width="220" height="96" rx="14" class="d-blue"/>
+        <text x="130" y="40" text-anchor="middle" class="d-title">🐱 Класс и объект</text>
+        <text x="34" y="66" class="d-small">поля, new, точка</text>
+        <text x="34" y="86" class="d-small">ссылки, ==, null → NPE</text>
+
+        <rect x="270" y="14" width="220" height="96" rx="14" class="d-violet"/>
+        <text x="380" y="40" text-anchor="middle" class="d-title">🔘 Методы и this</text>
+        <text x="284" y="66" class="d-small">методы без static</text>
+        <text x="284" y="86" class="d-small">this, затенение</text>
+
+        <rect x="520" y="14" width="220" height="96" rx="14" class="d-teal"/>
+        <text x="630" y="40" text-anchor="middle" class="d-title">🏭 Конструкторы</text>
+        <text x="534" y="66" class="d-small">конвейер new, this(...)</text>
+        <text x="534" y="86" class="d-small">пустой по умолчанию, void</text>
+
+        <rect x="10" y="180" width="220" height="90" rx="14" class="d-yellow"/>
+        <text x="120" y="206" text-anchor="middle" class="d-title">🏛️ static</text>
+        <text x="24" y="232" class="d-small">одно на класс, счётчик</text>
+        <text x="24" y="252" class="d-small">main static, Math.max</text>
+
+        <rect x="530" y="180" width="220" height="90" rx="14" class="d-green"/>
+        <text x="640" y="206" text-anchor="middle" class="d-title">📦 Пакеты и доступ</text>
+        <text x="544" y="232" class="d-small">import, java.lang</text>
+        <text x="544" y="252" class="d-small">private, геттеры, 1 public</text>
+
+        <rect x="20" y="340" width="220" height="96" rx="14" class="d-red"/>
+        <text x="130" y="366" text-anchor="middle" class="d-title">🔬 println внутри</text>
+        <text x="34" y="392" class="d-small">System → out → PrintStream</text>
+        <text x="34" y="412" class="d-small">→ … → ОС; Ctrl+B, F7</text>
+
+        <rect x="270" y="340" width="220" height="96" rx="14" class="d-blue"/>
+        <text x="380" y="366" text-anchor="middle" class="d-title">🔗 Цепочка вызовов</text>
+        <text x="284" y="392" class="d-small">10 классов, stack trace</text>
+        <text x="284" y="412" class="d-small">снизу вверх, Frames</text>
+
+        <rect x="520" y="340" width="220" height="96" rx="14" class="d-violet"/>
+        <text x="630" y="366" text-anchor="middle" class="d-title">🧾 record, toString</text>
+        <text x="534" y="392" class="d-small">Cat@1b6d… → свой toString</text>
+        <text x="534" y="412" class="d-small">record: данные в 1 строку</text>
+
+        <ellipse cx="380" cy="225" rx="120" ry="50" class="d-accent"/>
+        <text x="380" y="219" text-anchor="middle" class="d-title">Модуль 9</text>
+        <text x="380" y="241" text-anchor="middle" class="d-text">Классы и объекты</text>
+      </svg>
+      <figcaption>Если про какой-то блок сказать нечего — вернись к уроку в меню слева.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Это был, пожалуй, самый важный модуль курса. Классы и объекты — фундамент всего остального: ООП, коллекций, исключений и любой твоей будущей программы. А заклинание <code>System.out.println</code> больше не заклинание: ты знаешь каждую его деталь.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>объявить класс с полями, создать несколько объектов (экземпляров) оператором <code>new</code> и нарисовать их в стеке и куче;</li>
+        <li>объяснить, почему <code>b = a</code> не создаёт объект, что сравнивает <code>==</code> и откуда берётся NullPointerException;</li>
+        <li>написать методы объекта, объяснить, что такое <code>this</code>, и найти ошибку затенения <code>name = name</code>;</li>
+        <li>написать конструкторы, связать их через <code>this(...)</code>, рассказать порядок конвейера <code>new</code> и ловушку <code>void</code>;</li>
+        <li>объяснить разницу между static и полем/методом объекта, почему <code>main</code> — static, и сделать счётчик объектов;</li>
+        <li>объяснить, зачем <code>import</code> и почему <code>String</code> его не требует; разложить файл на public-класс и вспомогательные;</li>
+        <li>закрыть поле <code>private</code> и дать к нему геттер и сеттер с проверкой;</li>
+        <li>разобрать <code>System.out.println("Hi")</code> по кусочкам и рассказать путь строки до операционной системы;</li>
+        <li>провалиться в код JDK через <kbd>Ctrl</kbd>+<kbd>B</kbd> и пройти вызовы отладчиком (<kbd>F7</kbd>, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd>, <kbd>Shift</kbd>+<kbd>F8</kbd>);</li>
+        <li>построить цепочку из 10 классов и прочитать её stack trace снизу вверх, отличая свой код от JDK;</li>
+        <li>написать свой toString и record для данных.</li>
+      </ul>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Честная самопроверка</span>
+      <p><span class="ai-only">Особенно важен пункт про println. Попробуй прямо сейчас вслух, без подсказок, рассказать: что такое System, что такое out, чей это метод println и что происходит после него. Наставник на экзамене попросит именно это.</span><span class="free-only">Особенно важен пункт про println. Попробуй прямо сейчас вслух, без подсказок, рассказать: что такое System, что такое out, чей это метод println и что происходит после него. <span class="ai-name">DeepSeek</span> на экзамене попросит именно это.</span></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <p>Десять заданий по всему модулю. Ошибки вернутся в конце.</p>
+    <div data-widget="check" id="check-m09-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 9: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "class Box { int v; }\n\n// в main:\nBox a = new Box();\nBox b = a;\nBox c = new Box();\nb.v = 5;\nc.v = 7;\nSystem.out.println(a.v + \" \" + (a == b) + \" \" + (a == c));",
+         "answer": "5 true false",
+         "why": "a и b — один объект, c — другой. == сравнивает ссылки."
+        },
+        {
+         "type": "single",
+         "q": "Сколько объектов Box создаёт этот код?",
+         "code": "Box[] boxes = new Box[5];\nBox first = new Box();\nboxes[0] = first;\nboxes[1] = first;",
+         "options": [
+          "1",
+          "2 (массив и одна коробка)",
+          "5",
+          "6"
+         ],
+         "answer": 1,
+         "why": "Объектов столько, сколько new: массив (в нём 5 ссылок, сначала null) и одна коробка, на которую ссылаются два элемента массива и переменная first."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "class Dog {\n    String name;\n    static int count;\n    Dog(String name) { this.name = name; count++; }\n    static void info() { System.out.println(count); }\n    void bark() { System.out.println(name + \": гав\"); }\n    static void wrong() { System.out.println(name); }\n}",
+         "answer": [
+          7
+         ],
+         "why": "В static-методе нет this — нельзя обращаться к полю name напрямую."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "class Tea {\n    String sort = \"чёрный\";\n\n    Tea() {\n        this(\"зелёный\");\n        System.out.println(\"B \" + sort);\n    }\n\n    Tea(String sort) {\n        System.out.println(\"A \" + this.sort);\n        this.sort = sort;\n    }\n}\n\n// в main:\nnew Tea();",
+         "answer": "A чёрный\nB зелёный",
+         "why": "Инициализатор поля срабатывает до тела конструктора: sort = «чёрный». Tea(String) печатает старое значение и меняет на «зелёный». Потом Tea() печатает новое."
+        },
+        {
+         "type": "match",
+         "q": "Соедини кусочек строки <code>System.out.println(\"Hi\")</code> с тем, что он такое",
+         "left": [
+          "System",
+          "out",
+          "println",
+          "\"Hi\""
+         ],
+         "right": [
+          "Класс из java.lang",
+          "static-поле со ссылкой на объект PrintStream",
+          "Метод объекта PrintStream",
+          "Аргумент — объект String"
+         ],
+         "why": "Класс → static-поле → метод объекта из этого поля → аргумент."
+        },
+        {
+         "type": "order",
+         "q": "Расставь путь строки от твоего кода до экрана",
+         "lines": [
+          "main вызывает System.out.println",
+          "PrintStream передаёт текст дальше",
+          "символы кодируются в байты UTF-8",
+          "байты копятся в буфере",
+          "FileOutputStream через native-метод обращается к ОС",
+          "IDEA рисует буквы в панели Run"
+         ],
+         "why": "Удобство → кодировка → буфер → файл/ОС → консоль."
+        },
+        {
+         "type": "single",
+         "q": "Stack trace заканчивается строкой <code>at Kitchen.main(Kitchen.java:5)</code>, а начинается с <code>at Oven.bake(Kitchen.java:30)</code>. Что верно?",
+         "options": [
+          "Первым вызван Oven.bake",
+          "Авария в Oven.bake, а цепочку начал main",
+          "Авария в main на строке 5"
+         ],
+         "answer": 1,
+         "why": "Сверху — место аварии (вершина стека), снизу — main, с которого всё началось."
+        },
+        {
+         "type": "multi",
+         "q": "Отметь static-вызовы",
+         "options": [
+          "Math.max(a, b)",
+          "name.length()",
+          "Integer.parseInt(s)",
+          "sc.nextInt()",
+          "Cat.count"
+         ],
+         "answer": [
+          0,
+          2,
+          4
+         ],
+         "why": "Слева от точки имя класса — static. Слева переменная со ссылкой на объект — вызов метода у объекта."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "void Cat(String n) { … } — это конструктор класса Cat",
+           "a": false,
+           "why": "с void это обычный метод."
+          },
+          {
+           "s": "import java.util.Scanner нужен компилятору только для сокращения имени",
+           "a": true
+          },
+          {
+           "s": "F7 в отладчике по умолчанию заходит в методы JDK",
+           "a": false,
+           "why": "JDK отфильтрован: нужен Alt+Shift+F7."
+          },
+          {
+           "s": "У record методы доступа называются как поля: title(), price()",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m09">странице практики</a> должны быть решены все восемь задач:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Грядка ★ · 2. Карта сокровищ ★</td><td>свой класс, конструктор, методы объекта, объект как параметр — <a href="/lessons/m09/02-instance-methods.html">9.2</a>, <a href="/lessons/m09/03-constructors.html">9.3</a></td></tr>
+        <tr><td>3. Почини ветклинику ★★</td><td>ловушки: void у конструктора, затенение, лишний static — <a href="/lessons/m09/03-constructors.html">9.3</a>, <a href="/lessons/m09/04-static.html">9.4</a></td></tr>
+        <tr><td>4. Талоны электронной очереди ★★</td><td>static-счётчик и static-метод — <a href="/lessons/m09/04-static.html">9.4</a></td></tr>
+        <tr><td>5. Банковская карта ★★</td><td>private, проверки в методах, геттер — <a href="/lessons/m09/05-packages-access.html">9.5</a></td></tr>
+        <tr><td>6. Ведомость студента ★★</td><td>объект с массивом внутри, граничный случай N = 0</td></tr>
+        <tr><td>7. Корзина на record ★★</td><td>record, массив объектов, готовый toString — <a href="/lessons/m09/08-record-tostring.html">9.8</a></td></tr>
+        <tr><td>8. Ракетный старт ★★★</td><td>Мастерская: цепочка из 10 классов, stack trace, отладчик — <a href="/lessons/m09/07-call-chain-workshop.html">9.7</a></td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">Каждую зелёную задачу разбери с наставником: <code>/check m09-t01</code>, <code>/check m09-t02</code> и так далее. По задаче 8 наставник попросит показать stack trace и рассказать его снизу вверх.</span><span class="free-only">Каждую зелёную задачу разбери с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы). По задаче 8 <span class="ai-name">DeepSeek</span> попросит показать stack trace и рассказать его снизу вверх.</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> в папке курса и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><strong>Что будет:</strong> вопросы «объясни своими словами» (this, static, конструктор по умолчанию, зачем private), головоломки «что выведется» с рисованием стека и кучи, «найди ошибку». Обязательная часть — рассказ про <code>System.out.println</code> до операционной системы и показ в IDEA: Ctrl+B на println и Force Step Into.</li>
+      <li><strong>Может попросить написать класс с нуля</strong> — например, «Термометр» с private-полем, конструктором и геттером.</li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить. Модуль засчитан, когда он отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить. Модуль засчитан, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p>На экзамене не подглядывай в уроки. Классы и объекты понадобятся в каждом следующем модуле, и лучше честно найти пробелы сейчас.</p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Размяться: <em>«Давай пробный экзамен по модулю 9 без отметок в progress.md — начни с того, что я расскажу про System.out.println»</em>. Готов по-настоящему — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">🐋</span><h4>Модуль 10: три кита ООП</h4><p>Инкапсуляция (ты её уже начал с private), наследование и полиморфизм. Узнаешь, откуда у каждого объекта toString и что такое Object.</p></div>
+      <div class="card"><span class="emoji">⚖️</span><h4>equals и hashCode</h4><p>Научим <code>==</code>-ловушку отступить: как сравнивать котов по содержимому.</p></div>
+      <div class="card"><span class="emoji">🔬</span><h4>Привычка заглядывать внутрь</h4><p>Ctrl+B и F7 теперь твои инструменты. Встретишь непонятный метод — провались в него.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно, особенно пункт про println.</li>
+        <li><span class="ai-only">Сделай все восемь задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все восемь задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 10!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 10!</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m09">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

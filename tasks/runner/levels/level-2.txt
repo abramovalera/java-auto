@@ -1,0 +1,6 @@
+# Уровень 2: жуки и летучие ошибки — прыгай или пригибайся
+types=both
+lowWidths=1,2
+length=70
+gapMin=4
+gapMax=8

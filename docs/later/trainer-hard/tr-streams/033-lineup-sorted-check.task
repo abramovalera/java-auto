@@ -1,0 +1,46 @@
+## id: tr-streams-033
+## title: Построились по росту?
+## file: trainer/streams/LineupSortedCheck.java
+## class: LineupSortedCheck
+## level: 3
+## category: Проверки условий
+@@ description
+<p>Напиши класс <code>LineupSortedCheck</code>. На физкультуре класс строится по росту: каждый следующий не ниже предыдущего (одинаковый рост — можно). В одной строке — рост учеников в сантиметрах слева направо (хотя бы один ученик). Если строй правильный, напечатай <code>Строй по росту</code>. Иначе напечатай <code>Сбой на месте K</code>, где <code>K</code> — номер (с единицы) первого ученика, который ниже стоящего перед ним.</p>
+<pre class="terminal"><span class="out">ввод:  140 142 142 150 163
+вывод: Строй по росту
+
+ввод:  140 145 139 150 120
+вывод: Сбой на месте 3</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.toArray()</code> — собирает <code>IntStream</code> в массив <code>int[]</code></li>
+<li><code>IntStream.range(1, h.length)</code> — стрим индексов, по которому можно сравнивать соседей <code>h[i - 1]</code> и <code>h[i]</code></li>
+<li><code>.findFirst()</code> у <code>IntStream</code> возвращает <code>OptionalInt</code>: <code>isPresent()</code>, <code>getAsInt()</code></li>
+</ul></div>
+@@ test: Ровный строй
+@@ input
+140 142 142 150 163
+@@ expect
+Строй по росту
+@@ test: Сбой в середине
+@@ input
+140 145 139 150 120
+@@ expect
+Сбой на месте 3
+@@ test: Один ученик
+@@ input
+150
+@@ expect
+Строй по росту
+@@ test: Первые двое уже не так
+@@ input
+160 155
+@@ expect
+Сбой на месте 2
+@@ test: Все одного роста
+@@ input
+150 150 150
+@@ expect
+Строй по росту
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

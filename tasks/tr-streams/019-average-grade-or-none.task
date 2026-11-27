@@ -1,0 +1,48 @@
+## id: tr-streams-019
+## title: Средний балл или «нет данных»
+## file: trainer/streams/AverageGradeOrNone.java
+## class: AverageGradeOrNone
+## level: 2
+## category: Optional
+@@ description
+<p>Напиши класс <code>AverageGradeOrNone</code>. В одной строке — оценки ученика через пробел. Строка может оказаться <b>пустой</b>: оценок ещё нет. Напечатай <code>Средний балл: X</code>, где <code>X</code> округлено до двух знаков после точки выражением <code>Math.round(x * 100) / 100.0</code>. Если оценок нет — напечатай <code>нет данных</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5 4 4
+вывод: Средний балл: 4.33
+
+ввод:  (пустая строка)
+вывод: нет данных</span></pre>
+<p>Не печатай дробь через <code>printf</code> — на компьютере с русской настройкой выйдет запятая вместо точки.</p>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.filter(s -&gt; !s.isEmpty())</code> — отбрасывает пустые строки-части (у пустой строки <code>split</code> вернёт одну пустую часть)</li>
+<li><code>.average()</code> — возвращает <code>OptionalDouble</code>: для пустого стрима коробка пустая</li>
+<li><code>avg.isPresent()</code>, <code>avg.getAsDouble()</code> — проверить, есть ли значение, и достать его</li>
+</ul></div>
+@@ test: Три оценки
+@@ input
+5 4 4
+@@ expect
+Средний балл: 4.33
+@@ test: Ровно пять
+@@ input
+5 5
+@@ expect
+Средний балл: 5.0
+@@ test: Половинка
+@@ input
+3 4
+@@ expect
+Средний балл: 3.5
+@@ test: Оценок нет
+@@ input
+
+@@ expect
+нет данных
+@@ test: Округление вверх
+@@ input
+2 3 3
+@@ expect
+Средний балл: 2.67
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.average\s*\( | Посчитай среднее методом average

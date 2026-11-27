@@ -1,0 +1,33 @@
+## id: tr-strings-006
+## title: Обезвреженный IP-адрес
+## file: trainer/strings/DefangedAddress.java
+## class: DefangedAddress
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>DefangedAddress</code>. В чатах IP-адрес часто «обезвреживают», чтобы он не превратился в ссылку: каждую точку <code>.</code> заменяют на <code>[.]</code>. Программа читает одну строку и печатает её обезвреженную версию.</p>
+<pre class="terminal"><span class="out">ввод:  192.168.0.1    вывод: 192[.]168[.]0[.]1
+ввод:  8.8.8.8        вывод: 8[.]8[.]8[.]8</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.replace(a, b)</code> — возвращает новую строку, в которой каждый кусок <code>a</code> заменён на <code>b</code></li>
+</ul></div>
+@@ test: Домашний роутер
+@@ input
+192.168.0.1
+@@ expect
+192[.]168[.]0[.]1
+@@ test: Короткий адрес
+@@ input
+8.8.8.8
+@@ expect
+8[.]8[.]8[.]8
+@@ test: Точек нет
+@@ input
+localhost
+@@ expect
+localhost
+@@ test: Точки подряд
+@@ input
+1..2
+@@ expect
+1[.][.]2

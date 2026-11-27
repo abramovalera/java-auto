@@ -1,0 +1,68 @@
+## id: tr-oop-024
+## title: Часы на стене
+## file: trainer/oop/WallClockAdd.java
+## class: WallClockAdd
+## level: 2
+## category: Объект как значение
+@@ description
+<p>Создай класс <code>WallClockAdd</code> с методом <code>main</code>, а ниже в том же файле — класс <code>WallClockTime</code> (время на циферблате, без даты):</p>
+<ul>
+<li>закрытые поля <code>private int hours</code> (0–23) и <code>private int minutes</code> (0–59);</li>
+<li>конструктор <code>WallClockTime(int hours, int minutes)</code>;</li>
+<li><code>void addMinutes(int delta)</code> — переводит часы на <code>delta</code> минут вперёд, а если <code>delta</code> отрицательное — назад. После 23:59 идёт 00:00, перед 00:00 — 23:59;</li>
+<li><code>toString()</code> — <code>ЧЧ:ММ</code>, всегда две цифры: <code>07:05</code>.</li>
+</ul>
+<p>Ввод: в первой строке — время в виде <code>ЧЧ:ММ</code>, во второй — количество переводов <code>n</code>, в третьей — <code>n</code> целых чисел (минуты). После каждого перевода печатай время.</p>
+<pre class="terminal"><span class="out">ввод:  23:45
+       2
+       20 -30
+вывод: 00:05
+       23:35</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>"23:45".split(":")</code> и <code>Integer.parseInt("23")</code> — разобрать строку времени на числа</li>
+<li>удобно перевести всё в минуты от полуночи: <code>hours * 60 + minutes</code>, в сутках 1440 минут</li>
+<li>⚠️ <code>-30 % 1440</code> в Java равно <code>-30</code>, а не 1410 — остаток от отрицательного числа отрицательный</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+23:45
+2
+20 -30
+@@ expect
+00:05
+23:35
+@@ test: Ведущие нули
+@@ input
+07:00
+2
+5 -420
+@@ expect
+07:05
+00:05
+@@ test: Больше суток вперёд
+@@ input
+12:30
+1
+3000
+@@ expect
+14:30
+@@ test: Назад через полночь и больше суток назад
+@@ input
+00:10
+2
+-11 -2880
+@@ expect
+23:59
+23:59
+@@ test: Ноль минут
+@@ input
+09:09
+1
+0
+@@ expect
+09:09
+@@ require: \bclass\s+WallClockTime\b | Объяви в том же файле класс WallClockTime
+@@ require: private\s+int\s+hours\b | Поле hours должно быть private
+@@ require: private\s+int\s+minutes\b | Поле minutes должно быть private
+@@ require: \bvoid\s+addMinutes\s*\(\s*int\s+\w+\s*\) | Нужен метод void addMinutes(int delta)
+@@ require: public\s+String\s+toString\s*\(\s*\) | Переопредели метод public String toString()

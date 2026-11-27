@@ -1,0 +1,42 @@
+## id: tr-cond-011
+## title: Оценка словами
+## file: trainer/cond/GradeWordSwitch.java
+## class: GradeWordSwitch
+## level: 1
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>GradeWordSwitch</code>. Программа читает школьную оценку (целое число) и печатает её словами: 5 — <code>отлично</code>, 4 — <code>хорошо</code>, 3 — <code>удовлетворительно</code>, 2 — <code>неудовлетворительно</code>. Для любого другого числа — <code>Нет такой оценки</code>. Используй <code>switch</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+вывод: отлично
+
+ввод:  7
+вывод: Нет такой оценки</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>switch (x) { case 5 -> …; default -> …; }</code> — ветка выбирается по значению <code>x</code>; <code>default</code> — «во всех остальных случаях»</li>
+</ul></div>
+@@ test: Пятёрка
+@@ input
+5
+@@ expect
+отлично
+@@ test: Тройка
+@@ input
+3
+@@ expect
+удовлетворительно
+@@ test: Двойка
+@@ input
+2
+@@ expect
+неудовлетворительно
+@@ test: Такой оценки нет
+@@ input
+7
+@@ expect
+Нет такой оценки
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Нет такой оценки
+@@ require: switch\s*\( | Реши задачу через switch

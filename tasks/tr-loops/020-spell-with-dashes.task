@@ -1,0 +1,35 @@
+## id: tr-loops-020
+## title: Диктуем по буквам
+## file: trainer/loops/SpellWordWithDashes.java
+## class: SpellWordWithDashes
+## level: 1
+## category: Символы и узоры
+@@ description
+<p>Напиши класс <code>SpellWordWithDashes</code>. Оператор колл-центра диктует слово по буквам. Программа читает слово и печатает его буквы через дефис.</p>
+<pre class="terminal"><span class="out">ввод:  кот
+вывод: к-о-т</span></pre>
+<p>Дефис стоит только между буквами — ни в начале, ни в конце.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>word.charAt(i)</code> — символ под номером i</li>
+<li><code>if (i &gt; 0) System.out.print("-");</code> — дефис перед каждой буквой, кроме первой</li>
+</ul></div>
+@@ test: Кот
+@@ input
+кот
+@@ expect
+к-о-т
+@@ test: Одна буква
+@@ input
+я
+@@ expect
+я
+@@ test: С заглавной
+@@ input
+Java
+@@ expect
+J-a-v-a
+@@ test: Длинное слово
+@@ input
+программа
+@@ expect
+п-р-о-г-р-а-м-м-а

@@ -1,0 +1,47 @@
+## id: tr-arrays-050
+## title: Самая популярная пицца
+## file: trainer/arrays/MostOrderedPizza.java
+## class: MostOrderedPizza
+## level: 3
+## category: Повторы и уникальность
+@@ description
+<p>Напиши класс <code>MostOrderedPizza</code>. Пиццерия записывала номер пиццы в каждом заказе. Номера — любые целые числа, заранее неизвестно, какие. В первой строке — количество заказов <code>n</code> (n ≥ 1), во второй — <code>n</code> номеров. Найди пиццу, которую заказывали чаще всего, и напечатай <code>Пицца X: K раз</code>. Если таких несколько — с наименьшим номером.</p>
+<pre class="terminal"><span class="out">ввод:  8
+       3 7 3 1 7 3 9 7
+вывод: Пицца 3: 3 раз</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.sort(a)</code> — после сортировки одинаковые номера стоят рядом, и их можно считать сериями</li>
+<li>в отсортированном массиве первой встретится серия с меньшим номером — обновляй лучший результат только при строго большей длине</li>
+</ul></div>
+@@ test: Вечер пятницы
+@@ input
+8
+3 7 3 1 7 3 9 7
+@@ expect
+Пицца 3: 3 раз
+@@ test: Все разные
+@@ input
+4
+40 10 30 20
+@@ expect
+Пицца 10: 1 раз
+@@ test: Один заказ
+@@ input
+1
+5
+@@ expect
+Пицца 5: 1 раз
+@@ test: Явный лидер
+@@ input
+6
+2 2 2 2 1 1
+@@ expect
+Пицца 2: 4 раз
+@@ test: Большие номера
+@@ input
+5
+1000 -5 1000 -5 999
+@@ expect
+Пицца -5: 2 раз
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];
+@@ forbid: \b(ArrayList|LinkedList|HashSet|TreeSet|HashMap|TreeMap|List|Set|Map)\s*<|\.stream\s*\( | Здесь только массивы: коллекции и стримы будут позже

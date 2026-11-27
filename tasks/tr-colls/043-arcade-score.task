@@ -1,0 +1,54 @@
+## id: tr-colls-043
+## title: Табло игрового автомата
+## file: trainer/colls/ArcadeScoreKeeper.java
+## class: ArcadeScoreKeeper
+## level: 2
+## category: Стек и очередь
+@@ description
+<p>Напиши класс <code>ArcadeScoreKeeper</code>. Автомат записывает очки за раунды. В первой строке — количество записей <code>n</code>, во второй — <code>n</code> записей через пробел. Запись бывает четырёх видов:</p>
+<ul>
+<li>целое число — очки за новый раунд;</li>
+<li><code>+</code> — новый раунд, очки которого равны сумме двух предыдущих раундов;</li>
+<li><code>D</code> — новый раунд с удвоенными очками предыдущего;</li>
+<li><code>C</code> — отмена: последний раунд стирается, как будто его не было.</li>
+</ul>
+<p>Записи всегда корректны (для <code>+</code> есть два раунда, для <code>D</code> и <code>C</code> — хотя бы один). Напечатай <code>Итого: X</code> — сумму очков всех оставшихся раундов.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       5 2 C D +
+вывод: Итого: 30</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>раунды удобно хранить в стеке <code>ArrayDeque&lt;Integer&gt;</code>: нужны всегда последние</li>
+<li>для <code>+</code>: сними верхний (<code>pop</code>), посмотри следующий (<code>peek</code>), верни верхний обратно</li>
+<li><code>Integer.parseInt(s)</code> — превращает строку в число; строки сравнивай через <code>equals</code></li>
+</ul></div>
+@@ test: Все виды записей
+@@ input
+5
+5 2 C D +
+@@ expect
+Итого: 30
+@@ test: Отрицательные очки
+@@ input
+8
+5 -2 4 C D 9 + +
+@@ expect
+Итого: 27
+@@ test: Отменили всё
+@@ input
+2
+1 C
+@@ expect
+Итого: 0
+@@ test: Только числа
+@@ input
+3
+10 20 30
+@@ expect
+Итого: 60
+@@ test: Удвоение удвоения
+@@ input
+4
+3 D D D
+@@ expect
+Итого: 45
+@@ require: ArrayDeque | Храни раунды в стеке ArrayDeque

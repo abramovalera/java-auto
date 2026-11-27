@@ -1,0 +1,51 @@
+## id: tr-arith-012
+## title: Прыжки в длину
+## file: trainer/arith/LongJumpBestWorst.java
+## class: LongJumpBestWorst
+## level: 1
+## category: Math и округление
+@@ description
+<p>Спортсмен сделал три прыжка в длину, каждый измерен в сантиметрах (заступ считается как 0). Создай класс <code>LongJumpBestWorst</code>. Программа читает три целых числа, каждое с новой строки, и печатает две строки: лучший и худший результат.</p>
+<pre class="terminal"><span class="out">ввод:  470
+       512
+       498
+вывод: Лучший: 512
+       Худший: 470</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.max(a, b)</code> и <code>Math.min(a, b)</code> — возвращают большее и меньшее из двух чисел</li>
+<li>Вызов можно передать аргументом в другой вызов: <code>Math.max(a, Math.max(b, c))</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+470
+512
+498
+@@ expect
+Лучший: 512
+Худший: 470
+@@ test: Лучший — последний
+@@ input
+430
+445
+460
+@@ expect
+Лучший: 460
+Худший: 430
+@@ test: Два заступа
+@@ input
+0
+455
+0
+@@ expect
+Лучший: 455
+Худший: 0
+@@ test: Все прыжки одинаковые
+@@ input
+500
+500
+500
+@@ expect
+Лучший: 500
+Худший: 500
+@@ require: Math\.max | Лучший результат найди методом Math.max
+@@ require: Math\.min | Худший результат найди методом Math.min

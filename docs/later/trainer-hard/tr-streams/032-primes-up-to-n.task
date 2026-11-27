@@ -1,0 +1,44 @@
+## id: tr-streams-032
+## title: Простые числа до n
+## file: trainer/streams/PrimesUpToN.java
+## class: PrimesUpToN
+## level: 3
+## category: Проверки условий
+@@ description
+<p>Напиши класс <code>PrimesUpToN</code>. Простое число — целое число больше 1, которое делится без остатка только на 1 и на себя. Программа читает <code>n</code> (от 0 до 1000) и печатает через пробел все простые числа от 2 до <code>n</code> включительно. Если таких нет — <code>нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10
+вывод: 2 3 5 7</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>IntStream.rangeClosed(2, n)</code> — кандидаты от 2 до <code>n</code></li>
+<li><code>IntStream.rangeClosed(2, x - 1).noneMatch(d -&gt; x % d == 0)</code> — у <code>x</code> нет ни одного делителя в этом диапазоне (стрим внутри лямбды — это нормально)</li>
+<li>делители достаточно перебирать до <code>(int) Math.sqrt(x)</code></li>
+</ul></div>
+@@ test: До десяти
+@@ input
+10
+@@ expect
+2 3 5 7
+@@ test: Самое маленькое простое
+@@ input
+2
+@@ expect
+2
+@@ test: Единица — не простое
+@@ input
+1
+@@ expect
+нет
+@@ test: Ноль
+@@ input
+0
+@@ expect
+нет
+@@ test: До пятидесяти
+@@ input
+50
+@@ expect
+2 3 5 7 11 13 17 19 23 29 31 37 41 43 47
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: noneMatch\s*\( | Проверь, что делителей нет, методом noneMatch

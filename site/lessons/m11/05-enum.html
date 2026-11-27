@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Перечисления enum · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-05">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 11 · Урок 5</div>
+    <h1>Перечисления enum</h1>
+    <p class="lead">PASSED, FAILED, SKIPPED. Понедельник… воскресенье. Лёгкий, средний, сложный. Когда вариантов ровно столько и не больше, Java даёт особый тип — перечисление.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🚦 светофор</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m11-05-review">
+      <script type="application/json">
+      { "title": "Вспомним Comparator", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Компаратор должен сортировать игроков по очкам <b>по убыванию</b>. Что вернуть из compare(a, b)?",
+            "options": ["Integer.compare(a.score, b.score)", "Integer.compare(b.score, a.score)", "a.score > b.score"], "answer": 1,
+            "why": "Переставленные аргументы дают обратный порядок. А boolean компаратор вернуть не может — нужен int." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Анонимный класс создаётся прямо там, где нужен объект: new Интерфейс() { … }", "a": true },
+              { "s": "Runnable — интерфейс с одним методом run()", "a": true },
+              { "s": "Arrays.sort(players) отсортирует объекты Player без компаратора, если у них есть поле score", "a": false, "why": "Java не знает, по какому полю сравнивать: при запуске будет выброшено исключение ClassCastException." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Проблема: статус строкой</h2>
+    <p>Ведём журнал экзамена. У каждого ученика три возможных результата: сдал, не сдал, пропустил. Первое, что приходит в голову, — хранить результат строкой:</p>
+<pre data-file="Report.java"><code class="java">String status = "PASED";  // опечатка — компилятор молчит
+if (status.equals("PASSED")) {
+    // не выполнится, и никто не поймёт почему
+    System.out.println("Молодец!");
+}
+status = "банан";  // тоже можно — это же просто строка</code></pre>
+    <p>Можно взять числа: 0 — сдал, 1 — не сдал, 2 — пропустил. Но <code>status = 7</code> компилируется так же спокойно, а читать <code>if (status == 1)</code> — сплошное гадание.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: светофор</span>
+      <p>У светофора ровно три сигнала: красный, жёлтый, зелёный. «Фиолетовый» или «красный с опечаткой» не бывает. Хочется тип, у которого <b>заранее известен полный список значений</b> — и чтобы компилятор не давал выйти за этот список.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>enum — тип с фиксированным списком</h2>
+<pre data-file="ExamStatus.java"><code class="java">enum ExamStatus {
+    PASSED, FAILED, SKIPPED
+}
+
+ExamStatus s = ExamStatus.FAILED;
+System.out.println(s);                   // FAILED
+
+if (s == ExamStatus.FAILED) {
+    System.out.println("Делаем скриншот");
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>enum ExamStatus</code><div><p>Объявление <b>перечисления</b> (enum, enumeration). Новый тип, как класс, только значения у него перечислены заранее.</p></div></div>
+      <div class="annot-row"><code>PASSED, FAILED, SKIPPED</code><div><p><b>Константы</b> перечисления. Пишут БОЛЬШИМИ_БУКВАМИ, через запятую. Других значений у типа <code>ExamStatus</code> не бывает (кроме <code>null</code>).</p></div></div>
+      <div class="annot-row"><code>System.out.println(s)</code><div><p>Печатает имя константы: <code>FAILED</code>. Переопределять <code>toString</code> не нужно — у enum он уже возвращает имя.</p></div></div>
+      <div class="annot-row"><code>s == ExamStatus.FAILED</code><div><p>Константы сравнивают через <code>==</code>. Здесь это правильно, в отличие от строк (модуль 8). Почему — смотри схему.</p></div></div>
+    </div>
+    <p>Опечатка теперь ловится сразу: <code>ExamStatus.PASED</code> → <code>error: cannot find symbol</code>. И строку такой переменной не присвоить: <code>ExamStatus s = "PASSED";</code> → <code>incompatible types</code>.</p>
+    <div data-widget="ide" id="shot-enum-typo">
+      <script type="application/json">
+      { "tree": false, "file": "Report.java", "statusPath": "module-11", "gutterRun": [1, 2],
+        "code": "public class Report {\n    public static void main(String[] args) {\n        ExamStatus a = ExamStatus.PASED;\n        ExamStatus b = \"PASSED\";\n    }\n}",
+        "errors": [ { "line": 3, "text": "PASED", "msg": "Cannot resolve symbol 'PASED'", "tip": true },
+                    { "line": 4, "text": "\"PASSED\"", "msg": "Incompatible types. Found: 'java.lang.String', required: 'ExamStatus'" } ],
+        "marks": [ { "n": 1, "target": "tip", "text": "<b>Cannot resolve symbol 'PASED'</b> — такой константы в ExamStatus нет. Со строкой <code>\"PASED\"</code> компилятор промолчал бы" },
+                   { "n": 2, "target": "err-4", "side": "top", "text": "Строку переменной типа enum не присвоить. Наведёшь мышь — <b>Incompatible types. Found: 'java.lang.String', required: 'ExamStatus'</b>: «нашёл String, а нужен ExamStatus»" },
+                   { "n": 3, "target": "problems", "text": "❗2 — обе ошибки пойманы ещё до запуска" } ],
+        "caption": "enum: опечатки и «левые» значения ловит компилятор" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 260" role="img" aria-label="Константы enum — три объекта в куче, созданные один раз; переменные a и b ссылаются на один и тот же объект FAILED">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="110" y="28" text-anchor="middle" class="d-small">СТЕК: переменные</text>
+        <rect x="20" y="50" width="180" height="56" rx="10" class="d-box"/>
+        <text x="40" y="84" class="d-mono-ink">a</text>
+        <circle cx="170" cy="78" r="6" class="d-accent"/>
+        <rect x="20" y="130" width="180" height="56" rx="10" class="d-box"/>
+        <text x="40" y="164" class="d-mono-ink">b</text>
+        <circle cx="170" cy="158" r="6" class="d-accent"/>
+        <text x="500" y="28" text-anchor="middle" class="d-small">КУЧА: объекты-константы, создаются один раз</text>
+        <rect x="330" y="44" width="340" height="190" rx="16" class="d-soft" stroke-dasharray="7 5"/>
+        <text x="350" y="70" class="d-small">enum ExamStatus</text>
+        <rect x="350" y="84" width="300" height="40" rx="10" class="d-green"/>
+        <text x="370" y="110" class="d-mono-ink">PASSED · ordinal 0</text>
+        <rect x="350" y="134" width="300" height="40" rx="10" class="d-red"/>
+        <text x="370" y="160" class="d-mono-ink">FAILED · ordinal 1</text>
+        <rect x="350" y="184" width="300" height="40" rx="10" class="d-yellow"/>
+        <text x="370" y="210" class="d-mono-ink">SKIPPED · ordinal 2</text>
+        <path d="M176 78 C260 78 280 154 346 154" class="d-arrow"/>
+        <path d="M176 158 C260 158 290 156 346 156" class="d-arrow"/>
+        <text x="20" y="226" class="d-small">a = ExamStatus.FAILED</text>
+        <text x="20" y="246" class="d-small">b = valueOf("FAILED")</text>
+      </svg>
+      <figcaption>Каждая константа — единственный объект на всю программу. Обе переменные хранят ссылку на один и тот же объект FAILED, поэтому a == b — true.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: <code>ExamStatus a = ExamStatus.FAILED; ExamStatus b = ExamStatus.FAILED;</code> — что даст <code>a == b</code>?</summary>
+      <p><code>true</code>. Новых объектов константы не создают: <code>ExamStatus.FAILED</code> всегда указывает на один и тот же объект. Поэтому <code>==</code> для enum — норма. <code>equals</code> тоже работает, но <code>==</code> ещё и не выбросит <code>NullPointerException</code>, если слева <code>null</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Что умеет любой enum</h2>
+    <p>Каждый enum получает от Java готовые методы:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает</th><th>Пример → результат</th></tr>
+        <tr><td><code>values()</code></td><td>массив всех констант по порядку объявления</td><td><code>ExamStatus.values()</code> → [PASSED, FAILED, SKIPPED]</td></tr>
+        <tr><td><code>ordinal()</code></td><td>номер константы, считая с нуля</td><td><code>ExamStatus.SKIPPED.ordinal()</code> → 2</td></tr>
+        <tr><td><code>name()</code></td><td>имя константы строкой</td><td><code>ExamStatus.FAILED.name()</code> → "FAILED"</td></tr>
+        <tr><td><code>valueOf(String)</code></td><td>константа по её имени (буква в букву)</td><td><code>ExamStatus.valueOf("PASSED")</code> → PASSED</td></tr>
+        <tr><td><code>compareTo(…)</code></td><td>сравнение по порядку объявления</td><td><code>PASSED.compareTo(SKIPPED)</code> → отрицательное</td></tr>
+      </table>
+    </div>
+<pre data-file="Statuses.java"><code class="java">for (ExamStatus st : ExamStatus.values()) {
+    System.out.println(st.ordinal() + " " + st);
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи вывод цикла</summary>
+<pre class="terminal"><span class="out">0 PASSED
+1 FAILED
+2 SKIPPED</span></pre>
+      <p>Порядок — как в объявлении. <code>ordinal()</code> начинается с 0, как индексы массива. Поэтому им удобно пользоваться как индексом: <code>counts[st.ordinal()]++</code> — это пригодится в задаче про итоги сезона.</p>
+    </details>
+    <p><code>valueOf</code> принимает аргументом текст (например, введённый с клавиатуры) и возвращает константу с таким именем. Но он строгий:</p>
+<pre class="terminal"><span class="err">ExamStatus.valueOf("passed")
+Exception in thread "main" java.lang.IllegalArgumentException: No enum constant ExamStatus.passed</span></pre>
+    <p>Регистр важен. Если текст может прийти маленькими буквами, сначала вызови у строки <code>toUpperCase()</code>: <code>"passed".toUpperCase()</code>.</p>
+    <div class="callout warn">
+      <span class="callout-title">ordinal — не для хранения</span>
+      <p>Номер зависит от порядка строк в коде. Вставил кто-то новую константу в середину — номера всех следующих сдвинулись. Пользуйся <code>ordinal()</code> внутри программы (как индексом), но не записывай его в файлы и базы как «код статуса».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>switch по enum</h2>
+    <p>enum и <code>switch</code> из модуля 4 — отличная пара. В <code>case</code> пишут просто имя константы, без <code>ExamStatus.</code> — тип и так известен:</p>
+<pre data-file="Icons.java"><code class="java">static void printIcon(ExamStatus s) {
+    switch (s) {
+        case PASSED -&gt; System.out.println("✔ сдал");
+        case FAILED -&gt; System.out.println("✘ не сдал");
+        case SKIPPED -&gt; System.out.println("⏭ пропустил");
+    }
+}</code></pre>
+    <p>IDEA тоже помогает: напиши <code>switch (s)</code>, нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> — и она предложит создать ветки для всех констант.</p>
+    <div data-widget="ide" id="shot-enum-switch">
+      <script type="application/json">
+      { "tree": false, "file": "Icons.java", "statusPath": "module-11",
+        "code": "public class Icons {\n    static void printIcon(ExamStatus s) {\n        switch (s) {\n        }\n    }\n}", "caretLine": 3,
+        "menu": { "at": "line-3", "items": ["Create missing switch branches", "Replace 'switch' with 'if'"], "hl": "Create missing switch branches" },
+        "marks": [ { "n": 1, "target": "line-3", "side": "left", "text": "Пустой <code>switch (s)</code>, курсор на слове <code>switch</code>. Жмём <kbd>Alt</kbd>+<kbd>Enter</kbd>" },
+                   { "n": 2, "target": "menu", "text": "<b>Create missing switch branches</b> — «создать недостающие ветки»: IDEA впишет <code>case PASSED</code>, <code>case FAILED</code>, <code>case SKIPPED</code>. Тебе останется заполнить, что делать в каждой" } ],
+        "caption": "Alt+Enter на switch по enum" }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Но не спеши писать <code>switch</code> по каждому поводу. Если для каждой константы нужно какое-то <b>число или текст</b> — цена, название, коэффициент — лучше положить его прямо в константу — в её поле. Смотри следующий шаг.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Поля, конструктор и методы в enum</h2>
+    <p>enum — это настоящий класс. У него могут быть поля, конструктор и методы. Тогда каждая константа — объект со своими значениями полей:</p>
+<pre data-file="Difficulty.java"><code class="java">enum Difficulty {
+    EASY("Лёгкий", 1),
+    MEDIUM("Средний", 2),
+    HARD("Сложный", 3);  // ; обязательна, если дальше что-то есть
+
+    private final String title;
+    private final int multiplier;
+
+    // конструктор: Java вызовет его сама
+    Difficulty(String title, int multiplier) {
+        this.title = title;
+        this.multiplier = multiplier;
+    }
+
+    String getTitle() {
+        return title;
+    }
+
+    int score(int base) {
+        return base * multiplier;
+    }
+}
+
+Difficulty d = Difficulty.HARD;
+System.out.println(d.getTitle() + ": " + d.score(100));</code></pre>
+<pre class="terminal"><span class="out">Сложный: 300</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>HARD("Сложный", 3)</code><div><p>Константа с аргументами — это вызов конструктора с аргументами <code>"Сложный"</code> и <code>3</code>. Java создаёт три объекта (по одному на константу) один раз, когда enum впервые понадобился.</p></div></div>
+      <div class="annot-row"><code>HARD("Сложный", 3);</code><div><p>Список констант всегда <b>первый</b> и заканчивается <code>;</code>, если после него идут поля и методы.</p></div></div>
+      <div class="annot-row"><code>Difficulty(String title, …)</code><div><p>Конструктор enum всегда приватный (даже без слова <code>private</code>): <code>new Difficulty(…)</code> написать нельзя — ошибка <code>enum classes may not be instantiated</code>.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>System.out.println(Difficulty.EASY.score(50) + Difficulty.MEDIUM.score(50));</code>?</summary>
+      <p><code>150</code>: 50 × 1 + 50 × 2. Обрати внимание — ни одного <code>if</code> и <code>switch</code>: каждая константа хранит свой множитель в поле <code>multiplier</code>. Добавишь уровень <code>NIGHTMARE("Кошмар", 5)</code> — остальной код менять не придётся.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>enum в настоящих программах</h2>
+    <p>В программах enum на каждом шагу: статусы заказов, размеры одежды, роли пользователей, языки приложения.</p>
+<pre data-file="Language.java"><code class="java">enum Language {
+    RU("Привет"),
+    EN("Hello");
+
+    private final String greeting;
+
+    Language(String greeting) {
+        this.greeting = greeting;
+    }
+
+    String getGreeting() {
+        return greeting;
+    }
+}
+
+Language lang = Language.valueOf("EN");     // например, из настроек приложения
+System.out.println(lang.getGreeting() + ", Аня!");</code></pre>
+<pre class="terminal"><span class="out">Hello, Аня!</span></pre>
+    <p>Программа не хранит приветствия в <code>if</code>-ах — она вызывает <code>getGreeting()</code> у константы. Переключаем язык — меняем одно слово в настройках.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: enum — особый класс</summary>
+      <ul>
+        <li>Любой enum неявно наследует <code>java.lang.Enum</code>, поэтому <code>extends</code> у него писать нельзя. И сам он <code>final</code>: наследоваться от enum нельзя.</li>
+        <li>А вот <code>implements</code> — можно: <code>enum Step implements Runnable</code> — и каждая константа станет «работой», которую можно передать в метод.</li>
+        <li>У каждой константы может быть своё тело с переопределёнными методами: <code>PLUS { int apply(int a, int b) { return a + b; } }</code>.</li>
+        <li>Для словарей «константа → значение» в модуле 13 будет быстрый <code>EnumMap</code>.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m11-05">
+      <script type="application/json">
+      {
+       "title": "enum — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "enum Day { MON, TUE, WED, THU, FRI, SAT, SUN }\n\nSystem.out.println(Day.WED.ordinal());\nSystem.out.println(Day.values().length);\nSystem.out.println(Day.valueOf(\"SUN\"));",
+         "answer": "2\n7\nSUN",
+         "why": "ordinal считает с нуля: MON — 0, TUE — 1, WED — 2. Констант семь. valueOf вернул константу, println печатает её имя."
+        },
+        {
+         "type": "single",
+         "q": "Что будет при запуске <code>Day.valueOf(\"Mon\")</code>?",
+         "options": [
+          "Вернётся MON",
+          "Вернётся null",
+          "IllegalArgumentException",
+          "Ошибка компиляции"
+         ],
+         "answer": 2,
+         "why": "Скомпилируется (это же просто строка), но имя должно совпасть буква в букву. «Mon» ≠ «MON» — при запуске выбрасывается исключение."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "enum Level {\n    LOW(1), HIGH(10);\n    private final int weight;\n    Level(int weight) { this.weight = weight; }\n}\nLevel a = Level.HIGH;\nLevel b = new Level(5);",
+         "answer": [
+          7
+         ],
+         "why": "Объекты enum создаёт только сама Java — по одному на константу. Конструктор enum всегда приватный."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Константы enum можно сравнивать через ==",
+           "a": true
+          },
+          {
+           "s": "В case у switch по enum пишут просто PASSED",
+           "a": true
+          },
+          {
+           "s": "ordinal() удобно сохранять в файл как постоянный код статуса",
+           "a": false,
+           "why": "номера сдвинутся, если кто-то вставит константу в середину."
+          },
+          {
+           "s": "У каждой константы enum могут быть свои значения полей",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Почему для enum можно сравнивать через ==, а для строк нужно equals? Проверь, правильно ли я понимаю»</em> — и объясни своими словами со схемой про кучу.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>enum</code> — тип с заранее известным списком значений; опечатки и «левые» значения ловит компилятор.</li>
+        <li>Каждая константа — единственный объект, поэтому сравнение <code>==</code> — правильное.</li>
+        <li><code>values()</code>, <code>ordinal()</code> (с нуля), <code>name()</code>, <code>valueOf("ИМЯ")</code> — строгий к регистру, иначе <code>IllegalArgumentException</code>.</li>
+        <li><code>switch</code> по enum: в <code>case</code> только имя константы.</li>
+        <li>У enum бывают поля, конструктор (всегда приватный) и методы — данные лучше хранить в полях константы, а не в <code>switch</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

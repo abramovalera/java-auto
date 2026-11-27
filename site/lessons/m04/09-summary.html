@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 4 и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 4 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Твои программы научились выбирать: смотреть на данные и решать, что делать. Соберём модуль в одну картинку, проверим себя большой проверкой — и к наставнику на экзамен.</span><span class="free-only">Твои программы научились выбирать: смотреть на данные и решать, что делать. Соберём модуль в одну картинку, проверим себя большой проверкой — и к <span class="ai-name">DeepSeek</span> на экзамен.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 4: if, else if, ловушки, тернарный, switch, мастерская">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">🔀 if</text>
+        <text x="56" y="80" class="d-small">if (условие) { тело }</text>
+        <text x="56" y="100" class="d-small">условие — только boolean</text>
+        <text x="56" y="120" class="d-small">переменная живёт в блоке</text>
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🪜 else if</text>
+        <text x="526" y="80" class="d-small">первая подходящая ветка</text>
+        <text x="526" y="100" class="d-small">от узкого к широкому</text>
+        <text x="526" y="120" class="d-small">вложенные if и &amp;&amp;</text>
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-red"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">🪤 Ловушки</text>
+        <text x="26" y="230" class="d-small">= и ==, «;» после if</text>
+        <text x="26" y="250" class="d-small">без { }, строки, double</text>
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">❓ Тернарный</text>
+        <text x="556" y="230" class="d-small">усл ? да : нет</text>
+        <text x="556" y="250" class="d-small">в склейке — в скобках</text>
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-yellow"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">🛗 switch</text>
+        <text x="56" y="370" class="d-small">case: + break, провал</text>
+        <text x="56" y="390" class="d-small">case -&gt; без провала</text>
+        <text x="56" y="410" class="d-small">switch-выражение, default</text>
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-green"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🛠 Мастерская</text>
+        <text x="526" y="370" class="d-small">таблица случаев</text>
+        <text x="526" y="390" class="d-small">граничные значения</text>
+        <text x="526" y="410" class="d-small">рекордсмен, «Раннер»</text>
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 4</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Условия</text>
+      </svg>
+      <figcaption>Про каждый блок скажи вслух пару фраз. Не получается — вернись к уроку в меню слева.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Раньше программа была поездом на одних рельсах. Теперь у неё есть стрелки, и она сама выбирает путь — даже учит Джавика прыгать в «Раннере». Это огромный шаг!</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>написать if, if-else и цепочку else if, назвать в них условие, тело и ветки и нарисовать цепочку блок-схемой с ромбами;</li>
+        <li>объяснить, почему в цепочке выполняется только первая подходящая ветка и как из-за порядка ветка может стать «мёртвой»;</li>
+        <li>сказать, сколько веток выполнится в if, if-else, цепочке с else и без него, в нескольких отдельных if;</li>
+        <li>найти ловушки: <code>=</code> вместо <code>==</code>, <code>;</code> после if, if без скобок, «висячий» else, <code>==</code> у строк, <code>==</code> у double, <code>0 &lt; x &lt; 10</code>;</li>
+        <li>записать выбор из двух значений тернарным оператором — и понять, когда он вредит читаемости;</li>
+        <li>написать классический switch с break и новый со стрелками; объяснить провал без break;</li>
+        <li>сделать switch-выражение и объяснить, зачем в нём default;</li>
+        <li>перед кодом составить таблицу случаев с граничными значениями и псевдокод;</li>
+        <li>найти максимум или минимум «рекордсменом».</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <p>Десять заданий по всему модулю. Ошибки вернутся в конце.</p>
+    <div data-widget="check" id="check-m04-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 4: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int t = 25;\nif (t > 30) {\n    System.out.println(\"Жара\");\n} else if (t > 20) {\n    System.out.println(\"Тепло\");\n} else if (t > 10) {\n    System.out.println(\"Прохладно\");\n}\nSystem.out.println(\"Конец\");",
+         "answer": "Тепло\nКонец",
+         "why": "25 &gt; 30 — нет, 25 &gt; 20 — да. Дальше цепочка пропускается, «Конец» — вне её."
+        },
+        {
+         "type": "single",
+         "q": "Сколько строк напечатает код при <code>n = 12</code>?",
+         "code": "if (n % 2 == 0) { System.out.println(\"чётное\"); }\nif (n % 3 == 0) { System.out.println(\"делится на 3\"); }\nif (n > 10) { System.out.println(\"больше 10\"); }",
+         "options": [
+          "1",
+          "2",
+          "3"
+         ],
+         "answer": 2,
+         "why": "Это три независимых if — каждый проверяется сам. 12 подходит под все три."
+        },
+        {
+         "type": "bug",
+         "q": "Из-за какой строки «Нужен зонт» печатается даже в солнечный день?",
+         "code": "boolean rain = false;\nif (rain);\n{\n    System.out.println(\"Нужен зонт\");\n}",
+         "answer": [
+          2
+         ],
+         "why": "<code>;</code> после if — пустая инструкция стала телом if, а блок стоит сам по себе и выполняется всегда."
+        },
+        {
+         "type": "single",
+         "q": "Как сравнить ввод пользователя со словом «exit»?",
+         "options": [
+          "input == \"exit\"",
+          "\"exit\".equals(input)",
+          "input = \"exit\""
+         ],
+         "answer": 1,
+         "why": "Текст строк сравнивают через equals; <code>==</code> сравнивает ссылки."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int balance = -50;\nSystem.out.println(\"Счёт: \" + (balance >= 0 ? \"в плюсе\" : \"в минусе\"));",
+         "answer": "Счёт: в минусе",
+         "why": "−50 &gt;= 0 — false, выбираем «в минусе». Скобки вокруг тернарного обязательны."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет классический switch?",
+         "code": "int k = 1;\nswitch (k) {\n    case 1:\n        System.out.println(\"A\");\n    case 2:\n        System.out.println(\"B\");\n        break;\n    case 3:\n        System.out.println(\"C\");\n}",
+         "answer": "A\nB",
+         "why": "Вход на case 1, break нет — провал в case 2, там break."
+        },
+        {
+         "type": "match",
+         "q": "Соедини задачу с инструментом",
+         "left": [
+          "Тариф по сумме: до 1000, до 5000, больше",
+          "Название месяца по номеру 1–12",
+          "Выбрать «он» или «она» по флагу"
+         ],
+         "right": [
+          "цепочка else if",
+          "switch",
+          "тернарный оператор"
+         ],
+         "why": "Диапазоны — if; список конкретных значений — switch; одно из двух значений — тернарный."
+        },
+        {
+         "type": "multi",
+         "q": "Скидка действует для заказов от 1000 до 5000 рублей включительно. Какие суммы — граничные значения?",
+         "options": [
+          "999",
+          "1000",
+          "3000",
+          "5000",
+          "5001"
+         ],
+         "answer": [
+          0,
+          1,
+          3,
+          4
+         ],
+         "why": "Граница и её соседи с обеих сторон: 999 / 1000 и 5000 / 5001. 3000 — представитель середины диапазона."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>else</code> без фигурных скобок относится к ближайшему if без пары",
+           "a": true
+          },
+          {
+           "s": "switch можно сделать по переменной double",
+           "a": false,
+           "why": "можно по int, char, String (и enum — позже), но не по double, long, boolean."
+          },
+          {
+           "s": "Проверку некорректного ввода в цепочке else if ставят первой",
+           "a": true
+          },
+          {
+           "s": "<code>if (x = 5)</code> для int x скомпилируется и всегда будет true",
+           "a": false,
+           "why": "не скомпилируется: int нельзя превратить в boolean. Молча компилируется только вариант с boolean-переменной."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m04">странице практики</a> должны быть решены все задачи модуля:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Чётное или нечётное</td><td>if-else, остаток у отрицательных — <a href="/lessons/m04/02-else-if.html">урок 4.2</a></td></tr>
+        <tr><td>2. День недели по номеру</td><td>switch со стрелками, switch-выражение — <a href="/lessons/m04/05-switch.html">урок 4.5</a></td></tr>
+        <tr><td>3. Оценка по баллам · 4. Високосный год · 5. Максимум из трёх</td><td>таблица случаев, граничные значения, порядок веток, рекордсмен — <a href="/lessons/m04/06-workshop.html">Мастерская</a></td></tr>
+        <tr><td>6. Калькулятор на switch</td><td>switch по строкам, деление на ноль — <a href="/lessons/m04/05-switch.html">урок 4.5</a></td></tr>
+        <tr><td>7. Какой это треугольник? ★★★</td><td>сначала некорректные случаи, потом от узкого к широкому</td></tr>
+        <tr><td>8. Почини кассу кинотеатра</td><td>ловушки из <a href="/lessons/m04/03-if-pitfalls.html">урока 4.3</a></td></tr>
+        <tr><td>«Раннер», уровни 1–3</td><td>условия на каждом ходу — <a href="/lessons/m04/50-runner.html">игра «Раннер»</a></td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">Каждую зелёную задачу разбери с наставником: <code>/check m04-t01</code>, <code>/check m04-t02</code> и так далее. Для «Мастерских» он спросит не только код, но и твою таблицу случаев.</span><span class="free-only">Каждую зелёную задачу разбери с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы). Для «Мастерских» он спросит не только код, но и твою таблицу случаев.</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><strong>Пройди экзамен.</strong> Будут вопросы по теории, «что выведется», «скомпилируется ли», «найди ошибку» — и маленькая задача с условиями, где сначала нужно рассказать таблицу случаев, а потом написать код.</li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить. Перечитаешь, потренируешься — и вернёшься.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить. Перечитаешь, потренируешься — и вернёшься.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Хочешь размяться — напиши: <em>«Давай пробный экзамен по модулю 4 без отметок в progress.md»</em>. Готов по-настоящему — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">🔁</span><h4>Модуль 5: циклы</h4><p>Программа научится повторять действия. А условие из if станет условием «крутить ли цикл ещё раз».</p></div>
+      <div class="card"><span class="emoji">🏆</span><h4>Рекордсмен вернётся</h4><p>В циклах он найдёт максимум не из трёх, а из сотни чисел — тем же самым if.</p></div>
+      <div class="card"><span class="emoji">🏃</span><h4>«Раннер» растёт</h4><p>Дальше у Джавика появятся новые трюки: с циклами — считать прыжки, с методами — разложить решение по полочкам.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай все задачи до зелёного (и уровни «Раннера») и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все задачи до зелёного (и уровни «Раннера») и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 5!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 5!</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m04">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

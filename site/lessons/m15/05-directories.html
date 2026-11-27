@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Работа с папками · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-05">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 15 · Урок 5</div>
+    <h1>Работа с папками</h1>
+    <p class="lead">Проверить, есть ли файл, найти все фотографии в папке, скопировать отчёт в архив, убрать за собой временные файлы. Всё это — снова класс <code>Files</code> и немного стримов.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>📂 exists, list, walk, copy, move, delete</span><span>🧩 сборка кода</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m15-05-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Почему <code>Files.lines(p)</code> пишут внутри <code>try (…)</code>?",
+            "options": ["Иначе не скомпилируется", "Стрим держит файл открытым — его надо закрыть", "Чтобы строки шли по порядку"], "answer": 1,
+            "why": "Пока стрим жив, файл открыт. try-with-resources закроет его сам." },
+          { "type": "predict", "q": "Повторим стримы. Что выведет?",
+            "code": "List<String> names = List.of(\"sea.png\", \"a.txt\", \"cat.png\");\nSystem.out.println(names.stream()\n        .filter(n -> n.endsWith(\".png\"))\n        .sorted()\n        .toList());",
+            "answer": "[cat.png, sea.png]", "why": "Фильтр оставил два .png, sorted расставил по алфавиту." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Ресурсы в try-with-resources закрываются в обратном порядке", "a": true },
+              { "s": "<code>Path.of(\"x.txt\")</code> создаёт пустой файл x.txt", "a": false, "why": "Path — только адрес, диск не трогается." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Есть ли файл?</h2>
+    <p>Перед чтением данных полезно проверить, что они на месте, — и упасть с понятным сообщением, а не со стектрейсом на полэкрана.</p>
+<pre data-file="CheckData.java"><code class="java">Path data = Path.of("data", "users.csv");
+
+if (Files.notExists(data)) {
+    System.out.println("Нет файла с данными: " + data.toAbsolutePath());
+    return;
+}
+System.out.println("Это файл? " + Files.isRegularFile(data));
+System.out.println("Это папка? " + Files.isDirectory(data));
+System.out.println("Размер: " + Files.size(data) + " байт");</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Ответ</th></tr>
+        <tr><td><code>Files.exists(p)</code> / <code>Files.notExists(p)</code></td><td>есть ли что-то по этому адресу</td></tr>
+        <tr><td><code>Files.isRegularFile(p)</code></td><td>это обычный файл (не папка)</td></tr>
+        <tr><td><code>Files.isDirectory(p)</code></td><td>это папка</td></tr>
+        <tr><td><code>Files.size(p)</code></td><td>размер в байтах (выбрасывает IOException, если файла нет)</td></tr>
+      </table>
+    </div>
+    <p>Все эти статические методы, кроме <code>size</code>, не выбрасывают исключений: если файла нет, они просто возвращают <code>false</code>.</p>
+    <details class="predict">
+      <summary>Предскажи: папка <code>reports</code> существует. Что вернёт <code>Files.exists(Path.of("reports"))</code>? А <code>Files.isRegularFile</code>?</summary>
+      <p><code>true</code> и <code>false</code>. <code>exists</code> отвечает «есть ли хоть что-то» — папка тоже считается. Поэтому если нужен именно файл, проверяй <code>isRegularFile</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Что лежит в папке: list и walk</h2>
+    <p>Два статических метода, оба возвращают <code>Stream&lt;Path&gt;</code>, оба надо закрывать — поэтому их вызывают в try-с-ресурсами:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 290" role="img" aria-label="Папка reports с файлами index.html, summary.txt и подпапкой charts с двумя картинками. list видит только первый уровень, walk — всё дерево вместе с самой папкой">
+        <rect x="20" y="20" width="300" height="250" rx="14" class="d-soft"/>
+        <rect x="36" y="34" width="150" height="34" rx="8" class="d-accent"/>
+        <text x="50" y="57" class="d-text">📁 reports</text>
+        <path d="M56 68 V218" class="d-line"/>
+        <path d="M56 96 H80" class="d-line"/><path d="M56 136 H80" class="d-line"/><path d="M56 176 H80" class="d-line"/>
+        <rect x="80" y="80" width="160" height="32" rx="8" class="d-blue"/><text x="92" y="102" class="d-text">📄 index.html</text>
+        <rect x="80" y="120" width="160" height="32" rx="8" class="d-blue"/><text x="92" y="142" class="d-text">📄 summary.txt</text>
+        <rect x="80" y="160" width="160" height="32" rx="8" class="d-blue"/><text x="92" y="182" class="d-text">📁 charts</text>
+        <path d="M100 192 V246" class="d-line"/>
+        <path d="M100 214 H124" class="d-line"/>
+        <rect x="124" y="200" width="150" height="30" rx="8" class="d-violet"/><text x="136" y="221" class="d-text">🖼 sales.png</text>
+        <path d="M100 246 H124" class="d-line"/>
+        <rect x="124" y="234" width="150" height="30" rx="8" class="d-violet"/><text x="136" y="255" class="d-text">🖼 stock.png</text>
+        <rect x="350" y="20" width="190" height="250" rx="14" class="d-blue"/>
+        <text x="445" y="50" text-anchor="middle" class="d-title">Files.list</text>
+        <text x="445" y="72" text-anchor="middle" class="d-small">только первый уровень</text>
+        <text x="366" y="108" class="d-mono-ink">index.html</text>
+        <text x="366" y="134" class="d-mono-ink">summary.txt</text>
+        <text x="366" y="160" class="d-mono-ink">charts</text>
+        <text x="445" y="250" text-anchor="middle" class="d-small">3 элемента</text>
+        <rect x="556" y="20" width="190" height="250" rx="14" class="d-violet"/>
+        <text x="651" y="50" text-anchor="middle" class="d-title">Files.walk</text>
+        <text x="651" y="72" text-anchor="middle" class="d-small">всё дерево</text>
+        <text x="572" y="108" class="d-mono-ink">reports</text>
+        <text x="572" y="132" class="d-mono-ink">├ index.html</text>
+        <text x="572" y="156" class="d-mono-ink">├ summary.txt</text>
+        <text x="572" y="180" class="d-mono-ink">├ charts</text>
+        <text x="572" y="204" class="d-mono-ink">│ ├ sales.png</text>
+        <text x="572" y="228" class="d-mono-ink">│ └ stock.png</text>
+        <text x="651" y="256" text-anchor="middle" class="d-small">6 — и сама папка тоже</text>
+      </svg>
+      <figcaption><code>list</code> — заглянуть в папку, <code>walk</code> — обойти всё дерево вглубь.</figcaption>
+    </figure>
+<pre data-file="ListPhotos.java"><code class="java">Path photos = Path.of("photos", "summer");
+
+try (Stream&lt;Path&gt; files = Files.list(photos)) {
+    List&lt;String&gt; names = files
+            .filter(Files::isRegularFile)
+            .map(p -&gt; p.getFileName().toString())
+            .filter(name -&gt; name.endsWith(".png"))
+            .sorted()
+            .toList();
+    System.out.println("Фотографий: " + names.size());
+    names.forEach(System.out::println);
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>.filter(Files::isRegularFile)</code><div><p>Передаём в промежуточную операцию <code>filter</code> ссылку на статический метод <code>Files.isRegularFile</code> (модуль 14): остаются только файлы, папки отбрасываются.</p></div></div>
+      <div class="annot-row"><code>p.getFileName().toString()</code><div><p>Тело лямбда-выражения с параметром <code>p</code> внутри <code>map</code>. В стриме лежат полные пути <code>photos/summer/sea.png</code>: вызываем у <code>p</code> метод <code>getFileName()</code> — он возвращает только имя, — а затем <code>toString()</code> превращает Path в String.</p></div></div>
+      <div class="annot-row"><code>.sorted()</code><div><p>Промежуточная операция <code>sorted</code> <b>обязательна</b>, если важен порядок. <code>list</code> и <code>walk</code> возвращают файлы в том порядке, в каком их хранит система, — на твоём компьютере и на сервере он может быть разным.</p></div></div>
+    </div>
+    <p><code>Files.walk(папка)</code> работает так же, только спускается во все подпапки. Глубину можно ограничить: <code>Files.walk(папка, 2)</code>. Типичный пример — найти все <code>.csv</code> с данными в проекте, где бы они ни лежали.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Копировать и перемещать</h2>
+<pre data-file="Archive.java"><code class="java">Path report = Path.of("report.html");
+Path archive = Path.of("archive");
+Files.createDirectories(archive);
+
+Path copy = archive.resolve(report.getFileName());        // archive/report.html
+Files.copy(report, copy, StandardCopyOption.REPLACE_EXISTING);
+
+Files.move(Path.of("draft.txt"), Path.of("final.txt"));  // переименовать</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>archive.resolve(report.getFileName())</code><div><p>Вызываем у <code>archive</code> метод <code>resolve</code> и передаём аргументом имя файла — метод возвращает путь <code>archive/report.html</code>. Вторым аргументом <code>copy</code> всегда указывают <b>полный путь нового файла</b>, а не папку. Скопировать «в папку archive» = скопировать в <code>archive/report.html</code>.</p></div></div>
+      <div class="annot-row"><code>REPLACE_EXISTING</code><div><p>Без этой опции <code>copy</code> и <code>move</code> откажутся затирать существующий файл и выбросят <code>FileAlreadyExistsException</code>. Защита от случайной потери данных.</p></div></div>
+      <div class="annot-row"><code>Files.move</code><div><p>Статический метод <code>move</code> переносит файл: первый аргумент — откуда, второй — куда. Если папка та же, а имя другое — это переименование. Отдельного метода rename нет.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: запускаешь <code>Files.copy(report, copy)</code> без опций второй раз. Что будет?</summary>
+      <p>Первый раз — успех. Второй раз <code>archive/report.html</code> уже есть — метод выбросит <code>FileAlreadyExistsException</code>. В IDEA, где программу запускают много раз, это классика. Лечение — <code>REPLACE_EXISTING</code> или удаление старой копии перед копированием.</p>
+    </details>
+    <p>Так выглядит второй запуск без <code>REPLACE_EXISTING</code>:</p>
+    <div data-widget="ide" id="shot-file-exists">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "file": "Archive.java", "runConfig": "Archive", "gutterRun": [5, 6],
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "archive", "type": "folder", "depth": 1, "open": true },
+                  { "name": "report.html", "type": "file", "depth": 2 },
+                  { "name": "module-15", "type": "src", "depth": 1 },
+                  { "name": "report.html", "type": "file", "depth": 1 } ],
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\n\npublic class Archive {\n    public static void main(String[] args) throws IOException {\n        Path report = Path.of(\"report.html\");\n        Path archive = Path.of(\"archive\");\n        Files.createDirectories(archive);\n\n        Path copy = archive.resolve(report.getFileName());\n        Files.copy(report, copy);\n        System.out.println(\"Скопировано: \" + copy);\n    }\n}",
+        "console": { "title": "Archive", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Archive" },
+          { "t": "err", "s": "Exception in thread \"main\" java.nio.file.FileAlreadyExistsException: archive\\report.html" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsFileCopy.copy(WindowsFileCopy.java:133)" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsFileSystemProvider.copy(WindowsFileSystemProvider.java:282)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.copy(Files.java:1304)" },
+          { "t": "err", "s": "\tat Archive.main(Archive.java:12)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "tree", "text": "После первого запуска в папке <b>archive</b> уже лежит копия <code>report.html</code>" },
+                   { "n": 2, "target": "error", "side": "bottom", "text": "<b>FileAlreadyExistsException</b> — «файл уже существует», и путь к нему: <code>archive\\report.html</code>" },
+                   { "n": 3, "target": "link-4", "text": "Строка <b>12</b> — <code>Files.copy</code> без <code>REPLACE_EXISTING</code>. Строка 9 при этом не упала: <code>createDirectories</code> спокойно относится к готовой папке" } ],
+        "caption": "Второй запуск копирования: FileAlreadyExistsException" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Удалять</h2>
+    <div class="callout warn">
+      <span class="callout-title">Без корзины</span>
+      <p><code>Files.delete</code> удаляет <b>насовсем</b>, мимо корзины. Перед запуском программы, которая удаляет, дважды проверь путь — особенно если он абсолютный.</p>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">🗑️</span><h4>Files.delete(p)</h4><p>Нет файла — <code>NoSuchFileException</code>. Папка не пустая — <code>DirectoryNotEmptyException</code>.</p></div>
+      <div class="card"><span class="emoji">🧹</span><h4>Files.deleteIfExists(p)</h4><p>Нет файла — не ошибка, вернёт <code>false</code>. Удобно для уборки «на всякий случай».</p></div>
+    </div>
+    <p>Удалить папку с содержимым одной командой нельзя. Приём: обойти дерево через <code>walk</code> и удалять <b>с конца</b> — сначала файлы, потом опустевшие папки. Обратная сортировка путей как раз ставит вложенное раньше родителя:</p>
+    <div data-widget="parsons" id="delete-tree" data-code data-title="Удалить папку build/tmp целиком" data-icon="🧹"
+         data-hint="Сначала собрать список путей (стрим закрыть!), потом удалять по одному в цикле — от самых глубоких к корню."
+         data-success="🎉 Верно! Список собран внутри try, стрим закрыт, а удаление идёт в обычном цикле — с throws IOException это компилируется.">
+      <script type="text/plain">
+Path dir = Path.of("build", "tmp");
+List<Path> all;
+try (Stream<Path> walk = Files.walk(dir)) {
+    all = walk.sorted(Comparator.reverseOrder()).toList();
+}
+for (Path p : all) {
+    Files.delete(p);
+}
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: почему не написать короче — <code>walk.sorted(…).forEach(Files::delete);</code>?</summary>
+      <p><b>Не скомпилируется.</b> Терминальная операция <code>forEach</code> принимает аргументом лямбда-выражение (или ссылку на метод) функционального интерфейса <code>Consumer</code>, а его метод <code>accept</code> не объявлен с <code>throws IOException</code>. Выбросить checked-исключение из тела лямбды наружу нельзя. Компилятор скажет <code>incompatible thrown types IOException in functional expression</code> (а для лямбды <code>p -&gt; Files.delete(p)</code> — знакомое <code>unreported exception java.io.IOException</code>). Либо try-catch внутри лямбды, либо обычный цикл, как выше. Это частый вопрос на собеседованиях: «почему checked-исключения плохо дружат с лямбдами».</p>
+    </details>
+    <div data-widget="ide" id="shot-foreach-delete">
+      <script type="application/json">
+      { "tree": false, "file": "CleanTmp.java", "gutterRun": [7, 8], "statusPath": "module-15",
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.Comparator;\nimport java.util.stream.Stream;\n\npublic class CleanTmp {\n    public static void main(String[] args) throws IOException {\n        try (Stream<Path> walk = Files.walk(Path.of(\"build\", \"tmp\"))) {\n            walk.sorted(Comparator.reverseOrder()).forEach(Files::delete);\n        }\n    }\n}",
+        "errors": [ { "line": 10, "text": "Files::delete", "msg": "Unhandled exception: java.io.IOException", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-8", "side": "top", "text": "У <code>main</code> есть <code>throws IOException</code>…" },
+                   { "n": 2, "target": "err-10", "side": "top", "text": "…а <code>Files::delete</code> всё равно красный: он выполняется внутри <code>forEach</code>, в методе <code>accept</code> функционального интерфейса <code>Consumer</code>, а он не объявлен с <code>throws IOException</code>" },
+                   { "n": 3, "target": "tip", "text": "Знакомое <b>Unhandled exception: java.io.IOException</b>. <code>javac</code> для ссылки на метод скажет по-другому: <code>incompatible thrown types IOException in functional expression</code>" } ],
+        "caption": "Checked-исключение внутри forEach — ошибка компиляции" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Временные файлы</h2>
+    <p>Программе часто нужен файл «на минутку»: записать, проверить, выкинуть. Класть его в проект — мусорить. Для этого есть системная папка временных файлов:</p>
+<pre data-file="TempDemo.java"><code class="java">Path tmpFile = Files.createTempFile("report-", ".txt");
+Path tmpDir  = Files.createTempDirectory("import-");
+
+System.out.println(tmpFile);
+System.out.println(tmpDir);
+
+Files.writeString(tmpFile, "черновик отчёта");
+Files.deleteIfExists(tmpFile);</code></pre>
+<pre class="terminal"><span class="out">C:\Users\Misha\AppData\Local\Temp\report-8135520926471530811.txt
+C:\Users\Misha\AppData\Local\Temp\import-4417932013577349002</span></pre>
+    <ul>
+      <li>Java сама придумывает <b>уникальное</b> имя: приставка + случайное число + окончание. Две программы, запущенные одновременно, не помешают друг другу.</li>
+      <li>Где эта папка, подскажет <code>System.getProperty("java.io.tmpdir")</code>.</li>
+      <li>Сама по себе временная папка не чистится — убирать за собой всё равно надо.</li>
+    </ul>
+    <div class="say" data-mood="wow"><p>Именно так работает проверка задач на сайте: сервер создаёт временную папку, запускает в ней твою программу, а потом удаляет папку целиком. А в JUnit (модуль 17) есть аннотация <code>@TempDir</code>: тест получает чистую временную папку и уборку за собой — бесплатно.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m15-05">
+      <script type="application/json">
+      {
+       "title": "Папки — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "В папке <code>data</code> файлы <code>a.csv</code>, <code>b.csv</code> и подпапка <code>old</code> с файлом <code>c.csv</code>. Сколько элементов в стриме <code>Files.walk(data)</code>?",
+         "options": [
+          "3",
+          "4",
+          "5"
+         ],
+         "answer": 2,
+         "why": "data, a.csv, b.csv, old, old/c.csv — пять. walk включает и саму стартовую папку."
+        },
+        {
+         "type": "match",
+         "q": "Соедини ситуацию и исключение",
+         "left": [
+          "copy, а целевой файл уже есть",
+          "delete непустой папки",
+          "delete несуществующего файла",
+          "createDirectory, а родителя нет"
+         ],
+         "right": [
+          "FileAlreadyExistsException",
+          "DirectoryNotEmptyException",
+          "NoSuchFileException",
+          "NoSuchFileException (нет родителя)"
+         ],
+         "why": "Имена исключений говорят сами за себя — читай их внимательно."
+        },
+        {
+         "type": "bug",
+         "q": "Код должен скопировать отчёт в папку archive. В какой строке ошибка?",
+         "code": "Path report = Path.of(\"report.html\");\nPath archive = Path.of(\"archive\");\nFiles.createDirectories(archive);\nFiles.copy(report, archive);",
+         "answer": [
+          4
+         ],
+         "why": "Вторым аргументом нужен путь нового файла: archive.resolve(report.getFileName()). А сейчас copy попытается создать файл с именем archive — а там уже папка."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>Files.list</code> возвращает файлы по алфавиту",
+           "a": false,
+           "why": "порядок не гарантирован, нужен sorted()."
+          },
+          {
+           "s": "<code>Files.exists</code> бросает IOException, если файла нет",
+           "a": false,
+           "why": "просто возвращает false."
+          },
+          {
+           "s": "<code>forEach(Files::delete)</code> не скомпилируется из-за checked IOException",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 15.5. Объясню, чем list отличается от walk и почему нельзя forEach(Files::delete) — поправь меня»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>exists</code>, <code>isRegularFile</code>, <code>isDirectory</code> — проверки без исключений; <code>size</code> — размер в байтах.</li>
+        <li><code>Files.list</code> — один уровень, <code>Files.walk</code> — всё дерево вместе с самой папкой. Оба — стримы: закрывать и сортировать.</li>
+        <li><code>copy</code>/<code>move</code>: второй аргумент — полный путь нового файла; затереть — <code>REPLACE_EXISTING</code>.</li>
+        <li><code>delete</code> — насовсем; непустую папку — через <code>walk</code> в обратном порядке и цикл.</li>
+        <li>Checked-исключение нельзя выбросить из тела лямбды наружу — поэтому файловые операции часто пишут обычным циклом.</li>
+        <li><code>createTempFile</code>/<code>createTempDirectory</code> — уникальные временные файлы «на минутку».</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

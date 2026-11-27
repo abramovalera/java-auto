@@ -1,0 +1,47 @@
+## id: tr-colls-042
+## title: Пары шариков одного цвета
+## file: trainer/colls/SameColorPairs.java
+## class: SameColorPairs
+## level: 2
+## category: Классика собеседований
+@@ description
+<p>Напиши класс <code>SameColorPairs</code>. Фотограф хочет снять каждую пару воздушных шариков одного цвета. В первой строке — количество шариков <code>n</code>, во второй — <code>n</code> цветов через пробел. Сколько всего пар (без учёта порядка) можно составить из шариков одинакового цвета? Напечатай <code>Пар: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       красный синий красный красный синий жёлтый
+вывод: Пар: 4</span></pre>
+<p>Из трёх красных шариков получается 3 пары, из четырёх — 6. Подумай, как посчитать пары по количеству шариков <code>c</code> одного цвета, не перебирая их.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>сначала посчитай, сколько шариков каждого цвета: <code>Map&lt;String, Integer&gt;</code></li>
+<li>из <code>c</code> одинаковых шариков получается <code>c * (c - 1) / 2</code> пар</li>
+<li><code>map.values()</code> — все значения словаря, их можно обойти for-each</li>
+</ul></div>
+@@ test: Разные цвета
+@@ input
+6
+красный синий красный красный синий жёлтый
+@@ expect
+Пар: 4
+@@ test: Все разные
+@@ input
+3
+a b c
+@@ expect
+Пар: 0
+@@ test: Все одинаковые
+@@ input
+4
+белый белый белый белый
+@@ expect
+Пар: 6
+@@ test: Один шарик
+@@ input
+1
+зелёный
+@@ expect
+Пар: 0
+@@ test: Много шариков
+@@ input
+10
+x x x x x x x x x x
+@@ expect
+Пар: 45

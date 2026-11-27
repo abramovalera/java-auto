@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Программа принимает решения: if · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-01">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 4 · Урок 1</div>
+    <h1>Программа принимает решения: if</h1>
+    <p class="lead">До сих пор твои программы были как поезд на рельсах: строка за строкой, всегда одно и то же. Сегодня у поезда появится стрелка — и программа сама решит, куда ехать.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔀 первая развилка</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение: вопросы с ответом «да» или «нет»</h2>
+    <p>Весь этот модуль стоит на одном фундаменте из модуля 3: на <b>сравнениях</b> и типе <code>boolean</code>. Освежим.</p>
+    <div data-widget="check" id="check-m04-01-review">
+      <script type="application/json">
+      { "title": "Вспомним модуль 3",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "int age = 17;\nboolean isAdult = age >= 18;\nSystem.out.println(isAdult);", "answer": "false",
+            "why": "17 >= 18 — неправда, значит <code>false</code>. Сравнение — это выражение, его значение имеет тип boolean." },
+          { "type": "single", "q": "Чему равно выражение, если <code>x = 7</code>?", "code": "x > 0 && x % 2 == 0", "options": ["true", "false", "Не скомпилируется"], "answer": 1,
+            "why": "x > 0 — true, но 7 % 2 == 0 — false (остаток 1). Для <code>&amp;&amp;</code> нужны обе правды, поэтому false." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "<code>!(5 &gt; 3)</code> равно false", "a": true },
+              { "s": "Выражение <code>a == b</code> кладёт значение b в переменную a", "a": false, "why": "это делает одно <code>=</code>. Два <code>==</code> — вопрос «равны ли?»." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем программе решать</h2>
+    <p>Почти любая полезная программа ведёт себя <b>по-разному</b> в разных ситуациях:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🏧</span><h4>Банкомат</h4><p>Денег на счёте хватает — выдать купюры. Не хватает — показать «Недостаточно средств».</p></div>
+      <div class="card"><span class="emoji">🔐</span><h4>Вход на сайт</h4><p>Пароль верный — пустить в личный кабинет. Неверный — показать ошибку.</p></div>
+      <div class="card"><span class="emoji">🎮</span><h4>Игра</h4><p>Жизни закончились — показать «Игра окончена». Остались — играть дальше.</p></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: светофор</span>
+      <p>Подходишь к переходу и задаёшь себе вопрос: «Горит зелёный?» Если <b>да</b> — переходишь дорогу. Если <b>нет</b> — просто ничего не делаешь и ждёшь. Ты не переходишь «на всякий случай» и не стоишь вечно — ты <b>проверяешь условие</b> и в зависимости от ответа выполняешь действие или пропускаешь его.</p>
+    </div>
+    <p>В Java для этого есть слово <code>if</code> — по-английски «если». Это <b>условный оператор</b>: он проверяет <b>условие</b> (вопрос с ответом <code>true</code> или <code>false</code>) и выполняет кусок кода, только если условие истинно.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Как записывается if</h2>
+<pre data-file="Weather.java"><code class="java">public class Weather {
+    public static void main(String[] args) {
+        int temp = 32;
+        if (temp &gt; 30) {
+            System.out.println("Жарко! Возьми воду.");
+        }
+        System.out.println("Хорошего дня!");
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Жарко! Возьми воду.
+Хорошего дня!</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>if</code><div><p>Ключевое слово «если». Пишется маленькими буквами.</p></div></div>
+      <div class="annot-row"><code>(temp &gt; 30)</code><div><p><b>Условие</b> — в круглых скобках, они обязательны. Внутри — выражение, которое даёт <code>true</code> или <code>false</code>.</p></div></div>
+      <div class="annot-row"><code>{ … }</code><div><p><b>Тело</b> if — блок в фигурных скобках. Выполняется, только если условие дало <code>true</code>. Строк в блоке может быть сколько угодно.</p></div></div>
+      <div class="annot-row"><code>println("Хорошего дня!")</code><div><p>Стоит <b>после</b> закрывающей скобки — уже не в теле if, а следующая инструкция программы. Выполнится в любом случае.</p></div></div>
+    </div>
+    <p>Программисты рисуют такие развилки <b>блок-схемой</b>: прямоугольник — действие, <b>ромб</b> — вопрос с двумя выходами, «да» и «нет».</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 300" role="img" aria-label="Блок-схема: ромб с вопросом temp больше 30; если да — печатаем Жарко, потом обе дороги сходятся на Хорошего дня">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="250" y="10" width="200" height="44" rx="10" class="d-soft"/>
+        <text x="350" y="37" text-anchor="middle" class="d-mono-ink">int temp = 32;</text>
+        <path d="M350 54 V82" class="d-arrow"/>
+        <path d="M350 86 L480 140 L350 194 L220 140 Z" class="d-accent"/>
+        <text x="350" y="145" text-anchor="middle" class="d-mono-ink">temp &gt; 30 ?</text>
+        <path d="M480 140 H526" class="d-arrow"/>
+        <text x="502" y="130" text-anchor="middle" class="d-c-green d-text">да</text>
+        <rect x="530" y="112" width="160" height="56" rx="10" class="d-green"/>
+        <text x="610" y="136" text-anchor="middle" class="d-small">печатаем</text>
+        <text x="610" y="156" text-anchor="middle" class="d-text">«Жарко!»</text>
+        <path d="M610 168 V258 H456" class="d-arrow"/>
+        <path d="M350 194 V230" class="d-arrow"/>
+        <text x="366" y="218" class="d-c-red d-text">нет</text>
+        <rect x="250" y="234" width="200" height="50" rx="10" class="d-blue"/>
+        <text x="350" y="264" text-anchor="middle" class="d-text">«Хорошего дня!»</text>
+        <text x="110" y="132" text-anchor="middle" class="d-small">ромб — вопрос,</text>
+        <text x="110" y="150" text-anchor="middle" class="d-small">ответ true / false</text>
+      </svg>
+      <figcaption>«Нет» — значит, тело if просто пропускается. Обе дороги снова сходятся после закрывающей скобки.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа, если в первой строке написать <code>int temp = 30;</code>?</summary>
+      <p>Только <b>«Хорошего дня!»</b>. 30 &gt; 30 — неправда: тридцать не больше тридцати. Чтобы 30 тоже считалось жарой, нужно <code>temp &gt;= 30</code>. Такие «пограничные» значения — главный источник ошибок в условиях, мы будем ловить их весь модуль.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Условие — это любое boolean-выражение</h2>
+    <p>В круглые скобки после <code>if</code> можно поставить что угодно, лишь бы его значение было <code>true</code> или <code>false</code>. Всё, что ты делал в модуле 3, теперь работает внутри if:</p>
+<pre data-file="Conditions.java"><code class="java">if (balance &gt;= price) { … }                  // сравнение
+if (age &gt;= 18 &amp;&amp; hasTicket) { … }            // И: обе части правда
+if (day == 6 || day == 7) { … }              // ИЛИ: хотя бы одна правда
+if (!isBlocked) { … }                        // НЕ: «если не заблокирован»
+if (n % 2 == 0) { … }                        // остаток: чётное число
+
+boolean isVip = true;
+if (isVip) { … }                             // boolean — уже готовое условие</code></pre>
+    <div class="say" data-mood="cool"><p>Новички часто пишут <code>if (isVip == true)</code>. Это работает, но звучит как «если правда, что VIP — правда». Пиши просто <code>if (isVip)</code>, а для «если не VIP» — <code>if (!isVip)</code>. Так пишут профессионалы.</p></div>
+    <p>А вот число условием быть не может — в Java нет правила «ноль значит ложь», как в некоторых других языках:</p>
+<pre data-file="Conditions.java"><code class="java">int count = 3;
+// ошибка: incompatible types: int cannot be converted to boolean
+if (count) { … }
+// правильно: задаём вопрос явно
+if (count &gt; 0) { … }</code></pre>
+    <p>IDEA подчеркнёт такое условие сразу, как только допишешь скобку:</p>
+    <div data-widget="ide" id="shot-if-int">
+      <script type="application/json">
+      { "tree": false, "file": "Conditions.java", "gutterRun": [1, 2],
+        "code": "public class Conditions {\n    public static void main(String[] args) {\n        int count = 3;\n        if (count) {\n            System.out.println(\"Есть товары\");\n        }\n    }\n}",
+        "errors": [ { "line": 4, "text": "count", "msg": "Incompatible types. Found: 'int', required: 'boolean'", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Красная волна под тем, что стоит в скобках условия" },
+                   { "n": 2, "target": "tip", "text": "<b>Found: 'int', required: 'boolean'</b> — «нашёл int, а нужен boolean». В скобках if должен быть ответ «да/нет», а не число. <code>javac</code> скажет: <code>int cannot be converted to boolean</code>" } ],
+        "caption": "Число вместо условия — ошибка компиляции" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Фигурные скобки — это блок</h2>
+    <p>Всё, что между <code>{</code> и <code>}</code>, — один <b>блок</b>. У if этот блок и есть его тело, и работает он как дверь: условие истинно — заходим и выполняем все инструкции внутри по порядку; ложно — проходим мимо всей комнаты сразу.</p>
+<pre data-file="Shop.java"><code class="java">int money = 500;
+int price = 350;
+if (money &gt;= price) {
+    money = money - price;
+    System.out.println("Покупка прошла!");
+    System.out.println("Осталось: " + money);
+}
+System.out.println("Касса закрыта.");</code></pre>
+    <p>Внутри блока можно объявлять свои переменные. Но они <b>живут только внутри</b> этого блока: за закрывающей скобкой их уже нет. Это называется <b>область видимости</b> (по-английски scope).</p>
+<pre data-file="Scope.java"><code class="java">if (money &gt;= price) {
+    int change = money - price;     // change родилась здесь
+    System.out.println(change);     // работает
+}
+System.out.println(change);         // cannot find symbol: change «умерла»</code></pre>
+    <div data-widget="ide" id="shot-if-scope">
+      <script type="application/json">
+      { "tree": false, "file": "Scope.java", "gutterRun": [1, 2],
+        "code": "public class Scope {\n    public static void main(String[] args) {\n        int money = 500;\n        int price = 350;\n        if (money >= price) {\n            int change = money - price;\n            System.out.println(change);\n        }\n        System.out.println(change);\n    }\n}",
+        "errors": [ { "line": 9, "text": "change", "msg": "Cannot resolve symbol 'change'", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "line-7", "side": "top", "text": "Внутри блока <code>change</code> видна — тут всё чисто" },
+                   { "n": 2, "target": "err-9", "text": "За закрывающей <code>}</code> имя <code>change</code> стало красным: для IDEA такой переменной здесь нет" },
+                   { "n": 3, "target": "tip", "text": "<b>Cannot resolve symbol 'change'</b> — «не знаю имени change». Та же ошибка, что при опечатке. <code>javac</code> пишет <code>cannot find symbol</code>" } ],
+        "caption": "Переменная из блока не видна снаружи" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Отступы</span>
+      <p>Строки внутри блока сдвигают на 4 пробела вправо. Компилятору всё равно, а человеку сразу видно, что «внутри», а что «снаружи». В IDEA <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> расставит отступы сам.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что напечатает пример с магазином, если <code>money = 200</code>?</summary>
+      <p>Только <b>«Касса закрыта.»</b> Условие 200 &gt;= 350 — false, поэтому всё тело if из трёх инструкций пропущено целиком: деньги не списаны, ничего не напечатано.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Решение по вводу с клавиатуры</h2>
+    <p>Самое интересное начинается, когда условие зависит от того, что ввёл человек. Тогда при каждом запуске программа может пойти другой дорогой.</p>
+<pre data-file="Parking.java"><code class="java">import java.util.Scanner;
+
+public class Parking {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int minutes = scanner.nextInt();
+        int price = 0;
+        if (minutes &gt; 15) {
+            price = (minutes - 15) * 2;
+        }
+        System.out.println("К оплате: " + price);
+    }
+}</code></pre>
+    <p>Запусти её в IDEA. Внизу откроется консоль Run — и ничего не произойдёт: программа остановилась на вызове метода <code>nextInt()</code> и ждёт числа. Щёлкни мышкой в консоль, набери число и нажми Enter:</p>
+    <div data-widget="ide" id="shot-parking-run">
+      <script type="application/json">
+      { "tree": false, "file": "Parking.java", "runConfig": "Parking", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Parking {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int minutes = scanner.nextInt();\n        int price = 0;\n        if (minutes > 15) {\n            price = (minutes - 15) * 2;\n        }\n        System.out.println(\"К оплате: \" + price);\n    }\n}",
+        "console": { "title": "Parking", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Parking" },
+          { "t": "in", "s": "40" },
+          { "t": "out", "s": "К оплате: 50" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "<b>Зелёным</b> — то, что набрал ты. Пока не нажмёшь Enter, программа стоит на строке 6 и ждёт" },
+                   { "n": 2, "target": "output", "text": "Условие <code>40 &gt; 15</code> — true, тело if выполнилось: (40 − 15) × 2 = 50" },
+                   { "n": 3, "target": "exit", "text": "Программа закончилась. Чтобы попробовать другое число, запусти снова (▶ или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>)" } ],
+        "caption": "Ввод с клавиатуры в консоли Run" }
+      </script>
+    </div>
+    <p>Первые 15 минут парковки бесплатно, дальше — 2 рубля за минуту. Пройди программу по шагам, когда человек ввёл <code>40</code>:</p>
+    <div data-widget="trace" id="trace-parking">
+      <script type="application/json">
+      { "title": "Парковка: ввели 40",
+        "intro": "Жми «Шаг ▶». Следи, в какую строку попадает программа, и угадывай значения.",
+        "code": "Scanner scanner = new Scanner(System.in);\nint minutes = scanner.nextInt();\nint price = 0;\nif (minutes > 15) {\n    price = (minutes - 15) * 2;\n}\nSystem.out.println(\"К оплате: \" + price);",
+        "steps": [
+          { "line": 1, "vars": {}, "note": "Объявляем переменную scanner и создаём сканер. Переменных-чисел пока нет." },
+          { "line": 2, "vars": { "minutes": "40" }, "note": "Человек ввёл 40 и нажал Enter — метод nextInt() вернул 40, этим значением инициализирована переменная minutes." },
+          { "line": 3, "vars": { "minutes": "40", "price": "0" }, "note": "Объявляем price и инициализируем нулём — цена по умолчанию. Если условие не сработает, так и останется." },
+          { "line": 4, "vars": { "minutes": "40", "price": "0", "minutes > 15": "true" }, "ask": ["minutes > 15"], "note": "Проверяем условие: 40 > 15 — правда. Значит, заходим в тело if." },
+          { "line": 5, "vars": { "minutes": "40", "price": "50" }, "ask": ["price"], "note": "Вычисляем выражение (40 − 15) × 2 = 25 × 2 = 50 и присваиваем результат переменной price." },
+          { "line": 7, "vars": { "minutes": "40", "price": "50" }, "out": "К оплате: 50\n", "note": "Тело if закончилось, вызываем println и печатаем результат. А если бы ввели 10, программа перепрыгнула бы со строки 4 сразу на строку 7, и цена осталась бы 0." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: сколько к оплате при вводе <code>15</code>? А <code>16</code>?</summary>
+      <p><b>0</b> и <b>2</b>. 15 &gt; 15 — false, бесплатно. 16 &gt; 15 — true, (16 − 15) × 2 = 2. Тестировщик обязательно проверил бы именно эти два числа — они стоят на самой границе условия.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m04-01">
+      <script type="application/json">
+      {
+       "title": "if — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int x = 5;\nif (x > 3) {\n    System.out.println(\"A\");\n}\nif (x > 10) {\n    System.out.println(\"B\");\n}\nSystem.out.println(\"C\");",
+         "answer": "A\nC",
+         "why": "5 &gt; 3 — true, печатаем A. 5 &gt; 10 — false, B пропускаем. C стоит вне if и печатается всегда."
+        },
+        {
+         "type": "bug",
+         "q": "В какой строке ошибка компиляции?",
+         "code": "int lives = 3;\nif (lives) {\n    System.out.println(\"Играем!\");\n}",
+         "answer": [
+          2
+         ],
+         "why": "Условие должно быть boolean, а <code>lives</code> — int. Нужно задать вопрос явно: <code>if (lives &gt; 0)</code>."
+        },
+        {
+         "type": "multi",
+         "q": "Какие условия скомпилируются? (переменные: <code>int n</code>, <code>boolean ok</code>)",
+         "options": [
+          "if (ok)",
+          "if (n)",
+          "if (n != 0 && ok)",
+          "if (!ok)",
+          "if (n % 2)"
+         ],
+         "answer": [
+          0,
+          2,
+          3
+         ],
+         "why": "Скомпилируется всё, что даёт boolean. <code>n</code> и <code>n % 2</code> — числа, а не ответ «да/нет»."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Если условие ложно, программа пропускает всё тело if — блок в фигурных скобках",
+           "a": true
+          },
+          {
+           "s": "Переменная, объявленная внутри блока if, видна и после него",
+           "a": false,
+           "why": "она живёт только внутри своего блока — это область видимости."
+          },
+          {
+           "s": "Строка после закрывающей } выполняется независимо от условия",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне три условия для if, а я скажу, какие из них скомпилируются и почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>if (условие) { … }</code> — условный оператор: выполнить тело (блок), только если условие <code>true</code>. Иначе тело пропускается целиком.</li>
+        <li>Условие — любое boolean-выражение: сравнение, <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>, переменная boolean. Число условием быть не может.</li>
+        <li>На блок-схеме if — ромб с двумя выходами.</li>
+        <li>Переменная, объявленная внутри блока, живёт только в нём.</li>
+        <li>Всегда проверяй граничные значения: <code>&gt;</code> или <code>&gt;=</code>?</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

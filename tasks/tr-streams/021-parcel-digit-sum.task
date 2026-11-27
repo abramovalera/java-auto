@@ -1,0 +1,38 @@
+## id: tr-streams-021
+## title: Сумма цифр трек-номера
+## file: trainer/streams/ParcelDigitSum.java
+## class: ParcelDigitSum
+## level: 2
+## category: Строки и символы
+@@ description
+<p>Напиши класс <code>ParcelDigitSum</code>. Почта проверяет трек-номер посылки по сумме его цифр. Программа читает строку из одних цифр — она может быть очень длинной (до 50 цифр), поэтому в число её не превратить. Напечатай сумму всех цифр.</p>
+<pre class="terminal"><span class="out">ввод:  12345
+вывод: 15</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.chars()</code> — стрим кодов символов строки (<code>IntStream</code>)</li>
+<li><code>c - '0'</code> — превращает код символа-цифры в саму цифру: <code>'7' - '0'</code> равно 7</li>
+</ul></div>
+@@ test: Короткий номер
+@@ input
+12345
+@@ expect
+15
+@@ test: Длинный номер — не влезет ни в int, ни в long
+@@ input
+98765432109876543210987654321
+@@ expect
+135
+@@ test: Ноль
+@@ input
+0
+@@ expect
+0
+@@ test: Единица с нулями
+@@ input
+1000000000000000000000
+@@ expect
+1
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.chars\s*\( | Пройди по символам строки стримом s.chars()

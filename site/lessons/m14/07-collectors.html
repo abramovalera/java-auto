@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Collectors: группировка и склейка · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-07">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 14 · Урок 7</div>
+    <h1>Collectors: склеить, сгруппировать, посчитать</h1>
+    <p class="lead">Список — не единственное, во что можно собрать стрим. Строка через запятую, Map «оценка → студенты», «сдали/не сдали», «слово → сколько раз» — всё это делает одна операция <code>collect</code> с нужным коллектором.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🗂 groupingBy</span><span>🧩 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m14-07-review">
+      <script type="application/json">
+      { "title": "Вспомним Optional и Map", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "System.out.println(Stream.of(\"a\", \"bb\")\n        .filter(s -> s.length() > 5)\n        .findFirst()\n        .orElse(\"нет\"));",
+            "answer": "нет", "why": "Длиннее 5 нет ни одной строки — коробка пустая, orElse отдаёт запасное." },
+          { "type": "single", "q": "Модуль 13: в каком порядке <code>HashMap</code> хранит ключи?",
+            "options": ["В порядке добавления", "По возрастанию", "Порядок не гарантирован"], "answer": 2,
+            "why": "HashMap раскладывает ключи по хешам. Порядок добавления хранит LinkedHashMap, сортированный — TreeMap." },
+          { "type": "single", "q": "Модуль 13: какой тип у <code>map.get(key)</code>, если <code>Map&lt;Integer, List&lt;String&gt;&gt; map</code>?",
+            "options": ["Integer", "List&lt;String&gt;", "String"], "answer": 1,
+            "why": "get по ключу возвращает значение — здесь это список строк (или null, если ключа нет)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>collect и «упаковщики» Collectors</h2>
+    <p>Терминальная операция <code>collect(…)</code> говорит: «собери всё, что доехало». А <b>как</b> собрать — решает <b>коллектор</b>: объект-«упаковщик», который ты передаёшь в <code>collect</code> аргументом. Готовые коллекторы возвращают статические методы класса <code>Collectors</code> (<code>import java.util.stream.Collectors;</code>).</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Коллектор</th><th>Что получится</th><th>Пример результата</th></tr>
+        <tr><td><code>toList()</code></td><td>список</td><td><code>[Аня, Вика]</code></td></tr>
+        <tr><td><code>toSet()</code></td><td>множество без повторов</td><td><code>[Аня, Вика]</code></td></tr>
+        <tr><td><code>joining(", ")</code></td><td>одна строка</td><td><code>"Аня, Вика"</code></td></tr>
+        <tr><td><code>groupingBy(ключ)</code></td><td><code>Map&lt;ключ, List&lt;…&gt;&gt;</code></td><td><code>{4=[Борис], 5=[Аня, Вика]}</code></td></tr>
+        <tr><td><code>groupingBy(ключ, counting())</code></td><td><code>Map&lt;ключ, Long&gt;</code></td><td><code>{4=1, 5=2}</code></td></tr>
+        <tr><td><code>partitioningBy(условие)</code></td><td><code>Map&lt;Boolean, List&lt;…&gt;&gt;</code></td><td><code>{false=[…], true=[…]}</code></td></tr>
+        <tr><td><code>toMap(ключ, значение)</code></td><td><code>Map&lt;K, V&gt;</code></td><td><code>{Чай=200, Кофе=350}</code></td></tr>
+      </table>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: склад и упаковщики</span>
+      <p>Конвейер привёз на склад товары. Дальше зависит от упаковщика: один сложит всё в одну коробку (<code>toList</code>), другой нанижет на нитку, как бусы (<code>joining</code>), третий разложит по полкам с табличками (<code>groupingBy</code>), четвёртый — на две полки «годные/брак» (<code>partitioningBy</code>).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>joining: бусы из строк</h2>
+<pre data-file="Joining.java"><code class="java">List&lt;String&gt; missing = List.of("Хлеб", "Молоко", "Сыр");
+
+// ХлебМолокоСыр
+String a = missing.stream().collect(Collectors.joining());
+// Хлеб, Молоко, Сыр
+String b = missing.stream().collect(Collectors.joining(", "));
+// [Хлеб, Молоко, Сыр]
+String c = missing.stream().collect(Collectors.joining(", ", "[", "]"));
+
+System.out.println("Не хватает: " + b);</code></pre>
+    <ul>
+      <li>Один аргумент — <b>разделитель</b>: ставится только <b>между</b> элементами, не после последнего. Вручную в цикле с этим вечно мучаешься.</li>
+      <li>Три аргумента — разделитель, <b>начало</b> и <b>конец</b> строки.</li>
+      <li><code>joining</code> работает только со строками. Числа сначала превращай промежуточной операцией <code>.map(String::valueOf)</code>.</li>
+    </ul>
+    <details class="predict">
+      <summary>Что даст <code>Stream.of(1, 2, 3).map(String::valueOf).collect(Collectors.joining(" + "))</code>?</summary>
+      <p>Строку <code>1 + 2 + 3</code>. Разделитель « + » стоит только между элементами.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>groupingBy: разложить по полкам</h2>
+    <p>Классика: разбить студентов по оценкам. <code>groupingBy</code> принимает аргументом <code>Function</code> (лямбду или ссылку на метод) — «как вычислить ключ (табличку полки)» для каждого элемента. Элементы с одинаковым ключом попадают в один список.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 280" role="img" aria-label="groupingBy по оценке: пять студентов раскладываются по трём полкам с ключами 3, 4 и 5">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="30" width="200" height="220" rx="14" class="d-soft"/>
+        <text x="110" y="56" text-anchor="middle" class="d-title">Студенты</text>
+        <rect x="30" y="70" width="160" height="28" rx="8" class="d-box"/><text x="44" y="89" class="d-mono-ink">Аня · 5</text>
+        <rect x="30" y="104" width="160" height="28" rx="8" class="d-box"/><text x="44" y="123" class="d-mono-ink">Борис · 4</text>
+        <rect x="30" y="138" width="160" height="28" rx="8" class="d-box"/><text x="44" y="157" class="d-mono-ink">Вика · 5</text>
+        <rect x="30" y="172" width="160" height="28" rx="8" class="d-box"/><text x="44" y="191" class="d-mono-ink">Гоша · 3</text>
+        <rect x="30" y="206" width="160" height="28" rx="8" class="d-box"/><text x="44" y="225" class="d-mono-ink">Дима · 4</text>
+
+        <rect x="250" y="105" width="200" height="70" rx="14" class="d-accent"/>
+        <text x="350" y="134" text-anchor="middle" class="d-title">groupingBy</text>
+        <text x="350" y="158" text-anchor="middle" class="d-mono-ink">Student::grade</text>
+        <path d="M214 140 H244" class="d-arrow"/>
+
+        <path d="M454 125 L520 60" class="d-arrow"/>
+        <path d="M454 140 H520" class="d-arrow"/>
+        <path d="M454 155 L520 220" class="d-arrow"/>
+
+        <rect x="526" y="30" width="224" height="60" rx="12" class="d-red"/>
+        <text x="542" y="55" class="d-title">ключ 3</text>
+        <text x="542" y="77" class="d-mono-ink">[Гоша]</text>
+        <rect x="526" y="110" width="224" height="60" rx="12" class="d-yellow"/>
+        <text x="542" y="135" class="d-title">ключ 4</text>
+        <text x="542" y="157" class="d-mono-ink">[Борис, Дима]</text>
+        <rect x="526" y="190" width="224" height="60" rx="12" class="d-green"/>
+        <text x="542" y="215" class="d-title">ключ 5</text>
+        <text x="542" y="237" class="d-mono-ink">[Аня, Вика]</text>
+      </svg>
+      <figcaption>Для каждого студента вычисляется ключ — оценка. Одинаковый ключ — одна полка. Внутри полки порядок как во входе.</figcaption>
+    </figure>
+<pre data-file="GroupStudents.java"><code class="java">record Student(String name, int grade) { }
+
+List&lt;Student&gt; students = List.of(
+        new Student("Аня", 5), new Student("Борис", 4), new Student("Вика", 5),
+        new Student("Гоша", 3), new Student("Дима", 4));
+
+Map&lt;Integer, List&lt;Student&gt;&gt; byGrade = students.stream()
+        .collect(Collectors.groupingBy(Student::grade));
+
+System.out.println(byGrade.get(5));
+// [Student[name=Аня, grade=5], Student[name=Вика, grade=5]]</code></pre>
+    <p>У <code>groupingBy</code> есть второй аргумент — <b>что делать внутри каждой полки</b> (его называют downstream-коллектор, «коллектор ниже по течению»). Самые полезные:</p>
+<pre data-file="GroupStudents.java"><code class="java">Map&lt;Integer, Long&gt; countByGrade = students.stream()
+        .collect(Collectors.groupingBy(Student::grade, Collectors.counting()));
+System.out.println(countByGrade);   // {3=1, 4=2, 5=2}
+
+Map&lt;Integer, List&lt;String&gt;&gt; namesByGrade = students.stream()
+        .collect(Collectors.groupingBy(Student::grade,
+                Collectors.mapping(Student::name, Collectors.toList())));
+// {3=[Гоша], 4=[Борис, Дима], 5=[Аня, Вика]}
+System.out.println(namesByGrade);</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Collectors.counting()</code><div><p>Вместо списка на полке — количество элементов. Тип значения — <code>Long</code>.</p></div></div>
+      <div class="annot-row"><code>Collectors.mapping(Student::name, …)</code><div><p>Перед тем как положить на полку, превратить студента в имя — ссылкой на метод <code>Student::name</code>. Это <code>map</code>, но внутри группы.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Порядок ключей: просим TreeMap</h2>
+    <p><code>groupingBy</code> по умолчанию кладёт результат в <code>HashMap</code>, а он <b>не обещает</b> порядок ключей. С маленькими числами порядок обычно выходит «удачный», а со строками — какой придётся. Для отчёта или для проверки вывода в задачах нужен предсказуемый порядок. Решение — третий вариант <code>groupingBy</code>: «ключ, <b>какую Map создать</b>, что делать в группе».</p>
+<pre data-file="WordCount.java"><code class="java">String text = "to be or not to be";
+
+Map&lt;String, Long&gt; freq = Arrays.stream(text.split(" "))
+        .collect(Collectors.groupingBy(
+                w -&gt; w,                    // ключ — само слово
+                TreeMap::new,              // Map с ключами по алфавиту
+                Collectors.counting()));   // на полке — количество
+
+freq.forEach((word, n) -&gt; System.out.println(word + ": " + n));</code></pre>
+    <div data-widget="ide" id="shot-wordcount">
+      <script type="application/json">
+      { "tree": false, "file": "WordCount.java", "runConfig": "WordCount", "gutterRun": [6, 7], "statusPath": "module-14",
+        "code": "import java.util.Arrays;\nimport java.util.Map;\nimport java.util.TreeMap;\nimport java.util.stream.Collectors;\n\npublic class WordCount {\n    public static void main(String[] args) {\n        String text = \"to be or not to be\";\n\n        Map<String, Long> freq = Arrays.stream(text.split(\" \"))\n                .collect(Collectors.groupingBy(\n                        w -> w,\n                        TreeMap::new,\n                        Collectors.counting()));\n\n        freq.forEach((word, n) -> System.out.println(word + \": \" + n));\n    }\n}",
+        "console": { "title": "WordCount", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… WordCount" },
+          { "t": "out", "s": "be: 2" },
+          { "t": "out", "s": "not: 1" },
+          { "t": "out", "s": "or: 1" },
+          { "t": "out", "s": "to: 2" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-13", "text": "<code>TreeMap::new</code> — ссылка на конструктор: «положи результат в новый TreeMap»" },
+                   { "n": 2, "target": "output", "text": "Ключи — по алфавиту: <b>be</b>, <b>not</b>, <b>or</b>, <b>to</b>, хотя в тексте первым стоит «to»" },
+                   { "n": 3, "target": "output-4", "text": "Число после двоеточия — сколько раз слово встретилось (<code>counting()</code>)" } ],
+        "caption": "Частота слов: groupingBy в TreeMap" }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Посмотри на лямбду-ключ <code>w -&gt; w</code>: она возвращает свой же параметр, то есть «ключом будет сам элемент». Так считают частоту чего угодно — слов, символов, статусов ответов сервера. Вместо этой лямбды можно передать готовую — её возвращает статический метод <code>Function.identity()</code>.</p></div>
+    <div class="callout tip">
+      <span class="callout-title">Подсчёт слов «по-взрослому»</span>
+      <p>В настоящем тексте есть заглавные буквы и знаки препинания. Перед группировкой их обычно приводят к одному виду: <code>.map(String::toLowerCase)</code> и разбивают по <code>"\\s+"</code>. Иначе «Кот» и «кот» окажутся на разных полках.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>partitioningBy: две полки «да» и «нет»</h2>
+    <p>Если ключ — это просто <code>true</code>/<code>false</code>, бери <code>partitioningBy</code>. Он принимает аргументом <code>Predicate</code> и <b>всегда</b> создаёт обе полки — даже если одна пустая.</p>
+<pre data-file="ExamReport.java"><code class="java">record ExamResult(String student, boolean passed) { }
+
+List&lt;ExamResult&gt; exam = List.of(
+        new ExamResult("Аня", true), new ExamResult("Борис", false),
+        new ExamResult("Вика", true), new ExamResult("Гоша", false));
+
+Map&lt;Boolean, List&lt;String&gt;&gt; report = exam.stream()
+        .collect(Collectors.partitioningBy(ExamResult::passed,
+                Collectors.mapping(ExamResult::student, Collectors.toList())));
+
+System.out.println("Сдали: " + report.get(true));
+System.out.println("Не сдали: " + report.get(false));</code></pre>
+<pre class="terminal"><span class="out">Сдали: [Аня, Вика]
+Не сдали: [Борис, Гоша]</span></pre>
+    <details class="predict">
+      <summary>Экзамен сдали все. Что вернёт <code>report.get(false)</code> — <code>null</code> или <code>[]</code>?</summary>
+      <p><code>[]</code> — пустой список. <code>partitioningBy</code> всегда создаёт обе полки. А вот у <code>groupingBy</code> полки для отсутствующего ключа нет — там <code>get</code> вернул бы <code>null</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>toMap: ключ → значение</h2>
+    <p>Когда у каждого элемента свой уникальный ключ, Map собирают через <code>toMap</code>: ему передают два аргумента-функции (обычно ссылки на методы) — «как получить ключ» и «как получить значение».</p>
+<pre data-file="PriceMap.java"><code class="java">record Product(String title, int price) { }
+
+List&lt;Product&gt; catalog = List.of(
+        new Product("Чай", 200),
+        new Product("Кофе", 350));
+
+Map&lt;String, Integer&gt; priceByTitle = catalog.stream()
+        .collect(Collectors.toMap(Product::title, Product::price));
+
+System.out.println(priceByTitle.get("Кофе"));   // 350</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Одинаковые ключи → исключение</span>
+      <p>Если два элемента дадут один и тот же ключ, <code>toMap</code> выбросит исключение: <em>IllegalStateException: Duplicate key Чай</em>. Он не знает, какое значение оставить. Подскажи третьим аргументом — как объединить: <code>toMap(Product::title, Product::price, (old, now) -&gt; old + now)</code> сложит цены одинаковых товаров. Или подумай, не нужен ли тут <code>groupingBy</code>.</p>
+    </div>
+    <p>Так это выглядит в консоли. Стек получился длинный — стримы внутри устроены многослойно. Не пугайся: читаешь первую строку и ищешь свой файл.</p>
+    <div data-widget="ide" id="shot-tomap-duplicate">
+      <script type="application/json">
+      { "tree": false, "file": "PriceMap.java", "runConfig": "PriceMap", "gutterRun": [7, 8], "statusPath": "module-14",
+        "code": "import java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\nrecord Product(String title, int price) { }\n\npublic class PriceMap {\n    public static void main(String[] args) {\n        List<Product> catalog = List.of(new Product(\"Чай\", 200), new Product(\"Чай\", 250));\n        Map<String, Integer> priceByTitle = catalog.stream()\n                .collect(Collectors.toMap(Product::title, Product::price));\n        System.out.println(priceByTitle);\n    }\n}",
+        "console": { "title": "PriceMap", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… PriceMap" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.IllegalStateException: Duplicate key Чай (attempted merging values 200 and 250)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.Collectors.duplicateKeyException(Collectors.java:135)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.Collectors.lambda$uniqKeysMapAccumulator$1(Collectors.java:182)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.ReduceOps$3ReducingSink.accept(ReduceOps.java:169)" },
+          { "t": "err", "s": "\tat java.base/java.util.AbstractList$RandomAccessSpliterator.forEachRemaining(AbstractList.java:722)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)" },
+          { "t": "err", "s": "\tat java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)" },
+          { "t": "err", "s": "\tat PriceMap.main(PriceMap.java:11)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "side": "bottom", "text": "Главное — в первой строке: <b>Duplicate key Чай</b> — «повтор ключа Чай», и даже какие значения пытались слить: 200 и 250" },
+                   { "n": 2, "target": "link-1", "text": "Девять строк <code>java.base/…</code> — внутренности стримов и <code>Collectors</code>. Читать их не нужно" },
+                   { "n": 3, "target": "link-10", "text": "Твоя строка — последняя: <b>PriceMap.java:11</b>, там, где <code>toMap</code>" } ],
+        "caption": "toMap и одинаковые ключи: IllegalStateException" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m14-07">
+      <script type="application/json">
+      { "title": "Collectors — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "List<String> tags = List.of(\"red\", \"green\", \"blue\");\nSystem.out.println(tags.stream()\n        .collect(Collectors.joining(\" | \", \"<\", \">\")));",
+            "answer": "<red | green | blue>", "why": "Разделитель только между элементами, префикс и суффикс — по краям всей строки." },
+          { "type": "match", "q": "Какой коллектор нужен?",
+            "left": ["Список имён через запятую в одну строку", "Студенты по оценкам", "Экзамен: сдали / не сдали", "Сколько раз встречается каждое слово", "Название товара → цена"],
+            "right": ["joining(\", \")", "groupingBy(Student::grade)", "partitioningBy(ExamResult::passed)", "groupingBy(w -&gt; w, counting())", "toMap(Product::title, Product::price)"],
+            "why": "Строка — joining, полки по ключу — groupingBy, две полки — partitioningBy, частота — groupingBy + counting, уникальный ключ — toMap." },
+          { "type": "single", "q": "Как сделать, чтобы ключи после groupingBy шли по возрастанию?",
+            "options": ["Ничего не делать — HashMap сам сортирует", "groupingBy(ключ, TreeMap::new, коллектор)", "Вызвать sorted() после collect"], "answer": 1,
+            "why": "HashMap порядок не обещает. Третий вариант groupingBy позволяет выбрать Map — TreeMap хранит ключи сортированными. А после collect — уже не Stream, sorted там нет." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "Map<Integer, Long> m = Stream.of(\"кот\", \"дом\", \"слон\", \"мяч\")\n        .collect(Collectors.groupingBy(String::length,\n                TreeMap::new, Collectors.counting()));\nSystem.out.println(m);",
+            "answer": "{3=3, 4=1}", "why": "Три слова длиной 3 (кот, дом, мяч) и одно длиной 4 (слон). TreeMap печатает ключи по возрастанию." },
+          { "type": "single", "q": "Что будет при запуске?",
+            "code": "Map<String, Integer> m = Stream.of(\"a\", \"b\", \"a\")\n        .collect(Collectors.toMap(s -> s, s -> 1));",
+            "options": ["{a=1, b=1}", "{a=2, b=1}", "IllegalStateException: Duplicate key a"], "answer": 2,
+            "why": "Ключ \"a\" встретился дважды, а как объединять значения — не сказано. Нужен третий аргумент, например <code>Integer::sum</code> — тогда получилось бы {a=2, b=1}." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "<code>partitioningBy</code> всегда создаёт оба ключа: true и false", "a": true },
+              { "s": "<code>counting()</code> даёт значения типа Integer", "a": false, "why": "counting возвращает Long — как и count() у стрима." },
+              { "s": "<code>joining</code> можно применить сразу к стриму чисел", "a": false, "why": "joining склеивает только строки; числа сначала map(String::valueOf)." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Урок 14.7. Дай мне список record-ов, а я сгруппирую его тремя разными способами: groupingBy, groupingBy + counting и partitioningBy — и объясню, где какой нужен»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>collect(коллектор)</code> — собрать результат; готовые коллекторы — в <code>Collectors</code>.</li>
+        <li><code>joining(разделитель[, начало, конец])</code> — склеить строки.</li>
+        <li><code>groupingBy(ключ)</code> → <code>Map&lt;K, List&lt;T&gt;&gt;</code>; второй аргумент — что делать в группе: <code>counting()</code>, <code>mapping(…)</code>.</li>
+        <li>Нужен порядок ключей — <code>groupingBy(ключ, TreeMap::new, коллектор)</code>.</li>
+        <li><code>partitioningBy(условие)</code> — две полки true/false; <code>toMap(ключ, значение)</code> — выбрасывает исключение на одинаковых ключах без функции слияния.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

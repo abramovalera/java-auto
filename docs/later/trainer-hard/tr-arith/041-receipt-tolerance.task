@@ -1,0 +1,53 @@
+## id: tr-arith-041
+## title: Сходится ли чек
+## file: trainer/arith/ReceiptSumTolerance.java
+## class: ReceiptSumTolerance
+## level: 3
+## category: Типы и переполнение
+@@ description
+<p>В чеке две покупки и итог. Нужно проверить, что итог равен сумме покупок. Создай класс <code>ReceiptSumTolerance</code>. Программа читает три дробных числа, каждое с новой строки: цену первой покупки, цену второй и итог из чека. Она печатает <code>true</code>, если итог сходится, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  0.1
+       0.2
+       0.3
+вывод: true</span></pre>
+<p>Подвох: <code>double</code> хранит дроби неточно, и <code>0.1 + 0.2 == 0.3</code> в Java — <code>false</code> (на самом деле там <code>0.30000000000000004</code>). Дробные числа сравнивают «с допуском»: считают равными, если они отличаются меньше чем на маленькое число. Для денег возьми допуск <code>0.001</code> — это меньше копейки.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.abs(a - b) &lt; 0.001</code> — числа <code>a</code> и <code>b</code> почти равны</li>
+</ul></div>
+@@ test: Знаменитые 0.1 + 0.2
+@@ input
+0.1
+0.2
+0.3
+@@ expect
+true
+@@ test: Ровные числа
+@@ input
+1.5
+2.5
+4.0
+@@ expect
+true
+@@ test: Ошибка в копейку
+@@ input
+0.1
+0.2
+0.31
+@@ expect
+false
+@@ test: Копейка к сотне
+@@ input
+99.99
+0.01
+100
+@@ expect
+true
+@@ test: Итог меньше
+@@ input
+5
+5
+9.99
+@@ expect
+false
+@@ require: Math\.abs | Сравни модуль разности с допуском — нужен Math.abs
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

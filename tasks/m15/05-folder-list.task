@@ -1,0 +1,62 @@
+## id: m15-t05
+## title: Папка с фотографиями
+## file: module-15/PhotoFolderLister.java
+## class: PhotoFolderLister
+## level: 2
+@@ description
+<p>Фотоаппарат сохраняет снимки в папку. Сымитируем это. Программа читает:</p>
+<ol>
+  <li>путь к папке (например, <code>photos</code> или <code>photos/2026/summer</code>);</li>
+  <li>число <code>N</code>;</li>
+  <li><code>N</code> имён файлов.</li>
+</ol>
+<p>Она <b>создаёт папку</b> (со всеми недостающими родителями), создаёт в ней файлы с этими именами (содержимое любое), а потом <b>смотрит, что реально лежит в папке</b>, и выводит имя папки, число файлов и их имена <b>по алфавиту</b>:</p>
+<pre class="terminal"><span class="out">photos/2026/summer
+4
+b.png
+a.png
+b.png
+notes.txt</span></pre>
+<pre class="terminal"><span class="out">Папка: summer
+Файлов: 3
+a.png
+b.png
+notes.txt</span></pre>
+<p>Заметил? Имя <code>b.png</code> пришло дважды, а файл в папке один — второй раз он просто перезаписался. Поэтому список бери из папки (<code>Files.list</code>), а не из ввода. Имя папки — последняя часть пути (<code>getFileName()</code>). И не забудь: <code>Files.list</code> не обещает никакого порядка.</p>
+<p>📖 <a href="/lessons/m15/05-directories.html">Работа с папками</a></p>
+@@ test: Три фотографии
+@@ input
+photos
+3
+sea.png
+cat.png
+beach.png
+@@ expect
+Папка: photos
+Файлов: 3
+beach.png
+cat.png
+sea.png
+@@ test: Вложенная папка и повтор имени
+@@ input
+photos/2026/summer
+4
+b.png
+a.png
+b.png
+notes.txt
+@@ expect
+Папка: summer
+Файлов: 3
+a.png
+b.png
+notes.txt
+@@ test: Пустая папка
+@@ input
+empty-dir
+0
+@@ expect
+Папка: empty-dir
+Файлов: 0
+@@ require: createDirector(y|ies)\s*\( | Сначала создай папку: Files.createDirectories
+@@ require: Files\.(list|walk)\s*\( | Список файлов возьми из папки: Files.list

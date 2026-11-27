@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Практика: CSV и properties · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-06">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 15 · Урок 6</div>
+    <h1>Практика: CSV и properties</h1>
+    <p class="lead">Два формата, которые в программах встречаются каждый день: таблица данных в CSV и файл настроек в <code>.properties</code>. Научимся разбирать оба — и решим задачу по шаблону Мастерской.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🛠 Мастерская</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m15-06-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Повторим строки (модуль 8). Что выведет?",
+            "code": "String[] parts = \"anna, 25 ,admin\".split(\",\");\nSystem.out.println(parts.length);\nSystem.out.println(\"[\" + parts[1].trim() + \"]\");",
+            "answer": "3\n[25]", "why": "split режет по запятой на три куска, trim убирает пробелы по краям." },
+          { "type": "single", "q": "Повторим модуль 11. Что такое <code>record User(String login, int age)</code>?",
+            "options": ["Класс-данные: поля, конструктор, геттеры, equals и toString пишутся сами", "Интерфейс с двумя методами", "Перечисление из двух констант"], "answer": 0,
+            "why": "record — короткая запись неизменяемого класса-данных." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "<code>Files.walk</code> возвращает и саму стартовую папку", "a": true },
+              { "s": "<code>Files.copy</code> по умолчанию затирает существующий файл", "a": false, "why": "без REPLACE_EXISTING будет FileAlreadyExistsException." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>CSV — таблица в текстовом файле</h2>
+    <p><b>CSV</b> (comma-separated values, «значения через запятую») — самый простой формат таблицы. Каждая строка файла — строка таблицы, ячейки разделены запятой. Первая строка обычно — <b>заголовок</b> с названиями колонок. Такой файл открывается и в Excel, и в IDEA, и в Блокноте.</p>
+<pre data-file="users.csv"><code>login,password,role
+anna,qwerty1,admin
+boris,secret22,manager
+vera,pass333,user</code></pre>
+    <p>Так хранят списки пользователей, товаров, оценок: программа читает файл и обрабатывает каждую строку. Добавил строку в файл — у программы появился ещё один пользователь, а код трогать не нужно.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 210" role="img" aria-label="Строка CSV разрезается методом split по запятой на массив из трёх ячеек, из которых собирается объект User">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="16" y="70" width="210" height="48" rx="10" class="d-code"/>
+        <text x="24" y="100" class="d-mono">"boris,secret22,manager"</text>
+        <text x="121" y="146" text-anchor="middle" class="d-small">строка из файла</text>
+        <path d="M226 94 H278" class="d-arrow"/>
+        <text x="252" y="80" text-anchor="middle" class="d-small">split(",")</text>
+        <rect x="284" y="66" width="78" height="56" rx="8" class="d-blue"/>
+        <text x="323" y="90" text-anchor="middle" class="d-small">[0]</text><text x="323" y="110" text-anchor="middle" class="d-mono-ink">boris</text>
+        <rect x="366" y="66" width="96" height="56" rx="8" class="d-blue"/>
+        <text x="414" y="90" text-anchor="middle" class="d-small">[1]</text><text x="414" y="110" text-anchor="middle" class="d-mono-ink">secret22</text>
+        <rect x="466" y="66" width="86" height="56" rx="8" class="d-blue"/>
+        <text x="509" y="90" text-anchor="middle" class="d-small">[2]</text><text x="509" y="110" text-anchor="middle" class="d-mono-ink">manager</text>
+        <text x="418" y="146" text-anchor="middle" class="d-small">String[] — ячейки по номерам колонок</text>
+        <path d="M552 94 H582" class="d-arrow"/>
+        <rect x="588" y="40" width="166" height="110" rx="12" class="d-green"/>
+        <text x="671" y="66" text-anchor="middle" class="d-title">User</text>
+        <text x="598" y="92" class="d-small">login = boris</text>
+        <text x="598" y="112" class="d-small">password = secret22</text>
+        <text x="598" y="132" class="d-small">role = manager</text>
+        <text x="671" y="176" text-anchor="middle" class="d-small">объект с полями</text>
+      </svg>
+      <figcaption>Строка → <code>split</code> → массив ячеек → объект. Номер колонки = индекс в массиве.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбираем CSV в объекты</h2>
+<pre data-file="LoadUsers.java"><code class="java">record User(String login, String password, String role) { }
+
+public class LoadUsers {
+    public static void main(String[] args) throws IOException {
+        List&lt;String&gt; lines = Files.readAllLines(Path.of("users.csv"));
+
+        List&lt;User&gt; users = lines.stream()
+                .skip(1)                                // заголовок пропускаем
+                .filter(line -&gt; !line.isBlank())        // пустые строки тоже
+                .map(line -&gt; line.split(","))
+                .map(c -&gt; new User(c[0].trim(), c[1].trim(), c[2].trim()))
+                .toList();
+
+        System.out.println("Загружено: " + users.size());
+        users.forEach(u -&gt; System.out.println(u.login() + " → " + u.role()));
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-load-users">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "file": "LoadUsers.java", "runConfig": "LoadUsers", "gutterRun": [8, 9],
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "LoadUsers", "type": "class", "depth": 2, "selected": true },
+                  { "name": "users.csv", "type": "file", "depth": 1 } ],
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.List;\n\nrecord User(String login, String password, String role) { }\n\npublic class LoadUsers {\n    public static void main(String[] args) throws IOException {\n        List<String> lines = Files.readAllLines(Path.of(\"users.csv\"));\n\n        List<User> users = lines.stream()\n                .skip(1)\n                .filter(line -> !line.isBlank())\n                .map(line -> line.split(\",\"))\n                .map(c -> new User(c[0].trim(), c[1].trim(), c[2].trim()))\n                .toList();\n\n        System.out.println(\"Загружено: \" + users.size());\n        users.forEach(u -> System.out.println(u.login() + \" → \" + u.role()));\n    }\n}",
+        "console": { "title": "LoadUsers", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… LoadUsers" },
+          { "t": "out", "s": "Загружено: 3" },
+          { "t": "out", "s": "anna → admin" },
+          { "t": "out", "s": "boris → manager" },
+          { "t": "out", "s": "vera → user" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tree-users.csv", "text": "<code>users.csv</code> — в рабочей папке <b>workspace</b>, рядом с модулями. Двойной щелчок откроет его в IDEA как обычный текст" },
+                   { "n": 2, "target": "output", "text": "Три пользователя: заголовок <code>login,password,role</code> пропущен через <code>skip(1)</code>" },
+                   { "n": 3, "target": "output-2", "text": "Каждая строка файла стала объектом <code>User</code> — печатаем его поля" } ],
+        "caption": "CSV-файл в проекте и результат разбора" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>.skip(1)</code><div><p>Промежуточная операция <code>skip(1)</code> пропускает первый элемент стрима. Первая строка — заголовок <code>login,password,role</code>. Если не пропустить, получится пользователь с логином «login».</p></div></div>
+      <div class="annot-row"><code>.filter(line -&gt; !line.isBlank())</code><div><p>Передаём в <code>filter</code> лямбда-выражение с параметром <code>line</code>: оно возвращает <code>true</code> только для непустых строк. Пустая строка в конце файла — частый гость. <code>"".split(",")</code> вернёт массив из одной ячейки, и обращение к <code>c[1]</code> выбросит <code>ArrayIndexOutOfBoundsException</code>.</p></div></div>
+      <div class="annot-row"><code>c[0].trim()</code><div><p>Люди любят ставить пробелы после запятой: <code>anna, qwerty1</code>. Метод <code>trim</code> возвращает строку без пробелов по краям.</p></div></div>
+    </div>
+    <p>Здесь конвейер из модуля 14 работает со списком строк: промежуточные операции <code>skip</code>, <code>filter</code>, <code>map</code> и терминальная <code>toList</code>. То же самое можно сделать и через <code>Files.lines</code> в try-с-ресурсами.</p>
+    <div class="callout warn">
+      <span class="callout-title">Подводные камни CSV</span>
+      <p><b>Пустые ячейки в конце.</b> <code>"anna,,".split(",")</code> вернёт массив длины <b>1</b>: пустые хвосты <code>split</code> выбрасывает. Нужны все ячейки — <code>split(",", -1)</code>.</p>
+      <p><b>Точка с запятой.</b> Русский Excel сохраняет CSV с разделителем <code>;</code>, потому что запятая у нас — в дробных числах. Посмотри на файл, прежде чем писать <code>split</code>.</p>
+      <p><b>Запятая внутри значения</b> — <code>"Иванов, Иван",admin</code> — простым <code>split</code> не разобрать. Для таких файлов берут библиотеку (OpenCSV) или готовую поддержку в JUnit: <code>@CsvFileSource</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что выведет <code>System.out.println("a,b,,".split(",").length + " " + "a,b,,".split(",", -1).length);</code>?</summary>
+      <p><code>2 4</code>. Без второго аргумента пустые строки в конце отбрасываются, с <code>-1</code> — сохраняются все четыре ячейки: <code>a</code>, <code>b</code>, <code>""</code>, <code>""</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Мастерская: сумма по колонке</h2>
+    <p>Задача: в файле <code>orders.csv</code> заказы с колонками <code>id,product,price,qty</code>. Посчитать выручку — сумму <code>price × qty</code> по всем заказам. Решаем по шаблону Мастерской, а не сразу кодом.</p>
+    <ol class="steps">
+      <li><b>Пойми задачу.</b> Вход — файл: заголовок и строки заказов. Выход — одно число. Примеры: два заказа <code>30×2</code> и <code>250×1</code> → 310. Граничный: файл только с заголовком → 0.</li>
+      <li><b>Реши руками.</b> Пропускаю первую строку. Беру строку <code>1,pen,30,2</code>: режу по запятой, третья ячейка — цена 30, четвёртая — количество 2, 30 × 2 = 60, запоминаю. Следующая: 250 × 1 = 250, прибавляю к 60 → 310. Повторялось: «разрезать — взять две ячейки — перемножить — прибавить».</li>
+      <li><b>Роли переменных.</b> <code>i</code> — шагающая (номер строки, с 1, чтобы пропустить заголовок). <code>total</code> — накопитель. <code>cells</code>, <code>price</code>, <code>qty</code> — временные, живут один виток.</li>
+      <li><b>Псевдокод.</b> «прочитать все строки; total = 0; для каждой строки, кроме первой: разрезать по запятой, price = ячейка 2, qty = ячейка 3, total += price × qty; напечатать total».</li>
+      <li><b>Код</b> — перевод псевдокода строка в строку (ниже).</li>
+      <li><b>Трассировка.</b> Пройди код по шагам и впиши значения.</li>
+    </ol>
+    <div data-widget="trace" id="trace-orders">
+      <script type="application/json">
+      { "title": "Выручка из orders.csv",
+        "intro": "В файле три строки: «id,product,price,qty», «1,pen,30,2», «2,book,250,1». Впиши значения, когда спросят.",
+        "code": "List<String> lines = Files.readAllLines(Path.of(\"orders.csv\"));\nint total = 0;\nfor (int i = 1; i < lines.size(); i++) {\n    String[] cells = lines.get(i).split(\",\");\n    int price = Integer.parseInt(cells[2].trim());\n    int qty = Integer.parseInt(cells[3].trim());\n    total += price * qty;\n}\nSystem.out.println(\"Выручка: \" + total);",
+        "steps": [
+          { "line": 1, "vars": { "lines": "[3 строки]" }, "note": "Весь файл в списке. lines.get(0) — заголовок." },
+          { "line": 2, "vars": { "lines": "[3 строки]", "total": "0" }, "note": "Накопитель начинается с нуля." },
+          { "line": 3, "vars": { "lines": "[3 строки]", "total": "0", "i": "1" }, "note": "i начинается с 1 — заголовок с индексом 0 пропущен." },
+          { "line": 4, "vars": { "lines": "[3 строки]", "total": "0", "i": "1", "cells": "[1, pen, 30, 2]" }, "note": "Строка «1,pen,30,2» разрезана на 4 ячейки." },
+          { "line": 5, "vars": { "lines": "[3 строки]", "total": "0", "i": "1", "cells": "[1, pen, 30, 2]", "price": "30" }, "ask": ["price"], "note": "Цена — ячейка с индексом 2. Текст \"30\" превращаем в число." },
+          { "line": 6, "vars": { "lines": "[3 строки]", "total": "0", "i": "1", "cells": "[1, pen, 30, 2]", "price": "30", "qty": "2" }, "note": "Количество — ячейка 3." },
+          { "line": 7, "vars": { "lines": "[3 строки]", "total": "60", "i": "1", "cells": "[1, pen, 30, 2]", "price": "30", "qty": "2" }, "ask": ["total"], "note": "30 × 2 прибавили к накопителю." },
+          { "line": 3, "vars": { "lines": "[3 строки]", "total": "60", "i": "2" }, "note": "Следующий виток: временные переменные прошлого витка исчезли." },
+          { "line": 4, "vars": { "lines": "[3 строки]", "total": "60", "i": "2", "cells": "[2, book, 250, 1]" }, "note": "Вторая строка заказов." },
+          { "line": 5, "vars": { "lines": "[3 строки]", "total": "60", "i": "2", "cells": "[2, book, 250, 1]", "price": "250" }, "note": "Цена 250." },
+          { "line": 6, "vars": { "lines": "[3 строки]", "total": "60", "i": "2", "cells": "[2, book, 250, 1]", "price": "250", "qty": "1" }, "note": "Количество 1." },
+          { "line": 7, "vars": { "lines": "[3 строки]", "total": "310", "i": "2", "cells": "[2, book, 250, 1]", "price": "250", "qty": "1" }, "ask": ["total"], "note": "60 + 250 × 1." },
+          { "line": 3, "vars": { "lines": "[3 строки]", "total": "310", "i": "3" }, "note": "i = 3, а lines.size() = 3 — условие ложно, цикл окончен." },
+          { "line": 9, "vars": { "lines": "[3 строки]", "total": "310" }, "out": "Выручка: 310\n", "note": "Печатаем итог. Проверь граничный случай: только заголовок — цикл не выполнится ни разу, выручка 0." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Заметь: Мастерская не про файлы. Файл дал нам список строк — дальше та же сумма в цикле, что в модулях 5–6. Сначала свести задачу к знакомой, потом решать.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>config.properties — настройки без перекомпиляции</h2>
+    <p>Адрес сервера, язык, громкость звука — плохая идея зашивать в код. Захотел другой язык — перекомпилируй программу? Нет: настройки кладут в файл <b>properties</b>, формат «ключ=значение»:</p>
+<pre data-file="config.properties"><code># настройки игры
+server.url=https://game.example.com
+language=ru
+sound.volume = 10
+player.name=Javik</code></pre>
+    <ul>
+      <li>Строки с <code>#</code> (или <code>!</code>) — комментарии, пустые строки пропускаются.</li>
+      <li>Пробелы вокруг <code>=</code> не важны: ключ <code>sound.volume</code>, значение <code>10</code>.</li>
+      <li>Точки в ключах — просто договорённость для группировки (<code>player.name</code>, <code>player.color</code>), для Java это обычные символы.</li>
+    </ul>
+    <p>Читает такой файл класс <code>java.util.Properties</code> — по сути словарь <code>String → String</code>, как <code>HashMap</code> из модуля 13:</p>
+<pre data-file="GameConfig.java"><code class="java">Properties config = new Properties();
+try (BufferedReader reader = Files.newBufferedReader(
+        Path.of("config.properties"))) {
+    config.load(reader);
+}
+
+String serverUrl = config.getProperty("server.url");
+// "en" — значение по умолчанию
+String language = config.getProperty("language", "en");
+int volume = Integer.parseInt(config.getProperty("sound.volume", "5"));
+String proxy = config.getProperty("proxy");
+
+System.out.println("Сервер: " + serverUrl);
+System.out.println("Язык: " + language + ", громкость " + volume);
+System.out.println("Прокси: " + proxy);</code></pre>
+<pre class="terminal"><span class="out">Сервер: https://game.example.com
+Язык: ru, громкость 10
+Прокси: null</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>config.load(reader)</code><div><p>Вызываем у объекта <code>config</code> метод <code>load</code> и передаём аргументом <code>reader</code>: метод разбирает файл и складывает все пары в объект. Сам <code>reader</code> возвращает статический метод <code>Files.newBufferedReader</code>, а объявлен он в try-с-ресурсами — после блока файл закроется. Reader в UTF-8, кириллица в значениях не сломается.</p></div></div>
+      <div class="annot-row"><code>getProperty("language", "en")</code><div><p>Второй аргумент — значение по умолчанию: нет такого ключа — метод вернёт его. Без второго аргумента метод вернёт <code>null</code> (как у <code>proxy</code>).</p></div></div>
+      <div class="annot-row"><code>Integer.parseInt(…)</code><div><p>В properties всё — строки. Число нужно разобрать самому: вызываем статический метод <code>Integer.parseInt</code>, он возвращает <code>int</code>, и этим значением инициализируется переменная <code>volume</code>.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: пульт от телевизора</span>
+      <p>Код программы — телевизор, конфиг — пульт. Чтобы переключить канал (язык ru → en), не разбирают телевизор, а нажимают кнопку: правят одну строку <code>language</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: в файле ключ записан дважды — <code>language=ru</code>, ниже <code>language=en</code>. Что вернёт <code>getProperty("language")</code>?</summary>
+      <p><code>en</code>. Как в <code>Map.put</code>: повторный ключ перезаписывает старое значение, побеждает последнее.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: как это устроено в настоящих проектах</summary>
+      <ul>
+        <li>Конфиг лежит в папке ресурсов проекта <code>src/main/resources</code> (появится в модуле 17 вместе со сборщиком Gradle) и читается так: <code>getClass().getResourceAsStream("/config.properties")</code> — это <code>InputStream</code> из урока 15.4.</li>
+        <li>Осторожно: <code>Properties.load(InputStream)</code> читает байты в старой кодировке ISO-8859-1, и кириллица превращается в кракозябры. Оборачивай поток в <code>new InputStreamReader(in, StandardCharsets.UTF_8)</code>.</li>
+        <li>Часто значение из файла можно перебить при запуске: <code>System.getProperty("server.url", config.getProperty("server.url"))</code>. Тогда ту же программу можно запустить с другим сервером флагом <code>-Dserver.url=https://backup.example.com</code>.</li>
+        <li>Записать настройки обратно — <code>config.setProperty(…)</code> и <code>config.store(writer, "комментарий")</code>. В начало файла <code>store</code> добавит строку с датой.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m15-06">
+      <script type="application/json">
+      {
+       "title": "CSV и properties — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "В файле строки: <code>name,score</code>, <code>anna,7</code>, <code>boris, 5</code>. Что выведет?",
+         "code": "List<String> lines = Files.readAllLines(Path.of(\"scores.csv\"));\nint sum = 0;\nfor (int i = 1; i < lines.size(); i++) {\n    sum += Integer.parseInt(lines.get(i).split(\",\")[1].trim());\n}\nSystem.out.println(sum);",
+         "answer": "12",
+         "why": "Заголовок пропущен (i с 1), trim убрал пробел перед 5: 7 + 5 = 12."
+        },
+        {
+         "type": "single",
+         "q": "Что будет, если в коде выше начать цикл с <code>i = 0</code>?",
+         "options": [
+          "Сумма станет больше",
+          "NumberFormatException: текст score не число",
+          "Ничего не изменится"
+         ],
+         "answer": 1,
+         "why": "Первая строка — заголовок. parseInt(\"score\") выбросит NumberFormatException."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>\"a,b,,\".split(\",\")</code> вернёт массив из 4 элементов",
+           "a": false,
+           "why": "пустые хвосты отбрасываются — 2 элемента. Все четыре даст split(\",\", -1)."
+          },
+          {
+           "s": "Строка <code># comment</code> в properties — комментарий",
+           "a": true
+          },
+          {
+           "s": "<code>getProperty</code> умеет сразу вернуть int",
+           "a": false,
+           "why": "в properties все значения — строки, число разбираем через Integer.parseInt."
+          }
+         ]
+        },
+        {
+         "type": "order",
+         "q": "Расставь шаги Мастерской по порядку",
+         "lines": [
+          "Понять вход и выход, придумать примеры",
+          "Решить руками и записать действия",
+          "Назвать роли переменных",
+          "Написать псевдокод",
+          "Перевести псевдокод в код",
+          "Проверить трассировкой и граничными случаями"
+         ],
+         "why": "Шаблон один для всех задач курса — и для файлов тоже."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 15.6. Дай мне CSV-файл из 4 строк и задачу на него — я сначала распишу план по шаблону Мастерской, а код потом»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>CSV — таблица в тексте: строка → <code>split(",")</code> → ячейки → объект. Заголовок пропусти, пустые строки отфильтруй, значения <code>trim</code>.</li>
+        <li>Пустые хвосты <code>split</code> выбрасывает — <code>split(",", -1)</code>. Сложные CSV (запятые в кавычках) — библиотекой.</li>
+        <li>Properties — файл «ключ=значение»; <code>load(reader)</code>, <code>getProperty(ключ)</code> или <code>getProperty(ключ, поУмолчанию)</code>. Всё — строки.</li>
+        <li>Настройки в файле — стандарт для любых программ: меняешь файл, а не код.</li>
+        <li>Задача с файлом = прочитать в список + знакомый алгоритм. Шаблон Мастерской работает и здесь.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+## id: tr-streams-004
+## title: Лестница из кубиков
+## file: trainer/streams/CubeStaircase.java
+## class: CubeStaircase
+## level: 1
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>CubeStaircase</code>. Малыш строит лестницу из кубиков: в первом ряду 1 кубик, во втором — 2, в третьем — 3, …, в <code>n</code>-м — <code>n</code>. Программа читает число <code>n</code> (от 1 до 1 000 000) и печатает, сколько всего кубиков нужно: <code>Кубиков: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+вывод: Кубиков: 10</span></pre>
+<p>Осторожно: при большом <code>n</code> ответ не влезет в <code>int</code>.</p>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>IntStream.rangeClosed(1, n)</code> — стрим чисел от 1 до <code>n</code> включительно</li>
+<li><code>LongStream</code> — такой же стрим, но из чисел <code>long</code>; у него тоже есть <code>rangeClosed</code> и <code>sum()</code></li>
+</ul></div>
+@@ test: Четыре ряда
+@@ input
+4
+@@ expect
+Кубиков: 10
+@@ test: Один кубик
+@@ input
+1
+@@ expect
+Кубиков: 1
+@@ test: Сто рядов
+@@ input
+100
+@@ expect
+Кубиков: 5050
+@@ test: Огромная лестница — больше int
+@@ input
+100000
+@@ expect
+Кубиков: 5000050000
+@@ test: Миллион рядов
+@@ input
+1000000
+@@ expect
+Кубиков: 500000500000
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

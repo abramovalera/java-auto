@@ -1,0 +1,42 @@
+## id: tr-methods-031
+## title: Сократи дробь
+## file: trainer/methods/FractionReduceGcd.java
+## class: FractionReduceGcd
+## level: 2
+## category: Вычисления
+@@ description
+<p>Создай класс <code>FractionReduceGcd</code> и напиши метод <code>static int gcd(int a, int b)</code> — наибольший общий делитель по алгоритму Евклида.</p>
+<p>main читает два целых числа через пробел — числитель <code>a ≥ 0</code> и знаменатель <code>b &gt; 0</code> — и печатает дробь и её сокращённый вид: <code>a/b = x/y</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6 8     вывод: 6/8 = 3/4
+ввод:  0 5     вывод: 0/5 = 0/1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>алгоритм Евклида: пока <code>b</code> не ноль, заменяй пару <code>(a, b)</code> на <code>(b, a % b)</code>; ответ — оставшееся <code>a</code></li>
+<li>НОД(0, b) равен <code>b</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+6 8
+@@ expect
+6/8 = 3/4
+@@ test: Уже несократимая
+@@ input
+3 7
+@@ expect
+3/7 = 3/7
+@@ test: Целое число
+@@ input
+10 5
+@@ expect
+10/5 = 2/1
+@@ test: Ноль в числителе
+@@ input
+0 5
+@@ expect
+0/5 = 0/1
+@@ test: Большой НОД
+@@ input
+1071 462
+@@ expect
+1071/462 = 51/22
+@@ require: static\s+int\s+gcd\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int gcd(int a, int b)
+@@ require: \Wgcd\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать gcd(...)

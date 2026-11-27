@@ -1,0 +1,40 @@
+## id: tr-arith-016
+## title: Км/ч в метры в секунду
+## file: trainer/arith/SpeedKmhToMs.java
+## class: SpeedKmhToMs
+## level: 1
+## category: Math и округление
+@@ description
+<p>Спидометр показывает скорость в километрах в час, а в задачах по физике нужна скорость в метрах в секунду. Чтобы перевести, скорость в км/ч делят на <code>3.6</code>. Создай класс <code>SpeedKmhToMs</code>. Программа читает скорость в км/ч (целое число) и печатает её в м/с, округлив до двух знаков после точки.</p>
+<pre class="terminal"><span class="out">ввод:  100     вывод: Скорость: 27.78 м/с
+ввод:  36      вывод: Скорость: 10.0 м/с</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет <code>x</code> до двух знаков после точки</li>
+<li>Дробные числа не печатай через <code>printf</code> — склеивай строку через <code>+</code></li>
+</ul></div>
+@@ test: Сто километров в час
+@@ input
+100
+@@ expect
+Скорость: 27.78 м/с
+@@ test: Ровно 10 м/с
+@@ input
+36
+@@ expect
+Скорость: 10.0 м/с
+@@ test: Загородная трасса
+@@ input
+90
+@@ expect
+Скорость: 25.0 м/с
+@@ test: Пешеход
+@@ input
+5
+@@ expect
+Скорость: 1.39 м/с
+@@ test: Стоим
+@@ input
+0
+@@ expect
+Скорость: 0.0 м/с
+@@ require: Math\.round | Округли ответ методом Math.round

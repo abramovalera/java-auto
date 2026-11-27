@@ -1,0 +1,49 @@
+## id: tr-streams-038
+## title: Сдали и не сдали
+## file: trainer/streams/ExamPassFailReport.java
+## class: ExamPassFailReport
+## level: 3
+## category: Группировка
+@@ description
+<p>Напиши класс <code>ExamPassFailReport</code>. В первой строке — результаты экзамена через пробел в виде <code>имя:баллы</code> (хотя бы один ученик), во второй — проходной балл. Экзамен сдан, если баллов не меньше проходного. Опиши record для результата и напечатай две строки: <code>Сдали: имена через запятую</code> и <code>Не сдали: …</code>, имена — в исходном порядке. Если в группе никого — вместо имён напечатай <code>никто</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Аня:72 Борис:45 Вика:90 Гоша:60
+       60
+вывод: Сдали: Аня, Вика, Гоша
+       Не сдали: Борис</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Collectors.partitioningBy(условие, Collectors.mapping(ExamScoreEntry::name, Collectors.joining(", ")))</code> — две полки, и на каждой сразу строка имён</li>
+<li><code>s.isEmpty() ? "никто" : s</code> — тернарный оператор для пустой группы</li>
+</ul></div>
+@@ test: Обычный экзамен
+@@ input
+Аня:72 Борис:45 Вика:90 Гоша:60
+60
+@@ expect
+Сдали: Аня, Вика, Гоша
+Не сдали: Борис
+@@ test: Сдали все
+@@ input
+Дима:100 Оля:80
+50
+@@ expect
+Сдали: Дима, Оля
+Не сдали: никто
+@@ test: Не сдал никто
+@@ input
+Ира:10 Лена:20
+90
+@@ expect
+Сдали: никто
+Не сдали: Ира, Лена
+@@ test: Один ученик ровно на границе
+@@ input
+Петя:70
+70
+@@ expect
+Сдали: Петя
+Не сдали: никто
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: partitioningBy\s*\( | Раздели учеников на две группы коллектором partitioningBy
+@@ require: \brecord\s+\w+ | Опиши результат экзамена как record

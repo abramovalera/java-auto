@@ -1,0 +1,42 @@
+## id: tr-streams-013
+## title: Слова на заданную букву
+## file: trainer/streams/WordsStartingWith.java
+## class: WordsStartingWith
+## level: 1
+## category: Строки и символы
+@@ description
+<p>Напиши класс <code>WordsStartingWith</code>. Играем в «слова»: сколько слов начинается с нужной буквы? В первой строке — слова через пробел (хотя бы одно), во второй — одна буква. Регистр не важен: «А» и «а» — одна и та же буква. Напечатай количество таких слов.</p>
+<pre class="terminal"><span class="out">ввод:  Арбуз апельсин банан Ананас
+       а
+вывод: 3</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.toLowerCase()</code> — возвращает строку в нижнем регистре</li>
+<li><code>w.startsWith(prefix)</code> — <code>true</code>, если строка начинается с <code>prefix</code></li>
+</ul></div>
+@@ test: Фрукты на «а»
+@@ input
+Арбуз апельсин банан Ананас
+а
+@@ expect
+3
+@@ test: Буква дана заглавной
+@@ input
+банан Бублик бабочка кот
+Б
+@@ expect
+3
+@@ test: Ни одного слова
+@@ input
+кот пёс мышь
+я
+@@ expect
+0
+@@ test: Латиница
+@@ input
+Java jar Kotlin JSON
+j
+@@ expect
+3
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

@@ -1,0 +1,37 @@
+## id: tr-vars-023
+## title: Большая буква через код
+## file: trainer/vars/LatinUpperCaseTrick.java
+## class: LatinUpperCaseTrick
+## level: 2
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>LatinUpperCaseTrick</code>. Маленькие латинские буквы стоят в таблице Unicode ровно на 32 позиции дальше больших: <code>'a'</code> — 97, <code>'A'</code> — 65. Программа читает одну маленькую букву и печатает <code>a -&gt; A</code>: исходную букву и её заглавную пару.</p>
+<pre class="terminal"><span class="out">ввод:  a
+вывод: a -&gt; A</span></pre>
+<p>Сделай это через коды символов, без готовых методов вроде <code>toUpperCase()</code>. Тот же трюк работает и для русских букв (кроме «ё»).</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next().charAt(0)</code> — так читают один символ: метода <code>nextChar()</code> нет</li>
+<li><code>'a' - 'A'</code> — равно 32</li>
+<li><code>(char) (letter - 32)</code> — сдвиг кода и приведение обратно к символу</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+a
+@@ expect
+a -> A
+@@ test: Последняя буква
+@@ input
+z
+@@ expect
+z -> Z
+@@ test: Середина алфавита
+@@ input
+j
+@@ expect
+j -> J
+@@ test: Русская буква
+@@ input
+п
+@@ expect
+п -> П
+@@ forbid: toUpperCase | Сделай без toUpperCase — через коды символов

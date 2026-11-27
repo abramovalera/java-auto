@@ -1,0 +1,53 @@
+## id: tr-arith-028
+## title: Кто ближе к загаданному
+## file: trainer/arith/CloserToTargetGuess.java
+## class: CloserToTargetGuess
+## level: 2
+## category: Логика: true/false
+@@ description
+<p>Ведущий загадал число, Аня и Боря назвали свои варианты. Побеждает тот, чьё число ближе к загаданному; при равном расстоянии — ничья. Создай класс <code>CloserToTargetGuess</code>. Программа читает три целых числа, каждое с новой строки: загаданное, вариант Ани и вариант Бори. Она печатает <code>true</code>, если Аня победила, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  50
+       45
+       60
+вывод: true</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Расстояние между числами — модуль разности: <code>Math.abs(a - b)</code></li>
+<li>Строгое сравнение <code>&lt;</code> не считает равенство победой</li>
+</ul></div>
+@@ test: Аня ближе
+@@ input
+50
+45
+60
+@@ expect
+true
+@@ test: Боря ближе
+@@ input
+50
+60
+45
+@@ expect
+false
+@@ test: Ничья
+@@ input
+50
+55
+45
+@@ expect
+false
+@@ test: Аня угадала точно
+@@ input
+50
+50
+51
+@@ expect
+true
+@@ test: Отрицательные числа
+@@ input
+-10
+-12
+-5
+@@ expect
+true
+@@ require: Math\.abs | Расстояние между числами — модуль разности, метод Math.abs
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

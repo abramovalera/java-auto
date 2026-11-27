@@ -1,0 +1,92 @@
+## id: tr-except-029
+## title: Морской бой
+## file: trainer/except/SeaBattleShots.java
+## class: SeaBattleShots
+## level: 3
+## category: Свои исключения
+@@ description
+<p>Напиши класс <code>SeaBattleShots</code>. Поле 5×5: строки обозначены буквами A–E, столбцы — цифрами 1–5. Корабли расставлены так (<code>X</code> — палуба корабля):</p>
+<pre><code>String[] field = {
+        ".X...",
+        ".X..X",
+        "....X",
+        "XX...",
+        "....."
+};</code></pre>
+<p>В первой строке ввода — количество выстрелов n, дальше n строк вроде <code>B2</code> (буква может быть и строчной). На каждый выстрел программа печатает:</p>
+<ul>
+<li><code>Ранил</code> или <code>Мимо</code>;</li>
+<li><code>Выстрел пишут так: B3</code> — если в строке не 2 символа;</li>
+<li><code>После буквы нужна цифра</code> — если второй символ не цифра;</li>
+<li><code>Мимо поля</code> — если клетки нет (лови выход за границы массива и строки одним <code>catch</code>);</li>
+<li><code>Сюда уже стреляли</code> — повторный выстрел в ту же клетку: объяви для этого исключение <code>SeaBattleRepeatShotException</code>.</li>
+</ul>
+<p>Если подбиты все палубы, программа печатает <code>Все корабли потоплены!</code> и оставшиеся выстрелы не читает. В конце всегда — <code>Попаданий: H из S</code>, где S — число палуб на поле (посчитай его по массиву).</p>
+<pre class="terminal"><span class="out">ввод:  3       вывод: Ранил
+       A2             Мимо поля
+       F1             Сюда уже стреляли
+       a2             Попаданий: 1 из 6</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Character.toUpperCase(c) - 'A'</code> — номер строки по букве: A → 0, B → 1</li>
+<li><code>IndexOutOfBoundsException</code> — общий родитель <code>ArrayIndexOutOfBoundsException</code> и <code>StringIndexOutOfBoundsException</code></li>
+<li><code>boolean[][] shot = new boolean[5][5];</code> — куда уже стреляли</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+A2
+F1
+a2
+@@ expect
+Ранил
+Мимо поля
+Сюда уже стреляли
+Попаданий: 1 из 6
+@@ test: Плохие выстрелы
+@@ input
+5
+B
+B10
+Bx
+E6
+C0
+@@ expect
+Выстрел пишут так: B3
+Выстрел пишут так: B3
+После буквы нужна цифра
+Мимо поля
+Мимо поля
+Попаданий: 0 из 6
+@@ test: Все корабли потоплены
+@@ input
+8
+A2
+B2
+C1
+B5
+C5
+D1
+D2
+E5
+@@ expect
+Ранил
+Ранил
+Мимо
+Ранил
+Ранил
+Ранил
+Ранил
+Все корабли потоплены!
+Попаданий: 6 из 6
+@@ test: Только мимо
+@@ input
+2
+E5
+e5
+@@ expect
+Мимо
+Сюда уже стреляли
+Попаданий: 0 из 6
+@@ require: class\s+SeaBattleRepeatShotException\s+extends\s+Exception | Объяви класс SeaBattleRepeatShotException extends Exception
+@@ require: throw\s+new\s+SeaBattleRepeatShotException | При повторном выстреле выбрасывай SeaBattleRepeatShotException
+@@ require: catch\s*\(\s*IndexOutOfBoundsException | Перехвати выход за границы одним catch (IndexOutOfBoundsException e)

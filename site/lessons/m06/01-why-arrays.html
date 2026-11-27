@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Зачем нужны массивы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m06-01">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 6 · Урок 1</div>
+    <h1>Зачем нужны массивы</h1>
+    <p class="lead">Сто оценок — это не сто переменных. Знакомимся с массивом: одна переменная, много ячеек, у каждой свой номер.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>📦 int[], new, length</span><span>🔢 индексы с нуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <p>Массивы почти всегда обходят циклом, поэтому сначала разомнём циклы и роли переменных из модуля 5.</p>
+    <div data-widget="check" id="check-m06-01-review">
+      <script type="application/json">
+      { "title": "Разминка: циклы", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int sum = 0;\nfor (int i = 1; i <= 4; i++) {\n    sum += i;\n}\nSystem.out.println(sum);",
+            "answer": "10", "why": "sum — накопитель: на каждой итерации составное присваивание sum += i, 0 + 1 + 2 + 3 + 4 = 10." },
+          { "type": "single", "q": "Сколько раз выполнится тело цикла?",
+            "code": "for (int i = 0; i < 5; i++) {\n    System.out.println(i);\n}",
+            "options": ["4 раза", "5 раз", "6 раз"], "answer": 1,
+            "why": "Счётчик i принимает значения 0, 1, 2, 3, 4 — это пять итераций. Когда i становится 5, условие i &lt; 5 ложно. Запомни эту форму: она будет в каждом уроке модуля." },
+          { "type": "match", "q": "Соедини роль переменной с примером",
+            "left": ["Счётчик", "Накопитель", "Флаг"],
+            "right": ["count++ каждый раз, когда условие выполнилось", "total += price на каждой итерации", "found = true, когда нашли нужное"],
+            "why": "Эти же роли ты встретишь в массивах: счётчик чётных, сумма элементов, «нашёлся ли элемент»." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Проблема: сто оценок</h2>
+    <p>Учитель хочет посчитать средний балл класса. Пока учеников пятеро, можно завести пять переменных:</p>
+<pre data-file="Grades.java"><code class="java">int grade1 = 5;
+int grade2 = 4;
+int grade3 = 3;
+int grade4 = 5;
+int grade5 = 4;
+int sum = grade1 + grade2 + grade3 + grade4 + grade5;
+System.out.println("Среднее: " + sum / 5.0);</code></pre>
+    <p>Работает: объявили пять переменных и инициализировали каждую литералом. А теперь в школе 100 учеников. Или 1000. Или число учеников вводится с клавиатуры, и заранее ты его не знаешь. Сто строк <code>int gradeN</code> никто писать не будет, а цикл тут не поможет: цикл не умеет «перебирать» переменные с разными именами — <code>grade1</code>, <code>grade2</code>… для Java это просто разные слова.</p>
+    <div class="say" data-mood="oops"><p>Хочется написать что-то вроде «grade номер i» и крутить i в цикле. Хорошая новость: именно это и умеет массив.</p></div>
+    <p>В магазине та же история: в чеке 20 цен товаров, и программа проверяет, что все они больше нуля. Двадцать переменных — безумие. Один массив цен и один цикл — норма.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Идея: ряд пронумерованных ячеек</h2>
+    <p><b>Массив</b> (array) — это набор ячеек <b>одного типа</b>, стоящих подряд, под <b>одним именем</b>. Каждая ячейка называется <b>элементом</b>, а её номер — <b>индексом</b>. Чтобы достать элемент, пишешь имя массива и индекс в квадратных скобках: <code>grades[2]</code> — это <b>обращение к элементу по индексу</b> 2.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: камера хранения на вокзале</span>
+      <p>Длинный ряд одинаковых ячеек. У ряда есть название — «Ряд Б», а у каждой ячейки номер на дверце. Ты не придумываешь каждой ячейке своё имя: говоришь «ряд Б, ячейка 3» — и знаешь, куда идти. Количество ячеек в ряду фиксировано: его определили, когда ставили шкаф.</p>
+      <p>Только у Java есть причуда: <b>нумерация начинается с нуля</b>. Первая ячейка — нулевая.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 680 210" role="img" aria-label="Массив grades из пяти ячеек с индексами от 0 до 4">
+        <text x="20" y="38" class="d-title">grades</text>
+        <text x="20" y="58" class="d-small">имя массива</text>
+        <rect x="130" y="70" width="100" height="70" rx="8" class="d-blue"/>
+        <rect x="235" y="70" width="100" height="70" rx="8" class="d-blue"/>
+        <rect x="340" y="70" width="100" height="70" rx="8" class="d-accent"/>
+        <rect x="445" y="70" width="100" height="70" rx="8" class="d-blue"/>
+        <rect x="550" y="70" width="100" height="70" rx="8" class="d-blue"/>
+        <text x="180" y="113" text-anchor="middle" class="d-title">5</text>
+        <text x="285" y="113" text-anchor="middle" class="d-title">4</text>
+        <text x="390" y="113" text-anchor="middle" class="d-title">3</text>
+        <text x="495" y="113" text-anchor="middle" class="d-title">5</text>
+        <text x="600" y="113" text-anchor="middle" class="d-title">4</text>
+        <text x="180" y="166" text-anchor="middle" class="d-mono-ink">[0]</text>
+        <text x="285" y="166" text-anchor="middle" class="d-mono-ink">[1]</text>
+        <text x="390" y="166" text-anchor="middle" class="d-mono-ink">[2]</text>
+        <text x="495" y="166" text-anchor="middle" class="d-mono-ink">[3]</text>
+        <text x="600" y="166" text-anchor="middle" class="d-mono-ink">[4]</text>
+        <text x="20" y="113" class="d-small">значения →</text>
+        <text x="20" y="166" class="d-small">индексы →</text>
+        <text x="390" y="196" text-anchor="middle" class="d-small">grades[2] — третья по счёту ячейка, в ней 3</text>
+      </svg>
+      <figcaption>Пять ячеек типа int под одним именем. Индексы идут от 0 до 4 — на один меньше, чем ячеек.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Массив</dt><dd>Набор ячеек одного типа под одним именем. Размер задаётся при создании и потом <b>не меняется</b>.</dd>
+      <dt>Элемент</dt><dd>Одна ячейка массива и значение в ней.</dd>
+      <dt>Индекс</dt><dd>Номер ячейки: целое число от <code>0</code> до «размер − 1».</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Объявляем и создаём массив</h2>
+<pre data-file="Grades.java"><code class="java">int[] grades = new int[5];</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>int[]</code><div><p><b>Тип</b> переменной: «массив int». Сама переменная хранит не ячейки, а <b>ссылку</b> на массив — адрес, где он лежит. Квадратные скобки после типа и означают «массив». Бывает <code>double[]</code>, <code>boolean[]</code>, <code>String[]</code> — любой тип плюс <code>[]</code>.</p></div></div>
+      <div class="annot-row"><code>grades</code><div><p><b>Имя</b> массива. Обычно во множественном числе: grades, prices, names — сразу видно, что значений много.</p></div></div>
+      <div class="annot-row"><code>new</code><div><p>Оператор <code>new</code> — «создай новый объект». Это <b>создание массива</b>: массив в Java — объект, он появляется в <b>куче</b>. Подробно, со стрелками, — в уроке 3.</p></div></div>
+      <div class="annot-row"><code>int[5]</code><div><p>Сколько ячеек и какого типа. Тип справа должен совпадать с типом слева.</p></div></div>
+    </div>
+    <p>Вся строка читается так: «<b>объявляем</b> переменную <code>grades</code> типа <code>int[]</code> и <b>инициализируем</b> её <b>новым массивом</b> из 5 элементов типа <code>int</code>».</p>
+    <p>Размер не обязан быть числом в коде — подойдёт любая переменная типа <code>int</code>. Это и решает проблему «сколько учеников — заранее не знаю»:</p>
+<pre data-file="Grades.java"><code class="java">Scanner scanner = new Scanner(System.in);
+int n = scanner.nextInt();       // сколько учеников — узнаём у пользователя
+int[] grades = new int[n];       // ровно n ячеек</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Размер нельзя поменять</span>
+      <p>Создал массив на 5 ячеек — их будет 5 до конца жизни массива. Нужно больше — создают <b>новый</b> массив побольше и копируют туда значения элементов. (Списки, которые растут сами, — в модуле 13 «Коллекции».)</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: можно ли написать int grades[]?</summary>
+      <p>Можно: <code>int grades[] = new int[5];</code> — так пишут в языке C, и Java это разрешает. Но в Java принято ставить скобки у типа: <code>int[] grades</code>. Тогда читается честно: «объявляем переменную grades типа int[]». На собеседовании иногда спрашивают, скомпилируется ли второй вариант. Ответ: да.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Что лежит в новом массиве</h2>
+    <p>Ты создал массив <code>new int[5]</code> и ни одному элементу ничего не присвоил. Что внутри? Если прочитать локальную переменную, которую объявили, но не инициализировали, Java бы ругалась («variable might not have been initialized»). А вот ячейки массива <b>всегда заполняются значениями по умолчанию</b>:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Тип массива</th><th>Значение в каждой ячейке</th></tr>
+        <tr><td><code>int[]</code>, <code>long[]</code>, <code>byte[]</code>, <code>short[]</code></td><td><code>0</code></td></tr>
+        <tr><td><code>double[]</code>, <code>float[]</code></td><td><code>0.0</code></td></tr>
+        <tr><td><code>boolean[]</code></td><td><code>false</code></td></tr>
+        <tr><td><code>char[]</code></td><td>символ с кодом 0 (<code>'\u0000'</code>) — невидимый</td></tr>
+        <tr><td><code>String[]</code> и другие объекты</td><td><code>null</code> — «ссылки нет, коробка пустая»</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Что напечатает: boolean[] flags = new boolean[3]; System.out.println(flags[1]);</summary>
+      <p><b>false</b>. Обращаемся к элементу с индексом 1 — элементы <code>boolean</code>-массива по умолчанию равны <code>false</code>. Ошибки нет: значение по умолчанию есть всегда.</p>
+    </details>
+    <details class="predict">
+      <summary>А это? String[] names = new String[2]; System.out.println(names[0]);</summary>
+      <p><b>null</b>. Строк ещё нет — ячейки пустые. Печать <code>null</code> не падает, а вот вызов метода у такого элемента (например, <code>names[0].length()</code>) уронит программу с <code>NullPointerException</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Сразу со значениями: литерал { }</h2>
+    <p>Если значения известны заранее, массив можно создать и заполнить одной строкой. Фигурные скобки со значениями через запятую — это <b>литерал массива</b> (инициализатор). Размер Java посчитает сама. <code>int[] daysInMonth = {31, 28, 31, 30};</code> читается так: «объявляем переменную <code>daysInMonth</code> типа <code>int[]</code> и инициализируем её литералом массива из четырёх элементов».</p>
+<pre data-file="Months.java"><code class="java">int[] daysInMonth = {31, 28, 31, 30};            // 4 ячейки
+String[] colors = {"красный", "жёлтый", "зелёный"}; // 3 ячейки
+double[] prices = {99.9, 150.0};                  // 2 ячейки</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка: короткая форма — только при объявлении</span>
+      <p><code>int[] a = {1, 2, 3};</code> — объявление с инициализацией, можно. А вот присваивать литерал отдельно от объявления нельзя:</p>
+<pre data-file="Oops.java"><code class="java">int[] a;
+a = {1, 2, 3};             // ошибка компиляции: illegal start of expression
+a = new int[]{1, 2, 3};    // так можно: полная форма работает везде</code></pre>
+    </div>
+    <p>Вот как IDEA встретит короткую форму не на своём месте:</p>
+    <div data-widget="ide" id="shot-array-init">
+      <script type="application/json">
+      { "tree": false, "file": "Oops.java", "gutterRun": [1, 2], "statusPath": "module-06",
+        "code": "public class Oops {\n    public static void main(String[] args) {\n        int[] a;\n        a = {1, 2, 3};\n    }\n}",
+        "errors": [ { "line": 4, "text": "{1, 2, 3}", "msg": "Array initializer is not allowed here", "tip": true, "fix": "Add 'new int[]'" } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Красная волна под фигурными скобками: «список в скобках» здесь стоять не может: это присваивание, а переменная <code>a</code> объявлена строкой выше" },
+                   { "n": 2, "target": "tip", "text": "<b>Array initializer is not allowed here</b> — «инициализатор массива здесь запрещён». Ниже IDEA предлагает починку: <kbd>Alt</kbd>+<kbd>Enter</kbd> допишет <code>new int[]</code> перед скобками. <code>javac</code> скажет то же самое иначе: <code>illegal start of expression</code>" },
+                   { "n": 3, "target": "problems", "text": "❗1 — в файле одна ошибка, программа не запустится, пока её не исправишь" } ],
+        "caption": "Короткая форма {…} не при объявлении — ошибка компиляции" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Индексы с нуля и length</h2>
+    <p>Элемент массива ведёт себя как обычная переменная: через обращение по индексу его можно прочитать, присвоить ему новое значение, увеличить инкрементом.</p>
+<pre data-file="Grades.java"><code class="java">int[] grades = {5, 4, 3, 5, 4};
+grades[2] = 4;                     // исправили третью оценку
+grades[0]++;                       // была 5, стала 6 (ну, бывает)
+System.out.println(grades[0]);     // 6
+System.out.println(grades.length); // 5 — сколько ячеек</code></pre>
+    <p><code>grades.length</code> — <b>длина</b> массива, то есть число элементов. Пишется <b>без скобок</b>: это не вызов метода, а <b>поле</b> массива, как надпись «5 ячеек» на шкафу. Последний элемент всегда <code>grades[grades.length - 1]</code>.</p>
+    <div class="say" data-mood="think"><p>Почему с нуля? Индекс — это не «номер по счёту», а <b>сколько шагов отступить от начала</b>. Первая ячейка стоит в самом начале — до неё 0 шагов. Третья — в двух шагах. Поэтому <code>grades[2]</code> — третья.</p></div>
+    <div data-widget="trace" id="trace-m06-01">
+      <script type="application/json">
+      { "title": "Пишем в ячейки", "intro": "Следи за массивом в таблице справа. Перед некоторыми шагами тебя спросят, что получится.",
+        "code": "int[] a = new int[4];\na[0] = 7;\na[3] = a[0] * 2;\na[1] = a.length;\na[0]++;\nSystem.out.println(a[0] + a[3]);",
+        "steps": [
+          { "line": 1, "vars": { "a[0]": "0", "a[1]": "0", "a[2]": "0", "a[3]": "0" }, "note": "Объявили a и инициализировали новым массивом на 4 элемента. Элементам ничего не присваивали, поэтому там нули — значения по умолчанию." },
+          { "line": 2, "vars": { "a[0]": "7", "a[1]": "0", "a[2]": "0", "a[3]": "0" }, "note": "Элементу с индексом 0 (первому) присвоили 7." },
+          { "line": 3, "vars": { "a[0]": "7", "a[1]": "0", "a[2]": "0", "a[3]": "14" }, "ask": ["a[3]"], "note": "Справа выражение a[0] * 2. В a[0] лежит 7, значит последнему элементу a[3] присваивается 14." },
+          { "line": 4, "vars": { "a[0]": "7", "a[1]": "4", "a[2]": "0", "a[3]": "14" }, "ask": ["a[1]"], "note": "Вспомни, сколько элементов в массиве. Длина (поле a.length) — 4, и это число присвоили элементу a[1]." },
+          { "line": 5, "vars": { "a[0]": "8", "a[1]": "4", "a[2]": "0", "a[3]": "14" }, "note": "Инкремент a[0]++ работает как с обычной переменной: 7 стало 8." },
+          { "line": 6, "vars": { "a[0]": "8", "a[1]": "4", "a[2]": "0", "a[3]": "14" }, "out": "22\n", "note": "Вызываем println и передаём аргумент — выражение a[0] + a[3] = 8 + 14 = 22. Элемент a[2] так и остался нулём." }
+        ] }
+      </script>
+    </div>
+    <p>В таблице каждая ячейка массива показана отдельной строкой: <code>a[0]</code>, <code>a[1]</code>… — так удобнее следить, что где меняется.</p>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m06-01">
+      <script type="application/json">
+      {
+       "title": "Массивы: создание и индексы",
+       "items": [
+        {
+         "type": "single",
+         "q": "В массиве 8 элементов. Какой индекс у последнего?",
+         "options": [
+          "8",
+          "7",
+          "9"
+         ],
+         "answer": 1,
+         "why": "Индексы с 0, поэтому последний — length - 1 = 7."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int[] a = {3, 6, 9};\na[1] = a[0] + a[2];\nSystem.out.println(a[1]);\nSystem.out.println(a.length);",
+         "answer": "12\n3",
+         "why": "a[0] = 3, a[2] = 9, сумма 12 присваивается элементу a[1]. Длина массива от этого не меняется: 3."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "int[] a = {1, 2, 3};\nint[] b = new int[3];\nint[] c;\nc = {4, 5, 6};\nSystem.out.println(a.length);",
+         "answer": [
+          4
+         ],
+         "why": "Литерал массива {…} работает только при объявлении с инициализацией. Для присваивания нужно c = new int[]{4, 5, 6};"
+        },
+        {
+         "type": "match",
+         "q": "Какое значение по умолчанию у элемента нового массива?",
+         "left": [
+          "new int[3]",
+          "new boolean[3]",
+          "new String[3]",
+          "new double[3]"
+         ],
+         "right": [
+          "0",
+          "false",
+          "null",
+          "0.0"
+         ],
+         "why": "Числа — нули, boolean — false, объекты (в том числе String) — null."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "У созданного массива можно потом увеличить размер",
+           "a": false,
+           "why": "размер фиксируется при создании. Нужно больше — создают новый массив."
+          },
+          {
+           "s": "Размер массива можно взять из переменной: new int[n]",
+           "a": true
+          },
+          {
+           "s": "Длину массива узнают так: a.length()",
+           "a": false,
+           "why": "length у массива — поле, а не метод, пишется без скобок: a.length."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 6.1. Объясню своими словами, почему индексы в массиве начинаются с нуля, а ты проверь»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Массив</b> — много элементов одного типа под одним именем. Размер фиксирован при создании массива.</li>
+        <li>Объявление с инициализацией новым массивом: <code>int[] a = new int[5];</code> или литералом массива <code>int[] a = {1, 2, 3};</code>.</li>
+        <li>Новый массив заполнен значениями по умолчанию: <code>0</code>, <code>0.0</code>, <code>false</code>, <code>null</code>.</li>
+        <li>Обращение к элементу по индексу; индексы с нуля: первый <code>a[0]</code>, последний <code>a[a.length - 1]</code>.</li>
+        <li><code>a.length</code> — длина массива, поле без скобок.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

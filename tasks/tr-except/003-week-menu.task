@@ -1,0 +1,47 @@
+## id: tr-except-003
+## title: Меню на неделю
+## file: trainer/except/WeekMenuLookup.java
+## class: WeekMenuLookup
+## level: 1
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>WeekMenuLookup</code>. В столовой на каждый день недели своё блюдо. Объяви в программе массив</p>
+<pre><code>String[] menu = {"борщ", "плов", "пельмени", "уха", "лагман", "пицца", "блины"};</code></pre>
+<p>Программа читает номер дня (целое число, понедельник — 1, воскресенье — 7) и печатает <code>В меню: блюдо</code>. Для несуществующего дня обращение к массиву выбросит <code>ArrayIndexOutOfBoundsException</code> — перехвати его и напечатай <code>Такого дня нет</code>. Диапазон через <code>if</code> не проверяй.</p>
+<pre class="terminal"><span class="out">ввод:  5     вывод: В меню: лагман
+ввод:  8     вывод: Такого дня нет</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>день 1 лежит в элементе с индексом 0 — индекс на единицу меньше номера</li>
+<li><code>catch (ArrayIndexOutOfBoundsException e)</code> — перехватывает обращение к несуществующему индексу</li>
+</ul></div>
+@@ test: Пятница
+@@ input
+5
+@@ expect
+В меню: лагман
+@@ test: Понедельник — первый элемент
+@@ input
+1
+@@ expect
+В меню: борщ
+@@ test: Воскресенье — последний элемент
+@@ input
+7
+@@ expect
+В меню: блины
+@@ test: Восьмого дня нет
+@@ input
+8
+@@ expect
+Такого дня нет
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Такого дня нет
+@@ test: Отрицательный день
+@@ input
+-3
+@@ expect
+Такого дня нет
+@@ require: catch\s*\(\s*ArrayIndexOutOfBoundsException | Перехвати ArrayIndexOutOfBoundsException

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Как передаются аргументы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-04">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 7 · Урок 4</div>
+    <h1>Как передаются аргументы</h1>
+    <p class="lead">Метод поменял число — а снаружи ничего не изменилось. Метод поменял массив — а снаружи изменилось! Разбираемся, почему так, с картой памяти в руках. Это любимый вопрос на собеседованиях.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 2 трассировки памяти</span><span>💼 вопрос с собеседований</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m07-04-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Повторим модуль 6. Что напечатает этот код?",
+            "code": "int[] a = {1, 2, 3};\nint[] b = a;\nb[0] = 99;\nSystem.out.println(a[0]);",
+            "options": ["1", "99", "Ошибка компиляции"], "answer": 1,
+            "why": "Инициализация b = a копирует не массив, а ссылку. Обе переменные ссылаются на один и тот же массив в куче." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Каждый вызов метода получает свой фрейм на стеке", "a": true },
+              { "s": "Когда метод выполняет return, его локальные переменные продолжают жить", "a": false, "why": "фрейм снимают вместе со всеми параметрами и локальными переменными." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Загадка с числом</h2>
+    <p>Объявим метод, который прибавляет 10 к своему параметру. Что напечатает main?</p>
+<pre data-file="PassValue.java"><code class="java">public class PassValue {
+    public static void main(String[] args) {
+        int a = 5;
+        addTen(a);
+        System.out.println(a);
+    }
+
+    static void addTen(int x) {
+        x = x + 10;
+        System.out.println("внутри: " + x);
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: две строки вывода — какие?</summary>
+      <p><b>внутри: 15</b>, а потом <b>5</b>. Параметру <code>x</code> присвоили 15, а переменная <code>a</code> у main так и осталась 5. Почему — смотри трассировку.</p>
+    </details>
+    <div data-widget="trace" id="trace-m07-04-value">
+      <script type="application/json">
+      { "title": "Примитив: метод получает копию",
+        "intro": "Следи за двумя фреймами: у main своя переменная <code>a</code>, у addTen — своя <code>x</code>.",
+        "code": "public class PassValue {\n    public static void main(String[] args) {\n        int a = 5;\n        addTen(a);\n        System.out.println(a);\n    }\n\n    static void addTen(int x) {\n        x = x + 10;\n        System.out.println(\"внутри: \" + x);\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "a": "5" } } ], "note": "В фрейме main объявлена переменная <code>a</code> и инициализирована значением 5." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "a": "5" } } ], "note": "Вызываем <code>addTen</code> и передаём аргумент <code>a</code>. Java берёт <b>значение</b> a — число 5." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "a": "5" } }, { "frame": "addTen", "vars": { "x": "5" } } ], "note": "В новом фрейме параметр <code>x</code> инициализирован <b>копией</b> числа: 5. Это отдельная переменная, с a она никак не связана." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": { "a": "5" } }, { "frame": "addTen", "vars": { "x": "15" } } ], "vars": { "x": "15" }, "ask": ["x"], "note": "Какое значение будет у x после присваивания? Вычисляется выражение x + 10 = 15 и присваивается x. Меняется только переменная x в фрейме addTen." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": { "a": "5" } }, { "frame": "addTen", "vars": { "x": "15" } } ], "out": "внутри: 15\n", "note": "Внутри метода — 15. А что у main? Посмотри на нижний фрейм: там по-прежнему 5." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "a": "5" } } ], "vars": { "a": "5" }, "ask": ["a"], "out": "5\n", "note": "Фрейм addTen сняли вместе с x. Значит, a = 5: метод работал с копией, оригинал никто не трогал." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Правило: Java передаёт копию</h2>
+    <p>Запомни одно правило — его спрашивают почти на каждом собеседовании по Java:</p>
+    <div class="callout warn">
+      <span class="callout-title">Главное правило</span>
+      <p><b>Java всегда передаёт в метод копию значения</b> (по-английски — <i>pass by value</i>). Параметр — это новая локальная переменная в новом фрейме, которую инициализировали копией значения аргумента. Что бы метод ни делал со своим параметром, переменная снаружи не изменится.</p>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: ксерокопия</span>
+      <p>Ты даёшь другу ксерокопию своей контрольной. Он может зачеркнуть ответы, разрисовать её, порвать — твой оригинал лежит у тебя целый.</p>
+    </div>
+    <p>Как тогда получить изменённое число? Пусть метод его <b>вернёт</b> через return, а ты сам присвоишь возвращённое значение нужной переменной:</p>
+<pre data-file="PassValue.java"><code class="java">static int addTen(int x) {
+    return x + 10;
+}
+
+// в main:
+int a = 5;
+a = addTen(a);           // теперь a = 15 — мы сами перезаписали её результатом</code></pre>
+    <details class="predict">
+      <summary>Предскажи: удастся ли так поменять местами два числа?</summary>
+<pre data-file="Swap.java"><code class="java">static void swap(int a, int b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+// в main: int x = 1, y = 2; swap(x, y); System.out.println(x + " " + y);</code></pre>
+      <p><b>Нет, выведет «1 2».</b> Метод честно поменял местами значения своих параметров a и b — <b>копий</b> аргументов — и его фрейм тут же сняли. Классическая задачка с собеседований: метод swap для примитивов в Java написать нельзя.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Загадка с массивом</h2>
+    <p>Теперь то же самое, но с массивом. Метод удваивает все элементы:</p>
+<pre data-file="PassArray.java"><code class="java">public class PassArray {
+    public static void main(String[] args) {
+        int[] nums = {1, 2, 3};
+        doubleAll(nums);
+        System.out.println(nums[0] + " " + nums[1] + " " + nums[2]);
+    }
+
+    static void doubleAll(int[] arr) {
+        for (int i = 0; i &lt; arr.length; i++) {
+            arr[i] = arr[i] * 2;
+        }
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: «1 2 3» или «2 4 6»?</summary>
+      <p><b>2 4 6.</b> На этот раз изменения видны снаружи. Противоречие с правилом? Нет! Смотри, что именно скопировалось.</p>
+    </details>
+    <div data-widget="trace" id="trace-m07-04-array">
+      <script type="application/json">
+      { "title": "Массив: метод получает копию ссылки",
+        "intro": "Слева стек, справа куча. Помнишь из модуля 6: переменная-массив хранит не сам массив, а <b>ссылку</b> на него.",
+        "code": "public class PassArray {\n    public static void main(String[] args) {\n        int[] nums = {1, 2, 3};\n        doubleAll(nums);\n        System.out.println(nums[0] + \" \" + nums[1] + \" \" + nums[2]);\n    }\n\n    static void doubleAll(int[] arr) {\n        for (int i = 0; i < arr.length; i++) {\n            arr[i] = arr[i] * 2;\n        }\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "nums": "→#1" } } ], "heap": [ { "id": "#1", "label": "int[3]", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Объявляем nums и инициализируем литералом массива: массив создан в куче под номером #1. В переменной <code>nums</code> — ссылка на него." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "nums": "→#1" } } ], "heap": [ { "id": "#1", "label": "int[3]", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Вызываем <code>doubleAll</code> и передаём аргумент nums. Значение nums — это <b>ссылка</b>. Её Java и скопирует." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "nums": "→#1" } }, { "frame": "doubleAll", "vars": { "arr": "→#1" } } ], "heap": [ { "id": "#1", "label": "int[3]", "fields": { "[0]": "1", "[1]": "2", "[2]": "3" } } ], "note": "Параметр <code>arr</code> инициализирован копией ссылки. Две стрелки — и обе ведут к <b>одному и тому же</b> массиву #1. Массив не копировался!" },
+          { "line": 10, "stack": [ { "frame": "main", "vars": { "nums": "→#1" } }, { "frame": "doubleAll", "vars": { "arr": "→#1", "i": "0" } } ], "heap": [ { "id": "#1", "label": "int[3]", "fields": { "[0]": "2", "[1]": "2", "[2]": "3" } } ], "note": "i = 0: элементу arr[0] присваивается 1 * 2 = 2. Метод меняет элемент массива в куче — того самого, на который ссылается и nums." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": { "nums": "→#1" } }, { "frame": "doubleAll", "vars": { "arr": "→#1", "i": "1" } } ], "heap": [ { "id": "#1", "label": "int[3]", "fields": { "[0]": "2", "[1]": "4", "[2]": "3" } } ], "note": "i = 1: arr[1] = 2 * 2 = 4." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": { "nums": "→#1" } }, { "frame": "doubleAll", "vars": { "arr": "→#1", "i": "2" } } ], "heap": [ { "id": "#1", "label": "int[3]", "fields": { "[0]": "2", "[1]": "4", "[2]": "6" } } ], "note": "i = 2: arr[2] = 3 * 2 = 6. Цикл закончен, метод void доходит до конца тела." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "nums": "→#1" } } ], "heap": [ { "id": "#1", "label": "int[3]", "fields": { "[0]": "2", "[1]": "4", "[2]": "6" } } ], "out": "2 4 6\n", "note": "Фрейм doubleAll сняли вместе с параметром arr. Но массив живёт в куче, и nums по-прежнему на него ссылается — а он уже изменён." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Копия значения и копия ссылки</h2>
+    <p>Правило то же самое — <b>копируется значение переменной</b>. Просто у переменной-массива значение — это ссылка, «адрес» массива в куче.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Слева: примитив копируется, две независимые ячейки. Справа: копируется ссылка, обе ведут к одному массиву">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="180" y="28" text-anchor="middle" class="d-title">int — копия числа</text>
+        <rect x="40" y="50" width="280" height="90" rx="12" class="d-soft"/>
+        <text x="56" y="74" class="d-small">фрейм main</text>
+        <rect x="120" y="86" width="120" height="40" rx="8" class="d-box"/><text x="180" y="112" text-anchor="middle" class="d-mono-ink">a = 5</text>
+        <rect x="40" y="170" width="280" height="90" rx="12" class="d-accent"/>
+        <text x="56" y="194" class="d-small">фрейм addTen</text>
+        <rect x="120" y="206" width="120" height="40" rx="8" class="d-box"/><text x="180" y="232" text-anchor="middle" class="d-mono-ink">x = 15</text>
+        <text x="180" y="285" text-anchor="middle" class="d-small">две отдельные ячейки — x меняется, a нет</text>
+
+        <path d="M380 20 V280" class="d-dash"/>
+
+        <text x="570" y="28" text-anchor="middle" class="d-title">int[] — копия ссылки</text>
+        <rect x="410" y="50" width="160" height="90" rx="12" class="d-soft"/>
+        <text x="424" y="74" class="d-small">фрейм main</text>
+        <rect x="430" y="86" width="120" height="40" rx="8" class="d-box"/><text x="490" y="112" text-anchor="middle" class="d-mono-ink">nums ●</text>
+        <rect x="410" y="170" width="160" height="90" rx="12" class="d-accent"/>
+        <text x="424" y="194" class="d-small">фрейм doubleAll</text>
+        <rect x="430" y="206" width="120" height="40" rx="8" class="d-box"/><text x="490" y="232" text-anchor="middle" class="d-mono-ink">arr ●</text>
+        <rect x="620" y="120" width="120" height="70" rx="12" class="d-yellow"/>
+        <text x="680" y="146" text-anchor="middle" class="d-small">куча: #1</text>
+        <text x="680" y="172" text-anchor="middle" class="d-mono-ink">[2, 4, 6]</text>
+        <path d="M532 106 C590 106 590 140 618 145" class="d-arrow"/>
+        <path d="M526 226 C590 226 590 175 618 168" class="d-arrow"/>
+        <text x="570" y="285" text-anchor="middle" class="d-small">две стрелки — один массив</text>
+      </svg>
+      <figcaption>И там и там копируется значение переменной. Но значение переменной-массива — это стрелка, и копия стрелки ведёт туда же.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: копия ключа</span>
+      <p>Ты дал другу <b>копию ключа</b> от своей квартиры. Ключ — копия, а квартира одна. Друг зашёл и переставил мебель — вернувшись, ты увидишь перестановку. Ссылка на массив — это ключ, массив — квартира.</p>
+    </div>
+    <p>Когда метод меняет что-то снаружи себя — не через возвращаемое значение, а «по пути», — это называют <b>побочным эффектом</b> (side effect). Иногда это ровно то, что нужно: например, метод «отсортируй массив» или «переверни массив на месте». Но такой метод должен честно говорить об этом своим именем: <code>sortArray</code>, <code>reverseInPlace</code>, <code>fillWithZeros</code>. Сюрприз «я просто посчитал сумму, а массив почему-то обнулился» — источник неприятных багов.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ловушка: присвоить параметру новый массив</h2>
+    <p>Последний, самый хитрый случай. Что, если метод не меняет элементы, а присваивает параметру ссылку на <b>новый</b> массив?</p>
+<pre data-file="Replace.java"><code class="java">static void replace(int[] arr) {
+    arr = new int[]{9, 9, 9};    // arr теперь смотрит на НОВЫЙ массив
+    arr[0] = 100;                // меняем новый массив
+}
+
+// в main:
+int[] nums = {1, 2, 3};
+replace(nums);
+System.out.println(nums[0]);</code></pre>
+    <details class="predict">
+      <summary>Предскажи: 1, 9 или 100?</summary>
+      <p><b>1.</b> Присваивание <code>arr = new int[]{…}</code> перенаправило <b>копию</b> стрелки — параметр в фрейме replace. Стрелка <code>nums</code> в main по-прежнему смотрит на старый массив {1, 2, 3}. Дальше метод меняет новый массив, который после return никому не нужен (его уберёт сборщик мусора).</p>
+      <p>Аналогия: друг выбросил свою копию ключа и сделал ключ от другой квартиры. Мебель он переставит там — в твоей квартире всё по-старому.</p>
+    </details>
+    <div class="cards">
+      <div class="card"><span class="emoji">✏️</span><h4>arr[i] = …</h4><p>Присваивание элементу массива, на который ведёт ссылка. <b>Видно снаружи.</b></p></div>
+      <div class="card"><span class="emoji">🔀</span><h4>arr = …</h4><p>Присваивание параметру: перенаправляет только свою копию ссылки. <b>Снаружи не видно.</b></p></div>
+      <div class="card"><span class="emoji">📦</span><h4>x = … (примитив)</h4><p>Присваивание параметру: меняет свою копию числа. <b>Снаружи не видно.</b></p></div>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: а строки (String)?</summary>
+      <p>String — тоже объект в куче, и в метод передаётся копия ссылки на него. Но строку в Java <b>нельзя изменить</b> — у неё нет элементов, которым можно присвоить новое значение, как у массива. Поэтому со строками метод может только перенаправить свою копию ссылки, а это снаружи не видно. На практике строки ведут себя «как примитивы». Почему строки неизменяемые и что из этого следует — в модуле 8.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m07-04">
+      <script type="application/json">
+      {
+       "title": "Передача аргументов — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "public class Puzzle {\n    public static void main(String[] args) {\n        int n = 3;\n        int[] box = {3};\n        change(n, box);\n        System.out.println(n + \" \" + box[0]);\n    }\n\n    static void change(int n, int[] box) {\n        n = 10;\n        box[0] = 10;\n    }\n}",
+         "answer": "3 10",
+         "why": "n — примитив, метод присваивал значение своей копии. box — копия ссылки на тот же массив, присваивание элементу видно снаружи."
+        },
+        {
+         "type": "single",
+         "q": "Что выведет код?",
+         "code": "static void reset(int[] a) {\n    a = new int[]{0, 0};\n}\n\n// в main:\nint[] data = {5, 7};\nreset(data);\nSystem.out.println(data[0]);",
+         "options": [
+          "0",
+          "5",
+          "Ошибка компиляции"
+         ],
+         "answer": 1,
+         "why": "Метод присвоил своему параметру ссылку на новый массив. data в main по-прежнему ссылается на старый {5, 7}."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Java передаёт аргументы по значению — всегда копирует значение переменной",
+           "a": true
+          },
+          {
+           "s": "При передаче массива в метод Java копирует весь массив",
+           "a": false,
+           "why": "копируется только ссылка. Массив в куче остаётся один."
+          },
+          {
+           "s": "Метод void может изменить элементы массива, который ему передали аргументом",
+           "a": true
+          },
+          {
+           "s": "Можно написать метод swap(int a, int b), который поменяет местами две переменные main",
+           "a": false,
+           "why": "параметры будут инициализированы копиями чисел, и метод поменяет только их."
+          }
+         ]
+        },
+        {
+         "type": "match",
+         "q": "Что увидит main после вызова метода?",
+         "left": [
+          "arr[0] = 5; внутри метода",
+          "arr = new int[3]; внутри метода",
+          "x = 5; внутри метода (x — int)"
+         ],
+         "right": [
+          "изменение видно снаружи",
+          "снаружи ничего не изменилось: перенаправлена копия ссылки",
+          "снаружи ничего не изменилось: изменена копия числа"
+         ],
+         "why": "Видно снаружи только присваивание элементу массива, который лежит в куче по общей ссылке."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 7.4. Спроси меня, как в Java передаются аргументы, как на собеседовании, — а я отвечу и нарисую стек и кучу в чате»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Java всегда передаёт в метод копию значения аргумента (pass by value): параметр инициализируется этой копией.</li>
+        <li>Примитив (<code>int</code>, <code>double</code>, <code>boolean</code>…): метод работает с копией числа — снаружи изменений не видно. Нужно новое значение — верни его через return.</li>
+        <li>Массив: копируется ссылка, а массив в куче один. Присваивания элементам <code>arr[i] = …</code> видны снаружи.</li>
+        <li>Присваивание <code>arr = new …</code> в теле метода перенаправляет только его копию ссылки — снаружи не видно.</li>
+        <li>Метод, который меняет переданный массив, должен говорить об этом именем: <code>reverseInPlace</code>, <code>sortArray</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

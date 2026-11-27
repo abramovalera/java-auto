@@ -1,0 +1,46 @@
+## id: tr-arrays-013
+## title: Лучший день продаж
+## file: trainer/arrays/BestSalesDay.java
+## class: BestSalesDay
+## level: 1
+## category: Максимум и минимум
+@@ description
+<p>Напиши класс <code>BestSalesDay</code>. Пекарня записывала выручку за каждый день. В первой строке — количество дней <code>n</code> (n ≥ 1), во второй — <code>n</code> сумм выручки. Найди день с наибольшей выручкой и напечатай его <b>номер</b> (дни нумеруются с 1, а индексы массива — с 0!) и саму выручку в формате <code>День D: X руб.</code> Если таких дней несколько — первый из них.</p>
+<pre class="terminal"><span class="out">ввод:  7
+       3200 4100 2900 5600 5100 6000 4800
+вывод: День 6: 6000 руб.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>храни не только максимум, но и его индекс: <code>int best = 0;</code>, а сравнивай <code>a[i] &gt; a[best]</code></li>
+<li>номер дня = индекс + 1</li>
+</ul></div>
+@@ test: Неделя
+@@ input
+7
+3200 4100 2900 5600 5100 6000 4800
+@@ expect
+День 6: 6000 руб.
+@@ test: Ничья — берём первый
+@@ input
+4
+100 700 300 700
+@@ expect
+День 2: 700 руб.
+@@ test: Один день
+@@ input
+1
+2500
+@@ expect
+День 1: 2500 руб.
+@@ test: Лучший — первый
+@@ input
+3
+900 100 500
+@@ expect
+День 1: 900 руб.
+@@ test: Без выручки
+@@ input
+3
+0 0 0
+@@ expect
+День 1: 0 руб.
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

@@ -1,0 +1,42 @@
+## id: tr-methods-010
+## title: Обменник валюты
+## file: trainer/methods/CurrencyExchangeMethod.java
+## class: CurrencyExchangeMethod
+## level: 1
+## category: Вычисления
+@@ description
+<p>В обменнике рубли меняют на валюту по курсу: курс — сколько рублей стоит одна единица валюты. Создай класс <code>CurrencyExchangeMethod</code> и напиши метод <code>static double convert(double rubles, double rate)</code>: он возвращает, сколько валюты получит клиент, округлив до сотых.</p>
+<p>main читает два дробных числа через пробел — сумму в рублях и курс — и печатает <code>Получишь: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1000 92.5    вывод: Получишь: 10.81
+ввод:  100 100      вывод: Получишь: 1.0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет <code>x</code> до двух знаков после точки</li>
+<li>округлять можно прямо в <code>return</code>: метод вернёт уже округлённое значение</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+1000 92.5
+@@ expect
+Получишь: 10.81
+@@ test: Ровно одна единица
+@@ input
+100 100
+@@ expect
+Получишь: 1.0
+@@ test: Ноль рублей
+@@ input
+0 90
+@@ expect
+Получишь: 0.0
+@@ test: Округление вверх
+@@ input
+500 3
+@@ expect
+Получишь: 166.67
+@@ test: Совсем мелочь
+@@ input
+1 92.5
+@@ expect
+Получишь: 0.01
+@@ require: static\s+double\s+convert\s*\(\s*double\s+\w+\s*,\s*double\s+\w+\s*\) | Нужен метод static double convert(double rubles, double rate)
+@@ require: \Wconvert\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать convert(...) и передать сумму и курс

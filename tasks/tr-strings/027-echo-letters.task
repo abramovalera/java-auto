@@ -1,0 +1,35 @@
+## id: tr-strings-027
+## title: Эхо-буквы
+## file: trainer/strings/EchoLetters.java
+## class: EchoLetters
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>EchoLetters</code>. В пещере эхо повторяет каждый звук. Программа читает строку и печатает её, повторив каждый символ дважды (пробелы и знаки тоже).</p>
+<pre class="terminal"><span class="out">ввод:  кот    вывод: ккоотт
+ввод:  Hi!    вывод: HHii!!</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>StringBuilder sb = new StringBuilder();</code> — пустой «конструктор строки»</li>
+<li><code>sb.append(c)</code> — добавляет символ в конец</li>
+<li><code>sb.toString()</code> — готовая строка</li>
+</ul></div>
+@@ test: Слово
+@@ input
+кот
+@@ expect
+ккоотт
+@@ test: Со знаком
+@@ input
+Hi!
+@@ expect
+HHii!!
+@@ test: Пробел тоже удваивается
+@@ input
+a b
+@@ expect
+aa  bb
+@@ test: Одна буква
+@@ input
+у
+@@ expect
+уу

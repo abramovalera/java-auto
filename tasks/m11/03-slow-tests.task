@@ -1,0 +1,69 @@
+## id: m11-t03
+## title: Самые медленные тесты
+## file: module-11/SlowTestsReport.java
+## class: SlowTestsReport
+## level: 2
+@@ description
+<p>В большом проекте сотни тестов на JUnit (писать их научишься в модуле 17), и после прогона хочется знать, какие тесты тормозят сильнее всего. Отсортируй тесты по длительности своим <b>компаратором</b>.</p>
+<p>В одном файле <code>SlowTestsReport.java</code> (вспомогательные классы — без <code>public</code>):</p>
+<ul>
+  <li><code>class TimedTest</code> — поля «имя» (<code>String</code>) и «длительность в миллисекундах» (<code>int</code>), конструктор;</li>
+  <li>компаратор <code>Comparator&lt;TimedTest&gt;</code>: <b>отдельный класс</b> (например, <code>TimedTestComparator implements Comparator&lt;TimedTest&gt;</code>) или <b>анонимный класс</b> прямо в вызове сортировки.</li>
+</ul>
+<p><b>Ввод:</b> число N (N ≥ 1), потом N строк <code>имяТеста миллисекунды</code>. Отсортируй массив вызовом <code>Arrays.sort(массив, компаратор)</code>: сначала самые <b>долгие</b>, при одинаковой длительности — по имени по алфавиту. Выведи места:</p>
+<pre class="terminal"><span class="out">ввод:                вывод:
+4                    1. payTest — 5000 мс
+loginTest 1200       2. cartTest — 1200 мс
+searchTest 350       3. loginTest — 1200 мс
+cartTest 1200        4. searchTest — 350 мс
+payTest 5000</span></pre>
+<p>Вспомни правило <code>compare(a, b)</code>: минус — <code>a</code> встаёт раньше, плюс — <code>b</code> раньше, ноль — равны. Для чисел есть готовое <code>Integer.compare(x, y)</code>, для строк — <code>s1.compareTo(s2)</code>. Как одним движением развернуть порядок на «по убыванию»?</p>
+<p>Лямбды (<code>-&gt;</code>) мы пройдём в модуле 14 — здесь потренируй «длинную» запись.</p>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/04-callbacks.html">Интерфейс как обратный вызов: Comparator</a></p>
+@@ test: Обычный прогон
+@@ input
+4
+loginTest 1200
+searchTest 350
+cartTest 1200
+payTest 5000
+@@ expect
+1. payTest — 5000 мс
+2. cartTest — 1200 мс
+3. loginTest — 1200 мс
+4. searchTest — 350 мс
+@@ test: Один тест
+@@ input
+1
+onlyTest 10
+@@ expect
+1. onlyTest — 10 мс
+@@ test: Все одинаково быстрые — решает алфавит
+@@ input
+3
+c 100
+a 100
+b 100
+@@ expect
+1. a — 100 мс
+2. b — 100 мс
+3. c — 100 мс
+@@ test: Ввод по возрастанию — надо развернуть
+@@ input
+5
+t1 1
+t2 2
+t3 3
+t4 4
+t5 5
+@@ expect
+1. t5 — 5 мс
+2. t4 — 4 мс
+3. t3 — 3 мс
+4. t2 — 2 мс
+5. t1 — 1 мс
+@@ require: class\s+TimedTest\b | Нужен класс TimedTest
+@@ require: Comparator\s*<\s*TimedTest\s*> | Нужен компаратор Comparator<TimedTest> — отдельный класс или анонимный
+@@ require: Arrays\.sort\s*\( | Сортируй готовым Arrays.sort(массив, компаратор), а не вручную
+@@ forbid: -> | Пока без лямбд: сделай отдельный класс-компаратор или анонимный класс (лямбды — модуль 14)

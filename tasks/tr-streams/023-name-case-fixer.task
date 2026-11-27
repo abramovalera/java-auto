@@ -1,0 +1,38 @@
+## id: tr-streams-023
+## title: Имена с большой буквы
+## file: trainer/streams/NameCaseFixer.java
+## class: NameCaseFixer
+## level: 2
+## category: filter и map
+@@ description
+<p>Напиши класс <code>NameCaseFixer</code>. Ученики вписали имена в журнал как попало: «аНЯ», «БОРИС», «вика». В одной строке — имена через пробел (хотя бы одно). Приведи каждое к виду «первая буква большая, остальные маленькие» и напечатай через запятую с пробелом в исходном порядке.</p>
+<pre class="terminal"><span class="out">ввод:  аНЯ БОРИС вика
+вывод: Аня, Борис, Вика</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.substring(0, 1)</code> — первая буква; <code>s.substring(1)</code> — всё после неё (у слова из одной буквы — пустая строка)</li>
+<li><code>toUpperCase()</code> / <code>toLowerCase()</code> — возвращают строку в верхнем / нижнем регистре</li>
+</ul></div>
+@@ test: Журнал
+@@ input
+аНЯ БОРИС вика
+@@ expect
+Аня, Борис, Вика
+@@ test: Уже правильно
+@@ input
+Гоша Дима
+@@ expect
+Гоша, Дима
+@@ test: Имя из одной буквы
+@@ input
+я
+@@ expect
+Я
+@@ test: Латиница
+@@ input
+jOHN mARY
+@@ expect
+John, Mary
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.map\s*\( | Преобразуй каждое имя методом map

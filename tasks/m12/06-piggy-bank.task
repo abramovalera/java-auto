@@ -1,0 +1,60 @@
+## id: m12-t06
+## title: Копилка со своим исключением
+## file: module-12/PiggyBankTerminal.java
+## class: PiggyBankTerminal
+## level: 2
+@@ description
+<p>Банковский счёт не должен уходить в минус. Сделай это через <b>своё checked-исключение</b>. В одном файле <code>PiggyBankTerminal.java</code> будет три класса (два без <code>public</code>):</p>
+<ul>
+  <li><code>class PiggyInsufficientFundsException extends Exception</code> — «не хватает денег». Конструктор принимает баланс и запрошенную сумму и передаёт в <code>super(...)</code> сообщение вида <code>не хватает 800 (баланс 1200, запрошено 2000)</code>. По желанию сохрани недостачу в поле с геттером <code>getShortfall()</code>.</li>
+  <li><code>class PiggyBankAccount</code> — счёт с приватным полем <code>balance</code>, конструктором (начальный баланс), методами <code>getBalance()</code>, <code>deposit(int amount)</code> и <code>withdraw(int amount) throws PiggyInsufficientFundsException</code>. Сумма ≤ 0 в обоих методах → <code>IllegalArgumentException("сумма должна быть больше нуля: " + amount)</code>; эта проверка идёт <b>первой</b>. Снятие больше баланса → <code>throw new PiggyInsufficientFundsException(...)</code>, баланс не меняется.</li>
+  <li><code>public class PiggyBankTerminal</code> с <code>main</code>.</li>
+</ul>
+<p>Ввод: начальный баланс, количество операций N, потом N операций вида <code>пополнить 500</code> или <code>снять 300</code>. Вывод:</p>
+<pre class="terminal"><span class="out">ввод: 1000           вывод: Снятие 300, баланс 700
+3                           Пополнение 500, баланс 1200
+снять 300                   Отказ: не хватает 800 (баланс 1200, запрошено 2000)
+пополнить 500               Итоговый баланс: 1200
+снять 2000</span></pre>
+<p>Любой отказ печатается как <code>Отказ: </code> + сообщение исключения. Прочитать команду и сумму удобно так: <code>scanner.next()</code> и <code>scanner.nextInt()</code>.</p>
+<p>📖 <a href="/lessons/m12/06-throw-custom.html">Свои классы исключений</a> · <a href="/lessons/m12/05-hierarchy-checked.html">checked и throws</a></p>
+@@ test: Пример из условия
+@@ input
+1000
+3
+снять 300
+пополнить 500
+снять 2000
+@@ expect
+Снятие 300, баланс 700
+Пополнение 500, баланс 1200
+Отказ: не хватает 800 (баланс 1200, запрошено 2000)
+Итоговый баланс: 1200
+@@ test: Пустая копилка и нулевая сумма
+@@ input
+0
+2
+снять 1
+пополнить 0
+@@ expect
+Отказ: не хватает 1 (баланс 0, запрошено 1)
+Отказ: сумма должна быть больше нуля: 0
+Итоговый баланс: 0
+@@ test: Снять всё до копейки, отрицательная сумма
+@@ input
+500
+3
+снять 500
+снять -20
+пополнить 70
+@@ expect
+Снятие 500, баланс 0
+Отказ: сумма должна быть больше нуля: -20
+Пополнение 70, баланс 70
+Итоговый баланс: 70
+@@ require: class\s+PiggyInsufficientFundsException\s+extends\s+Exception\b | Нужен класс PiggyInsufficientFundsException extends Exception (checked)
+@@ require: class\s+PiggyBankAccount\b | Нужен класс PiggyBankAccount
+@@ require: throws\s+PiggyInsufficientFundsException | withdraw должен объявлять throws PiggyInsufficientFundsException
+@@ require: throw\s+new\s+PiggyInsufficientFundsException | Выбрасывай своё исключение: throw new PiggyInsufficientFundsException(...)
+@@ require: throw\s+new\s+IllegalArgumentException | Сумма ≤ 0 — throw new IllegalArgumentException(...)
+@@ require: super\s*\( | Передай сообщение в конструктор родителя: super(...)

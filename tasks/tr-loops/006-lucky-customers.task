@@ -1,0 +1,48 @@
+## id: tr-loops-006
+## title: Каждый k-й покупатель
+## file: trainer/loops/LuckyCustomerNumbers.java
+## class: LuckyCustomerNumbers
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>LuckyCustomerNumbers</code>. Магазин дарит подарок каждому <code>k</code>-му покупателю: <code>k</code>-му, <code>2k</code>-му и так далее. За день пришло <code>n</code> покупателей. В первой строке — <code>n</code> (n ≥ 0), во второй — <code>k</code> (k ≥ 1). Напечатай в одну строку через пробел номера покупателей с подарком.</p>
+<pre class="terminal"><span class="out">ввод:  20
+       5
+вывод: 5 10 15 20</span></pre>
+<p>Если подарков никто не получил, напечатай <code>Нет подарков</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       7
+вывод: Нет подарков</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>for (int i = k; i &lt;= n; i += k)</code> — счётчик начинается с k и шагает по k</li>
+</ul></div>
+@@ test: Каждый пятый из двадцати
+@@ input
+20
+5
+@@ expect
+5 10 15 20
+@@ test: Не делится нацело
+@@ input
+10
+3
+@@ expect
+3 6 9
+@@ test: Покупателей меньше, чем k
+@@ input
+4
+7
+@@ expect
+Нет подарков
+@@ test: Ровно k покупателей
+@@ input
+6
+6
+@@ expect
+6
+@@ test: Подарок каждому
+@@ input
+4
+1
+@@ expect
+1 2 3 4

@@ -1,0 +1,39 @@
+## id: m14-t05
+## title: Средний балл
+## file: module-14/AverageGradeStream.java
+## class: AverageGradeStream
+## level: 2
+@@ description
+<p>В одной строке вводятся оценки (целые числа через пробел). Выведи средний балл <b>с двумя знаками после запятой</b>:</p>
+<pre class="terminal"><span class="out">ввод:  5 4 4        →  вывод: Средний балл: 4.33
+ввод:  (пустая)     →  вывод: Оценок нет</span></pre>
+<p>Средний считает <code>IntStream</code>: перейди к нему через <code>mapToInt(Integer::parseInt)</code> и вызови <code>average()</code>. Он вернёт не число, а <code>OptionalDouble</code> — «коробку, где число может быть, а может и не быть». Для пустой строки коробка пустая — выведи <code>Оценок нет</code>. Пустую строку перед <code>parseInt</code> отфильтруй.</p>
+<p>Два знака после запятой: <code>String.format("%.2f", число)</code>. На русской Windows IDEA может напечатать <code>4,33</code> вместо <code>4.33</code> — проверка принимает оба варианта.</p>
+<p>📖 <a href="/lessons/m14/05-terminal-ops.html">Терминальные операции: mapToInt и average</a> · <a href="/lessons/m14/06-optional.html">Optional</a></p>
+@@ test: Дробный средний
+@@ input
+5 4 4
+@@ expect-regex
+Средний балл: 4[.,]33
+@@ test: Целый средний
+@@ input
+3 5
+@@ expect-regex
+Средний балл: 4[.,]00
+@@ test: Одна оценка
+@@ input
+2
+@@ expect-regex
+Средний балл: 2[.,]00
+@@ test: Округление вверх
+@@ input
+5 5 4
+@@ expect-regex
+Средний балл: 4[.,]67
+@@ test: Оценок нет
+@@ input
+
+@@ expect
+Оценок нет
+@@ require: \.average\s*\(\s*\) | Средний посчитай методом average()
+@@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

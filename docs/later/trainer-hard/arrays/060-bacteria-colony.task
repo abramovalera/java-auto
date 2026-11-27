@@ -1,0 +1,78 @@
+## id: tr-arrays-060
+## title: Колония бактерий
+## file: trainer/arrays/BacteriaColonyNextStep.java
+## class: BacteriaColonyNextStep
+## level: 3
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>BacteriaColonyNextStep</code>. В чашке Петри — поле <code>r × c</code>: <code>#</code> — живая бактерия, <code>.</code> — пусто. Через час колония меняется по правилам (соседи — 8 клеток вокруг, за краем поля соседей нет):</p>
+<ul>
+<li>живая бактерия выживает, если у неё 2 или 3 живых соседа, иначе погибает;</li>
+<li>в пустой клетке появляется бактерия, если живых соседей ровно 3.</li>
+</ul>
+<p>Все клетки меняются <b>одновременно</b>: считай соседей по старому полю, а результат записывай в новое. В первой строке — <code>r</code> и <code>c</code> (оба ≥ 1), дальше <code>r</code> строк по <code>c</code> символов. Напечатай поле через час в том же виде.</p>
+<pre class="terminal"><span class="out">ввод:  3 3
+       ...
+       ###
+       ...
+вывод: .#.
+       .#.
+       .#.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>char[][] g = new char[r][];</code> и <code>g[i] = scanner.next().toCharArray();</code> — каждая строка поля становится массивом символов</li>
+<li>новое поле — отдельный массив <code>new char[r][c]</code>: если менять старое на ходу, соседи посчитаются неправильно</li>
+<li><code>System.out.println(row);</code> — массив <code>char[]</code>, переданный единственным аргументом, печатается как текст</li>
+</ul></div>
+@@ test: Мигалка
+@@ input
+3 3
+...
+###
+...
+@@ expect
+.#.
+.#.
+.#.
+@@ test: Блок не меняется
+@@ input
+4 4
+....
+.##.
+.##.
+....
+@@ expect
+....
+.##.
+.##.
+....
+@@ test: Одиночка погибает
+@@ input
+2 2
+#.
+..
+@@ expect
+..
+..
+@@ test: Рождение в углу
+@@ input
+2 2
+##
+#.
+@@ expect
+##
+##
+@@ test: Глайдер
+@@ input
+5 5
+.#...
+..#..
+###..
+.....
+.....
+@@ expect
+.....
+#.#..
+.##..
+.#...
+.....
+@@ require: toCharArray\s*\( | Преврати строки поля в массивы символов: toCharArray()

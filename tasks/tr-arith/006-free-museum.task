@@ -1,0 +1,46 @@
+## id: tr-arith-006
+## title: Бесплатный вход в музей
+## file: trainer/arith/FreeMuseumTicket.java
+## class: FreeMuseumTicket
+## level: 1
+## category: Логика: true/false
+@@ description
+<p>В музей бесплатно пускают детей младше 7 лет и пенсионеров от 65 лет. Создай класс <code>FreeMuseumTicket</code>. Программа читает возраст посетителя (целое число) и печатает <code>true</code>, если вход для него бесплатный, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5       вывод: true
+ввод:  30      вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a || b</code> — «или»: <code>true</code>, если верно хотя бы одно из условий</li>
+<li>«младше 7» — это <code>&lt; 7</code>, а «от 65» — это <code>&gt;= 65</code></li>
+</ul></div>
+@@ test: Ребёнок
+@@ input
+5
+@@ expect
+true
+@@ test: Уже 7 лет — платно
+@@ input
+7
+@@ expect
+false
+@@ test: Взрослый
+@@ input
+30
+@@ expect
+false
+@@ test: Ровно 65
+@@ input
+65
+@@ expect
+true
+@@ test: 64 года — ещё платно
+@@ input
+64
+@@ expect
+false
+@@ test: Малыш до года
+@@ input
+0
+@@ expect
+true
+@@ require: \|\| | Нужно логическое «или» — оператор ||
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

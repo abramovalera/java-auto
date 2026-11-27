@@ -1,0 +1,41 @@
+## id: tr-loops-019
+## title: Сколько раз буква
+## file: trainer/loops/LetterHitCounter.java
+## class: LetterHitCounter
+## level: 1
+## category: Символы и узоры
+@@ description
+<p>Напиши класс <code>LetterHitCounter</code>. В первой строке — слово, во второй — одна буква. Напечатай, сколько раз эта буква встречается в слове. Большие и маленькие буквы различаются: <code>М</code> и <code>м</code> — разные.</p>
+<pre class="terminal"><span class="out">ввод:  банан
+       а
+вывод: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>word.length()</code> — длина строки</li>
+<li><code>word.charAt(i)</code> — символ под номером i (нумерация с 0)</li>
+<li><code>scanner.next().charAt(0)</code> — читает слово и берёт его первый символ</li>
+<li>символы сравнивают через <code>==</code>: <code>word.charAt(i) == letter</code></li>
+</ul></div>
+@@ test: Банан
+@@ input
+банан
+а
+@@ expect
+2
+@@ test: Регистр важен
+@@ input
+Мама
+м
+@@ expect
+1
+@@ test: Буквы нет
+@@ input
+кот
+я
+@@ expect
+0
+@@ test: Слово из одной буквы
+@@ input
+ааааа
+а
+@@ expect
+5

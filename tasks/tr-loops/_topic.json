@@ -1,0 +1,7 @@
+{
+  "title": "Циклы",
+  "icon": "🔁",
+  "after": "m05",
+  "order": 4,
+  "summary": "while, for, do-while, break и continue: счётчики, суммы, цифры числа, узоры из символов."
+}

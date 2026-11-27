@@ -1,0 +1,38 @@
+## id: tr-streams-005
+## title: Есть ли долг
+## file: trainer/streams/DebtDetector.java
+## class: DebtDetector
+## level: 1
+## category: Проверки условий
+@@ description
+<p>Напиши класс <code>DebtDetector</code>. В одной строке — балансы счетов клиента через пробел (целые числа, хотя бы одно). Если хотя бы один баланс отрицательный, напечатай <code>Есть долг</code>, иначе — <code>Долгов нет</code>. Нулевой баланс — не долг.</p>
+<pre class="terminal"><span class="out">ввод:  100 -5 30
+вывод: Есть долг</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.anyMatch(x -&gt; …)</code> — возвращает <code>true</code>, если условие истинно хотя бы для одного элемента</li>
+<li><code>cond ? a : b</code> — тернарный оператор: выбирает одну из двух строк</li>
+</ul></div>
+@@ test: Один счёт в минусе
+@@ input
+100 -5 30
+@@ expect
+Есть долг
+@@ test: Всё в порядке
+@@ input
+500 20 1
+@@ expect
+Долгов нет
+@@ test: Нули — не долг
+@@ input
+0 0
+@@ expect
+Долгов нет
+@@ test: Единственный счёт в минусе
+@@ input
+-1
+@@ expect
+Есть долг
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.anyMatch\s*\( | Ответь на вопрос «есть ли хоть один…» методом anyMatch

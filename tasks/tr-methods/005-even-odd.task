@@ -1,0 +1,42 @@
+## id: tr-methods-005
+## title: Игра «чёт-нечет»
+## file: trainer/methods/EvenOddGuess.java
+## class: EvenOddGuess
+## level: 1
+## category: Методы-проверки
+@@ description
+<p>Игрок называет любое целое число — в том числе отрицательное. Создай класс <code>EvenOddGuess</code> и напиши метод <code>static boolean isEven(int n)</code>: он возвращает <code>true</code>, если число чётное, иначе <code>false</code>.</p>
+<p>main читает одно целое число, вызывает <code>isEven</code> и печатает <code>N — чёт</code> или <code>N — нечет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  14     вывод: 14 — чёт
+ввод:  -7     вывод: -7 — нечет</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 2</code> — остаток от деления на 2; у отрицательного <code>n</code> он тоже бывает отрицательным: <code>-7 % 2</code> равно <code>-1</code></li>
+<li>метод-«вопрос» удобно называть с <code>is</code>: <code>isEven</code>, <code>isEmpty</code></li>
+</ul></div>
+@@ test: Чётное
+@@ input
+14
+@@ expect
+14 — чёт
+@@ test: Нечётное
+@@ input
+9
+@@ expect
+9 — нечет
+@@ test: Ноль — чётный
+@@ input
+0
+@@ expect
+0 — чёт
+@@ test: Отрицательное нечётное
+@@ input
+-7
+@@ expect
+-7 — нечет
+@@ test: Отрицательное чётное
+@@ input
+-10
+@@ expect
+-10 — чёт
+@@ require: static\s+boolean\s+isEven\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isEven(int n)
+@@ require: \WisEven\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать isEven(...) и передать ему число

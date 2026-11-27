@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Типичные ошибки в циклах · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m05-07">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 5 · Урок 7</div>
+    <h1>Типичные ошибки в циклах</h1>
+    <p class="lead">Лишняя итерация, вечный цикл, переменная, которая «пропала». Эти ошибки делают все — и новички, и опытные. Учимся узнавать их в лицо и ловить отладчиком IDEA.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🐞 охота на баги</span><span>🔬 отладчик</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m05-07-review">
+      <script type="application/json">
+      { "title": "Разминка: цифры и роли",
+        "items": [
+          { "type": "predict", "q": "Что выведет код?", "code": "int n = 482;\nint result = 0;\nwhile (n > 0) {\n    result = result * 10 + n % 10;\n    n = n / 10;\n}\nSystem.out.println(result);",
+            "answer": "284", "why": "Это разворот числа: на каждой итерации результат выражения result * 10 + n % 10 присваивается result — цифры с конца 2, 8, 4 приписываются справа." },
+          { "type": "single", "q": "Какую роль играет переменная, которая хранит «самое большое число из встреченных»?",
+            "options": ["Накопитель", "Рекордсмен", "Флаг"], "answer": 1, "why": "Рекордсмен (максимум) помнит лучший результат и обновляется, только если пришёл новый рекорд." }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: отладчик IDEA</h3>
+      <p>В конце урока впервые запустим <b>отладчик</b> — инструмент, который выполняет программу по шагам. Выпиши клавиши заранее, подробно разберём их в шаге «Отладчик IDEA»:</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td>Щелчок по полю у номера строки или <kbd>Ctrl</kbd>+<kbd>F8</kbd></td><td>Поставить / убрать точку останова (красный кружок)</td><td>Хочешь, чтобы программа замерла на этой строке</td></tr>
+        <tr><td>🐞 или <kbd>Shift</kbd>+<kbd>F9</kbd></td><td>Запустить в режиме отладки (Debug)</td><td>Вместо ▶, когда нужно смотреть по шагам</td></tr>
+        <tr><td><kbd>F8</kbd></td><td>Step Over — выполнить одну строку</td><td>Программа стоит на точке останова</td></tr>
+        <tr><td><kbd>F9</kbd></td><td>Resume — бежать до следующей точки останова</td><td>Перейти к следующей итерации цикла</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F2</kbd></td><td>Остановить программу (и отладку тоже)</td><td>Всё понял или программа зависла</td></tr>
+      </table></div>
+      <p style="margin-top:10px">На macOS вместо <kbd>Ctrl</kbd> обычно <kbd>Cmd</kbd>; если F-клавиши не срабатывают, зажми <kbd>Fn</kbd>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Ошибка на единицу (off-by-one)</h2>
+    <p>Самая частая ошибка в циклах во всём мире. У неё даже есть имя: <b>off-by-one</b> [оф-бай-уан] — «промах на единицу». Цикл делает на одну итерацию больше или меньше, чем нужно.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Задачка про забор</span>
+      <p>Забор длиной 5 метров, столбы ставят через каждый метр. Сколько нужно столбов? Хочется сказать «5», но правильно — <b>6</b>: пролётов 5, а столбов на один больше. Программисты так и называют эту ошибку — «ошибка заборного столба».</p>
+    </div>
+    <figure class="fig">
+      <svg viewBox="0 0 640 200" role="img" aria-label="Забор длиной 5 метров: 6 столбов на отметках от 0 до 5 и 5 пролётов между ними">
+        <path d="M60 80 H580" class="d-line"/>
+        <path d="M60 110 H580" class="d-line"/>
+        <rect x="52" y="50" width="16" height="90" rx="4" class="d-accent"/>
+        <rect x="156" y="50" width="16" height="90" rx="4" class="d-accent"/>
+        <rect x="260" y="50" width="16" height="90" rx="4" class="d-accent"/>
+        <rect x="364" y="50" width="16" height="90" rx="4" class="d-accent"/>
+        <rect x="468" y="50" width="16" height="90" rx="4" class="d-accent"/>
+        <rect x="572" y="50" width="16" height="90" rx="4" class="d-accent"/>
+        <text x="60" y="164" text-anchor="middle" class="d-mono-ink">0</text>
+        <text x="164" y="164" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="268" y="164" text-anchor="middle" class="d-mono-ink">2</text>
+        <text x="372" y="164" text-anchor="middle" class="d-mono-ink">3</text>
+        <text x="476" y="164" text-anchor="middle" class="d-mono-ink">4</text>
+        <text x="580" y="164" text-anchor="middle" class="d-mono-ink">5</text>
+        <text x="112" y="40" text-anchor="middle" class="d-small">1 м</text>
+        <text x="216" y="40" text-anchor="middle" class="d-small">1 м</text>
+        <text x="320" y="40" text-anchor="middle" class="d-small">1 м</text>
+        <text x="424" y="40" text-anchor="middle" class="d-small">1 м</text>
+        <text x="528" y="40" text-anchor="middle" class="d-small">1 м</text>
+        <text x="320" y="192" text-anchor="middle" class="d-text">for (int m = 0; m &lt;= 5; m++) — 6 столбов, а не 5</text>
+      </svg>
+      <figcaption>5 пролётов, но 6 столбов: от 0 до 5 включительно — это шесть чисел.</figcaption>
+    </figure>
+    <p>В коде это выглядит так. Задача — напечатать числа от 1 до 10:</p>
+<pre data-file="OffByOne.java"><code class="java">for (int i = 1; i &lt; 10; i++) {     // ❌ последнее — 9
+    System.out.print(i + " ");
+}
+for (int i = 0; i &lt;= 10; i++) {    // ❌ лишний 0 в начале
+    System.out.print(i + " ");
+}
+for (int i = 1; i &lt;= 10; i++) {    // ✅ ровно 1…10
+    System.out.print(i + " ");
+}</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Как не промахнуться</span>
+      <p>Проверь <b>крайние итерации</b>: какое значение будет у счётчика на первой и на последней? Подставь последнее в условие: при <code>i = 10</code> выполнится ли <code>i &lt; 10</code>? Нет — значит, 10 не напечатается. Количество итераций для <code>i</code> от <code>a</code> до <code>b</code> включительно с шагом 1 — это <code>b − a + 1</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Сколько звёздочек напечатает <code>for (int i = 5; i &gt;= 0; i--) System.out.print("*");</code>?</summary>
+      <p><b>6</b>: i = 5, 4, 3, 2, 1, 0. По формуле: 5 − 0 + 1 = 6. Знак <code>&gt;=</code> пропускает и ноль.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Бесконечный цикл: четыре лица</h2>
+    <p>В уроке 5.1 ты видел самую простую причину — забыли шаг. Но у вечного цикла есть и другие маски:</p>
+<pre data-file="Forever1.java"><code class="java">// 1. Шаг уводит от границы
+for (int i = 10; i &gt; 0; i++) { … }      // i растёт, а условие ждёт убывания</code></pre>
+<pre data-file="Forever2.java"><code class="java">// 2. continue перепрыгнул шаг (урок 5.3)
+int i = 0;
+while (i &lt; 10) {
+    if (i % 2 == 0) continue;
+    i++;
+}</code></pre>
+<pre data-file="Forever3.java"><code class="java">// 3. Шагнули мимо: условие через !=
+for (int i = 1; i != 10; i += 2) { … }  // 1, 3, 5, 7, 9, 11… — мимо 10</code></pre>
+<pre data-file="Forever4.java"><code class="java">// 4. Коварная точка с запятой
+int i = 0;
+while (i &lt; 5); {
+    i++;
+}</code></pre>
+    <p>Четвёртый — самый подлый. Точка с запятой сразу после заголовка <code>while (…)</code> — это <b>пустое тело</b> цикла. Java читает код так: «пока i &lt; 5 — ничего не делай». <code>i</code> не меняется, цикл крутится вечно, а блок <code>{ i++; }</code> ниже — просто отдельный блок кода, до которого программа никогда не дойдёт.</p>
+    <div class="say" data-mood="oops">
+      <p>IDEA иногда подсвечивает такие места жёлтым и пишет предупреждение. Не игнорируй жёлтое! Наведи мышку и прочитай — это бесплатная подсказка.</p>
+    </div>
+    <div data-widget="ide" id="shot-while-semicolon">
+      <script type="application/json">
+      { "tree": false, "file": "Forever4.java", "runConfig": "Forever4", "gutterRun": [1, 2],
+        "code": "public class Forever4 {\n    public static void main(String[] args) {\n        int i = 0;\n        while (i < 5); {\n            i++;\n        }\n    }\n}",
+        "warnings": [ { "line": 4, "text": "while", "msg": "'while' statement has empty body", "tip": true, "fix": false },
+                      { "line": 4, "text": "i < 5", "msg": "Condition 'i < 5' is always 'true'" } ],
+        "console": { "title": "Forever4", "running": true, "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Forever4" } ] },
+        "marks": [ { "n": 1, "target": "err-4", "side": "left", "text": "<code>while</code> подсвечен жёлтым — это предупреждение" },
+                   { "n": 2, "target": "tip", "text": "<b>'while' statement has empty body</b> — «у while пустое тело». Ровно наша ловушка: цикл управляет только точкой с запятой" },
+                   { "n": 3, "target": "err-4-2", "side": "top", "text": "Второе предупреждение в той же строке: <b>Condition 'i &lt; 5' is always 'true'</b> — «условие всегда истинно». Счётчик справа вверху показывает <b>⚠2</b>" },
+                   { "n": 4, "target": "stop", "text": "А программу всё равно запустили: вывода нет, Stop горит — цикл крутится вхолостую" } ],
+        "caption": "Точка с запятой после while: два предупреждения и зависшая программа" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что напечатает <code>for (int k = 0; k &lt; 3; k++); { System.out.println("Hi"); }</code>?</summary>
+      <p><b>Hi — один раз.</b> Точка с запятой снова дала пустое тело: цикл сделал три итерации, ничего не выполнив. Потом выполнился блок с вызовом <code>println</code> — как обычный код после цикла. Программа не зависла, но работает не так, как задумано: это логическая ошибка, компилятор её не заметит.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Правило безопасности</span>
+      <p>Для счётчиков цикла пиши условие через <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, а не через <code>!=</code>: «перешагнуть» границу неравенства невозможно. И помни, как останавливать зависшую программу: красный квадрат Stop или <kbd>Ctrl</kbd>+<kbd>F2</kbd>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Переменная живёт в своих скобках</h2>
+    <p>Задача: сумма чисел от 1 до 3. Найди проблему, прежде чем читать дальше:</p>
+<pre data-file="ScopeBug.java"><code class="java">for (int i = 1; i &lt;= 3; i++) {
+    int sum = 0;
+    sum += i;
+}
+System.out.println(sum);</code></pre>
+<pre class="terminal"><span class="err">ScopeBug.java:5: error: cannot find symbol
+        System.out.println(sum);
+                           ^
+  symbol:   variable sum</span></pre>
+    <p>Это текст <code>javac</code> — его покажет проверка на сайте. А IDEA подчеркнёт проблему ещё до запуска:</p>
+    <div data-widget="ide" id="shot-loop-scope">
+      <script type="application/json">
+      { "tree": false, "file": "ScopeBug.java", "gutterRun": [1, 2],
+        "code": "public class ScopeBug {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 3; i++) {\n            int sum = 0;\n            sum += i;\n        }\n        System.out.println(sum);\n    }\n}",
+        "errors": [ { "line": 7, "text": "sum", "msg": "Cannot resolve symbol 'sum'", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "line-4", "side": "top", "text": "<code>sum</code> объявлена внутри тела цикла…" },
+                   { "n": 2, "target": "err-7", "text": "…поэтому после <code>}</code> имя <code>sum</code> красное: здесь такой переменной нет" },
+                   { "n": 3, "target": "tip", "text": "<b>Cannot resolve symbol 'sum'</b> — так IDEA называет то, что <code>javac</code> пишет как <code>cannot find symbol</code>" } ],
+        "caption": "Переменная из тела цикла не видна после него" }
+      </script>
+    </div>
+    <p>Ошибок тут сразу две, и обе из-за <b>области видимости</b> — участка кода, где переменная существует. Правило Java простое: <b>переменная живёт от объявления до закрывающей скобки <code>}</code> блока, в котором её объявили</b>.</p>
+    <ol class="steps">
+      <li><b>Не видна снаружи.</b> <code>sum</code> объявлена внутри тела цикла — после <code>}</code> её область видимости кончилась. Компилятор честно говорит: <code>cannot find symbol</code> — «не знаю такого имени».</li>
+      <li><b>Рождается заново на каждой итерации.</b> Даже если бы печать была внутри цикла, на каждой итерации выполнялось бы объявление с инициализацией <code>int sum = 0</code> — накопитель обнулялся бы, и сумма никогда не накопилась бы.</li>
+    </ol>
+    <figure class="fig">
+      <svg viewBox="0 0 640 250" role="img" aria-label="Вложенные области видимости: метод main содержит total; внутри цикла живут i и temp; снаружи цикла i и temp не видны">
+        <rect x="20" y="16" width="600" height="220" rx="16" class="d-soft"/>
+        <text x="40" y="44" class="d-title">main { … }</text>
+        <rect x="40" y="58" width="180" height="40" rx="10" class="d-blue"/>
+        <text x="130" y="83" text-anchor="middle" class="d-mono-ink">int total = 0;</text>
+        <rect x="40" y="114" width="400" height="104" rx="14" class="d-green"/>
+        <text x="56" y="138" class="d-title">for (int i …) { … }</text>
+        <rect x="60" y="152" width="120" height="40" rx="10" class="d-box"/>
+        <text x="120" y="177" text-anchor="middle" class="d-mono-ink">i</text>
+        <rect x="196" y="152" width="160" height="40" rx="10" class="d-box"/>
+        <text x="276" y="177" text-anchor="middle" class="d-mono-ink">int temp</text>
+        <text x="56" y="210" class="d-small">i и temp живут только здесь</text>
+        <text x="460" y="140" class="d-small">total виден</text>
+        <text x="460" y="158" class="d-small">везде в main,</text>
+        <text x="460" y="176" class="d-small">и в цикле тоже</text>
+        <text x="460" y="212" class="d-c-red d-text">i, temp здесь ✗</text>
+      </svg>
+      <figcaption>Блок — как комната: изнутри видно то, что в коридоре, а из коридора внутрь комнаты не заглянуть.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: гостиничный номер</span>
+      <p>Тело цикла — номер в отеле, а каждая итерация — новые сутки. Каждое утро номер убирают: всё, что ты в нём оставил (переменные из тела), исчезает. Хочешь что-то копить между сутками — держи это в своей сумке, то есть объявляй <b>до</b> цикла.</p>
+    </div>
+    <p>Исправленная версия — накопитель объявлен и инициализирован до цикла:</p>
+<pre data-file="ScopeFixed.java"><code class="java">int sum = 0;
+for (int i = 1; i &lt;= 3; i++) {
+    sum += i;
+}
+System.out.println(sum);   // 6</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Иногда «внутри» — как раз правильно</span>
+      <p>Нужна сумма <b>каждой строки</b> таблицы отдельно? Тогда накопитель строки объявляют внутри внешнего цикла: на каждой новой строке он честно обнуляется. Правило выбора: <b>«как долго должно жить значение?»</b> Всю программу — объявляй до цикла. Одну итерацию — в теле цикла.</p>
+    </div>
+<pre data-file="RowSums.java"><code class="java">for (int row = 1; row &lt;= 3; row++) {
+    int rowSum = 0;                    // новая сумма для каждой строки
+    for (int col = 1; col &lt;= 4; col++) {
+        rowSum += row * col;
+    }
+    System.out.println("Строка " + row + ": " + rowSum);
+}</code></pre>
+    <details class="predict">
+      <summary>Скомпилируется ли <code>for (int i = 0; i &lt; 3; i++) { } System.out.println(i);</code>?</summary>
+      <p><b>Нет</b>: <code>i</code> объявлена в заголовке <code>for</code> и живёт только внутри цикла. Если значение счётчика нужно после цикла, его объявляют заранее, а в заголовке только присваивают начальное значение: <code>int i; for (i = 0; i &lt; 3; i++) { }</code> — тогда после цикла <code>i</code> равно 3.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Отладчик IDEA: трассировщик по-настоящему</h2>
+    <p>Трассировщик на сайте показывал переменные по шагам. В IntelliJ IDEA есть то же самое для твоей настоящей программы — <b>отладчик</b> (debugger [дибáггер], от bug — «жучок», ошибка). Когда цикл ведёт себя странно, не гадай — посмотри.</p>
+    <ol class="steps">
+      <li><b>Поставь точку останова.</b> Щёлкни по серому полю слева от номера строки внутри цикла — появится красный кружок (breakpoint [брейкпойнт]). Здесь программа остановится.</li>
+      <li><b>Запусти в режиме отладки.</b> Вместо зелёного ▶ нажми на кнопку с жучком 🐞 <b>Debug</b> (или <kbd>Shift</kbd>+<kbd>F9</kbd>). Программа дойдёт до точки и замрёт, строка подсветится.</li>
+      <li><b>Смотри переменные.</b> Внизу откроется панель Debug: в окне Variables видны все переменные и их текущие значения — как таблица в трассировщике. IDEA ещё и пишет значения серым прямо рядом с кодом.</li>
+      <li><b>Шагай.</b> <kbd>F8</kbd> (Step Over) — выполнить одну строку. Жми и следи, как меняются <code>i</code> и накопитель. <kbd>F9</kbd> (Resume) — бежать до следующей остановки, то есть до следующей итерации.</li>
+      <li><b>Останови</b> отладку красным квадратом, когда всё понял.</li>
+    </ol>
+    <p>Вот как выглядит программа <code>ScopeFixed</code> на второй остановке — вторая итерация цикла:</p>
+    <div data-widget="ide" id="shot-debugger-loop">
+      <script type="application/json">
+      { "tree": false, "file": "ScopeFixed.java", "runConfig": "ScopeFixed", "gutterRun": [1, 2],
+        "code": "public class ScopeFixed {\n    public static void main(String[] args) {\n        int sum = 0;\n        for (int i = 1; i <= 3; i++) {\n            sum += i;\n        }\n        System.out.println(sum);\n    }\n}",
+        "breakpoints": [5], "execLine": 5, "inlineVals": "sum: 1   i: 2",
+        "debug": { "title": "ScopeFixed", "frames": ["main:5, ScopeFixed"], "sel": 0,
+                   "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]", "open": false },
+                             { "name": "sum", "value": "1" },
+                             { "name": "i", "value": "2" } ] },
+        "marks": [ { "n": 1, "target": "bp-5", "side": "left", "text": "Красный кружок — <b>точка останова</b>. Поставил щелчком по полю у номера строки" },
+                   { "n": 2, "target": "line-5", "side": "top", "text": "Синяя строка — здесь программа <b>замерла</b>. Сама строка ещё <b>не выполнена</b>: sum пока 1. Серым справа IDEA подписала текущие значения" },
+                   { "n": 3, "target": "vars", "text": "Окно <b>Variables</b> — все переменные и их значения прямо сейчас. Как таблица в трассировщике" },
+                   { "n": 4, "target": "step-over", "text": "<b>Step Over</b> (<kbd>F8</kbd>) — выполнить строку: sum станет 3" },
+                   { "n": 5, "target": "resume", "text": "<b>Resume</b> (<kbd>F9</kbd>) — бежать дальше до следующей остановки, то есть до следующей итерации: там будет i = 3" } ],
+        "caption": "Отладчик IDEA остановился внутри цикла" }
+      </script>
+    </div>
+    <div class="callout try">
+      <span class="callout-title">Попробуй сам</span>
+      <p>Набери <code>ScopeFixed</code> из шага выше, поставь точку останова на строку <code>sum += i;</code> и пройди цикл через <kbd>F9</kbd>. Перед каждым нажатием скажи вслух, какое значение <code>sum</code> будет на следующей остановке. Это та же трассировка, только в настоящей IDE — так работают профессионалы, когда разбираются, почему программа считает не то.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя: охота на баги</h2>
+    <div data-widget="check" id="check-m05-07">
+      <script type="application/json">
+      { "title": "Быстрая проверка: найди ошибку",
+        "items": [
+          { "type": "bug", "q": "Программа должна вывести числа от 1 до 5 включительно, но выводит только до 4. Где ошибка?",
+            "code": "for (int i = 1; i < 5; i++) {\n    System.out.println(i);\n}",
+            "answer": [1], "why": "Условие i < 5 не пропускает 5. Нужно i <= 5." },
+          { "type": "bug", "q": "Программа зависает. Найди строку с ошибкой.",
+            "code": "int i = 0;\nwhile (i < 3); {\n    System.out.println(i);\n    i++;\n}",
+            "answer": [2], "why": "Точка с запятой после заголовка while (…) — пустое тело цикла. «Пока i < 3 — ничего не делай» — вечно." },
+          { "type": "bug", "q": "Не компилируется: cannot find symbol. Где корень проблемы?",
+            "code": "for (int i = 1; i <= 5; i++) {\n    int count = 0;\n    count++;\n}\nSystem.out.println(count);",
+            "answer": [2], "why": "count объявлен внутри тела цикла — после } его область видимости кончилась, да и обнулялся бы он на каждой итерации. Объяви его до цикла." },
+          { "type": "single", "q": "Сколько раз выполнится тело?", "code": "for (int i = 3; i <= 9; i += 3) { … }",
+            "options": ["2", "3", "4"], "answer": 1, "why": "i = 3, 6, 9 — три итерации. 12 <= 9 — false." },
+          { "type": "single", "q": "Что сделает этот код?", "code": "for (int i = 0; i != 7; i += 2) {\n    System.out.print(i);\n}",
+            "options": ["Напечатает 0246", "Будет крутиться (почти) бесконечно", "Не скомпилируется"], "answer": 1,
+            "why": "i = 0, 2, 4, 6, 8… — 7 перешагнули, условие != 7 верно всегда. Отсюда правило: границы — через < и >." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Переменная живёт до закрывающей } блока, в котором объявлена", "a": true },
+              { "s": "Накопитель для суммы по всем итерациям объявляют внутри тела цикла", "a": false, "why": "внутри он обнуляется на каждой итерации и не виден после цикла — объявляй до цикла." },
+              { "s": "F8 в отладчике выполняет одну строку", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Покажи мне 3 цикла с ошибками — off-by-one, вечный цикл и область видимости — вперемешку. Я найду ошибку и объясню, почему так получилось»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Off-by-one</b>: лишняя или недостающая итерация. Проверяй первое и последнее значение счётчика; от a до b включительно — b − a + 1 итераций.</li>
+        <li><b>Вечный цикл</b>: нет шага, шаг не туда, <code>continue</code> перед шагом, <code>!=</code> вместо <code>&lt;</code>, <code>;</code> после заголовка <code>while (…)</code>.</li>
+        <li><b>Область видимости</b>: переменная живёт до <code>}</code> своего блока. То, что копится между итерациями, объявляй до цикла.</li>
+        <li><b>Отладчик</b>: точка останова, Debug 🐞, <kbd>F8</kbd> — шаг, <kbd>F9</kbd> — дальше, окно Variables — значения.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

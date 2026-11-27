@@ -1,0 +1,47 @@
+## id: tr-colls-001
+## title: Список покупок
+## file: trainer/colls/ShoppingListPrinter.java
+## class: ShoppingListPrinter
+## level: 1
+## category: Списки
+@@ description
+<p>Напиши класс <code>ShoppingListPrinter</code>. Мама диктует покупки, а ты записываешь их в список <code>ArrayList</code>. В первой строке — количество покупок <code>n</code>, во второй — <code>n</code> слов через пробел. Напечатай сам список (как его печатает <code>println</code>) и строку <code>Всего покупок: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       хлеб молоко сыр
+вывод: [хлеб, молоко, сыр]
+       Всего покупок: 3</span></pre>
+<p>Одинаковые покупки не выбрасывай: если хлеб продиктовали дважды, в списке он будет дважды.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>List&lt;String&gt; list = new ArrayList&lt;&gt;();</code> — объявляет пустой список строк</li>
+<li><code>list.add(x)</code> — добавляет элемент в конец списка</li>
+<li><code>System.out.println(list)</code> — печатает список в квадратных скобках: <code>[a, b]</code></li>
+<li><code>list.size()</code> — возвращает количество элементов</li>
+</ul></div>
+@@ test: Три покупки
+@@ input
+3
+хлеб молоко сыр
+@@ expect
+[хлеб, молоко, сыр]
+Всего покупок: 3
+@@ test: Одна покупка
+@@ input
+1
+яблоки
+@@ expect
+[яблоки]
+Всего покупок: 1
+@@ test: Повторы остаются
+@@ input
+4
+хлеб чай хлеб хлеб
+@@ expect
+[хлеб, чай, хлеб, хлеб]
+Всего покупок: 4
+@@ test: Ничего не нужно
+@@ input
+0
+@@ expect
+[]
+Всего покупок: 0
+@@ require: ArrayList | Записывай покупки в список ArrayList

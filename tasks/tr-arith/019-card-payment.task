@@ -1,0 +1,52 @@
+## id: tr-arith-019
+## title: Пройдёт ли оплата картой?
+## file: trainer/arith/CardPaymentAllowed.java
+## class: CardPaymentAllowed
+## level: 1
+## category: Логика: true/false
+@@ description
+<p>Банк проводит оплату, если карта <b>не</b> заблокирована и на ней хватает денег. Создай класс <code>CardPaymentAllowed</code>. Программа читает три значения, каждое с новой строки: заблокирована ли карта (<code>true</code> или <code>false</code>), баланс и цену покупки (целые числа). Она печатает <code>true</code>, если оплата пройдёт, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  false   вывод: true
+       500
+       300</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextBoolean()</code> — читает слово <code>true</code> или <code>false</code> как значение <code>boolean</code></li>
+<li><code>!x</code> — логическое «не»: меняет <code>true</code> на <code>false</code> и наоборот</li>
+</ul></div>
+@@ test: Всё в порядке
+@@ input
+false
+500
+300
+@@ expect
+true
+@@ test: Карта заблокирована
+@@ input
+true
+500
+300
+@@ expect
+false
+@@ test: Не хватает денег
+@@ input
+false
+100
+300
+@@ expect
+false
+@@ test: Ровно на покупку
+@@ input
+false
+300
+300
+@@ expect
+true
+@@ test: И заблокирована, и пустая
+@@ input
+true
+0
+10
+@@ expect
+false
+@@ require: nextBoolean\s*\( | Прочитай признак блокировки методом nextBoolean()
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

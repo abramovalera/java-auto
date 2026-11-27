@@ -1,0 +1,80 @@
+## id: m18-t04
+## title: Мастерская: ревизор локаторов
+## file: module-18/NookLocatorAudit.java
+## class: NookLocatorAudit
+## level: 2
+@@ description
+<p>Тимлид попросил проверить локаторы в старых тестах: какие из них сломаются при первой же правке вёрстки? Напиши программу-ревизора. Она читает локаторы с клавиатуры, по одному на строке, до конца ввода (пустые строки пропускает), и для каждого печатает:</p>
+<pre class="terminal"><span class="out">локатор — ВЕРДИКТ: причина</span></pre>
+<p>Правила проверяются <b>строго по порядку</b>, срабатывает первое подходящее:</p>
+<div class="table-wrap"><table>
+<tr><th>#</th><th>Если локатор…</th><th>Напечатать</th></tr>
+<tr><td>1</td><td>начинается с одного <code>/</code> (но не с <code>//</code>)</td><td><code>ХРУПКИЙ: абсолютный путь</code></td></tr>
+<tr><td>2</td><td>содержит номер элемента: <code>[</code>, одна или больше цифр, <code>]</code> (например <code>[3]</code>) или кусок <code>nth-</code></td><td><code>ХРУПКИЙ: номер элемента</code></td></tr>
+<tr><td>3</td><td>содержит <code>data-test-id</code></td><td><code>СТАБИЛЬНЫЙ: тестовый атрибут</code></td></tr>
+<tr><td>4</td><td>начинается с <code>#</code> и состоит из одного шага</td><td><code>СТАБИЛЬНЫЙ: id</code></td></tr>
+<tr><td>5</td><td>состоит больше чем из трёх шагов</td><td><code>ХРУПКИЙ: длинная цепочка (шагов: N)</code></td></tr>
+<tr><td>6</td><td>содержит <code>text()</code></td><td><code>НОРМАЛЬНЫЙ: зависит от текста</code></td></tr>
+<tr><td>7</td><td>всё остальное</td><td><code>НОРМАЛЬНЫЙ: обычный атрибут или класс</code></td></tr>
+</table></div>
+<p><b>Шаги.</b> XPath (начинается с <code>/</code>): шаги — непустые куски между косыми чертами, <code>//div//form/input</code> — 3 шага. CSS (всё остальное): шаги — непустые куски между пробелами и знаками <code>&gt;</code>, <code>div.page &gt; form .btn</code> — 3 шага. Внутри кавычек в тестах пробелов и <code>/</code> нет.</p>
+<p>В конце напечатай итог: <code>Итого: стабильных X, нормальных Y, хрупких Z</code>.</p>
+<p><b>Это задача Мастерской.</b> Прежде чем писать код: разбери руками 3–4 локатора из примера; реши, какие методы нужны (подсказка: <code>countSteps(locator)</code>, <code>hasIndex(locator)</code>, <code>verdict(locator)</code>); найди роли переменных (три счётчика). Самое хитрое — правило 2: пройди по символам, найди <code>[</code> и посмотри, стоят ли за ней только цифры до <code>]</code>. Метод <code>split</code> с регуляркой тоже можно: <code>split("/+")</code>, <code>split("[\\s&gt;]+")</code> — но помни, что split может вернуть пустые куски.</p>
+<p>Пример ввода и вывода:</p>
+<pre class="terminal"><span class="out">[data-test-id='login'] — СТАБИЛЬНЫЙ: тестовый атрибут
+/html/body/div[2]/form/button — ХРУПКИЙ: абсолютный путь
+//button[text()='Войти'] — НОРМАЛЬНЫЙ: зависит от текста
+Итого: стабильных 1, нормальных 1, хрупких 1</span></pre>
+<p>📖 Урок: <a href="/lessons/m18/03-locators.html">Локаторы: CSS и XPath → стабильные и хрупкие</a></p>
+@@ test: Пример из условия
+@@ input
+[data-test-id='login']
+/html/body/div[2]/form/button
+//button[text()='Войти']
+@@ expect
+[data-test-id='login'] — СТАБИЛЬНЫЙ: тестовый атрибут
+/html/body/div[2]/form/button — ХРУПКИЙ: абсолютный путь
+//button[text()='Войти'] — НОРМАЛЬНЫЙ: зависит от текста
+Итого: стабильных 1, нормальных 1, хрупких 1
+@@ test: Все семь правил
+@@ input
+#email
+//ul[@class='books']/li[3]
+div.page > div.content div.form .btn
+input[name='q']
+//*[@data-test-id='cart']
+li:nth-child(2)
+//div/div/div/span
+@@ expect
+#email — СТАБИЛЬНЫЙ: id
+//ul[@class='books']/li[3] — ХРУПКИЙ: номер элемента
+div.page > div.content div.form .btn — ХРУПКИЙ: длинная цепочка (шагов: 4)
+input[name='q'] — НОРМАЛЬНЫЙ: обычный атрибут или класс
+//*[@data-test-id='cart'] — СТАБИЛЬНЫЙ: тестовый атрибут
+li:nth-child(2) — ХРУПКИЙ: номер элемента
+//div/div/div/span — ХРУПКИЙ: длинная цепочка (шагов: 4)
+Итого: стабильных 2, нормальных 1, хрупких 4
+@@ test: Подвохи: порядок правил и «почти индексы»
+@@ input
+#cart > .item
+(//button)[1]
+[data-test-id='item-3']
+input[value='12']
+//div//form//input[@name='q']
+.book-card .title
+
+@@ expect
+#cart > .item — НОРМАЛЬНЫЙ: обычный атрибут или класс
+(//button)[1] — ХРУПКИЙ: номер элемента
+[data-test-id='item-3'] — СТАБИЛЬНЫЙ: тестовый атрибут
+input[value='12'] — НОРМАЛЬНЫЙ: обычный атрибут или класс
+//div//form//input[@name='q'] — НОРМАЛЬНЫЙ: обычный атрибут или класс
+.book-card .title — НОРМАЛЬНЫЙ: обычный атрибут или класс
+Итого: стабильных 1, нормальных 4, хрупких 1
+@@ test: Пустой ввод
+@@ input
+
+@@ expect
+Итого: стабильных 0, нормальных 0, хрупких 0
+@@ require: static\s+\w+\s+countSteps\s*\( | Вынеси подсчёт шагов в отдельный метод countSteps(locator)
+@@ require: static\s+String\s+verdict\s*\( | Нужен метод static String verdict(String locator), который возвращает вердикт

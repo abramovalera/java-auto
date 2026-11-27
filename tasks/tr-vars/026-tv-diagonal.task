@@ -1,0 +1,40 @@
+## id: tr-vars-026
+## title: Диагональ телевизора
+## file: trainer/vars/TvDiagonalInCm.java
+## class: TvDiagonalInCm
+## level: 2
+## category: Дроби и приведение
+@@ description
+<p>Напиши класс <code>TvDiagonalInCm</code>. Диагональ телевизора указывают в дюймах, а в одном дюйме 2.54 см. Программа читает дробное число — диагональ в дюймах — и печатает <code>Диагональ: примерно N см</code>, где N — целое число сантиметров (дробную часть отбрось).</p>
+<pre class="terminal"><span class="out">ввод:  55
+вывод: Диагональ: примерно 139 см</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextDouble()</code> — читает и возвращает дробное число <code>double</code></li>
+<li><code>(int) (a * b)</code> — скобки нужны: иначе приведение применится только к <code>a</code></li>
+<li><code>(int) x</code> — приведение типа: отбрасывает дробную часть, не округляет</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+55
+@@ expect
+Диагональ: примерно 139 см
+@@ test: Маленький экран
+@@ input
+32
+@@ expect
+Диагональ: примерно 81 см
+@@ test: Экран телефона
+@@ input
+6.1
+@@ expect
+Диагональ: примерно 15 см
+@@ test: Огромный экран
+@@ input
+100
+@@ expect
+Диагональ: примерно 254 см
+@@ test: Меньше сантиметра
+@@ input
+0.3
+@@ expect
+Диагональ: примерно 0 см

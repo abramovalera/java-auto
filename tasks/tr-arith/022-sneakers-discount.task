@@ -1,0 +1,47 @@
+## id: tr-arith-022
+## title: Кроссовки со скидкой
+## file: trainer/arith/DiscountedSneakersPrice.java
+## class: DiscountedSneakersPrice
+## level: 2
+## category: Деньги и проценты
+@@ description
+<p>В спортивном магазине распродажа. Создай класс <code>DiscountedSneakersPrice</code>. Программа читает цену кроссовок (дробное число) и размер скидки в процентах (целое число от 0 до 100), каждое с новой строки. Она печатает цену со скидкой, округлённую до двух знаков после точки (до копеек).</p>
+<pre class="terminal"><span class="out">ввод:  4999.99
+       15
+вывод: К оплате: 4249.99</span></pre>
+<p>Подвох: процент — целое число, и <code>15 / 100</code> в Java равно <code>0</code>. Проверь, что скидка у тебя действительно вычитается.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Скидка 15% — значит, платим 85% цены: <code>цена * 85 / 100</code></li>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет до двух знаков после точки</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4999.99
+15
+@@ expect
+К оплате: 4249.99
+@@ test: Без скидки
+@@ input
+1000
+0
+@@ expect
+К оплате: 1000.0
+@@ test: Скидка 100%
+@@ input
+1000
+100
+@@ expect
+К оплате: 0.0
+@@ test: Скидка 7%
+@@ input
+100
+7
+@@ expect
+К оплате: 93.0
+@@ test: Копейки округляются
+@@ input
+59.9
+33
+@@ expect
+К оплате: 40.13
+@@ require: Math\.round | Округли до копеек методом Math.round

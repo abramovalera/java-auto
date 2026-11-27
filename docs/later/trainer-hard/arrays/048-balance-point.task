@@ -1,0 +1,46 @@
+## id: tr-arrays-048
+## title: Точка равновесия
+## file: trainer/arrays/BalancePointOfBridge.java
+## class: BalancePointOfBridge
+## level: 3
+## category: Поиск
+@@ description
+<p>Напиши класс <code>BalancePointOfBridge</code>. На длинной доске-качеле в ряд лежат <code>n</code> грузов. Опору можно поставить под любой груз с индексом <code>i</code> — тогда сам этот груз не считается, а слева и справа от него суммы весов должны совпасть. Если слева или справа грузов нет, сумма там равна 0. В первой строке — <code>n</code> (n ≥ 1), во второй — <code>n</code> целых весов (бывают и отрицательные — это воздушные шарики). Напечатай наименьший подходящий индекс <code>i</code> или <code>-1</code>, если такого нет.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       1 7 3 6 5 6
+вывод: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>посчитай общую сумму один раз; тогда сумма справа = общая − сумма слева − <code>a[i]</code></li>
+<li>сумму слева накапливай по ходу цикла — после проверки индекса <code>i</code> прибавляй <code>a[i]</code></li>
+</ul></div>
+@@ test: Есть равновесие
+@@ input
+6
+1 7 3 6 5 6
+@@ expect
+3
+@@ test: Нет равновесия
+@@ input
+3
+1 2 3
+@@ expect
+-1
+@@ test: Опора на краю
+@@ input
+3
+2 1 -1
+@@ expect
+0
+@@ test: Один груз
+@@ input
+1
+10
+@@ expect
+0
+@@ test: Шарики
+@@ input
+5
+-1 -1 0 1 1
+@@ expect
+-1
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

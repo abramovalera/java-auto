@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Git: машина времени для кода · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-02">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 17 · Урок 2</div>
+    <h1>Git: машина времени для кода</h1>
+    <p class="lead">Сохранения в игре, только для программы: можно вернуться в любой момент прошлого, попробовать что-то рискованное в параллельной вселенной и спокойно работать вдесятером над одним проектом.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🕰️ коммиты и ветки</span><span>⌨️ немного терминала</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-02-review">
+      <script type="application/json">
+      { "title": "Вспомним отладчик", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Ты стоишь на строке <code>total += price(item);</code> и хочешь посмотреть, что происходит внутри метода <code>price</code>. Какая клавиша?",
+            "options": ["F8 — Step Over", "F7 — Step Into", "F9 — Resume"], "answer": 1,
+            "why": "Step Into заходит внутрь вызываемого метода. F8 выполнил бы вызов целиком «за кадром»." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Stack trace исключения — это снимок того же стека, что показывает панель Frames", "a": true },
+              { "s": "Условие брейкпоинта пишется на обычной Java: например, i == 200", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШПАРГАЛКА -->
+  <section class="step">
+    <h2>Выпиши себе: Git, часть 1</h2>
+    <p>В этом уроке и следующем будет много новых слов и клавиш. <b>Выпиши таблицу руками</b> — к каждой строке мы ещё вернёмся. Слева — команда Git (так её называют коллеги и инструкции), справа — где то же самое в IDEA. Вторая часть (push, pull, fetch, rebase, stash) — в уроке 17.3.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: Git на своём компьютере</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Команда</th><th>Что делает и зачем</th><th>Где в IDEA</th></tr>
+        <tr><td><code>git init</code></td><td>Сделать папку репозиторием: Git начинает следить за файлами</td><td>☰ → <b>VCS → Create Git Repository…</b></td></tr>
+        <tr><td><code>git status</code></td><td>Что изменено, что новое, что Git ещё не знает</td><td>Окно <b>Commit</b> (<kbd>Alt</kbd>+<kbd>0</kbd>), цвета файлов в дереве</td></tr>
+        <tr><td><code>git add</code></td><td>Положить изменения в индекс — «это пойдёт в коммит»</td><td>Галочки у файлов в окне Commit</td></tr>
+        <tr><td><code>git commit -m "…"</code></td><td>Сохранить снимок проекта с сообщением</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd> → сообщение → <b>Commit</b></td></tr>
+        <tr><td><code>git diff</code></td><td>Построчно: что поменялось с прошлого коммита</td><td>Файл в окне Commit → <kbd>Ctrl</kbd>+<kbd>D</kbd></td></tr>
+        <tr><td><code>git log</code></td><td>История коммитов</td><td><kbd>Alt</kbd>+<kbd>9</kbd> → вкладка <b>Log</b></td></tr>
+        <tr><td><code>git restore файл</code></td><td>Выбросить незакоммиченные правки файла</td><td>Правый клик → <b>Git → Rollback</b> (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd>)</td></tr>
+        <tr><td><code>git branch</code></td><td>Список веток (и создание новой)</td><td>Имя ветки вверху слева или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>`</kbd></td></tr>
+        <tr><td><code>git switch -c имя</code></td><td>Создать ветку под задачу и перейти в неё</td><td>Список веток → <b>+ New Branch…</b></td></tr>
+        <tr><td><code>git switch имя</code></td><td>Перейти в другую ветку</td><td>Список веток → ветка → <b>Checkout</b></td></tr>
+        <tr><td><code>git merge имя</code></td><td>Влить ветку в текущую</td><td>Список веток → ветка → <b>Merge '…' into '…'</b></td></tr>
+        <tr><td>—</td><td>Меню всех действий Git в одном месте</td><td><kbd>Alt</kbd>+<kbd>`</kbd> (VCS Operations)</td></tr>
+      </table></div>
+      <p style="margin-top:10px"><kbd>`</kbd> — клавиша с буквой Ё, слева от единицы.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем нужен Git</h2>
+    <p>Знакомая картина? <code>диплом.docx</code>, <code>диплом_финал.docx</code>, <code>диплом_финал_2.docx</code>, <code>диплом_ТОЧНО_финал.docx</code>. С кодом так ещё хуже: вчера всё работало, сегодня ты что-то поменял в пяти файлах — и уже не помнишь, что именно.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🕰️</span><h4>История</h4><p>Каждое сохранение записано: кто, когда, что поменял и зачем. Можно вернуться к любому.</p></div>
+      <div class="card"><span class="emoji">🔍</span><h4>Сравнение</h4><p>Видно построчно, чем сегодняшний код отличается от вчерашнего. Баг появился — ищешь, какое изменение его принесло.</p></div>
+      <div class="card"><span class="emoji">🌿</span><h4>Ветки</h4><p>Пробуешь рискованную идею отдельно от рабочего кода. Не вышло — выбросил ветку, ничего не сломав.</p></div>
+      <div class="card"><span class="emoji">👥</span><h4>Команда</h4><p>Десять человек правят один проект, и Git аккуратно собирает их изменения вместе.</p></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: сохранения в игре</span>
+      <p>Перед боссом ты сохраняешься. Проиграл — загрузился. Git делает то же для кода, только сохранения никогда не перезаписываются: у тебя вся цепочка с первого дня, и у каждого есть подпись «что тут было».</p>
+    </div>
+    <p><b>Git</b> — система контроля версий: программа, которая хранит историю изменений проекта. Её придумал в 2005 году Линус Торвальдс, автор Linux. Сегодня Git используют почти все команды разработчиков в мире: банковские системы, игры, мобильные приложения — весь их код живёт в Git.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Репозиторий, коммит и три зоны</h2>
+    <dl class="terms">
+      <dt>Репозиторий (repository, «репо»)</dt><dd>Папка проекта, за которой следит Git. Вся история хранится в скрытой подпапке <code>.git</code>. Удалишь её — проект останется, а история пропадёт.</dd>
+      <dt>Коммит (commit)</dt><dd>Снимок проекта в какой-то момент + подпись: автор, время и <b>сообщение</b> «что и зачем сделано». У каждого коммита уникальный номер — <b>хеш</b>, например <code>4b7d201</code>.</dd>
+      <dt>Индекс (staging area)</dt><dd>«Подготовка к коммиту»: сюда ты складываешь изменения, которые войдут в следующий снимок. Не всё, что ты поменял, обязано попасть в один коммит.</dd>
+    </dl>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 230" role="img" aria-label="Три зоны Git: рабочая папка, индекс, репозиторий. git add переносит изменения в индекс, git commit делает снимок в репозиторий">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="30" width="200" height="140" rx="14" class="d-yellow"/>
+        <text x="110" y="60" text-anchor="middle" class="d-title">📁 Рабочая папка</text>
+        <text x="110" y="90" text-anchor="middle" class="d-small">файлы, которые ты</text>
+        <text x="110" y="108" text-anchor="middle" class="d-small">правишь в IDEA</text>
+        <text x="110" y="140" text-anchor="middle" class="d-mono-ink">Main.java ✎</text>
+
+        <path d="M214 90 H300" class="d-arrow"/>
+        <text x="257" y="80" text-anchor="middle" class="d-mono-ink">git add</text>
+
+        <rect x="304" y="30" width="190" height="140" rx="14" class="d-blue"/>
+        <text x="399" y="60" text-anchor="middle" class="d-title">🧺 Индекс</text>
+        <text x="399" y="90" text-anchor="middle" class="d-small">что войдёт</text>
+        <text x="399" y="108" text-anchor="middle" class="d-small">в следующий коммит</text>
+        <text x="399" y="140" text-anchor="middle" class="d-mono-ink">Main.java ✓</text>
+
+        <path d="M498 90 H584" class="d-arrow"/>
+        <text x="541" y="80" text-anchor="middle" class="d-mono-ink">git commit</text>
+
+        <rect x="588" y="30" width="142" height="140" rx="14" class="d-green"/>
+        <text x="659" y="60" text-anchor="middle" class="d-title">🗄️ История</text>
+        <text x="659" y="90" text-anchor="middle" class="d-small">папка .git:</text>
+        <text x="659" y="108" text-anchor="middle" class="d-small">все снимки</text>
+        <text x="659" y="140" text-anchor="middle" class="d-mono-ink">4b7d201</text>
+
+        <text x="370" y="210" text-anchor="middle" class="d-small">Индекс — как корзина на кассе: выложил на ленту только то, за что платишь сейчас</text>
+      </svg>
+      <figcaption>Изменение проходит путь: правка в файле → <code>add</code> в индекс → <code>commit</code> в историю.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Ты поменял два файла: в одном починил баг, в другом начал новую фичу, которая ещё не работает. Как сделать аккуратный коммит?</summary>
+      <p>Добавить в индекс <b>только файл с исправлением</b> и закоммитить его с сообщением «Почини …». Недоделанную фичу оставить в рабочей папке — она уйдёт в отдельный коммит, когда будет готова. Ради этого индекс и придуман.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>История проекта</h2>
+    <p>Вот как выглядит история маленького проекта. Пролистай её, как машину времени: у каждого коммита хеш, сообщение и что в нём изменилось.</p>
+    <div data-widget="timeline" id="git-history">
+      <script type="application/json">
+      { "title": "git log маленького проекта",
+        "items": [
+          { "year": "a1f3c9e", "emoji": "🌱", "title": "Первый коммит: каркас проекта", "text": "Репозиторий создан, в истории первый снимок: <code>HelloWorld.java</code> и <code>.gitignore</code>." },
+          { "year": "4b7d201", "emoji": "➕", "title": "Добавь расчёт стоимости доставки", "text": "Новый класс <code>DeliveryFee</code>. Diff показывает 25 зелёных строк — всё добавлено." },
+          { "year": "9c0e5a2", "emoji": "🧪", "title": "Добавь тесты на доставку", "text": "Три тестовых метода JUnit. Код и тесты к нему живут в одной истории." },
+          { "year": "e2d84f1", "emoji": "💥", "title": "Перепиши расчёт через стримы", "text": "Смелый рефакторинг… после которого тесты стали красными. Но это всего лишь коммит — его можно отменить." },
+          { "year": "77aa0b3", "emoji": "⏪", "title": "Revert «Перепиши расчёт через стримы»", "text": "Git создал <b>новый</b> коммит, который отменяет изменения плохого. История не стирается: видно и ошибку, и её отмену." },
+          { "year": "c5e19d8", "emoji": "🐞", "title": "Почини доставку для суммы ровно 2000", "text": "Diff — одна строка: в условии оператор сравнения <code>&gt;</code> заменён на <code>&gt;=</code>. Через год по этому коммиту будет понятно, кто, когда и зачем это поменял." }
+        ] }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Хорошее сообщение коммита</span>
+      <p>Коротко, по делу, отвечает на вопрос «что сделает этот коммит?»: <code>Почини расчёт доставки для суммы 2000</code>, <code>Добавь тесты на пароль</code>. Плохо: <code>fix</code>, <code>правки</code>, <code>asdf</code>, <code>сделал</code>. Во многих командах есть свой формат, например <code>fix: …</code> / <code>feat: …</code> — смотри, как принято у них.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Git в IntelliJ IDEA</h2>
+    <p>Основной путь — через интерфейс IDEA. Git обычно уже установлен вместе с IDEA или ставится одной кнопкой: IDEA сама предложит скачать его, если не найдёт.</p>
+    <div data-widget="ide" id="shot-git-create-repo">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "DeliveryFee", "type": "class", "depth": 2 },
+                  { "name": "DeliveryFeeTest", "type": "class", "depth": 2 } ],
+        "menu": { "at": "project-btn", "items": ["File ›", "Edit ›", "View ›", "Navigate ›", "Code ›", "Refactor ›", "Build ›", "Run ›", "Tools ›", "VCS ›", "Window ›", "Help ›"], "hl": "VCS",
+                  "sub": { "items": ["VCS Operations Popup…\tAlt+`", "-", "Create Git Repository…", "Enable Version Control Integration…", "Get from Version Control…", "Share Project on GitHub", "-", "Local History ›"], "hl": "Create Git Repository…" } },
+        "marks": [ { "n": 1, "target": "menu", "side": "left", "text": "Главное меню — кнопка ☰ слева вверху. Наведи на <b>VCS</b> (Version Control System — система контроля версий)" },
+                   { "n": 2, "target": "submenu", "text": "<b>Create Git Repository…</b> → выбери папку проекта → OK. Это то же, что <code>git init</code>" } ],
+        "caption": "Создаём репозиторий. После этого меню VCS превратится в меню Git" }
+      </script>
+    </div>
+    <ol class="steps">
+      <li><b>Создать репозиторий:</b> меню <b>VCS → Create Git Repository…</b> (в новых версиях — <b>Version Control</b> в главном меню) → выбрать папку проекта. Появится вкладка <b>Git</b> внизу.</li>
+      <li><b>Цвета файлов:</b> <span style="color:var(--red)">красный</span> — Git этот файл ещё не знает (untracked); <span style="color:var(--green)">зелёный</span> — новый, добавлен; <span style="color:var(--blue)">синий</span> — изменён с прошлого коммита; обычный — без изменений.</li>
+      <li><b>Коммит:</b> <kbd>Ctrl</kbd>+<kbd>K</kbd>. Слева откроется окно Commit: галочками отмечаешь файлы (это и есть индекс), внизу пишешь сообщение, жмёшь <b>Commit</b>.</li>
+      <li><b>Посмотреть разницу:</b> в окне Commit двойной щелчок по файлу или <kbd>Ctrl</kbd>+<kbd>D</kbd> — <b>Diff</b>: слева было, справа стало; зелёным — добавлено, синим — изменено, серым — удалено.</li>
+      <li><b>История:</b> вкладка <b>Git</b> (<kbd>Alt</kbd>+<kbd>9</kbd>) → <b>Log</b>. Все коммиты, ветки, авторы. Щелчок по коммиту — какие файлы он поменял.</li>
+      <li><b>Откатить незакоммиченные правки файла:</b> правый клик → <b>Git → Rollback</b> (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd>). Файл вернётся к состоянию последнего коммита.</li>
+    </ol>
+    <p>Так выглядит коммит. Мы починили расчёт в <code>DeliveryFee</code>, добавили тест, а ещё в папке завалялся черновик <code>notes.txt</code>, который в историю не нужен:</p>
+    <div data-widget="ide" id="shot-git-commit">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src › DeliveryFee.java",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "DeliveryFee", "type": "class", "depth": 2, "note": "изменён" },
+                  { "name": "DeliveryFeeTest", "type": "class", "depth": 2, "note": "новый" },
+                  { "name": "notes.txt", "type": "file", "depth": 1, "note": "Git не знает" } ],
+        "file": "DeliveryFee.java",
+        "code": "public class DeliveryFee {\n    static int feeFor(int orderSum) {\n        if (orderSum >= 2000) {\n            return 0;\n        }\n        return 199;\n    }\n}",
+        "dialog": { "title": "Commit to main",
+                    "rows": [ { "label": "☑ DeliveryFee.java", "value": "Changes · изменён", "type": "text" },
+                              { "label": "☑ DeliveryFeeTest.java", "value": "Changes · новый файл", "type": "text" },
+                              { "label": "☐ notes.txt", "value": "Unversioned Files · Git его не знает", "type": "text" },
+                              { "label": "Commit message", "value": "Почини доставку для суммы ровно 2000", "hl": true } ],
+                    "buttons": ["Commit", "Commit and Push…"], "primary": "Commit" },
+        "marks": [ { "n": 1, "target": "field-☑ DeliveryFee.java", "text": "Галочка = «в этот коммит». Это и есть индекс (<code>git add</code>). В дереве и здесь изменённый файл IDEA пишет <b style=\"color:var(--blue)\">синим</b>, новый — <b style=\"color:var(--green)\">зелёным</b>" },
+                   { "n": 2, "target": "field-☐ notes.txt", "text": "Файл, о котором Git ещё не знает (<b style=\"color:var(--red)\">красный</b>, раздел <b>Unversioned Files</b>). Галочку не ставим — черновик в историю не пойдёт" },
+                   { "n": 3, "target": "field-Commit message", "text": "Сообщение коммита: что и зачем сделано. Без него IDEA не даст закоммитить" },
+                   { "n": 4, "target": "btn-Commit", "side": "bottom", "text": "<b>Commit</b> — сделать снимок. <b>Commit and Push…</b> — сразу отправить на сервер (урок 17.3)" } ],
+        "caption": "Окно Commit (Ctrl+K). В IDEA оно открывается слева, на месте дерева проекта; здесь показано упрощённо" }
+      </script>
+    </div>
+    <p>А это история проекта — вкладка <b>Log</b> в окне Git (<kbd>Alt</kbd>+<kbd>9</kbd>):</p>
+    <div data-widget="ide" id="shot-git-log">
+      <script type="application/json">
+      { "tree": false, "project": "shop-autotests", "status": "shop-autotests › src › DeliveryFee.java",
+        "file": "DeliveryFee.java",
+        "code": "public class DeliveryFee {\n    static int feeFor(int orderSum) {\n        if (orderSum >= 2000) {\n            return 0;\n        }\n        return 199;\n    }\n}",
+        "console": { "tool": "Git", "title": "Log: all", "lines": [
+          { "t": "out", "s": "●  Почини доставку для суммы ровно 2000        main   Misha   Today 14:02" },
+          { "t": "out", "s": "●  Revert \"Перепиши расчёт через стримы\"             Misha   Today 11:30" },
+          { "t": "out", "s": "●  Перепиши расчёт через стримы                       Misha   Yesterday 18:40" },
+          { "t": "out", "s": "●  Добавь тесты на доставку                           Misha   25.11.2026 16:05" },
+          { "t": "out", "s": "●  Добавь расчёт стоимости доставки                   Misha   25.11.2026 12:10" },
+          { "t": "out", "s": "●  Первый коммит: каркас проекта                      Misha   24.11.2026 10:00" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Самый свежий коммит — сверху. Метка <b>main</b> — ветка, которая сейчас на нём" },
+                   { "n": 2, "target": "output-2", "text": "Revert — коммит, который отменил предыдущий. История не стирается, видно и ошибку, и её отмену" },
+                   { "n": 3, "target": "output-6", "text": "Самый первый снимок проекта — внизу" },
+                   { "n": 4, "target": "console", "text": "Щелчок по коммиту — справа появится список изменённых в нём файлов, двойной щелчок по файлу — Diff «было / стало». Хеш коммита видно в его подробностях" } ],
+        "caption": "История коммитов в IDEA (упрощённо: в настоящем окне Log это таблица со столбцами и линиями веток)" }
+      </script>
+    </div>
+    <div class="say" data-mood="think"><p>Обрати внимание на полоску слева от номеров строк: IDEA подкрашивает изменённые с последнего коммита строки. Щёлкни по цветной метке — увидишь, что там было раньше, и сможешь откатить одну строку.</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: Local History — страховка даже без Git</summary>
+      <p>IDEA сама запоминает изменения файлов на несколько дней: правый клик по файлу → <b>Local History → Show History</b>. Спасает, если что-то удалил до коммита. Но это память только твоего компьютера и только твоей IDEA — Git она не заменяет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Немного терминала</h2>
+    <p>Всё, что делает IDEA, — это команды <code>git</code>. Их полезно знать: на собеседовании спросят, а в чужой инструкции будут именно они. Терминал есть прямо в IDEA: вкладка <b>Terminal</b> внизу (<kbd>Alt</kbd>+<kbd>F12</kbd>).</p>
+<pre class="terminal"><span class="cmd">git status</span>
+<span class="out">On branch main
+Changes not staged for commit:
+        modified:   src/DeliveryFee.java
+Untracked files:
+        src/DeliveryFeeTest.java</span>
+<span class="cmd">git add src/DeliveryFee.java src/DeliveryFeeTest.java</span>
+<span class="cmd">git commit -m "Почини доставку для суммы ровно 2000"</span>
+<span class="out">[main c5e19d8] Почини доставку для суммы ровно 2000
+ 2 files changed, 18 insertions(+), 1 deletion(-)</span>
+<span class="cmd">git log --oneline</span>
+<span class="out">c5e19d8 Почини доставку для суммы ровно 2000
+77aa0b3 Revert "Перепиши расчёт через стримы"
+e2d84f1 Перепиши расчёт через стримы
+...</span></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Команда</th><th>Что делает</th><th>В IDEA</th></tr>
+        <tr><td><code>git init</code></td><td>сделать папку репозиторием</td><td>Create Git Repository</td></tr>
+        <tr><td><code>git status</code></td><td>что изменено, что в индексе, что Git не знает</td><td>окно Commit</td></tr>
+        <tr><td><code>git add файл</code></td><td>положить изменения в индекс (<code>git add .</code> — все)</td><td>галочки в окне Commit</td></tr>
+        <tr><td><code>git commit -m "…"</code></td><td>сделать коммит из индекса</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd> → Commit</td></tr>
+        <tr><td><code>git log --oneline</code></td><td>история коротко</td><td>Git → Log</td></tr>
+        <tr><td><code>git diff</code></td><td>чем рабочая папка отличается от последнего коммита</td><td>Diff (<kbd>Ctrl</kbd>+<kbd>D</kbd>)</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Ты поменял файл и сразу написал <code>git commit -m "Почини баг"</code>, без <code>git add</code>. Что будет?</summary>
+      <p>Коммит <b>не создастся</b>: Git скажет <em>no changes added to commit</em>. Изменения есть только в рабочей папке, а коммит собирается из индекса — а он пуст. Сначала <code>git add</code>. (IDEA делает add сама, когда ты ставишь галочки.)</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Ветки — параллельные вселенные</h2>
+    <p><b>Ветка (branch)</b> — отдельная линия истории. Главная обычно называется <code>main</code> (в старых проектах — <code>master</code>): в ней рабочий код. Для каждой задачи создают свою ветку, работают в ней, а когда всё готово и проверено — <b>сливают</b> (merge) обратно в <code>main</code>.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 220" role="img" aria-label="Схема веток: от main ответвляется ветка feature/login, в ней два коммита, потом она сливается обратно в main">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="20" y="64" class="d-title">main</text>
+        <path d="M80 60 H700" class="d-line"/>
+        <circle cx="110" cy="60" r="14" class="d-green"/><text x="110" y="36" text-anchor="middle" class="d-small">a1f3c9e</text>
+        <circle cx="210" cy="60" r="14" class="d-green"/><text x="210" y="36" text-anchor="middle" class="d-small">4b7d201</text>
+        <circle cx="430" cy="60" r="14" class="d-green"/><text x="430" y="40" text-anchor="middle" class="d-small">чужой коммит</text>
+        <circle cx="600" cy="60" r="18" class="d-accent"/><text x="600" y="36" text-anchor="middle" class="d-small">merge</text>
+
+        <path d="M210 74 C230 150 260 160 300 160 H480 C540 160 580 120 596 78" class="d-dash"/>
+        <text x="20" y="166" class="d-title">feature/login</text>
+        <circle cx="320" cy="160" r="14" class="d-blue"/><text x="320" y="200" text-anchor="middle" class="d-small">форма входа</text>
+        <circle cx="460" cy="160" r="14" class="d-blue"/><text x="460" y="200" text-anchor="middle" class="d-small">тесты входа</text>
+        <path d="M640 60 H700" class="d-arrow"/>
+      </svg>
+      <figcaption>Ветка отходит от <code>main</code>, живёт своей жизнью, пока другие коммитят в <code>main</code>, и вливается обратно, когда задача готова.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: черновик</span>
+      <p>Пишешь сочинение: чистовик лежит на столе, а смелую новую концовку пробуешь на черновике. Получилось — переписываешь в чистовик. Нет — выбрасываешь черновик, чистовик цел.</p>
+    </div>
+    <p><b>В IDEA:</b> внизу справа (или вверху слева в новом интерфейсе) написано имя текущей ветки. Щёлкни по нему: <b>New Branch</b> — создать ветку и перейти в неё; щелчок по ветке → <b>Checkout</b> — перейти; <b>Merge into Current</b> — влить выбранную ветку в текущую.</p>
+    <div data-widget="ide" id="shot-git-branches">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "DeliveryFee", "type": "class", "depth": 2 },
+                  { "name": "DeliveryFeeTest", "type": "class", "depth": 2 },
+                  { "name": "LoginTest", "type": "class", "depth": 2 } ],
+        "menu": { "at": "project-btn", "items": ["+ New Branch…", "Checkout Tag or Revision…", "-", "Local", "★ main", "feature/login ›", "-", "Remote", "origin/main ›"], "hl": "feature/login",
+                  "sub": { "items": ["Checkout", "New Branch from 'feature/login'…", "Checkout and Rebase onto 'main'", "-", "Compare with 'main'", "Show Diff with Working Tree", "-", "Rebase 'main' onto 'feature/login'", "Merge 'feature/login' into 'main'", "-", "Push…", "Rename…", "Delete"], "hl": "Merge 'feature/login' into 'main'" } },
+        "marks": [ { "n": 1, "target": "menu", "side": "left", "text": "Список веток: щелчок по имени ветки вверху слева, рядом с названием проекта (или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>`</kbd>). Сейчас мы в <b>main</b> (★ — «избранная» ветка, main отмечена сама). <b>+ New Branch…</b> — создать новую ветку и сразу перейти в неё" },
+                   { "n": 2, "target": "submenu", "text": "Щелчок по другой ветке — её действия. <b>Checkout</b> — перейти в неё, <b>Merge 'feature/login' into 'main'</b> — влить её в текущую (как <code>git merge feature/login</code>)" } ],
+        "caption": "Ветки в IDEA. Remote — ветки на сервере, о них в следующем уроке" }
+      </script>
+    </div>
+<pre class="terminal"><span class="cmd">git branch</span>
+<span class="out">* main</span>
+<span class="cmd">git switch -c feature/login</span>
+<span class="out">Switched to a new branch 'feature/login'</span>
+<span class="cmd">git switch main</span>
+<span class="cmd">git merge feature/login</span></pre>
+    <p><code>git branch</code> — список веток (звёздочка — текущая); <code>git switch -c имя</code> — создать и перейти; <code>git switch имя</code> — перейти; <code>git merge имя</code> — влить ветку <b>в текущую</b>. В старых инструкциях вместо <code>switch</code> встретишь <code>git checkout</code> — делает то же самое.</p>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>.gitignore — что не хранить</h2>
+    <p>Не всё в папке проекта нужно истории. Скомпилированные <code>.class</code>, папки сборки, личные настройки IDEA, а главное — <b>пароли и ключи</b>. Список того, что Git должен игнорировать, лежит в файле <code>.gitignore</code> в корне репозитория:</p>
+<pre data-file=".gitignore"><code># результаты сборки — их всегда можно собрать заново
+out/
+build/
+.gradle/
+*.class
+
+# личные настройки IDEA
+.idea/workspace.xml
+
+# секреты — никогда в Git!
+.env
+*.key</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Пароль, попавший в Git, считай утёкшим</span>
+      <p>Даже если удалить файл следующим коммитом, пароль останется в истории — любой, у кого есть копия репозитория, его найдёт. Пароли от базы данных, ключи платёжных сервисов и другие секреты держат в переменных окружения или в файле, который внесён в <code>.gitignore</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Папка <code>out/</code> уже попала в коммит, и только потом ты добавил её в <code>.gitignore</code>. Исчезнет ли она из репозитория?</summary>
+      <p><b>Нет.</b> <code>.gitignore</code> действует только на файлы, которые Git ещё не отслеживает. Уже закоммиченное надо явно убрать из отслеживания: <code>git rm -r --cached out</code> и закоммитить. Файлы на диске останутся, а Git про них забудет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-02">
+      <script type="application/json">
+      {
+       "title": "Git — главное",
+       "items": [
+        {
+         "type": "order",
+         "q": "Расставь по порядку путь изменения в историю",
+         "lines": [
+          "Поправить файл в IDEA",
+          "git add — положить изменения в индекс",
+          "git commit -m \"…\" — сделать снимок",
+          "git log — увидеть новый коммит в истории"
+         ],
+         "why": "Рабочая папка → индекс → история. Без add коммитить нечего."
+        },
+        {
+         "type": "match",
+         "q": "Соедини команду и действие",
+         "left": [
+          "git status",
+          "git switch -c fix/login",
+          "git merge fix/login",
+          "git diff"
+         ],
+         "right": [
+          "Показать, что изменено и что в индексе",
+          "Создать ветку и перейти в неё",
+          "Влить ветку в текущую",
+          "Показать построчную разницу с последним коммитом"
+         ],
+         "why": "Эти четыре команды и commit/add/log — минимум, который спрашивают на собеседовании."
+        },
+        {
+         "type": "multi",
+         "q": "Что стоит внести в .gitignore? Отметь все",
+         "options": [
+          "папку out/ с .class-файлами",
+          "исходники *.java",
+          "файл .env с паролями",
+          "build.gradle.kts"
+         ],
+         "answer": [
+          0,
+          2
+         ],
+         "why": "Результаты сборки и секреты — в .gitignore. Исходники и build.gradle.kts (файл сборки из урока 17.4) — самое ценное, они обязаны быть в истории."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Revert отменяет плохой коммит новым коммитом, история при этом сохраняется",
+           "a": true
+          },
+          {
+           "s": "Синий файл в IDEA — Git его ещё не знает",
+           "a": false,
+           "why": "синий — изменён; красный — неизвестен Git (untracked)."
+          },
+          {
+           "s": "Удалив папку .git, ты удалишь историю, но не сами файлы проекта",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Практика с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 17.2. Дай мне Git-практику из модуля 17: создам репозиторий, сделаю несколько коммитов и ветку, а потом покажу тебе git log»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Git хранит историю проекта: коммит = снимок + сообщение + автор + хеш.</li>
+        <li>Путь изменения: рабочая папка → <code>add</code> (индекс) → <code>commit</code> (история).</li>
+        <li>В IDEA: <kbd>Ctrl</kbd>+<kbd>K</kbd> — коммит, Git → Log — история, <kbd>Ctrl</kbd>+<kbd>D</kbd> — Diff, Rollback — откат.</li>
+        <li>Ветка — параллельная линия истории; задачу делают в ветке и сливают в <code>main</code> через merge.</li>
+        <li><code>.gitignore</code> — что не хранить: сборку, личные настройки и особенно пароли.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

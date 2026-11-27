@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Что под капотом у System.out.println · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-06">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 9 · Урок 6</div>
+    <h1>Что под капотом у System.out.println</h1>
+    <p class="lead">С первого дня ты пишешь <code>System.out.println("Hi")</code> как заклинание. Сегодня разберём его до винтика: какой класс, какое поле, какой объект, какой метод — и что происходит дальше, вплоть до операционной системы. А потом ты сам провалишься внутрь JDK в IDEA.</p>
+    <div class="meta"><span>⏱ 35–40 минут</span><span>🔬 разбор до ОС</span><span>🐞 отладчик и Ctrl+B</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m09-06-review">
+      <script type="application/json">
+      { "title": "Вспомним то, что понадобится", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "<code>Cat.count</code> — что это, если count объявлен как <code>static int count</code>?",
+            "options": ["Поле конкретного кота", "static-поле класса Cat, одно на всех", "Метод класса Cat"], "answer": 1,
+            "why": "Через имя класса обращаются к static-полям и static-методам." },
+          { "type": "single", "q": "Почему <code>String</code> можно писать без import?",
+            "options": ["Он объявлен в каждом файле", "Он из пакета java.lang, который подключён всегда", "Это не класс, а примитив"], "answer": 1,
+            "why": "java.lang импортирован автоматически: String, System, Math, Integer…" },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Перегрузка — это несколько методов с одним именем и разными параметрами", "a": true },
+              { "s": "Метод объекта вызывают через переменную, в которой лежит ссылка на объект", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA, часть 4 — путешествие по чужому коду</h3>
+      <p>Сегодня ты будешь ходить по коду JDK — и навигацией, и отладчиком. <kbd>Ctrl</kbd>+<kbd>B</kbd>, <kbd>Ctrl</kbd>+<kbd>Q</kbd> и <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd> уже есть в шпаргалке из урока 8.1, <kbd>F7</kbd>/<kbd>F8</kbd>/<kbd>F9</kbd> — из отладчика модулей 5 и 7. Допиши новые:</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>1</kbd></td><td>Показать / спрятать панель Project (дерево файлов)</td><td>Добраться до External Libraries</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>Найти класс по имени — свой или из JDK</td><td>Открыть <code>PrintStream</code>, не зная, где он лежит</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F12</kbd></td><td>Структура файла: все поля и методы класса, с поиском</td><td>«Что вообще умеет этот класс?»</td></tr>
+        <tr><td><kbd>Shift</kbd> <kbd>Shift</kbd></td><td>Искать везде: классы, файлы, действия IDEA</td><td>Не помнишь, что именно ищешь</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F9</kbd></td><td>Запустить в отладчике (Debug) текущую конфигурацию</td><td>Вместо клика по жуку 🐞</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd></td><td>Force Step Into — зайти внутрь метода, даже если он из JDK</td><td>Обычный <kbd>F7</kbd> проскакивает <code>println</code></td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F8</kbd></td><td>Step Out — доработать текущий метод и выйти в того, кто его вызвал</td><td>Провалился слишком глубоко</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Java — это гора готового кода</h2>
+    <p>Когда ты установил JDK, ты получил не только компилятор <code>javac</code> и JVM. Самая большая часть JDK — <b>стандартная библиотека</b>: тысячи готовых классов, которые за тридцать лет написали программисты Oracle и сообщества. <code>String</code>, <code>Math</code>, <code>Scanner</code>, <code>Arrays</code> — все они оттуда. Твой <code>HelloWorld</code> в пять строк стоит на вершине горы из миллионов строк чужого кода.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="JDK как библиотека: здание, отделы-пакеты, полки-классы, главы-методы; твой код — записка на вершине">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="290" y="8" width="180" height="40" rx="10" class="d-accent"/>
+        <text x="380" y="33" text-anchor="middle" class="d-title">✍️ твой код</text>
+        <path d="M380 48 V64" class="d-arrow"/>
+        <rect x="20" y="68" width="720" height="250" rx="16" class="d-soft"/>
+        <text x="380" y="94" text-anchor="middle" class="d-title">🏛️ Библиотека JDK: модуль java.base и ещё ~70 модулей</text>
+
+        <rect x="40" y="110" width="220" height="190" rx="12" class="d-blue"/>
+        <text x="150" y="136" text-anchor="middle" class="d-title">отдел java.lang</text>
+        <text x="56" y="164" class="d-small">полки (классы):</text>
+        <text x="56" y="188" class="d-mono-ink">System</text>
+        <text x="56" y="210" class="d-mono-ink">String  Math</text>
+        <text x="56" y="232" class="d-mono-ink">Integer  Object</text>
+        <text x="56" y="262" class="d-small">главы (методы):</text>
+        <text x="56" y="284" class="d-mono-ink">Math.max, length()…</text>
+
+        <rect x="270" y="110" width="220" height="190" rx="12" class="d-teal"/>
+        <text x="380" y="136" text-anchor="middle" class="d-title">отдел java.io</text>
+        <text x="286" y="164" class="d-small">полки (классы):</text>
+        <text x="286" y="188" class="d-mono-ink">PrintStream</text>
+        <text x="286" y="210" class="d-mono-ink">FileOutputStream</text>
+        <text x="286" y="232" class="d-mono-ink">BufferedWriter …</text>
+        <text x="286" y="262" class="d-small">главы (методы):</text>
+        <text x="286" y="284" class="d-mono-ink">println, write…</text>
+
+        <rect x="500" y="110" width="220" height="190" rx="12" class="d-violet"/>
+        <text x="610" y="136" text-anchor="middle" class="d-title">отдел java.util</text>
+        <text x="516" y="164" class="d-small">полки (классы):</text>
+        <text x="516" y="188" class="d-mono-ink">Scanner</text>
+        <text x="516" y="210" class="d-mono-ink">Arrays  Random</text>
+        <text x="516" y="232" class="d-mono-ink">ArrayList …</text>
+        <text x="516" y="262" class="d-small">главы (методы):</text>
+        <text x="516" y="284" class="d-mono-ink">nextInt, sort…</text>
+      </svg>
+      <figcaption>Модуль — крыло здания, пакет — отдел, класс — книга на полке, метод — глава в книге.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: городская библиотека</span>
+      <p>Тебе нужен рецепт пирога — ты не пишешь кулинарную книгу с нуля, а идёшь в отдел «Кулинария», находишь книгу и открываешь нужную главу. Программист так же: нужно напечатать текст — идёт в «отдел» <code>java.io</code>, берёт «книгу» <code>PrintStream</code> и «главу» <code>println</code>. Знать наизусть все книги не нужно, нужно уметь <b>искать</b> и <b>читать</b>.</p>
+    </div>
+    <p>И главное: эта библиотека — не чёрный ящик. Её исходный код лежит у тебя на компьютере, и его можно открыть и прочитать, как свой.</p>
+    <ol class="steps">
+      <li>В IDEA открой панель <b>Project</b> (<kbd>Alt</kbd>+<kbd>1</kbd>) и прокрути в самый низ — там узел <b>External Libraries</b>.</li>
+      <li>Раскрой <b>&lt; 21 &gt;</b> (твой JDK) → <b>java.base</b> → <b>java</b> → <b>lang</b>. Перед тобой полки отдела java.lang: <code>Math</code>, <code>String</code>, <code>System</code>…</li>
+      <li>Дважды щёлкни по <code>System</code> — откроется настоящий исходник класса, тот самый, что работает в каждой Java-программе мира.</li>
+    </ol>
+    <div data-widget="ide" id="shot-external-libs">
+      <script type="application/json">
+      { "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-09", "type": "src", "depth": 1 },
+                  { "name": "External Libraries", "type": "lib", "depth": 0, "open": true },
+                  { "name": "< temurin-21 >", "type": "lib", "depth": 1, "open": true, "note": "…\\.jdks\\temurin-21" },
+                  { "name": "java.base", "type": "lib", "depth": 2, "open": true },
+                  { "name": "java", "type": "folder", "depth": 3, "open": true },
+                  { "name": "io", "type": "folder", "depth": 4 },
+                  { "name": "lang", "type": "folder", "depth": 4, "open": true },
+                  { "name": "Math", "type": "class", "depth": 5 },
+                  { "name": "Object", "type": "class", "depth": 5 },
+                  { "name": "String", "type": "class", "depth": 5 },
+                  { "name": "System", "type": "class", "depth": 5, "selected": true },
+                  { "name": "util", "type": "folder", "depth": 4 },
+                  { "name": "java.sql", "type": "lib", "depth": 2 } ],
+        "marks": [ { "n": 1, "target": "tree-External Libraries", "text": "<b>External Libraries</b> — «внешние библиотеки»: чужой код, которым пользуется проект. Узел в самом низу дерева, под твоими папками" },
+                   { "n": 2, "target": "tree-< temurin-21 >", "text": "Твой JDK. В угловых скобках — имя, под которым его знает IDEA; у тебя может быть написано чуть иначе, например <b>&lt; 21 &gt;</b>. Серым — папка на диске" },
+                   { "n": 3, "target": "tree-java.base", "text": "<b>java.base</b> — главный модуль JDK. Внутри — пакеты-папки: <code>java.io</code>, <code>java.lang</code>, <code>java.util</code>…" },
+                   { "n": 4, "target": "tree-System", "text": "Класс <b>System</b> в пакете <code>java.lang</code>. Двойной щелчок — откроется его исходник (часть классов в дереве пропущена, их там сотни)" } ],
+        "caption": "Классы JDK в панели Project → External Libraries" }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: где это лежит на диске</summary>
+      <p>Внутри папки JDK (у тебя — что-то вроде <code>C:\Users\…\.jdks\temurin-21…</code>) есть файл <code>lib\modules</code> — там байт-код всех классов библиотеки, его читает JVM. А рядом <code>lib\src.zip</code> — исходники на Java, их показывает IDEA. Если вместо исходника IDEA показывает «Decompiled .class file», значит src.zip не нашёлся — сверху будет кнопка <b>Download Sources</b>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбираем строку по кусочкам</h2>
+    <p>Теперь ты знаешь всё, чтобы прочитать заклинание. В нём ровно четыре детали, и каждую ты уже проходил в этом модуле:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="System.out.println(&quot;Hi&quot;): System — класс из java.lang; out — static-поле, ссылка на объект PrintStream; println — метод этого объекта; Hi — аргумент">
+        <rect x="20" y="20" width="720" height="62" rx="14" class="d-code"/>
+        <text x="60" y="61" class="d-mono" style="font-size:26px">System</text>
+        <text x="172" y="61" class="d-mono" style="font-size:26px">.</text>
+        <text x="194" y="61" class="d-mono" style="font-size:26px">out</text>
+        <text x="250" y="61" class="d-mono" style="font-size:26px">.</text>
+        <text x="272" y="61" class="d-mono" style="font-size:26px">println</text>
+        <text x="390" y="61" class="d-mono" style="font-size:26px">("Hi");</text>
+
+        <path d="M60 92 H160" class="d-line"/>
+        <path d="M194 92 H240" class="d-line"/>
+        <path d="M272 92 H382" class="d-line"/>
+        <path d="M402 92 H460" class="d-line"/>
+
+        <rect x="20" y="110" width="170" height="170" rx="12" class="d-blue"/>
+        <text x="105" y="136" text-anchor="middle" class="d-title">① класс</text>
+        <text x="34" y="164" class="d-small">System из пакета</text>
+        <text x="34" y="184" class="d-small">java.lang — поэтому</text>
+        <text x="34" y="204" class="d-small">без import.</text>
+        <text x="34" y="232" class="d-small">С большой буквы:</text>
+        <text x="34" y="252" class="d-small">слева от точки класс</text>
+
+        <rect x="200" y="110" width="170" height="170" rx="12" class="d-violet"/>
+        <text x="285" y="136" text-anchor="middle" class="d-title">② static-поле</text>
+        <text x="214" y="164" class="d-small">out — поле класса</text>
+        <text x="214" y="184" class="d-small">System, static final.</text>
+        <text x="214" y="204" class="d-small">В нём ссылка на</text>
+        <text x="214" y="224" class="d-small">объект типа</text>
+        <text x="214" y="246" class="d-mono-ink">PrintStream</text>
+
+        <rect x="380" y="110" width="170" height="170" rx="12" class="d-accent"/>
+        <text x="465" y="136" text-anchor="middle" class="d-title">③ метод объекта</text>
+        <text x="394" y="164" class="d-small">println — метод</text>
+        <text x="394" y="184" class="d-small">класса PrintStream,</text>
+        <text x="394" y="204" class="d-small">НЕ static: работает</text>
+        <text x="394" y="224" class="d-small">с объектом из out</text>
+        <text x="394" y="246" class="d-small">(this = System.out)</text>
+
+        <rect x="560" y="110" width="180" height="170" rx="12" class="d-green"/>
+        <text x="650" y="136" text-anchor="middle" class="d-title">④ аргумент</text>
+        <text x="574" y="164" class="d-small">"Hi" — объект String.</text>
+        <text x="574" y="184" class="d-small">По типу аргумента</text>
+        <text x="574" y="204" class="d-small">компилятор выбрал</text>
+        <text x="574" y="224" class="d-small">один из 10 println:</text>
+        <text x="574" y="246" class="d-mono-ink">println(String)</text>
+      </svg>
+      <figcaption>Класс → его static-поле → объект в этом поле → метод объекта → аргумент.</figcaption>
+    </figure>
+    <p>Прочитаем вслух: «обращаемся к <b>static-полю</b> <code>out</code> <b>класса</b> <code>System</code>; в нём хранится <b>ссылка на объект</b> класса <code>PrintStream</code>; <b>вызываем</b> у этого объекта <b>метод</b> <code>println</code> и передаём ему <b>аргумент</b> <code>"Hi"</code>».</p>
+    <p>Это легко проверить: ту же самую строку можно разложить на шаги. Набери в <code>module-09</code>:</p>
+<pre data-file="LongHand.java"><code class="java">import java.io.PrintStream;
+
+public class LongHand {
+    public static void main(String[] args) {
+        PrintStream console = System.out;     // ② достали объект из static-поля
+        console.println("Hi");                // ③ вызвали метод объекта
+        console.println(42);                  //    другой println — для int
+
+        java.lang.System.out.println("Hi");   // ① полное имя класса — работает
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-longhand">
+      <script type="application/json">
+      { "tree": false, "file": "LongHand.java", "runConfig": "LongHand", "gutterRun": [3, 4],
+        "code": "import java.io.PrintStream;\n\npublic class LongHand {\n    public static void main(String[] args) {\n        PrintStream console = System.out;\n        console.println(\"Hi\");\n        console.println(42);\n\n        java.lang.System.out.println(\"Hi\");\n    }\n}",
+        "console": { "title": "LongHand", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… LongHand" },
+          { "t": "out", "s": "Hi" },
+          { "t": "out", "s": "42" },
+          { "t": "out", "s": "Hi" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "line-1", "side": "top", "text": "Без этого import слово <code>PrintStream</code> стало бы красным" },
+                   { "n": 2, "target": "output", "text": "Через переменную <code>console</code> печатается так же, как через <code>System.out</code>: это один и тот же объект" },
+                   { "n": 3, "target": "output-3", "text": "А это — полное имя <code>java.lang.System</code>. Результат тот же" } ],
+        "caption": "System.out, разобранный на шаги, работает как обычно" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>PrintStream console = System.out;</code><div><p>Объявляем переменную <code>console</code> типа <code>PrintStream</code> и инициализируем её ссылкой из static-поля <code>System.out</code> — как <code>Cat same = murzik;</code>. Нового объекта не создали: <code>console</code> и <code>System.out</code> — два номерка от одного «пальто».</p></div></div>
+      <div class="annot-row"><code>console.println("Hi");</code><div><p>Вызов метода <code>println</code> у объекта, на который ссылается <code>console</code>, с аргументом <code>"Hi"</code>. Внутри <code>println</code> this указывает на тот же объект, что и <code>System.out</code>.</p></div></div>
+      <div class="annot-row"><code>java.lang.System</code><div><p>Полное имя класса: пакет + имя. Можно, но никто так не пишет — java.lang подключён сам.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: а без строки <code>import java.io.PrintStream;</code> скомпилируется?</summary>
+      <p><b>Нет:</b> <em>cannot find symbol: class PrintStream</em>. Класс <code>PrintStream</code> живёт в пакете <code>java.io</code>, а не в java.lang. Почему же в обычном HelloWorld import не нужен? Потому что там слово <code>PrintStream</code> <b>нигде не написано</b>! import нужен только для того, чтобы компилятор понял <b>имя</b>, которое ты пишешь. Пользоваться объектом чужого класса можно и без import — главное не писать его имя.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Заглянем в класс System</h2>
+    <p>Открой <code>System</code> (<kbd>Ctrl</kbd>+клик по слову <code>System</code> в любом своём файле). Класс огромный, но нас интересует несколько строк. Упрощённо они выглядят так:</p>
+<pre data-file="System.java (JDK, упрощённо)"><code class="java">package java.lang;
+
+public final class System {
+
+    private System() { }                       // создать объект System нельзя
+
+    public static final InputStream in = null;   // клавиатура
+    public static final PrintStream out = null;  // обычный вывод
+    public static final PrintStream err = null;  // вывод ошибок
+
+    public static long currentTimeMillis() { … } // текущее время
+    public static void exit(int status) { … }    // завершить программу
+    …
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>private System() { }</code><div><p>Конструктор есть, но <b>private</b> — снаружи его не вызвать. <code>new System()</code> не скомпилируется: <em>System() has private access in java.lang.System</em>. Объект System никому не нужен — у класса всё static.</p></div></div>
+      <div class="annot-row"><code>public static final PrintStream out</code><div><p>Вот он, наш <code>out</code>: <b>public</b> — виден всем, <b>static</b> — один на класс, обращаемся <code>System.out</code>, <b>final</b> — присвоить другое значение нельзя: <code>System.out = null;</code> — ошибка компиляции.</p></div></div>
+      <div class="annot-row"><code>in</code> и <code>err</code><div><p>Ещё два «соседа» <code>out</code>. <code>System.err</code> — второй объект PrintStream, для сообщений об ошибках (в IDEA он печатает <b>красным</b>, туда же Java пишет stack trace). <code>System.in</code> — поток с клавиатуры.</p></div></div>
+    </div>
+    <div class="say" data-mood="wow"><p>Теперь понятна строка, которую ты пишешь с модуля 2: <code>new Scanner(System.in)</code> — «создай <b>новый объект</b> класса Scanner и передай в конструктор <b>ссылку</b> из static-поля <code>in</code> класса System». Ни одного магического слова!</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: почему там написано = null?</summary>
+      <p>В исходнике действительно стоит <code>out = null</code>. Настоящий объект кладёт туда сама JVM при старте программы, ещё до твоего <code>main</code>: она вызывает внутренний метод <code>System.initPhase1()</code>, который создаёт PrintStream поверх «файла» номер 1 (стандартный вывод) и записывает его в поле в обход <code>final</code> — это может только сама JVM. А для тестов есть легальный способ подменить вывод: <code>System.setOut(другойPrintStream)</code>. Так тестовые библиотеки «перехватывают» то, что программа печатает, — кстати, сервер этого курса проверяет твой вывод похожим образом, только снаружи.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Класс PrintStream и десять println</h2>
+    <p>Теперь «провалимся» в сам <code>println</code>: <kbd>Ctrl</kbd>+клик по слову <code>println</code>. Откроется файл <code>PrintStream.java</code> из пакета <code>java.io</code>. Нажми <kbd>Ctrl</kbd>+<kbd>F12</kbd> — появится список всех методов класса — и начни набирать <code>println</code>. Их <b>десять</b>:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Когда выбирается</th></tr>
+        <tr><td><code>println()</code></td><td>без аргументов — просто перевод строки</td></tr>
+        <tr><td><code>println(boolean x)</code></td><td><code>println(true)</code></td></tr>
+        <tr><td><code>println(char x)</code></td><td><code>println('A')</code></td></tr>
+        <tr><td><code>println(int x)</code></td><td><code>println(42)</code></td></tr>
+        <tr><td><code>println(long x)</code>, <code>println(float x)</code>, <code>println(double x)</code></td><td>другие числа</td></tr>
+        <tr><td><code>println(char[] x)</code></td><td>массив символов печатается как текст</td></tr>
+        <tr><td><code>println(String x)</code></td><td><code>println("Hi")</code></td></tr>
+        <tr><td><code>println(Object x)</code></td><td>любой объект — например, твой кот</td></tr>
+      </table>
+    </div>
+    <p>Это <b>перегрузка</b> из модуля 7 в чистом виде: одно имя, разные параметры. Компилятор смотрит на тип аргумента и выбирает подходящий метод ещё до запуска программы. Поэтому <code>println(42)</code> и <code>println("42")</code> — вызовы <b>разных</b> методов.</p>
+    <p>А вот как выглядит <code>println(String)</code> внутри (настоящий код JDK 21, без комментариев):</p>
+<pre data-file="PrintStream.java (JDK 21)"><code class="java">public void println(String x) {
+    if (getClass() == PrintStream.class) {
+        writeln(String.valueOf(x));
+    } else {
+        synchronized (this) {
+            print(x);
+            newLine();
+        }
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>public void println(String x)</code><div><p>Обычный метод объекта: <code>public</code>, без <code>static</code>, ничего не возвращает. Ты сам пишешь такие с урока 9.2.</p></div></div>
+      <div class="annot-row"><code>getClass() == PrintStream.class</code><div><p>«Я самый обычный PrintStream?» У System.out — да. Тогда короткая дорога: <code>writeln</code> напечатает строку и перевод строки за один заход.</p></div></div>
+      <div class="annot-row"><code>print(x); newLine();</code><div><p>Дорога для «наследников» PrintStream (что это — модуль 10). По смыслу <b>println = print + перевод строки</b>. В старых версиях JDK (например, Java 8) только эта ветка и была.</p></div></div>
+      <div class="annot-row"><code>synchronized (this)</code><div><p>Защита от ситуации, когда две части программы печатают одновременно и буквы перемешиваются. Это многопоточность — модуль 16.</p></div></div>
+    </div>
+    <p>А <code>print(String s)</code> устроен совсем просто — передаёт работу дальше:</p>
+<pre data-file="PrintStream.java (JDK 21)"><code class="java">public void print(String s) {
+    write(String.valueOf(s));
+}</code></pre>
+    <p>Видишь узор? Каждый метод делает чуть-чуть и <b>вызывает следующий</b>. <code>println</code> → <code>writeln</code> (или <code>print</code> → <code>write</code>) → … Куда ведёт эта лестница — на следующем шаге.</p>
+    <details class="predict">
+      <summary>Предскажи (классика собеседований): скомпилируется ли <code>System.out.println(null);</code>?</summary>
+      <p><b>Нет!</b> <em>reference to println is ambiguous</em> — «вызов неоднозначен». <code>null</code> подходит сразу к трём методам со ссылочным параметром: <code>println(char[])</code>, <code>println(String)</code> и <code>println(Object)</code>. Object компилятор отбросит как самый общий, а между <code>char[]</code> и <code>String</code> выбрать не может — они равноправны. А вот <code>String s = null; System.out.println(s);</code> работает и печатает <code>null</code>: тип переменной однозначно указывает на <code>println(String)</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проваливаемся до самого дна</h2>
+    <p>Ниже — упрощённый код нескольких классов JDK, собранный в одну ленту. Мы выбросили всё лишнее (проверки, блокировки, обработку ошибок), но <b>имена классов, методов и порядок вызовов — настоящие, из JDK 21</b>. Жми «Шаг ▶» и следи за стеком: он будет расти этаж за этажом.</p>
+    <p>Справа в «куче» — объекты, из которых на самом деле собран <code>System.out</code>. Это не один объект, а целая цепочка: каждый держит ссылку на следующий.</p>
+    <div data-widget="trace" id="trace-m09-06-println">
+      <script type="application/json">
+      { "title": "Путь строки «Hi» от println до операционной системы",
+        "icon": "🔬", "kind": "Под капотом",
+        "intro": "Стек растёт вверх: верхний фрейм работает, остальные ждут. У каждого фрейма свой this — смотри, на какой объект он указывает.",
+        "code": "// ── Hello.java — твой код ──\nSystem.out.println(\"Hi\");\n\n// ── java.io.PrintStream (JDK 21, упрощённо) ──\npublic void println(String x) {\n    writeln(x);\n}\nprivate void writeln(String s) {\n    textOut.write(s);          // символы — в буфер\n    textOut.newLine();         // + перевод строки\n    textOut.flushBuffer();     // символы → charOut\n    charOut.flushBuffer();     // закодировать в байты\n    if (autoFlush) out.flush();\n}\npublic void write(byte[] buf, int off, int len) {\n    out.write(buf, off, len);  // байты → в буфер байтов\n    if (autoFlush) out.flush();\n}\n\n// ── java.io.OutputStreamWriter (+ StreamEncoder) ──\nvoid flushBuffer() {\n    byte[] bytes = encode(chars, UTF_8);\n    out.write(bytes, 0, bytes.length); // out — снова PrintStream!\n}\n\n// ── java.io.BufferedOutputStream ──\npublic void flush() {\n    flushBuffer();\n}\nprivate void flushBuffer() {\n    out.write(buf, 0, count);  // out — FileOutputStream\n    count = 0;\n}\n\n// ── java.io.FileOutputStream ──\npublic void write(byte[] b, int off, int len) {\n    writeBytes(b, off, len, false);\n}\nprivate native void writeBytes(byte[] b, int off, int len,\n        boolean append);",
+        "steps": [
+          { "line": 2, "stack": [ { "frame": "main", "vars": {} } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Сначала Java вычисляет <code>System.out</code>: берёт из static-поля класса System ссылку на объект #1. Потом вызывает у #1 метод <code>println(\"Hi\")</code>. Посмотри на кучу: #1 держит ссылки на #2, #3, #4, а #4 — на #5. Это и есть «начинка» System.out." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Этаж 2: фрейм <code>println</code>. this → #1, то есть System.out. Параметр x = \"Hi\". Твой main ждёт внизу." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"Hi\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Этаж 3: <code>writeln</code>. Первым делом буквы H и i копируются в буфер объекта #2 (BufferedWriter). На экране ещё <b>ничего нет</b> — буквы пока просто лежат в памяти." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"Hi\\n\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Вот он, «ln» из println: в буфер дописан символ перевода строки <code>\\n</code>. Теперь там три символа." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"Hi\\n\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Буфер #2 сброшен: символы переехали в #3 (OutputStreamWriter). Его работа — перевести символы в байты." },
+          { "line": 22, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Этаж 4: <code>charOut.flushBuffer()</code>. Компьютер хранит и передаёт не буквы, а <b>байты</b> — числа от 0 до 255. По таблице UTF-8: H = 72, i = 105, перевод строки = 10. Этим занимается объект StreamEncoder внутри #3." },
+          { "line": 15, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } } ],
+            "vars": { "len": "3" }, "ask": ["len"],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Сюрприз, этаж 5: байты отдаются <b>обратно в PrintStream</b>, в его метод <code>write(byte[], …)</code> — this снова #1! Сколько байтов? H, i и перевод строки: len = 3." },
+          { "line": 16, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[72, 105, 10]", "count": "3" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Байты легли в буфер объекта #4 (BufferedOutputStream). И снова на экране пусто: буфер копит байты, чтобы реже беспокоить операционную систему." },
+          { "line": 17, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[72, 105, 10]", "count": "3" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Но у System.out включён <code>autoFlush</code> — «сбрасывай сразу». Поэтому PrintStream велит буферу: <code>out.flush()</code> — отправляй немедленно." },
+          { "line": 28, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } }, { "frame": "BufferedOutputStream.flush", "vars": { "this": "→#4" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[72, 105, 10]", "count": "3" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Этаж 6: <code>BufferedOutputStream.flush</code>, this → #4." },
+          { "line": 31, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } }, { "frame": "BufferedOutputStream.flush", "vars": { "this": "→#4" } }, { "frame": "BufferedOutputStream.flushBuffer", "vars": { "this": "→#4" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[72, 105, 10]", "count": "3" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Этаж 7: <code>flushBuffer</code> отдаёт все накопленные байты своему <code>out</code> — объекту #5, FileOutputStream." },
+          { "line": 37, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } }, { "frame": "BufferedOutputStream.flush", "vars": { "this": "→#4" } }, { "frame": "BufferedOutputStream.flushBuffer", "vars": { "this": "→#4" } }, { "frame": "FileOutputStream.write", "vars": { "this": "→#5", "len": "3" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[72, 105, 10]", "count": "3" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Этаж 8: <code>FileOutputStream.write</code>. Этот класс умеет одно: отдавать байты в «файл» по номеру. Номер 1 — это стандартный вывод программы (stdout)." },
+          { "line": 39, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } }, { "frame": "BufferedOutputStream.flush", "vars": { "this": "→#4" } }, { "frame": "BufferedOutputStream.flushBuffer", "vars": { "this": "→#4" } }, { "frame": "FileOutputStream.write", "vars": { "this": "→#5", "len": "3" } }, { "frame": "FileOutputStream.writeBytes", "vars": { "this": "→#5", "len": "3" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[72, 105, 10]", "count": "3" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "out": "Hi\n",
+            "note": "Дно, этаж 9: <code>writeBytes</code> помечен словом <b>native</b> — у него нет тела на Java. Он написан на языке C внутри самой JVM и просит <b>операционную систему</b> записать 3 байта в вывод номер 1 (системный вызов <code>WriteFile</code> в Windows, <code>write</code> в Linux и macOS). ОС передаёт байты IDEA, а IDEA рисует буквы «Hi» в панели Run. Только сейчас текст появился!" },
+          { "line": 32, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } }, { "frame": "OutputStreamWriter.flushBuffer", "vars": { "this": "→#3", "bytes": "[72, 105, 10]" } }, { "frame": "PrintStream.write", "vars": { "this": "→#1", "buf": "[72, 105, 10]", "off": "0", "len": "3" } }, { "frame": "BufferedOutputStream.flush", "vars": { "this": "→#4" } }, { "frame": "BufferedOutputStream.flushBuffer", "vars": { "this": "→#4" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Обратный путь. Два верхних фрейма сняты, и в <code>flushBuffer</code> выполняется следующая строка: <code>count = 0</code> — буфер пуст, можно копить заново." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": {} }, { "frame": "PrintStream.println", "vars": { "this": "→#1", "x": "\"Hi\"" } }, { "frame": "PrintStream.writeln", "vars": { "this": "→#1", "s": "\"Hi\"" } } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "Фреймы снимаются по одному (LIFO!), и мы снова в <code>writeln</code>, на строке 13. Ещё один <code>out.flush()</code> «на всякий случай» — буфер уже пуст, работы нет." },
+          { "line": 2, "stack": [ { "frame": "main", "vars": {} } ],
+            "heap": [ { "id": "System", "label": "класс, static-поля", "fields": { "out": "→ #1", "err": "→ другой PrintStream", "in": "→ InputStream" } }, { "id": "#1", "label": "PrintStream (System.out)", "fields": { "textOut": "→ #2", "charOut": "→ #3", "out": "→ #4", "autoFlush": "true" } }, { "id": "#2", "label": "BufferedWriter", "fields": { "буфер": "\"\"" } }, { "id": "#3", "label": "OutputStreamWriter", "fields": { "кодировка": "UTF-8", "символы": "\"\"" } }, { "id": "#4", "label": "BufferedOutputStream", "fields": { "buf": "[ ]", "count": "0" } }, { "id": "#5", "label": "FileOutputStream", "fields": { "fd": "1 (stdout)" } } ],
+            "note": "println вернулся в твой main. Итог: одна строка твоего кода — 9 этажей стека, 5 объектов, перевод символов в байты, два буфера и вызов операционной системы. И всё это за миллионные доли секунды." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Честно про упрощение</span>
+      <p>В настоящем JDK 21 этажей ещё больше — шестнадцать. Между нашими добавятся служебные методы вроде <code>implWriteln</code>, <code>implWrite</code>, <code>StreamEncoder.implFlushBuffer</code>: большинство публичных методов JDK сначала берёт «замок» (чтобы два потока не печатали одновременно) и только потом зовёт «impl-версию», которая делает работу. Порядок и смысл этажей — ровно такие, как в тренажёре. Полную лестницу ты увидишь сам в отладчике чуть ниже.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: настоящий стек println на JDK 21</summary>
+      <p>Вот стек в момент, когда байты уходят в операционную систему, — снят на JDK 21 (Temurin 21.0.13). Сверху — вершина, снизу — твой main. Жирным — этажи, которые были в тренажёре:</p>
+<pre class="terminal"><span class="out"><b>FileOutputStream.writeBytes</b>        ← native, дальше ОС
+<b>FileOutputStream.write</b>
+<b>BufferedOutputStream.flushBuffer</b>
+BufferedOutputStream.implFlush
+<b>BufferedOutputStream.flush</b>
+PrintStream.implWrite
+<b>PrintStream.write</b>                  ← байты вернулись в PrintStream
+StreamEncoder.writeBytes
+StreamEncoder.implFlushBuffer
+StreamEncoder.lockedFlushBuffer
+StreamEncoder.flushBuffer           ← символы → байты
+<b>OutputStreamWriter.flushBuffer</b>
+PrintStream.implWriteln
+<b>PrintStream.writeln</b>
+<b>PrintStream.println</b>
+<b>Hello.main</b></span></pre>
+      <p>Классов здесь всего пять (PrintStream, OutputStreamWriter, StreamEncoder, BufferedOutputStream, FileOutputStream), а методов — пятнадцать. И, как в тренажёре, в пути ровно 3 байта: <code>len = 3</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Зачем столько этажей?</h2>
+    <p>Почему бы не сделать один метод «напечатай», который сразу зовёт ОС? Потому что у каждого этажа <b>своя работа</b>, и каждый класс делает только её. Это главный принцип хорошего кода: <b>одна ответственность на класс</b>.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 470" role="img" aria-label="Этажи вывода: твой код, PrintStream, BufferedWriter, OutputStreamWriter, BufferedOutputStream, FileOutputStream, native-код JVM, операционная система, консоль IDEA">
+        <rect x="20" y="10" width="260" height="42" rx="10" class="d-accent"/>
+        <text x="34" y="37" class="d-mono-ink">Hello.main</text>
+        <text x="300" y="30" class="d-text">Твой код: «напечатай Hi»</text>
+        <text x="300" y="46" class="d-small">одна строка, ничего не знает про байты и ОС</text>
+
+        <rect x="20" y="60" width="260" height="42" rx="10" class="d-blue"/>
+        <text x="34" y="87" class="d-mono-ink">PrintStream</text>
+        <text x="300" y="80" class="d-text">Удобство: println для любых типов</text>
+        <text x="300" y="96" class="d-small">превращает 42, true, объект в текст; никогда не бросает IOException</text>
+
+        <rect x="20" y="110" width="260" height="42" rx="10" class="d-blue"/>
+        <text x="34" y="137" class="d-mono-ink">BufferedWriter</text>
+        <text x="300" y="130" class="d-text">Копит символы</text>
+        <text x="300" y="146" class="d-small">чтобы перекодировать пачкой, а не по одной букве</text>
+
+        <rect x="20" y="160" width="260" height="42" rx="10" class="d-blue"/>
+        <text x="34" y="187" class="d-mono-ink">OutputStreamWriter</text>
+        <text x="300" y="180" class="d-text">Символы → байты</text>
+        <text x="300" y="196" class="d-small">по кодировке (у нас UTF-8): «H» → 72, «П» → два байта 208 159</text>
+
+        <rect x="20" y="210" width="260" height="42" rx="10" class="d-blue"/>
+        <text x="34" y="237" class="d-mono-ink">BufferedOutputStream</text>
+        <text x="300" y="230" class="d-text">Копит байты</text>
+        <text x="300" y="246" class="d-small">каждый вызов ОС дорогой — лучше реже и пачками</text>
+
+        <rect x="20" y="260" width="260" height="42" rx="10" class="d-blue"/>
+        <text x="34" y="287" class="d-mono-ink">FileOutputStream</text>
+        <text x="300" y="280" class="d-text">Отдаёт байты в «файл» по номеру</text>
+        <text x="300" y="296" class="d-small">дескриптор 1 = stdout; тем же классом пишут и настоящие файлы</text>
+
+        <rect x="20" y="310" width="260" height="42" rx="10" class="d-violet"/>
+        <text x="34" y="337" class="d-mono-ink">native writeBytes</text>
+        <text x="300" y="330" class="d-text">Мост из Java в ОС</text>
+        <text x="300" y="346" class="d-small">код на C внутри JVM; дальше Java уже не видна</text>
+
+        <rect x="20" y="360" width="260" height="42" rx="10" class="d-teal"/>
+        <text x="34" y="387" class="d-mono-ink">Windows / Linux / macOS</text>
+        <text x="300" y="380" class="d-text">Операционная система</text>
+        <text x="300" y="396" class="d-small">системный вызов WriteFile / write: передаёт байты получателю</text>
+
+        <rect x="20" y="410" width="260" height="42" rx="10" class="d-green"/>
+        <text x="34" y="437" class="d-mono-ink">IDEA: панель Run</text>
+        <text x="300" y="430" class="d-text">Читает байты и рисует буквы</text>
+        <text x="300" y="446" class="d-small">снова UTF-8 → символы → пиксели шрифта на экране</text>
+      </svg>
+      <figcaption>Сверху вниз — от «что сделать» к «как именно сделать». Каждый этаж знает только про соседа снизу.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: отправка письма за границу</span>
+      <p>Ты пишешь письмо и отдаёшь секретарю (<b>PrintStream</b>). Секретарь копит твои записки (<b>BufferedWriter</b>), переводчик переводит их на язык адресата (<b>OutputStreamWriter</b> и кодировка). Письма складывают в мешок, пока он не наполнится (<b>BufferedOutputStream</b>), — гонять курьера ради одной открытки дорого. Курьер (<b>FileOutputStream</b>) везёт мешок на почтамт (<b>ОС</b>), а почтальон кладёт письмо в ящик получателю (<b>IDEA</b>). Ты при этом знаешь только секретаря.</p>
+    </div>
+    <p>Это устройство даёт свободу: поменяй нижний этаж — и тот же <code>println</code> будет писать не в консоль, а в файл или в сеть. В модуле 15 ты соберёшь такую «матрёшку» сам: <code>new PrintStream(new FileOutputStream("log.txt"))</code>.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: кракозябры и миллион println</summary>
+      <p><b>Кракозябры.</b> Если программа закодировала текст в UTF-8, а консоль читает байты как другую кодировку (например, старую Windows-1251), «Привет» превращается в «РџСЂРёРІРµС‚». Ломается этаж «символы → байты» или обратный ему в консоли. Поэтому сервер курса запускает твою программу с параметром <code>-Dstdout.encoding=UTF-8</code> — он настраивает именно этот этаж.</p>
+      <p><b>Миллион println.</b> У System.out включён autoFlush, поэтому <b>каждый</b> println доходит до операционной системы. Если печатать миллион строк в цикле, программа будет заметно тормозить именно на вызовах ОС. Профессиональный приём — собрать текст в <code>StringBuilder</code> (модуль 8) и напечатать одним println.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Провались сам: навигация по коду в IDEA</h2>
+    <p>Тренажёр — это хорошо, но настоящий навык — самому найти, что внутри любого метода. Создай в <code>module-09</code> класс и проделай всё руками:</p>
+<pre data-file="Peek.java"><code class="java">public class Peek {
+    public static void main(String[] args) {
+        System.out.println("Hi");
+    }
+}</code></pre>
+    <ol class="steps">
+      <li>Зажми <kbd>Ctrl</kbd> и наведи мышь на <code>println</code> — слово станет ссылкой. Щёлкни (или поставь курсор и нажми <kbd>Ctrl</kbd>+<kbd>B</kbd>, «Go to Declaration»). Откроется <code>PrintStream.java</code> — ровно на методе <code>println(String)</code>. Сверху вкладки видно: файл только для чтения, это код JDK.</li>
+      <li>Внутри println щёлкни с <kbd>Ctrl</kbd> по <code>writeln</code> — окажешься в нём. Дальше по <code>implWriteln</code>, по <code>textOut</code>… Ты идёшь по той же лестнице, что в тренажёре.</li>
+      <li>Возвращайся обратно по своим следам: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd> (Back), вперёд — <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>→</kbd>.</li>
+      <li>Находясь в PrintStream.java, нажми <kbd>Ctrl</kbd>+<kbd>F12</kbd> (File Structure) — список всех полей и методов класса. Набери <code>println</code> — увидишь все десять перегрузок. Набери <code>textOut</code> — найдёшь поле, где лежит BufferedWriter.</li>
+      <li>Вернись в <code>Peek</code>, <kbd>Ctrl</kbd>+клик по <code>out</code> — попадёшь в <code>System.java</code>, на объявление <code>public static final PrintStream out</code>.</li>
+      <li>Поставь курсор на <code>println</code> и нажми <kbd>Ctrl</kbd>+<kbd>Q</kbd> — всплывёт документация (Javadoc): что делает метод, словами авторов JDK.</li>
+    </ol>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Клавиши</th><th>Что делает</th><th>Когда пригодится</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+клик, <kbd>Ctrl</kbd>+<kbd>B</kbd></td><td>перейти к объявлению метода, поля, класса</td><td>«а что внутри этого метода?»</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd> / <kbd>→</kbd></td><td>назад / вперёд по истории переходов</td><td>вернуться из глубины в свой код</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>F12</kbd></td><td>список полей и методов текущего класса</td><td>«что вообще умеет этот класс?»</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>документация под курсором</td><td>быстро понять, что делает метод</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>найти класс по имени (включая JDK)</td><td>открыть <code>PrintStream</code>, не зная, где он</td></tr>
+        <tr><td><kbd>Shift</kbd> <kbd>Shift</kbd></td><td>искать везде: классы, файлы, действия</td><td>когда не помнишь, что именно ищешь</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>H</kbd></td><td>иерархия класса: от кого он произошёл</td><td>модуль 10: <code>PrintStream</code> → <code>FilterOutputStream</code> → <code>OutputStream</code> → <code>Object</code></td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="cool"><p>Так работают профессионалы. Никто не помнит наизусть, что внутри у String или ArrayList, — открывают исходник и читают. Код библиотек — лучший учебник: его писали очень опытные люди.</p></div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Провались сам: отладчик и Step Into</h2>
+    <p>Навигация показывает код. Отладчик показывает код <b>в движении</b> — с живыми значениями переменных и настоящим стеком. Ты уже пользовался им в модуле 7, теперь — глубже.</p>
+    <ol class="steps">
+      <li>В <code>Peek</code> щёлкни по полю слева от номера строки с <code>println</code> — появится красная точка, <b>breakpoint</b> (точка останова).</li>
+      <li>Запусти не ▶, а <b>жука</b> 🐞 (Debug, <kbd>Shift</kbd>+<kbd>F9</kbd>). Программа замрёт на красной строке, внизу откроется панель Debug.</li>
+      <li>Нажми <kbd>F7</kbd> (<b>Step Into</b>, «шаг внутрь»). Сюрприз: отладчик <b>не зайдёт</b> в println, а просто выполнит строку. По умолчанию IDEA пропускает классы JDK (<code>java.*</code>, <code>javax.*</code>, <code>jdk.*</code>, <code>sun.*</code>…), чтобы ты не утонул в чужом коде при обычной отладке.</li>
+      <li>Перезапусти отладку и на той же строке нажми <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd> — <b>Force Step Into</b>, «шаг внутрь силой». Ты внутри <code>PrintStream.println</code>! В панели Variables видно <code>this</code> = <code>PrintStream@…</code> и <code>x</code> = <code>"Hi"</code>.</li>
+      <li>Чтобы спускаться дальше обычной <kbd>F7</kbd>, временно отключи фильтр: <b>File → Settings → Build, Execution, Deployment → Debugger → Stepping</b> → сними галочку <b>Do not step into the classes</b>. Теперь <kbd>F7</kbd> ведёт по каждой ступеньке: writeln, implWriteln, write, … Через десяток нажатий ты окажешься в <code>FileOutputStream.write</code>. <b>После эксперимента верни галочку на место.</b></li>
+      <li>Смотри на список <b>Frames</b> слева в панели Debug: это стек вызовов. Верхний — где ты сейчас, нижний — <code>main</code>. Щёлкни по любому фрейму ниже — справа покажутся переменные <b>того</b> метода: можно «подняться» к println и увидеть его <code>x</code>.</li>
+      <li>Выбирайся наверх: <kbd>Shift</kbd>+<kbd>F8</kbd> (<b>Step Out</b>) — доработать текущий метод и выйти в вызвавший. Или <kbd>F9</kbd> (<b>Resume</b>) — отпустить программу до следующей точки останова.</li>
+    </ol>
+    <p>Вот так выглядит IDEA в момент после шага 2 — программа замерла, но ещё не вошла в <code>println</code>:</p>
+    <div data-widget="ide" id="shot-debug-peek">
+      <script type="application/json">
+      { "tree": false, "file": "Peek.java", "runConfig": "Peek", "gutterRun": [1, 2], "breakpoints": [3], "execLine": 3,
+        "code": "public class Peek {\n    public static void main(String[] args) {\n        System.out.println(\"Hi\");\n    }\n}",
+        "debug": { "title": "Peek", "frames": ["main:3, Peek"], "sel": 0,
+                   "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]", "open": false } ] },
+        "marks": [ { "n": 1, "target": "bp-3", "side": "left", "text": "Точка останова на строке с <code>println</code>. Синяя строка — здесь стоит программа, строка ещё не выполнена" },
+                   { "n": 2, "target": "frames", "text": "<b>Frames</b> — стек вызовов. Пока в нём один кадр: <code>main</code>, строка 3, класс <code>Peek</code>" },
+                   { "n": 3, "target": "step-into", "side": "bottom", "text": "Кнопка <b>Step Into</b> (<kbd>F7</kbd>) здесь println проскочит. Жми <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd> — и в Frames сверху появится второй кадр, что-то вроде <code>println:1167, PrintStream (java.io)</code>: ты внутри JDK" },
+                   { "n": 4, "target": "vars", "text": "<b>Variables</b> — переменные выбранного кадра. У <code>main</code> есть только <code>args</code> — пустой массив" } ],
+        "caption": "Debug: программа остановилась перед println" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 360" role="img" aria-label="Схема панели Debug в IDEA: кнопки шагов, список фреймов стека слева, переменные справа">
+        <rect x="10" y="10" width="740" height="340" rx="14" class="d-box"/>
+        <rect x="10" y="10" width="740" height="44" rx="14" class="d-soft"/>
+        <text x="26" y="38" class="d-small">Debug: Peek</text>
+        <rect x="150" y="18" width="104" height="28" rx="6" class="d-box"/><text x="202" y="37" text-anchor="middle" class="d-small">F8 Over</text>
+        <rect x="262" y="18" width="104" height="28" rx="6" class="d-accent"/><text x="314" y="37" text-anchor="middle" class="d-small">F7 Into</text>
+        <rect x="374" y="18" width="150" height="28" rx="6" class="d-violet"/><text x="449" y="37" text-anchor="middle" class="d-small">Alt+Shift+F7 Force</text>
+        <rect x="532" y="18" width="110" height="28" rx="6" class="d-box"/><text x="587" y="37" text-anchor="middle" class="d-small">Shift+F8 Out</text>
+        <rect x="650" y="18" width="90" height="28" rx="6" class="d-green"/><text x="695" y="37" text-anchor="middle" class="d-small">F9 Resume</text>
+
+        <rect x="20" y="64" width="380" height="276" rx="10" class="d-soft"/>
+        <text x="32" y="86" class="d-small">Frames (стек: сверху — где мы сейчас)</text>
+        <rect x="28" y="96" width="364" height="26" rx="6" class="d-accent"/>
+        <text x="38" y="114" class="d-mono-ink">write, FileOutputStream (java.io)</text>
+        <text x="38" y="140" class="d-mono-ink">flushBuffer, BufferedOutputStream</text>
+        <text x="38" y="162" class="d-mono-ink">implFlush, BufferedOutputStream</text>
+        <text x="38" y="184" class="d-mono-ink">flush, BufferedOutputStream</text>
+        <text x="38" y="206" class="d-mono-ink">implWrite, PrintStream (java.io)</text>
+        <text x="38" y="228" class="d-mono-ink">write, PrintStream (java.io)</text>
+        <text x="38" y="250" class="d-mono-ink">writeBytes, StreamEncoder</text>
+        <text x="38" y="272" class="d-mono-ink">… ещё несколько фреймов …</text>
+        <text x="38" y="294" class="d-mono-ink">println, PrintStream (java.io)</text>
+        <rect x="28" y="304" width="364" height="26" rx="6" class="d-green"/>
+        <text x="38" y="322" class="d-mono-ink">main, Peek</text>
+
+        <rect x="410" y="64" width="330" height="276" rx="10" class="d-soft"/>
+        <text x="422" y="86" class="d-small">Variables (переменные верхнего фрейма)</text>
+        <text x="422" y="118" class="d-mono-ink">this = FileOutputStream@823</text>
+        <text x="422" y="146" class="d-mono-ink">b = byte[…] {72, 105, 10, …}</text>
+        <text x="422" y="174" class="d-mono-ink">off = 0</text>
+        <text x="422" y="202" class="d-mono-ink">len = 3</text>
+        <text x="422" y="250" class="d-small">щёлкни по фрейму println слева —</text>
+        <text x="422" y="270" class="d-small">здесь появятся его this и x = "Hi"</text>
+        <text x="422" y="310" class="d-small">щёлкни по main — его переменные</text>
+      </svg>
+      <figcaption>Так выглядит панель Debug в глубине println (упрощённо; у тебя рядом с именами методов будут номера строк, а набор фреймов может немного отличаться в зависимости от версии JDK).</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Кнопка</th><th>Что делает</th></tr>
+        <tr><td><kbd>F8</kbd> Step Over</td><td>выполнить строку целиком, внутрь методов не заходить</td></tr>
+        <tr><td><kbd>F7</kbd> Step Into</td><td>зайти внутрь метода на этой строке (кроме отфильтрованных классов JDK)</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd> Force Step Into</td><td>зайти внутрь в любом случае, даже в JDK</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F7</kbd> Smart Step Into</td><td>если в строке несколько вызовов, например <code>println(cat.getName())</code>, — выбрать, в какой заходить</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F8</kbd> Step Out</td><td>доработать текущий метод и выйти на этаж выше</td></tr>
+        <tr><td><kbd>F9</kbd> Resume</td><td>продолжить до следующей точки останова или до конца</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: ты стоишь внутри <code>FileOutputStream.write</code> и щёлкаешь в Frames по нижнему фрейму <code>main</code>. Программа вернётся в main?</summary>
+      <p><b>Нет.</b> Щелчок по фрейму ничего не выполняет — он только <b>показывает</b> переменные того метода. Программа так и стоит на дне, все фреймы на месте. Двигают выполнение только кнопки шагов и Resume.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 10 -->
+  <section class="step">
+    <h2>Подсмотри стек без отладчика</h2>
+    <p>Есть способ увидеть «под капотом» println прямо в выводе программы: устроить аварию <b>внутри</b> println. Когда println получает объект, он просит у него текст методом <code>toString()</code> (подробно — в уроке 9.8). А мы сделаем объект, который на этом месте взрывается:</p>
+<pre data-file="Boom.java"><code class="java">public class Boom {
+    public static void main(String[] args) {
+        Bomb bomb = new Bomb();
+        System.out.println(bomb);
+    }
+}
+
+class Bomb {
+    public String toString() {
+        throw new RuntimeException("Бум внутри toString!");
+    }
+}</code></pre>
+    <p><code>throw new RuntimeException("…")</code> — <b>создаём объект исключения и выбрасываем</b> его («бросить аварию»): выполнение прерывается, и если исключение никто не перехватит, программа остановится. Подробно исключения — в модуле 12, сейчас нам нужен только след, который они оставляют:</p>
+    <div data-widget="ide" id="shot-boom">
+      <script type="application/json">
+      { "tree": false, "file": "Boom.java", "runConfig": "Boom", "gutterRun": [1, 2],
+        "code": "public class Boom {\n    public static void main(String[] args) {\n        Bomb bomb = new Bomb();\n        System.out.println(bomb);\n    }\n}\n\nclass Bomb {\n    public String toString() {\n        throw new RuntimeException(\"Бум внутри toString!\");\n    }\n}",
+        "console": { "title": "Boom", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Boom" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.RuntimeException: Бум внутри toString!" },
+          { "t": "err", "s": "\tat Bomb.toString(Boom.java:10)" },
+          { "t": "err", "s": "\tat java.base/java.lang.String.valueOf(String.java:4454)" },
+          { "t": "err", "s": "\tat java.base/java.io.PrintStream.println(PrintStream.java:1187)" },
+          { "t": "err", "s": "\tat Boom.main(Boom.java:4)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "Первая строка — что случилось: <code>RuntimeException</code> и наше сообщение" },
+                   { "n": 2, "target": "link-1", "text": "Вершина стека — твой код: <b>Boom.java:10</b>, строка с <code>throw</code>" },
+                   { "n": 3, "target": "link-3", "text": "Середина — код JDK: строки начинаются с <code>java.base/</code>. Ссылки тоже кликабельны — откроют исходник JDK" },
+                   { "n": 4, "target": "link-4", "text": "Дно стека — твой <code>main</code>, строка 4: отсюда всё началось" } ],
+        "caption": "Stack trace «бутербродом»: твой код — JDK — твой код" }
+      </script>
+    </div>
+    <p>Читаем снизу вверх — в порядке вызовов:</p>
+    <ol class="steps">
+      <li><b>at Boom.main(Boom.java:4)</b> — твой main, строка 4, вызвал println. Дно стека.</li>
+      <li><b>at java.base/java.io.PrintStream.println(…)</b> — код JDK. Префикс <code>java.base/</code> — имя модуля JDK, в котором лежат java.lang и java.io. Видишь его — значит, это чужой, библиотечный код.</li>
+      <li><b>at java.base/java.lang.String.valueOf(…)</b> — println(Object) первым делом вызывает <code>String.valueOf(x)</code>, чтобы получить текст.</li>
+      <li><b>at Bomb.toString(Boom.java:10)</b> — а valueOf вызвал метод <code>toString</code> у нашего объекта. Тут исключение и выбросилось. Вершина стека.</li>
+    </ol>
+    <p>Твой код в этом следе — <b>сверху и снизу</b>, а JDK — <b>в середине</b>, как начинка в бутерброде. Номера строк JDK (4454, 1187) у тебя могут быть другими: они зависят от точной версии JDK.</p>
+    <div class="callout fact">
+      <span class="callout-title">Главное правило чтения stack trace</span>
+      <p>Ищи первые сверху строки <b>без</b> <code>java.base/</code>, <code>org.junit</code> и других чужих пакетов — это твой код, ошибка почти наверняка там. Код JDK и библиотек проверен миллионами людей. В большом проекте след выглядит так же, только длиннее: сверху — твой класс, в середине — десятки строк библиотек, внизу — твой main.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 11 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m09-06">
+      <script type="application/json">
+      {
+       "title": "System.out.println до винтика",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини кусочек с тем, что он такое",
+         "left": [
+          "System",
+          "out",
+          "PrintStream",
+          "println"
+         ],
+         "right": [
+          "Класс из пакета java.lang",
+          "static-поле класса System",
+          "Класс объекта, ссылка на который хранится в out",
+          "Метод объекта PrintStream (не static)"
+         ],
+         "why": "Класс → его static-поле → объект в поле → метод объекта."
+        },
+        {
+         "type": "order",
+         "q": "Расставь этажи сверху вниз — от твоего кода до экрана",
+         "lines": [
+          "Твой main вызывает println",
+          "PrintStream: превращает аргумент в текст",
+          "OutputStreamWriter: символы → байты UTF-8",
+          "BufferedOutputStream: копит байты",
+          "FileOutputStream: отдаёт байты в вывод № 1",
+          "Операционная система передаёт байты консоли"
+         ],
+         "why": "От «что сделать» к «как сделать»: удобство → кодировка → буфер → файл → ОС."
+        },
+        {
+         "type": "bug",
+         "q": "Какие строки не скомпилируются? (import java.io.PrintStream есть)",
+         "code": "PrintStream p = System.out;\np.println(\"A\");\nSystem s = new System();\nSystem.out = p;",
+         "answer": [
+          3,
+          4
+         ],
+         "why": "Конструктор System — private, объект не создать. Поле out — final, присвоить нельзя."
+        },
+        {
+         "type": "single",
+         "q": "Почему в HelloWorld не нужен <code>import java.io.PrintStream</code>, хотя out — объект PrintStream?",
+         "options": [
+          "PrintStream тоже лежит в java.lang",
+          "Слово PrintStream в коде не написано, а import нужен только для имён",
+          "IDEA импортирует его незаметно"
+         ],
+         "answer": 1,
+         "why": "import — сокращение имени для компилятора. Пользоваться объектом можно, не называя его класс."
+        },
+        {
+         "type": "single",
+         "q": "Где в этом stack trace твой код упал?",
+         "code": "Exception in thread \"main\" java.lang.RuntimeException: сломалось\n\tat Order.toString(Shop.java:21)\n\tat java.base/java.lang.String.valueOf(String.java:4454)\n\tat java.base/java.io.PrintStream.println(PrintStream.java:1187)\n\tat Shop.main(Shop.java:7)",
+         "options": [
+          "В PrintStream.println",
+          "В Order.toString, строка 21 файла Shop.java",
+          "В Shop.main, строка 7"
+         ],
+         "answer": 1,
+         "why": "Первая сверху строка без java.base/ — твой метод toString. main на строке 7 только вызвал println, а тот — toString."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "F7 по умолчанию заходит внутрь println",
+           "a": false,
+           "why": "классы JDK отфильтрованы. Нужен Alt+Shift+F7 или снять фильтр в настройках Stepping."
+          },
+          {
+           "s": "Ctrl+B на println открывает исходный код PrintStream",
+           "a": true
+          },
+          {
+           "s": "У PrintStream десять перегруженных методов println",
+           "a": true
+          },
+          {
+           "s": "Буквы появляются на экране сразу после textOut.write",
+           "a": false,
+           "why": "там они только попадают в буфер. На экран их выводит операционная система в самом конце цепочки."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 9.6. Можно я расскажу тебе своими словами, что происходит при System.out.println("Hi") — от класса System до операционной системы, — а ты задашь каверзные вопросы?»</em></p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>JDK — огромная библиотека готовых классов, разложенных по пакетам. Её исходники можно открыть в IDEA: External Libraries или <kbd>Ctrl</kbd>+<kbd>B</kbd>.</li>
+        <li><code>System</code> — класс из java.lang; <code>out</code> — его <code>public static final</code> поле; в нём хранится ссылка на объект <code>PrintStream</code>; <code>println</code> — метод этого объекта, перегруженный 10 раз.</li>
+        <li>System.out — цепочка объектов: PrintStream → BufferedWriter → OutputStreamWriter (символы → байты) → BufferedOutputStream → FileOutputStream → native → ОС → консоль.</li>
+        <li>Навигация: <kbd>Ctrl</kbd>+<kbd>B</kbd>, <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd>, <kbd>Ctrl</kbd>+<kbd>F12</kbd>, <kbd>Ctrl</kbd>+<kbd>Q</kbd>. Отладчик: <kbd>F7</kbd>, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd> в JDK, <kbd>Shift</kbd>+<kbd>F8</kbd> наверх, панель Frames — стек.</li>
+        <li>В stack trace строки с <code>java.base/</code> — JDK; ищи первую сверху строку своего кода.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

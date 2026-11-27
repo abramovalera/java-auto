@@ -1,0 +1,41 @@
+## id: tr-vars-024
+## title: Население континентов
+## file: trainer/vars/WorldPopulationSum.java
+## class: WorldPopulationSum
+## level: 2
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>WorldPopulationSum</code>. Программа читает два целых числа, каждое с новой строки, — население двух континентов — и печатает <code>Вместе: N человек</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4700000000
+       1500000000
+вывод: Вместе: 6200000000 человек</span></pre>
+<p>Подвох: население Азии — больше 4 миллиардов, а в <code>int</code> помещается только чуть больше 2 миллиардов. Выбери тип, в который поместятся такие числа.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLong()</code> — читает и возвращает целое число <code>long</code></li>
+<li><code>long</code> вмещает числа примерно до 9 × 10<sup>18</sup></li>
+<li><code>Integer.MAX_VALUE</code> — самое большое <code>int</code>: 2147483647</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4700000000
+1500000000
+@@ expect
+Вместе: 6200000000 человек
+@@ test: Маленькие числа
+@@ input
+3
+4
+@@ expect
+Вместе: 7 человек
+@@ test: Никого
+@@ input
+0
+0
+@@ expect
+Вместе: 0 человек
+@@ test: Сразу за пределом int
+@@ input
+2147483647
+1
+@@ expect
+Вместе: 2147483648 человек

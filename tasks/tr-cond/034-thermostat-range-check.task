@@ -1,0 +1,55 @@
+## id: tr-cond-034
+## title: Комфортная температура
+## file: trainer/cond/ThermostatRangeCheck.java
+## class: ThermostatRangeCheck
+## level: 2
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>ThermostatRangeCheck</code>. На термостате задают две границы комфортной температуры — в любом порядке. Программа читает три целых числа, каждое с новой строки: одну границу, другую границу и текущую температуру. Напечатай <code>Комфортно</code>, если температура между границами (границы включаются), <code>Холодно</code>, если ниже, и <code>Жарко</code>, если выше.</p>
+<pre class="terminal"><span class="out">ввод:  18
+       24
+       21
+вывод: Комфортно
+
+ввод:  24
+       18
+       21
+вывод: Комфортно</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.min(a, b)</code> и <code>Math.max(a, b)</code> — возвращают меньшее и большее из двух чисел</li>
+</ul></div>
+@@ test: Внутри диапазона
+@@ input
+18
+24
+21
+@@ expect
+Комфортно
+@@ test: Границы в обратном порядке
+@@ input
+24
+18
+21
+@@ expect
+Комфортно
+@@ test: Ровно на нижней границе
+@@ input
+18
+24
+18
+@@ expect
+Комфортно
+@@ test: Выше верхней
+@@ input
+18
+24
+25
+@@ expect
+Жарко
+@@ test: Ниже нижней, границы наоборот
+@@ input
+24
+18
+10
+@@ expect
+Холодно

@@ -1,0 +1,54 @@
+## id: tr-oop-016
+## title: Места в кинозале
+## file: trainer/oop/CinemaSeatLabel.java
+## class: CinemaSeatLabel
+## level: 1
+## category: enum и record
+@@ description
+<p>Создай класс <code>CinemaSeatLabel</code> с методом <code>main</code>, а ниже в том же файле — запись <code>record CinemaSeat(int row, int place)</code> с двумя методами:</p>
+<ul>
+<li><code>String label()</code> — возвращает <code>Ряд 5, место 12</code>;</li>
+<li><code>boolean isVip()</code> — <code>true</code>, если ряд с 5-го по 8-й включительно.</li>
+</ul>
+<p><code>main</code> читает через пробел четыре числа: ряд и место первого билета, ряд и место второго. Печатает подпись каждого билета (к VIP-месту в конце добавь <code> (VIP)</code>) и сравнивает билеты:</p>
+<pre class="terminal"><span class="out">ввод:  5 12 3 4
+вывод: Ряд 5, место 12 (VIP)
+       Ряд 3, место 4
+       Одно и то же место: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a.equals(b)</code> — у record уже есть <code>equals</code>: записи равны, если равны все компоненты</li>
+<li><code>cond ? " (VIP)" : ""</code> — тернарный оператор выбирает одну из двух строк</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+5 12 3 4
+@@ expect
+Ряд 5, место 12 (VIP)
+Ряд 3, место 4
+Одно и то же место: false
+@@ test: Два одинаковых билета
+@@ input
+7 9 7 9
+@@ expect
+Ряд 7, место 9 (VIP)
+Ряд 7, место 9 (VIP)
+Одно и то же место: true
+@@ test: Границы VIP-зоны
+@@ input
+8 1 9 1
+@@ expect
+Ряд 8, место 1 (VIP)
+Ряд 9, место 1
+Одно и то же место: false
+@@ test: Ряд и место поменяны местами
+@@ input
+4 6 6 4
+@@ expect
+Ряд 4, место 6
+Ряд 6, место 4 (VIP)
+Одно и то же место: false
+@@ require: \brecord\s+CinemaSeat\s*\(\s*int\s+row\s*,\s*int\s+place\s*\) | Объяви запись record CinemaSeat(int row, int place)
+@@ require: \bString\s+label\s*\(\s*\) | Добавь в запись метод String label()
+@@ require: \bboolean\s+isVip\s*\(\s*\) | Добавь в запись метод boolean isVip()
+@@ require: \.equals\s*\( | Сравни билеты методом equals
+@@ forbid: \bclass\s+CinemaSeat\b | CinemaSeat должен быть записью (record), а не обычным классом

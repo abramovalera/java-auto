@@ -1,0 +1,57 @@
+## id: tr-colls-050
+## title: Топ-3 хештега
+## file: trainer/colls/TopThreeHashtags.java
+## class: TopThreeHashtags
+## level: 3
+## category: Сортировка
+@@ description
+<p>Напиши класс <code>TopThreeHashtags</code>. Соцсеть показывает самые популярные хештеги. В первой строке — количество хештегов <code>n</code>, во второй — <code>n</code> хештегов через пробел (каждый начинается с <code>#</code>). Регистр не важен: <code>#Кот</code> и <code>#кот</code> — один хештег. Напечатай три самых частых в виде <code>место. #хештег — количество</code>: сначала самый частый; при равном количестве — по алфавиту. Хештеги печатай в нижнем регистре. Если разных хештегов меньше трёх — напечатай все.</p>
+<pre class="terminal"><span class="out">ввод:  9
+       #кот #море #Кот #лето #море #КОТ #осень #лето #море
+вывод: 1. #кот — 3
+       2. #море — 3
+       3. #лето — 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>посчитай частоты в <code>Map&lt;String, Integer&gt;</code>, потом скопируй пары в список: <code>new ArrayList&lt;&gt;(map.entrySet())</code></li>
+<li>компаратор для пар: <code>class X implements Comparator&lt;Map.Entry&lt;String, Integer&gt;&gt;</code></li>
+<li>по убыванию количества: <code>Integer.compare(b.getValue(), a.getValue())</code>; при равенстве — по ключу</li>
+<li><code>Math.min(3, list.size())</code> — сколько строк печатать</li>
+</ul></div>
+@@ test: Обычная лента
+@@ input
+9
+#кот #море #Кот #лето #море #КОТ #осень #лето #море
+@@ expect
+1. #кот — 3
+2. #море — 3
+3. #лето — 2
+@@ test: Ничья решается алфавитом
+@@ input
+6
+#б #в #а #б #в #а
+@@ expect
+1. #а — 2
+2. #б — 2
+3. #в — 2
+@@ test: Меньше трёх хештегов
+@@ input
+3
+#java #Java #код
+@@ expect
+1. #java — 2
+2. #код — 1
+@@ test: Ничья за третье место
+@@ input
+7
+#ёж #ёж #ёж #ива #ива #дом #сад
+@@ expect
+1. #ёж — 3
+2. #ива — 2
+3. #дом — 1
+@@ test: Один хештег
+@@ input
+1
+#привет
+@@ expect
+1. #привет — 1
+@@ require: implements\s+Comparator | Напиши свой класс-компаратор: implements Comparator<...>

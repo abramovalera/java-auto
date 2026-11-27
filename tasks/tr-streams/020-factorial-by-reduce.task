@@ -1,0 +1,44 @@
+## id: tr-streams-020
+## title: Факториал через reduce
+## file: trainer/streams/FactorialByReduce.java
+## class: FactorialByReduce
+## level: 2
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>FactorialByReduce</code>. Факториал <code>n!</code> — произведение всех чисел от 1 до <code>n</code>; по определению <code>0! = 1</code>. Программа читает <code>n</code> (от 0 до 20) и печатает <code>n! = X</code>. Произведение собери методом <code>reduce</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+вывод: 5! = 120</span></pre>
+<p>Уже <code>13!</code> не влезает в <code>int</code> — считай в <code>long</code>.</p>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>LongStream.rangeClosed(1, n)</code> — числа <code>long</code> от 1 до <code>n</code> включительно (при <code>n = 0</code> стрим пустой)</li>
+<li><code>.reduce(start, (acc, x) -&gt; …)</code> — сворачивает стрим в одно значение, начиная со <code>start</code></li>
+</ul></div>
+@@ test: Пять
+@@ input
+5
+@@ expect
+5! = 120
+@@ test: Ноль
+@@ input
+0
+@@ expect
+0! = 1
+@@ test: Один
+@@ input
+1
+@@ expect
+1! = 1
+@@ test: Тринадцать — больше int
+@@ input
+13
+@@ expect
+13! = 6227020800
+@@ test: Двадцать — предел long
+@@ input
+20
+@@ expect
+20! = 2432902008176640000
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.reduce\s*\( | Перемножь числа методом reduce

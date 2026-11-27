@@ -1,0 +1,29 @@
+## id: m18-t05
+## title: Таблица данных: параметризованные тесты email
+## file: module-18/NookEmailRuleTest.java
+## class: NookEmailRuleTest
+## level: 2
+## mode: junit
+@@ description
+<p>Форма регистрации магазина Nook проверяет email правилом <code>NookEmailRule.isValid(email)</code>. Класс уже лежит в <code>workspace/module-18/NookEmailRuleTest.java</code> внизу файла — <b>не меняй его</b>. Правило: адрес не <code>null</code>, не длиннее 64 символов, без пробелов, ровно одна <code>@</code> и перед ней хотя бы один символ, после <code>@</code> есть точка, и эта точка не первая и не последняя.</p>
+<p>Писать отдельный тест на каждый адрес — скучно и долго. Автоматизатор пишет <b>одну</b> логику теста и даёт ей <b>таблицу данных</b> — это параметризованный тест из модуля 17.</p>
+<p><b>Напиши в классе <code>NookEmailRuleTest</code>:</b></p>
+<ol>
+<li><code>@ParameterizedTest</code> + <code>@ValueSource(strings = {…})</code> — минимум 4 <b>правильных</b> адреса, проверка <code>isTrue()</code>;</li>
+<li><code>@ParameterizedTest</code> + <code>@ValueSource</code> — минимум 8 <b>неправильных</b> адресов, проверка <code>isFalse()</code>. Придумай их по тест-дизайну: по одному на каждое нарушение правила. Обязательно пустая строка <code>""</code>, нет <code>@</code>, две <code>@</code>, пусто перед <code>@</code>, нет точки после <code>@</code>, точка сразу после <code>@</code>, точка в самом конце, пробел внутри;</li>
+<li>обычный <code>@Test</code>: <code>null</code> — не адрес;</li>
+<li><code>@ParameterizedTest</code> + <code>@CsvSource</code> — <b>граница длины</b>. Строка таблицы: «сколько букв до <code>@</code>, ожидаемый результат», например <code>"59, true"</code>. Адрес собери в тесте: <code>"a".repeat(n) + "@m.ru"</code>. Подбери строки так, чтобы попасть ровно в 64 символа и ровно в 65.</li>
+</ol>
+<p>Все тесты должны быть зелёными. Если какой-то упал — сначала подумай, кто ошибся: правило или твоё ожидание? В реальной работе упавший тест на правильное требование = найденный баг.</p>
+<p>📖 Уроки: <a href="/lessons/m18/06-test-project.html">Структура тестового проекта → тестовые данные</a>, модуль 17 — параметризованные тесты</p>
+@@ test: JUnit-тесты ученика
+@@ require: (@ParameterizedTest[\s\S]*){3} | Нужно минимум три параметризованных теста (@ParameterizedTest)
+@@ require: @ValueSource | Для списков адресов используй @ValueSource(strings = {…})
+@@ require: @CsvSource | Для границы длины нужна таблица @CsvSource
+@@ require: isValid\s*\(\s*null\s*\) | Нужна проверка, что null — не адрес: isValid(null)
+@@ require: "" | В неправильных адресах должна быть пустая строка ""
+@@ require: \.isTrue\s*\(\s*\) | Правильные адреса проверяй через isTrue()
+@@ require: \.isFalse\s*\(\s*\) | Неправильные адреса проверяй через isFalse()
+@@ require: repeat\s*\( | Длинный адрес собери через "a".repeat(n) — руками 64 символа не набрать без ошибки
+@@ require: email\.length\(\) > 64 | Не меняй класс NookEmailRule: верни его как было
+@@ require: dot > 0 && dot < domain\.length\(\) - 1 | Не меняй класс NookEmailRule: верни его как было

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Частые ошибки в условиях · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-03">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 4 · Урок 3</div>
+    <h1>Частые ошибки в условиях</h1>
+    <p class="lead">В условиях прячутся ловушки, в которые попадает каждый новичок — а иногда и опытный программист. Одни компилятор ловит сам, другие проскакивают молча. Пройдём минное поле с картой в руках.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🪤 6 ловушек</span><span>🕵️ найди ошибку</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m04-03-review">
+      <script type="application/json">
+      { "title": "Вспомним урок 4.2",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "int speed = 65;\nif (speed > 90) {\n    System.out.println(\"Штраф 1000\");\n} else if (speed > 60) {\n    System.out.println(\"Штраф 500\");\n} else {\n    System.out.println(\"Всё в порядке\");\n}", "answer": "Штраф 500",
+            "why": "65 &gt; 90 — нет, 65 &gt; 60 — да. Первая подходящая ветка — вторая." },
+          { "type": "single", "q": "Сколько веток выполнится в цепочке <code>if … else if … else</code>?", "options": ["Ровно одна", "Ноль или одна", "Сколько условий окажутся true"], "answer": 0,
+            "why": "Последний else подбирает всё, что не подошло выше, поэтому ровно одна." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Ловушка 1: = вместо ==</h2>
+    <p>Ты помнишь из модуля 3: одно <code>=</code> — оператор присваивания («положи»), два <code>==</code> — оператор сравнения («спроси»). В условии нужно спрашивать. С числами компилятор тебя спасёт:</p>
+<pre data-file="Trap1.java"><code class="java">int x = 5;
+// error: incompatible types: int cannot be converted to boolean
+if (x = 5) {
+    System.out.println("Пять!");
+}</code></pre>
+    <p><code>x = 5</code> — это присваивание, а его значение — число 5. Число условием быть не может, и javac останавливается. Хорошо.</p>
+    <p>А вот с <code>boolean</code> ловушка срабатывает <b>молча</b>:</p>
+<pre data-file="Trap1.java"><code class="java">boolean isPaid = false;
+if (isPaid = true) {                     // компилируется!
+    System.out.println("Заказ оплачен, отправляем");
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа? Какое значение будет у isPaid после if?</summary>
+      <p>Напечатает «Заказ оплачен, отправляем», а <code>isPaid</code> станет <code>true</code>. <code>isPaid = true</code> <b>присваивает</b> переменной значение true, и значение всего выражения присваивания — тоже true. Условие всегда истинно, и неоплаченный заказ уходит покупателю. Лекарство из урока 4.1: не сравнивай boolean с true вообще, пиши <code>if (isPaid)</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Ловушка 2: точка с запятой после if</h2>
+    <p>Рука привыкла ставить <code>;</code> в конце строки. Но после <code>if (…)</code> она всё ломает:</p>
+<pre data-file="Trap2.java"><code class="java">int balance = 100;
+if (balance &lt; 0); {
+    System.out.println("Долг! Пополните счёт");
+}</code></pre>
+    <p>Запустим и введём положительный баланс:</p>
+    <div data-widget="ide" id="shot-if-semicolon">
+      <script type="application/json">
+      { "tree": false, "file": "Trap2.java", "runConfig": "Trap2", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Trap2 {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int balance = scanner.nextInt();\n        if (balance < 0); {\n            System.out.println(\"Долг! Пополните счёт\");\n        }\n    }\n}",
+        "warnings": [ { "line": 7, "text": "if", "msg": "'if' statement has empty body", "tip": true, "fix": false } ],
+        "console": { "title": "Trap2", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Trap2" },
+          { "t": "in", "s": "100" },
+          { "t": "out", "s": "Долг! Пополните счёт" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "err-7", "side": "left", "text": "Слово <code>if</code> подсвечено <b>жёлтым</b> — это предупреждение, не ошибка: программа запустится" },
+                   { "n": 2, "target": "tip", "text": "<b>'if' statement has empty body</b> — «у if пустое тело». IDEA прямо говорит: этот if ничем не управляет" },
+                   { "n": 3, "target": "input", "text": "Ввели 100 — долга нет…" },
+                   { "n": 4, "target": "output", "text": "…а программа всё равно требует пополнить счёт", "box": true } ],
+        "caption": "Лишняя точка с запятой после if: компилятор молчит, IDEA предупреждает" }
+      </script>
+    </div>
+    <p>Баланс положительный, а программа ругается. Почему? Точка с запятой сама по себе — это <b>пустая инструкция</b>: «ничего не делать». Java видит так: тело if — эта пустая инструкция, «если баланс меньше нуля — ничего не делай». Точка. А блок в фигурных скобках стоит уже <b>отдельно</b> и выполняется всегда.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 210" role="img" aria-label="Слева: как думает программист — блок принадлежит if. Справа: как видит Java — if управляет только пустой точкой с запятой, а блок выполняется всегда">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="170" y="22" text-anchor="middle" class="d-title">Как думаешь ты</text>
+        <rect x="40" y="38" width="260" height="44" rx="12" class="d-accent"/>
+        <text x="170" y="65" text-anchor="middle" class="d-mono-ink">if (balance &lt; 0)</text>
+        <path d="M170 82 V110" class="d-arrow"/>
+        <rect x="40" y="114" width="260" height="56" rx="12" class="d-green"/>
+        <text x="170" y="138" text-anchor="middle" class="d-text">{ «Долг!» }</text>
+        <text x="170" y="158" text-anchor="middle" class="d-small">только при долге</text>
+        <text x="530" y="22" text-anchor="middle" class="d-title">Как видит Java</text>
+        <rect x="400" y="38" width="190" height="44" rx="12" class="d-accent"/>
+        <text x="495" y="65" text-anchor="middle" class="d-mono-ink">if (balance &lt; 0)</text>
+        <path d="M590 60 H620" class="d-arrow"/>
+        <rect x="624" y="40" width="56" height="40" rx="10" class="d-red"/>
+        <text x="652" y="66" text-anchor="middle" class="d-title">;</text>
+        <text x="652" y="98" text-anchor="middle" class="d-small">пусто</text>
+        <path d="M495 82 V110" class="d-dash"/>
+        <rect x="400" y="114" width="280" height="56" rx="12" class="d-red"/>
+        <text x="540" y="138" text-anchor="middle" class="d-text">{ «Долг!» }</text>
+        <text x="540" y="158" text-anchor="middle" class="d-small">отдельный блок — выполняется всегда</text>
+        <text x="350" y="200" text-anchor="middle" class="d-small">одна лишняя «;» отрезает блок от if</text>
+      </svg>
+      <figcaption>Ошибки компиляции нет — поэтому ловушка такая коварная. IDEA подсветит место и предупредит: <b>'if' statement has empty body</b>.</figcaption>
+    </figure>
+    <div class="callout warn">
+      <span class="callout-title">Правило</span>
+      <p>После <code>if (…)</code>, <code>else</code> и <code>else if (…)</code> точка с запятой не ставится никогда. Сразу открывай <code>{</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Ловушка 3: if без фигурных скобок</h2>
+    <p>Java разрешает не ставить скобки, если в теле if <b>одна</b> инструкция: <code>if (x &gt; 0) System.out.println("плюс");</code>. Но стоит добавить вторую строку…</p>
+<pre data-file="Trap3.java"><code class="java">int age = 30;
+if (age &lt; 18)
+    System.out.println("Доступ запрещён");
+    System.out.println("Позовите родителей");
+System.out.println("Конец проверки");</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа для 30-летнего?</summary>
+      <p>«Позовите родителей» и «Конец проверки». Без скобок телом if считается <b>только одна следующая инструкция</b>. Вторая строка стоит с отступом, но отступы для Java ничего не значат — это просто пробелы. На деле она находится <b>вне</b> if и выполняется всегда.</p>
+    </details>
+    <p>С <code>else</code> бывает ещё хитрее. К какому if относится этот else?</p>
+<pre data-file="DanglingElse.java"><code class="java">int a = 5, b = -1;
+if (a &gt; 0)
+    if (b &gt; 0)
+        System.out.println("оба плюс");
+else
+    System.out.println("a не плюс");</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа?</summary>
+      <p>«a не плюс» — хотя a = 5! Правило Java: <b>else относится к ближайшему if без пары</b>, то есть к <code>if (b &gt; 0)</code>. Отступ обманывает глаз. Эта ловушка так знаменита, что у неё есть имя — «висячий else» (dangling else). Со скобками её не бывает.</p>
+    </details>
+    <div class="say" data-mood="cool"><p>Совет на всю жизнь: <b>всегда ставь фигурные скобки</b>, даже для одной строки. Так требуют правила оформления кода почти во всех компаниях — именно из-за этих двух ловушек.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Ловушка 4: строки через ==</h2>
+    <p>Спросим у пользователя, продолжать ли:</p>
+<pre data-file="Trap4.java"><code class="java">Scanner scanner = new Scanner(System.in);
+String answer = scanner.nextLine();      // пользователь ввёл: Да
+if (answer == "Да") {
+    System.out.println("Продолжаем!");
+} else {
+    System.out.println("Выходим");
+}</code></pre>
+    <div data-widget="ide" id="shot-if-string-eq">
+      <script type="application/json">
+      { "tree": false, "file": "Trap4.java", "runConfig": "Trap4", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Trap4 {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String answer = scanner.nextLine();\n        if (answer == \"Да\") {\n            System.out.println(\"Продолжаем!\");\n        } else {\n            System.out.println(\"Выходим\");\n        }\n    }\n}",
+        "warnings": [ { "line": 7, "text": "answer == \"Да\"", "msg": "String values are compared using '==', not 'equals()'" } ],
+        "console": { "title": "Trap4", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Trap4" },
+          { "t": "in", "s": "Да" },
+          { "t": "out", "s": "Выходим" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "err-7", "side": "top", "text": "Знакомое по модулю 3 жёлтое предупреждение: <b>String values are compared using '==', not 'equals()'</b>. Не игнорируй его" },
+                   { "n": 2, "target": "input", "text": "Ввели ровно «Да»…" },
+                   { "n": 3, "target": "output", "text": "…а сработала ветка <code>else</code>", "box": true } ],
+        "caption": "Строки через == в условии" }
+      </script>
+    </div>
+    <p>Ввели «Да», а программа выходит. В модуле 3 мы уже видели причину: строка — объект в куче, а <code>==</code> у объектов сравнивает <b>ссылки</b> («это один и тот же объект?»), а не текст. Строка с клавиатуры — новый объект, у него другой адрес.</p>
+    <p>Текст сравнивают методом <code>equals</code>: вызываем его у одной строки и передаём другую как аргумент. Запомни пока как формулу:</p>
+<pre data-file="Trap4.java"><code class="java">if ("Да".equals(answer)) {               // сравнивает буквы — правильно
+    System.out.println("Продолжаем!");
+}</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Почему «Да» слева</span>
+      <p>Можно написать и <code>answer.equals("Да")</code> — тоже сработает. Но вариант <code>"Да".equals(answer)</code> надёжнее: он не упадёт, даже если в <code>answer</code> вдруг не окажется никакой строки. Что такое «не окажется» и что такое <code>equals</code> на самом деле — разберём в модуле 8 «Строки». А для регистра есть родственник: <code>"да".equalsIgnoreCase(answer)</code> примет и «Да», и «ДА».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ловушка 5: сравнение дробей</h2>
+    <p>Тоже знакомая по модулю 3 история, но в if она особенно больно бьёт:</p>
+<pre data-file="Trap5.java"><code class="java">double total = 0.1 + 0.2;
+if (total == 0.3) {
+    System.out.println("Сумма сошлась");
+} else {
+    System.out.println("Ошибка в расчётах!");   // напечатается это
+}</code></pre>
+    <p><code>0.1 + 0.2</code> на самом деле <code>0.30000000000000004</code>: дробные числа хранятся с крошечной погрешностью. Поэтому дроби сравнивают «с допуском» — проверяют, что разница очень мала:</p>
+<pre data-file="Trap5.java"><code class="java">if (Math.abs(total - 0.3) &lt; 0.000001) {
+    System.out.println("Сумма сошлась");
+}</code></pre>
+    <p>А вот <code>&lt;</code> и <code>&gt;</code> с дробями работают нормально — проблема только с точным равенством <code>==</code> и <code>!=</code>.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Ловушка 6: двойное сравнение как в математике</h2>
+    <p>В математике пишут 0 &lt; x &lt; 10. Попробуем так же в Java:</p>
+<pre data-file="Trap6.java"><code class="java">if (0 &lt; x &lt; 10) { … }    // error: bad operand types for binary operator '&lt;'</code></pre>
+    <p>Java вычисляет выражение слева направо: сравнение <code>0 &lt; x</code> даёт <code>true</code> или <code>false</code>, а дальше получается <code>true &lt; 10</code> — операнды оператора <code>&lt;</code> оказались boolean и числом, а так сравнивать нельзя. Двойное условие собирают из двух вопросов через «и»:</p>
+<pre data-file="Trap6.java"><code class="java">if (x &gt; 0 &amp;&amp; x &lt; 10) { … }    // «больше нуля И меньше десяти»</code></pre>
+    <p>Соберём все ловушки в одну таблицу — её стоит держать в голове, когда пишешь условие:</p>
+    <div class="table-wrap"><table>
+      <tr><th>Ошибка</th><th>Что скажет компилятор</th><th>Как правильно</th></tr>
+      <tr><td><code>if (x = 5)</code>, x — int</td><td>ошибка компиляции</td><td><code>if (x == 5)</code></td></tr>
+      <tr><td><code>if (ok = true)</code></td><td>молчит, всегда true</td><td><code>if (ok)</code></td></tr>
+      <tr><td><code>if (…);</code></td><td>молчит (IDEA предупредит)</td><td>без <code>;</code>, сразу <code>{</code></td></tr>
+      <tr><td>if без скобок, две строки</td><td>молчит</td><td>всегда <code>{ }</code></td></tr>
+      <tr><td><code>answer == "Да"</code></td><td>молчит, обычно false</td><td><code>"Да".equals(answer)</code></td></tr>
+      <tr><td><code>d == 0.3</code>, d — double</td><td>молчит, часто false</td><td><code>Math.abs(d - 0.3) &lt; 0.000001</code></td></tr>
+      <tr><td><code>0 &lt; x &lt; 10</code></td><td>ошибка компиляции</td><td><code>x &gt; 0 &amp;&amp; x &lt; 10</code></td></tr>
+    </table></div>
+    <div class="callout fact">
+      <span class="callout-title">Где прячутся баги</span>
+      <p>Самые опасные — строки «молчит». Программа запускается и выглядит рабочей, а ошибка всплывает только на определённых данных. Поэтому свою программу всегда проверяют на граничных и «неудобных» значениях — как это делать, разберём в мастерской, урок 4.6.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m04-03">
+      <script type="application/json">
+      { "title": "Найди ловушку",
+        "items": [
+          { "type": "bug", "q": "Из-за какой строки сообщение печатается всегда?", "code": "int errors = 0;\nif (errors > 0); {\n    System.out.println(\"Тест упал\");\n}", "answer": [2],
+            "why": "Точка с запятой после <code>if (…)</code> — пустое тело. Блок стоит отдельно и выполняется всегда." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "int x = 7;\nif (x > 10)\n    System.out.println(\"большое\");\n    System.out.println(\"число\");\nSystem.out.println(\"конец\");", "answer": "число\nконец",
+            "why": "Без скобок тело if — только одна следующая инструкция. «число» — уже вне if, отступ ничего не значит." },
+          { "type": "single", "q": "Пользователь ввёл <code>Да</code>. Какое условие надёжно даст true?", "code": "String answer = scanner.nextLine();", "options": ["answer == \"Да\"", "\"Да\".equals(answer)", "answer = \"Да\""], "answer": 1,
+            "why": "Текст строк сравнивают через <code>equals</code>. <code>==</code> сравнивает ссылки, а <code>=</code> — вообще присваивание (и не скомпилируется: String — не boolean)." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "boolean admin = false;\nif (admin = true) {\n    System.out.println(\"Доступ открыт\");\n} else {\n    System.out.println(\"Нет доступа\");\n}", "answer": "Доступ открыт",
+            "why": "<code>admin = true</code> присваивает переменной true, и значение этого выражения — тоже true. Условие всегда истинно — дыра в безопасности." },
+          { "type": "multi", "q": "Какие строки НЕ скомпилируются? (<code>int x</code>)", "options": ["if (x = 3) { }", "if (0 < x < 5) { }", "if (x > 0 && x < 5) { }", "if (x == 3); { }"], "answer": [0, 1],
+            "why": "<code>x = 3</code> — число вместо boolean; <code>0 &lt; x &lt; 5</code> — сравнение boolean с числом. Последний вариант скомпилируется — и это хуже, потому что он тихо работает неправильно." },
+          { "type": "predict", "q": "Висячий else. Что выведет программа?", "code": "int a = -2, b = 3;\nif (a > 0)\n    if (b > 0)\n        System.out.println(\"A\");\nelse\n    System.out.println(\"B\");\nSystem.out.println(\"C\");", "answer": "C",
+            "why": "else привязан к ближайшему <code>if (b &gt; 0)</code>, а он внутри <code>if (a &gt; 0)</code>. a = −2, поэтому весь внешний if пропущен вместе с else. Печатается только C." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне 3 кусочка кода с if, в каждом по одной ловушке из урока 4.3. Я найду и объясню, скомпилируется ли и что будет»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>В условии — <code>==</code>, не <code>=</code>. boolean не сравнивай с true: <code>if (ok)</code>.</li>
+        <li>Никакой <code>;</code> после <code>if (…)</code>. Всегда фигурные скобки — иначе вторая строка и else уезжают не туда.</li>
+        <li><code>else</code> без скобок привязывается к ближайшему if.</li>
+        <li>Строки сравнивай через <code>"Да".equals(answer)</code>, дроби — с допуском через <code>Math.abs</code>.</li>
+        <li><code>0 &lt; x &lt; 10</code> пишется как <code>x &gt; 0 &amp;&amp; x &lt; 10</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

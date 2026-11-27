@@ -1,0 +1,42 @@
+## id: tr-cond-017
+## title: Сколько нужно коробок
+## file: trainer/cond/PackingBoxesCount.java
+## class: PackingBoxesCount
+## level: 1
+## category: Цифры и делимость
+@@ description
+<p>Напиши класс <code>PackingBoxesCount</code>. При переезде вещи складывают в коробки, в одну влезает <code>k</code> вещей. Программа читает два целых числа в одной строке через пробел: количество вещей <code>n</code> (n ≥ 0) и вместимость коробки <code>k</code> (k ≥ 1). Напечатай, сколько коробок понадобится. Неполная коробка — тоже коробка.</p>
+<pre class="terminal"><span class="out">ввод:  10 5
+вывод: 2
+
+ввод:  11 5
+вывод: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n / k</code> — сколько коробок заполнится полностью</li>
+<li><code>n % k</code> — сколько вещей останется; если не 0, нужна ещё одна коробка</li>
+</ul></div>
+@@ test: Ровно две коробки
+@@ input
+10 5
+@@ expect
+2
+@@ test: Одна вещь не влезла
+@@ input
+11 5
+@@ expect
+3
+@@ test: Вещей меньше вместимости
+@@ input
+4 5
+@@ expect
+1
+@@ test: Вещей нет
+@@ input
+0 5
+@@ expect
+0
+@@ test: По одной в коробку
+@@ input
+7 1
+@@ expect
+7

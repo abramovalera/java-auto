@@ -1,0 +1,47 @@
+## id: tr-except-002
+## title: Конфеты поровну
+## file: trainer/except/CandyShareDivision.java
+## class: CandyShareDivision
+## level: 1
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>CandyShareDivision</code>. Программа читает два целых числа (каждое с новой строки): сколько конфет в коробке и сколько детей. Конфеты делят поровну, остаток остаётся в коробке. Программа печатает:</p>
+<pre class="terminal"><span class="out">ввод:  17
+       5
+вывод: Каждому по 3, остаток 2</span></pre>
+<p>Если детей 0, целочисленное деление выбросит <code>ArithmeticException</code>. Перехвати его и напечатай <code>Детей нет — конфеты остаются в коробке</code>. Проверять ноль через <code>if</code> не нужно — тренируем <code>try</code>/<code>catch</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a / b</code> и <code>a % b</code> для целых — частное и остаток; при <code>b == 0</code> оба выбрасывают <code>ArithmeticException</code></li>
+<li><code>catch (ArithmeticException e)</code> — перехватывает ошибку деления на ноль</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+17
+5
+@@ expect
+Каждому по 3, остаток 2
+@@ test: Детей нет
+@@ input
+10
+0
+@@ expect
+Детей нет — конфеты остаются в коробке
+@@ test: Конфет меньше, чем детей
+@@ input
+5
+7
+@@ expect
+Каждому по 0, остаток 5
+@@ test: Пустая коробка
+@@ input
+0
+4
+@@ expect
+Каждому по 0, остаток 0
+@@ test: Пустая коробка и нет детей
+@@ input
+0
+0
+@@ expect
+Детей нет — конфеты остаются в коробке
+@@ require: catch\s*\(\s*ArithmeticException | Перехвати ArithmeticException

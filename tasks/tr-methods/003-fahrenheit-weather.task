@@ -1,0 +1,42 @@
+## id: tr-methods-003
+## title: Погода в градусах Фаренгейта
+## file: trainer/methods/FahrenheitWeatherMethod.java
+## class: FahrenheitWeatherMethod
+## level: 1
+## category: Вычисления
+@@ description
+<p>Прогноз погоды для туристов из США. Создай класс <code>FahrenheitWeatherMethod</code> и напиши метод <code>static double toFahrenheit(double celsius)</code>: он принимает температуру по Цельсию и возвращает её по Фаренгейту по формуле <code>F = C * 9 / 5 + 32</code>.</p>
+<p>main читает одно дробное число и печатает строку в формате <code>C °C = F °F</code> — оба числа как <code>double</code>, без округления.</p>
+<pre class="terminal"><span class="out">ввод:  25     вывод: 25.0 °C = 77.0 °F
+ввод:  -40    вывод: -40.0 °C = -40.0 °F</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextDouble()</code> — читает дробное число (целое <code>25</code> станет <code>25.0</code>)</li>
+<li>тип возвращаемого значения пишут перед именем метода: <code>static double имя(...)</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+25
+@@ expect
+25.0 °C = 77.0 °F
+@@ test: Ноль градусов
+@@ input
+0
+@@ expect
+0.0 °C = 32.0 °F
+@@ test: Минус сорок — шкалы совпадают
+@@ input
+-40
+@@ expect
+-40.0 °C = -40.0 °F
+@@ test: Дробная температура
+@@ input
+37.5
+@@ expect
+37.5 °C = 99.5 °F
+@@ test: Кипение воды
+@@ input
+100
+@@ expect
+100.0 °C = 212.0 °F
+@@ require: static\s+double\s+toFahrenheit\s*\(\s*double\s+\w+\s*\) | Нужен метод static double toFahrenheit(double celsius)
+@@ require: \WtoFahrenheit\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать toFahrenheit(...) и напечатать результат

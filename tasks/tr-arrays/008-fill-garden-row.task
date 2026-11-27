@@ -1,0 +1,36 @@
+## id: tr-arrays-008
+## title: Грядка одним сортом
+## file: trainer/arrays/FillGardenRow.java
+## class: FillGardenRow
+## level: 1
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>FillGardenRow</code>. Садовник засевает грядку из <code>n</code> лунок одним сортом семян. На вход в одной строке через пробел — <code>n</code> (n ≥ 0) и номер сорта <code>s</code>. Создай массив из <code>n</code> элементов, заполни его числом <code>s</code> с помощью <code>Arrays.fill</code> и напечатай через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5 3
+вывод: [3, 3, 3, 3, 3]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.fill(a, 7)</code> — присваивает всем элементам массива значение 7</li>
+<li><code>Arrays.toString(a)</code> — возвращает строку вида <code>[1, 2, 3]</code> (нужен <code>import java.util.Arrays;</code>)</li>
+</ul></div>
+@@ test: Пять лунок
+@@ input
+5 3
+@@ expect
+[3, 3, 3, 3, 3]
+@@ test: Одна лунка
+@@ input
+1 12
+@@ expect
+[12]
+@@ test: Пустая грядка
+@@ input
+0 4
+@@ expect
+[]
+@@ test: Сорт номер 0
+@@ input
+3 0
+@@ expect
+[0, 0, 0]
+@@ require: Arrays\s*\.\s*fill\s*\( | Заполни массив через Arrays.fill
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString

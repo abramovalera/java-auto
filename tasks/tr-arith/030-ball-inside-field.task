@@ -1,0 +1,52 @@
+## id: tr-arith-030
+## title: Мяч в поле?
+## file: trainer/arith/BallInsideField.java
+## class: BallInsideField
+## level: 2
+## category: Логика: true/false
+@@ description
+<p>Футбольное поле — прямоугольник: один угол в точке (0, 0), противоположный — в точке (ширина, длина). Мяч на линии считается в поле. Создай класс <code>BallInsideField</code>. Программа читает две строки: в первой — ширину и длину поля через пробел, во второй — координаты мяча <code>x</code> и <code>y</code> через пробел (все числа целые). Она печатает <code>true</code>, если мяч в поле, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  100 60
+       50 30
+вывод: true</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>nextInt()</code> читает числа и через пробел, и с новой строки — ему всё равно</li>
+<li>Мяч в поле, если <code>x</code> лежит от 0 до ширины <b>и</b> <code>y</code> — от 0 до длины</li>
+</ul></div>
+@@ test: В центре поля
+@@ input
+100 60
+50 30
+@@ expect
+true
+@@ test: В углу на линии
+@@ input
+100 60
+100 60
+@@ expect
+true
+@@ test: Вылетел вбок
+@@ input
+100 60
+101 30
+@@ expect
+false
+@@ test: Отрицательная координата
+@@ input
+100 60
+-1 10
+@@ expect
+false
+@@ test: За лицевой
+@@ input
+100 60
+50 61
+@@ expect
+false
+@@ test: В начале координат
+@@ input
+100 60
+0 0
+@@ expect
+true
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

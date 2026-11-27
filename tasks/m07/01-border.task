@@ -1,0 +1,25 @@
+## id: m07-t01
+## title: Открытка с рамками
+## file: module-07/BorderPrinter.java
+## class: BorderPrinter
+## level: 1
+@@ description
+<p>Напиши программу, которая печатает открытку ровно так:</p>
+<pre class="terminal"><span class="out">**********
+С днём рождения!
+**********
+Желаю удачи в Java!
+**********</span></pre>
+<p>Условие: линию из звёздочек печатает <b>метод</b> <code>printBorder()</code> — без параметров, ничего не возвращает. main вызывает его три раза. Строка из десяти звёздочек должна встречаться в коде <b>один</b> раз — внутри метода.</p>
+<p>Создай класс <code>BorderPrinter</code> в папке <code>module-07</code>.</p>
+<p>📖 <a href="/lessons/m07/01-why-methods.html">Зачем нужны методы</a></p>
+@@ test: Открытка совпадает строка в строку
+@@ expect
+**********
+С днём рождения!
+**********
+Желаю удачи в Java!
+**********
+@@ require: static\s+void\s+printBorder\s*\(\s*\) | Нужен метод static void printBorder() — без параметров
+@@ require: (printBorder\s*\(\s*\)\s*;[\s\S]*){3} | main должен вызвать printBorder() три раза
+@@ forbid: "\*{10}"[\s\S]*"\*{10}" | Строка из звёздочек написана в коде несколько раз — пусть её печатает только метод

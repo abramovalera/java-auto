@@ -1,0 +1,55 @@
+## id: tr-colls-003
+## title: Охранник на вечеринке
+## file: trainer/colls/GuestListLookup.java
+## class: GuestListLookup
+## level: 1
+## category: Списки
+@@ description
+<p>Напиши класс <code>GuestListLookup</code>. У охранника есть список гостей. В первой строке — количество гостей <code>n</code>, во второй — <code>n</code> имён через пробел, в третьей — имя того, кто пришёл. Если имя есть в списке, напечатай <code>Проходите</code>, иначе — <code>Вас нет в списке</code>. Охранник строгий: <code>аня</code> и <code>Аня</code> для него разные имена.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       Аня Борис Вера
+       Борис
+вывод: Проходите
+
+ввод:  3
+       Аня Борис Вера
+       Глеб
+вывод: Вас нет в списке</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>list.contains(x)</code> — возвращает <code>true</code>, если элемент есть в списке</li>
+</ul></div>
+@@ test: Гость в списке
+@@ input
+3
+Аня Борис Вера
+Борис
+@@ expect
+Проходите
+@@ test: Гостя нет
+@@ input
+3
+Аня Борис Вера
+Глеб
+@@ expect
+Вас нет в списке
+@@ test: Последний в списке
+@@ input
+4
+Оля Петя Рома Света
+Света
+@@ expect
+Проходите
+@@ test: Другой регистр
+@@ input
+2
+Аня Борис
+аня
+@@ expect
+Вас нет в списке
+@@ test: Список пуст
+@@ input
+0
+
+Аня
+@@ expect
+Вас нет в списке

@@ -1,0 +1,45 @@
+## id: tr-colls-004
+## title: Самый дешёвый и самый дорогой билет
+## file: trainer/colls/FlightPriceExtremes.java
+## class: FlightPriceExtremes
+## level: 1
+## category: Списки
+@@ description
+<p>Напиши класс <code>FlightPriceExtremes</code>. Сайт нашёл несколько билетов на самолёт. В первой строке — количество билетов <code>n</code> (хотя бы один), во второй — <code>n</code> цен через пробел (целые числа). Сохрани цены в список и напечатай две строки: <code>Дешевле всего: X</code> и <code>Дороже всего: Y</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       12500 8900 15300 8900 21000
+вывод: Дешевле всего: 8900
+       Дороже всего: 21000</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>List&lt;Integer&gt;</code> — список целых чисел: в угловых скобках обёртка <code>Integer</code>, а не <code>int</code></li>
+<li><code>Collections.min(list)</code> и <code>Collections.max(list)</code> — возвращают наименьший и наибольший элемент</li>
+</ul></div>
+@@ test: Пять билетов
+@@ input
+5
+12500 8900 15300 8900 21000
+@@ expect
+Дешевле всего: 8900
+Дороже всего: 21000
+@@ test: Один билет
+@@ input
+1
+7000
+@@ expect
+Дешевле всего: 7000
+Дороже всего: 7000
+@@ test: Все одинаковые
+@@ input
+3
+4500 4500 4500
+@@ expect
+Дешевле всего: 4500
+Дороже всего: 4500
+@@ test: Очень дорогие
+@@ input
+3
+2000000000 1999999999 150
+@@ expect
+Дешевле всего: 150
+Дороже всего: 2000000000
+@@ require: Collections\s*\.\s*(min|max) | Найди цены методами Collections.min и Collections.max

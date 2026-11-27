@@ -1,0 +1,55 @@
+## id: tr-oop-005
+## title: Ценник на распродаже
+## file: trainer/oop/PriceTagSale.java
+## class: PriceTagSale
+## level: 1
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>PriceTagSale</code> с методом <code>main</code>, а ниже в том же файле — класс <code>PriceTag</code> (ценник):</p>
+<ul>
+<li>поля <code>String name</code> и <code>int price</code> — название товара и цена в рублях;</li>
+<li>конструктор <code>PriceTag(String name, int price)</code>;</li>
+<li><code>void discount(int percent)</code> — уценивает товар: новая цена = <code>цена × (100 − percent) / 100</code> в целых числах (дробная часть отбрасывается). Метод меняет поле <code>price</code> и ничего не возвращает;</li>
+<li><code>toString()</code> — возвращает строку <code>Название: N руб.</code></li>
+</ul>
+<p><code>main</code> читает через пробел название (одно слово), цену и две скидки в процентах. Печатает ценник три раза: сначала исходный, потом после первой скидки, потом после второй (вторая скидка считается от уже уценённой цены).</p>
+<pre class="terminal"><span class="out">ввод:  Чай 200 10 50
+вывод: Чай: 200 руб.
+       Чай: 180 руб.
+       Чай: 90 руб.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>@Override public String toString()</code> — тогда <code>System.out.println(tag)</code> напечатает твою строку</li>
+<li>в целых числах сначала умножай, потом дели: <code>price * 90 / 100</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Чай 200 10 50
+@@ expect
+Чай: 200 руб.
+Чай: 180 руб.
+Чай: 90 руб.
+@@ test: Без скидок
+@@ input
+Хлеб 45 0 0
+@@ expect
+Хлеб: 45 руб.
+Хлеб: 45 руб.
+Хлеб: 45 руб.
+@@ test: Дробь отбрасывается
+@@ input
+Сок 99 10 33
+@@ expect
+Сок: 99 руб.
+Сок: 89 руб.
+Сок: 59 руб.
+@@ test: Скидка 100% — бесплатно
+@@ input
+Магнит 150 100 20
+@@ expect
+Магнит: 150 руб.
+Магнит: 0 руб.
+Магнит: 0 руб.
+@@ require: \bclass\s+PriceTag\b | Объяви в том же файле класс PriceTag
+@@ require: PriceTag\s*\(\s*String\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен конструктор PriceTag(String name, int price)
+@@ require: \bvoid\s+discount\s*\(\s*int\s+\w+\s*\) | Нужен метод void discount(int percent)
+@@ require: public\s+String\s+toString\s*\(\s*\) | Переопредели метод public String toString()

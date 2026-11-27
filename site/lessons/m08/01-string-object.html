@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>String — это объект · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-01">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 8 · Урок 1</div>
+    <h1>String — это объект, и он не меняется</h1>
+    <p class="lead">Строки ты пишешь с первого урока. Пора заглянуть внутрь: где строка живёт, что лежит в переменной и почему <code>s = s + "!"</code> на самом деле создаёт <b>новую</b> строку.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 память по шагам</span><span>🔒 immutable</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-01-review">
+      <script type="application/json">
+      { "title": "Ссылки и объекты — вспоминаем", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Модуль 6: что выведет программа?",
+            "code": "int[] a = {1, 2, 3};\nint[] b = a;\nb[0] = 99;\nSystem.out.println(a[0]);",
+            "answer": "99", "why": "Инициализация <code>b = a</code> копирует ссылку, а не массив. Обе переменные смотрят на один объект в куче, поэтому изменение через <code>b</code> видно и через <code>a</code>." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Объекты (массивы, строки) живут в куче, а в переменной лежит ссылка на них", "a": true },
+              { "s": "Если на объект не ведёт ни одна ссылка, его со временем уберёт сборщик мусора", "a": true },
+              { "s": "У строки <code>\"Java\"</code> метод <code>charAt(1)</code> вернёт <code>J</code>", "a": false, "why": "нумерация с нуля: <code>charAt(0)</code> — J, <code>charAt(1)</code> — a." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA, часть 2 — чужие методы</h3>
+      <p>В этом модуле ты будешь вызывать десятки методов, написанных не тобой. Эти клавиши помогают не держать их в голове. Выпиши в тетрадь руками — так запомнится быстрее.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd></td><td>Объявить новую переменную и инициализировать её результатом выражения (Introduce Variable): IDEA сама подставит тип, ты придумываешь имя</td><td>Вызвал <code>word.toUpperCase()</code>, а возвращённую строку никуда не сохранил</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>Подсказка: какие параметры ждёт метод — какие аргументы передать и в каком порядке</td><td>Курсор внутри скобок вызова, например <code>substring(|)</code></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>Документация метода под курсором: что делает, что вернёт</td><td>Встретил незнакомый метод</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>B</kbd> или <kbd>Ctrl</kbd>+клик</td><td>Перейти к объявлению: открыть объявление метода или класса — даже класса из JDK</td><td>Хочешь посмотреть, как устроен <code>String</code> внутри</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>←</kbd></td><td>Вернуться туда, откуда пришёл</td><td>Насмотрелся на чужой код после <kbd>Ctrl</kbd>+<kbd>B</kbd></td></tr>
+      </table></div>
+      <p style="margin-top:10px">На macOS вместо <kbd>Ctrl</kbd> обычно <kbd>Cmd</kbd>, а вместо <kbd>Alt</kbd> — <kbd>Option</kbd>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем копать так глубоко</h2>
+    <p>Программы почти целиком состоят из текста: имена, адреса, сообщения об ошибках, ответы сервера. Программа то и дело получает строку и сравнивает её с ожидаемой — например, интернет-магазин проверяет статус заказа:</p>
+<pre data-file="OrderStatus.java"><code class="java">String city = order.getCity();         // «Казань»
+String status = order.getStatusText(); // «Доставлен»
+if (!status.equals("Доставлен")) {
+    System.out.println("Заказ ещё в пути");
+}</code></pre>
+    <p>Этот код пока условный — методы <code>getCity</code> и <code>getStatusText</code> придумали для примера: вызываем метод у объекта заказа, он возвращает строку, ею инициализируем переменную. Но смысл верный: программист целыми днями достаёт строки, режет их, чистит от пробелов и сравнивает. Чтобы делать это без сюрпризов, надо понимать, как строка устроена.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">📦</span><h4>Где живёт</h4><p>В куче, как массив. В переменной — только ссылка.</p></div>
+      <div class="card"><span class="emoji">🔒</span><h4>Неизменяемая</h4><p>Готовую строку поменять нельзя. Можно только создать новую.</p></div>
+      <div class="card"><span class="emoji">⚖️</span><h4>Сравнение</h4><p>Из этого вытекает главная ловушка — сравнение по ссылке <code>==</code> против сравнения по содержимому <code>equals</code>. Это следующий урок.</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Строка в памяти: номерок и пальто</h2>
+    <p>Вспомни гардероб из модуля 2. Ты сдаёшь пальто (объект) — оно висит на вешалке в зале (в <b>куче</b>). В руке у тебя только номерок (<b>ссылка</b>). Со строкой ровно так же: объявляем переменную <code>name</code> типа <code>String</code> и инициализируем её строковым литералом <code>"Мурзик"</code> — в переменную попадает ссылка:</p>
+<pre data-file="Memory.java"><code class="java">String name = "Мурзик";
+int age = 3;</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="В стеке переменная age со значением 3 и переменная name со ссылкой #1. В куче объект String с символами М у р з и к и длиной 6">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="10" width="240" height="230" rx="14" class="d-soft"/>
+        <text x="130" y="40" text-anchor="middle" class="d-title">Стек (main)</text>
+        <rect x="26" y="66" width="208" height="56" rx="8" class="d-box"/>
+        <text x="40" y="100" class="d-mono-ink">int age</text>
+        <rect x="150" y="76" width="70" height="36" rx="6" class="d-yellow"/>
+        <text x="185" y="100" text-anchor="middle" class="d-title">3</text>
+        <rect x="26" y="142" width="208" height="56" rx="8" class="d-box"/>
+        <text x="40" y="176" class="d-mono-ink">String name</text>
+        <rect x="150" y="152" width="70" height="36" rx="6" class="d-violet"/>
+        <text x="185" y="176" text-anchor="middle" class="d-mono-ink">#1</text>
+        <text x="130" y="226" text-anchor="middle" class="d-small">число или номерок</text>
+
+        <rect x="300" y="10" width="410" height="230" rx="14" class="d-soft"/>
+        <text x="505" y="40" text-anchor="middle" class="d-title">Куча (объекты)</text>
+        <rect x="320" y="90" width="370" height="120" rx="12" class="d-blue"/>
+        <text x="336" y="114" class="d-small">#1 · String · длина 6</text>
+        <rect x="336" y="128" width="52" height="46" rx="6" class="d-box"/><text x="362" y="158" text-anchor="middle" class="d-title">М</text>
+        <rect x="394" y="128" width="52" height="46" rx="6" class="d-box"/><text x="420" y="158" text-anchor="middle" class="d-title">у</text>
+        <rect x="452" y="128" width="52" height="46" rx="6" class="d-box"/><text x="478" y="158" text-anchor="middle" class="d-title">р</text>
+        <rect x="510" y="128" width="52" height="46" rx="6" class="d-box"/><text x="536" y="158" text-anchor="middle" class="d-title">з</text>
+        <rect x="568" y="128" width="52" height="46" rx="6" class="d-box"/><text x="594" y="158" text-anchor="middle" class="d-title">и</text>
+        <rect x="626" y="128" width="52" height="46" rx="6" class="d-box"/><text x="652" y="158" text-anchor="middle" class="d-title">к</text>
+        <text x="362" y="196" text-anchor="middle" class="d-mono-ink">0</text><text x="420" y="196" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="478" y="196" text-anchor="middle" class="d-mono-ink">2</text><text x="536" y="196" text-anchor="middle" class="d-mono-ink">3</text>
+        <text x="594" y="196" text-anchor="middle" class="d-mono-ink">4</text><text x="652" y="196" text-anchor="middle" class="d-mono-ink">5</text>
+        <path d="M222 170 C270 170 280 120 316 120" class="d-arrow"/>
+      </svg>
+      <figcaption>В <code>age</code> лежит само число. В <code>name</code> — номерок #1. Символы строки — в куче, пронумерованы с нуля, как ячейки массива.</figcaption>
+    </figure>
+    <p>Внутри объект String похож на массив символов: ряд пронумерованных ячеек плюс записанная длина. Отсюда и знакомые тебе вызовы методов <code>charAt(0)</code> и <code>length()</code>. Но есть важное отличие от массива — о нём следующий шаг.</p>
+    <details class="predict">
+      <summary>Почему у String тип пишется с большой буквы, а у int — с маленькой?</summary>
+      <p><code>int</code>, <code>double</code>, <code>char</code>, <code>boolean</code> — <b>примитивы</b>, встроенные в язык «коробочки» со значением. <code>String</code> — это <b>класс</b>, чертёж объекта (вспомни урок 1.1). Имена классов в Java пишут с большой буквы. Строка — объект, поэтому и тип у неё «объектный».</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: что на самом деле внутри объекта String</summary>
+      <p>Если открыть исходник класса String в IDEA (<kbd>Ctrl</kbd>+клик по слову <code>String</code>), увидишь поле <code>private final byte[] value</code> — обычный массив байтов. С Java 9 строки из латиницы хранятся по одному байту на символ, а с кириллицей — по два. Это называется «компактные строки» (compact strings) и экономит память. Снаружи ничего не меняется: <code>charAt</code> и <code>length</code> работают с символами, а не с байтами.</p>
+      <p>Слово <code>final</code> у поля и отсутствие методов, которые меняли бы этот массив, — как раз то, что делает строку неизменяемой.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Строки неизменяемы (immutable)</h2>
+    <p>Массив можно поменять — присвоить элементу новое значение: <code>a[0] = 99</code>. А у строки такого способа <b>нет</b>. Ни одного метода, который поменял бы символы готового объекта String. Это свойство называется <b>неизменяемость</b> (англ. <i>immutable</i> — «не подлежащий изменению»).</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: табличка на двери</span>
+      <p>Строка — как табличка, выгравированная на металле. Исправить на ней букву нельзя. Хочешь другую надпись — заказываешь <b>новую</b> табличку и вешаешь её вместо старой. Старая отправляется в мусор, если её никто не забрал.</p>
+    </div>
+    <p>Но ведь у строки есть <code>toUpperCase()</code>, <code>replace()</code>, <code>trim()</code>… Они не меняют строку? Нет. Мы <b>вызываем метод у объекта</b> строки, и каждый такой метод <b>возвращает новую строку</b>, а исходная остаётся как была:</p>
+<pre data-file="Immutable.java"><code class="java">String word = "кот";
+word.toUpperCase();              // новая строка "КОТ" создана… и сразу потеряна
+System.out.println(word);        // кот
+
+String loud = word.toUpperCase(); // а вот так результат сохранили
+System.out.println(loud);        // КОТ
+System.out.println(word);        // кот — исходная по-прежнему маленькими
+
+word = word.toUpperCase();       // меняем переменную: присваиваем новую строку
+System.out.println(word);        // КОТ</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>word.toUpperCase();</code><div><p>Вызываем метод <code>toUpperCase</code> у объекта <code>word</code>. Метод честно создал новую строку «КОТ» и вернул ссылку на неё. Но возвращаемое значение мы никуда не сохранили — оно пропало. IDEA подсветит такую строку жёлтым: «Result of String.toUpperCase() is ignored».</p></div></div>
+      <div class="annot-row"><code>String loud = word.toUpperCase();</code><div><p>Объявляем переменную <code>loud</code> и инициализируем её результатом вызова метода. Теперь в куче две строки: «кот» и «КОТ».</p></div></div>
+      <div class="annot-row"><code>word = word.toUpperCase();</code><div><p>Объект «кот» не изменился! Это <b>присваивание</b>: переменной <code>word</code> присвоили ссылку на новую строку — номерок от новой вешалки.</p></div></div>
+    </div>
+    <p>Вот как это выглядит в IDEA. Код компилируется и запускается, но строка с потерянным возвращаемым значением подсвечена:</p>
+    <div data-widget="ide" id="shot-ignored-result">
+      <script type="application/json">
+      { "tree": false, "file": "Immutable.java", "runConfig": "Immutable", "gutterRun": [1, 2],
+        "code": "public class Immutable {\n    public static void main(String[] args) {\n        String word = \"кот\";\n        word.toUpperCase();\n        System.out.println(word);\n    }\n}",
+        "warnings": [ { "line": 4, "text": "toUpperCase", "msg": "Result of String.toUpperCase() is ignored", "tip": true } ],
+        "console": { "title": "Immutable", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Immutable" },
+          { "t": "out", "s": "кот" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Жёлтая подсветка — <b>предупреждение</b>: компилировать не мешает, но IDEA подозревает ошибку" },
+                   { "n": 2, "target": "tip", "text": "Наведи мышку: <b>Result of String.toUpperCase() is ignored</b> — «возвращаемое значение toUpperCase() выброшено». Поставь курсор на строку и нажми <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd> — IDEA сама допишет слева <code>String … =</code>, останется только придумать имя переменной" },
+                   { "n": 3, "target": "output", "text": "Напечаталось <b>кот</b> маленькими: исходная строка не изменилась", "box": true } ],
+        "caption": "Предупреждение «результат метода не использован»" }
+      </script>
+    </div>
+    <div class="say" data-mood="oops"><p>Ошибка «вызвал метод и не сохранил возвращаемое значение» — одна из самых частых у новичков. Её любят на собеседованиях: вызов <code>s.trim();</code> — и удивляются, почему пробелы остались. Запомни: <b>у строки любые «изменения» — через присваивание</b>.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Смотрим по шагам: s = s + "!"</h2>
+    <p>Самое коварное место — склейка. Кажется, что присваивание <code>s = s + "!"</code> дописывает восклицательный знак в конец строки. На самом деле в куче появляется <b>новый</b> объект. Пройди по шагам и следи за стрелками.</p>
+    <div data-widget="trace" id="trace-m08-01-concat">
+      <script type="application/json">
+      { "title": "Склейка создаёт новую строку",
+        "intro": "Слева код, справа стек и куча. Нажимай «Шаг ▶» и угадывай, куда смотрят переменные.",
+        "code": "String s = \"Кот\";\nString t = s;\ns = s + \"!\";\nSystem.out.println(t);\nSystem.out.println(s);\nt = \"Пёс\";",
+        "steps": [
+          { "line": 1, "vars": { "s": "→#1" }, "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Кот\"" } } ], "note": "Объявляем s и инициализируем строковым литералом: в куче появилась строка «Кот» (объект #1). В <code>s</code> — ссылка на неё." },
+          { "line": 2, "vars": { "s": "→#1", "t": "→#1" }, "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Кот\"" } } ], "note": "Объявляем t и инициализируем значением s — скопировали <b>ссылку</b>. Две стрелки — один объект. Как с массивами в модуле 6." },
+          { "line": 3, "vars": { "s": "→#2", "t": "→#1" }, "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Кот\"" } }, { "id": "#2", "label": "String", "fields": { "текст": "\"Кот!\"" } } ], "note": "Выражение <code>s + \"!\"</code> создало <b>новый</b> объект #2 «Кот!». Переменной <code>s</code> присвоили ссылку на него. Объект #1 не тронут — строки неизменяемы." },
+          { "line": 4, "vars": { "s": "→#2", "t": "→#1" }, "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Кот\"" } }, { "id": "#2", "label": "String", "fields": { "текст": "\"Кот!\"" } } ], "out": "Кот\n", "note": "<code>t</code> по-прежнему смотрит на #1. Будь строка изменяемой, как массив, тут напечаталось бы «Кот!». Но #1 никто не менял." },
+          { "line": 5, "vars": { "s": "→#2", "t": "→#1" }, "heap": [ { "id": "#1", "label": "String", "fields": { "текст": "\"Кот\"" } }, { "id": "#2", "label": "String", "fields": { "текст": "\"Кот!\"" } } ], "out": "Кот!\n", "note": "А <code>s</code> смотрит на новую строку #2." },
+          { "line": 6, "vars": { "s": "→#2", "t": "→#3" }, "heap": [ { "id": "#1", "label": "String · никому не нужна", "fields": { "текст": "\"Кот\"" } }, { "id": "#2", "label": "String", "fields": { "текст": "\"Кот!\"" } }, { "id": "#3", "label": "String", "fields": { "текст": "\"Пёс\"" } } ], "note": "Теперь на «Кот» (#1) не ведёт ни одна стрелка. Сборщик мусора уберёт его, когда дойдут руки. Строки-литералы, правда, JVM держит дольше — об этом в следующем уроке." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Сравни с массивом: int[] a = {1}; int[] b = a; a[0] = 2; — что в b[0]? А с String s = "a"; String t = s; s = s + "b"; — что в t?</summary>
+      <p>В <code>b[0]</code> будет <b>2</b>: массив изменяемый, а <code>a</code> и <code>b</code> ссылаются на один объект. В <code>t</code> останется <b>"a"</b>: строку нельзя изменить, склейка создала новый объект, и переставилась только стрелка <code>s</code>. Поэтому со строками «эффект двух имён» не страшен — именно ради этого их и сделали неизменяемыми.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Зачем Java так сделала</h2>
+    <p>Неизменяемость кажется неудобной: зачем плодить новые объекты? Но у неё три больших плюса.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🛡️</span><h4>Безопасно делиться</h4><p>Передал строку аргументом в чужой метод — и точно знаешь, что твою строку там не испортят. С массивом так не получится (вспомни урок 7.4).</p></div>
+      <div class="card"><span class="emoji">♻️</span><h4>Можно переиспользовать</h4><p>Одинаковые литералы <code>"Java"</code> в разных местах программы — это один объект. Раз его никто не поменяет, делить его безопасно. Это пул строк — следующий урок.</p></div>
+      <div class="card"><span class="emoji">🔑</span><h4>Надёжные ключи</h4><p>Строки часто служат ключами: логин, id, название. Ключ, который может тихо поменяться, — источник страшных багов. Подробнее — в модуле 13 (коллекции).</p></div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Цена неизменяемости</span>
+      <p>Каждая склейка — новый объект. Одна-две — не страшно. А присваивание <code>result = result + c</code> в теле цикла на 100 000 итераций создаст 100 000 строк, и каждая следующая длиннее предыдущей. Для таких случаев есть изменяемый «черновик» — <code>StringBuilder</code> (урок 8.5).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Строка, которой нет: null и пустая строка</h2>
+    <p>Раз в переменной номерок, номерка может и не быть: <code>String s = null;</code> — переменная объявлена и инициализирована литералом <code>null</code>, а объекта нет. А пустая строка <code>""</code> — это настоящий объект, просто в нём ноль символов.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th><code>String a = "";</code></th><th><code>String b = null;</code></th></tr>
+        <tr><td>Есть объект в куче?</td><td>да, пустой</td><td>нет</td></tr>
+        <tr><td><code>.length()</code></td><td>0</td><td>💥 NullPointerException</td></tr>
+        <tr><td><code>System.out.println(x)</code></td><td>пустая строка</td><td>напечатает <code>null</code></td></tr>
+        <tr><td>Аналогия</td><td>номерок от пустой вешалки</td><td>номерка нет вообще</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>String s = null; System.out.println(s + "!"); — упадёт программа или нет?</summary>
+      <p>Не упадёт! Напечатает <b>null!</b>. При склейке Java превращает <code>null</code> в текст «null». А вот вызовы <code>s.length()</code> или <code>s.toUpperCase()</code> упадут с NullPointerException: нельзя вызвать метод у объекта, которого нет.</p>
+    </details>
+    <p>Так выглядит падение в IDEA. Это <b>исключение</b> — ошибка выполнения, как деление на ноль из урока 1.7: программа скомпилировалась, запустилась и упала посреди работы.</p>
+    <div data-widget="ide" id="shot-npe-length">
+      <script type="application/json">
+      { "tree": false, "file": "NullDemo.java", "runConfig": "NullDemo", "gutterRun": [1, 2],
+        "code": "public class NullDemo {\n    public static void main(String[] args) {\n        String s = null;\n        System.out.println(\"Длина имени:\");\n        System.out.println(s.length());\n    }\n}",
+        "warnings": [ { "line": 5, "text": "length", "msg": "Method invocation 'length' will produce 'NullPointerException'" } ],
+        "console": { "title": "NullDemo", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… NullDemo" },
+          { "t": "out", "s": "Длина имени:" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke \"String.length()\" because \"s\" is null" },
+          { "t": "err", "s": "\tat NullDemo.main(NullDemo.java:5)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "err-5", "side": "top", "text": "IDEA видит, что в <code>s</code> точно null, и заранее подсвечивает вызов жёлтым: <i>Method invocation 'length' will produce 'NullPointerException'</i>. Но это только предупреждение — запустить программу она не мешает" },
+                   { "n": 2, "target": "output", "text": "Строка 4 успела выполниться" },
+                   { "n": 3, "target": "error", "text": "<b>NullPointerException</b> (NPE) — «пустая ссылка». После двоеточия Java объясняет по-английски: <b>Cannot invoke \"String.length()\"</b> — не могу вызвать метод <code>length()</code>, <b>because \"s\" is null</b> — потому что в <code>s</code> лежит null" },
+                   { "n": 4, "target": "link-1", "text": "Где упало: файл <b>NullDemo.java</b>, строка <b>5</b>. Щёлкни по синей ссылке — IDEA откроет эту строку" },
+                   { "n": 5, "target": "exit", "text": "<b>exit code 1</b> — аварийное завершение" } ],
+        "caption": "NullPointerException в консоли Run" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Как читать NPE</span>
+      <p>Смотри на то, что в кавычках после <code>because</code>: это переменная, в которой оказался null. Дальше вопрос один — почему туда не попал объект. А если проверишь эту же программу кнопкой на сайте, вместо имени может быть написано <code>because "&lt;local1&gt;" is null</code> — «локальная переменная № 1». Так бывает, когда программу компилируют без отладочной информации и имена переменных в <code>.class</code> не сохраняются. IDEA их сохраняет, поэтому в ней видно настоящее имя.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-01">
+      <script type="application/json">
+      {
+       "title": "String — объект и неизменяемость",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String s = \"java\";\ns.toUpperCase();\nSystem.out.println(s);",
+         "answer": "java",
+         "why": "Вызов <code>toUpperCase()</code> вернул новую строку «JAVA», но возвращаемое значение никуда не сохранили. Сама <code>s</code> не изменилась — строки неизменяемы."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String a = \"Ку\";\nString b = a;\na = a + \"-ку\";\nSystem.out.println(b);",
+         "answer": "Ку",
+         "why": "Склейка создала новый объект «Ку-ку», и переменной <code>a</code> присвоили ссылку на него. <code>b</code> по-прежнему смотрит на старую строку «Ку»."
+        },
+        {
+         "type": "single",
+         "q": "На сколько <b>разных</b> объектов String по очереди указывала переменная <code>s</code>?",
+         "code": "String s = \"A\";\ns = s + \"B\";\ns = s + \"C\";",
+         "options": [
+          "1 — на одну строку, которую дописывали",
+          "3 — «A», «AB», «ABC»",
+          "2 — на старую и на новую"
+         ],
+         "answer": 1,
+         "why": "Каждая склейка создаёт новый объект: сначала «A», затем «AB», затем «ABC». Дописать в старую строку нельзя — она неизменяема."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>replace</code>, <code>trim</code> и <code>toUpperCase</code> возвращают новую строку",
+           "a": true
+          },
+          {
+           "s": "<code>String s = \"\";</code> и <code>String s = null;</code> — одно и то же",
+           "a": false,
+           "why": "пустая строка — настоящий объект длины 0, а null — отсутствие объекта."
+          },
+          {
+           "s": "Если две переменные ссылаются на одну строку, через одну из них нельзя испортить строку для другой",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "match",
+         "q": "Соедини код и то, что он делает",
+         "left": [
+          "s.toUpperCase();",
+          "s = s.toUpperCase();",
+          "String t = s;",
+          "s = null;"
+         ],
+         "right": [
+          "вызов метода создаёт новую строку, а возвращаемое значение теряется",
+          "присваивает s ссылку на новую строку",
+          "объявление t с инициализацией копией ссылки: две стрелки к одному объекту",
+          "s больше ни на что не ссылается"
+         ],
+         "why": "Объект String не меняется никогда. Меняется только то, на какой объект ссылается переменная, — через присваивание."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 8.1. Нарисую словами, что происходит в стеке и куче при s = s + "!", а ты проверь, правильно ли я понял неизменяемость»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>String</code> — класс, строка — объект в куче. В переменной лежит ссылка (номерок).</li>
+        <li>Строки <b>неизменяемы</b>: ни один метод не меняет готовую строку — вызов метода у строки <b>возвращает новую строку</b>.</li>
+        <li>Чтобы «поменять» строку, присвой переменной возвращаемое значение: <code>s = s.trim();</code></li>
+        <li><code>s = s + "!"</code> создаёт новый объект; старый, если на него нет ссылок, уберёт сборщик мусора.</li>
+        <li><code>""</code> — пустой объект, <code>null</code> — нет объекта. <code>null.length()</code> → NullPointerException.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

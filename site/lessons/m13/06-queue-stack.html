@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Очередь и стек: ArrayDeque · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-06">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 13 · Урок 6</div>
+    <h1>Очередь и стек</h1>
+    <p class="lead">Очередь в магазине: кто первым пришёл, того первым и обслужили. Стопка тарелок: берёшь ту, что положили последней. Два простых правила — и на них держатся кнопка «Назад» в браузере, Ctrl+Z и обработка заявок.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>📊 ArrayList или LinkedList</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-06-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Map<String, Integer> m = new HashMap<>();\nm.put(\"x\", 1);\nm.put(\"x\", m.get(\"x\") + 5);\nSystem.out.println(m.get(\"x\") + \" \" + m.getOrDefault(\"y\", 0));",
+            "answer": "6 0", "why": "Второй put заменил 1 на 6. Ключа y нет — getOrDefault вернул запасной 0." },
+          { "type": "single", "q": "Какой словарь печатает пары в порядке добавления ключей?",
+            "options": ["HashMap", "LinkedHashMap", "TreeMap"], "answer": 1,
+            "why": "Linked-версии помнят порядок добавления, Tree-версии сортируют." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Очередь: первым пришёл — первым ушёл</h2>
+    <p><b>Очередь</b> (<code>Queue</code>) работает по правилу <b>FIFO</b> — First In, First Out, «первым пришёл — первым ушёл». Новые встают в хвост, обслуживают из головы. Лучшая реализация в Java — <code>ArrayDeque</code> («эррей дэк», двусторонняя очередь на массиве).</p>
+<pre data-file="Checkout.java"><code class="java">Queue&lt;String&gt; queue = new ArrayDeque&lt;&gt;();
+queue.offer("Аня");          // встала в хвост
+queue.offer("Борис");
+queue.offer("Вера");
+System.out.println(queue.poll());   // Аня — забрали из головы
+System.out.println(queue.peek());   // Борис — только посмотрели, кто следующий
+System.out.println(queue);          // [Борис, Вера]</code></pre>
+    <dl class="terms">
+      <dt>offer(x)</dt><dd>встать в хвост очереди.</dd>
+      <dt>poll()</dt><dd>забрать из головы (элемент удаляется). Очередь пуста — вернёт <code>null</code>.</dd>
+      <dt>peek()</dt><dd>посмотреть на голову, не забирая. Пусто — <code>null</code>.</dd>
+    </dl>
+    <div class="callout tip">
+      <span class="callout-title">Две версии каждого метода</span>
+      <p>У очереди есть и «строгие» близнецы: <code>add</code>, <code>remove()</code>, <code>element()</code>. Делают то же самое, но на пустой очереди не возвращают <code>null</code>, а бросают <code>NoSuchElementException</code>. Цикл «пока есть кого обслуживать» удобно писать на мягких: <code>while (!queue.isEmpty()) { … queue.poll() … }</code>.</p>
+    </div>
+    <p>Где очереди в жизни программиста: заявки в службу поддержки, задания на печать, сообщения между сервисами, обход ссылок сайта «по слоям» (поисковый робот кладёт найденные ссылки в очередь и обходит их по порядку).</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Стек: последним пришёл — первым ушёл</h2>
+    <p><b>Стек</b> работает наоборот — <b>LIFO</b>, Last In, First Out. Как стопка тарелок: кладёшь сверху и берёшь сверху. Ты уже видел стек в модуле 7 — <b>стек вызовов</b> методов устроен именно так. Для стека в Java тоже берут <code>ArrayDeque</code>, только другими методами:</p>
+    <dl class="terms">
+      <dt>push(x)</dt><dd>положить на верх стопки.</dd>
+      <dt>pop()</dt><dd>снять верхний (удаляется). Стек пуст — <code>NoSuchElementException</code>.</dd>
+      <dt>peek()</dt><dd>посмотреть на верхний, не снимая. Пусто — <code>null</code>.</dd>
+    </dl>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 260" role="img" aria-label="Очередь: вход в хвост, выход из головы. Стек: вход и выход сверху">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="200" y="28" text-anchor="middle" class="d-title">Очередь (FIFO)</text>
+        <rect x="70" y="90" width="80" height="50" rx="8" class="d-green"/><text x="110" y="120" text-anchor="middle" class="d-mono-ink">Аня</text>
+        <rect x="160" y="90" width="80" height="50" rx="8" class="d-box"/><text x="200" y="120" text-anchor="middle" class="d-mono-ink">Борис</text>
+        <rect x="250" y="90" width="80" height="50" rx="8" class="d-accent"/><text x="290" y="120" text-anchor="middle" class="d-mono-ink">Вера</text>
+        <path d="M66 115 H20" class="d-arrow"/>
+        <text x="40" y="168" text-anchor="middle" class="d-small">poll()</text>
+        <text x="40" y="186" text-anchor="middle" class="d-small">голова</text>
+        <path d="M384 115 H336" class="d-arrow"/>
+        <text x="362" y="168" text-anchor="middle" class="d-small">offer()</text>
+        <text x="362" y="186" text-anchor="middle" class="d-small">хвост</text>
+
+        <text x="560" y="28" text-anchor="middle" class="d-title">Стек (LIFO)</text>
+        <rect x="500" y="190" width="120" height="40" rx="8" class="d-box"/><text x="560" y="216" text-anchor="middle" class="d-mono-ink">Главная</text>
+        <rect x="500" y="144" width="120" height="40" rx="8" class="d-box"/><text x="560" y="170" text-anchor="middle" class="d-mono-ink">Каталог</text>
+        <rect x="500" y="98" width="120" height="40" rx="8" class="d-accent"/><text x="560" y="124" text-anchor="middle" class="d-mono-ink">Товар</text>
+        <path d="M530 50 V92" class="d-arrow"/>
+        <path d="M590 92 V50" class="d-arrow"/>
+        <text x="516" y="66" text-anchor="end" class="d-small">push()</text>
+        <text x="604" y="66" class="d-small">pop()</text>
+        <text x="560" y="252" text-anchor="middle" class="d-small">всё — через верх</text>
+      </svg>
+      <figcaption>Очередь — труба: входят с одного конца, выходят с другого. Стек — стакан: что положили последним, то и достанут первым.</figcaption>
+    </figure>
+    <p>Кнопка «Назад» в браузере — стек: каждая открытая страница кладётся сверху, «Назад» снимает верхнюю. Пройди по шагам:</p>
+    <div data-widget="trace" id="trace-m13-06-history">
+      <script type="application/json">
+      { "title": "История браузера на стеке",
+        "intro": "ArrayDeque печатает стек сверху вниз: первым идёт верхний элемент.",
+        "code": "Deque<String> history = new ArrayDeque<>();\nhistory.push(\"Главная\");\nhistory.push(\"Каталог\");\nhistory.push(\"Товар\");\nString left = history.pop();\nString now = history.peek();\nSystem.out.println(left + \" → \" + now);",
+        "steps": [
+          { "line": 1, "vars": { "history": "[]" }, "note": "Deque — интерфейс двусторонней очереди; он умеет быть и очередью, и стеком." },
+          { "line": 2, "vars": { "history": "[Главная]" }, "note": "Открыли главную — положили на стопку." },
+          { "line": 3, "vars": { "history": "[Каталог, Главная]" }, "note": "Каталог лёг сверху. Печатается первым." },
+          { "line": 4, "vars": { "history": "[Товар, Каталог, Главная]" }, "note": "Открыли карточку товара — теперь она наверху." },
+          { "line": 5, "vars": { "history": "[Каталог, Главная]", "left": "\"Товар\"" }, "ask": ["left"], "note": "Нажали «Назад»: pop снимает верхнюю — последнюю открытую страницу." },
+          { "line": 6, "vars": { "history": "[Каталог, Главная]", "left": "\"Товар\"", "now": "\"Каталог\"" }, "ask": ["now"], "note": "peek смотрит на новую верхушку, не снимая её. Мы снова в каталоге." },
+          { "line": 7, "vars": { "history": "[Каталог, Главная]", "left": "\"Товар\"", "now": "\"Каталог\"" }, "out": "Товар → Каталог\n", "note": "Ушли с товара, вернулись в каталог. Ровно как в браузере." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что будет, если нажать «Назад» ещё три раза: history.pop() × 3?</summary>
+      <p>Первые два <code>pop</code> вернут «Каталог» и «Главная». Третий — на пустом стеке — бросит <b>NoSuchElementException</b>. Перед <code>pop</code> проверяй <code>isEmpty()</code> — так делает и браузер, когда кнопка «Назад» становится серой.</p>
+    </details>
+    <p>Вот как выглядит снятие с пустого стека в консоли:</p>
+    <div data-widget="ide" id="shot-stack-empty">
+      <script type="application/json">
+      { "tree": false, "file": "History.java", "runConfig": "History", "gutterRun": [4, 5], "statusPath": "module-13",
+        "code": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class History {\n    public static void main(String[] args) {\n        Deque<String> history = new ArrayDeque<>();\n        history.push(\"Главная\");\n        history.push(\"Каталог\");\n        System.out.println(history.pop());\n        System.out.println(history.pop());\n        System.out.println(history.pop());\n    }\n}",
+        "console": { "title": "History", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… History" },
+          { "t": "out", "s": "Каталог" },
+          { "t": "out", "s": "Главная" },
+          { "t": "err", "s": "Exception in thread \"main\" java.util.NoSuchElementException" },
+          { "t": "err", "s": "\tat java.base/java.util.ArrayDeque.removeFirst(ArrayDeque.java:361)" },
+          { "t": "err", "s": "\tat java.base/java.util.ArrayDeque.pop(ArrayDeque.java:592)" },
+          { "t": "err", "s": "\tat History.main(History.java:11)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Первым сняли то, что положили последним, — LIFO" },
+                   { "n": 2, "target": "error", "side": "bottom", "text": "<b>NoSuchElementException</b> — «нет такого элемента»: снимать нечего" },
+                   { "n": 3, "target": "link-2", "text": "Любопытно: <code>pop</code> внутри просто вызывает <code>removeFirst</code> — стек на ArrayDeque снимает элементы с <b>начала</b> очереди" },
+                   { "n": 4, "target": "link-3", "text": "Твоя строка — <b>11</b>, третий <code>pop</code>" } ],
+        "caption": "pop на пустом стеке" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Класс Stack — устаревший</span>
+      <p>В Java есть класс <code>Stack</code>, и в старых статьях его используют. Он из Java 1.0 и медленнее. Сейчас стек делают на <code>ArrayDeque</code> — так советует сама документация Java. И ещё: в ArrayDeque нельзя класть <code>null</code> — будет <code>NullPointerException</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>PriorityQueue: очередь по важности</h2>
+    <p>Иногда обслуживают не по порядку прихода, а по <b>важности</b>: в приёмном покое тяжёлых пациентов берут раньше. Для этого есть <code>PriorityQueue</code> — очередь с приоритетом. <code>poll()</code> всегда отдаёт <b>самый маленький</b> элемент (по естественному порядку: числа по возрастанию, строки по алфавиту).</p>
+<pre data-file="Urgency.java"><code class="java">PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(List.of(5, 1, 4, 2, 3));
+System.out.println(pq.poll());   // 1
+System.out.println(pq.poll());   // 2
+System.out.println(pq.peek());   // 3</code></pre>
+    <details class="predict">
+      <summary>А что напечатает System.out.println(pq) сразу после создания?</summary>
+      <p><b>[1, 2, 4, 5, 3]</b> — не отсортировано! Внутри PriorityQueue — «куча» (особое дерево), которая гарантирует только одно: наверху лежит минимум. Печать и for-each показывают внутренний порядок. Отсортированный порядок получается только если доставать элементы по одному через <code>poll()</code>. Частый вопрос с подвохом на собеседованиях.</p>
+    </details>
+    <p>Как задать свой порядок (например, «сначала самые большие» или «по приоритету заявки»), узнаешь в следующем уроке: PriorityQueue принимает тот же Comparator, что и сортировка.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>ArrayList или LinkedList?</h2>
+    <p>У списка есть вторая реализация — <code>LinkedList</code> (связный список). Он хранит элементы не в массиве, а «цепочкой»: каждый элемент знает соседей — как вагоны поезда, сцепленные друг с другом. Вставить вагон в середину легко — расцепил, вставил, сцепил. Но чтобы найти десятый вагон, надо пройти от локомотива девять.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="ArrayList: ячейки подряд, доступ по номеру сразу. LinkedList: цепочка узлов, доступ по номеру — проходом от начала">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="20" y="28" class="d-title">ArrayList</text>
+        <rect x="140" y="10" width="60" height="34" rx="4" class="d-blue"/><text x="170" y="33" text-anchor="middle" class="d-mono-ink">A</text>
+        <rect x="200" y="10" width="60" height="34" rx="4" class="d-blue"/><text x="230" y="33" text-anchor="middle" class="d-mono-ink">B</text>
+        <rect x="260" y="10" width="60" height="34" rx="4" class="d-blue"/><text x="290" y="33" text-anchor="middle" class="d-mono-ink">C</text>
+        <rect x="320" y="10" width="60" height="34" rx="4" class="d-accent"/><text x="350" y="33" text-anchor="middle" class="d-mono-ink">D</text>
+        <text x="400" y="33" class="d-small">get(3) — сразу в ячейку 3</text>
+
+        <text x="20" y="128" class="d-title">LinkedList</text>
+        <rect x="140" y="108" width="60" height="34" rx="8" class="d-violet"/><text x="170" y="131" text-anchor="middle" class="d-mono-ink">A</text>
+        <rect x="240" y="108" width="60" height="34" rx="8" class="d-violet"/><text x="270" y="131" text-anchor="middle" class="d-mono-ink">B</text>
+        <rect x="340" y="108" width="60" height="34" rx="8" class="d-violet"/><text x="370" y="131" text-anchor="middle" class="d-mono-ink">C</text>
+        <rect x="440" y="108" width="60" height="34" rx="8" class="d-accent"/><text x="470" y="131" text-anchor="middle" class="d-mono-ink">D</text>
+        <path d="M200 125 H236" class="d-arrow"/>
+        <path d="M300 125 H336" class="d-arrow"/>
+        <path d="M400 125 H436" class="d-arrow"/>
+        <text x="320" y="176" text-anchor="middle" class="d-small">get(3) — пройти A → B → C → D по цепочке</text>
+      </svg>
+      <figcaption>Массив — ряд пронумерованных шкафчиков. Связный список — поезд из вагонов.</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Операция</th><th>ArrayList</th><th>LinkedList</th></tr>
+        <tr><td><code>get(i)</code> — взять по номеру</td><td>⚡ мгновенно</td><td>🐢 проход от края</td></tr>
+        <tr><td><code>add(x)</code> — в конец</td><td>⚡ быстро</td><td>⚡ быстро</td></tr>
+        <tr><td>вставка/удаление в начале</td><td>🐢 сдвиг всех элементов</td><td>⚡ быстро</td></tr>
+        <tr><td>вставка/удаление в середине</td><td>🐢 сдвиг хвоста</td><td>🐢 сначала дойти до места</td></tr>
+        <tr><td>память</td><td>компактно</td><td>у каждого элемента ещё две ссылки на соседей</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="cool"><p>Практическое правило: <b>список — ArrayList, очередь и стек — ArrayDeque.</b> LinkedList в реальном коде нужен редко: даже там, где он «по теории» быстрее, ArrayList часто выигрывает, потому что процессор любит данные, лежащие подряд. Но на собеседовании таблицу выше спросят обязательно.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-06">
+      <script type="application/json">
+      { "title": "Очереди и стек — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Queue<Integer> q = new ArrayDeque<>();\nq.offer(1);\nq.offer(2);\nq.offer(3);\nq.poll();\nq.offer(4);\nSystem.out.println(q.peek() + \" \" + q);",
+            "answer": "2 [2, 3, 4]", "why": "poll забрал голову — 1. Четвёрка встала в хвост. peek смотрит на новую голову — 2." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Deque<Integer> s = new ArrayDeque<>();\ns.push(1);\ns.push(2);\ns.push(3);\nSystem.out.println(s.pop() + \" \" + s.pop());",
+            "answer": "3 2", "why": "Стек: последним положили 3 — её и сняли первой, потом 2." },
+          { "type": "match", "q": "Соедини задачу со структурой",
+            "left": ["Кнопка «Назад» в браузере", "Заявки в поддержку по порядку", "Сначала самые срочные задачи", "Список товаров с доступом по номеру"],
+            "right": ["Стек (ArrayDeque, push/pop)", "Очередь (ArrayDeque, offer/poll)", "PriorityQueue", "ArrayList"],
+            "why": "LIFO — стек, FIFO — очередь, по важности — PriorityQueue, по номеру — ArrayList." },
+          { "type": "single", "q": "Что вернёт <code>poll()</code> у пустой очереди ArrayDeque?",
+            "options": ["null", "Бросит NoSuchElementException", "0"], "answer": 0,
+            "why": "poll и peek на пустой очереди мягко возвращают null. Исключение бросают remove() и element() — и pop() у стека." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "LinkedList быстрее ArrayList берёт элемент по номеру get(i)", "a": false, "why": "наоборот: ArrayList прыгает в ячейку сразу, LinkedList идёт по цепочке." },
+              { "s": "System.out.println(priorityQueue) печатает элементы по возрастанию", "a": false, "why": "гарантирован только минимум в голове. По порядку — только через poll() по одному." },
+              { "s": "Для стека сейчас рекомендуют ArrayDeque, а не класс Stack", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Назову три примера из жизни для очереди и три для стека, а ты проверь, не перепутал ли я FIFO и LIFO»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Очередь — FIFO: <code>offer</code> в хвост, <code>poll</code> из головы, <code>peek</code> — посмотреть. На пустой — <code>null</code>.</li>
+        <li>Стек — LIFO: <code>push</code>, <code>pop</code>, <code>peek</code>. <code>pop</code> на пустом — исключение.</li>
+        <li>И очередь, и стек — на <code>ArrayDeque</code>. Класс <code>Stack</code> устарел, <code>null</code> в ArrayDeque класть нельзя.</li>
+        <li><code>PriorityQueue</code>: <code>poll</code> отдаёт минимум, печать не отсортирована.</li>
+        <li>ArrayList — быстрый <code>get(i)</code>; LinkedList — быстрые вставки по краям. На практике почти всегда ArrayList.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

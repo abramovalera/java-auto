@@ -1,0 +1,47 @@
+## id: tr-arrays-027
+## title: Развернуть состав
+## file: trainer/arrays/ReverseTrainCars.java
+## class: ReverseTrainCars
+## level: 2
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>ReverseTrainCars</code>. Поезд разворачивается на конечной, и вагоны идут в обратном порядке. В первой строке — количество вагонов <code>n</code>, во второй — <code>n</code> номеров вагонов. Разверни массив <b>на месте</b>: второй массив не создавай, а меняй местами элементы — первый с последним, второй с предпоследним и так далее. Напечатай результат через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       1 2 3 4 5
+вывод: [5, 4, 3, 2, 1]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>обмен через третью переменную: <code>int tmp = a[i]; a[i] = a[j]; a[j] = tmp;</code></li>
+<li>пару для <code>i</code> найдёшь по индексу <code>n - 1 - i</code></li>
+<li>менять нужно только до середины: <code>i &lt; n / 2</code> — иначе развернёшь обратно</li>
+</ul></div>
+@@ test: Пять вагонов
+@@ input
+5
+1 2 3 4 5
+@@ expect
+[5, 4, 3, 2, 1]
+@@ test: Чётное количество
+@@ input
+4
+10 20 30 40
+@@ expect
+[40, 30, 20, 10]
+@@ test: Один вагон
+@@ input
+1
+7
+@@ expect
+[7]
+@@ test: Пустой состав
+@@ input
+0
+@@ expect
+[]
+@@ test: Одинаковые номера
+@@ input
+3
+2 2 9
+@@ expect
+[9, 2, 2]
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString
+@@ forbid: new\s+int\s*\[[\s\S]*new\s+int\s*\[ | Второй массив не нужен — переставляй элементы в том же

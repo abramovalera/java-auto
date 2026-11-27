@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Чтение текстовых файлов · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 15 · Урок 2</div>
+    <h1>Чтение текстовых файлов</h1>
+    <p class="lead">Адрес файла мы знаем. Теперь достанем, что внутри: целиком, по строкам или конвейером-стримом. И разберёмся, почему компилятор вдруг требует какой-то IOException.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>📖 Files.readString / readAllLines / lines</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m15-02-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Рабочая папка программы — <code>C:/work</code>. Куда указывает <code>Path.of(\"data/users.csv\")</code>?",
+            "options": ["C:/data/users.csv", "C:/work/data/users.csv", "В папку, где лежит .java-файл"], "answer": 1,
+            "why": "Относительный путь приклеивается к рабочей папке." },
+          { "type": "tf", "q": "Повторим исключения (модуль 12). Верно или нет?",
+            "statements": [
+              { "s": "Checked-исключение компилятор заставляет поймать (catch) или объявить (throws)", "a": true },
+              { "s": "NullPointerException — checked-исключение", "a": false, "why": "это RuntimeException, то есть unchecked: компилятор его не проверяет." }
+            ] },
+          { "type": "predict", "q": "Повторим стримы (модуль 14). Что выведет?",
+            "code": "List<String> words = List.of(\"cat\", \"apple\", \"dog\", \"axe\");\nlong n = words.stream()\n        .filter(w -> w.startsWith(\"a\"))\n        .count();\nSystem.out.println(n);",
+            "answer": "2", "why": "Через фильтр проходят apple и axe." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Три способа прочитать файл</h2>
+    <p>Для чтения есть класс-помощник <code>Files</code> (с <b>s</b> на конце) из того же пакета <code>java.nio.file</code>. Все его методы статические: вызываем их прямо у класса, объект <code>Files</code> создавать не нужно — <code>Files.что-то(путь)</code>. Путь передаём аргументом, а метод возвращает прочитанное. Для текста — три главных:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Файл users.txt читается тремя способами: readString — одна строка, readAllLines — список строк, lines — конвейер-стрим">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="16" y="80" width="170" height="140" rx="14" class="d-teal"/>
+        <text x="101" y="108" text-anchor="middle" class="d-title">📄 users.txt</text>
+        <rect x="32" y="122" width="138" height="84" rx="8" class="d-box"/>
+        <text x="44" y="146" class="d-mono-ink">anna</text>
+        <text x="44" y="168" class="d-mono-ink">boris</text>
+        <text x="44" y="190" class="d-mono-ink">vera</text>
+        <path d="M186 120 C230 120 240 50 280 50" class="d-arrow"/>
+        <path d="M186 150 H280" class="d-arrow"/>
+        <path d="M186 180 C230 180 240 250 280 250" class="d-arrow"/>
+        <rect x="286" y="24" width="210" height="52" rx="10" class="d-blue"/>
+        <text x="391" y="56" text-anchor="middle" class="d-mono-ink">Files.readString</text>
+        <rect x="286" y="124" width="210" height="52" rx="10" class="d-violet"/>
+        <text x="391" y="156" text-anchor="middle" class="d-mono-ink">Files.readAllLines</text>
+        <rect x="286" y="224" width="210" height="52" rx="10" class="d-green"/>
+        <text x="391" y="256" text-anchor="middle" class="d-mono-ink">Files.lines</text>
+        <path d="M496 50 H526" class="d-arrow"/>
+        <path d="M496 150 H526" class="d-arrow"/>
+        <path d="M496 250 H526" class="d-arrow"/>
+        <rect x="532" y="28" width="216" height="44" rx="8" class="d-code"/>
+        <text x="544" y="55" class="d-mono">"anna\nboris\nvera\n"</text>
+        <text x="640" y="90" text-anchor="middle" class="d-small">String — весь текст разом</text>
+        <rect x="532" y="128" width="66" height="44" rx="8" class="d-box"/><text x="565" y="155" text-anchor="middle" class="d-mono-ink">anna</text>
+        <rect x="604" y="128" width="70" height="44" rx="8" class="d-box"/><text x="639" y="155" text-anchor="middle" class="d-mono-ink">boris</text>
+        <rect x="680" y="128" width="66" height="44" rx="8" class="d-box"/><text x="713" y="155" text-anchor="middle" class="d-mono-ink">vera</text>
+        <text x="640" y="190" text-anchor="middle" class="d-small">List&lt;String&gt; — строка в ячейке</text>
+        <path d="M532 250 H748" class="d-dash"/>
+        <rect x="540" y="232" width="56" height="36" rx="18" class="d-box"/><text x="568" y="255" text-anchor="middle" class="d-small">anna</text>
+        <rect x="610" y="232" width="60" height="36" rx="18" class="d-box"/><text x="640" y="255" text-anchor="middle" class="d-small">boris</text>
+        <rect x="684" y="232" width="56" height="36" rx="18" class="d-box"/><text x="712" y="255" text-anchor="middle" class="d-small">vera</text>
+        <text x="640" y="290" text-anchor="middle" class="d-small">Stream&lt;String&gt; — строки по одной</text>
+      </svg>
+      <figcaption>Один файл — три формы результата: строка, список, конвейер.</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что возвращает</th><th>Когда брать</th></tr>
+        <tr><td><code>Files.readString(p)</code></td><td><code>String</code> — весь текст с переводами строк внутри</td><td>файл небольшой и нужен целиком: шаблон письма, JSON-ответ для сравнения</td></tr>
+        <tr><td><code>Files.readAllLines(p)</code></td><td><code>List&lt;String&gt;</code> — по строке в элементе, без <code>\n</code></td><td>нужно пройтись по строкам, знать их количество, взять строку по номеру</td></tr>
+        <tr><td><code>Files.lines(p)</code></td><td><code>Stream&lt;String&gt;</code> — строки по одной, лениво</td><td>файл большой (лог на гигабайт) или хочется сразу <code>filter</code>/<code>map</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Первое чтение</h2>
+    <p>Создай файл руками: правый клик по корню проекта <code>workspace</code> → <b>New → File</b> → имя <code>users.txt</code>. Впиши три строки: <code>anna</code>, <code>boris</code>, <code>vera</code>. Теперь программа в <code>module-15</code>:</p>
+    <div data-widget="ide" id="shot-new-file">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true, "selected": true },
+                  { "name": "module-01", "type": "src", "depth": 1 },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "WhereAmI", "type": "class", "depth": 2 } ],
+        "menu": { "at": "tree-workspace", "items": ["New ›", "-", "Cut", "Copy", "Paste", "-", "Find in Files…", "Open In ›"], "hl": "New",
+                  "sub": { "items": ["File", "Scratch File", "Directory", "-", "HTML File"], "hl": "File" } },
+        "marks": [ { "n": 1, "target": "tree-workspace", "text": "Правый клик по <b>корню</b> проекта — папке <b>workspace</b>, а не по <code>module-15</code>: там рабочая папка (урок 15.1)" },
+                   { "n": 2, "target": "submenu", "text": "<b>New → File</b> — обычный файл, не Java-класс. В окошке впиши имя <b>вместе с расширением</b>: <code>users.txt</code> и жми <kbd>Enter</kbd>" } ],
+        "caption": "Создаём текстовый файл с данными" }
+      </script>
+    </div>
+<pre data-file="ReadUsers.java"><code class="java">import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+public class ReadUsers {
+    public static void main(String[] args) throws IOException {
+        Path file = Path.of("users.txt");
+
+        String all = Files.readString(file);
+        System.out.println(all);
+
+        List&lt;String&gt; users = Files.readAllLines(file);
+        System.out.println("Пользователей: " + users.size());
+        for (int i = 0; i &lt; users.size(); i++) {
+            System.out.println((i + 1) + ". " + users.get(i));
+        }
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-read-users">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "file": "ReadUsers.java", "runConfig": "ReadUsers", "gutterRun": [6, 7],
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "ReadUsers", "type": "class", "depth": 2, "selected": true },
+                  { "name": "users.txt", "type": "file", "depth": 1 } ],
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.List;\n\npublic class ReadUsers {\n    public static void main(String[] args) throws IOException {\n        Path file = Path.of(\"users.txt\");\n\n        String all = Files.readString(file);\n        System.out.println(all);\n\n        List<String> users = Files.readAllLines(file);\n        System.out.println(\"Пользователей: \" + users.size());\n        for (int i = 0; i < users.size(); i++) {\n            System.out.println((i + 1) + \". \" + users.get(i));\n        }\n    }\n}",
+        "console": { "title": "ReadUsers", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ReadUsers" },
+          { "t": "out", "s": "anna" },
+          { "t": "out", "s": "boris" },
+          { "t": "out", "s": "vera" },
+          { "t": "out", "s": " " },
+          { "t": "out", "s": "Пользователей: 3" },
+          { "t": "out", "s": "1. anna" },
+          { "t": "out", "s": "2. boris" },
+          { "t": "out", "s": "3. vera" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tree-users.txt", "text": "<code>users.txt</code> лежит в корне <b>workspace</b> — в рабочей папке. Поэтому хватает короткого пути <code>Path.of(\"users.txt\")</code>" },
+                   { "n": 2, "target": "output", "text": "<code>readString</code> возвращает весь файл одной строкой, переводы строк внутри неё" },
+                   { "n": 3, "target": "output-4", "text": "Пустая строка: в файле после <code>vera</code> стоит перевод строки, а <code>println</code> добавил ещё один" },
+                   { "n": 4, "target": "output-5", "text": "<code>readAllLines</code> возвращает список из трёх строк, уже без переводов строк" } ],
+        "caption": "Чтение файла: что лежит где и что напечаталось" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>throws IOException</code><div><p>Метод <code>main</code> <b>объявляет</b>, что может выбросить <code>IOException</code>. Это обещание компилятору: «если при работе с файлом что-то пойдёт не так, я не ловлю ошибку здесь, а пропускаю её наверх». Без этих слов программа <b>не скомпилируется</b> — почему, разберём в следующем шаге.</p></div></div>
+      <div class="annot-row"><code>Files.readString(file)</code><div><p>Вызываем статический метод <code>readString</code> у класса <code>Files</code> и передаём аргумент <code>file</code>. Метод открывает файл, читает всё, закрывает его и возвращает текст — этим значением инициализируется переменная <code>all</code>. Одна строчка вместо десяти, как писали раньше.</p></div></div>
+      <div class="annot-row"><code>System.out.println(all)</code><div><p>Внутри строки <code>all</code> лежат и буквы, и символы перевода строки <code>\n</code> — поэтому она печатается в три строчки. А в списке из <code>readAllLines</code> переводы строк уже отрезаны.</p></div></div>
+      <div class="annot-row"><code>Files.readAllLines(file)</code><div><p>Метод возвращает знакомый по модулю 13 <code>List&lt;String&gt;</code>, им инициализируется переменная <code>users</code>: <code>size()</code>, <code>get(i)</code>, for-each — всё как обычно.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: в файле в конце есть пустая строка (ты нажал <kbd>Enter</kbd> после <code>vera</code> ещё раз). Что покажет <code>users.size()</code>?</summary>
+      <p><b>4</b>: последний элемент списка — пустая строка <code>""</code>. Один <code>Enter</code> после последней строки — это просто конец строки, а второй создаёт ещё одну, пустую. В файлах с данными пустые строки — частая причина странных падений, поэтому их обычно пропускают: <code>if (line.isBlank()) continue;</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Почему компилятор требует IOException</h2>
+    <p>Убери <code>throws IOException</code> и нажми ▶. IDEA подчеркнёт <code>readString</code> красным, а компилятор скажет:</p>
+    <div data-widget="ide" id="shot-unhandled-io">
+      <script type="application/json">
+      { "tree": false, "file": "ReadUsers.java", "gutterRun": [6, 7], "statusPath": "module-15",
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.List;\n\npublic class ReadUsers {\n    public static void main(String[] args) {\n        Path file = Path.of(\"users.txt\");\n\n        String all = Files.readString(file);\n        System.out.println(all);\n\n        List<String> users = Files.readAllLines(file);\n        System.out.println(\"Пользователей: \" + users.size());\n    }\n}",
+        "errors": [ { "line": 10, "text": "readString", "msg": "Unhandled exception: java.io.IOException", "tip": true },
+                    { "line": 13, "text": "readAllLines", "msg": "Unhandled exception: java.io.IOException" } ],
+        "unused": [ { "line": 1, "text": "import java.io.IOException;" } ],
+        "build": { "file": "ReadUsers.java", "path": "src/module-15", "fullPath": "C:\\Users\\Misha\\IdeaProjects\\workspace\\module-15\\ReadUsers.java",
+                   "errors": [ { "msg": "unreported exception java.io.IOException; must be caught or declared to be thrown", "line": 10, "col": 38 },
+                               { "msg": "unreported exception java.io.IOException; must be caught or declared to be thrown", "line": 13, "col": 48 } ] },
+        "marks": [ { "n": 1, "target": "tip", "text": "IDEA: <b>Unhandled exception: java.io.IOException</b> — «необработанное исключение». Красным оба места, где читаем файл" },
+                   { "n": 2, "target": "line-1", "side": "top", "text": "Серый import — без <code>throws IOException</code> он стал не нужен. Это предупреждение, не ошибка" },
+                   { "n": 3, "target": "build-err-1", "text": "После ▶ — панель Build со словами <code>javac</code>: <b>unreported exception … must be caught or declared to be thrown</b> — «нужно поймать или объявить, что бросаешь»" },
+                   { "n": 4, "target": "build-out", "text": "Строка <b>10</b>, символ 38 — скобка после <code>readString</code>" } ],
+        "caption": "Checked-исключение не обработано — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Вспомни модуль 12: <code>IOException</code> — <b>checked</b>-исключение. Компилятор видит, что метод <code>readString</code> объявлен с <code>throws IOException</code>, и требует от тебя решения: перехватить исключение в <code>catch</code> или объявить его в <code>throws</code> и передать дальше.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: курьер</span>
+      <p>Ты заказываешь доставку. Курьер может не найти дом, дверь может быть заперта, лифт сломан — и курьер в этом не виноват, это <b>внешний мир</b>. Поэтому служба заранее спрашивает: «Если не застанем — оставить у соседей или вернуть?» Отказаться отвечать нельзя.</p>
+      <p>С файлом так же: его могли удалить, у программы может не быть прав, флешку выдернули. Это не ошибка в твоём коде (как <code>NullPointerException</code>), а ситуация, к которой надо быть готовым. Поэтому исключение checked.</p>
+    </div>
+    <p>Два способа ответить компилятору:</p>
+<pre data-file="ReadSafely.java"><code class="java">// Способ 1: передать наверх — подходит для учебных программ и тестов
+public static void main(String[] args) throws IOException {
+    List&lt;String&gt; users = Files.readAllLines(Path.of("users.txt"));
+    System.out.println(users);
+}
+
+// Способ 2: поймать и сказать по-человечески
+public static void main(String[] args) {
+    try {
+        List&lt;String&gt; users = Files.readAllLines(Path.of("users.txt"));
+        System.out.println(users);
+    } catch (IOException e) {
+        System.out.println("Не удалось прочитать файл: " + e.getMessage());
+    }
+}</code></pre>
+    <p>Набирать руками не обязательно: поставь курсор на красное и нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> — IDEA предложит оба способа.</p>
+    <div data-widget="ide" id="shot-unhandled-fix">
+      <script type="application/json">
+      { "tree": false, "file": "ReadUsers.java", "gutterRun": [5, 6], "statusPath": "module-15", "caretLine": 7,
+        "code": "import java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.List;\n\npublic class ReadUsers {\n    public static void main(String[] args) {\n        List<String> users = Files.readAllLines(Path.of(\"users.txt\"));\n        System.out.println(users);\n    }\n}",
+        "errors": [ { "line": 7, "text": "readAllLines", "msg": "Unhandled exception: java.io.IOException" } ],
+        "menu": { "at": "err-7", "items": ["Add exception to method signature", "Surround with try/catch"], "hl": "Add exception to method signature" },
+        "marks": [ { "n": 1, "target": "err-7", "side": "top", "text": "Курсор на красном <code>readAllLines</code>, жмём <kbd>Alt</kbd>+<kbd>Enter</kbd>" },
+                   { "n": 2, "target": "menu", "text": "<b>Add exception to method signature</b> — «добавить исключение в заголовок метода»: допишет <code>throws IOException</code> (способ 1). <b>Surround with try/catch</b> — «обернуть в try/catch» (способ 2). Импорт <code>IOException</code> IDEA добавит сама" } ],
+        "caption": "Alt+Enter на необработанном исключении" }
+      </script>
+    </div>
+    <p>А если файла нет? При запуске (не при компиляции!) метод выбросит исключение — наследника <code>IOException</code>:</p>
+    <div data-widget="ide" id="shot-no-such-file">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "file": "ReadUsers.java", "runConfig": "ReadUsers", "gutterRun": [6, 7],
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "ReadUsers", "type": "class", "depth": 2, "selected": true },
+                  { "name": "users.txt", "type": "file", "depth": 2 } ],
+        "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.List;\n\npublic class ReadUsers {\n    public static void main(String[] args) throws IOException {\n        Path file = Path.of(\"users.txt\");\n\n        String all = Files.readString(file);\n        System.out.println(all);\n\n        List<String> users = Files.readAllLines(file);\n        System.out.println(\"Пользователей: \" + users.size());\n    }\n}",
+        "console": { "title": "ReadUsers", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ReadUsers" },
+          { "t": "err", "s": "Exception in thread \"main\" java.nio.file.NoSuchFileException: users.txt" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:85)" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)" },
+          { "t": "err", "s": "\tat java.base/sun.nio.fs.WindowsFileSystemProvider.newByteChannel(WindowsFileSystemProvider.java:234)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.newByteChannel(Files.java:379)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.newByteChannel(Files.java:431)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.readAllBytes(Files.java:3268)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.readString(Files.java:3346)" },
+          { "t": "err", "s": "\tat java.base/java.nio.file.Files.readString(Files.java:3305)" },
+          { "t": "err", "s": "\tat ReadUsers.main(ReadUsers.java:10)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "tree-users.txt", "text": "Файл положили в <b>module-15</b>, а программа ищет его в рабочей папке <b>workspace</b>" },
+                   { "n": 2, "target": "error", "side": "bottom", "text": "<b>NoSuchFileException: users.txt</b> — «нет такого файла». После двоеточия — путь, <b>как ты его написал</b>: относительный" },
+                   { "n": 3, "target": "link-1", "text": "Строки <code>sun.nio.fs.Windows…</code> — Java просит файл у Windows и получает отказ. Это внутренности, пропускай" },
+                   { "n": 4, "target": "link-10", "text": "Твоя строка — <b>10</b>: упал уже первый <code>readString</code>, до <code>readAllLines</code> дело не дошло" } ],
+        "caption": "Файла нет там, где его ищут: NoSuchFileException" }
+      </script>
+    </div>
+    <div class="say" data-mood="oops"><p>Сообщение <code>NoSuchFileException: users.txt</code> почти всегда значит одно: файл лежит <b>не там, где его ищет программа</b>. Не спорь с ней — напечатай <code>Path.of("users.txt").toAbsolutePath()</code> и сравни с тем, где файл на самом деле.</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: в тестах обычно пишут throws</summary>
+      <p>В JUnit-тесте (модуль 17) метод с файлами обычно объявляют так: <code>void readsUsers() throws IOException</code>. Если файл не прочитался, тест просто упадёт красным с понятным stack trace — это и нужно. Ловить исключение и печатать «ой» в тесте — плохая идея: тест станет зелёным, хотя проверка не прошла.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Обходим строки</h2>
+    <p>Типичная задача: в файле список заказов магазина, надо посчитать отменённые. Пройди программу по шагам и впиши значение счётчика сам.</p>
+    <div data-widget="trace" id="trace-failed">
+      <script type="application/json">
+      { "title": "Считаем CANCELLED в файле",
+        "intro": "В файле orders.txt три строки: «чайник PAID», «утюг CANCELLED», «лампа CANCELLED». Нажимай «Шаг ▶» и следи за счётчиком cancelled.",
+        "code": "List<String> lines = Files.readAllLines(Path.of(\"orders.txt\"));\nint cancelled = 0;\nfor (String line : lines) {\n    if (line.endsWith(\"CANCELLED\")) {\n        cancelled++;\n    }\n}\nSystem.out.println(\"Отменено: \" + cancelled);",
+        "steps": [
+          { "line": 1, "vars": { "lines": "[чайник PAID, утюг CANCELLED, лампа CANCELLED]" }, "note": "Метод readAllLines вернул список из трёх строк, им инициализирована переменная lines. Сам файл уже закрыт — дальше работаем только со списком в памяти." },
+          { "line": 2, "vars": { "lines": "[3 строки]", "cancelled": "0" }, "note": "Счётчик начинается с нуля." },
+          { "line": 3, "vars": { "lines": "[3 строки]", "cancelled": "0", "line": "\"чайник PAID\"" }, "note": "Первая строка списка." },
+          { "line": 4, "vars": { "lines": "[3 строки]", "cancelled": "0", "line": "\"чайник PAID\"" }, "note": "Строка заканчивается на PAID — условие ложно, счётчик не трогаем." },
+          { "line": 3, "vars": { "lines": "[3 строки]", "cancelled": "0", "line": "\"утюг CANCELLED\"" }, "note": "Вторая строка." },
+          { "line": 5, "vars": { "lines": "[3 строки]", "cancelled": "1", "line": "\"утюг CANCELLED\"" }, "ask": ["cancelled"], "note": "Условие истинно — счётчик растёт." },
+          { "line": 3, "vars": { "lines": "[3 строки]", "cancelled": "1", "line": "\"лампа CANCELLED\"" }, "note": "Третья строка." },
+          { "line": 5, "vars": { "lines": "[3 строки]", "cancelled": "2", "line": "\"лампа CANCELLED\"" }, "ask": ["cancelled"], "note": "Ещё одна отмена." },
+          { "line": 8, "vars": { "lines": "[3 строки]", "cancelled": "2" }, "out": "Отменено: 2\n", "note": "Строки кончились — печатаем итог." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Files.lines — файл как стрим</h2>
+    <p><code>readAllLines</code> загружает <b>весь</b> файл в память. Для лога на пару гигабайт это плохо: памяти не хватит. <code>Files.lines</code> возвращает стрим: строки идут по одной, как по конвейеру, — и к нему сразу добавляются промежуточные операции <code>filter</code>, <code>map</code> и терминальные <code>count</code>, <code>toList</code> из модуля 14.</p>
+<pre data-file="LogErrors.java"><code class="java">Path log = Path.of("run.log");
+
+try (Stream&lt;String&gt; lines = Files.lines(log)) {
+    List&lt;String&gt; errors = lines
+            .filter(line -&gt; line.contains("ERROR"))
+            .map(String::trim)
+            .toList();
+    System.out.println("Ошибок: " + errors.size());
+    errors.forEach(System.out::println);
+}</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: грузовик и конвейер</span>
+      <p><code>readAllLines</code> — привезти на склад весь грузовик коробок и только потом разбирать. <code>Files.lines</code> — конвейерная лента: коробки едут по одной, ненужные сразу сбрасываешь, а склад не переполняется.</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Стрим из файла нужно закрыть</span>
+      <p>Пока стрим жив, файл открыт. Поэтому <code>Files.lines</code> вызывают в <b>try-с-ресурсами</b> (try-with-resources): ресурс — здесь стрим — объявляется и инициализируется в круглых скобках после <code>try</code>: <code>try (Stream&lt;String&gt; lines = …) { … }</code>. После закрывающей фигурной скобки Java закроет его автоматически, а с ним и файл. У <code>readString</code> и <code>readAllLines</code> такой заботы нет: они закрывают файл до того, как вернут результат. Подробно про «закрывать» — в уроке 15.4.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что выведет <code>Files.lines(p).count()</code> для файла из трёх строк — и что тут не так?</summary>
+      <p>Выведет 3, но стрим не закрыт: файл останется открытым, пока программа работает. В маленькой программе незаметно, а в программе, которая работает сутками (например, на сервере), незакрытые файлы копятся, и однажды система скажет «слишком много открытых файлов». Правильно: <code>try (var s = Files.lines(p)) { … s.count() … }</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Кодировка: почему бывают кракозябры</h2>
+    <p>На диске нет букв — только <b>байты</b> (числа от 0 до 255). <b>Кодировка</b> — таблица, по которой байты превращаются в буквы. Сегодня почти везде <b>UTF-8</b>: латиница в ней занимает 1 байт, кириллица — 2.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 640 200" role="img" aria-label="Байты D0 9F D1 80 по таблице UTF-8 читаются как «Пр», а по старой таблице Windows-1251 — как «РџСЂ»">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="16" y="70" width="190" height="60" rx="12" class="d-code"/>
+        <text x="111" y="106" text-anchor="middle" class="d-mono">D0 9F D1 80</text>
+        <text x="111" y="150" text-anchor="middle" class="d-small">байты на диске</text>
+        <path d="M206 90 C260 90 270 50 330 50" class="d-arrow"/>
+        <path d="M206 110 C260 110 270 150 330 150" class="d-arrow"/>
+        <rect x="336" y="22" width="288" height="56" rx="12" class="d-green"/>
+        <text x="352" y="47" class="d-small">читаем как UTF-8</text>
+        <text x="352" y="68" class="d-title">«Пр» ✓</text>
+        <rect x="336" y="122" width="288" height="56" rx="12" class="d-red"/>
+        <text x="352" y="147" class="d-small">читаем как Windows-1251</text>
+        <text x="352" y="168" class="d-title">«РџСЂ» ✗ кракозябры</text>
+      </svg>
+      <figcaption>Одни и те же байты, разные таблицы — разный текст.</figcaption>
+    </figure>
+    <ul>
+      <li>Методы <code>Files.readString</code>, <code>readAllLines</code>, <code>lines</code>, <code>writeString</code> <b>всегда</b> работают в UTF-8, если не сказать иначе.</li>
+      <li>Можно указать кодировку явно вторым аргументом: <code>Files.readAllLines(p, StandardCharsets.UTF_8)</code>. Так делают в рабочем коде, чтобы никто не гадал.</li>
+      <li>Если файл пришёл из старой Windows-программы в кодировке Windows-1251, читать его надо с <code>Charset.forName("windows-1251")</code>, иначе <code>readString</code> выбросит <code>MalformedInputException</code> («байты не похожи на UTF-8»).</li>
+    </ul>
+    <div class="callout tip">
+      <span class="callout-title">В IDEA</span>
+      <p>Кодировка открытого файла видна в правом нижнем углу окна IDEA (<code>UTF-8</code>). Если там другое — щёлкни и выбери UTF-8.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m15-02">
+      <script type="application/json">
+      {
+       "title": "Чтение файлов — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини метод с тем, что он возвращает",
+         "left": [
+          "Files.readString(p)",
+          "Files.readAllLines(p)",
+          "Files.lines(p)"
+         ],
+         "right": [
+          "String — весь текст",
+          "List&lt;String&gt; — все строки сразу",
+          "Stream&lt;String&gt; — строки по одной"
+         ],
+         "why": "Строка, список, конвейер. Для огромных файлов — lines."
+        },
+        {
+         "type": "bug",
+         "q": "Программа не компилируется. В какой строке причина?",
+         "code": "public class Count {\n    public static void main(String[] args) {\n        List<String> lines = Files.readAllLines(Path.of(\"a.txt\"));\n        System.out.println(lines.size());\n    }\n}",
+         "answer": [
+          2
+         ],
+         "why": "Метод readAllLines объявлен с throws IOException, а это checked-исключение. В заголовке main нужно throws IOException (или обернуть чтение в try-catch)."
+        },
+        {
+         "type": "single",
+         "q": "Программа упала с <code>java.nio.file.NoSuchFileException: data.csv</code>. Что проверить первым?",
+         "options": [
+          "Кодировку файла",
+          "Где рабочая папка и лежит ли data.csv именно там",
+          "Хватает ли памяти"
+         ],
+         "answer": 1,
+         "why": "Почти всегда файл лежит не там, где его ищет программа. Напечатай Path.of(\"data.csv\").toAbsolutePath()."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>readAllLines</code> оставляет в конце каждой строки символ <code>\\n</code>",
+           "a": false,
+           "why": "переводы строк отрезаются, в списке чистый текст."
+          },
+          {
+           "s": "Стрим из <code>Files.lines</code> надо закрывать, лучше через try-with-resources",
+           "a": true
+          },
+          {
+           "s": "Методы <code>Files</code> по умолчанию читают текст в UTF-8",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 15.2. Спроси меня, когда брать readAllLines, а когда Files.lines, и почему IOException — checked»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Files.readString</code> — весь текст строкой, <code>readAllLines</code> — список строк, <code>lines</code> — ленивый стрим (закрывать в try-с-ресурсами). Все три — статические методы класса <code>Files</code>.</li>
+        <li><code>IOException</code> — checked: файл зависит от внешнего мира. Нужно <code>throws IOException</code> или <code>try-catch</code>, иначе не скомпилируется.</li>
+        <li><code>NoSuchFileException</code> — файл не там, где ищет программа. Смотри <code>toAbsolutePath()</code>.</li>
+        <li>Файл — это байты, кодировка превращает их в буквы. По умолчанию <code>Files</code> работает с UTF-8.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

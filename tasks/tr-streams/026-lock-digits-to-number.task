@@ -1,0 +1,44 @@
+## id: tr-streams-026
+## title: Число из колёсиков замка
+## file: trainer/streams/LockDigitsToNumber.java
+## class: LockDigitsToNumber
+## level: 2
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>LockDigitsToNumber</code>. У кодового замка несколько колёсиков, на каждом — цифра. В одной строке — цифры колёсиков слева направо через пробел (от 1 до 18 цифр). Собери из них число и напечатай его. Ведущие нули у числа не пишутся: <code>0 0 7</code> — это <code>7</code>. Собери число методом <code>reduce</code>, без склейки строк.</p>
+<pre class="terminal"><span class="out">ввод:  1 2 3
+вывод: 123</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.reduce(start, (acc, d) -&gt; …)</code> — сворачивает стрим в одно значение; подумай, как из накопленного <code>12</code> и цифры <code>3</code> получить <code>123</code></li>
+<li><code>.mapToLong(Long::parseLong)</code> — стрим чисел <code>long</code>: 18 цифр в <code>int</code> не влезут</li>
+</ul></div>
+@@ test: Три цифры
+@@ input
+1 2 3
+@@ expect
+123
+@@ test: Ведущие нули
+@@ input
+0 0 7
+@@ expect
+7
+@@ test: Длинный код — больше int
+@@ input
+9 8 7 6 5 4 3 2 1 0 1 2
+@@ expect
+987654321012
+@@ test: Один ноль
+@@ input
+0
+@@ expect
+0
+@@ test: Восемнадцать девяток
+@@ input
+9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
+@@ expect
+999999999999999999
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.reduce\s*\( | Собери число методом reduce
+@@ forbid: joining\s*\(|\.replace\s*\( | Здесь цель — арифметика в reduce, а не склейка строк

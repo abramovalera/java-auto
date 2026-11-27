@@ -1,0 +1,38 @@
+## id: tr-streams-028
+## title: Слова-перевёртыши
+## file: trainer/streams/PalindromeWordsFilter.java
+## class: PalindromeWordsFilter
+## level: 2
+## category: Строки и символы
+@@ description
+<p>Напиши класс <code>PalindromeWordsFilter</code>. Палиндром — слово, которое одинаково читается слева направо и справа налево. Регистр не важен: «Анна» — палиндром. В одной строке — слова через пробел (хотя бы одно). Напечатай через пробел все слова-палиндромы в исходном виде и порядке. Если таких нет — напечатай <code>нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  шалаш дом Анна казак java
+вывод: шалаш Анна казак</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>new StringBuilder(s).reverse().toString()</code> — строка задом наперёд</li>
+<li><code>a.equalsIgnoreCase(b)</code> — сравнивает строки без учёта регистра</li>
+<li><code>s.isEmpty()</code> — <code>true</code>, если строка пустая</li>
+</ul></div>
+@@ test: Есть палиндромы
+@@ input
+шалаш дом Анна казак java
+@@ expect
+шалаш Анна казак
+@@ test: Ни одного
+@@ input
+кот пёс java
+@@ expect
+нет
+@@ test: Однобуквенные — тоже палиндромы
+@@ input
+я и мы
+@@ expect
+я и
+@@ test: Регистр вперемешку
+@@ input
+ТоПоТ Level
+@@ expect
+ТоПоТ Level
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

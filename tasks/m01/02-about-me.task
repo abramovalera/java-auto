@@ -1,0 +1,16 @@
+## id: m01-t02
+## title: Визитка
+## file: module-01/AboutMe.java
+## class: AboutMe
+## level: 1
+@@ description
+<p>Расскажи о себе в трёх строках. Каждая строка — отдельный <code>System.out.println</code>. Например:</p>
+<pre class="terminal"><span class="out">Меня зовут Миша
+Мне 19 лет, живу в Казани
+Учу Java, чтобы делать игры и бэкенд</span></pre>
+<p>Текст — твой собственный. Проверка смотрит, что строк ровно три и ни одна не пустая.</p>
+<p>📖 Урок: <a href="/lessons/m01/06-anatomy.html">Анатомия программы</a></p>
+@@ test: Ровно три непустые строки
+@@ expect-regex
+[^\n]*\S[^\n]*\n[^\n]*\S[^\n]*\n[^\n]*\S[^\n]*
+@@ require: (System\.out\.println[\s\S]*){3} | Нужно минимум три вызова System.out.println — по одному на строку

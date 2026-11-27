@@ -1,0 +1,41 @@
+## id: tr-methods-038
+## title: Баланс за месяц рекурсией
+## file: trainer/methods/ArraySumRecursion.java
+## class: ArraySumRecursion
+## level: 2
+## category: Рекурсия
+@@ description
+<p>В банковской выписке — пополнения (положительные числа) и списания (отрицательные). Создай класс <code>ArraySumRecursion</code> и напиши <b>рекурсивный</b> метод <code>static int sum(int[] arr, int index)</code>: он возвращает сумму элементов массива, начиная с индекса <code>index</code> и до конца. Тогда сумма всего массива — <code>sum(arr, 0)</code>.</p>
+<p>main читает в первой строке количество операций <code>n</code> (может быть 0), во второй — <code>n</code> целых чисел через пробел, и печатает <code>Итог за месяц: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       500 -120 300 -80
+вывод: Итог за месяц: 600</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>базовый случай: <code>index == arr.length</code> — элементов не осталось, сумма 0</li>
+<li>шаг: текущий элемент плюс сумма остальных, начиная с <code>index + 1</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4
+500 -120 300 -80
+@@ expect
+Итог за месяц: 600
+@@ test: Пустая выписка
+@@ input
+0
+@@ expect
+Итог за месяц: 0
+@@ test: Одна операция
+@@ input
+1
+-50
+@@ expect
+Итог за месяц: -50
+@@ test: Ушли в минус
+@@ input
+5
+100 -300 50 -50 -1
+@@ expect
+Итог за месяц: -201
+@@ require: static\s+int\s+sum\s*\(\s*int\s*\[\s*\]\s*\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int sum(int[] arr, int index)
+@@ require: \bsum\s*\(\s*\w+\s*,\s*\w+\s*\+\s*1\s*\) | Метод должен вызывать сам себя для следующего индекса: sum(arr, index + 1)

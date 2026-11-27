@@ -1,0 +1,69 @@
+## id: m12-t05
+## title: Разбор настроек «ключ=значение»
+## file: module-12/KeyValueLineParser.java
+## class: KeyValueLineParser
+## level: 2
+@@ description
+<p>🛠 <b>Мастерская.</b> Настройки сервера или игры часто лежат в файле строками вида <code>timeout=30</code>. Люди ошибаются: забывают <code>=</code>, пишут буквы вместо числа. Программа должна разобрать все строки, про каждую плохую сказать, что с ней не так, и <b>не упасть</b>.</p>
+<p>Ввод: в первой строке N, дальше N строк. Каждую строку проверь по порядку:</p>
+<ol>
+  <li>нет знака <code>=</code> → ошибка <code>нет знака =</code>;</li>
+  <li>ключ (всё до <b>первого</b> <code>=</code>, без пробелов по краям) пустой → <code>пустой ключ</code>;</li>
+  <li>значение (всё после первого <code>=</code>, без пробелов по краям) — не целое число → <code>значение «abc» не число</code>.</li>
+</ol>
+<p>Хорошая строка печатается как <code>ключ -&gt; значение</code>, плохая — как <code>Строка 2: нет знака =</code> (строки нумеруются с 1). В конце — <code>Итого: верных 1, с ошибками 4</code>.</p>
+<pre class="terminal"><span class="out">ввод: 5             вывод: timeout -&gt; 30
+timeout=30                 Строка 2: нет знака =
+hello                      Строка 3: пустой ключ
+=5                         Строка 4: значение «abc» не число
+port=abc                   Строка 5: значение «» не число
+wait=                      Итого: верных 1, с ошибками 4</span></pre>
+<p><b>План по шаблону Мастерской:</b> сначала реши руками строку <code>a=b=c</code> — какой тут ключ и какое значение? Потом напиши метод <code>parseLine(String line)</code>, который на любую проблему делает <code>throw new IllegalArgumentException("текст ошибки")</code>, а в <code>main</code> один <code>catch</code> печатает <code>e.getMessage()</code>. Пригодятся <code>indexOf</code>, <code>substring</code>, <code>trim</code>, <code>isEmpty</code> из модуля 8.</p>
+<p>📖 <a href="/lessons/m12/06-throw-custom.html">throw и сообщения, которые помогают</a></p>
+@@ test: Все строки верные, пробелы вокруг =
+@@ input
+3
+timeout=30
+retries = 3
+port=8080
+@@ expect
+timeout -> 30
+retries -> 3
+port -> 8080
+Итого: верных 3, с ошибками 0
+@@ test: Все виды ошибок
+@@ input
+5
+timeout=30
+hello
+=5
+port=abc
+wait=
+@@ expect
+timeout -> 30
+Строка 2: нет знака =
+Строка 3: пустой ключ
+Строка 4: значение «abc» не число
+Строка 5: значение «» не число
+Итого: верных 1, с ошибками 4
+@@ test: Два знака = и пробелы по краям
+@@ input
+3
+a=b=c
+  x  =  -7
+count=12a
+@@ expect
+Строка 1: значение «b=c» не число
+x -> -7
+Строка 3: значение «12a» не число
+Итого: верных 1, с ошибками 2
+@@ test: Пустая строка
+@@ input
+1
+
+@@ expect
+Строка 1: нет знака =
+Итого: верных 0, с ошибками 1
+@@ require: throw\s+new\s+IllegalArgumentException | Сообщай о плохой строке через throw new IllegalArgumentException("…")
+@@ require: catch\s*\( | Поймай исключение в main, чтобы программа не упала
+@@ require: getMessage\s*\( | Текст ошибки бери из исключения: e.getMessage()

@@ -1,0 +1,36 @@
+## id: tr-vars-007
+## title: Три слова задом наперёд
+## file: trainer/vars/ThreeWordsBackwards.java
+## class: ThreeWordsBackwards
+## level: 1
+## category: Ввод и анкеты
+@@ description
+<p>Напиши класс <code>ThreeWordsBackwards</code>. Программа читает одну строку, в которой ровно три слова через пробел, и печатает эти слова в обратном порядке — через один пробел.</p>
+<pre class="terminal"><span class="out">ввод:  раз два три
+вывод: три два раз</span></pre>
+<p>Подвох: между словами может оказаться несколько пробелов. Метод <code>next()</code> лишние пробелы пропускает сам.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.next()</code> — возвращает одно слово (до пробела или Enter)</li>
+<li>три вызова <code>next()</code> подряд вернут три слова строки по очереди</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+раз два три
+@@ expect
+три два раз
+@@ test: Фраза
+@@ input
+мама мыла раму
+@@ expect
+раму мыла мама
+@@ test: Лишние пробелы
+@@ input
+  кот    ест   рыбу
+@@ expect
+рыбу ест кот
+@@ test: Однобуквенные слова
+@@ input
+a b c
+@@ expect
+c b a

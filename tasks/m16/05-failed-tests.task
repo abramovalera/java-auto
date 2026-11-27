@@ -1,0 +1,77 @@
+## id: m16-t05
+## title: Воркеры собирают упавшие тесты
+## file: module-16/FailedTestsCollector.java
+## class: FailedTestsCollector
+## level: 3
+@@ description
+<p>Ночная сборка интернет-магазина прогнала тесты программы, и отчёт о прогоне разбирают несколько потоков-воркеров. В первой строке ввода — число <code>n</code>, дальше <code>n</code> строк вида <code>ИмяТеста СТАТУС</code>, где статус — <code>PASSED</code> или <code>FAILED</code>.</p>
+<p>Создай пул из 3 потоков и отправь в него <b>по задаче на каждую строку</b>: задача разбирает строку и, если тест упал, добавляет его имя в <b>общий</b> список. Дождись, пока пул закончит (<code>shutdown()</code> + <code>awaitTermination(...)</code>), отсортируй имена по алфавиту и выведи. Ввод:</p>
+<pre class="terminal"><span class="out">5
+LoginTest PASSED
+CartTest FAILED
+SearchTest PASSED
+PaymentTest FAILED
+AuthTest FAILED</span></pre>
+<p>Вывод:</p>
+<pre class="terminal"><span class="out">Упавшие тесты:
+AuthTest
+CartTest
+PaymentTest
+Всего упало: 3 из 5</span></pre>
+<p>Если не упал ни один — вместо списка строка <code>Упавших тестов нет</code>. Подвох: обычный <code>ArrayList</code> нельзя пополнять из нескольких потоков — возьми потокобезопасный список (например, <code>Collections.synchronizedList</code>) или собирай результаты через <code>Future</code>. И подумай, почему без сортировки вывод был бы каждый раз разным.</p>
+<p>📖 <a href="/lessons/m16/04-volatile-deadlock.html">Потокобезопасные коллекции</a> · <a href="/lessons/m16/03-executor.html">ExecutorService</a></p>
+@@ test: Пример из условия
+@@ input
+5
+LoginTest PASSED
+CartTest FAILED
+SearchTest PASSED
+PaymentTest FAILED
+AuthTest FAILED
+@@ expect
+Упавшие тесты:
+AuthTest
+CartTest
+PaymentTest
+Всего упало: 3 из 5
+@@ test: Все тесты зелёные
+@@ input
+2
+LoginTest PASSED
+CartTest PASSED
+@@ expect
+Упавших тестов нет
+Всего упало: 0 из 2
+@@ test: Пустой отчёт
+@@ input
+0
+@@ expect
+Упавших тестов нет
+Всего упало: 0 из 0
+@@ test: Длинный отчёт
+@@ input
+12
+ProfileTest FAILED
+BasketTest PASSED
+OrderTest FAILED
+AdminTest FAILED
+LogoutTest PASSED
+MenuTest PASSED
+ZoomTest FAILED
+FilterTest PASSED
+BannerTest FAILED
+SortTest PASSED
+OrderHistoryTest FAILED
+ChatTest PASSED
+@@ expect
+Упавшие тесты:
+AdminTest
+BannerTest
+OrderHistoryTest
+OrderTest
+ProfileTest
+ZoomTest
+Всего упало: 6 из 12
+@@ require: Executors? | Воркеры — это пул потоков: ExecutorService / Executors
+@@ require: synchronizedList|CopyOnWriteArrayList|ConcurrentLinkedQueue|Future | Общий список должен быть потокобезопасным (или собирай результаты через Future)
+@@ require: sort | Перед выводом отсортируй имена — иначе порядок будет случайным

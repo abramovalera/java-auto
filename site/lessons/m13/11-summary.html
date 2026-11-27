@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля «Коллекции и generics» · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-sum">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 13 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead">Списки, множества, словари, очереди, сортировка и generics — инструменты, без которых не обходится ни одна серьёзная программа. Соберём всё в одну картинку и проверим себя.</p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <p>Пройдись по каждому блоку и вспомни, что за ним стоит. Если про блок сказать нечего — вернись к уроку.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 13: List, generics и обёртки, перебор, Set, Map, очереди, сортировка">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">📋 List</text>
+        <text x="56" y="80" class="d-small">ArrayList: add, get, set</text>
+        <text x="56" y="100" class="d-small">remove(int) / remove(obj)</text>
+        <text x="56" y="120" class="d-small">List.of — неизменяемый</text>
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🎁 Generics</text>
+        <text x="526" y="80" class="d-small">&lt;T&gt; — проверка типов</text>
+        <text x="526" y="100" class="d-small">Integer, кэш −128..127</text>
+        <text x="526" y="120" class="d-small">Box&lt;T&gt;, &lt;T&gt; T method()</text>
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">🔁 Перебор</text>
+        <text x="26" y="230" class="d-small">for-each, Iterator</text>
+        <text x="26" y="250" class="d-small">ConcurrentModification</text>
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-yellow"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🧺 Set</text>
+        <text x="556" y="230" class="d-small">Hash / Linked / Tree</text>
+        <text x="556" y="250" class="d-small">equals + hashCode</text>
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-green"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">📖 Map</text>
+        <text x="56" y="370" class="d-small">put, get → null</text>
+        <text x="56" y="390" class="d-small">getOrDefault, entrySet</text>
+        <text x="56" y="410" class="d-small">частота слов</text>
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-red"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">⚖️ Порядок</text>
+        <text x="526" y="370" class="d-small">ArrayDeque: очередь, стек</text>
+        <text x="526" y="390" class="d-small">Comparable, Comparator</text>
+        <text x="526" y="410" class="d-small">PriorityQueue</text>
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 13</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Коллекции</text>
+      </svg>
+      <figcaption>Шесть блоков модуля. В центре — идея «готовые контейнеры для данных на любой случай».</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <section class="goals">
+      <h3>Проверь каждый пункт честно</h3>
+      <ul>
+        <li>объяснить, чем ArrayList лучше массива, и пользоваться <code>add</code>, <code>get</code>, <code>set</code>, <code>remove</code>, <code>size</code>, <code>contains</code>, <code>indexOf</code>;</li>
+        <li>сказать, почему слева <code>List</code>, а справа <code>ArrayList</code>, и чем опасен <code>List.of</code>;</li>
+        <li>объяснить, зачем нужны угловые скобки и почему нельзя <code>List&lt;int&gt;</code>;</li>
+        <li>нарисовать стек и кучу для <code>Integer a = 128, b = 128;</code> и объяснить, почему <code>a == b</code> — false;</li>
+        <li>отличить <code>remove(1)</code> от <code>remove(Integer.valueOf(1))</code> в списке чисел;</li>
+        <li>удалить элементы во время обхода через Iterator и объяснить, откуда берётся ConcurrentModificationException;</li>
+        <li>выбрать между HashSet, LinkedHashSet и TreeSet и нарисовать корзины HashSet;</li>
+        <li>объяснить, что будет со своим классом в HashSet без <code>equals</code> и <code>hashCode</code>;</li>
+        <li>посчитать частоту слов через Map и перебрать словарь через <code>entrySet</code>;</li>
+        <li>использовать ArrayDeque как очередь и как стек;</li>
+        <li>написать Comparator классом или анонимным классом — и по двум полям;</li>
+        <li>написать свой класс <code>Box&lt;T&gt;</code> и обобщённый метод;</li>
+        <li>за пять секунд выбрать коллекцию для задачи по дереву решений.</li>
+      </ul>
+    </section>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большой квиз</h2>
+    <p>Восемь вопросов по всему модулю. Ошибки вернутся в конце — разберись с ними.</p>
+    <div data-widget="check" id="check-m13-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 13 целиком",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "List<String> list = new ArrayList<>(List.of(\"a\", \"b\", \"c\"));\nlist.add(1, \"x\");\nlist.remove(\"c\");\nlist.set(0, \"y\");\nSystem.out.println(list + \" \" + list.indexOf(\"b\"));",
+         "answer": "[y, x, b] 2",
+         "why": "[a, b, c] → вставили x на место 1: [a, x, b, c] → убрали c → заменили a на y. b на месте 2."
+        },
+        {
+         "type": "single",
+         "q": "Что напечатает <code>Integer a = 1000, b = 1000; System.out.println(a.equals(b) + \" \" + (a == b));</code>?",
+         "options": [
+          "true true",
+          "true false",
+          "false false"
+         ],
+         "answer": 1,
+         "why": "equals сравнивает числа — true. 1000 не в кэше, это два объекта — == даёт false."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Удалять элементы во время for-each через list.remove — безопасно",
+           "a": false,
+           "why": "ConcurrentModificationException. Удалять — через it.remove()."
+          },
+          {
+           "s": "Для своего класса в HashSet нужны и equals, и hashCode",
+           "a": true
+          },
+          {
+           "s": "TreeMap печатает пары, отсортированные по значениям",
+           "a": false,
+           "why": "по ключам."
+          },
+          {
+           "s": "ArrayDeque может работать и как очередь, и как стек",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Map<Character, Integer> m = new TreeMap<>();\nfor (char c : \"банан\".toCharArray()) {\n    m.put(c, m.getOrDefault(c, 0) + 1);\n}\nSystem.out.println(m);",
+         "answer": "{а=2, б=1, н=2}",
+         "why": "Частота букв: б — 1, а — 2, н — 2. TreeMap сортирует ключи: а, б, н."
+        },
+        {
+         "type": "bug",
+         "q": "Метод должен вернуть цену или 0, если товара нет. Где программа упадёт?",
+         "code": "static int priceOf(Map<String, Integer> prices, String name) {\n    int price = prices.get(name);\n    return price;\n}",
+         "answer": [
+          2
+         ],
+         "why": "Нет ключа — get вернёт null, распаковка в int — NullPointerException. Нужно getOrDefault(name, 0)."
+        },
+        {
+         "type": "match",
+         "q": "Соедини задачу с коллекцией",
+         "left": [
+          "Убрать повторы, сохранив порядок",
+          "Слово → сколько раз встретилось, по алфавиту",
+          "Обработка заявок по порядку прихода",
+          "Проверка скобок ([{}])"
+         ],
+         "right": [
+          "LinkedHashSet",
+          "TreeMap",
+          "Очередь на ArrayDeque",
+          "Стек на ArrayDeque"
+         ],
+         "why": "Это задачи модуля — посмотри, все ли ты решил."
+        },
+        {
+         "type": "single",
+         "q": "Что значит &lt;T&gt; в <code>static &lt;T&gt; T lastOf(List&lt;T&gt; list)</code>?",
+         "options": [
+          "Метод работает только со строками",
+          "Объявлен параметр типа: метод подходит для списка любого типа и возвращает элемент того же типа",
+          "T — имя переменной"
+         ],
+         "answer": 1,
+         "why": "Обобщённый метод. Тип T Java выводит из аргумента."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><strong>Сделай все задачи.</strong> На <a href="/tasks.html?module=m13">странице практики</a> все десять задач должны быть зелёными — от уникальных слов до сортировки студентов.</li>
+      <li><strong>Пройди головоломки</strong> модуля, если ещё не прошёл, — на экзамене будут похожие.</li>
+      <li><span class="ai-only"><strong>Открой Claude Code в папке курса</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><strong>Будь готов рисовать и рассуждать.</strong> Наставник попросит нарисовать корзины HashSet и стек/кучу для кэша Integer, выбрать коллекцию для задачи и объяснить выбор, расписать план подсчёта частоты по шаблону Мастерской.</span><span class="free-only"><strong>Будь готов рисовать и рассуждать.</strong> <span class="ai-name">DeepSeek</span> попросит нарисовать корзины HashSet и стек/кучу для кэша Integer, выбрать коллекцию для задачи и объяснить выбор, расписать план подсчёта частоты по шаблону Мастерской.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p><span class="ai-only">На экзамене не подглядывай в уроки. Если не помнишь — так и скажи: наставник подскажет, какой урок перечитать. Это честнее и полезнее, чем угадывать.</span><span class="free-only">На экзамене не подглядывай в уроки. Если не помнишь — так и скажи: <span class="ai-name">DeepSeek</span> подскажет, какой урок перечитать. Это честнее и полезнее, чем угадывать.</span></p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Напиши: <em>«Давай пробный экзамен по модулю 13 без отметок в progress.md — особенно equals/hashCode в HashSet и ConcurrentModificationException»</em>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card">
+        <span class="emoji">λ</span>
+        <h4>Модуль 14: лямбды</h4>
+        <p>Компаратор в одну строку, <code>removeIf(n -&gt; n &lt; 0)</code>, <code>forEach</code> — всё, что ты сейчас писал классами и итераторами, станет короче. Но ты уже знаешь, что внутри.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">🌊</span>
+        <h4>Stream API</h4>
+        <p>«Отфильтруй, преобразуй, собери» — конвейеры над коллекциями. Частота слов, группировка по первой букве — одной цепочкой.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">🧪</span>
+        <h4>Тесты на JUnit</h4>
+        <p>Проверки коллекций одной строкой: <code>containsExactly</code>, <code>hasSize</code>, <code>doesNotContain</code> из AssertJ — всё это ждёт тебя в модуле 17.</p>
+      </div>
+    </div>
+    <section class="summary">
+      <h2>Ты молодец</h2>
+      <p>Коллекции — рабочий инструмент на каждый день: ни одна реальная программа без них не обходится. А главное, ты знаешь не только «как вызвать», но и что происходит внутри: массив с запасом, корзины, итератор, кэш.</p>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li>Сделай все десять задач до зелёного.</li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 14!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 14!</span></li>
+      </ul>
+    </section>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m13">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

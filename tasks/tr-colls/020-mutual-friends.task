@@ -1,0 +1,55 @@
+## id: tr-colls-020
+## title: Общие друзья
+## file: trainer/colls/MutualFriendsFinder.java
+## class: MutualFriendsFinder
+## level: 1
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>MutualFriendsFinder</code>. Соцсеть показывает общих друзей двух людей. В первой строке — количество друзей Ани <code>n</code>, во второй — их имена через пробел; в третьей — количество друзей Бори <code>m</code>, в четвёртой — их имена. Напечатай <code>Общие друзья: </code> и имена по алфавиту через запятую с пробелом. Если общих нет — <code>Общих друзей нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       Катя Лёша Миша Ира
+       3
+       Ира Олег Катя
+вывод: Общие друзья: Ира, Катя
+
+ввод:  2
+       Антон Вика
+       2
+       Гоша Даша
+вывод: Общих друзей нет</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a.retainAll(b)</code> — оставляет в <code>a</code> только те элементы, которые есть и в <code>b</code> (пересечение)</li>
+<li><code>String.join(", ", set)</code> — склеивает строки через разделитель</li>
+</ul></div>
+@@ test: Двое общих
+@@ input
+4
+Катя Лёша Миша Ира
+3
+Ира Олег Катя
+@@ expect
+Общие друзья: Ира, Катя
+@@ test: Нет общих
+@@ input
+2
+Антон Вика
+2
+Гоша Даша
+@@ expect
+Общих друзей нет
+@@ test: У Бори нет друзей
+@@ input
+2
+Антон Вика
+0
+@@ expect
+Общих друзей нет
+@@ test: Все общие
+@@ input
+2
+Юля Ден
+3
+Ден Юля Юля
+@@ expect
+Общие друзья: Ден, Юля
+@@ require: retainAll | Найди пересечение методом retainAll

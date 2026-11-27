@@ -1,0 +1,46 @@
+## id: tr-arith-007
+## title: Призовой билет
+## file: trainer/arith/LotteryTicketDivisible.java
+## class: LotteryTicketDivisible
+## level: 1
+## category: Логика: true/false
+@@ description
+<p>В лотерее приз получает билет, номер которого делится без остатка и на 3, и на 5. Создай класс <code>LotteryTicketDivisible</code>. Программа читает номер билета (целое положительное число) и печатает <code>true</code>, если билет призовой, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  45      вывод: true
+ввод:  9       вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 3 == 0</code> — <code>true</code>, если <code>n</code> делится на 3 без остатка</li>
+<li><code>&amp;&amp;</code> — соединяет два условия: должны быть верны оба</li>
+</ul></div>
+@@ test: Делится на оба
+@@ input
+45
+@@ expect
+true
+@@ test: Только на 3
+@@ input
+9
+@@ expect
+false
+@@ test: Только на 5
+@@ input
+25
+@@ expect
+false
+@@ test: Ни на одно
+@@ input
+7
+@@ expect
+false
+@@ test: Самый маленький призовой
+@@ input
+15
+@@ expect
+true
+@@ test: Большой номер
+@@ input
+30000
+@@ expect
+true
+@@ require: % | Делимость проверяется остатком от деления — оператором %
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

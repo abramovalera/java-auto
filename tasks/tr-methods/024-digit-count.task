@@ -1,0 +1,43 @@
+## id: tr-methods-024
+## title: Сколько цифр в числе
+## file: trainer/methods/DigitCountMethod.java
+## class: DigitCountMethod
+## level: 2
+## category: Вычисления
+@@ description
+<p>Создай класс <code>DigitCountMethod</code> и напиши метод <code>static int countDigits(long n)</code>: он возвращает, сколько цифр в записи числа. Знак минус не считается, у нуля — одна цифра.</p>
+<p>main читает в первой строке количество чисел <code>k</code>, во второй — <code>k</code> целых чисел через пробел (они могут не влезать в <code>int</code>), и печатает ответы для всех чисел в одну строку через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       12345 0 -907
+вывод: 5 1 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n / 10</code> — отбрасывает последнюю цифру: <code>907 / 10</code> равно <code>90</code></li>
+<li><code>scanner.nextLong()</code> — читает число типа <code>long</code></li>
+<li>цикл <code>do { … } while (…)</code> выполнит тело хотя бы один раз — это пригодится для нуля</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+12345 0 -907
+@@ expect
+5 1 3
+@@ test: Границы разрядов
+@@ input
+4
+9 10 99 100
+@@ expect
+1 2 2 3
+@@ test: Огромное число
+@@ input
+2
+9223372036854775807 -1
+@@ expect
+19 1
+@@ test: Один ноль
+@@ input
+1
+0
+@@ expect
+1
+@@ require: static\s+int\s+countDigits\s*\(\s*long\s+\w+\s*\) | Нужен метод static int countDigits(long n)
+@@ require: \WcountDigits\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать countDigits(...) для каждого числа

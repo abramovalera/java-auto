@@ -1,0 +1,76 @@
+## id: m15-t06
+## title: Настройки игры в properties
+## file: module-15/GameConfigReader.java
+## class: GameConfigReader
+## level: 2
+@@ description
+<p>Игра берёт имя игрока, сложность и громкость из <code>config.properties</code>. Программа читает число <code>N</code> и <code>N</code> строк — это содержимое конфига как есть (там бывают комментарии, пустые строки, пробелы вокруг <code>=</code>). Она записывает их в файл <code>config.properties</code>, загружает его в <code>java.util.Properties</code> и печатает, сколько получилось настроек.</p>
+<p>Дальше программа читает число <code>M</code> и <code>M</code> ключей и для каждого печатает <code>ключ = значение</code>, а если такого ключа нет — <code>ключ = не задано</code>:</p>
+<pre class="terminal"><span class="out">5
+# настройки игры
+player.name = Javik
+
+difficulty=easy
+difficulty=hard
+3
+difficulty
+player.name
+sound</span></pre>
+<pre class="terminal"><span class="out">Настроек: 2
+difficulty = hard
+player.name = Javik
+sound = не задано</span></pre>
+<p>Разбирать строки вручную через <code>split</code> не нужно — комментарии, пробелы и повторы ключей <code>Properties</code> обработает сам. Загружай через <code>Files.newBufferedReader</code> (в try-with-resources), чтобы кириллица в значениях не превратилась в кракозябры.</p>
+<p>📖 <a href="/lessons/m15/06-csv-properties.html">Практика: CSV и properties</a></p>
+@@ test: Обычный конфиг
+@@ input
+3
+player.name=Javik
+difficulty=easy
+volume=10
+2
+player.name
+difficulty
+@@ expect
+Настроек: 3
+player.name = Javik
+difficulty = easy
+@@ test: Комментарий, пустая строка, повтор ключа
+@@ input
+5
+# настройки игры
+player.name = Javik
+
+difficulty=easy
+difficulty=hard
+3
+difficulty
+player.name
+sound
+@@ expect
+Настроек: 2
+difficulty = hard
+player.name = Javik
+sound = не задано
+@@ test: Кириллица в значении
+@@ input
+2
+player.name=Иван Петров
+! старый комментарий
+1
+player.name
+@@ expect
+Настроек: 1
+player.name = Иван Петров
+@@ test: Пустой конфиг
+@@ input
+0
+1
+player.name
+@@ expect
+Настроек: 0
+player.name = не задано
+@@ require: Properties | Загрузи конфиг в объект java.util.Properties
+@@ require: \.load\s*\( | Прочитай файл методом load
+@@ require: getProperty\s*\( | Значение по ключу — getProperty
+@@ require: config\.properties | Файл должен называться config.properties

@@ -1,0 +1,34 @@
+## id: m18-t07
+## title: Охотник за багами: тесты против мутантов
+## file: module-18/NookDiscountBugHunterTest.java
+## class: NookDiscountBugHunterTest
+## level: 3
+## mode: junit
+@@ description
+<p>Зелёный тест — ещё не хороший тест. Хороший тест <b>падает, когда в коде баг</b>. Проверим твои тесты по-честному: тебе дают правильное правило скидки и четыре «мутанта» — копии с одной маленькой ошибкой каждая. Твои проверки должны <b>пропустить</b> правильное правило и <b>завалить</b> каждого мутанта. (Так работает настоящий приём — мутационное тестирование.)</p>
+<p><b>Требования к скидке</b> книжного магазина Nook — метод <code>percent(cartTotal, loyalCustomer)</code> возвращает процент скидки:</p>
+<ul>
+<li>сумма корзины меньше 0 — ошибка: <code>IllegalArgumentException</code>;</li>
+<li>от 0 до 999 — <b>0%</b>; от 1000 до 4999 — <b>5%</b>; от 5000 и больше — <b>10%</b>;</li>
+<li>постоянному покупателю (<code>loyalCustomer == true</code>) — ещё <b>+5</b> к этому проценту, в любом диапазоне, даже при сумме меньше 1000;</li>
+<li>но итог никогда не больше <b>12%</b>.</li>
+</ul>
+<p>Файл уже лежит в <code>workspace/module-18/NookDiscountBugHunterTest.java</code>. Пять тестов в нём готовы — <b>не меняй</b> их и классы ниже. Твоя часть — метод <code>checkDiscountRule(NookDiscountRule rule)</code>: напиши в нём проверки AssertJ для переданного правила, например</p>
+<pre data-file="NookDiscountBugHunterTest.java"><code class="java">assertThat(rule.percent(300, false)).isEqualTo(0);</code></pre>
+<p>Для исключения — <code>assertThatThrownBy(() -&gt; rule.percent(…)).isInstanceOf(IllegalArgumentException.class);</code></p>
+<p>Как это проверяется: тест <code>correctRulePassesYourChecks</code> зовёт твой метод с правильным правилом — все проверки должны пройти. Тесты <code>catchesMutantA…D</code> зовут его с мутантом и ждут, что одна из твоих проверок <b>упадёт</b> (<code>AssertionError</code>). Если мутант «выжил» — твоим проверкам чего-то не хватает.</p>
+<p><b>Как думать (тест-дизайн):</b> раздели суммы на диапазоны (классы эквивалентности) и проверь по значению из каждого; на каждой границе проверь значение «последнее до» и «первое после»; отдельно — постоянного покупателя в каждом диапазоне, потолок 12% и отрицательную сумму. Составь таблицу «сумма | постоянный | ожидание» на бумаге, а потом переведи её в код. Код мутантов читай <b>только после</b> — иначе ты будешь ловить известные баги, а не проверять требования.</p>
+<p>📖 Уроки: <a href="/lessons/m18/01-what-is-autotest.html">Хороший автотест</a>, модуль 17 — AssertJ</p>
+@@ test: JUnit-тесты ученика (правильное правило + 4 мутанта)
+@@ require: void\s+correctRulePassesYourChecks\s*\(\s*\)\s*\{\s*checkDiscountRule\s*\(\s*new\s+NookDiscountCorrect\s*\(\s*\)\s*\)\s*;\s*\} | Не меняй готовый тест correctRulePassesYourChecks
+@@ require: catchesMutantA\s*\(\s*\)\s*\{\s*assertThatThrownBy\s*\(\s*\(\s*\)\s*->\s*checkDiscountRule\s*\(\s*new\s+NookDiscountMutantA\s*\(\s*\)\s*\)\s*\)\s*\.isInstanceOf\s*\(\s*AssertionError\.class\s*\)\s*;\s*\} | Не меняй готовый тест catchesMutantA
+@@ require: catchesMutantB\s*\(\s*\)\s*\{\s*assertThatThrownBy\s*\(\s*\(\s*\)\s*->\s*checkDiscountRule\s*\(\s*new\s+NookDiscountMutantB\s*\(\s*\)\s*\)\s*\)\s*\.isInstanceOf\s*\(\s*AssertionError\.class\s*\)\s*;\s*\} | Не меняй готовый тест catchesMutantB
+@@ require: catchesMutantC\s*\(\s*\)\s*\{\s*assertThatThrownBy\s*\(\s*\(\s*\)\s*->\s*checkDiscountRule\s*\(\s*new\s+NookDiscountMutantC\s*\(\s*\)\s*\)\s*\)\s*\.isInstanceOf\s*\(\s*AssertionError\.class\s*\)\s*;\s*\} | Не меняй готовый тест catchesMutantC
+@@ require: catchesMutantD\s*\(\s*\)\s*\{\s*assertThatThrownBy\s*\(\s*\(\s*\)\s*->\s*checkDiscountRule\s*\(\s*new\s+NookDiscountMutantD\s*\(\s*\)\s*\)\s*\)\s*\.isInstanceOf\s*\(\s*AssertionError\.class\s*\)\s*;\s*\} | Не меняй готовый тест catchesMutantD
+@@ require: return\s+Math\.min\(p,\s*12\);\s*\}\s*\}\s*class\s+NookDiscountMutantA | Не меняй правильное правило NookDiscountCorrect: верни его как было
+@@ require: if\s*\(\s*cartTotal\s*<\s*0\s*\)\s*\{\s*return\s+0;\s*\} | Не меняй мутантов: верни их как были
+@@ require: else\s+if\s*\(\s*cartTotal\s*>\s*1000\s*\) | Не меняй мутантов: верни их как были
+@@ require: loyalCustomer\s*&&\s*p\s*>\s*0 | Не меняй мутантов: верни их как были
+@@ require: p\s*\+=\s*5;\s*\}\s*return\s+p;\s*\} | Не меняй мутантов: верни их как были
+@@ forbid: instanceof|getClass\s*\(|getSimpleName|\bthrow\s+new\s+AssertionError | Проверки должны смотреть на результат правила, а не на то, какой это класс
+@@ require: (assertThat\s*\(\s*rule\.percent[\s\S]*){6} | Нужно минимум шесть проверок assertThat(rule.percent(…)) — по требованиям и границам

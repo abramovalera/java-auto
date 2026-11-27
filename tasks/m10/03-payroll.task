@@ -1,0 +1,64 @@
+## id: m10-t03
+## title: Зарплаты через полиморфизм
+## file: module-10/PayrollDemo.java
+## class: PayrollDemo
+## level: 2
+@@ description
+<p>Бухгалтерия считает зарплаты по-разному для разных сотрудников. Пусть каждый сотрудник <b>сам</b> знает, сколько ему платить. В файле <code>PayrollDemo.java</code>:</p>
+<ul>
+  <li><code>class PayrollEmployee</code> — обычный сотрудник. Поля <code>private</code>: имя и оклад; конструктор <code>(String name, int baseSalary)</code>; методы <code>String getName()</code>, <code>String role()</code> → <code>"сотрудник"</code>, <code>int salary()</code> → оклад.</li>
+  <li><code>class PayrollManager extends PayrollEmployee</code> — руководитель: ещё и премия. <code>role()</code> → <code>"руководитель"</code>, <code>salary()</code> = оклад + премия. Оклад бери через <code>super.salary()</code> — поле оклада у родителя приватное.</li>
+  <li><code>class PayrollIntern extends PayrollEmployee</code> — стажёр: <code>role()</code> → <code>"стажёр"</code>, <code>salary()</code> = половина оклада (целочисленное деление на 2).</li>
+</ul>
+<p>В <code>main</code>: прочитай N, потом N сотрудников — <code>employee Olga 80000</code>, <code>manager Anna 100000 30000</code> (последнее число — премия), <code>intern Ivan 60000</code> — в массив <code>PayrollEmployee[]</code>. Одним циклом напечатай каждого, потом фонд оплаты (сумму всех зарплат) и имя того, кто получает больше всех (при равенстве — первого; если сотрудников нет — <code>нет</code>).</p>
+<pre class="terminal"><span class="out">ввод:                          вывод:
+3
+employee Olga 80000            Olga (сотрудник): 80000
+manager Anna 100000 30000      Anna (руководитель): 130000
+intern Ivan 60000              Ivan (стажёр): 30000
+                               Фонд оплаты: 240000
+                               Больше всех: Anna</span></pre>
+<p>⚠️ Без <code>instanceof</code>: цикл просто вызывает <code>role()</code> и <code>salary()</code>, а Java сама выбирает нужную версию метода.</p>
+<p>📖 <a href="/lessons/m10/04-polymorphism.html">Полиморфизм</a>, <a href="/lessons/m10/03-overriding.html">super.method()</a></p>
+@@ test: Трое разных
+@@ input
+3
+employee Olga 80000
+manager Anna 100000 30000
+intern Ivan 60000
+@@ expect
+Olga (сотрудник): 80000
+Anna (руководитель): 130000
+Ivan (стажёр): 30000
+Фонд оплаты: 240000
+Больше всех: Anna
+@@ test: Стажёр с нечётным окладом
+@@ input
+1
+intern Petr 55555
+@@ expect
+Petr (стажёр): 27777
+Фонд оплаты: 27777
+Больше всех: Petr
+@@ test: Равные зарплаты — первый
+@@ input
+2
+manager Anna 100000 0
+employee Boris 100000
+@@ expect
+Anna (руководитель): 100000
+Boris (сотрудник): 100000
+Фонд оплаты: 200000
+Больше всех: Anna
+@@ test: Никого нет
+@@ input
+0
+@@ expect
+Фонд оплаты: 0
+Больше всех: нет
+@@ require: extends\s+PayrollEmployee | Руководитель и стажёр должны наследовать PayrollEmployee
+@@ require: super\s*\( | Конструкторы наследников должны вызывать super(...)
+@@ require: super\.salary\s*\(\s*\) | Оклад в наследниках бери через super.salary()
+@@ require: @Override | Помечай переопределённые методы аннотацией @Override
+@@ require: PayrollEmployee\s*\[\s*\] | Сложи сотрудников в массив PayrollEmployee[]
+@@ forbid: instanceof | instanceof не нужен — пусть каждый класс сам считает salary()

@@ -1,0 +1,39 @@
+## id: tr-arrays-021
+## title: Копилка нарастающим итогом
+## file: trainer/arrays/PiggyBankRunningTotal.java
+## class: PiggyBankRunningTotal
+## level: 1
+## category: Отрезки и серии
+@@ description
+<p>Напиши класс <code>PiggyBankRunningTotal</code>. Каждый день ты кладёшь деньги в копилку или берёшь из неё (тогда число отрицательное). В первой строке — количество дней <code>n</code>, во второй — <code>n</code> целых чисел. Замени <b>прямо в массиве</b> каждый элемент на сумму в копилке к концу этого дня (сумму всех элементов от первого до него включительно) и напечатай массив через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       100 50 -30 0 200
+вывод: [100, 150, 120, 120, 320]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>подсказка: к концу дня <code>i</code> в копилке столько же, сколько к концу дня <code>i - 1</code>, плюс то, что положили в день <code>i</code></li>
+<li>начинай цикл с индекса 1: элемент с индексом 0 уже готов</li>
+</ul></div>
+@@ test: Неделя
+@@ input
+5
+100 50 -30 0 200
+@@ expect
+[100, 150, 120, 120, 320]
+@@ test: Только расходы
+@@ input
+3
+-10 -10 -10
+@@ expect
+[-10, -20, -30]
+@@ test: Один день
+@@ input
+1
+70
+@@ expect
+[70]
+@@ test: Пусто
+@@ input
+0
+@@ expect
+[]
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString

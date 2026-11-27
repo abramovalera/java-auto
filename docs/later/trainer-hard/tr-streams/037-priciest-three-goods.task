@@ -1,0 +1,47 @@
+## id: tr-streams-037
+## title: Три самых дорогих товара
+## file: trainer/streams/PriciestThreeGoods.java
+## class: PriciestThreeGoods
+## level: 3
+## category: Сортировка и топ
+@@ description
+<p>Напиши класс <code>PriciestThreeGoods</code>. В одной строке — товары через пробел в виде <code>название:цена</code> (хотя бы один, названия без пробелов и без «ё»). Опиши в том же файле record для товара. Напечатай три самых дорогих товара, каждый с новой строки в виде <code>название — цена</code>: сначала дороже; при равной цене — по алфавиту. Если товаров меньше трёх — все.</p>
+<pre class="terminal"><span class="out">ввод:  Чай:200 Кофе:350 Сок:120 Вода:50
+вывод: Кофе — 350
+       Чай — 200
+       Сок — 120</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>record PricedGood(String title, int price) { }</code> — запись для товара (без <code>public</code>, в том же файле)</li>
+<li><code>Comparator.comparingInt(PricedGood::price).reversed()</code> — порядок «сначала дороже»</li>
+<li><code>.thenComparing(PricedGood::title)</code> — при равенстве сравнить ещё и по названию</li>
+<li><code>.forEach(g -&gt; …)</code> — терминальная операция: выполняет действие для каждого элемента</li>
+</ul></div>
+@@ test: Полка с напитками
+@@ input
+Чай:200 Кофе:350 Сок:120 Вода:50
+@@ expect
+Кофе — 350
+Чай — 200
+Сок — 120
+@@ test: Ничья по цене
+@@ input
+Груша:90 Яблоко:90 Банан:90 Киви:150
+@@ expect
+Киви — 150
+Банан — 90
+Груша — 90
+@@ test: Всего два товара
+@@ input
+Хлеб:45 Сыр:300
+@@ expect
+Сыр — 300
+Хлеб — 45
+@@ test: Один товар
+@@ input
+Соль:20
+@@ expect
+Соль — 20
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \brecord\s+\w+ | Опиши товар как record

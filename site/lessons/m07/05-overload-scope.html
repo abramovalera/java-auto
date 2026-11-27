@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Перегрузка и область видимости · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-05">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 7 · Урок 5</div>
+    <h1>Перегрузка и область видимости</h1>
+    <p class="lead">Почему <code>println</code> печатает и числа, и строки? Как несколько методов могут носить одно имя? И почему переменную из main не видно в другом методе? Две темы, которые часто встречаются на собеседованиях.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 трассировка</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m07-05-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "static void grow(int[] a, int b) {\n    a[0]++;\n    b++;\n}\n\n// в main:\nint[] arr = {1};\nint num = 1;\ngrow(arr, num);\nSystem.out.println(arr[0] + \" \" + num);",
+            "answer": "2 1", "why": "Элементу массива присвоили новое значение по общей ссылке, а параметр для num метод получил копией значения." },
+          { "type": "single", "q": "Stack trace начинается со строки at Shop.percentOf(Shop.java:21). Что это значит?",
+            "options": ["Ошибку вызвал main", "Ошибка произошла в методе percentOf, в строке 21", "percentOf был вызван 21 раз"], "answer": 1,
+            "why": "Верхняя строка at — верхний фрейм, место аварии." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Одно имя — разные методы</h2>
+    <p>Ты пишешь <code>System.out.println(5)</code>, <code>println("кот")</code>, <code>println(2.5)</code>, <code>println(true)</code> — и всё работает. Неужели один метод умеет принимать что угодно? Нет: в классе <code>PrintStream</code> объявлено <b>около десятка разных методов</b> с одним и тем же именем <code>println</code>: <code>println(int x)</code>, <code>println(String x)</code>, <code>println(double x)</code>, <code>println(boolean x)</code>, <code>println()</code>… Java сама выбирает подходящий по типу аргумента, который ты передал.</p>
+    <p>Это называется <b>перегрузка методов</b> (overloading): несколько методов с одним именем, но <b>разными параметрами</b>. Так можно и в своём классе:</p>
+<pre data-file="Maxes.java"><code class="java">public class Maxes {
+    public static void main(String[] args) {
+        System.out.println(max(3, 7));          // 7
+        System.out.println(max(3, 7, 5));       // 7
+        System.out.println(max(2.5, 1.5));      // 2.5
+    }
+
+    static int max(int a, int b) {
+        if (a &gt; b) {
+            return a;
+        }
+        return b;
+    }
+
+    static int max(int a, int b, int c) {
+        // перегруженные методы могут звать друг друга
+        return max(max(a, b), c);
+    }
+
+    static double max(double a, double b) {
+        if (a &gt; b) {
+            return a;
+        }
+        return b;
+    }
+}</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: «открыть»</span>
+      <p>Ты говоришь «открой» — и это разные действия: открыть дверь (ключом), открыть банку (открывашкой), открыть книгу (руками). Слово одно, а что делать, понятно по тому, <b>что</b> тебе дали. Так и компилятор: имя одно, а нужный метод он выбирает по аргументам.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Сигнатура: что должно отличаться</h2>
+    <p>Компилятор различает методы по <b>сигнатуре</b> — это имя метода плюс список <b>типов</b> параметров по порядку. Сигнатура <code>max(int, int)</code> отличается от <code>max(int, int, int)</code> и от <code>max(double, double)</code> — значит, все трое могут жить в одном классе.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что отличается</th><th>Перегрузка?</th></tr>
+        <tr><td>Количество параметров: <code>area(double)</code> и <code>area(double, double)</code></td><td>✅ да</td></tr>
+        <tr><td>Типы параметров: <code>print(int)</code> и <code>print(String)</code></td><td>✅ да</td></tr>
+        <tr><td>Порядок типов: <code>f(int, String)</code> и <code>f(String, int)</code></td><td>✅ да (но так делают редко — легко запутаться)</td></tr>
+        <tr><td>Только имена параметров: <code>f(int a)</code> и <code>f(int b)</code></td><td>❌ нет — для компилятора одно и то же</td></tr>
+        <tr><td>Только тип возвращаемого значения: <code>int f(int)</code> и <code>double f(int)</code></td><td>❌ нет — ошибка</td></tr>
+      </table>
+    </div>
+    <p>Последняя строка — частый вопрос на собеседовании. Почему тип возвращаемого значения не считается? Потому что возвращаемое значение можно не использовать: глядя на вызов <code>f(5);</code>, компилятор не понял бы, какой из двух методов ты имел в виду. Ошибка будет такой: <code>method f(int) is already defined in class …</code> — «метод f(int) уже есть».</p>
+    <div data-widget="ide" id="shot-already-defined">
+      <script type="application/json">
+      { "tree": false, "file": "Demo.java", "statusPath": "module-07",
+        "code": "public class Demo {\n    static int f(int x) {\n        return x * 2;\n    }\n\n    static double f(int x) {\n        return x * 2.5;\n    }\n}",
+        "errors": [ { "line": 6, "text": "f", "msg": "'f(int)' is already defined in 'Demo'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-2", "text": "Первое объявление метода: сигнатура <code>f(int)</code>, тип возвращаемого значения <code>int</code>" },
+                   { "n": 2, "target": "err-6", "side": "top", "text": "Второй — тоже <code>f(int)</code>. Тип возвращаемого значения другой (<code>double</code>), но в сигнатуру он не входит" },
+                   { "n": 3, "target": "tip", "text": "<b>'f(int)' is already defined in 'Demo'</b> — «f(int) уже объявлен в классе Demo». <code>javac</code> скажет: <code>method f(int) is already defined in class Demo</code>" } ],
+        "caption": "Методы отличаются только типом возвращаемого значения — ошибка" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 260" role="img" aria-label="Компилятор подбирает перегруженный метод для вызова max(3, 2.5)">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="100" width="170" height="60" rx="12" class="d-code"/>
+        <text x="105" y="136" text-anchor="middle" class="d-mono">max(3, 2.5)</text>
+        <text x="105" y="185" text-anchor="middle" class="d-small">аргументы: int, double</text>
+        <path d="M190 130 H250" class="d-arrow"/>
+        <rect x="250" y="20" width="200" height="220" rx="14" class="d-soft"/>
+        <text x="350" y="50" text-anchor="middle" class="d-title">компилятор</text>
+        <text x="350" y="72" text-anchor="middle" class="d-small">ищет подходящую</text>
+        <text x="350" y="90" text-anchor="middle" class="d-small">сигнатуру</text>
+        <text x="350" y="130" text-anchor="middle" style="font-size:40px">🔎</text>
+        <text x="350" y="185" text-anchor="middle" class="d-small">точное совпадение?</text>
+        <text x="350" y="205" text-anchor="middle" class="d-small">нет — расширим int</text>
+        <text x="350" y="225" text-anchor="middle" class="d-small">до double</text>
+        <rect x="490" y="24" width="230" height="56" rx="10" class="d-red"/>
+        <text x="506" y="50" class="d-mono-ink">max(int, int)</text>
+        <text x="506" y="70" class="d-small">✗ 2.5 не влезет в int</text>
+        <rect x="490" y="96" width="230" height="56" rx="10" class="d-red"/>
+        <text x="506" y="122" class="d-mono-ink">max(int, int, int)</text>
+        <text x="506" y="142" class="d-small">✗ нужно три аргумента</text>
+        <rect x="490" y="168" width="230" height="56" rx="10" class="d-green"/>
+        <text x="506" y="194" class="d-mono-ink">max(double, double)</text>
+        <text x="506" y="214" class="d-small">✓ 3 станет 3.0 — подходит</text>
+        <path d="M450 196 H488" class="d-arrow"/>
+      </svg>
+      <figcaption>Выбор перегрузки делает компилятор ещё до запуска — по типам аргументов. Сначала ищет точное совпадение, потом пробует расширить типы: int → long → double.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: в классе есть только <code>static void show(double x)</code>. Скомпилируется ли <code>show(5)</code>? Что напечатается, если метод печатает x?</summary>
+      <p><b>Да, напечатается 5.0.</b> Аргумент — литерал 5 типа int; он без потерь помещается в double, и компилятор сам расширит его — как при <code>double d = 5;</code> из модуля 2. А вот наоборот (метод с <code>int</code>, вызов с <code>5.5</code>) — ошибка: из double в int сам по себе компилятор не переводит, можно потерять дробную часть.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: когда компилятор не может выбрать</summary>
+      <p>Есть два метода: <code>f(int a, double b)</code> и <code>f(double a, int b)</code>. Вызов <code>f(1, 2)</code> подходит к обоим: в первом расширим второй аргумент, во втором — первый. Ни один не лучше другого, и компилятор честно скажет: <code>reference to f is ambiguous</code> — «вызов неоднозначен». Вывод: не делай перегрузки, которые отличаются только порядком похожих типов.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Область видимости: где живёт переменная</h2>
+    <p>Вторая тема урока. Попробуем из одного метода присвоить значение локальной переменной другого:</p>
+<pre data-file="Scope.java"><code class="java">public class Scope {
+    public static void main(String[] args) {
+        int score = 10;
+        addBonus();
+        System.out.println(score);
+    }
+
+    static void addBonus() {
+        score = score + 5;      // ошибка!
+    }
+}</code></pre>
+<pre class="terminal"><span class="err">Scope.java:9: error: cannot find symbol
+        score = score + 5;
+        ^
+  symbol:   variable score
+  location: class Scope</span></pre>
+    <p>Так ошибку покажет <code>javac</code> (и сайт кнопкой «Проверить»). А в редакторе IDEA она видна ещё до запуска:</p>
+    <div data-widget="ide" id="shot-scope-symbol">
+      <script type="application/json">
+      { "tree": false, "file": "Scope.java", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class Scope {\n    public static void main(String[] args) {\n        int score = 10;\n        addBonus();\n        System.out.println(score);\n    }\n\n    static void addBonus() {\n        score = score + 5;\n    }\n}",
+        "errors": [ { "line": 9, "col": 9, "len": 5, "msg": "Cannot resolve symbol 'score'", "tip": true },
+                    { "line": 9, "col": 17, "len": 5, "msg": "Cannot resolve symbol 'score'" } ],
+        "marks": [ { "n": 1, "target": "line-3", "text": "<code>score</code> объявлена здесь — в теле <code>main</code>. Значит, её область видимости — до закрывающей скобки main (строка 6)" },
+                   { "n": 2, "target": "err-9-2", "text": "В другом методе это имя для Java пустое — красное оба раза: и слева от <code>=</code>, и справа" },
+                   { "n": 3, "target": "tip", "text": "<b>Cannot resolve symbol 'score'</b> — «не знаю, что такое score». Это то же, что <code>cannot find symbol</code> у javac" } ],
+        "caption": "Чужая локальная переменная: Cannot resolve symbol" }
+      </script>
+    </div>
+    <p>Компилятор не знает никакой <code>score</code> в методе <code>addBonus</code>. И он прав: <code>score</code> объявлена в теле main, значит, она <b>локальная переменная main</b> и живёт только там. Её <b>область видимости</b> (scope) — от строки объявления до закрывающей скобки main.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: квартиры в доме</span>
+      <p>Класс — это дом, методы — квартиры. В квартире 5 живёт кот Барсик, в квартире 12 — тоже кот Барсик. Это два разных кота: каждый живёт у себя, и позвать Барсика из соседней квартиры нельзя — тебя там не слышно. Так и переменные: у каждого метода свои, даже если имена совпадают.</p>
+    </div>
+    <p>С точки зрения памяти всё логично. Локальные переменные лежат во <b>фрейме</b> метода. Пока работает addBonus, фрейм main лежит ниже, но заглядывать в чужой фрейм метод не умеет. А когда метод закончился, его фрейма вообще нет — переменных тоже.</p>
+    <p><b>Как правильно?</b> Данные между методами передают через <b>параметры</b> (туда: аргумент при вызове) и <b>return</b> (обратно: возвращаемое значение):</p>
+<pre data-file="Scope.java"><code class="java">public static void main(String[] args) {
+    int score = 10;
+    score = addBonus(score);       // отдали значение и забрали результат
+    System.out.println(score);     // 15
+}
+
+static int addBonus(int points) {
+    return points + 5;
+}</code></pre>
+    <div class="say" data-mood="think"><p>«А нельзя ли завести одну переменную на весь класс, чтобы её видели все методы?» Можно — это <b>поле</b> класса. Но с полями нужно уметь обращаться, и это тема модуля 9 «Классы и объекты». Пока передаём данные через параметры — это и честнее: по сигнатуре метода сразу видно, что ему нужно.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Блоки внутри метода</h2>
+    <p>Область видимости бывает и меньше метода. Любые фигурные скобки — тело <code>if</code>, <code>for</code>, <code>while</code> — это <b>блок</b>. Переменная, объявленная в блоке, живёт до его закрывающей скобки:</p>
+<pre data-file="Blocks.java"><code class="java">public static void main(String[] args) {
+    int total = 0;                      // видна до конца main
+    for (int i = 1; i &lt;= 3; i++) {      // i видна только в цикле
+        int square = i * i;             // square — только внутри тела цикла
+        total += square;
+    }
+    System.out.println(total);          // ✅ 14
+    System.out.println(i);              // ❌ cannot find symbol
+    System.out.println(square);         // ❌ cannot find symbol
+}</code></pre>
+    <p>Блок — как комната в квартире: что положил в комнате, видно в этой комнате. Из прихожей не видно, что лежит в спальне. А вот то, что лежит в прихожей (<code>total</code>), видно из всех комнат.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">✅</span><h4>Можно</h4><p>Одно и то же имя в <b>разных</b> методах или в двух соседних циклах: <code>for (int i…)</code> и ещё раз <code>for (int i…)</code> ниже. Это разные переменные в разных областях.</p></div>
+      <div class="card"><span class="emoji">❌</span><h4>Нельзя</h4><p>Объявить переменную с тем же именем внутри блока, где она уже видна: <code>int x = 1; if (…) { int x = 2; }</code>. Ошибка <code>variable x is already defined in method main</code>.</p></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли? <code>if (true) { int a = 5; } System.out.println(a);</code></summary>
+      <p><b>Нет</b>, <code>cannot find symbol</code>. Область видимости переменной <code>a</code> кончилась на закрывающей скобке тела if. Если a нужна после блока — объяви её <b>до</b> блока, а внутри только присваивай.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Два count — два разных</h2>
+    <p>Проверим на трассировке: у main и у метода переменные с одинаковым именем <code>count</code>. Мешают ли они друг другу?</p>
+    <div data-widget="trace" id="trace-m07-05-scope">
+      <script type="application/json">
+      { "title": "Одинаковые имена в разных фреймах",
+        "intro": "У каждого фрейма свои переменные. Следи, чья <code>count</code> меняется.",
+        "code": "public class Counters {\n    public static void main(String[] args) {\n        int count = 1;\n        int result = triple(count + 1);\n        System.out.println(count + \" \" + result);\n    }\n\n    static int triple(int count) {\n        count = count * 3;\n        return count;\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "count": "1" } } ], "note": "В main объявлена переменная <code>count</code> и инициализирована значением 1." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "count": "1" } } ], "note": "Вызываем triple, аргумент — выражение <code>count + 1</code>. Java вычисляет его: 2. В метод передаётся число 2." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "count": "1" } }, { "frame": "triple", "vars": { "count": "2" } } ], "vars": { "count": "2" }, "ask": ["count"], "note": "Каким аргументом инициализирован параметр метода? В фрейме triple свой параметр count = 2. Имя то же, переменная другая." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": { "count": "1" } }, { "frame": "triple", "vars": { "count": "6" } } ], "vars": { "count": "6" }, "ask": ["count"], "note": "Умножь count верхнего фрейма на 3. Присваивание 2 * 3 = 6 меняет count метода triple, а count в main так и осталась 1." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": { "count": "1" } }, { "frame": "triple", "vars": { "count": "6" } } ], "note": "return возвращает 6. Фрейм triple со своей count исчезает." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "count": "1", "result": "6" } } ], "vars": { "result": "6" }, "note": "Возвращённым значением инициализируется result = 6." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "count": "1", "result": "6" } } ], "vars": { "count": "1", "result": "6" }, "out": "1 6\n", "note": "Печатаем «1 6». Одинаковые имена в разных методах друг другу не мешают." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m07-05">
+      <script type="application/json">
+      { "title": "Перегрузка и область видимости — главное",
+        "items": [
+          { "type": "multi", "q": "В классе уже есть метод static int sum(int a, int b). Какие методы можно добавить рядом?",
+            "options": ["static int sum(int a, int b, int c)", "static double sum(double a, double b)", "static int sum(int x, int y)", "static double sum(int a, int b)"], "answer": [0, 1],
+            "why": "Перегрузка требует другой сигнатуры: других типов или количества параметров. Другие имена параметров и другой тип возвращаемого значения — не считаются: будет «already defined»." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "public class Over {\n    public static void main(String[] args) {\n        show(7);\n        show(7.0);\n        show(\"7\");\n    }\n\n    static void show(int x) {\n        System.out.println(\"int\");\n    }\n\n    static void show(double x) {\n        System.out.println(\"double\");\n    }\n\n    static void show(String x) {\n        System.out.println(\"String\");\n    }\n}",
+            "answer": "int\ndouble\nString", "why": "7 — литерал int, 7.0 — double, \"7\" — строковый литерал. Для каждого аргумента есть перегрузка с точно совпадающим типом параметра." },
+          { "type": "bug", "q": "Найди строку с ошибкой компиляции",
+            "code": "public class Game {\n    public static void main(String[] args) {\n        int lives = 3;\n        loseLife();\n    }\n\n    static void loseLife() {\n        lives--;\n    }\n}",
+            "answer": [8], "why": "lives — локальная переменная main. В loseLife её не видно: cannot find symbol." },
+          { "type": "single", "q": "Что выведет код?",
+            "code": "int x = 10;\nfor (int i = 0; i < 2; i++) {\n    int y = x + i;\n    x = y;\n}\nSystem.out.println(x);",
+            "options": ["10", "11", "Ошибка компиляции: y не видна", "12"], "answer": 1,
+            "why": "x объявлена до цикла и видна в теле. i = 0: y = 10, x = 10. i = 1: y = 11, x = 11. Область видимости y — только тело цикла, но после цикла её никто и не использует." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Перегруженные методы различаются списком типов параметров", "a": true },
+              { "s": "Метод, объявленный в одном классе с main, видит все переменные main", "a": false, "why": "локальные переменные видны только внутри своего метода (и блока)." },
+              { "s": "В двух соседних циклах можно объявить переменную i", "a": true },
+              { "s": "println — один метод, который умеет принимать любой тип", "a": false, "why": "это десяток перегруженных методов println с разными параметрами." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 7.5. Покажи мне несколько пар методов, а я скажу, перегрузка это или ошибка компиляции, и объясню почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Перегрузка — методы с одним именем и разными параметрами (количество, типы, порядок типов). <code>println</code> — пример перегрузки.</li>
+        <li><b>Сигнатура</b> = имя + типы параметров. Имена параметров и тип возвращаемого значения в неё не входят.</li>
+        <li>Компилятор выбирает перегрузку по типам аргументов: сначала точное совпадение, потом расширение (int → double).</li>
+        <li><b>Область видимости</b> локальной переменной — от объявления до конца своего блока <code>{ }</code>. Чужие переменные из другого метода не видны: <code>cannot find symbol</code>.</li>
+        <li>Данные между методами передаём через параметры (аргументы вызова) и return (возвращаемое значение).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

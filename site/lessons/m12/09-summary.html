@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 12 · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 12 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Красный текст в консоли больше не авария, а подсказка. Ты умеешь читать stack trace, перехватывать и выбрасывать исключения, объявлять свои классы исключений и не прятать ошибки. Соберём всё вместе — и к наставнику на экзамен.</span><span class="free-only">Красный текст в консоли больше не авария, а подсказка. Ты умеешь читать stack trace, перехватывать и выбрасывать исключения, объявлять свои классы исключений и не прятать ошибки. Соберём всё вместе — и к <span class="ai-name">DeepSeek</span> на экзамен.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 12: что такое исключение, stack trace, try/catch, finally, иерархия и checked, throw и свои исключения, хорошие практики">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-red"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">💥 Исключение</text>
+        <text x="56" y="80" class="d-small">объект: тип + сообщение</text>
+        <text x="56" y="100" class="d-small">всплывает по стеку</text>
+        <text x="56" y="120" class="d-small">не перехватили → падение</text>
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-yellow"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🔎 Stack trace</text>
+        <text x="526" y="80" class="d-small">сначала тип + сообщение</text>
+        <text x="526" y="100" class="d-small">at Класс.метод(Файл:N)</text>
+        <text x="526" y="120" class="d-small">Caused by → корень</text>
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-blue"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">🧤 try/catch</text>
+        <text x="26" y="230" class="d-small">от частного к общему</text>
+        <text x="26" y="250" class="d-small">multi-catch A | B</text>
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-green"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🧹 finally</text>
+        <text x="556" y="230" class="d-small">всегда, даже после return</text>
+        <text x="556" y="250" class="d-small">try (ресурс) закроет сам</text>
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">🌳 Иерархия</text>
+        <text x="56" y="370" class="d-small">Error — не перехватываем</text>
+        <text x="56" y="390" class="d-small">checked: catch или throws</text>
+        <text x="56" y="410" class="d-small">Runtime…: unchecked</text>
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-violet"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🎯 throw и практики</text>
+        <text x="526" y="370" class="d-small">throw: понятное сообщение</text>
+        <text x="526" y="390" class="d-small">свои: extends Exception</text>
+        <text x="526" y="410" class="d-small">не глотай, сохраняй cause</text>
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 12</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Исключения</text>
+      </svg>
+      <figcaption>Если про какой-то блок сказать нечего — вернись к уроку в меню слева.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Это один из самых «рабочих» модулей курса. Каждый день разработчика начинается с логов и отчётов об ошибках — а это stack trace. Теперь ты читаешь его как текст, а не как заклинание.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>объяснить, что такое исключение и как оно всплывает по стеку вызовов, пока его не перехватят;</li>
+        <li>назвать частые исключения (ArithmeticException, ArrayIndexOutOfBoundsException, NullPointerException, NumberFormatException) и их причины;</li>
+        <li>прочитать stack trace: тип и сообщение, строки <code>at</code>, своя строка против JDK и библиотек, Caused by и «... N more»;</li>
+        <li>перехватить исключение через try/catch, написать несколько catch в правильном порядке и multi-catch;</li>
+        <li>написать ввод числа с повтором, который не падает от мусора;</li>
+        <li>объяснить, когда выполняется finally, и решить головоломку «finally и return»;</li>
+        <li>закрыть ресурс через finally или try-с-ресурсами;</li>
+        <li>нарисовать дерево Throwable → Error / Exception → RuntimeException и объяснить checked vs unchecked;</li>
+        <li>объяснить разницу <code>throw</code> (выбросить исключение) и <code>throws</code> (объявить его в сигнатуре метода);</li>
+        <li>объявить свой класс исключения с сообщением (<code>super(message)</code>), полями и причиной;</li>
+        <li>назвать вредные привычки: пустой catch, catch (Exception) везде, потеря причины, try/catch в тесте.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <p>Десять заданий по всему модулю. Ошибки вернутся в конце.</p>
+    <div data-widget="check" id="check-m12-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 12: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет код?",
+         "code": "try {\n    System.out.println(\"A\");\n    String s = null;\n    s.length();\n    System.out.println(\"B\");\n} catch (NullPointerException e) {\n    System.out.println(\"C\");\n} finally {\n    System.out.println(\"D\");\n}",
+         "answer": "A\nC\nD",
+         "why": "NPE на s.length(), B пропущена, catch, затем finally."
+        },
+        {
+         "type": "bug",
+         "q": "Кликни строку своего кода, где случилась самая первая беда — корень проблемы",
+         "code": "Exception in thread \"main\" java.lang.IllegalStateException: не прочитать количество товара\n\tat Cart.readQuantity(Cart.java:20)\n\tat Cart.checkout(Cart.java:31)\n\tat Shop.main(Shop.java:9)\nCaused by: java.lang.NumberFormatException: For input string: \"\"\n\tat java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)\n\tat java.base/java.lang.Integer.parseInt(Integer.java:672)\n\tat java.base/java.lang.Integer.parseInt(Integer.java:778)\n\tat Cart.readQuantity(Cart.java:18)\n\t... 2 more",
+         "answer": [
+          9
+         ],
+         "why": "Корень — последний Caused by: parseInt получил пустую строку. Первая своя строка под ним — Cart.readQuantity, строка 18. Строка 20 — лишь место, где исключение завернули в IllegalStateException и выбросили заново."
+        },
+        {
+         "type": "single",
+         "q": "Что вернёт метод?",
+         "code": "static int f() {\n    try {\n        throw new IllegalStateException();\n    } catch (IllegalStateException e) {\n        return 1;\n    } finally {\n        System.out.print(\"F \");\n    }\n}",
+         "options": [
+          "Напечатает «F », вернёт 1",
+          "Вернёт 1, «F » не напечатается",
+          "Упадёт с IllegalStateException"
+         ],
+         "answer": 0,
+         "why": "Исключение перехвачено, catch откладывает return 1, finally печатает «F », затем метод возвращает 1."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "try {\n    int n = Integer.parseInt(text);\n} catch (IllegalArgumentException e) {\n    System.out.println(\"Плохой аргумент\");\n} catch (NumberFormatException e) {\n    System.out.println(\"Не число\");\n}",
+         "answer": [
+          5
+         ],
+         "why": "NumberFormatException — потомок IllegalArgumentException, уже перехвачен выше: has already been caught."
+        },
+        {
+         "type": "match",
+         "q": "Соедини",
+         "left": [
+          "Error",
+          "checked",
+          "unchecked",
+          "throws"
+         ],
+         "right": [
+          "Сбой JVM: StackOverflowError, OutOfMemoryError",
+          "Компилятор требует catch или throws",
+          "RuntimeException и потомки",
+          "Объявление в сигнатуре: метод может выбросить исключение"
+         ],
+         "why": "Это всё дерево исключений и его правила в четырёх строках."
+        },
+        {
+         "type": "single",
+         "q": "Скомпилируется ли?",
+         "code": "static void waitPage() {\n    Thread.sleep(2000);\n}",
+         "options": [
+          "Да",
+          "Нет: InterruptedException не обработан",
+          "Нет: sleep принимает секунды, а 2000 секунд — слишком много"
+         ],
+         "answer": 1,
+         "why": "InterruptedException — checked. Нужен try/catch или <code>throws InterruptedException</code>."
+        },
+        {
+         "type": "order",
+         "q": "Расставь шаги чтения stack trace",
+         "lines": [
+          "Прочитать первую строку: тип и сообщение",
+          "Спуститься к последнему Caused by",
+          "Найти первую строку at со своим классом",
+          "Щёлкнуть по ней в IDEA",
+          "Подумать, откуда пришли плохие данные"
+         ],
+         "why": "Это алгоритм из урока 12.2 — им пользуются каждый день."
+        },
+        {
+         "type": "multi",
+         "q": "Отметь плохие практики",
+         "options": [
+          "Пустой catch",
+          "throw new X(\"контекст\", e)",
+          "catch (Exception e) вокруг проверок в тесте",
+          "Проверка аргументов в начале метода",
+          "throw new X(\"Ошибка\") без подробностей и без причины"
+         ],
+         "answer": [
+          0,
+          2,
+          4
+         ],
+         "why": "Пустой catch и catch в тесте прячут ошибки, а сообщение «Ошибка» без причины ничего не говорит."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Неперехваченное исключение завершает программу с exit code 1",
+           "a": true
+          },
+          {
+           "s": "finally не выполнится, если в try стоит return",
+           "a": false,
+           "why": "выполнится: return откладывает значение до конца finally."
+          },
+          {
+           "s": "catch (Exception e) перехватит AssertionError",
+           "a": false,
+           "why": "AssertionError — потомок Error."
+          },
+          {
+           "s": "try-с-ресурсами работает с объектами, реализующими AutoCloseable",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m12">странице практики</a> должны быть решены все восемь задач:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Безопасное деление ★</td><td>первый try/catch — <a href="/lessons/m12/03-try-catch.html">урок 12.3</a></td></tr>
+        <tr><td>2. Кто за кем: try, catch, finally ★</td><td>порядок выполнения, finally после return — <a href="/lessons/m12/04-finally.html">урок 12.4</a></td></tr>
+        <tr><td>3. Ввод числа с повтором ★★</td><td>Мастерская: цикл + NumberFormatException — <a href="/lessons/m12/03-try-catch.html">урок 12.3</a></td></tr>
+        <tr><td>4. Охранник возраста ★★</td><td>throw IllegalArgumentException, порядок catch — <a href="/lessons/m12/06-throw-custom.html">урок 12.6</a></td></tr>
+        <tr><td>5. Разбор настроек «ключ=значение» ★★</td><td>Мастерская: разбор строки, throw с понятным сообщением</td></tr>
+        <tr><td>6. Копилка со своим исключением ★★</td><td>свой checked-класс, throws — <a href="/lessons/m12/06-throw-custom.html">урок 12.6</a></td></tr>
+        <tr><td>7. Почини обработку ошибок датчиков ★★★</td><td>порядок catch, пустой catch — <a href="/lessons/m12/07-good-practices.html">урок 12.7</a></td></tr>
+        <tr><td>8. Исключение с причиной ★★★</td><td>cause, getCause(), Caused by — <a href="/lessons/m12/02-stack-trace.html">урок 12.2</a></td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">И каждую зелёную задачу — разобрать с наставником: <code>/check m12-t01</code>, <code>/check m12-t02</code> и так далее.</span><span class="free-only">И каждую зелёную задачу — разобрать с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><strong>Будь готов к живому stack trace.</strong> Наставник покажет trace — длинный, с Caused by — и попросит найти корень и свою строку. Объясняй вслух, как читаешь.</span><span class="free-only"><strong>Будь готов к живому stack trace.</strong> <span class="ai-name">DeepSeek</span> покажет trace — длинный, с Caused by — и попросит найти корень и свою строку. Объясняй вслух, как читаешь.</span></li>
+      <li><strong>Головоломки без запуска:</strong> finally и return, порядок catch, «скомпилируется ли?» с checked-исключениями.</li>
+      <li><strong>Код с нуля в IDEA:</strong> например, метод с проверкой аргумента через throw и main, который перехватывает исключение и печатает понятное сообщение.</li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить. Модуль засчитан, когда он отмечен в <code>progress.md</code>.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить. Модуль засчитан, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Хочешь размяться — напиши: <em>«Давай пробный экзамен по модулю 12 без отметок в progress.md: начни с разбора stack trace»</em>. Когда готов по-настоящему — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">📚</span><h4>Модуль 13: коллекции</h4><p>ArrayList, HashMap и новые знакомые: NoSuchElementException, ConcurrentModificationException. Ты уже знаешь, как их читать.</p></div>
+      <div class="card"><span class="emoji">📁</span><h4>Модуль 15: файлы</h4><p>Там checked-исключения (IOException) и try-с-ресурсами пригодятся на каждом шагу.</p></div>
+      <div class="card"><span class="emoji">🧪</span><h4>Модуль 17: JUnit</h4><p>assertThrows, @AfterEach и красные тесты со stack trace — уже по-настоящему.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай все восемь задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все восемь задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 13!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 13!</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m12">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

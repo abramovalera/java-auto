@@ -1,0 +1,49 @@
+## id: tr-cond-029
+## title: Скидка по сумме чека
+## file: trainer/cond/CheckoutDiscountTier.java
+## class: CheckoutDiscountTier
+## level: 2
+## category: Деньги и тарифы
+@@ description
+<p>Напиши класс <code>CheckoutDiscountTier</code>. В магазине скидка зависит от суммы покупки: меньше 1000 ₽ — без скидки, от 1000 до 4999 ₽ — 5%, от 5000 ₽ — 10%. Программа читает сумму (целое число рублей) и печатает две строки: <code>Скидка: P%</code> и <code>К оплате: X</code>. Сумму к оплате округли до копеек: <code>Math.round(x * 100) / 100.0</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1000
+вывод: Скидка: 5%
+       К оплате: 950.0
+
+ввод:  1999
+вывод: Скидка: 5%
+       К оплате: 1899.05</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>sum * percent / 100.0</code> — размер скидки дробным числом</li>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет до двух знаков после точки</li>
+</ul></div>
+@@ test: Чуть меньше 1000
+@@ input
+999
+@@ expect
+Скидка: 0%
+К оплате: 999.0
+@@ test: Ровно 1000 — уже 5%
+@@ input
+1000
+@@ expect
+Скидка: 5%
+К оплате: 950.0
+@@ test: Скидка с копейками
+@@ input
+1999
+@@ expect
+Скидка: 5%
+К оплате: 1899.05
+@@ test: 4999 — ещё 5%
+@@ input
+4999
+@@ expect
+Скидка: 5%
+К оплате: 4749.05
+@@ test: Ровно 5000 — уже 10%
+@@ input
+5000
+@@ expect
+Скидка: 10%
+К оплате: 4500.0

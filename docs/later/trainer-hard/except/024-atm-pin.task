@@ -1,0 +1,75 @@
+## id: tr-except-024
+## title: Три попытки PIN-кода
+## file: trainer/except/AtmPinAttempts.java
+## class: AtmPinAttempts
+## level: 3
+## category: Свои исключения
+@@ description
+<p>Напиши класс <code>AtmPinAttempts</code>. Банкомат проверяет PIN-код. В первой строке ввода — правильный PIN, дальше — попытки клиента, по одной в строке (сколько их, заранее неизвестно).</p>
+<p>Напиши метод <code>static boolean checkPin(String correct, String entered)</code>: если <code>entered</code> — не ровно 4 символа или среди них есть не цифра, он выбрасывает <code>IllegalArgumentException</code> с сообщением <code>PIN — это 4 цифры</code>; иначе возвращает, совпал ли PIN.</p>
+<p>Объяви своё исключение <code>AtmCardBlockedException</code> (наследник <code>Exception</code>). На каждую попытку программа печатает:</p>
+<ul>
+<li><code>PIN — это 4 цифры</code> — такая попытка не считается ошибкой;</li>
+<li><code>PIN верный, добро пожаловать</code> — и заканчивает работу;</li>
+<li><code>Неверный PIN, осталось попыток: K</code> — после 1-й и 2-й ошибки;</li>
+<li>после 3-й ошибки выброси <code>AtmCardBlockedException</code> с сообщением <code>Карта заблокирована: 3 неверных PIN</code>, перехвати его <b>за пределами цикла</b> и напечатай сообщение — дальше попытки не читаются.</li>
+</ul>
+<p>Если попытки закончились, а карта не заблокирована и PIN не угадан, напечатай <code>Сеанс завершён</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4821     вывод: Неверный PIN, осталось попыток: 2
+       1111            PIN — это 4 цифры
+       48a1            PIN верный, добро пожаловать
+       4821</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.hasNextLine()</code> — <code>true</code>, если во вводе есть ещё строка</li>
+<li><code>try</code> вокруг всего цикла: выброшенное в цикле исключение сразу выводит из него в <code>catch</code></li>
+<li><code>Character.isDigit(c)</code> — <code>true</code>, если символ — цифра</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4821
+1111
+48a1
+4821
+@@ expect
+Неверный PIN, осталось попыток: 2
+PIN — это 4 цифры
+PIN верный, добро пожаловать
+@@ test: Блокировка
+@@ input
+0000
+1234
+4321
+9999
+0000
+@@ expect
+Неверный PIN, осталось попыток: 2
+Неверный PIN, осталось попыток: 1
+Карта заблокирована: 3 неверных PIN
+@@ test: Короткий и со знаком — не ошибки
+@@ input
+2580
+123
++123
+12345
+2580
+@@ expect
+PIN — это 4 цифры
+PIN — это 4 цифры
+PIN — это 4 цифры
+PIN верный, добро пожаловать
+@@ test: Попытки кончились
+@@ input
+7777
+7778
+@@ expect
+Неверный PIN, осталось попыток: 2
+Сеанс завершён
+@@ test: Сразу верно
+@@ input
+1357
+1357
+@@ expect
+PIN верный, добро пожаловать
+@@ require: class\s+AtmCardBlockedException\s+extends\s+Exception | Объяви класс AtmCardBlockedException extends Exception
+@@ require: throw\s+new\s+AtmCardBlockedException | Выбрасывай AtmCardBlockedException после третьей ошибки
+@@ require: static\s+boolean\s+checkPin\s*\( | Объяви метод static boolean checkPin(String correct, String entered)

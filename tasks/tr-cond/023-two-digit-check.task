@@ -1,0 +1,47 @@
+## id: tr-cond-023
+## title: Двузначное число
+## file: trainer/cond/TwoDigitCheck.java
+## class: TwoDigitCheck
+## level: 1
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>TwoDigitCheck</code>. Программа читает целое число и печатает <code>true</code>, если оно двузначное, иначе <code>false</code>. Отрицательные тоже бывают двузначными: <code>-45</code> — двузначное.</p>
+<pre class="terminal"><span class="out">ввод:  10
+вывод: true
+
+ввод:  -45
+вывод: true</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.abs(n)</code> — возвращает модуль числа (без минуса)</li>
+<li><code>a && b</code> — истинно, только когда истинны оба условия</li>
+</ul></div>
+@@ test: Наименьшее двузначное
+@@ input
+10
+@@ expect
+true
+@@ test: Наибольшее двузначное
+@@ input
+99
+@@ expect
+true
+@@ test: Уже трёхзначное
+@@ input
+100
+@@ expect
+false
+@@ test: Однозначное
+@@ input
+9
+@@ expect
+false
+@@ test: Отрицательное двузначное
+@@ input
+-45
+@@ expect
+true
+@@ test: Ноль
+@@ input
+0
+@@ expect
+false

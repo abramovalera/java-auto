@@ -1,0 +1,49 @@
+## id: tr-strings-013
+## title: Превью сообщения
+## file: trainer/strings/TextPreviewCut.java
+## class: TextPreviewCut
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>TextPreviewCut</code>. В списке чатов видно только начало сообщения. Программа читает две строки: в первой — текст сообщения, во второй — число <code>n</code> (0 или больше). Если в тексте не больше <code>n</code> символов, напечатай его целиком. Иначе напечатай первые <code>n</code> символов и сразу за ними <code>...</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Привет, как дела?
+       6
+вывод: Привет...
+
+ввод:  Ок
+       10
+вывод: Ок</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.substring(0, n)</code> — первые <code>n</code> символов строки (символ с индексом <code>n</code> не входит)</li>
+<li>Сначала прочитай строку через <code>nextLine()</code>, потом число через <code>nextInt()</code></li>
+</ul></div>
+@@ test: Длинное сообщение
+@@ input
+Привет, как дела?
+6
+@@ expect
+Привет...
+@@ test: Короткое сообщение
+@@ input
+Ок
+10
+@@ expect
+Ок
+@@ test: Длина ровно n
+@@ input
+Hello
+5
+@@ expect
+Hello
+@@ test: n равно нулю
+@@ input
+abc
+0
+@@ expect
+...
+@@ test: Пробел в конце превью
+@@ input
+Встреча в 18:00
+8
+@@ expect
+Встреча ...

@@ -1,0 +1,72 @@
+## id: m09-t04
+## title: Талоны электронной очереди
+## file: module-09/QueueTicketMachine.java
+## class: QueueTicketMachine
+## level: 2
+@@ description
+<p>Автомат в МФЦ выдаёт талоны. Сначала вводится количество посетителей N, потом N имён (по одному слову). Каждый посетитель получает талон со своим номером по порядку. В конце автомат печатает, сколько талонов выдано и какой номер получит следующий:</p>
+<pre class="terminal"><span class="out">ввод: 3
+      Анна Борис Вера
+
+Талон №1: Анна
+Талон №2: Борис
+Талон №3: Вера
+Всего выдано: 3
+Следующий номер: 4</span></pre>
+<p>В файле <code>QueueTicketMachine.java</code> — <code>public class QueueTicketMachine</code> с main и класс <code>QueueTicket</code> без public. Требования к <code>QueueTicket</code>:</p>
+<ul>
+<li><b>static</b>-поле <code>int issued</code> — сколько талонов выдано всего, одно на весь класс;</li>
+<li>обычные поля: номер этого талона и имя посетителя;</li>
+<li>конструктор с именем: увеличивает общий счётчик и запоминает номер <b>этого</b> талона;</li>
+<li>метод объекта <code>String label()</code> — строка «Талон №…: …»;</li>
+<li><b>static</b>-метод <code>int nextNumber()</code> — какой номер получит следующий посетитель.</li>
+</ul>
+<p>Последние две строки main печатает через имя класса: <code>QueueTicket.issued</code> и <code>QueueTicket.nextNumber()</code>. Посетителей может не быть вовсе (N = 0).</p>
+<p>📖 <a href="/lessons/m09/04-static.html">static: общее для всех объектов</a></p>
+@@ test: Три посетителя
+@@ input
+3
+Анна Борис Вера
+@@ expect
+Талон №1: Анна
+Талон №2: Борис
+Талон №3: Вера
+Всего выдано: 3
+Следующий номер: 4
+@@ test: Один посетитель
+@@ input
+1
+Дмитрий
+@@ expect
+Талон №1: Дмитрий
+Всего выдано: 1
+Следующий номер: 2
+@@ test: Никого нет (N = 0)
+@@ input
+0
+@@ expect
+Всего выдано: 0
+Следующий номер: 1
+@@ test: Пять посетителей, имена с новой строки, одно повторяется
+@@ input
+5
+Оля
+Петя
+Оля
+Ира
+Гоша
+@@ expect
+Талон №1: Оля
+Талон №2: Петя
+Талон №3: Оля
+Талон №4: Ира
+Талон №5: Гоша
+Всего выдано: 5
+Следующий номер: 6
+@@ require: \bclass\s+QueueTicket\b | Нужен класс QueueTicket (без public, в том же файле)
+@@ require: static\s+int\s+issued | Общий счётчик: static int issued в классе QueueTicket
+@@ require: static\s+int\s+nextNumber\s*\(\s*\) | Нужен static-метод int nextNumber()
+@@ require: String\s+label\s*\(\s*\) | Нужен метод объекта String label()
+@@ require: QueueTicket\.issued | Выведи «Всего выдано» через имя класса: QueueTicket.issued
+@@ require: QueueTicket\.nextNumber\s*\( | Следующий номер спроси у класса: QueueTicket.nextNumber()
+@@ forbid: static\s+String\s+label | label() — метод объекта: у каждого талона свой номер и имя

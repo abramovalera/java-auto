@@ -1,0 +1,37 @@
+## id: tr-vars-014
+## title: Целые градусы
+## file: trainer/vars/DropFractionPart.java
+## class: DropFractionPart
+## level: 1
+## category: Дроби и приведение
+@@ description
+<p>Напиши класс <code>DropFractionPart</code>. Старый уличный термометр показывает только целые градусы — дробную часть он просто отбрасывает. Программа читает дробное число (температуру) и печатает <code>Целых градусов: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  36.9
+вывод: Целых градусов: 36</span></pre>
+<p>Обрати внимание: при отбрасывании <code>-2.7</code> превращается в <code>-2</code>, а не в <code>-3</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextDouble()</code> — читает и возвращает дробное число <code>double</code></li>
+<li><code>(int) x</code> — приведение типа: отбрасывает дробную часть, не округляет</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+36.9
+@@ expect
+Целых градусов: 36
+@@ test: Мороз
+@@ input
+-2.7
+@@ expect
+Целых градусов: -2
+@@ test: Меньше градуса
+@@ input
+0.4
+@@ expect
+Целых градусов: 0
+@@ test: Целое на входе
+@@ input
+25
+@@ expect
+Целых градусов: 25
+@@ require: \(\s*int\s*\) | Отбрось дробную часть явным приведением (int)

@@ -1,0 +1,36 @@
+## id: tr-vars-008
+## title: Длина ника
+## file: trainer/vars/NicknameLength.java
+## class: NicknameLength
+## level: 1
+## category: Буквы и длина строки
+@@ description
+<p>Напиши класс <code>NicknameLength</code>. Игра показывает, сколько символов занимает ник. Программа читает ник (одна строка, в нём могут быть пробелы) и печатает <code>Длина ника: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Ninja
+вывод: Длина ника: 5</span></pre>
+<p>Пробел — тоже символ, его нужно посчитать.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextLine()</code> — возвращает всю строку до Enter, вместе с пробелами</li>
+<li><code>s.length()</code> — возвращает количество символов в строке</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Ninja
+@@ expect
+Длина ника: 5
+@@ test: С пробелом
+@@ input
+Dark Knight
+@@ expect
+Длина ника: 11
+@@ test: Одна буква
+@@ input
+x
+@@ expect
+Длина ника: 1
+@@ test: Кириллица, цифры и знаки
+@@ input
+Кот_2009!
+@@ expect
+Длина ника: 9

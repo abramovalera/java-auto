@@ -1,0 +1,57 @@
+## id: tr-streams-035
+## title: Частота букв
+## file: trainer/streams/LetterFrequency.java
+## class: LetterFrequency
+## level: 3
+## category: Строки и символы
+@@ description
+<p>Напиши класс <code>LetterFrequency</code>. Шифровальщику нужна частота букв во фразе. Программа читает одну строку (в ней могут быть пробелы, цифры и знаки препинания, без буквы «ё»). Посчитай только буквы, без учёта регистра, и для каждой напечатай строку <code>буква: количество</code> — буквы маленькие, по возрастанию (латинские идут раньше русских). Если букв нет совсем — напечатай <code>букв нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Мама мыла раму!
+вывод: а: 4
+       л: 1
+       м: 4
+       р: 1
+       у: 1
+       ы: 1</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.chars()</code> — стрим кодов символов; <code>Character::isLetter</code> — «символ — буква?»</li>
+<li><code>.map(Character::toLowerCase)</code> — переводит код символа в нижний регистр</li>
+<li><code>.mapToObj(c -&gt; (char) c)</code> — превращает коды обратно в символы <code>Character</code>, чтобы собрать их в Map</li>
+<li><code>Collectors.groupingBy(c -&gt; c, TreeMap::new, Collectors.counting())</code> — «символ → сколько раз»</li>
+</ul></div>
+@@ test: Мама мыла раму
+@@ input
+Мама мыла раму!
+@@ expect
+а: 4
+л: 1
+м: 4
+р: 1
+у: 1
+ы: 1
+@@ test: Латиница со знаками
+@@ input
+Hello, World
+@@ expect
+d: 1
+e: 1
+h: 1
+l: 3
+o: 2
+r: 1
+w: 1
+@@ test: Одна буква в разных регистрах
+@@ input
+А а А
+@@ expect
+а: 3
+@@ test: Букв нет
+@@ input
+123 !?
+@@ expect
+букв нет
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.chars\s*\( | Пройди по символам строки стримом s.chars()
+@@ require: groupingBy\s*\( | Посчитай буквы коллектором groupingBy

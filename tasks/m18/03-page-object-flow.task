@@ -1,0 +1,99 @@
+## id: m18-t03
+## title: Page Object на заглушках
+## file: module-18/NookLoginFlow.java
+## class: NookLoginFlow
+## level: 2
+@@ description
+<p>Соберём настоящий Page Object — только вместо браузера «сайт»-заглушка <code>NookFakeSite</code>. Файл уже лежит в <code>workspace/module-18/NookLoginFlow.java</code>, класс сайта внизу файла <b>не меняй</b>. У сайта есть методы <code>open(path)</code>, <code>type(locator, text)</code>, <code>click(locator)</code>, <code>currentPath()</code>, <code>errorText()</code>, <code>greeting()</code> — как у браузера, которым управляет Selenide.</p>
+<p><b>1. Класс <code>NookLoginPage</code></b> — страница входа:</p>
+<ul>
+<li>три локатора — приватные константы: <code>[data-test-id='login']</code>, <code>[data-test-id='password']</code>, <code>[data-test-id='login-button']</code>;</li>
+<li>конструктор принимает <code>NookFakeSite</code> и запоминает его в поле (композиция: страница <i>имеет</i> сайт);</li>
+<li><code>NookLoginPage open()</code> — открывает <code>/login</code>, печатает <code>[LoginPage] открыть /login</code>, возвращает <code>this</code>;</li>
+<li><code>NookCatalogPage loginAs(user, password)</code> — вводит логин, пароль, жмёт кнопку и возвращает <b>страницу каталога</b>;</li>
+<li><code>NookLoginPage loginExpectingError(user, password)</code> — то же самое, но возвращает <b>эту же</b> страницу входа (мы ждём ошибку);</li>
+<li><code>String errorText()</code> — текст ошибки с сайта.</li>
+</ul>
+<p>Каждое действие на странице входа печатает строку-шаг. Пароль в логе — звёздочками, по одной на символ (<code>"*".repeat(n)</code>).</p>
+<p><b>2. Класс <code>NookCatalogPage</code></b>: конструктор принимает сайт и печатает <code>[CatalogPage] открыта страница </code> + текущий адрес сайта; метод <code>String greeting()</code> возвращает приветствие сайта.</p>
+<p><b>3. <code>main</code></b> читает три строки: логин, пароль и ожидание — <code>успех</code> или <code>ошибка</code> (это данные тест-кейса). Если ждём успех — вызывает <code>loginAs</code> и печатает <code>Итог: </code> + приветствие. Если ждём ошибку — вызывает <code>loginExpectingError</code> и печатает <code>Итог: ошибка «текст»</code>.</p>
+<p>Пример. Ввод <code>anna</code>, <code>qwerty123</code>, <code>успех</code>:</p>
+<pre class="terminal"><span class="out">[LoginPage] открыть /login
+[LoginPage] ввод в [data-test-id='login']: anna
+[LoginPage] ввод в [data-test-id='password']: *********
+[LoginPage] клик по [data-test-id='login-button']
+[CatalogPage] открыта страница /catalog
+Итог: Привет, anna!</span></pre>
+<p>Ввод <code>anna</code>, <code>123</code>, <code>ошибка</code>:</p>
+<pre class="terminal"><span class="out">[LoginPage] открыть /login
+[LoginPage] ввод в [data-test-id='login']: anna
+[LoginPage] ввод в [data-test-id='password']: ***
+[LoginPage] клик по [data-test-id='login-button']
+Итог: ошибка «Неверный логин или пароль»</span></pre>
+<p>А если ждали успех, а сайт не пустил (например, пользователь <code>blocked</code>), каталог не откроется: конструктор каталога напечатает <code>[CatalogPage] открыта страница /login</code>, а приветствие сайта будет <code>(каталог не открыт)</code>. Так выглядит упавший тест — в настоящем Selenide на этом месте сработала бы проверка страницы.</p>
+<p>Заметь: <code>main</code> не знает ни одного локатора — он читается как тест-кейс. В этом и смысл Page Object.</p>
+<p>📖 Урок: <a href="/lessons/m18/05-page-object.html">Page Object</a></p>
+@@ test: Успешный вход
+@@ input
+anna
+qwerty123
+успех
+@@ expect
+[LoginPage] открыть /login
+[LoginPage] ввод в [data-test-id='login']: anna
+[LoginPage] ввод в [data-test-id='password']: *********
+[LoginPage] клик по [data-test-id='login-button']
+[CatalogPage] открыта страница /catalog
+Итог: Привет, anna!
+@@ test: Второй пользователь
+@@ input
+boris
+bookworm
+успех
+@@ expect
+[LoginPage] открыть /login
+[LoginPage] ввод в [data-test-id='login']: boris
+[LoginPage] ввод в [data-test-id='password']: ********
+[LoginPage] клик по [data-test-id='login-button']
+[CatalogPage] открыта страница /catalog
+Итог: Привет, boris!
+@@ test: Неверный пароль
+@@ input
+anna
+123
+ошибка
+@@ expect
+[LoginPage] открыть /login
+[LoginPage] ввод в [data-test-id='login']: anna
+[LoginPage] ввод в [data-test-id='password']: ***
+[LoginPage] клик по [data-test-id='login-button']
+Итог: ошибка «Неверный логин или пароль»
+@@ test: Пустой пароль
+@@ input
+boris
+
+ошибка
+@@ expect
+[LoginPage] открыть /login
+[LoginPage] ввод в [data-test-id='login']: boris
+[LoginPage] ввод в [data-test-id='password']:
+[LoginPage] клик по [data-test-id='login-button']
+Итог: ошибка «Введите пароль»
+@@ test: Ждали успех, а пользователь заблокирован (так выглядит упавший тест)
+@@ input
+blocked
+secret
+успех
+@@ expect
+[LoginPage] открыть /login
+[LoginPage] ввод в [data-test-id='login']: blocked
+[LoginPage] ввод в [data-test-id='password']: ******
+[LoginPage] клик по [data-test-id='login-button']
+[CatalogPage] открыта страница /login
+Итог: (каталог не открыт)
+@@ require: class\s+NookLoginPage | Нужен класс NookLoginPage — страница входа
+@@ require: class\s+NookCatalogPage | Нужен класс NookCatalogPage — страница каталога
+@@ require: NookCatalogPage\s+loginAs\s*\( | Метод loginAs должен возвращать NookCatalogPage — следующую страницу
+@@ require: NookLoginPage\s+loginExpectingError\s*\( | Метод loginExpectingError должен возвращать NookLoginPage — мы остаёмся на странице входа
+@@ require: private\s+(static\s+)?(final\s+)?(static\s+)?String\s+\w+\s*=\s*"\[data-test-id='login-button'\]" | Локатор кнопки — приватная константа внутри NookLoginPage
+@@ require: login\.equals\("anna"\) && password\.equals\("qwerty123"\) | Не меняй класс-заглушку NookFakeSite: верни его как было

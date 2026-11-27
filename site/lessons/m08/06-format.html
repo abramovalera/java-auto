@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Форматирование строк · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-06">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 8 · Урок 6</div>
+    <h1>Форматирование: printf, String.format и текстовые блоки</h1>
+    <p class="lead">Склеивать текст плюсами — как писать письмо, вырезая буквы из газеты. Есть способ удобнее: шаблон с «дырками», куда Java сама подставит значения. Заодно научимся ровнять столбики и писать многострочный текст.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>🧾 чек из магазина</span><span>📄 text blocks</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-06-review">
+      <script type="application/json">
+      { "title": "StringBuilder и склейка", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "StringBuilder sb = new StringBuilder(\"abc\");\nsb.reverse();\nSystem.out.println(sb + \"!\");",
+            "answer": "cba!", "why": "Вызов <code>reverse()</code> разворачивает сам объект. При склейке со строковым литералом <code>\"!\"</code> Java вызывает у него <code>toString()</code>." },
+          { "type": "predict", "q": "Модуль 3: что выведет?",
+            "code": "double price = 10.0 / 3;\nSystem.out.println(price);",
+            "answer": "3.3333333333333335", "why": "Дробь печатается со всеми знаками, да ещё и с «хвостом» неточности. Сегодня научимся печатать красиво: 3,33." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Шаблон с дырками</h2>
+    <div class="cheat">
+      <h3>Выпиши себе: сокращение для printf</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Набери + Tab</th><th>Что вставит IDEA</th></tr>
+        <tr><td><code>souf</code></td><td><code>System.out.printf("");</code> — курсор встанет внутрь кавычек, пиши шаблон</td></tr>
+        <tr><td><code>soutv</code></td><td>Печать переменной с именем — помнишь из модуля 2?</td></tr>
+      </table></div>
+    </div>
+    <p>Сравни два способа напечатать одно и то же:</p>
+<pre data-file="Hello.java"><code class="java">String name = "Аня";
+int age = 17;
+double avg = 4.5666;
+
+System.out.println("Привет, " + name + "! Тебе " + age
+        + " лет, средний балл " + avg);
+System.out.printf("Привет, %s! Тебе %d лет, средний балл %.2f%n",
+        name, age, avg);</code></pre>
+<pre class="terminal"><span class="out">Привет, Аня! Тебе 17 лет, средний балл 4.5666
+Привет, Аня! Тебе 17 лет, средний балл 4,57</span></pre>
+    <p>Метод <code>printf</code> (print formatted — «напечатать по шаблону») вызывают с несколькими аргументами: первый — <b>шаблон</b>, строка с метками <code>%…</code>, дальше — значения через запятую. Первую метку метод заменяет первым значением, вторую — вторым, и так далее.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: бланк с пропусками</span>
+      <p>Помнишь бланки «Я, ________, проживающий по адресу ________»? Шаблон — это бланк, метки <code>%s</code>, <code>%d</code> — пропуски, а аргументы после шаблона — то, что вписывают. Причём на каждом пропуске написано, <b>что</b> туда можно вписать: текст, целое число, дробь.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метка</th><th>Что подставляет</th><th>Пример → результат</th></tr>
+        <tr><td><code>%s</code></td><td>строку (а вообще — что угодно, превратив в текст)</td><td><code>"%s"</code>, "кот" → кот</td></tr>
+        <tr><td><code>%d</code></td><td>целое число (int, long)</td><td><code>"%d шт."</code>, 5 → 5 шт.</td></tr>
+        <tr><td><code>%f</code></td><td>дробное число (по умолчанию 6 знаков)</td><td><code>"%f"</code>, 1.5 → 1,500000</td></tr>
+        <tr><td><code>%.2f</code></td><td>дробное, ровно 2 знака после запятой, с округлением</td><td><code>"%.2f"</code>, 4.5666 → 4,57</td></tr>
+        <tr><td><code>%c</code></td><td>один символ</td><td><code>"%c"</code>, 'Ж' → Ж</td></tr>
+        <tr><td><code>%b</code></td><td>boolean</td><td><code>"%b"</code>, true → true</td></tr>
+        <tr><td><code>%n</code></td><td>перевод строки (значения не берёт)</td><td>как <code>\n</code></td></tr>
+        <tr><td><code>%%</code></td><td>сам знак процента</td><td><code>"Скидка 15%%"</code> → Скидка 15%</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">printf не переводит строку сам</span>
+      <p>Это <code>print</code> с шаблоном, а не <code>println</code>. Хочешь новую строку — ставь <code>%n</code> в конце шаблона. Забудешь — вывод следующего вызова приклеится к этому.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Запятая вместо точки: ловушка локали</h2>
+    <p>Заметил, что выше напечаталось <b>4,57</b>, а не 4.57? Это не ошибка. <code>printf</code> и <code>String.format</code> учитывают <b>локаль</b> — языковые настройки компьютера. На русской Windows дробная часть отделяется запятой, как принято в России. А вызов <code>println(4.57)</code> с литералом-аргументом всегда печатает точку.</p>
+    <div class="callout warn">
+      <span class="callout-title">Где это кусается</span>
+      <p>Твоя программа на русской Windows печатает «4,57», а на сервере (там обычно английская локаль) та же программа печатает «4.57». Проверка, которая ждёт одно, на другой машине не пройдёт. Поэтому задачи на сайте не проверяют вывод <code>%.2f</code>. А в реальном коде, где нужна именно точка, локаль передают явно — первым аргументом:</p>
+<pre data-file="Dot.java"><code class="java">import java.util.Locale;
+…
+System.out.printf(Locale.US, "%.2f%n", 4.5666);   // 4.57 — везде одинаково</code></pre>
+    </div>
+    <details class="predict">
+      <summary>Как напечатается String.format("%.1f", 2.25)? А String.format("%.0f", 2.5)?</summary>
+      <p><b>2,3</b> и <b>3</b> (на русской локали). Формат округляет «по-школьному»: пятёрка округляется вверх. Значение переменной при этом не меняется — метод возвращает новую строку, округляется только она.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Ширина и выравнивание: ровные столбики</h2>
+    <p>Между <code>%</code> и буквой можно указать <b>ширину</b> — сколько символов минимум займёт значение. Не хватает — дополнится пробелами.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="Разбор метки процент минус 10 точка 2 f: процент — начало метки, минус — выравнивание влево, 10 — ширина, точка 2 — знаков после запятой, f — тип">
+        <rect x="150" y="30" width="70" height="60" rx="10" class="d-accent"/><text x="185" y="70" text-anchor="middle" class="d-title" style="font-size:28px">%</text>
+        <rect x="230" y="30" width="70" height="60" rx="10" class="d-yellow"/><text x="265" y="70" text-anchor="middle" class="d-title" style="font-size:28px">-</text>
+        <rect x="310" y="30" width="90" height="60" rx="10" class="d-blue"/><text x="355" y="70" text-anchor="middle" class="d-title" style="font-size:28px">10</text>
+        <rect x="410" y="30" width="90" height="60" rx="10" class="d-violet"/><text x="455" y="70" text-anchor="middle" class="d-title" style="font-size:28px">.2</text>
+        <rect x="510" y="30" width="70" height="60" rx="10" class="d-green"/><text x="545" y="70" text-anchor="middle" class="d-title" style="font-size:28px">f</text>
+        <text x="185" y="120" text-anchor="middle" class="d-small">начало</text>
+        <text x="185" y="138" text-anchor="middle" class="d-small">метки</text>
+        <text x="265" y="120" text-anchor="middle" class="d-small">влево</text>
+        <text x="265" y="138" text-anchor="middle" class="d-small">(без − вправо)</text>
+        <text x="355" y="120" text-anchor="middle" class="d-small">ширина:</text>
+        <text x="355" y="138" text-anchor="middle" class="d-small">мин. 10 символов</text>
+        <text x="455" y="120" text-anchor="middle" class="d-small">2 знака после</text>
+        <text x="455" y="138" text-anchor="middle" class="d-small">запятой</text>
+        <text x="545" y="120" text-anchor="middle" class="d-small">тип:</text>
+        <text x="545" y="138" text-anchor="middle" class="d-small">дробное</text>
+        <text x="360" y="182" text-anchor="middle" class="d-text">обязательны только % и буква типа, остальное — по желанию</text>
+      </svg>
+      <figcaption>Метка формата — как маленькая инструкция: «дробное, 2 знака, в поле шириной 10, прижать влево».</figcaption>
+    </figure>
+<pre data-file="Receipt.java"><code class="java">System.out.printf("%-10s%5d%10.2f%n", "Хлеб", 2, 45.5);
+System.out.printf("%-10s%5d%10.2f%n", "Молоко", 1, 89.9);
+System.out.printf("%-10s%5d%10.2f%n", "Сыр", 3, 312.0);
+System.out.printf("%-15s%10.2f%n", "ИТОГО:", 1116.9);</code></pre>
+<pre class="terminal"><span class="out">Хлеб          2     45,50
+Молоко        1     89,90
+Сыр           3    312,00
+ИТОГО:            1116,90</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>%-10s</code><div><p>Название — в поле из 10 символов, прижато <b>влево</b> (минус). Тексты обычно ровняют по левому краю.</p></div></div>
+      <div class="annot-row"><code>%5d</code><div><p>Количество — 5 символов, прижато вправо. Числа ровняют по правому краю, чтобы разряды стояли друг под другом.</p></div></div>
+      <div class="annot-row"><code>%10.2f</code><div><p>Цена — 10 символов, 2 знака после запятой, вправо.</p></div></div>
+    </div>
+    <p>Ещё пара полезных трюков: <code>%05d</code> дополняет <b>нулями</b>: 42 → <code>00042</code> (номера заказов, время «09:05» — <code>"%02d:%02d"</code>). Если значение длиннее ширины — оно <b>не обрезается</b>, столбик просто «поедет».</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>String.format — то же самое, но в переменную</h2>
+    <p><code>printf</code> сразу печатает. А <code>String.format</code> с теми же метками <b>возвращает строку</b> — ею можно инициализировать переменную, передать аргументом в метод, сравнить в тесте.</p>
+<pre data-file="Format.java"><code class="java">String time = String.format("%02d:%02d", 9, 5);          // "09:05"
+String msg = String.format("Заказ №%05d на сумму %d руб.", 42, 1500);
+// "Заказ №00042 на сумму 1500 руб."
+
+// так собирают текст сообщения, чтобы показать или сохранить
+String expected = String.format("Товаров в корзине: %d", 3);
+// то же, короче (Java 15+)
+String alt = "Товаров в корзине: %d".formatted(3);</code></pre>
+    <h3>Что бывает, если шаблон и значения не совпали</h3>
+    <p>Компилятор шаблон не проверяет — шаблон для него обычный строковый литерал, и ошибка всплывёт только при запуске:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Код</th><th>Что будет</th></tr>
+        <tr><td><code>String.format("%d", 3.5)</code></td><td>💥 IllegalFormatConversionException: %d — для целых, а аргумент типа double</td></tr>
+        <tr><td><code>String.format("%s и %s", "a")</code></td><td>💥 MissingFormatArgumentException: меток две, аргумент один</td></tr>
+        <tr><td><code>String.format("%s", 3.5)</code></td><td>"3.5" — <code>%s</code> принимает всё</td></tr>
+        <tr><td><code>String.format("%d", "5")</code></td><td>💥 "5" — строка, а не число</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="think"><p>IDEA подсвечивает несовпадение меток и аргументов жёлтым ещё до запуска. Видишь жёлтое в <code>printf</code> — наведи мышку и прочитай.</p></div>
+    <div data-widget="ide" id="shot-format-mismatch">
+      <script type="application/json">
+      { "tree": false, "file": "Price.java", "runConfig": "Price", "gutterRun": [1, 2],
+        "code": "public class Price {\n    public static void main(String[] args) {\n        String price = String.format(\"%d руб.\", 3.5);\n        System.out.println(price);\n    }\n}",
+        "warnings": [ { "line": 3, "text": "3.5", "msg": "Argument type 'double' does not match the type of the format specifier '%d'", "tip": true, "fix": false } ],
+        "console": { "title": "Price", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Price" },
+          { "t": "err", "s": "Exception in thread \"main\" java.util.IllegalFormatConversionException: d != java.lang.Double" },
+          { "t": "err", "s": "\tat java.base/java.util.Formatter$FormatSpecifier.failConversion(Formatter.java:4515)" },
+          { "t": "err", "s": "\tat java.base/java.util.Formatter$FormatSpecifier.printInteger(Formatter.java:3066)" },
+          { "t": "err", "s": "\tat java.base/java.util.Formatter$FormatSpecifier.print(Formatter.java:3021)" },
+          { "t": "err", "s": "\tat java.base/java.util.Formatter.format(Formatter.java:2791)" },
+          { "t": "err", "s": "\tat java.base/java.util.Formatter.format(Formatter.java:2728)" },
+          { "t": "err", "s": "\tat java.base/java.lang.String.format(String.java:4390)" },
+          { "t": "err", "s": "\tat Price.main(Price.java:3)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Жёлтым подсвечен аргумент — литерал <code>3.5</code>: он не подходит к своей метке" },
+                   { "n": 2, "target": "tip", "text": "Подсказка при наведении: <b>Argument type 'double' does not match the type of the format specifier '%d'</b> — «тип аргумента double не подходит к метке %d»" },
+                   { "n": 3, "target": "error", "text": "Предупреждение проигнорировали и запустили — программа упала: <b>IllegalFormatConversionException: d != java.lang.Double</b>, «метка d не умеет печатать Double»" },
+                   { "n": 4, "target": "link-7", "text": "Строки <code>java.base/…</code> — внутренности Java. Твоя строка — последняя: <b>Price.java:3</b>" } ],
+        "caption": "Метка и значение не совпали: жёлтое предупреждение, потом исключение" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Текстовые блоки """ (Java 15+)</h2>
+    <p>Многострочный текст плюсами и <code>\n</code> — мучение. Особенно JSON для запроса к серверу, где ещё и кавычки надо экранировать:</p>
+<pre data-file="OldWay.java"><code class="java">String json = "{\n" +
+              "  \"login\": \"ivan\",\n" +
+              "  \"age\": 25\n" +
+              "}\n";</code></pre>
+    <p><b>Текстовый блок</b> (text block) — строковый литерал в тройных кавычках. Пишешь как есть: переводы строк сохраняются, обычные кавычки экранировать не нужно.</p>
+<pre data-file="TextBlock.java"><code class="java">String json = """
+        {
+          "login": "%s",
+          "age": %d
+        }
+        """.formatted("ivan", 25);
+System.out.print(json);</code></pre>
+<pre class="terminal"><span class="out">{
+  "login": "ivan",
+  "age": 25
+}</span></pre>
+    <ul>
+      <li>После открывающих <code>"""</code> обязательно <b>новая строка</b> — текст начинается со следующей.</li>
+      <li>Общий отступ слева Java <b>убирает</b>: ориентир — самая левая строка (или закрывающие <code>"""</code>). Поэтому блок можно красиво отступить в коде, а в строке лишних пробелов не будет.</li>
+      <li>Если закрывающие <code>"""</code> на отдельной строке — в конце текста будет перевод строки. Поставишь их сразу после текста — не будет.</li>
+      <li>Это обычная <code>String</code>: у неё можно вызывать все методы — <code>formatted</code>, <code>equals</code>.</li>
+    </ul>
+<pre data-file="TwoLines.java"><code class="java">String t = """
+        Строка 1
+        Строка 2""";
+System.out.println("[" + t + "]");</code></pre>
+    <details class="predict">
+      <summary>Что напечатает этот код? Сколько строк будет между квадратными скобками?</summary>
+      <p>Две строки: <b>[Строка 1</b> и <b>Строка 2]</b>. Перевод строки сразу после открывающих <code>"""</code> в текст не попадает, общий отступ убран, а после «Строка 2» перевода нет — закрывающие кавычки стоят вплотную.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-06">
+      <script type="application/json">
+      {
+       "title": "Форматирование",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет? (целые числа — локаль не важна)",
+         "code": "System.out.printf(\"%s: %d из %d%n\", \"Тест\", 9, 10);",
+         "answer": "Тест: 9 из 10",
+         "why": "Метки заполняются аргументами по порядку: %s ← \"Тест\", первый %d ← 9, второй ← 10. %n — перевод строки."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "System.out.println(String.format(\"%02d:%02d\", 7, 5));",
+         "answer": "07:05",
+         "why": "<code>%02d</code> — ширина 2, дополнять нулями."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет? (символ | показывает границы)",
+         "code": "System.out.println(\"|\" + String.format(\"%5d\", 42) + \"|\"\n        + String.format(\"%-5s\", \"ab\") + \"|\");",
+         "answer": "|   42|ab   |",
+         "why": "<code>%5d</code> — 5 символов, число прижато вправо: 3 пробела + 42. <code>%-5s</code> — прижато влево: ab + 3 пробела."
+        },
+        {
+         "type": "single",
+         "q": "Что произойдёт: <code>String.format(\"Цена: %d\", 99.9)</code>?",
+         "options": [
+          "Напечатает «Цена: 99»",
+          "Напечатает «Цена: 100»",
+          "Исключение при запуске: %d не для дробных"
+         ],
+         "answer": 2,
+         "why": "Шаблон проверяется при выполнении. <code>%d</code> требует целый аргумент — IllegalFormatConversionException. Для дробных — <code>%f</code> или <code>%.2f</code>."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>printf</code> сам переводит строку в конце",
+           "a": false,
+           "why": "нужно <code>%n</code>."
+          },
+          {
+           "s": "<code>String.format</code> возвращает строку, а не печатает её",
+           "a": true
+          },
+          {
+           "s": "На русской Windows <code>%.2f</code> может напечатать запятую вместо точки",
+           "a": true
+          },
+          {
+           "s": "В текстовом блоке обычные кавычки <code>\"</code> не нужно экранировать",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Мини-проект</span>
+      <p>Напиши наставнику: <em>«Хочу напечатать таблицу умножения 1–9 ровными столбиками через printf. Дай подсказку, какую ширину выбрать, но код не пиши»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>printf(шаблон, аргументы…)</code> печатает, <code>String.format</code> — возвращает строку. <code>"шаблон".formatted(…)</code> — короткая форма.</li>
+        <li>Метки: <code>%s</code> строка, <code>%d</code> целое, <code>%.2f</code> дробь с 2 знаками, <code>%n</code> перевод строки, <code>%%</code> знак процента.</li>
+        <li>Ширина: <code>%5d</code> вправо, <code>%-10s</code> влево, <code>%05d</code> с нулями.</li>
+        <li>Дроби форматируются по локали: на русской Windows — запятая. Нужна точка — <code>Locale.US</code>.</li>
+        <li>Неверный тип аргумента или нехватка аргументов — исключение при запуске.</li>
+        <li>Текстовый блок <code>"""…"""</code> — многострочный текст без <code>\n</code> и экранирования кавычек (Java 15+).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

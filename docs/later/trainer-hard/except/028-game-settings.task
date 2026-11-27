@@ -1,0 +1,85 @@
+## id: tr-except-028
+## title: Файл настроек игры
+## file: trainer/except/GameSettingsLoader.java
+## class: GameSettingsLoader
+## level: 3
+## category: throw и проверки
+@@ description
+<p>Напиши класс <code>GameSettingsLoader</code>. Игра читает настройки — строки вида <code>ключ=значение</code>. Значения по умолчанию: <code>volume=50</code>, <code>difficulty=normal</code>, <code>fps=60</code>. Правильная строка меняет настройку (если ключ встретился дважды, побеждает последний правильный).</p>
+<p>Правила (пробелы вокруг ключа и значения убирай):</p>
+<ul>
+<li><code>volume</code> — целое от 0 до 100, <code>fps</code> — целое от 30 до 240;</li>
+<li><code>difficulty</code> — <code>easy</code>, <code>normal</code> или <code>hard</code>.</li>
+</ul>
+<p>Ошибки и их сообщения:</p>
+<ul>
+<li>в строке нет <code>=</code> — <code>нет знака =</code>;</li>
+<li>неизвестный ключ — <code>неизвестная настройка X</code>: для этого объяви своё исключение <code>GameSettingUnknownException</code>;</li>
+<li>значение не целое число — <code>ключ: нужно целое число</code>;</li>
+<li>число вне диапазона — <code>ключ: можно от MIN до MAX</code>;</li>
+<li>неверная сложность — <code>difficulty: можно easy, normal или hard</code>.</li>
+</ul>
+<p>В первой строке ввода — количество строк настроек n, дальше сами строки. На каждую ошибку программа печатает <code>Строка K: </code> и сообщение и идёт дальше. В конце печатает три настройки (<code>volume=…</code>, <code>difficulty=…</code>, <code>fps=…</code>, каждую с новой строки) и <code>Ошибок: E</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2               вывод: Строка 2: неизвестная настройка speed
+       volume = 70            volume=70
+       speed=5                difficulty=normal
+                              fps=60
+                              Ошибок: 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.indexOf("=")</code> — индекс первого знака <code>=</code> или <code>-1</code>; <code>s.substring(a, b)</code> — кусок строки</li>
+<li>можно перехватить <code>NumberFormatException</code> и вместо него выбросить <code>IllegalArgumentException</code> со своим сообщением</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2
+volume = 70
+speed=5
+@@ expect
+Строка 2: неизвестная настройка speed
+volume=70
+difficulty=normal
+fps=60
+Ошибок: 1
+@@ test: Всё правильно
+@@ input
+3
+difficulty=hard
+fps=144
+volume=0
+@@ expect
+volume=0
+difficulty=hard
+fps=144
+Ошибок: 0
+@@ test: Ошибки в значениях
+@@ input
+5
+volume=громко
+fps=500
+difficulty=impossible
+fps 120
+volume=100
+@@ expect
+Строка 1: volume: нужно целое число
+Строка 2: fps: можно от 30 до 240
+Строка 3: difficulty: можно easy, normal или hard
+Строка 4: нет знака =
+volume=100
+difficulty=normal
+fps=60
+Ошибок: 4
+@@ test: Последнее правильное побеждает
+@@ input
+4
+fps=30
+fps=240
+fps=29
+difficulty=easy
+@@ expect
+Строка 3: fps: можно от 30 до 240
+volume=50
+difficulty=easy
+fps=240
+Ошибок: 1
+@@ require: class\s+GameSettingUnknownException\s+extends\s+Exception | Объяви класс GameSettingUnknownException extends Exception
+@@ require: throw\s+new\s+GameSettingUnknownException | Для неизвестного ключа выбрасывай GameSettingUnknownException

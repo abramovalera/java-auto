@@ -1,0 +1,59 @@
+{
+  "id": "m02",
+  "num": "2",
+  "title": "Переменные и типы данных",
+  "summary": "Где программа хранит данные: переменные, int, long, double, boolean, char, String, стек и куча, ввод через Scanner и преобразования типов.",
+  "lessons": [
+    {
+      "id": "m02-01",
+      "title": "Переменные: коробки с ярлыками",
+      "url": "/lessons/m02/01-variables.html"
+    },
+    {
+      "id": "m02-02",
+      "title": "Примитивные типы",
+      "url": "/lessons/m02/02-primitives.html"
+    },
+    {
+      "id": "m02-03",
+      "title": "Строки, var, константы и имена",
+      "url": "/lessons/m02/03-strings-names.html"
+    },
+    {
+      "id": "m02-04",
+      "title": "Память: стек и куча",
+      "url": "/lessons/m02/04-memory.html"
+    },
+    {
+      "id": "m02-05",
+      "title": "Ввод с клавиатуры: Scanner",
+      "url": "/lessons/m02/05-scanner.html"
+    },
+    {
+      "id": "m02-06",
+      "title": "Преобразования типов",
+      "url": "/lessons/m02/06-type-casting.html"
+    },
+    {
+      "id": "m02-reading",
+      "title": "Как читать код: правильные слова",
+      "url": "/lessons/m02/06b-reading-code.html"
+    },
+    {
+      "id": "m02-pz",
+      "title": "Головоломки: что выведется?",
+      "url": "/lessons/m02/07-puzzles.html"
+    },
+    {
+      "id": "m02-star",
+      "title": "★ МиниБанк: карточка клиента",
+      "url": "/lessons/m02/95-minibank.html"
+    },
+    {
+      "id": "m02-sum",
+      "title": "Итоги модуля и экзамен",
+      "url": "/lessons/m02/08-summary.html"
+    }
+  ],
+  "taskCount": 11
+}

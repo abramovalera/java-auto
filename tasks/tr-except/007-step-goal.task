@@ -1,0 +1,46 @@
+## id: tr-except-007
+## title: Цель по шагам
+## file: trainer/except/StepGoalCheck.java
+## class: StepGoalCheck
+## level: 1
+## category: Плохой ввод
+@@ description
+<p>Напиши класс <code>StepGoalCheck</code>. Фитнес-браслет считает шаги, цель на день — 10000. Программа читает количество шагов методом <code>nextInt()</code> и печатает:</p>
+<ul>
+<li><code>Цель выполнена!</code> — если шагов 10000 или больше;</li>
+<li><code>Осталось пройти N шагов</code> — если меньше.</li>
+</ul>
+<p>Если на входе не целое число, <code>nextInt()</code> выбросит <code>InputMismatchException</code>. Перехвати его и напечатай <code>Шаги считают целым числом</code>.</p>
+<pre class="terminal"><span class="out">ввод:  9500     вывод: Осталось пройти 500 шагов
+ввод:  много    вывод: Шаги считают целым числом</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>import java.util.InputMismatchException;</code> — этот класс лежит в пакете <code>java.util</code>, рядом со <code>Scanner</code></li>
+<li><code>catch (InputMismatchException e)</code> — перехватывает «ждали число, а пришло что-то другое»</li>
+</ul></div>
+@@ test: Цель выполнена
+@@ input
+12000
+@@ expect
+Цель выполнена!
+@@ test: Не хватает шагов
+@@ input
+9500
+@@ expect
+Осталось пройти 500 шагов
+@@ test: Ровно цель
+@@ input
+10000
+@@ expect
+Цель выполнена!
+@@ test: Словами
+@@ input
+много
+@@ expect
+Шаги считают целым числом
+@@ test: Дробное число
+@@ input
+10000.5
+@@ expect
+Шаги считают целым числом
+@@ require: nextInt\s*\( | Читай число методом nextInt()
+@@ require: catch\s*\(\s*(java\.util\.)?InputMismatchException | Перехвати InputMismatchException

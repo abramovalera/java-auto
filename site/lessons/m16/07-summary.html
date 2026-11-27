@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля «Многопоточность» · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m16-sum">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 16 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead">Ты запустил несколько поваров на одной кухне, поймал гонку, повесил замок, раздал работу пулу потоков, развязал deadlock и понял, откуда берутся плавающие ошибки. Соберём всё в одну картинку и проверим себя.</p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <p>Пройдись по каждому блоку и вспомни, что за ним стоит. Если про блок сказать нечего — вернись к уроку.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 16: потоки, гонка, пул потоков, видимость и deadlock, коллекции, независимые данные">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">🧵 Потоки</text>
+        <text x="56" y="80" class="d-small">new Thread(лямбда)</text>
+        <text x="56" y="100" class="d-small">start, а не run</text>
+        <text x="56" y="120" class="d-small">join, sleep, порядок?</text>
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-red"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🏁 Гонка</text>
+        <text x="526" y="80" class="d-small">count++ = 3 действия</text>
+        <text x="526" y="100" class="d-small">synchronized (lock)</text>
+        <text x="526" y="120" class="d-small">AtomicInteger</text>
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-teal"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">🏊 Пул потоков</text>
+        <text x="26" y="230" class="d-small">submit, shutdown</text>
+        <text x="26" y="250" class="d-small">Callable → Future.get</text>
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🥄 Ловушки</text>
+        <text x="556" y="230" class="d-small">volatile — видимость</text>
+        <text x="556" y="250" class="d-small">deadlock — порядок замков</text>
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-yellow"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">🗃 Коллекции</text>
+        <text x="56" y="370" class="d-small">synchronizedList</text>
+        <text x="56" y="390" class="d-small">ConcurrentHashMap.merge</text>
+        <text x="56" y="410" class="d-small">сортируй перед выводом</text>
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-green"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🧩 Независимость</text>
+        <text x="526" y="370" class="d-small">свои данные у потока</text>
+        <text x="526" y="390" class="d-small">итог собирает main</text>
+        <text x="526" y="410" class="d-small">ждать join, а не sleep</text>
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 16</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Многопоточность</text>
+      </svg>
+      <figcaption>Шесть блоков модуля. В центре — идея «несколько исполнителей делят общие данные».</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <section class="goals">
+      <h3>Проверь каждый пункт честно</h3>
+      <ul>
+        <li>объяснить разницу между процессом и потоком на примере кухни и поваров;</li>
+        <li>создать объект потока, передав конструктору аргументом задачу <code>Runnable</code> (лямбда-выражением), запустить поток вызовом <code>start()</code> и объяснить, чем <code>start()</code> отличается от <code>run()</code>;</li>
+        <li>дождаться завершения потока вызовом <code>join()</code> и объяснить, почему без него результат случайный;</li>
+        <li>нарисовать по шагам, как <code>count++</code> из двух потоков теряет обновление;</li>
+        <li>починить гонку синхронизированным блоком <code>synchronized</code> с общим замком или через <code>AtomicInteger</code>;</li>
+        <li>отправить задачи (<code>Runnable</code> и <code>Callable</code>) в пул (<code>ExecutorService</code>) вызовом <code>submit</code>, забрать результаты вызовом <code>get()</code> у <code>Future</code> и закрыть пул;</li>
+        <li>поделить массив на части по формуле <code>i * n / k</code> и посчитать части параллельно;</li>
+        <li>объяснить, что делает <code>volatile</code> и чего он не делает;</li>
+        <li>найти deadlock в коде и починить его одинаковым порядком замков;</li>
+        <li>выбрать потокобезопасную коллекцию вместо <code>ArrayList</code> и <code>HashMap</code>;</li>
+        <li>объяснить, почему общие изменяемые данные рождают плавающие ошибки и почему ждать поток нужно через <code>join()</code> или <code>get()</code>, а не через <code>Thread.sleep</code>.</li>
+      </ul>
+    </section>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большой квиз</h2>
+    <p>Восемь вопросов по всему модулю. Ошибки вернутся в конце — разберись с ними.</p>
+    <div data-widget="check" id="check-m16-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 16 целиком",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что выведет код, если вызвать его из main?",
+         "code": "Thread t = new Thread(() ->\n    System.out.println(Thread.currentThread().getName()));\nt.start();\nt.join();",
+         "options": [
+          "main",
+          "Thread-0",
+          "Ничего"
+         ],
+         "answer": 1,
+         "why": "Вызов start() запустил новый поток — тело лямбды выполняет он, а его имя Thread-0 (если других Thread ещё не создавали)."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Повторный start() у того же потока бросит IllegalThreadStateException",
+           "a": true
+          },
+          {
+           "s": "volatile делает count++ атомарным",
+           "a": false,
+           "why": "volatile — только видимость. Для счётчика — AtomicInteger или synchronized."
+          },
+          {
+           "s": "Если не вызвать shutdown() у пула, программа может не завершиться",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Два потока по 10 000 раз делают <code>count++</code> над общим <code>int</code>, main дождался обоих. Как получить точно 20 000?",
+         "options": [
+          "Добавить ещё один join()",
+          "Заменить на AtomicInteger и incrementAndGet()",
+          "Добавить Thread.sleep(1) в цикл"
+         ],
+         "answer": 1,
+         "why": "join уже есть — дело в потере обновлений. Атомарная операция их не теряет."
+        },
+        {
+         "type": "single",
+         "q": "Пул посчитал сумму и напечатал 5, но программа не завершается. Чего не хватает?",
+         "code": "ExecutorService pool = Executors.newFixedThreadPool(2);\nFuture<Integer> f = pool.submit(() -> 2 + 3);\nint sum = f.get();\nSystem.out.println(sum);",
+         "options": [
+          "f.join();",
+          "pool.shutdown();",
+          "Thread.sleep(1000);"
+         ],
+         "answer": 1,
+         "why": "Потоки пула ждут новых задач и держат программу. pool.shutdown() закрывает приём задач, и после последней задачи потоки завершаются."
+        },
+        {
+         "type": "match",
+         "q": "Соедини",
+         "left": [
+          "Runnable",
+          "Callable",
+          "Future",
+          "ExecutorService"
+         ],
+         "right": [
+          "Задача без результата: void run()",
+          "Задача с результатом: V call()",
+          "Чек на будущий результат: get()",
+          "Пул потоков: submit, shutdown"
+         ],
+         "why": "Задача, задача с результатом, «чек» и исполнитель — четыре кирпичика из урока 3."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа? (Обрати внимание на сортировку.)",
+         "code": "List<String> done = Collections.synchronizedList(new ArrayList<>());\nExecutorService pool = Executors.newFixedThreadPool(3);\nfor (String s : List.of(\"C\", \"A\", \"B\")) {\n    pool.submit(() -> done.add(s));\n}\npool.shutdown();\npool.awaitTermination(5, TimeUnit.SECONDS);\nCollections.sort(done);\nSystem.out.println(done);",
+         "answer": "[A, B, C]",
+         "why": "Порядок добавления случайный, но после ожидания и сортировки вывод всегда один и тот же."
+        },
+        {
+         "type": "multi",
+         "q": "Что приводит к плавающим ошибкам в многопоточной программе?",
+         "options": [
+          "static-поле, которое потоки перезаписывают",
+          "Один общий счёт, с которого несколько потоков снимают деньги без защиты",
+          "Свои локальные данные у каждого потока",
+          "Thread.sleep вместо join: «поток должен успеть за секунду»"
+         ],
+         "answer": [
+          0,
+          1,
+          3
+         ],
+         "why": "Общие изменяемые данные и «гадание на время» — главные источники плавающих ошибок. Свои данные у каждого потока — лекарство."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><strong>Сделай все задачи.</strong> На <a href="/tasks.html?module=m16">странице практики</a> все шесть задач должны быть зелёными — от трёх помощников с join до двух поваров с deadlock.</li>
+      <li><strong>Пройди головоломки</strong> модуля, если ещё не прошёл, — на экзамене будут похожие.</li>
+      <li><span class="ai-only"><strong>Открой Claude Code в папке курса</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><strong>Будь готов рисовать и объяснять.</strong> Наставник попросит расписать по шагам гонку на <code>count++</code>, нарисовать deadlock стрелками и ответить на вопросы, как на собеседовании: start и run, volatile, Future, join и ожидание результата.</span><span class="free-only"><strong>Будь готов рисовать и объяснять.</strong> <span class="ai-name">DeepSeek</span> попросит расписать по шагам гонку на <code>count++</code>, нарисовать deadlock стрелками и ответить на вопросы, как на собеседовании: start и run, volatile, Future, join и ожидание результата.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p><span class="ai-only">На экзамене не подглядывай в уроки. Если не помнишь — так и скажи: наставник подскажет, какой урок перечитать. Это честнее и полезнее, чем угадывать.</span><span class="free-only">На экзамене не подглядывай в уроки. Если не помнишь — так и скажи: <span class="ai-name">DeepSeek</span> подскажет, какой урок перечитать. Это честнее и полезнее, чем угадывать.</span></p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Напиши: <em>«Давай пробный экзамен по модулю 16 без отметок в progress.md — как собеседование джуна Java-разработчика»</em>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card">
+        <span class="emoji">🛠</span>
+        <h4>Модуль 17: инструменты</h4>
+        <p>Git, сборщик Gradle, отладчик и первые тесты на JUnit 5 — рабочие инструменты, которыми каждый день пользуется любой Java-разработчик.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">🌐</span>
+        <h4>Где это встретится</h4>
+        <p>Сервер банка, интернет-магазин, игра, загрузка файлов: везде работу раздают пулам потоков. Знание гонок и deadlock поможет понять, почему программа «иногда врёт» или зависает.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">🔎</span>
+        <h4>Если захочешь глубже</h4>
+        <p>Книга «Java Concurrency in Practice» — классика. Но для начинающего разработчика уровня этого модуля хватает с запасом.</p>
+      </div>
+    </div>
+    <section class="summary">
+      <h2>Ты молодец</h2>
+      <p>Многопоточность пугает даже опытных разработчиков. А ты теперь знаешь главное: общие изменяемые данные — источник бед, порядок между потоками нужно обеспечивать самому, а ждать надо условия, а не секунды.</p>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li>Сделай все шесть задач до зелёного.</li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 17!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 17!</span></li>
+      </ul>
+    </section>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m16">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

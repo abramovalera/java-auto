@@ -1,0 +1,45 @@
+## id: tr-strings-010
+## title: Это картинка?
+## file: trainer/strings/ImageFileCheck.java
+## class: ImageFileCheck
+## level: 1
+## category: Проверка формата
+@@ description
+<p>Напиши класс <code>ImageFileCheck</code>. Галерея показывает только картинки. Программа читает имя файла и печатает <code>картинка</code>, если оно заканчивается на <code>.png</code>, <code>.jpg</code> или <code>.jpeg</code>, иначе — <code>не картинка</code>. Регистр не важен: <code>CAT.PNG</code> — тоже картинка.</p>
+<pre class="terminal"><span class="out">ввод:  cat.png       вывод: картинка
+ввод:  report.pdf    вывод: не картинка</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.endsWith(".png")</code> — <code>true</code>, если строка заканчивается на <code>.png</code></li>
+<li><code>s.toLowerCase()</code> — поможет не думать о регистре</li>
+<li><code>||</code> — логическое «или»</li>
+</ul></div>
+@@ test: PNG
+@@ input
+cat.png
+@@ expect
+картинка
+@@ test: Заглавные буквы
+@@ input
+Holiday.JPG
+@@ expect
+картинка
+@@ test: Документ
+@@ input
+report.pdf
+@@ expect
+не картинка
+@@ test: Нет точки
+@@ input
+png
+@@ expect
+не картинка
+@@ test: Картинка в архиве
+@@ input
+photo.jpeg.zip
+@@ expect
+не картинка
+@@ test: JPEG
+@@ input
+selfie.jpeg
+@@ expect
+картинка

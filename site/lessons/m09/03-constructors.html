@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Конструкторы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 9 · Урок 3</div>
+    <h1>Конструкторы</h1>
+    <p class="lead">Создавать кота в три строки и надеяться, что никто не забудет имя, — так себе план. Конструктор собирает объект сразу правильным: в одну строку и без «пустых» котов.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🏭 конвейер new</span><span>🔗 this(...)</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m09-03-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "class Lamp {\n    boolean on;\n    void toggle() { on = !on; }\n}\n\n// в main:\nLamp lamp = new Lamp();\nlamp.toggle();\nlamp.toggle();\nlamp.toggle();\nSystem.out.println(lamp.on);",
+            "answer": "true", "why": "Сначала false (по умолчанию), три переключения: true, false, true." },
+          { "type": "single", "q": "Что нужно написать, чтобы поле <code>size</code> получило значение параметра <code>size</code>?",
+            "options": ["size = size;", "this.size = size;", "size = this.size;"], "answer": 1,
+            "why": "this.size — поле объекта, size — параметр, который затеняет поле." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Перегрузка (модуль 7) — несколько методов с одним именем и разными параметрами", "a": true },
+              { "s": "Поле int нового объекта сразу равно 0", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Проблема: «пустые» объекты</h2>
+<pre data-file="CatDemo.java"><code class="java">Cat murzik = new Cat();
+murzik.name = "Мурзик";
+murzik.age = 3;
+
+Cat barsik = new Cat();
+barsik.age = 5;          // а имя забыли...
+barsik.describe();       // null, 5 г.</code></pre>
+    <p>Три строки на каждого кота — долго. А главное, ничто не мешает забыть одну из них: получится кот без имени. В большой программе такой «полуфабрикат» всплывёт через сто строк как <code>null</code> или NullPointerException, и искать причину придётся долго.</p>
+    <p>Хочется так: <b>«кот создаётся только с именем и возрастом, и точка»</b>. Для этого и придуман <b>конструктор</b>.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Конструктор: что делать при new</h2>
+<pre data-file="Cat.java"><code class="java">public class Cat {
+    String name;
+    int age;
+
+    Cat(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    void describe() {
+        System.out.println(name + ", " + age + " г.");
+    }
+}</code></pre>
+<pre data-file="CatDemo.java"><code class="java">Cat murzik = new Cat("Мурзик", 3);
+Cat barsik = new Cat("Барсик", 5);
+barsik.describe();       // Барсик, 5 г.</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Cat(String name, int age)</code><div><p><b>Объявление конструктора.</b> <b>Конструктор</b> — особый блок кода, похожий на метод: он вызывается при создании объекта оператором <code>new</code>. Два отличия от обычного метода: имя <b>точно как у класса</b> и <b>нет типа возвращаемого значения</b> — даже <code>void</code>.</p></div></div>
+      <div class="annot-row"><code>this.name = name;</code><div><p>Классика: <b>параметры конструктора</b> называют так же, как поля, и полю <code>this.name</code> присваивают значение параметра <code>name</code> (вспомни затенение из прошлого урока).</p></div></div>
+      <div class="annot-row"><code>new Cat("Мурзик", 3)</code><div><p>Создаём объект оператором <code>new</code> и <b>вызываем конструктор</b>: аргументы в скобках после <code>new Cat</code> передаются в параметры конструктора — по порядку, как при вызове метода.</p></div></div>
+    </div>
+    <p>Теперь <code>new Cat()</code> без аргументов <b>не скомпилируется</b>: «пустого» кота создать просто нельзя. Компилятор сам следит, чтобы никто не забыл имя.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: сборка на заводе</span>
+      <p>Машина не выезжает с конвейера без колёс, а потом «колёса докрутим». Конструктор — последний пост конвейера: объект выходит из <code>new</code> сразу готовым к работе.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Что делает new по шагам</h2>
+    <p>За словом <code>new</code> прячется целый конвейер. Его порядок спрашивают на собеседованиях:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 190" role="img" aria-label="Конвейер new: выделить память и обнулить поля, выполнить инициализаторы полей, выполнить тело конструктора, вернуть ссылку">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="20" width="168" height="128" rx="14" class="d-blue"/>
+        <text x="94" y="50" text-anchor="middle" class="d-title">① память</text>
+        <text x="94" y="78" text-anchor="middle" class="d-small">место в куче,</text>
+        <text x="94" y="98" text-anchor="middle" class="d-small">все поля:</text>
+        <text x="94" y="118" text-anchor="middle" class="d-small">0 / false / null</text>
+        <path d="M180 84 H200" class="d-arrow"/>
+        <rect x="204" y="20" width="168" height="128" rx="14" class="d-violet"/>
+        <text x="288" y="50" text-anchor="middle" class="d-title">② поля с =</text>
+        <text x="288" y="78" text-anchor="middle" class="d-small">инициализаторы:</text>
+        <text x="288" y="98" text-anchor="middle" class="d-mono-ink">int lives = 9;</text>
+        <text x="288" y="118" text-anchor="middle" class="d-small">сверху вниз</text>
+        <path d="M374 84 H394" class="d-arrow"/>
+        <rect x="398" y="20" width="168" height="128" rx="14" class="d-accent"/>
+        <text x="482" y="50" text-anchor="middle" class="d-title">③ конструктор</text>
+        <text x="482" y="78" text-anchor="middle" class="d-small">его тело:</text>
+        <text x="482" y="98" text-anchor="middle" class="d-mono-ink">this.name = name;</text>
+        <text x="482" y="118" text-anchor="middle" class="d-small">проверки, подсчёты</text>
+        <path d="M568 84 H588" class="d-arrow"/>
+        <rect x="592" y="20" width="158" height="128" rx="14" class="d-green"/>
+        <text x="671" y="50" text-anchor="middle" class="d-title">④ ссылка</text>
+        <text x="671" y="78" text-anchor="middle" class="d-small">new возвращает</text>
+        <text x="671" y="98" text-anchor="middle" class="d-small">номерок, он ложится</text>
+        <text x="671" y="118" text-anchor="middle" class="d-small">в переменную</text>
+        <text x="380" y="178" text-anchor="middle" class="d-small">Cat murzik = new Cat("Мурзик", 3);  →  ① ② ③ ④  →  murzik → #1</text>
+      </svg>
+      <figcaption>Пока конвейер не дошёл до ④, переменная <code>murzik</code> ещё не получила ссылку.</figcaption>
+    </figure>
+    <p>Посмотри на конвейер в памяти. В этом классе два конструктора, и один вызывает другой — об этом следующий шаг.</p>
+    <div data-widget="trace" id="trace-m09-03-new">
+      <script type="application/json">
+      { "title": "Конвейер new в памяти",
+        "intro": "Следи за кучей: сначала у объекта все поля «нулевые», потом срабатывает lives = 9, и только потом тело конструктора.",
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat murzik = new Cat(\"Мурзик\", 3);\n        Cat fluffy = new Cat(\"Пушок\");\n        fluffy.describe();\n    }\n}\n\nclass Cat {\n    String name;\n    int age;\n    int lives = 9;\n\n    Cat(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n\n    Cat(String name) {\n        this(name, 0);\n    }\n\n    void describe() {\n        System.out.println(name + \", \" + age + \" г., жизней: \" + lives);\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0", "lives": "0" } } ], "note": "① <code>new</code> выделил место в куче. Все поля пока «нулевые» — даже lives ещё 0." },
+          { "line": 14, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Cat", "vars": { "this": "→#1", "name": "\"Мурзик\"", "age": "3" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0", "lives": "0" } } ], "note": "Вызван конструктор с двумя параметрами. На стеке его фрейм: this → новый объект, параметры name и age." },
+          { "line": 12, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Cat", "vars": { "this": "→#1", "name": "\"Мурзик\"", "age": "3" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0", "lives": "9" } } ], "note": "② Перед телом конструктора срабатывают инициализаторы полей: <code>lives = 9</code>." },
+          { "line": 15, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Cat", "vars": { "this": "→#1", "name": "\"Мурзик\"", "age": "3" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0", "lives": "9" } } ], "note": "③ Тело конструктора: полю <code>name</code> объекта присваивается значение параметра <code>name</code>." },
+          { "line": 16, "stack": [ { "frame": "main", "vars": {} }, { "frame": "Cat", "vars": { "this": "→#1", "name": "\"Мурзик\"", "age": "3" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } } ], "note": "Так же полю <code>age</code> присваивается значение параметра. Конструктор завершился." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } } ], "note": "④ Только теперь переменная <code>murzik</code> инициализируется ссылкой на объект. Объект готов целиком." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } }, { "id": "#2", "label": "Cat", "fields": { "name": "null", "age": "0", "lives": "0" } } ], "note": "Второй кот, но аргумент один — подойдёт конструктор <code>Cat(String name)</code>. Сначала, как всегда, память." },
+          { "line": 19, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } }, { "frame": "Cat", "vars": { "this": "→#2", "name": "\"Пушок\"" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } }, { "id": "#2", "label": "Cat", "fields": { "name": "null", "age": "0", "lives": "0" } } ], "note": "Фрейм конструктора с одним параметром. Первая же его строка — <code>this(name, 0)</code>." },
+          { "line": 20, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } }, { "frame": "Cat", "vars": { "this": "→#2", "name": "\"Пушок\"" } }, { "frame": "Cat", "vars": { "this": "→#2", "name": "\"Пушок\"", "age": "0" } } ], "vars": { "age": "0" }, "ask": ["age"], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } }, { "id": "#2", "label": "Cat", "fields": { "name": "null", "age": "0", "lives": "0" } } ], "note": "<code>this(name, 0)</code> вызывает другой конструктор того же класса. На стеке два фрейма Cat — и оба про один объект #2. Возраст пришёл вторым аргументом: 0." },
+          { "line": 12, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } }, { "frame": "Cat", "vars": { "this": "→#2", "name": "\"Пушок\"" } }, { "frame": "Cat", "vars": { "this": "→#2", "name": "\"Пушок\"", "age": "0" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } }, { "id": "#2", "label": "Cat", "fields": { "name": "null", "age": "0", "lives": "9" } } ], "note": "Инициализатор <code>lives = 9</code> срабатывает в начале того конструктора, который не вызывает this(...), — один раз на объект." },
+          { "line": 16, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } }, { "frame": "Cat", "vars": { "this": "→#2", "name": "\"Пушок\"" } }, { "frame": "Cat", "vars": { "this": "→#2", "name": "\"Пушок\"", "age": "0" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Пушок\"", "age": "0", "lives": "9" } } ], "note": "Тело «главного» конструктора заполнило поля. Дальше оба фрейма снимаются по очереди." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "fluffy": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Пушок\"", "age": "0", "lives": "9" } } ], "note": "Переменная fluffy инициализирована ссылкой на готовый объект — Пушка." },
+          { "line": 24, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "fluffy": "→#2" } }, { "frame": "describe", "vars": { "this": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3", "lives": "9" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Пушок\"", "age": "0", "lives": "9" } } ], "out": "Пушок, 0 г., жизней: 9\n", "note": "describe печатает поля объекта #2." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Несколько конструкторов и this(...)</h2>
+    <p>Конструкторы можно перегружать, как методы из модуля 7: одно имя, разные параметры. Возраст котёнка из приюта часто неизвестен — пусть будет второй конструктор, только с именем:</p>
+<pre data-file="Cat.java"><code class="java">Cat(String name, int age) {        // «главный» конструктор
+    this.name = name;
+    this.age = age;
+}
+
+Cat(String name) {                 // удобный вариант
+    this(name, 0);                 // передаём работу главному
+}</code></pre>
+    <p><code>this(...)</code> со скобками — это вызов <b>другого конструктора этого же класса</b>. Так вся настоящая работа живёт в одном месте, а остальные конструкторы только подставляют значения «по умолчанию». Захочешь добавить проверку — добавишь в одном месте, а не в трёх.</p>
+    <div class="callout warn">
+      <span class="callout-title">Правило: this(...) — только первой строкой</span>
+      <p>Если конструктор вызывает <code>this(...)</code>, это должна быть его <b>самая первая</b> инструкция. Иначе ошибка компиляции: <em>call to this must be first statement in constructor</em>. Логика простая: сначала объект собирают «главным» способом, потом можно что-то донастроить.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Запись</th><th>Что это</th></tr>
+        <tr><td><code>this.name</code></td><td>поле текущего объекта</td></tr>
+        <tr><td><code>this.describe()</code></td><td>вызов метода у текущего объекта (обычно пишут просто <code>describe()</code>)</td></tr>
+        <tr><td><code>this(name, 0)</code></td><td>вызов другого конструктора этого класса — только в конструкторе и только первой строкой</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>new Cat("Тиша")</code>, если в конструкторы добавить печать?</summary>
+<pre data-file="Cat.java"><code class="java">Cat(String name, int age) {
+    System.out.println("главный");
+    this.name = name;
+    this.age = age;
+}
+
+Cat(String name) {
+    this(name, 0);
+    System.out.println("короткий");
+}</code></pre>
+      <p><b>Сначала «главный», потом «короткий».</b> Короткий конструктор первой строкой передаёт управление главному, тот печатает своё, возвращается — и только потом короткий печатает своё. Это стек вызовов из модуля 7, только для конструкторов.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Конструктор по умолчанию</h2>
+    <p>В уроке 9.1 у класса <code>Cat</code> не было конструктора, а <code>new Cat()</code> работал. Как так? Если ты <b>не написал ни одного</b> конструктора, компилятор сам незаметно добавляет пустой, без параметров:</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    String name;
+    // невидимо: Cat() { }
+}</code></pre>
+    <p>Но стоит написать <b>хотя бы один свой</b> конструктор — бесплатный исчезает. И старый код ломается. В IDEA это выглядит так:</p>
+    <div data-widget="ide" id="shot-ctor-args">
+      <script type="application/json">
+      { "tree": false, "file": "CatDemo.java", "gutterRun": [1, 2],
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat c = new Cat();\n    }\n}",
+        "errors": [ { "line": 3, "text": "()", "msg": "Expected 2 arguments but found 0", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Красным подчёркнуты пустые скобки — туда должны прийти аргументы" },
+                   { "n": 2, "target": "tip", "text": "<b>Expected 2 arguments but found 0</b> — «ожидалось 2 аргумента, а найдено 0». Единственный конструктор <code>Cat(String name, int age)</code> просит два значения. Если конструкторов несколько и ни один не подходит, IDEA пишет иначе: <b>Cannot resolve constructor 'Cat()'</b>" } ],
+        "caption": "Вызов конструктора без нужных аргументов" }
+      </script>
+    </div>
+    <p>А на сайте (кнопка «Проверить») ты увидишь текст компилятора <code>javac</code>:</p>
+<pre class="terminal"><span class="err">CatDemo.java:3: error: constructor Cat in class Cat cannot be applied to given types;
+        Cat c = new Cat();
+                ^
+  required: String,int
+  found:    no arguments
+  reason: actual and formal argument lists differ in length</span></pre>
+    <p>Компилятор говорит прямо: конструктор просит <code>String,int</code>, а ты не передал ничего. Чинится двумя способами: передать аргументы или самому дописать конструктор без параметров, если «пустой» объект действительно имеет смысл.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Ловушки и хорошие привычки</h2>
+    <p><b>Ловушка 1: void перед конструктором.</b> Посмотри внимательно:</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    String name;
+
+    void Cat(String name) {     // ❌ это НЕ конструктор!
+        this.name = name;
+    }
+}</code></pre>
+    <p>Из-за <code>void</code> это обычный <b>метод</b>, который случайно называется как класс. Конструктора у класса нет — значит, есть только невидимый пустой. <code>new Cat("Мурзик")</code> не скомпилируется, а <code>new Cat()</code> создаст объект с <code>name == null</code>. Помни: у конструктора <b>нет типа возвращаемого значения</b>.</p>
+    <p><b>Ловушка 2: затенение в конструкторе.</b> <code>name = name;</code> вместо <code>this.name = name;</code> — объект создастся, но имя останется <code>null</code>. Самая частая ошибка в конструкторах.</p>
+    <p><b>Хорошая привычка: проверяй данные в конструкторе.</b> Конструктор — единственная дверь, через которую объект появляется на свет. Поставь у неё охранника:</p>
+<pre data-file="Cat.java"><code class="java">Cat(String name, int age) {
+    if (age &lt; 0) {
+        age = 0;               // отрицательный возраст не пускаем
+    }
+    this.name = name;
+    this.age = age;
+}</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">IDEA пишет конструктор за тебя</span>
+      <p>Внутри класса нажми <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>Constructor</b>, отметь поля — IDEA сгенерирует конструктор с <code>this.x = x</code>. Но сначала напиши пару штук руками, чтобы понимать, что она вставляет.</p>
+    </div>
+    <div data-widget="ide" id="shot-generate-ctor">
+      <script type="application/json">
+      { "tree": false, "file": "Cat.java", "caretLine": 4,
+        "code": "public class Cat {\n    String name;\n    int age;\n    \n}",
+        "menu": { "at": "line-4", "items": ["Constructor", "Getter", "Setter", "Getter and Setter", "equals() and hashCode()", "toString()", "-", "Override Methods…\tCtrl+O", "Delegate Methods…", "-", "Test…", "Copyright"], "hl": "Constructor" },
+        "marks": [ { "n": 1, "target": "line-4", "side": "left", "text": "Курсор — внутри класса, на пустой строке после полей. Здесь и жми <kbd>Alt</kbd>+<kbd>Insert</kbd>" },
+                   { "n": 2, "target": "menu", "text": "Меню <b>Generate</b> («сгенерировать»). <b>Constructor</b> — конструктор. Следующий шаг: IDEA покажет список полей — выдели <code>name</code> и <code>age</code> и нажми <b>OK</b>. Остальные пункты понадобятся в уроках 9.5 (Getter and Setter) и 9.8 (toString())" } ],
+        "caption": "Alt+Insert внутри класса — меню Generate" }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: блок инициализации</summary>
+      <p>Кроме конструкторов в классе можно написать просто блок в фигурных скобках — <b>инициализатор</b>. Он выполняется при каждом <code>new</code>, вместе с инициализаторами полей (шаг ② конвейера), до тела конструктора:</p>
+<pre data-file="Cat.java"><code class="java">class Cat {
+    String name;
+    {
+        System.out.println("Создаётся кот");   // для любого конструктора
+    }
+    Cat(String name) {
+        this.name = name;
+    }
+}</code></pre>
+      <p>На практике его почти не пишут: общий код удобнее держать в «главном» конструкторе и вызывать через <code>this(...)</code>. Но на собеседовании могут спросить про порядок: поля и блоки инициализации — сверху вниз, потом тело конструктора.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m09-03">
+      <script type="application/json">
+      {
+       "title": "Конструкторы — главное",
+       "items": [
+        {
+         "type": "multi",
+         "q": "Отметь, чем конструктор отличается от обычного метода",
+         "options": [
+          "Имя совпадает с именем класса",
+          "Нет типа возвращаемого значения, даже void",
+          "Вызывается автоматически при new",
+          "Не может иметь параметров"
+         ],
+         "answer": [
+          0,
+          1,
+          2
+         ],
+         "why": "Параметры у конструктора бывают сколько угодно — как у методов."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "class Dog {\n    String name;\n    Dog(String name) { this.name = name; }\n}\n\n// в main:\nDog a = new Dog(\"Шарик\");\nDog b = new Dog();",
+         "answer": [
+          8
+         ],
+         "why": "Свой конструктор написан — невидимый пустой исчез. new Dog() без аргументов не найдёт подходящего конструктора."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "class Dog {\n    String name;\n    Dog(String name) {\n        name = name;\n    }\n}\n\n// в main:\nDog d = new Dog(\"Шарик\");\nSystem.out.println(d.name);",
+         "answer": "null",
+         "why": "Параметр затенил поле: name = name присвоил параметр сам себе. Нужно this.name = name."
+        },
+        {
+         "type": "order",
+         "q": "Расставь по порядку, что происходит при <code>new Cat(\"Мурзик\", 3)</code>",
+         "lines": [
+          "Выделяется память в куче, поля = 0 / null",
+          "Срабатывают инициализаторы полей (int lives = 9)",
+          "Выполняется тело конструктора",
+          "Ссылкой на объект инициализируется переменная"
+         ],
+         "why": "Память → инициализаторы → тело конструктора → ссылка в переменную."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "void Cat(String name) { … } — это конструктор",
+           "a": false,
+           "why": "с void это обычный метод с неудачным именем."
+          },
+          {
+           "s": "Если не написать ни одного конструктора, Java добавит пустой без параметров",
+           "a": true
+          },
+          {
+           "s": "this(...) можно вызвать в любой строке конструктора",
+           "a": false,
+           "why": "только первой инструкцией."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне класс с двумя конструкторами и печатью в каждом, а я предскажу, в каком порядке всё напечатается»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Конструктор вызывается при создании объекта оператором <code>new</code>, называется как класс и не имеет типа возвращаемого значения.</li>
+        <li><code>new</code>: память (поля 0/null) → инициализаторы полей → тело конструктора → ссылка в переменную.</li>
+        <li>Конструкторы можно перегружать; <code>this(...)</code> первой строкой вызывает другой конструктор этого класса.</li>
+        <li>Нет своих конструкторов — Java добавит пустой. Написал свой — пустой исчез.</li>
+        <li>Ловушки: <code>void</code> перед конструктором и <code>name = name</code> без this. Хорошая привычка — проверять данные в конструкторе.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

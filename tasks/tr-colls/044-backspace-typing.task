@@ -1,0 +1,57 @@
+## id: tr-colls-044
+## title: Сломанная клавиатура
+## file: trainer/colls/BackspaceTyping.java
+## class: BackspaceTyping
+## level: 2
+## category: Стек и очередь
+@@ description
+<p>Напиши класс <code>BackspaceTyping</code>. Двое набирали текст, и символ <code>#</code> в записи означает нажатие Backspace — он стирает предыдущий символ (если стирать нечего, ничего не происходит). Программа читает две строки без пробелов. Напечатай, что получилось у каждого: <code>Первый: текст</code> и <code>Второй: текст</code> (если ничего не осталось — <code>(пусто)</code>), а затем <code>Одинаково</code> или <code>По-разному</code>.</p>
+<pre class="terminal"><span class="out">ввод:  ab#c
+       ad#c
+вывод: Первый: ac
+       Второй: ac
+       Одинаково</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>стек символов <code>Deque&lt;Character&gt;</code>: обычный символ — <code>push</code>, <code>#</code> — <code>pop</code>, если стек не пуст</li>
+<li>стек хранит символы «сверху вниз»: чтобы собрать строку, снимай их и вставляй в начало — <code>sb.insert(0, c)</code></li>
+</ul></div>
+@@ test: Одинаково
+@@ input
+ab#c
+ad#c
+@@ expect
+Первый: ac
+Второй: ac
+Одинаково
+@@ test: По-разному
+@@ input
+kot#
+ko#t
+@@ expect
+Первый: ko
+Второй: kt
+По-разному
+@@ test: Стирать нечего
+@@ input
+##a
+a
+@@ expect
+Первый: a
+Второй: a
+Одинаково
+@@ test: Всё стёрли
+@@ input
+ab##
+#
+@@ expect
+Первый: (пусто)
+Второй: (пусто)
+Одинаково
+@@ test: Много стираний
+@@ input
+abc#d##e
+ae
+@@ expect
+Первый: ae
+Второй: ae
+Одинаково

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generics и обёртки Integer · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 13 · Урок 2</div>
+    <h1>Угловые скобки и обёртки</h1>
+    <p class="lead">Что значит <code>&lt;String&gt;</code> в <code>List&lt;String&gt;</code>, почему нельзя написать <code>List&lt;int&gt;</code> и почему <code>127 == 127</code>, а <code>128 != 128</code>. Последнее спрашивают почти на каждом собеседовании.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 память по шагам</span><span>🎯 классика собеседований</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-02-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "List<String> list = new ArrayList<>();\nlist.add(\"x\");\nlist.add(0, \"y\");\nSystem.out.println(list);",
+            "answer": "[y, x]", "why": "add(0, …) вставляет в начало, x сдвигается на место 1." },
+          { "type": "single", "q": "Строки <code>s1</code> и <code>s2</code> содержат одинаковый текст, но это разные объекты. Что вернёт <code>s1 == s2</code>?",
+            "options": ["true — текст же одинаковый", "false — == сравнивает ссылки", "Ошибка компиляции"], "answer": 1,
+            "why": "== у объектов сравнивает адреса. Содержимое сравнивает equals (модуль 8). Сегодня эта ловушка вернётся с числами." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "int — примитив, его значение лежит прямо в переменной", "a": true },
+              { "s": "Объекты живут в куче, а в переменной лежит ссылка на объект", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем угловые скобки</h2>
+    <p>Скобки <code>&lt;…&gt;</code> называются <b>generics</b> (дженерики, «обобщения»). Они говорят компилятору, <b>какого типа элементы</b> лежат в коллекции. Посмотрим, как жилось без них. До Java 5 списки были «просто списками» — туда можно было положить что угодно:</p>
+<pre data-file="OldStyle.java"><code class="java">List names = new ArrayList();          // без &lt;…&gt; — «сырой» список
+names.add("Аня");
+names.add(42);                         // компилятор не возражает
+String first = (String) names.get(0);  // каждый раз приводить тип руками
+String second = (String) names.get(1); // 💥 ClassCastException при запуске</code></pre>
+    <p>Ошибка всплывает только <b>при запуске</b>, и далеко от места, где её сделали. С generics компилятор ловит её сразу:</p>
+<pre data-file="NewStyle.java"><code class="java">List&lt;String&gt; names = new ArrayList&lt;&gt;();
+names.add("Аня");
+// ❌ ошибка компиляции: int cannot be converted to String
+names.add(42);
+// приводить тип не нужно — компилятор знает, что там String
+String first = names.get(0);</code></pre>
+    <p>Компилятор теперь знает тип элементов и при чтении. Попробуй достать из списка строк число — IDEA подчеркнёт это ещё до запуска:</p>
+    <div data-widget="ide" id="shot-generics-types">
+      <script type="application/json">
+      { "tree": false, "file": "NewStyle.java", "gutterRun": [4, 5], "statusPath": "module-13",
+        "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class NewStyle {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>();\n        names.add(\"Аня\");\n        Integer first = names.get(0);\n        System.out.println(first);\n    }\n}",
+        "errors": [ { "line": 8, "text": "names.get(0)", "msg": "Incompatible types. Found: 'java.lang.String', required: 'java.lang.Integer'", "tip": true, "fix": "Change variable 'first' type to 'String'" } ],
+        "marks": [ { "n": 1, "target": "line-6", "text": "Надпись на коробке: <code>List&lt;String&gt;</code> — внутри только строки" },
+                   { "n": 2, "target": "err-8", "side": "top", "text": "Красная волна под <code>names.get(0)</code>: оттуда придёт <code>String</code>, а переменная — <code>Integer</code>" },
+                   { "n": 3, "target": "tip", "text": "<b>Incompatible types</b> — «несовместимые типы». <b>Found</b> — что нашлось (<code>String</code>), <b>required</b> — что требуется (<code>Integer</code>). <code>javac</code> скажет то же своими словами: <code>incompatible types: String cannot be converted to Integer</code>" } ],
+        "caption": "Generics в деле: ошибка типов поймана до запуска" }
+      </script>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: подписанные коробки при переезде</span>
+      <p>На коробке маркером написано «КНИГИ». Грузчик на входе смотрит на надпись и не даст положить туда кастрюлю. А когда ты открываешь коробку, точно знаешь, что достанешь книгу. <b>Generics — надпись на коробке, компилятор — грузчик.</b> Сырой список — коробка без надписи: сюрприз ждёт при распаковке.</p>
+    </div>
+    <div class="say" data-mood="cool"><p>Запомни принцип: <b>ошибка компиляции лучше ошибки при запуске</b>. Компилятор показывает место ошибки ещё до того, как программа сделала что-то не то. Generics переносят целый класс ошибок из «упало у пользователя» в «подчёркнуто красным в IDEA».</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>List&lt;int&gt; — нельзя. Знакомься: обёртки</h2>
+    <p>Попробуй написать список чисел:</p>
+<pre data-file="Scores.java"><code class="java">// ❌ unexpected type: required reference, found int
+List&lt;int&gt; scores = new ArrayList&lt;&gt;();
+List&lt;Integer&gt; scores = new ArrayList&lt;&gt;();  // ✅</code></pre>
+    <div data-widget="ide" id="shot-generics-primitive">
+      <script type="application/json">
+      { "tree": false, "file": "Scores.java", "gutterRun": [4, 5], "statusPath": "module-13",
+        "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Scores {\n    public static void main(String[] args) {\n        List<int> scores = new ArrayList<>();\n        System.out.println(scores);\n    }\n}",
+        "errors": [ { "line": 6, "text": "int", "msg": "Type argument cannot be of primitive type", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-6", "side": "top", "text": "Красным — именно <code>int</code> в угловых скобках" },
+                   { "n": 2, "target": "tip", "text": "<b>Type argument cannot be of primitive type</b> — «аргумент типа не может быть примитивом». В скобках <code>&lt;…&gt;</code> — только классы. <code>javac</code> пишет иначе: <code>unexpected type, required: reference, found: int</code>" },
+                   { "n": 3, "target": "problems", "text": "<b>❗1</b> — одна ошибка: программа не запустится, пока не напишешь <code>Integer</code>" } ],
+        "caption": "List&lt;int&gt; — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Коллекции хранят <b>только объекты</b> — точнее, ссылки на объекты. А <code>int</code> — примитив, не объект. Поэтому для каждого примитива в Java есть <b>класс-обёртка</b>: объект, внутри которого лежит одно число.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Примитив</th><th>Обёртка</th><th>Пример</th></tr>
+        <tr><td><code>int</code></td><td><code>Integer</code></td><td><code>List&lt;Integer&gt;</code></td></tr>
+        <tr><td><code>double</code></td><td><code>Double</code></td><td><code>List&lt;Double&gt;</code></td></tr>
+        <tr><td><code>boolean</code></td><td><code>Boolean</code></td><td><code>List&lt;Boolean&gt;</code></td></tr>
+        <tr><td><code>char</code></td><td><code>Character</code></td><td><code>Set&lt;Character&gt;</code></td></tr>
+        <tr><td><code>long</code></td><td><code>Long</code></td><td><code>List&lt;Long&gt;</code></td></tr>
+      </table>
+    </div>
+    <p>Два «неправильных» названия запомни особо: <b>Integer</b> (не Int) и <b>Character</b> (не Char). Остальные — просто с большой буквы.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Список Integer: в ячейках списка лежат ссылки на объекты Integer в куче">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="90" y="28" text-anchor="middle" class="d-title">Стек</text>
+        <rect x="20" y="44" width="140" height="56" rx="10" class="d-soft"/>
+        <text x="34" y="78" class="d-mono-ink">scores ●</text>
+        <path d="M124 72 H218" class="d-arrow"/>
+        <text x="450" y="28" text-anchor="middle" class="d-title">Куча</text>
+        <rect x="222" y="44" width="270" height="70" rx="10" class="d-accent"/>
+        <text x="236" y="64" class="d-small">ArrayList, size = 3</text>
+        <rect x="236" y="74" width="70" height="30" rx="6" class="d-box"/><text x="271" y="94" text-anchor="middle" class="d-mono-ink">●</text>
+        <rect x="314" y="74" width="70" height="30" rx="6" class="d-box"/><text x="349" y="94" text-anchor="middle" class="d-mono-ink">●</text>
+        <rect x="392" y="74" width="70" height="30" rx="6" class="d-box"/><text x="427" y="94" text-anchor="middle" class="d-mono-ink">●</text>
+        <path d="M271 106 V170" class="d-arrow"/>
+        <path d="M349 106 L420 170" class="d-arrow"/>
+        <path d="M427 106 L570 170" class="d-arrow"/>
+        <rect x="216" y="174" width="110" height="52" rx="10" class="d-teal"/><text x="271" y="196" text-anchor="middle" class="d-small">Integer</text><text x="271" y="216" text-anchor="middle" class="d-mono-ink">90</text>
+        <rect x="366" y="174" width="110" height="52" rx="10" class="d-teal"/><text x="421" y="196" text-anchor="middle" class="d-small">Integer</text><text x="421" y="216" text-anchor="middle" class="d-mono-ink">75</text>
+        <rect x="516" y="174" width="110" height="52" rx="10" class="d-teal"/><text x="571" y="196" text-anchor="middle" class="d-small">Integer</text><text x="571" y="216" text-anchor="middle" class="d-mono-ink">100</text>
+      </svg>
+      <figcaption>В списке не числа, а стрелки на маленькие объекты Integer. Каждый — «коробочка с одним числом».</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Автоупаковка: Java заворачивает сама</h2>
+    <p>Писать <code>Integer.valueOf(90)</code> на каждом шагу было бы утомительно. Java делает это сама:</p>
+<pre data-file="Boxing.java"><code class="java">List&lt;Integer&gt; scores = new ArrayList&lt;&gt;();
+// упаковка: int 90 → объект Integer (Java пишет за тебя Integer.valueOf(90))
+scores.add(90);
+// распаковка: Integer → int (Java пишет .intValue())
+int first = scores.get(0);
+// арифметика с Integer тоже работает — через распаковку
+int sum = scores.get(0) + 10;</code></pre>
+    <dl class="terms">
+      <dt>Автоупаковка (autoboxing)</dt><dd>Примитив сам превращается в объект-обёртку, когда нужен объект: положить в коллекцию, присвоить в <code>Integer</code>.</dd>
+      <dt>Распаковка (unboxing)</dt><dd>Обёртка сама превращается в примитив, когда нужен примитив: присвоить в <code>int</code>, сложить, сравнить через <code>&lt;</code>.</dd>
+    </dl>
+    <div class="callout warn">
+      <span class="callout-title">Распаковка null — NullPointerException</span>
+      <p>В отличие от <code>int</code>, переменная <code>Integer</code> может быть <code>null</code> — «объекта нет». Распаковать пустоту нельзя:</p>
+<pre data-file="NullBox.java"><code class="java">Integer age = null;
+// 💥 NullPointerException: Java вызывает age.intValue(), а объекта нет
+int a = age;</code></pre>
+      <p>Эта ловушка вернётся в уроке про Map: <code>map.get</code> возвращает <code>null</code>, если ключа нет.</p>
+    </div>
+    <p>Запусти такую программу — и прочитай, что пишет Java. Начиная с Java 14 она объясняет NullPointerException прямо словами:</p>
+    <div data-widget="ide" id="shot-unboxing-npe">
+      <script type="application/json">
+      { "tree": false, "file": "NullBox.java", "runConfig": "NullBox", "gutterRun": [1, 2], "statusPath": "module-13",
+        "code": "public class NullBox {\n    public static void main(String[] args) {\n        Integer age = null;\n        int a = age;\n        System.out.println(a);\n    }\n}",
+        "console": { "title": "NullBox", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… NullBox" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke \"java.lang.Integer.intValue()\" because \"age\" is null" },
+          { "t": "err", "s": "\tat NullBox.main(NullBox.java:4)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "side": "bottom", "text": "<b>Cannot invoke \"java.lang.Integer.intValue()\"</b> — «не могу вызвать <code>intValue()</code>». Это и есть распаковка: Java тайком вызывает <code>age.intValue()</code>…" },
+                   { "n": 2, "target": "link-1", "text": "…<b>because \"age\" is null</b> — «потому что <code>age</code> равна null». Упало в строке <b>4</b>, на <code>int a = age;</code>" },
+                   { "n": 3, "target": "line-4", "text": "Заметь: в коде нет ни одного вызова метода — а NPE есть. Распаковку пишет компилятор, поэтому её не видно глазами" } ],
+        "caption": "NullPointerException при распаковке null" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Обёртки — тоже объекты. Что тогда сравнивает == между двумя Integer?</summary>
+      <p><b>Ссылки</b>, как у строк! А числа внутри сравнивает <code>equals</code>. Но иногда <code>==</code> «случайно» работает правильно — и это самое коварное. Смотри следующий шаг.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Ловушка: 127 == 127, но 128 != 128</h2>
+    <p>Маленькие числа встречаются в программах постоянно: 0, 1, 10, 100. Чтобы не плодить тысячи одинаковых объектов, Java заранее создаёт объекты <code>Integer</code> для чисел <b>от −128 до 127</b> и хранит их в <b>кэше</b> (запаснике). Упаковка <code>Integer.valueOf(5)</code> не создаёт новый объект, а выдаёт готовый из кэша. Для чисел за пределами кэша каждый раз создаётся <b>новый</b> объект.</p>
+    <div data-widget="trace" id="trace-m13-02-cache">
+      <script type="application/json">
+      { "title": "Кэш Integer в памяти",
+        "intro": "Следи за стрелками: какие переменные смотрят на один и тот же объект, а какие — на разные.",
+        "code": "Integer a = 127;\nInteger b = 127;\nInteger c = 128;\nInteger d = 128;\nSystem.out.println(a == b);\nSystem.out.println(c == d);\nSystem.out.println(c.equals(d));",
+        "steps": [
+          { "line": 1, "vars": { "a": "→#1" }, "heap": [ { "id": "#1", "label": "Integer из кэша", "fields": { "value": "127" } } ], "note": "127 входит в кэш −128..127. Java не создаёт объект, а берёт готовый из запасника." },
+          { "line": 2, "vars": { "a": "→#1", "b": "→#1" }, "heap": [ { "id": "#1", "label": "Integer из кэша", "fields": { "value": "127" } } ], "note": "Снова 127 — снова тот же самый объект из кэша. Теперь a и b — две стрелки на ОДИН объект." },
+          { "line": 3, "vars": { "a": "→#1", "b": "→#1", "c": "→#2" }, "heap": [ { "id": "#1", "label": "Integer из кэша", "fields": { "value": "127" } }, { "id": "#2", "label": "Integer, новый", "fields": { "value": "128" } } ], "note": "128 в кэш не входит. Упаковка создаёт новый объект #2." },
+          { "line": 4, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "d": "→#3" }, "heap": [ { "id": "#1", "label": "Integer из кэша", "fields": { "value": "127" } }, { "id": "#2", "label": "Integer, новый", "fields": { "value": "128" } }, { "id": "#3", "label": "Integer, новый", "fields": { "value": "128" } } ], "note": "И ещё один новый объект #3. Внутри у #2 и #3 одинаковые числа, но это разные объекты." },
+          { "line": 5, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "d": "→#3" }, "heap": [ { "id": "#1", "label": "Integer из кэша", "fields": { "value": "127" } }, { "id": "#2", "label": "Integer, новый", "fields": { "value": "128" } }, { "id": "#3", "label": "Integer, новый", "fields": { "value": "128" } } ], "out": "true\n", "note": "== сравнивает стрелки. a и b ведут в #1 — true." },
+          { "line": 6, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "d": "→#3" }, "heap": [ { "id": "#1", "label": "Integer из кэша", "fields": { "value": "127" } }, { "id": "#2", "label": "Integer, новый", "fields": { "value": "128" } }, { "id": "#3", "label": "Integer, новый", "fields": { "value": "128" } } ], "out": "false\n", "note": "c ведёт в #2, d — в #3. Стрелки разные — false, хотя числа одинаковые!" },
+          { "line": 7, "vars": { "a": "→#1", "b": "→#1", "c": "→#2", "d": "→#3" }, "heap": [ { "id": "#1", "label": "Integer из кэша", "fields": { "value": "127" } }, { "id": "#2", "label": "Integer, новый", "fields": { "value": "128" } }, { "id": "#3", "label": "Integer, новый", "fields": { "value": "128" } } ], "out": "true\n", "note": "equals сравнивает числа внутри: 128 и 128 — true. Вот так и надо сравнивать обёртки." }
+        ] }
+      </script>
+    </div>
+    <p>IDEA эту ловушку знает и подсвечивает <b>жёлтым</b> — это предупреждение: код скомпилируется, но выглядит как ошибка. А в консоли видно, что подозрение не напрасное:</p>
+    <div data-widget="ide" id="shot-integer-cache">
+      <script type="application/json">
+      { "tree": false, "file": "IntegerCache.java", "runConfig": "IntegerCache", "gutterRun": [1, 2], "statusPath": "module-13",
+        "code": "public class IntegerCache {\n    public static void main(String[] args) {\n        Integer a = 127;\n        Integer b = 127;\n        Integer c = 128;\n        Integer d = 128;\n        System.out.println(a == b);\n        System.out.println(c == d);\n        System.out.println(c.equals(d));\n    }\n}",
+        "warnings": [ { "line": 7, "text": "a == b", "msg": "Number objects are compared using '==', not 'equals()'" },
+                      { "line": 8, "text": "c == d", "msg": "Number objects are compared using '==', not 'equals()'", "tip": true } ],
+        "console": { "title": "IntegerCache", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… IntegerCache" },
+          { "t": "out", "s": "true" },
+          { "t": "out", "s": "false" },
+          { "t": "out", "s": "true" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "problems", "text": "<b>⚠2</b> — два предупреждения. Ошибок нет, программа запустится" },
+                   { "n": 2, "target": "tip", "text": "«Объекты-числа сравниваются через <code>==</code>, а не через <code>equals()</code>». <kbd>Alt</kbd>+<kbd>Enter</kbd> предложит заменить на <code>equals</code>" },
+                   { "n": 3, "target": "output-2", "text": "<code>c == d</code> — <b>false</b>, хотя оба 128", "box": true },
+                   { "n": 4, "target": "output-3", "text": "<code>equals</code> сравнивает числа внутри — true" } ],
+        "caption": "Жёлтое предупреждение IDEA и результат в консоли" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Правило</span>
+      <p>Обёртки (<code>Integer</code>, <code>Double</code>, <code>Long</code>…) сравнивай через <code>equals</code>, как строки. <code>==</code> «работает» на маленьких числах только благодаря кэшу — и ломается на 128. Тест на маленьких данных пройдёт, а на реальных — упадёт. Самый неприятный вид бага.</p>
+    </div>
+    <details class="predict">
+      <summary>А что напечатает: Integer x = 1000; int y = 1000; System.out.println(x == y);</summary>
+      <p><b>true.</b> Если с одной стороны <code>==</code> примитив <code>int</code>, Java <b>распаковывает</b> <code>x</code> и сравнивает два числа. Ловушка только когда <b>обе</b> стороны — объекты-обёртки.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Ловушка: remove(1) в списке чисел</h2>
+    <p>У списка два метода <code>remove</code>: <code>remove(int index)</code> — по номеру и <code>remove(Object o)</code> — по значению. Для строк путаницы нет. А для <code>List&lt;Integer&gt;</code>?</p>
+<pre data-file="RemoveTrap.java"><code class="java">List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(List.of(10, 20, 1));
+nums.remove(1);  // что удалится: число 1 или элемент номер 1?
+System.out.println(nums);</code></pre>
+    <details class="predict">
+      <summary>Предскажи вывод</summary>
+      <p><b>[10, 1].</b> Аргумент <code>1</code> — это <code>int</code>, и Java выбирает перегрузку <code>remove(int index)</code> без всякой упаковки: точное совпадение типа выигрывает (перегрузку методов ты знаешь из модуля 7). Удалился элемент номер 1 — число 20.</p>
+      <p>Чтобы удалить <b>значение</b> 1, передай объект: <code>nums.remove(Integer.valueOf(1));</code> → <code>[10, 20]</code>.</p>
+    </details>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 170" role="img" aria-label="remove(1) удаляет элемент по индексу 1, remove(Integer.valueOf(1)) удаляет значение 1">
+        <text x="20" y="30" class="d-small">было:</text>
+        <rect x="80" y="10" width="60" height="34" rx="6" class="d-box"/><text x="110" y="33" text-anchor="middle" class="d-mono-ink">10</text>
+        <rect x="146" y="10" width="60" height="34" rx="6" class="d-box"/><text x="176" y="33" text-anchor="middle" class="d-mono-ink">20</text>
+        <rect x="212" y="10" width="60" height="34" rx="6" class="d-box"/><text x="242" y="33" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="110" y="60" text-anchor="middle" class="d-small">[0]</text><text x="176" y="60" text-anchor="middle" class="d-small">[1]</text><text x="242" y="60" text-anchor="middle" class="d-small">[2]</text>
+
+        <text x="20" y="108" class="d-mono-ink">remove(1)</text>
+        <rect x="190" y="88" width="60" height="34" rx="6" class="d-box"/><text x="220" y="111" text-anchor="middle" class="d-mono-ink">10</text>
+        <rect x="256" y="88" width="60" height="34" rx="6" class="d-red"/><text x="286" y="111" text-anchor="middle" class="d-mono-ink">20</text>
+        <rect x="322" y="88" width="60" height="34" rx="6" class="d-box"/><text x="352" y="111" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="286" y="142" text-anchor="middle" class="d-small">по номеру 1</text>
+
+        <text x="400" y="108" class="d-mono-ink">remove(Integer.valueOf(1))</text>
+        <text x="400" y="142" class="d-small">по значению 1 → [10, 20]</text>
+      </svg>
+      <figcaption>int-аргумент — это индекс. Объект Integer — это значение.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-02">
+      <script type="application/json">
+      {
+       "title": "Generics и обёртки — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини примитив с его обёрткой",
+         "left": [
+          "int",
+          "char",
+          "double",
+          "boolean"
+         ],
+         "right": [
+          "Integer",
+          "Character",
+          "Double",
+          "Boolean"
+         ],
+         "why": "Особые имена — Integer и Character, остальные просто с большой буквы."
+        },
+        {
+         "type": "single",
+         "q": "Какая строка не скомпилируется?",
+         "options": [
+          "List&lt;Integer&gt; a = new ArrayList&lt;&gt;();",
+          "List&lt;int&gt; b = new ArrayList&lt;&gt;();",
+          "List&lt;Double&gt; c = new ArrayList&lt;&gt;();"
+         ],
+         "answer": 1,
+         "why": "В угловых скобках — только ссылочные типы. Вместо int нужен Integer."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Integer a = 100, b = 100;\nInteger c = 200, d = 200;\nSystem.out.println(a == b);\nSystem.out.println(c == d);\nSystem.out.println(c.equals(d));",
+         "answer": "true\nfalse\ntrue",
+         "why": "100 — из кэша, это один объект. 200 — два разных объекта, == сравнивает ссылки. equals сравнивает числа."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "List<Integer> list = new ArrayList<>(List.of(5, 0, 7));\nlist.remove(0);\nSystem.out.println(list);",
+         "answer": "[0, 7]",
+         "why": "0 — int, значит это индекс. Удалился элемент номер 0 — число 5."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Generics ловят ошибку «не тот тип элемента» ещё при компиляции",
+           "a": true
+          },
+          {
+           "s": "Integer x = null; int y = x; — компилируется и работает, y станет 0",
+           "a": false,
+           "why": "компилируется, но при запуске NullPointerException: распаковывать нечего."
+          },
+          {
+           "s": "Сравнивать два Integer надежнее через equals, чем через ==",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Спроси меня, почему Integer 127 == 127 даёт true, а 128 == 128 — false. Я нарисую стек и кучу, а ты проверь»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>&lt;String&gt;</code> — generics: компилятор знает тип элементов, проверяет <code>add</code> и не требует приведения при <code>get</code>.</li>
+        <li>Коллекции хранят только объекты. Для примитивов — обёртки: <code>Integer</code>, <code>Double</code>, <code>Boolean</code>, <code>Character</code>, <code>Long</code>.</li>
+        <li>Автоупаковка и распаковка происходят сами. Распаковка <code>null</code> — <code>NullPointerException</code>.</li>
+        <li>Кэш <code>Integer</code> −128..127: <code>==</code> на маленьких числах «работает», на 128 — нет. Обёртки сравниваем через <code>equals</code>.</li>
+        <li>В <code>List&lt;Integer&gt;</code> <code>remove(1)</code> удаляет по индексу, <code>remove(Integer.valueOf(1))</code> — по значению.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

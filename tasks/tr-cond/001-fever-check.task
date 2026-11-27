@@ -1,0 +1,38 @@
+## id: tr-cond-001
+## title: Есть ли жар?
+## file: trainer/cond/FeverCheck.java
+## class: FeverCheck
+## level: 1
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>FeverCheck</code>. Программа читает через <code>Scanner</code> температуру тела — дробное число — и печатает <code>Жар</code>, если температура выше 37.0, иначе <code>Норма</code>.</p>
+<pre class="terminal"><span class="out">ввод:  36.6
+вывод: Норма
+
+ввод:  37.1
+вывод: Жар</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextDouble()</code> — читает дробное число</li>
+<li><code>if (условие) { … } else { … }</code> — выполняет одну из двух веток</li>
+</ul></div>
+@@ test: Здоровый человек
+@@ input
+36.6
+@@ expect
+Норма
+@@ test: Ровно 37.0 — ещё норма
+@@ input
+37.0
+@@ expect
+Норма
+@@ test: Чуть выше границы
+@@ input
+37.1
+@@ expect
+Жар
+@@ test: Высокая температура
+@@ input
+39.5
+@@ expect
+Жар
+@@ require: \bif\s*\( | Реши задачу условным оператором if

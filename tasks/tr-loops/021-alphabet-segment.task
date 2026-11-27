@@ -1,0 +1,50 @@
+## id: tr-loops-021
+## title: Кусочек алфавита
+## file: trainer/loops/AlphabetSegment.java
+## class: AlphabetSegment
+## level: 1
+## category: Символы и узоры
+@@ description
+<p>Напиши класс <code>AlphabetSegment</code>. В первой строке — буква, с которой начать, во второй — буква, на которой закончить. Напечатай в одну строку через пробел все буквы от первой до второй включительно. Если первая буква стоит в алфавите дальше второй, иди в обратную сторону.</p>
+<pre class="terminal"><span class="out">ввод:  a
+       e
+вывод: a b c d e
+
+ввод:  е
+       а
+вывод: е д г в б а</span></pre>
+<p>Буквы берём из одного алфавита и одного регистра. Русскую <code>ё</code> не используем: в таблице символов она стоит отдельно от остальных букв.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>char c = scanner.next().charAt(0);</code> — читает одну букву</li>
+<li><code>for (char c = from; c &lt;= to; c++)</code> — счётчиком цикла может быть и символ: <code>c++</code> даёт следующую букву</li>
+</ul></div>
+@@ test: Латиница
+@@ input
+a
+e
+@@ expect
+a b c d e
+@@ test: Кириллица
+@@ input
+к
+п
+@@ expect
+к л м н о п
+@@ test: Одна буква
+@@ input
+z
+z
+@@ expect
+z
+@@ test: В обратную сторону
+@@ input
+е
+а
+@@ expect
+е д г в б а
+@@ test: Заглавные
+@@ input
+А
+Г
+@@ expect
+А Б В Г

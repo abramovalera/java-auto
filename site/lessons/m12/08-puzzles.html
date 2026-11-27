@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: исключения · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 12 · Головоломки</div>
+    <h1>Исключения: что выведется? скомпилируется ли?</h1>
+    <p class="lead">Про finally и return спрашивают почти на каждом собеседовании по Java. Здесь 14 задачек: порядок выполнения, ловушки компилятора и то, что случается только при запуске.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 14 задачек</span><span>🧠 1 разбор по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Как решать</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 130" role="img" aria-label="Четыре вопроса к коду с исключениями: где вылетит, кто перехватит, что с finally, что после">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="20" width="158" height="96" rx="14" class="d-red"/>
+        <text x="89" y="52" text-anchor="middle" class="d-title">① 💥 Где?</text>
+        <text x="89" y="78" text-anchor="middle" class="d-small">на какой строке</text>
+        <text x="89" y="96" text-anchor="middle" class="d-small">вылетит исключение</text>
+        <path d="M170 68 H190" class="d-arrow"/>
+        <rect x="194" y="20" width="158" height="96" rx="14" class="d-violet"/>
+        <text x="273" y="52" text-anchor="middle" class="d-title">② 🧤 Кто?</text>
+        <text x="273" y="78" text-anchor="middle" class="d-small">какой catch подойдёт</text>
+        <text x="273" y="96" text-anchor="middle" class="d-small">по типу (с потомками)</text>
+        <path d="M354 68 H374" class="d-arrow"/>
+        <rect x="378" y="20" width="158" height="96" rx="14" class="d-green"/>
+        <text x="457" y="52" text-anchor="middle" class="d-title">③ 🧹 finally</text>
+        <text x="457" y="78" text-anchor="middle" class="d-small">выполнится всегда —</text>
+        <text x="457" y="96" text-anchor="middle" class="d-small">в какой момент?</text>
+        <path d="M538 68 H558" class="d-arrow"/>
+        <rect x="562" y="20" width="148" height="96" rx="14" class="d-accent"/>
+        <text x="636" y="52" text-anchor="middle" class="d-title">④ ➡️ Дальше</text>
+        <text x="636" y="78" text-anchor="middle" class="d-small">код после try —</text>
+        <text x="636" y="96" text-anchor="middle" class="d-small">или падение</text>
+      </svg>
+      <figcaption>Задай коду эти четыре вопроса по порядку — и любой вывод сложится сам.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Сначала ответь сам — вслух или на бумажке, и обязательно скажи «почему». Не уверен — набери код в IDEA и запусти. А на «скомпилируется ли?» отвечай ещё и текстом ошибки, если помнишь.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что выведется на экран?</h2>
+    <div data-widget="check" id="check-m12-pz-out">
+      <script type="application/json">
+      { "title": "Что выведется?", "icon": "🖨️",
+        "items": [
+          { "type": "predict", "q": "1. Классика: finally и return. Что выведет?",
+            "code": "static String test() {\n    try {\n        return \"try\";\n    } finally {\n        System.out.println(\"finally\");\n    }\n}\n\n// в main:\nSystem.out.println(test());",
+            "answer": "finally\ntry",
+            "why": "return вычисляет «try» и откладывает. Перед выходом из метода выполняется finally — печатает «finally». Потом метод возвращает «try», и main его печатает." },
+          { "type": "predict", "q": "2. Исключение посередине. Что выведет?",
+            "code": "System.out.println(\"1\");\ntry {\n    System.out.println(\"2\");\n    int[] a = {1, 2};\n    System.out.println(a[2]);\n    System.out.println(\"3\");\n} catch (ArrayIndexOutOfBoundsException e) {\n    System.out.println(\"4\");\n} finally {\n    System.out.println(\"5\");\n}\nSystem.out.println(\"6\");",
+            "answer": "1\n2\n4\n5\n6",
+            "why": "a[2] — за границей (индексы 0 и 1). println(a[2]) не успевает ничего напечатать, «3» пропущена. Дальше catch (4), finally (5) и код после (6)." },
+          { "type": "single", "q": "3. Что вернёт метод?",
+            "code": "static int count() {\n    int x = 5;\n    try {\n        return x;\n    } finally {\n        x = x * 10;\n    }\n}",
+            "options": ["5", "50", "Ошибка компиляции"], "answer": 0,
+            "why": "Значение для return (5) вычислено и отложено до выполнения finally. Изменение x потом его не трогает." },
+          { "type": "predict", "q": "4. Исключение в finally. Что выведет?",
+            "code": "try {\n    try {\n        throw new IllegalStateException(\"из try\");\n    } finally {\n        throw new RuntimeException(\"из finally\");\n    }\n} catch (RuntimeException e) {\n    System.out.println(e.getMessage());\n}",
+            "answer": "из finally",
+            "why": "Исключение из finally <b>заменяет</b> летящее исключение из try — первое просто теряется. Поэтому в finally не выбрасывают исключений: настоящая причина пропадает бесследно." },
+          { "type": "predict", "q": "5. Integer.parseInt(\"12a\") и «родительский» catch. Что выведет?",
+            "code": "try {\n    int n = Integer.parseInt(\"12a\");\n    System.out.println(n);\n} catch (IllegalArgumentException e) {\n    System.out.println(\"IAE: \" + e.getMessage());\n}",
+            "answer": "IAE: For input string: \"12a\"",
+            "why": "parseInt выбрасывает NumberFormatException — потомка IllegalArgumentException, поэтому catch подходит. Сообщение пишет сам parseInt." },
+          { "type": "predict", "q": "6. Исключение вылетает из метода через finally. Что выведет?",
+            "code": "static void go() {\n    try {\n        System.out.println(\"A\");\n        int x = 1 / 0;\n    } finally {\n        System.out.println(\"B\");\n    }\n}\n\n// в main:\ntry {\n    go();\n    System.out.println(\"C\");\n} catch (ArithmeticException e) {\n    System.out.println(\"D\");\n}\nSystem.out.println(\"E\");",
+            "answer": "A\nB\nD\nE",
+            "why": "В go() нет catch, но есть finally — он печатает B, пока исключение «пролетает» мимо. Дальше исключение прилетает в main, «C» пропускается, срабатывает catch (D), потом E. Разбор по шагам — ниже." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Разбор задачки 6 по шагам</h2>
+    <p>Самая хитрая из шести: finally в одном методе, catch — в другом. Смотри на стек.</p>
+    <div data-widget="trace" id="trace-m12-pz-go">
+      <script type="application/json">
+      { "title": "finally по пути исключения", "icon": "🧩", "kind": "Разбор по шагам",
+        "intro": "Исключение выбрасывается в go(), проходит через его finally и перехватывается в main.",
+        "code": "static void go() {\n    try {\n        System.out.println(\"A\");\n        int x = 1 / 0;\n    } finally {\n        System.out.println(\"B\");\n    }\n}\n\npublic static void main(String[] args) {\n    try {\n        go();\n        System.out.println(\"C\");\n    } catch (ArithmeticException e) {\n        System.out.println(\"D\");\n    }\n    System.out.println(\"E\");\n}",
+        "steps": [
+          { "line": 12, "stack": [ { "frame": "main", "vars": {} } ], "note": "main внутри try вызывает go()." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} }, { "frame": "go", "vars": {} } ], "out": "A\n", "note": "Печатаем A." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": {} }, { "frame": "go", "vars": {} } ], "note": "💥 1 / 0 — ArithmeticException. В go() нет catch. Но есть finally — он обязан выполниться, прежде чем исключение покинет метод." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": {} }, { "frame": "go", "vars": {} } ], "out": "B\n", "note": "finally печатает B. Исключение никуда не делось — оно «ждёт» окончания finally." },
+          { "line": 12, "stack": [ { "frame": "main", "vars": {} } ], "note": "Фрейм go снят, исключение прилетело в main на строку 12. Строка 13 («C») пропускается." },
+          { "line": 15, "stack": [ { "frame": "main", "vars": { "e": "ArithmeticException" } } ], "out": "D\n", "note": "catch (ArithmeticException) подошёл по типу и перехватил исключение — печатаем D. Исключение обработано." },
+          { "line": 17, "stack": [ { "frame": "main", "vars": {} } ], "out": "E\n", "note": "Программа спокойно идёт дальше." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ: Читаем код -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Разминка перед последними задачками: прочитай каждую строку вслух правильными словами — <b>создаём и выбрасываем</b> исключение, <b>перехватываем</b> его в catch, <b>объявляем</b> в throws. В одних заданиях выбери описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m12-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 12", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке?", "code": "throw new IllegalArgumentException(\"возраст не может быть отрицательным\");",
+            "options": ["Перехватываем исключение <code>IllegalArgumentException</code>", "Создаём объект исключения <code>IllegalArgumentException</code> с сообщением и выбрасываем его", "Объявляем, что метод может выбросить <code>IllegalArgumentException</code>", "Вызываем метод <code>IllegalArgumentException</code> и передаём ему строку", "Объявляем новый класс исключения <code>IllegalArgumentException</code>"],
+            "answer": 1, "why": "<code>new</code> создаёт объект исключения (вызывается конструктор, ему передаётся сообщение), а <code>throw</code> выбрасывает этот объект: метод сразу прерывается. Перехватывает исключение <code>catch</code>, а объявляет — <code>throws</code> в сигнатуре." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "static void load(String path) throws IOException {",
+            "options": ["Выбрасываем исключение <code>IOException</code> прямо сейчас", "Вызываем метод <code>load</code> с аргументом <code>path</code>, и он перехватывает <code>IOException</code>", "Объявляем метод <code>load</code>; <code>throws</code> объявляет, что он может выбросить <code>IOException</code>", "Создаём объект <code>IOException</code> и передаём его в метод <code>load</code>", "Перехватываем <code>IOException</code> внутри метода <code>load</code>"],
+            "answer": 2, "why": "<code>throws</code> (с «s») пишется в сигнатуре: метод не перехватывает <code>IOException</code>, а объявляет его и пробрасывает тому, кто его вызвал. Это checked-исключение, поэтому вызывающий обязан перехватить его или тоже объявить <code>throws</code>. Выбрасывает исключение <code>throw</code> без «s» — в теле метода." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "} catch (NumberFormatException | NullPointerException e) {",
+            "options": ["Выбрасываем одно из двух исключений — какое подойдёт", "Объявляем, что метод может выбросить оба исключения", "Создаём два объекта исключений и сохраняем ссылку в <code>e</code>", "Multi-catch: блок catch перехватывает исключение любого из двух типов, ссылка на него попадает в <code>e</code>", "Ошибка компиляции: в catch можно указать только один тип"],
+            "answer": 3, "why": "Вертикальная черта <code>|</code> в catch — multi-catch: один обработчик на несколько типов. Компилируется, потому что типы не родственники (ни один не потомок другого). Объекты исключений создаются там, где их выбрасывают, а не в catch." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "class SoldOutException extends Exception {",
+            "options": ["Объявляем собственный класс исключения <code>SoldOutException</code>; он наследует <code>Exception</code>, значит, checked", "Создаём объект исключения <code>SoldOutException</code> оператором new с вызовом конструктора", "Объявляем класс непроверяемого (unchecked) исключения — компилятор не потребует ни catch, ни throws", "Выбрасываем исключение <code>SoldOutException</code>", "Класс <code>SoldOutException</code> реализует интерфейс <code>Exception</code>"],
+            "answer": 0, "why": "<code>class … extends Exception</code> — объявление класса-наследника. Наследник Exception (но не RuntimeException) — checked-исключение. Объект здесь не создаётся: для этого нужен <code>new</code>. И <code>Exception</code> — класс, поэтому <code>extends</code>, а не <code>implements</code>." },
+          { "type": "single", "q": "Строка из конструктора класса <code>SoldOutException extends Exception</code>. Что происходит?", "code": "super(\"мест не хватает: \" + requested);",
+            "options": ["Выбрасываем исключение с сообщением «мест не хватает»", "Вызываем метод <code>super</code> у объекта и передаём ему строку", "Создаём новый объект класса <code>Exception</code> оператором new", "Присваиваем строку полю <code>message</code> этого класса", "Вызываем конструктор родителя (<code>Exception</code>) и передаём ему сообщение — его потом вернёт <code>getMessage()</code>"],
+            "answer": 4, "why": "<code>super(…)</code> в первой строке конструктора — вызов конструктора родителя. Конструктор Exception сохраняет сообщение, а метод <code>getMessage()</code> его возвращает. Ничего не выбрасывается и новый объект не создаётся — мы ещё внутри создания объекта SoldOutException." },
+          { "type": "single", "q": "В какой строке исключение перехватывается?", "code": "try {\n    int n = Integer.parseInt(text);\n    System.out.println(n);\n} catch (NumberFormatException e) {\n    System.out.println(\"Не число: \" + e.getMessage());\n} finally {\n    System.out.println(\"Готово\");\n}",
+            "options": ["В строке 2", "В строке 4", "В строке 5", "В строке 6", "В строке 7"],
+            "answer": 1, "why": "В строке 2 вызов <code>parseInt</code> может выбросить NumberFormatException. Перехватывает его <code>catch</code> в строке 4. В строке 5 мы его обрабатываем — вызываем <code>getMessage()</code>. <code>finally</code> (строки 6–7) выполняется в любом случае, но исключения не перехватывает." },
+          { "type": "build", "q": "Собери описание строки", "code": "throw new SoldOutException(count, freeSeats);",
+            "answer": ["создаём объект исключения <code>SoldOutException</code>", "вызываем конструктор с аргументами <code>count</code> и <code>freeSeats</code>", "и выбрасываем объект оператором <code>throw</code>"],
+            "extra": ["и перехватываем его в catch", "объявляем в сигнатуре <code>throws</code>", "вызываем метод <code>SoldOutException</code>"] },
+          { "type": "build", "q": "Собери описание строки (она внутри <code>catch (SoldOutException e)</code>)", "code": "String msg = e.getMessage();",
+            "answer": ["объявляем переменную <code>msg</code> типа <code>String</code>", "и инициализируем её", "результатом вызова метода <code>getMessage()</code> у перехваченного исключения <code>e</code>"],
+            "extra": ["выбрасываем исключение <code>e</code>", "создаём новый объект исключения", "присваиваем сообщение полю <code>e</code>"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Скомпилируется ли? Что при запуске?</h2>
+    <p>Теперь компилятор против тебя. Вспоминай не только ответ, но и текст ошибки. Считай, что переменные вроде <code>text</code> и <code>n</code> объявлены где-то выше.</p>
+    <div data-widget="check" id="check-m12-pz-compile">
+      <script type="application/json">
+      { "title": "Скомпилируется? Запустится?", "icon": "🕵️",
+        "items": [
+          { "type": "single", "q": "7. Порядок catch. Скомпилируется?",
+            "code": "try {\n    int x = 10 / n;\n} catch (Exception e) {\n    System.out.println(\"Ошибка\");\n} catch (ArithmeticException e) {\n    System.out.println(\"Деление на ноль\");\n}",
+            "options": ["Да, сработает первый подходящий catch", "Нет: ArithmeticException уже перехвачен выше", "Да, но второй catch будет выполняться всегда"], "answer": 1,
+            "why": "Exception — родитель ArithmeticException, catch с ним уже перехватывает всё. Второй catch недостижим — Java это запрещает. Частные catch пишут выше общих." },
+          { "type": "single", "q": "8. checked без throws. Скомпилируется?",
+            "code": "static void load() {\n    throw new Exception(\"файл не найден\");\n}",
+            "options": ["Да", "Нет: checked-исключение не перехвачено и не объявлено", "Нет: нельзя создавать объект класса Exception напрямую"], "answer": 1,
+            "why": "Exception (не RuntimeException) — checked. Нужно либо перехватить его, либо объявить: <code>static void load() throws Exception</code>." },
+          { "type": "single", "q": "9. Скомпилируется. А что при запуске?",
+            "code": "String role = null;\nif (role.equals(\"admin\")) {\n    System.out.println(\"Привет, админ\");\n}\nSystem.out.println(\"Готово\");",
+            "options": ["Напечатает только «Готово»", "Упадёт с NullPointerException", "Ошибка компиляции: role равно null"], "answer": 1,
+            "why": "У null нельзя вызвать метод. Компилятор значения переменных не отслеживает, поэтому падает только при запуске. Безопасный вариант — <code>\"admin\".equals(role)</code>: у строки-литерала метод вызвать можно всегда." },
+          { "type": "single", "q": "10. Multi-catch. Скомпилируется?",
+            "code": "try {\n    int n = Integer.parseInt(text);\n} catch (NumberFormatException | IllegalArgumentException e) {\n    System.out.println(\"Плохой ввод\");\n}",
+            "options": ["Да", "Нет: в multi-catch нельзя родителя с потомком", "Нет: multi-catch разрешён только для checked-исключений"], "answer": 1,
+            "why": "NumberFormatException — потомок IllegalArgumentException, его и так перехватит второй тип. Ошибка: Alternatives in a multi-catch statement cannot be related by subclassing." },
+          { "type": "single", "q": "11. Перехватываем то, чего не бывает. Скомпилируется?",
+            "code": "try {\n    System.out.println(\"Привет\");\n} catch (InterruptedException e) {\n    System.out.println(\"Прервали\");\n}",
+            "options": ["Да, этот catch просто никогда не сработает", "Нет: такое исключение здесь невозможно"], "answer": 1,
+            "why": "Для checked-исключений компилятор проверяет и обратное: в try ничто не может выбросить InterruptedException, значит, catch бессмысленный. С unchecked (например, catch (ArithmeticException e)) такое скомпилировалось бы." },
+          { "type": "bug", "q": "12. Какая строка не скомпилируется?",
+            "code": "int count;\ntry {\n    count = Integer.parseInt(text);\n} catch (NumberFormatException e) {\n    System.out.println(\"Не число\");\n}\nSystem.out.println(count);",
+            "answer": [7], "why": "Если сработал catch, count так и не получил значения. Компилятор: variable count might not have been initialized. Починка: <code>int count = 0;</code> или присвоить значение в catch." },
+          { "type": "single", "q": "13. Скомпилируется?",
+            "code": "try {\n    System.out.println(\"A\");\n}\nSystem.out.println(\"B\");",
+            "options": ["Да, напечатает A и B — catch необязателен", "Нет: try без catch и без finally"], "answer": 1,
+            "why": "Одинокий try не бывает: нужен catch, finally или ресурс в скобках." },
+          { "type": "single", "q": "14. С прицелом на тесты. Что будет при запуске?",
+            "code": "try {\n    throw new AssertionError(\"ожидали 5, получили 4\");\n} catch (Exception e) {\n    System.out.println(\"Поймали\");\n}\nSystem.out.println(\"Дальше\");",
+            "options": ["Поймали, Дальше", "Упадёт с AssertionError", "Ошибка компиляции: AssertionError нельзя выбрасывать вручную"], "answer": 1,
+            "why": "AssertionError — потомок Error, а не Exception. catch (Exception) его не перехватывает, исключение летит дальше и роняет программу. Именно поэтому упавшая проверка в тесте долетает до JUnit." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я решил головоломки модуля 12. Дай мне ещё три задачки про finally, порядок catch и checked-исключения — без вариантов ответа»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>return в try откладывает значение; finally выполняется перед выходом; изменения переменных в finally это значение не меняют, а return в finally — перебивает.</li>
+        <li>Исключение из finally заменяет исходное — причина теряется.</li>
+        <li>catch от частного к общему; в multi-catch — не родственники; checked, который не может быть выброшен, перехватывать нельзя.</li>
+        <li>Checked без catch и throws, одинокий try, неинициализированная после catch переменная — ошибки компиляции.</li>
+        <li>Вызов метода у null компилируется, но падает с NPE. AssertionError — Error, catch (Exception) его не перехватывает.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+## id: m12-t04
+## title: Охранник возраста
+## file: module-12/AgeValidationGate.java
+## class: AgeValidationGate
+## level: 2
+@@ description
+<p>Напиши метод-охранник <code>static int validateAge(int age)</code>. Он пропускает только правдоподобный возраст от 0 до 150 включительно и возвращает его. Иначе — <b>выбрасывает</b> исключение:</p>
+<ul>
+  <li>возраст меньше 0 → <code>throw new IllegalArgumentException("возраст не может быть отрицательным: " + age)</code>;</li>
+  <li>возраст больше 150 → <code>IllegalArgumentException</code> с сообщением <code>возраст больше 150: 200</code>.</li>
+</ul>
+<p>Сам метод ничего не печатает. Печатает <code>main</code>: в первой строке ввода — количество N, дальше N строк, в каждой возраст. Для каждой строки (пробелы по краям убери через <code>trim()</code>):</p>
+<pre class="terminal"><span class="out">25          →  Возраст принят: 25
+-5          →  Ошибка: возраст не может быть отрицательным: -5
+200         →  Ошибка: возраст больше 150: 200
+двадцать    →  Ошибка: «двадцать» — не число</span></pre>
+<p>Текст после «Ошибка: » для неправильного возраста бери из исключения: <code>e.getMessage()</code>. Не число — это <code>NumberFormatException</code> от <code>Integer.parseInt</code>.</p>
+<p>⚠️ Подвох: <code>NumberFormatException</code> — <b>наследник</b> <code>IllegalArgumentException</code>. Подумай, в каком порядке писать catch.</p>
+<p>📖 <a href="/lessons/m12/06-throw-custom.html">throw: выбросить своё исключение</a> · <a href="/lessons/m12/05-hierarchy-checked.html">Иерархия исключений</a></p>
+@@ test: Нормальный, отрицательный, огромный
+@@ input
+3
+25
+-5
+200
+@@ expect
+Возраст принят: 25
+Ошибка: возраст не может быть отрицательным: -5
+Ошибка: возраст больше 150: 200
+@@ test: Границы: 0, 150, 151, -1
+@@ input
+4
+0
+150
+151
+-1
+@@ expect
+Возраст принят: 0
+Возраст принят: 150
+Ошибка: возраст больше 150: 151
+Ошибка: возраст не может быть отрицательным: -1
+@@ test: Мусор во вводе
+@@ input
+3
+двадцать
+
+ 42
+@@ expect
+Ошибка: «двадцать» — не число
+Ошибка: «» — не число
+Возраст принят: 42
+@@ require: static\s+int\s+validateAge\s*\(\s*int | Нужен метод static int validateAge(int age)
+@@ require: throw\s+new\s+IllegalArgumentException | validateAge должен выбрасывать IllegalArgumentException через throw
+@@ require: catch\s*\(\s*IllegalArgumentException | Поймай IllegalArgumentException в main
+@@ require: getMessage\s*\( | Текст ошибки бери из исключения: e.getMessage()

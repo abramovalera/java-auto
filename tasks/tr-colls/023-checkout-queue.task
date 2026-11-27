@@ -1,0 +1,52 @@
+## id: tr-colls-023
+## title: Очередь в кассу
+## file: trainer/colls/CheckoutQueueServe.java
+## class: CheckoutQueueServe
+## level: 1
+## category: Стек и очередь
+@@ description
+<p>Напиши класс <code>CheckoutQueueServe</code>. В первой строке — количество покупателей в очереди <code>n</code>, во второй — их имена через пробел (первый стоит у кассы). В третьей — сколько покупателей <code>k</code> успел обслужить кассир (<code>k ≤ n</code>). Напечатай каждого обслуженного в порядке обслуживания: <code>Обслужен: имя</code>. Последней строкой — <code>Следующий: имя</code> или <code>Очередь пуста</code>.</p>
+<pre class="terminal"><span class="out">ввод:  4
+       Аня Боря Вера Гриша
+       2
+вывод: Обслужен: Аня
+       Обслужен: Боря
+       Следующий: Вера</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Deque&lt;String&gt; queue = new ArrayDeque&lt;&gt;();</code> — очередь</li>
+<li><code>offer(x)</code> ставит в конец, <code>poll()</code> забирает первого, <code>peek()</code> смотрит на первого</li>
+</ul></div>
+@@ test: Обслужили двоих
+@@ input
+4
+Аня Боря Вера Гриша
+2
+@@ expect
+Обслужен: Аня
+Обслужен: Боря
+Следующий: Вера
+@@ test: Обслужили всех
+@@ input
+2
+Дима Ева
+2
+@@ expect
+Обслужен: Дима
+Обслужен: Ева
+Очередь пуста
+@@ test: Кассир только открылся
+@@ input
+3
+Женя Зина Илья
+0
+@@ expect
+Следующий: Женя
+@@ test: Тёзки в очереди
+@@ input
+3
+Макс Макс Оля
+1
+@@ expect
+Обслужен: Макс
+Следующий: Макс
+@@ require: poll\s*\( | Забирай покупателей из очереди методом poll()

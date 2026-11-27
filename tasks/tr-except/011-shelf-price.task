@@ -1,0 +1,53 @@
+## id: tr-except-011
+## title: Цена на полке
+## file: trainer/except/ShelfPriceLookup.java
+## class: ShelfPriceLookup
+## level: 1
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>ShelfPriceLookup</code>. В магазине пять полок, цены на них хранятся в массиве:</p>
+<pre><code>int[] prices = {120, 85, 340, 55, 210};</code></pre>
+<p>Покупатель вводит номер полки (с 1). Программа читает строку через <code>nextLine()</code> и печатает <code>Цена: N руб.</code>. Ошибок может быть две, и на каждую — свой блок <code>catch</code>:</p>
+<ul>
+<li>строка не число — <code>Номер полки — это число</code>;</li>
+<li>полки с таким номером нет — <code>Такой полки нет</code> (диапазон через <code>if</code> не проверяй).</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:  3       вывод: Цена: 340 руб.
+ввод:  6       вывод: Такой полки нет
+ввод:  три     вывод: Номер полки — это число</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>после одного <code>try</code> можно написать несколько блоков <code>catch</code> подряд — сработает тот, чей тип подошёл</li>
+<li><code>ArrayIndexOutOfBoundsException</code> — обращение к несуществующему индексу массива</li>
+</ul></div>
+@@ test: Третья полка
+@@ input
+3
+@@ expect
+Цена: 340 руб.
+@@ test: Первая полка
+@@ input
+1
+@@ expect
+Цена: 120 руб.
+@@ test: Последняя полка
+@@ input
+5
+@@ expect
+Цена: 210 руб.
+@@ test: Шестой полки нет
+@@ input
+6
+@@ expect
+Такой полки нет
+@@ test: Нулевая полка
+@@ input
+0
+@@ expect
+Такой полки нет
+@@ test: Словом
+@@ input
+три
+@@ expect
+Номер полки — это число
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException
+@@ require: catch\s*\(\s*ArrayIndexOutOfBoundsException | Перехвати ArrayIndexOutOfBoundsException отдельным catch

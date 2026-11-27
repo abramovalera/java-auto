@@ -1,0 +1,52 @@
+## id: tr-oop-007
+## title: Счётчик-кликер
+## file: trainer/oop/ClickCounterDemo.java
+## class: ClickCounterDemo
+## level: 1
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>ClickCounterDemo</code> с методом <code>main</code>, а ниже в том же файле — класс <code>TallyCounter</code> (ручной счётчик, как у контролёра на входе):</p>
+<ul>
+<li>закрытые поля <code>private int count</code> (что сейчас на табло) и <code>private int total</code> (сколько всего было нажатий за всё время);</li>
+<li><code>void click()</code> — нажатие: увеличивает и <code>count</code>, и <code>total</code>;</li>
+<li><code>void reset()</code> — сброс: обнуляет только <code>count</code>;</li>
+<li>геттеры <code>int getCount()</code> и <code>int getTotal()</code>.</li>
+</ul>
+<p><code>main</code> читает одно слово из символов <code>+</code> (нажатие) и <code>R</code> (сброс), выполняет их по порядку и печатает:</p>
+<pre class="terminal"><span class="out">ввод:  ++R+
+вывод: На счётчике: 1
+       Всего нажатий: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.charAt(i) == '+'</code> — сравнение символа строки с символом</li>
+<li><code>private</code> — поле видно только внутри своего класса; снаружи значение читают через геттер</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+++R+
+@@ expect
+На счётчике: 1
+Всего нажатий: 3
+@@ test: Только нажатия
+@@ input
++++++
+@@ expect
+На счётчике: 5
+Всего нажатий: 5
+@@ test: Только сброс
+@@ input
+R
+@@ expect
+На счётчике: 0
+Всего нажатий: 0
+@@ test: Сброс в самом конце
+@@ input
++R+R++R
+@@ expect
+На счётчике: 0
+Всего нажатий: 4
+@@ require: \bclass\s+TallyCounter\b | Объяви в том же файле класс TallyCounter
+@@ require: private\s+int\s+count\b | Поле count должно быть private
+@@ require: private\s+int\s+total\b | Поле total должно быть private
+@@ require: \bint\s+getCount\s*\(\s*\) | Нужен геттер int getCount()
+@@ require: \bint\s+getTotal\s*\(\s*\) | Нужен геттер int getTotal()
+@@ require: \bvoid\s+reset\s*\(\s*\) | Нужен метод void reset()

@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Git в команде · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-03">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 17 · Урок 3</div>
+    <h1>Git в команде: push, pull, merge request и конфликты</h1>
+    <p class="lead">Пока Git жил только на твоём компьютере. В работе репозиторий общий: десять человек пишут код и тесты к нему, и всё это нужно собирать вместе, не теряя ничьих изменений.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>👥 командная работа</span><span>⚔️ конфликты</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-03-review">
+      <script type="application/json">
+      {
+       "title": "Вспомним Git",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что попадёт в коммит после <code>git commit -m \"…\"</code>?",
+         "options": [
+          "Все изменённые файлы в папке",
+          "Только то, что лежит в индексе (после git add)",
+          "Только новые файлы"
+         ],
+         "answer": 1,
+         "why": "Коммит собирается из индекса. Что не добавлено через add — останется в рабочей папке."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Пароль, удалённый следующим коммитом, из истории Git тоже исчезает",
+           "a": false,
+           "why": "он остаётся в старом коммите — его найдёт любой, у кого есть копия репозитория."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШПАРГАЛКА -->
+  <section class="step">
+    <h2>Выпиши себе: Git, часть 2</h2>
+    <p>Продолжаем шпаргалку из урока 17.2 — теперь команды для работы с командой и сервером. <b>Допиши их к первой части</b>: эти слова будешь слышать на работе каждый день.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: Git в команде</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Команда</th><th>Что делает и зачем</th><th>Где в IDEA</th></tr>
+        <tr><td><code>git clone адрес</code></td><td>Скачать репозиторий с сервера целиком, со всей историей. Один раз в начале</td><td>Стартовый экран → <b>Clone Repository</b> или <b>File → New → Project from Version Control</b></td></tr>
+        <tr><td><code>git fetch</code></td><td>Скачать новые коммиты и ветки с сервера, <b>не трогая</b> твои файлы. Посмотреть, что нового</td><td>☰ → <b>Git → Fetch</b></td></tr>
+        <tr><td><code>git pull</code></td><td>fetch + влить чужие коммиты в твою ветку. Каждое утро и перед новой задачей</td><td><kbd>Ctrl</kbd>+<kbd>T</kbd> — <b>Update Project</b></td></tr>
+        <tr><td><code>git push</code></td><td>Отправить свои коммиты на сервер. Пока не сделал — их видишь только ты</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> или <b>Commit and Push…</b></td></tr>
+        <tr><td><code>git push -u origin ветка</code></td><td>Первый push новой ветки: создать её на сервере и запомнить связь</td><td>Тот же <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> — IDEA сделает сама</td></tr>
+        <tr><td><code>git rebase origin/main</code></td><td>Переставить свои коммиты поверх свежего main: история без лишних merge-коммитов</td><td>Список веток → <b>origin/main</b> → <b>Rebase 'твоя' onto 'origin/main'</b></td></tr>
+        <tr><td><code>git push --force-with-lease</code></td><td>Перезаписать свою ветку на сервере после rebase (и только свою!)</td><td>Окно Push → стрелка у кнопки Push → <b>Force Push</b></td></tr>
+        <tr><td><code>git stash</code> / <code>git stash pop</code></td><td>Спрятать незакоммиченные правки «в карман» и потом вернуть</td><td>☰ → <b>Git → Uncommitted Changes → Stash Changes… / Unstash Changes…</b></td></tr>
+        <tr><td>конфликт</td><td>Двое правили одни строки — решаешь сам, какой вариант оставить</td><td>Окно <b>Conflicts</b> → <b>Merge…</b> (снова открыть: ☰ → Git → Resolve Conflicts…)</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Удалённый репозиторий</h2>
+    <p>Чтобы работать вместе, нужен общий репозиторий на сервере — <b>удалённый</b> (remote). Его держат на сервисах <b>GitHub</b>, <b>GitLab</b> или Bitbucket. Это не «другой Git», а такой же репозиторий, просто лежит он на сервере, и у каждого члена команды есть его <b>полная копия</b> на компьютере.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 280" role="img" aria-label="Удалённый репозиторий на сервере и две локальные копии: clone копирует, push отправляет коммиты, pull забирает чужие">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="250" y="14" width="240" height="90" rx="14" class="d-violet"/>
+        <text x="370" y="44" text-anchor="middle" class="d-title">☁️ GitHub / GitLab</text>
+        <text x="370" y="68" text-anchor="middle" class="d-small">удалённый репозиторий</text>
+        <text x="370" y="88" text-anchor="middle" class="d-mono-ink">origin</text>
+
+        <rect x="20" y="180" width="220" height="86" rx="14" class="d-blue"/>
+        <text x="130" y="210" text-anchor="middle" class="d-title">💻 Ты</text>
+        <text x="130" y="234" text-anchor="middle" class="d-small">локальная копия:</text>
+        <text x="130" y="252" text-anchor="middle" class="d-small">вся история целиком</text>
+
+        <rect x="500" y="180" width="220" height="86" rx="14" class="d-teal"/>
+        <text x="610" y="210" text-anchor="middle" class="d-title">💻 Коллега</text>
+        <text x="610" y="234" text-anchor="middle" class="d-small">своя полная копия</text>
+        <text x="610" y="252" text-anchor="middle" class="d-small">и свои коммиты</text>
+
+        <path d="M200 176 L290 110" class="d-arrow"/>
+        <text x="196" y="138" text-anchor="end" class="d-mono-ink">push ↑</text>
+        <path d="M310 108 L220 174" class="d-arrow"/>
+        <text x="284" y="160" class="d-mono-ink">pull ↓</text>
+
+        <path d="M540 176 L450 110" class="d-arrow"/>
+        <text x="544" y="138" class="d-mono-ink">push ↑</text>
+        <path d="M430 108 L520 174" class="d-arrow"/>
+        <text x="456" y="160" text-anchor="end" class="d-mono-ink">pull ↓</text>
+      </svg>
+      <figcaption>Ты и коллега обмениваетесь коммитами не напрямую, а через общий сервер.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>clone</dt><dd>Скачать удалённый репозиторий целиком, со всей историей. Делается один раз, в начале работы с проектом.</dd>
+      <dt>push</dt><dd>Отправить свои новые коммиты на сервер. Пока не сделал push — коммиты видишь только ты.</dd>
+      <dt>pull</dt><dd>Забрать с сервера чужие новые коммиты и влить их в свою ветку. Это <code>fetch</code> (скачать) + <code>merge</code> (влить).</dd>
+      <dt>origin</dt><dd>Обычное имя удалённого репозитория, откуда ты сделал clone.</dd>
+    </dl>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: общий фотоальбом в облаке</span>
+      <p>У каждого на телефоне копия альбома. Сделал фото — оно у тебя (commit). Загрузил в облако — увидели все (push). Открыл альбом — подтянулись фото друзей (pull).</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Clone, pull и push в IDEA</h2>
+    <ol class="steps">
+      <li><b>Clone:</b> на главном экране IDEA <b>Get from VCS</b> (или <b>File → New → Project from Version Control</b>) → вставить адрес репозитория (кнопка <b>Code</b> на GitHub, <b>Clone</b> на GitLab) → <b>Clone</b>. IDEA скачает проект и откроет его.</li>
+      <li><b>Pull:</b> <kbd>Ctrl</kbd>+<kbd>T</kbd> — <b>Update Project</b>. Делай это каждое утро и перед тем, как начать новую задачу.</li>
+      <li><b>Push:</b> <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd>. IDEA покажет, какие коммиты уйдут и в какую ветку. Можно сразу из окна коммита: <b>Commit and Push…</b></li>
+    </ol>
+    <p>Clone выглядит так:</p>
+    <div data-widget="ide" id="shot-git-clone">
+      <script type="application/json">
+      { "welcome": "Clone Repository",
+        "dialog": { "title": "Clone Repository", "side": ["Repository URL", "GitHub", "GitHub Enterprise", "GitLab"], "sideHl": "Repository URL",
+                    "rows": [ { "label": "Version control", "value": "Git", "type": "select" },
+                              { "label": "URL", "value": "https://github.com/team/shop-autotests.git", "hl": true },
+                              { "label": "Directory", "value": "C:\\Users\\Misha\\IdeaProjects\\shop-autotests" } ],
+                    "buttons": ["Clone", "Cancel"], "primary": "Clone" },
+        "marks": [ { "n": 1, "target": "field-URL", "text": "Адрес репозитория: на GitHub — зелёная кнопка <b>Code</b> → скопировать, на GitLab — кнопка <b>Clone</b>" },
+                   { "n": 2, "target": "field-Directory", "text": "Куда положить проект на твоём компьютере. Можно оставить как есть" },
+                   { "n": 3, "target": "btn-Clone", "side": "bottom", "text": "<b>Clone</b> — IDEA скачает всю историю и откроет проект. Это <code>git clone</code>" } ],
+        "caption": "Clone: стартовый экран IDEA → Clone Repository" }
+      </script>
+    </div>
+    <p>Pull — <kbd>Ctrl</kbd>+<kbd>T</kbd>. В первый раз IDEA спросит, как вливать чужие коммиты:</p>
+    <div data-widget="ide" id="shot-git-update">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "DeliveryFee", "type": "class", "depth": 2 },
+                  { "name": "LoginTest", "type": "class", "depth": 2 } ],
+        "dialog": { "title": "Update Project",
+                    "rows": [ { "label": "Update type", "value": "◉ Merge incoming changes into the current branch", "type": "text", "hl": true },
+                              { "label": " ", "value": "○ Rebase the current branch on top of incoming changes", "type": "text" },
+                              { "label": "  ", "value": "☐ Don't show again", "type": "text" } ],
+                    "buttons": ["OK", "Cancel"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "field-Update type", "text": "<b>Merge</b> — обычный <code>git pull</code>: скачать чужие коммиты и влить их в твою ветку. Новичку — этот вариант" },
+                   { "n": 2, "target": "field- ", "text": "<b>Rebase</b> — переставить твои коммиты поверх чужих (о rebase — в конце урока)" },
+                   { "n": 3, "target": "btn-OK", "side": "bottom", "text": "OK — и через пару секунд в правом нижнем углу всплывёт сообщение, сколько файлов обновилось" } ],
+        "caption": "Ctrl+T — Update Project. Это окно IDEA показывает, пока ты не выберешь вариант навсегда" }
+      </script>
+    </div>
+    <p>Push — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd>:</p>
+    <div data-widget="ide" id="shot-git-push">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "LoginPage", "type": "class", "depth": 2 },
+                  { "name": "LoginTest", "type": "class", "depth": 2 } ],
+        "dialog": { "title": "Push Commits to shop-autotests",
+                    "rows": [ { "label": "feature/login →", "value": "origin : feature/login   New", "type": "text", "hl": true },
+                              { "label": "коммит 2", "value": "Добавь тесты входа", "type": "text" },
+                              { "label": "коммит 1", "value": "Добавь форму входа", "type": "text" } ],
+                    "buttons": ["Push", "Cancel"], "primary": "Push" },
+        "marks": [ { "n": 1, "target": "field-feature/login →", "text": "Какую ветку и куда: твоя <b>feature/login</b> уйдёт в <b>origin</b> (сервер). <b>New</b> — на сервере такой ветки ещё нет, IDEA создаст её сама (это <code>-u origin feature/login</code>)" },
+                   { "n": 2, "target": "field-коммит 2", "text": "Какие коммиты уйдут. Проверь, что здесь нет лишнего" },
+                   { "n": 3, "target": "btn-Push", "side": "bottom", "text": "<b>Push</b> — отправить. Стрелка рядом с кнопкой в настоящем окне прячет <b>Force Push</b> — о нём ниже, в rebase" } ],
+        "caption": "Ctrl+Shift+K — окно Push (упрощённо: справа в нём ещё список изменённых файлов)" }
+      </script>
+    </div>
+<pre class="terminal"><span class="cmd">git clone https://github.com/team/shop-autotests.git</span>
+<span class="cmd">git pull</span>
+<span class="cmd">git push -u origin feature/login</span>
+<span class="out">To https://github.com/team/shop-autotests.git
+ * [new branch]      feature/login -&gt; feature/login</span></pre>
+    <p><code>-u origin feature/login</code> нужен один раз для новой ветки: «отправь её в origin и запомни связь». Дальше хватит просто <code>git push</code>.</p>
+    <div class="callout warn">
+      <span class="callout-title">Вход на GitHub/GitLab</span>
+      <p>Обычный пароль от сайта для push давно не принимают. IDEA сама предложит войти через браузер (<b>Log In via GitHub</b>) — это самый простой путь. Альтернатива — токен доступа или SSH-ключ. Никогда не вставляй токен в код и не коммить его.</p>
+    </div>
+    <details class="predict">
+      <summary>Ты сделал три коммита, но не сделал push, и выключил компьютер. Коллега делает pull. Увидит ли он твои коммиты?</summary>
+      <p><b>Нет.</b> Коммиты живут в твоей локальной копии, на сервер они не уходили. Push — единственный способ поделиться. Поэтому в конце рабочего дня ветку принято пушить, даже если задача не закончена.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Merge request: как код попадает в main</h2>
+    <p>В командах никто не коммитит прямо в <code>main</code>. Каждая задача — своя ветка, а слияние идёт через <b>запрос на слияние</b>: в GitLab он называется <b>Merge Request (MR)</b>, в GitHub — <b>Pull Request (PR)</b>. Это страница, где видно все изменения ветки, коллеги оставляют комментарии, а сервер сборки (<b>CI</b>) автоматически прогоняет тесты.</p>
+    <div class="callout fact">
+      <span class="callout-title">Зачем тут тесты</span>
+      <p>Тесты проекта запускаются на каждый merge request. Красный тест — и MR не сольют, пока не разберутся: баг в коде или тест устарел. Поэтому тесты обязаны быть стабильными и понятными: на них смотрит вся команда. Писать такие тесты на JUnit ты научишься в уроках 5–7 этого модуля.</p>
+    </div>
+    <p>Собери типичный рабочий цикл задачи по порядку:</p>
+    <div data-widget="parsons" id="mr-workflow" data-title="Путь задачи от ветки до main" data-icon="🔀"
+         data-success="🎉 Так и работают почти все команды: ветка → коммиты → push → MR → ревью и CI → merge.">
+      <script type="text/plain">
+🔄 Pull: обновить main, чтобы начать со свежего кода
+🌿 Создать ветку под задачу: feature/login-tests
+✍️ Писать код и тесты, делать маленькие коммиты
+⬆️ Push ветки на сервер
+📝 Открыть merge request в main и описать, что сделано
+👀 Коллеги делают ревью, CI прогоняет тесты, ты правишь замечания
+✅ Merge: ветка вливается в main, ветку удаляют
+      </script>
+    </div>
+    <h3>Код-ревью</h3>
+    <p><b>Ревью</b> (code review) — коллега читает твои изменения до слияния. Цель — не «найти виноватого», а поймать ошибки и сделать код понятным. Хорошие привычки с обеих сторон:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">📏</span><h4>Маленькие MR</h4><p>100 строк проверят внимательно, 2000 строк — «пролистают». Одна задача — один MR.</p></div>
+      <div class="card"><span class="emoji">🧾</span><h4>Описание</h4><p>Что сделано, зачем, как проверить. Ссылка на задачу в трекере.</p></div>
+      <div class="card"><span class="emoji">💬</span><h4>Комментарии о коде</h4><p>«Здесь можно упасть на null, если список пуст» — а не «ты опять накосячил». Вопрос лучше приказа.</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Конфликт: двое правили одно место</h2>
+    <p>Обычно Git сливает ветки сам: ты менял один файл, коллега — другой, или вы правили разные места одного файла. Но если двое поменяли <b>одни и те же строки</b> по-разному, Git не может решить, кто прав, и останавливается: <b>конфликт слияния</b> (merge conflict).</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: общий документ</span>
+      <p>Вы с другом редактируете один договор оффлайн. Ты пишешь в пункте 3 «срок — 10 дней», он — «срок — 15 дней». Когда соединяете версии, кто-то должен посмотреть на оба варианта и решить. Компьютер за людей это решать не должен — и Git не решает.</p>
+    </div>
+    <p>Пример: в ветке <code>main</code> была строка <code>int timeoutSeconds = 4;</code> — объявление переменной с инициализацией значением 4. Аня в своей ветке поменяла инициализирующее значение на 10, Боря в своей — на 6. Ветку Ани уже слили в <code>main</code>. Боря вливает свежий <code>main</code> в свою ветку (<code>git merge main</code>) — и видит в файле метки конфликта:</p>
+<pre data-file="TestConfig.java"><code class="java">public class TestConfig {
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+    static int timeoutSeconds = 6;
+=======
+    static int timeoutSeconds = 10;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; main
+    static String baseUrl = "https://shop.test";
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code><div><p>Начало конфликта. Ниже — <b>твой</b> вариант (HEAD — текущая ветка, в которую сливаем).</p></div></div>
+      <div class="annot-row"><code>=======</code><div><p>Разделитель между вариантами.</p></div></div>
+      <div class="annot-row"><code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; main</code><div><p>Конец конфликта. Выше — вариант из <b>вливаемой</b> ветки.</p></div></div>
+    </div>
+    <p>Решить конфликт = оставить правильный вариант (или собрать из двух новый), <b>удалить все метки</b> и закоммитить. Файл с метками даже не скомпилируется — <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> не Java.</p>
+    <details class="predict">
+      <summary>Аня поменяла строку 5 в <code>LoginTest.java</code>, Боря — строку 40 в том же файле. Будет конфликт?</summary>
+      <p><b>Нет.</b> Изменения в разных местах одного файла Git сливает сам. Конфликт возникает только когда правки задевают одни и те же или соседние строки. Поэтому маленькие частые коммиты и регулярный pull уменьшают конфликты.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Трёхпанельный merge в IDEA</h2>
+    <p>Как только Git наткнулся на конфликт, IDEA сама открывает окно <b>Conflicts</b>:</p>
+    <div data-widget="ide" id="shot-git-conflicts">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src › TestConfig.java",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "LoginTest", "type": "class", "depth": 2 },
+                  { "name": "TestConfig", "type": "class", "depth": 2, "selected": true, "note": "конфликт" } ],
+        "file": "TestConfig.java",
+        "code": "public class TestConfig {\n<<<<<<< HEAD\n    static int timeoutSeconds = 6;\n=======\n    static int timeoutSeconds = 10;\n>>>>>>> main\n    static String baseUrl = \"https://shop.test\";\n}",
+        "dialog": { "title": "Conflicts",
+                    "rows": [ { "label": "Name", "value": "Yours · Theirs", "type": "text" },
+                              { "label": "TestConfig.java", "value": "Modified · Modified", "type": "text", "hl": true } ],
+                    "buttons": ["Accept Yours", "Accept Theirs", "Merge…"], "primary": "Merge…" },
+        "marks": [ { "n": 1, "target": "field-TestConfig.java", "text": "Список файлов с конфликтами. <b>Yours</b> — твоя версия (текущая ветка), <b>Theirs</b> — «их», из вливаемой ветки. Оба изменили файл" },
+                   { "n": 2, "target": "btn-Accept Yours", "side": "bottom", "text": "<b>Accept Yours / Accept Theirs</b> — взять файл целиком из одной версии, чужие (или свои) правки выбросятся. Осторожно!" },
+                   { "n": 3, "target": "btn-Merge…", "side": "bottom", "text": "<b>Merge…</b> — открыть трёхпанельное окно и решить каждое место. Почти всегда — сюда" },
+                   { "n": 4, "target": "tree-TestConfig", "text": "Пока конфликт не решён, в самом файле стоят метки <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>. Закрыл окно случайно — ☰ → Git → Resolve Conflicts…" } ],
+        "caption": "Окно Conflicts после неудачного слияния (упрощённо)" }
+      </script>
+    </div>
+    <p>Руками править метки неудобно. IDEA при конфликте показывает окно <b>Conflicts</b> со списком файлов. Выбери файл → <b>Merge…</b> — и откроется окно из трёх панелей:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 270" role="img" aria-label="Окно трёхпанельного слияния: слева твои изменения, справа изменения из вливаемой ветки, в центре результат">
+        <rect x="10" y="10" width="740" height="250" rx="14" class="d-box"/>
+        <rect x="22" y="22" width="230" height="36" rx="8" class="d-blue"/>
+        <text x="137" y="45" text-anchor="middle" class="d-title">Твои изменения</text>
+        <rect x="265" y="22" width="230" height="36" rx="8" class="d-accent"/>
+        <text x="380" y="45" text-anchor="middle" class="d-title">Результат</text>
+        <rect x="508" y="22" width="230" height="36" rx="8" class="d-teal"/>
+        <text x="623" y="45" text-anchor="middle" class="d-title">Из ветки main</text>
+
+        <rect x="22" y="68" width="230" height="140" rx="8" class="d-code"/>
+        <rect x="28" y="104" width="218" height="26" rx="4" class="d-red"/>
+        <text x="34" y="122" class="d-mono">timeoutSeconds = 6;</text>
+        <text x="214" y="160" class="d-title">&gt;&gt;</text>
+        <text x="236" y="160" class="d-small">✕</text>
+
+        <rect x="265" y="68" width="230" height="140" rx="8" class="d-code"/>
+        <text x="271" y="122" class="d-mono">timeoutSeconds = 4;</text>
+        <text x="271" y="150" class="d-small">тут было в общем предке —</text>
+        <text x="271" y="168" class="d-small">сюда собираешь итог</text>
+
+        <rect x="508" y="68" width="230" height="140" rx="8" class="d-code"/>
+        <rect x="514" y="104" width="218" height="26" rx="4" class="d-red"/>
+        <text x="520" y="122" class="d-mono">timeoutSeconds = 10;</text>
+        <text x="516" y="160" class="d-title">&lt;&lt;</text>
+        <text x="544" y="160" class="d-small">✕</text>
+
+        <rect x="560" y="222" width="178" height="28" rx="8" class="d-green"/>
+        <text x="649" y="241" text-anchor="middle" class="d-text">Apply</text>
+        <text x="22" y="241" class="d-small">» / « — перенести вариант в центр,  ✕ — отбросить его</text>
+      </svg>
+      <figcaption>Слева — твоя версия, справа — чужая, в центре — то, что получится. Красным подсвечены конфликтующие строки.</figcaption>
+    </figure>
+    <ol class="steps">
+      <li>Для каждого конфликтного места реши: взять левый вариант (<b>»</b>), правый (<b>«</b>), оба по очереди или поправить центр руками.</li>
+      <li>Ненужный вариант отбрось крестиком <b>✕</b>. Неконфликтные изменения IDEA уже перенесла сама — кнопка <b>Apply non-conflicting changes</b> вверху.</li>
+      <li>Нажми <b>Apply</b>. Запусти тесты — убедись, что после слияния всё работает.</li>
+      <li>Закоммить результат слияния (<kbd>Ctrl</kbd>+<kbd>K</kbd>) и сделай push.</li>
+    </ol>
+    <div class="say" data-mood="think"><p>Главное правило конфликта: <b>не угадывай</b>. Если не знаешь, почему коллега поставил 10, а не 6, — спроси его. Неправильно решённый конфликт тихо выкидывает чужую работу, и тесты потом падают «необъяснимо».</p></div>
+  </section>
+
+  <!-- ШАГ 6½ -->
+  <section class="step">
+    <h2>Ещё три слова из команды: fetch, rebase, stash</h2>
+    <p>Их нет в «минимуме для выживания», но на работе ты услышишь их в первую же неделю. Коротко, чтобы не теряться.</p>
+    <dl class="terms">
+      <dt>fetch</dt><dd>«Сходить на сервер и посмотреть, что нового» — скачать чужие коммиты и ветки, <b>ничего не вливая</b> в твои файлы. <code>pull</code> = <code>fetch</code> + слияние. В IDEA: ☰ → <b>Git → Fetch</b>, после него в списке веток видны свежие <code>origin/…</code>.</dd>
+      <dt>rebase</dt><dd>Другой способ подтянуть свежий <code>main</code> в свою ветку. Merge добавляет коммит «слил main в ветку», а rebase <b>переставляет твои коммиты</b> так, будто ты начал работу только что, от свежего main. История получается прямой линией — многие команды требуют именно так.</dd>
+      <dt>stash</dt><dd>«Карман». Ты на середине задачи, коммитить рано, а нужно срочно переключиться в другую ветку чинить баг. Stash прячет незакоммиченные правки и возвращает файлы к последнему коммиту; потом <b>Unstash</b> достаёт их обратно.</dd>
+    </dl>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: очередь в магазине</span>
+      <p>Ты встал в очередь (ответвился от main), отошёл за молоком — а за это время прошли пять человек (чужие коммиты в main). <b>Merge</b> — вернуться на своё старое место и сказать «я тут стоял». <b>Rebase</b> — честно встать в конец обновлённой очереди: твои покупки те же, но стоишь ты уже после всех.</p>
+    </div>
+    <p>Rebase в IDEA — из того же списка веток. Ты в своей ветке <code>feature/login</code>; сначала Fetch, потом:</p>
+    <div data-widget="ide" id="shot-git-rebase">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "LoginPage", "type": "class", "depth": 2 },
+                  { "name": "LoginTest", "type": "class", "depth": 2 } ],
+        "menu": { "at": "project-btn", "items": ["+ New Branch…", "Checkout Tag or Revision…", "-", "Local", "feature/login", "★ main ›", "-", "Remote", "origin/feature/login ›", "origin/main ›"], "hl": "origin/main",
+                  "sub": { "items": ["Checkout", "New Branch from 'origin/main'…", "Checkout and Rebase onto 'feature/login'", "-", "Compare with 'feature/login'", "Show Diff with Working Tree", "-", "Rebase 'feature/login' onto 'origin/main'", "Merge 'origin/main' into 'feature/login'", "-", "Delete"], "hl": "Rebase 'feature/login' onto 'origin/main'" } },
+        "marks": [ { "n": 1, "target": "menu", "side": "left", "text": "Список веток. Сейчас мы в <b>feature/login</b>. Выбираем <b>origin/main</b> — свежий main с сервера (поэтому сначала Fetch)" },
+                   { "n": 2, "target": "submenu", "text": "<b>Rebase 'feature/login' onto 'origin/main'</b> — переставить мои коммиты поверх свежего main. Строчкой ниже — Merge, тот же результат, но с коммитом слияния" } ],
+        "caption": "Rebase своей ветки на свежий main" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Два правила rebase</span>
+      <p>1) Rebase меняет хеши твоих коммитов, поэтому уже запушенную ветку после него придётся отправить с перезаписью: окно Push → стрелка у кнопки → <b>Force Push</b> (IDEA делает это безопасным способом, <code>--force-with-lease</code>). 2) Так можно делать только со <b>своей</b> веткой. Rebase и force push общей ветки <code>main</code> — запрещённый приём: у коллег сломается история. Конфликты при rebase решаются в том же трёхпанельном окне, потом — <b>Continue Rebasing</b>.</p>
+    </div>
+    <p>А вот stash: ☰ → <b>Git → Uncommitted Changes → Stash Changes…</b></p>
+    <div data-widget="ide" id="shot-git-stash">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src › CartTest.java",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "CartTest", "type": "class", "depth": 2, "selected": true, "note": "изменён" },
+                  { "name": "LoginTest", "type": "class", "depth": 2 } ],
+        "dialog": { "title": "Stash",
+                    "rows": [ { "label": "Git root", "value": "C:\\Users\\Misha\\IdeaProjects\\shop-autotests", "type": "text" },
+                              { "label": "Current branch", "value": "feature/cart", "type": "text" },
+                              { "label": "Message", "value": "недописанный тест корзины", "hl": true },
+                              { "label": "Keep index", "value": "☐", "type": "text" } ],
+                    "buttons": ["Create Stash", "Cancel"], "primary": "Create Stash" },
+        "marks": [ { "n": 1, "target": "field-Current branch", "text": "Ветка, в которой ты сейчас и чьи незакоммиченные правки спрячутся" },
+                   { "n": 2, "target": "field-Message", "text": "Подпиши, что прячешь, — через неделю иначе не вспомнишь" },
+                   { "n": 3, "target": "btn-Create Stash", "side": "bottom", "text": "Правки уйдут «в карман», файлы вернутся к последнему коммиту — можно спокойно переключать ветку. Вернуть: Git → Uncommitted Changes → <b>Unstash Changes…</b> (это <code>git stash pop</code>)" } ],
+        "caption": "Stash: спрятать незаконченную работу" }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: Shelve — «полка» IDEA</summary>
+      <p>В окне Commit есть похожее действие <b>Shelve Changes</b>. Это собственный «карман» IDEA, не Git: работает так же, но хранится только в твоей IDEA. Коллеги чаще говорят «застешь», так что запомни stash.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-03">
+      <script type="application/json">
+      { "title": "Git в команде — главное",
+        "items": [
+          { "type": "match", "q": "Соедини команду и действие",
+            "left": ["git clone", "git pull", "git push", "merge request"],
+            "right": ["Скачать удалённый репозиторий целиком", "Забрать чужие коммиты с сервера и влить в свою ветку", "Отправить свои коммиты на сервер", "Попросить влить ветку в main после ревью и тестов"],
+            "why": "clone — один раз в начале, pull — регулярно, push — чтобы поделиться, MR — чтобы слить через ревью." },
+          { "type": "single", "q": "Когда возникает конфликт слияния?",
+            "options": ["Когда двое поменяли разные файлы", "Когда двое по-разному поменяли одни и те же строки", "Каждый раз при git merge"], "answer": 1,
+            "why": "Разные файлы и разные места одного файла Git сливает сам. Конфликт — только когда правки пересекаются." },
+          { "type": "bug", "q": "Конфликт «решили», но файл не компилируется. В какой строке проблема?",
+            "code": "public class TestConfig {\n    static int timeoutSeconds = 10;\n=======\n    static String baseUrl = \"https://shop.test\";\n}",
+            "answer": [3], "why": "Осталась метка конфликта <code>=======</code>. При ручном решении нужно удалить ВСЕ метки: <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Сделанный, но не запушенный коммит коллеги не увидят", "a": true },
+              { "s": "В команде принято коммитить прямо в main, так быстрее", "a": false, "why": "работают в ветках и сливают через merge request с ревью и тестами." },
+              { "s": "pull — это fetch (скачать) + merge (влить)", "a": true }
+            ] },
+          { "type": "single", "q": "Ты не понимаешь, почему коллега поменял таймаут на 10. Как решить конфликт?",
+            "options": ["Оставить свой вариант — он же мой", "Спросить коллегу и решить вместе", "Удалить оба варианта"], "answer": 1,
+            "why": "Конфликт — вопрос смысла, а не техники. Угадывание тихо выбрасывает чужую работу." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Практика с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 17.3. Давай устроим конфликт специально: две ветки правят одну строку, а я решу его в трёхпанельном окне IDEA»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Удалённый репозиторий (GitHub/GitLab) — общий; у каждого — полная локальная копия.</li>
+        <li><code>clone</code> — скачать, <code>pull</code> (<kbd>Ctrl</kbd>+<kbd>T</kbd>) — забрать чужое, <code>push</code> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd>) — отдать своё.</li>
+        <li>Задача: ветка → коммиты → push → merge request → ревью + CI с тестами → merge.</li>
+        <li>Конфликт — двое правили одни строки. Решаешь в трёхпанельном окне, удаляешь метки, проверяешь тестами, коммитишь.</li>
+        <li>Маленькие коммиты, частый pull и маленькие MR — меньше конфликтов и лучше ревью.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

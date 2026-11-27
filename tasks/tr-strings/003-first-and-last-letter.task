@@ -1,0 +1,34 @@
+## id: tr-strings-003
+## title: Первая и последняя буква
+## file: trainer/strings/FirstAndLastLetter.java
+## class: FirstAndLastLetter
+## level: 1
+## category: Слова и разбор
+@@ description
+<p>Напиши класс <code>FirstAndLastLetter</code>. Программа читает одно слово (в нём хотя бы один символ) и печатает его первый и последний символ в формате <code>первая: X, последняя: Y</code>.</p>
+<pre class="terminal"><span class="out">ввод:  кот     вывод: первая: к, последняя: т
+ввод:  Java    вывод: первая: J, последняя: a</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.charAt(0)</code> — возвращает первый символ строки</li>
+<li>Индексы идут с нуля, поэтому последний символ стоит по индексу <code>s.length() - 1</code></li>
+</ul></div>
+@@ test: Пример
+@@ input
+кот
+@@ expect
+первая: к, последняя: т
+@@ test: Заглавная в начале
+@@ input
+Java
+@@ expect
+первая: J, последняя: a
+@@ test: Одна буква — она же и последняя
+@@ input
+я
+@@ expect
+первая: я, последняя: я
+@@ test: Цифры
+@@ input
+12345
+@@ expect
+первая: 1, последняя: 5

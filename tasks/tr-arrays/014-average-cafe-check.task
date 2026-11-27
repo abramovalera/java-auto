@@ -1,0 +1,41 @@
+## id: tr-arrays-014
+## title: Средний чек в кафе
+## file: trainer/arrays/AverageCafeCheck.java
+## class: AverageCafeCheck
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>AverageCafeCheck</code>. В первой строке — количество чеков <code>n</code> (n ≥ 1), во второй — <code>n</code> сумм чеков (дробные числа через пробел, разделитель — точка). Сохрани их в массив <code>double[]</code>, посчитай среднее и напечатай <code>Средний чек: X</code>, округлив до двух знаков после точки выражением <code>Math.round(x * 100) / 100.0</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       250.5 300 199.9
+вывод: Средний чек: 250.13</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>double[] a = new double[n];</code> — массив дробных чисел</li>
+<li><code>scanner.nextDouble()</code> — читает дробное число</li>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет до двух знаков</li>
+</ul></div>
+@@ test: Три чека
+@@ input
+3
+250.5 300 199.9
+@@ expect
+Средний чек: 250.13
+@@ test: Один чек
+@@ input
+1
+120
+@@ expect
+Средний чек: 120.0
+@@ test: Округление
+@@ input
+3
+10 10 11
+@@ expect
+Средний чек: 10.33
+@@ test: Копейки
+@@ input
+2
+0.1 0.2
+@@ expect
+Средний чек: 0.15
+@@ require: double\s*\[\s*\] | Сохрани чеки в массив double[]

@@ -1,0 +1,47 @@
+## id: tr-arith-040
+## title: Год-перевёртыш
+## file: trainer/arith/PalindromeYearCheck.java
+## class: PalindromeYearCheck
+## level: 3
+## category: Цифры числа
+@@ description
+<p>Год-перевёртыш читается одинаково слева направо и справа налево: 2002, 2112, 1991. Создай класс <code>PalindromeYearCheck</code>. Программа читает четырёхзначный год и печатает <code>true</code>, если он перевёртыш, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2002    вывод: true
+ввод:  2026    вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n / 1000</code> — первая цифра четырёхзначного числа, <code>n / 100 % 10</code> — вторая</li>
+<li>Перевёртыш: первая цифра равна четвёртой <b>и</b> вторая — третьей</li>
+</ul></div>
+@@ test: 2002
+@@ input
+2002
+@@ expect
+true
+@@ test: 2112
+@@ input
+2112
+@@ expect
+true
+@@ test: Текущий год
+@@ input
+2026
+@@ expect
+false
+@@ test: Крайние совпали, средние нет
+@@ input
+2012
+@@ expect
+false
+@@ test: Средние совпали, крайние нет
+@@ input
+2110
+@@ expect
+false
+@@ test: 1001
+@@ input
+1001
+@@ expect
+true
+@@ require: % | Цифры достаются через / и %
+@@ forbid: charAt|split|toCharArray|String\.valueOf|Integer\.toString|StringBuilder|reverse | Здесь цифры нужно достать арифметикой, а не через строки
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

@@ -1,0 +1,41 @@
+## id: tr-vars-028
+## title: Анкета: возраст и город
+## file: trainer/vars/CityQuestionnaire.java
+## class: CityQuestionnaire
+## level: 2
+## category: Ввод и анкеты
+@@ description
+<p>Напиши класс <code>CityQuestionnaire</code>. Программа читает две строки: в первой — возраст (целое число), во второй — город, в названии которого могут быть пробелы. Напечатай <code>Тебе 25, ты из города Нижний Новгород</code>.</p>
+<pre class="terminal"><span class="out">ввод:  25
+       Нижний Новгород
+вывод: Тебе 25, ты из города Нижний Новгород</span></pre>
+<p>Подвох — знаменитая ловушка <code>nextInt</code> + <code>nextLine</code>: если сразу после <code>nextInt()</code> вызвать <code>nextLine()</code>, он вернёт пустую строку.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>scanner.nextLine()</code> — возвращает всю строку до Enter, вместе с пробелами</li>
+<li><code>nextInt()</code> не забирает Enter после числа — лишний вызов <code>scanner.nextLine();</code> его «съест»</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+25
+Нижний Новгород
+@@ expect
+Тебе 25, ты из города Нижний Новгород
+@@ test: Город через дефис
+@@ input
+7
+Ростов-на-Дону
+@@ expect
+Тебе 7, ты из города Ростов-на-Дону
+@@ test: Город из одного слова
+@@ input
+100
+Москва
+@@ expect
+Тебе 100, ты из города Москва
+@@ test: Возраст ноль
+@@ input
+0
+Санкт-Петербург
+@@ expect
+Тебе 0, ты из города Санкт-Петербург

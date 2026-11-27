@@ -1,0 +1,42 @@
+## id: tr-except-008
+## title: Код от ворот
+## file: trainer/except/GateCodeReader.java
+## class: GateCodeReader
+## level: 1
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>GateCodeReader</code>. У ворот кодовый замок, правильный код — 2580. Программа читает строку через <code>nextLine()</code>, превращает её в число и печатает:</p>
+<ul>
+<li><code>Ворота открыты</code> — если число равно 2580;</li>
+<li><code>Неверный код</code> — если это другое число;</li>
+<li><code>Код набирают только цифрами</code> — если строка вообще не число.</li>
+</ul>
+<p>Создай <code>Scanner</code> в заголовке <b>try-с-ресурсами</b>: так он закроется сам, когда блок закончится.</p>
+<pre class="terminal"><span class="out">ввод:  2580    вывод: Ворота открыты
+ввод:  25a0    вывод: Код набирают только цифрами</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>try (Scanner scanner = new Scanner(System.in)) { … }</code> — try-с-ресурсами: <code>scanner</code> закроется автоматически</li>
+<li>внутри такого блока можно написать ещё один обычный <code>try</code>/<code>catch</code></li>
+</ul></div>
+@@ test: Правильный код
+@@ input
+2580
+@@ expect
+Ворота открыты
+@@ test: Другое число
+@@ input
+1234
+@@ expect
+Неверный код
+@@ test: Буква в коде
+@@ input
+25a0
+@@ expect
+Код набирают только цифрами
+@@ test: Отрицательный код
+@@ input
+-2580
+@@ expect
+Неверный код
+@@ require: try\s*\(\s*(java\.util\.)?Scanner | Создай Scanner в заголовке try-с-ресурсами: try (Scanner scanner = new Scanner(System.in))
+@@ require: catch\s*\(\s*NumberFormatException | Перехвати NumberFormatException

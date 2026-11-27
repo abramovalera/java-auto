@@ -1,0 +1,38 @@
+## id: tr-streams-009
+## title: Длины слов
+## file: trainer/streams/WordLengths.java
+## class: WordLengths
+## level: 1
+## category: filter и map
+@@ description
+<p>Напиши класс <code>WordLengths</code>. Наборщик газеты хочет знать длину каждого слова в заголовке. В одной строке — слова через пробел (хотя бы одно). Напечатай длины слов в том же порядке через запятую с пробелом.</p>
+<pre class="terminal"><span class="out">ввод:  Java это просто
+вывод: 4, 3, 6</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.map(String::length)</code> — ссылка на метод: каждое слово заменяется его длиной</li>
+<li><code>.map(String::valueOf)</code> — превращает числа обратно в строки (нужно для <code>joining</code>)</li>
+<li><code>Collectors.joining(", ")</code> — склеивает строки, ставя разделитель только между ними</li>
+</ul></div>
+@@ test: Заголовок
+@@ input
+Java это просто
+@@ expect
+4, 3, 6
+@@ test: Одно слово
+@@ input
+Стрим
+@@ expect
+5
+@@ test: Дефис — тоже символ
+@@ input
+кто-то пришёл
+@@ expect
+6, 6
+@@ test: Слово из одной буквы
+@@ input
+я и ты
+@@ expect
+1, 1, 2
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

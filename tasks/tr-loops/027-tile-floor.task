@@ -1,0 +1,47 @@
+## id: tr-loops-027
+## title: Плитка на полу
+## file: trainer/loops/TileFloorRectangle.java
+## class: TileFloorRectangle
+## level: 1
+## category: Символы и узоры
+@@ description
+<p>Напиши класс <code>TileFloorRectangle</code>. Плиточник выкладывает пол прямоугольником. В первой строке — число рядов, во второй — сколько плиток в ряду (оба ≥ 1). Нарисуй пол символами <code>#</code>: каждый ряд — отдельная строка.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       5
+вывод: #####
+       #####
+       #####</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>вложенный цикл: внешний перебирает ряды, внутренний печатает плитки одного ряда</li>
+<li><code>System.out.println();</code> — после ряда перейти на новую строку</li>
+</ul></div>
+@@ test: Три ряда по пять
+@@ input
+3
+5
+@@ expect
+#####
+#####
+#####
+@@ test: Одна плитка
+@@ input
+1
+1
+@@ expect
+#
+@@ test: Длинный коридор
+@@ input
+2
+7
+@@ expect
+#######
+#######
+@@ test: Узкий столбик
+@@ input
+4
+1
+@@ expect
+#
+#
+#
+#

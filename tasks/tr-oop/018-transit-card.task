@@ -1,0 +1,63 @@
+## id: tr-oop-018
+## title: Транспортная карта
+## file: trainer/oop/TransitCardRides.java
+## class: TransitCardRides
+## level: 2
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>TransitCardRides</code> с методом <code>main</code>, а ниже в том же файле — класс <code>TransitCard</code>. Баланс карты не может уйти в минус — за этим следит сам объект.</p>
+<ul>
+<li>закрытое поле <code>private int balance</code>;</li>
+<li>конструктор <code>TransitCard(int balance)</code> — отрицательный начальный баланс заменяет на 0;</li>
+<li><code>boolean pay(int fare)</code> — если денег хватает, списывает стоимость проезда и возвращает <code>true</code>; иначе ничего не списывает и возвращает <code>false</code>;</li>
+<li>геттер <code>int getBalance()</code>.</li>
+</ul>
+<p>Ввод: в первой строке — начальный баланс, во второй — число поездок <code>n</code>, в третьей — <code>n</code> цен через пробел. На каждую поездку печатай <code>Проход, остаток X</code> или <code>Отказ, остаток X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  100
+       3
+       46 46 46
+вывод: Проход, остаток 54
+       Проход, остаток 8
+       Отказ, остаток 8</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>без сеттера <code>setBalance</code> снаружи баланс можно поменять только через <code>pay</code> — так объект защищает свои данные</li>
+<li><code>balance -= fare;</code> — составное присваивание</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+100
+3
+46 46 46
+@@ expect
+Проход, остаток 54
+Проход, остаток 8
+Отказ, остаток 8
+@@ test: После отказа дешёвая поездка проходит
+@@ input
+50
+3
+60 30 30
+@@ expect
+Отказ, остаток 50
+Проход, остаток 20
+Отказ, остаток 20
+@@ test: Ровно хватает
+@@ input
+46
+1
+46
+@@ expect
+Проход, остаток 0
+@@ test: Отрицательный баланс становится нулём
+@@ input
+-20
+2
+0 5
+@@ expect
+Проход, остаток 0
+Отказ, остаток 0
+@@ require: \bclass\s+TransitCard\b | Объяви в том же файле класс TransitCard
+@@ require: private\s+int\s+balance\b | Поле balance должно быть private
+@@ require: \bboolean\s+pay\s*\(\s*int\s+\w+\s*\) | Нужен метод boolean pay(int fare)
+@@ require: \bint\s+getBalance\s*\(\s*\) | Нужен геттер int getBalance()
+@@ forbid: \bsetBalance\s*\( | Не делай сеттер setBalance — баланс меняется только через pay

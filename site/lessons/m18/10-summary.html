@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Финал курса: итоги и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 18 · Итоги · Финал курса</div>
+    <h1>Ты прошёл весь курс 🎉</h1>
+    <p class="lead">От «что такое программа» до собственного набора автотестов. Оглянемся на пройденный путь, проверим модуль 18, сдадим экзамен и наметим, куда расти дальше.</p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш курса</span><span>🚀 старт профессии</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Поздравляю!</h2>
+    <div class="say" data-mood="happy">
+      <p>Помнишь первый урок? Ты не знал, что такое компилятор, и набирал <code>Hello, World!</code> по буквам. А теперь пишешь классы страниц, параметризованные тесты и ловишь мутантов. Это огромный путь — и ты прошёл его сам, руками, без готовых ответов. Я горжусь тобой. ☕</p>
+    </div>
+    <p>Главное, что ты унёс из курса, — не список тем, а умение: <b>разобрать задачу на шаги, написать код, проверить его и найти ошибку</b>. Это и есть работа и программиста, и автоматизатора.</p>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Карта пройденного пути</h2>
+    <p>Все 19 модулей курса. Пройдись по каждой станции и вспомни одну вещь, которую ты там узнал. Если вспомнить нечего — вот и тема для повторения.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 400" role="img" aria-label="Карта курса: 19 модулей змейкой от вводного до автотестов, раскрашенных по группам">
+        <path d="M58 70 H702 V180 H58 V290 H654" class="d-dash"/>
+        <rect x="10" y="40" width="96" height="60" rx="12" class="d-blue"/>
+        <text x="58" y="64" text-anchor="middle" class="d-title">0</text><text x="58" y="86" text-anchor="middle" class="d-small">Старт</text>
+        <rect x="117" y="40" width="96" height="60" rx="12" class="d-blue"/>
+        <text x="165" y="64" text-anchor="middle" class="d-title">1</text><text x="165" y="86" text-anchor="middle" class="d-small">Java</text>
+        <rect x="224" y="40" width="96" height="60" rx="12" class="d-blue"/>
+        <text x="272" y="64" text-anchor="middle" class="d-title">2</text><text x="272" y="86" text-anchor="middle" class="d-small">Типы</text>
+        <rect x="331" y="40" width="96" height="60" rx="12" class="d-blue"/>
+        <text x="379" y="64" text-anchor="middle" class="d-title">3</text><text x="379" y="86" text-anchor="middle" class="d-small">Операторы</text>
+        <rect x="438" y="40" width="96" height="60" rx="12" class="d-teal"/>
+        <text x="486" y="64" text-anchor="middle" class="d-title">4</text><text x="486" y="86" text-anchor="middle" class="d-small">Условия</text>
+        <rect x="545" y="40" width="96" height="60" rx="12" class="d-teal"/>
+        <text x="593" y="64" text-anchor="middle" class="d-title">5</text><text x="593" y="86" text-anchor="middle" class="d-small">Циклы</text>
+        <rect x="652" y="40" width="96" height="60" rx="12" class="d-teal"/>
+        <text x="700" y="64" text-anchor="middle" class="d-title">6</text><text x="700" y="86" text-anchor="middle" class="d-small">Массивы</text>
+
+        <rect x="652" y="150" width="96" height="60" rx="12" class="d-teal"/>
+        <text x="700" y="174" text-anchor="middle" class="d-title">7</text><text x="700" y="196" text-anchor="middle" class="d-small">Методы</text>
+        <rect x="545" y="150" width="96" height="60" rx="12" class="d-teal"/>
+        <text x="593" y="174" text-anchor="middle" class="d-title">8</text><text x="593" y="196" text-anchor="middle" class="d-small">Строки</text>
+        <rect x="438" y="150" width="96" height="60" rx="12" class="d-violet"/>
+        <text x="486" y="174" text-anchor="middle" class="d-title">9</text><text x="486" y="196" text-anchor="middle" class="d-small">Классы</text>
+        <rect x="331" y="150" width="96" height="60" rx="12" class="d-violet"/>
+        <text x="379" y="174" text-anchor="middle" class="d-title">10</text><text x="379" y="196" text-anchor="middle" class="d-small">ООП</text>
+        <rect x="224" y="150" width="96" height="60" rx="12" class="d-violet"/>
+        <text x="272" y="174" text-anchor="middle" class="d-title">11</text><text x="272" y="196" text-anchor="middle" class="d-small">Интерфейсы</text>
+        <rect x="117" y="150" width="96" height="60" rx="12" class="d-violet"/>
+        <text x="165" y="174" text-anchor="middle" class="d-title">12</text><text x="165" y="196" text-anchor="middle" class="d-small">Исключения</text>
+        <rect x="10" y="150" width="96" height="60" rx="12" class="d-yellow"/>
+        <text x="58" y="174" text-anchor="middle" class="d-title">13</text><text x="58" y="196" text-anchor="middle" class="d-small">Коллекции</text>
+
+        <rect x="10" y="260" width="96" height="60" rx="12" class="d-yellow"/>
+        <text x="58" y="284" text-anchor="middle" class="d-title">14</text><text x="58" y="306" text-anchor="middle" class="d-small">Stream API</text>
+        <rect x="117" y="260" width="96" height="60" rx="12" class="d-yellow"/>
+        <text x="165" y="284" text-anchor="middle" class="d-title">15</text><text x="165" y="306" text-anchor="middle" class="d-small">Файлы</text>
+        <rect x="224" y="260" width="96" height="60" rx="12" class="d-yellow"/>
+        <text x="272" y="284" text-anchor="middle" class="d-title">16</text><text x="272" y="306" text-anchor="middle" class="d-small">Потоки</text>
+        <rect x="331" y="260" width="96" height="60" rx="12" class="d-green"/>
+        <text x="379" y="284" text-anchor="middle" class="d-title">17</text><text x="379" y="306" text-anchor="middle" class="d-small">Инструменты</text>
+        <rect x="438" y="252" width="216" height="76" rx="14" class="d-accent"/>
+        <text x="546" y="282" text-anchor="middle" class="d-title">18 · Автотесты 🏁</text>
+        <text x="546" y="306" text-anchor="middle" class="d-small">ты здесь</text>
+
+        <rect x="10" y="356" width="14" height="14" rx="3" class="d-blue"/><text x="30" y="368" class="d-small">старт и основы</text>
+        <rect x="150" y="356" width="14" height="14" rx="3" class="d-teal"/><text x="170" y="368" class="d-small">логика и алгоритмы</text>
+        <rect x="320" y="356" width="14" height="14" rx="3" class="d-violet"/><text x="340" y="368" class="d-small">ООП</text>
+        <rect x="390" y="356" width="14" height="14" rx="3" class="d-yellow"/><text x="410" y="368" class="d-small">продвинутая Java</text>
+        <rect x="550" y="356" width="14" height="14" rx="3" class="d-green"/><text x="570" y="368" class="d-small">профессия</text>
+      </svg>
+      <figcaption>Змейка курса: основы → логика → ООП → продвинутая Java → инструменты и автотесты.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Какие модули сильнее всего пригодились в модуле 18?</summary>
+      <p>Почти все сразу. Классы, наследование и композиция (9–11) — это Page Object и BaseTest. record и enum (11) — тестовые данные. Исключения (12) — чтение падений и <code>AssertionError</code>. Коллекции и лямбды (13–14) — <code>$$</code>, параметризация, проверки списков. Файлы (15) — настройки. Потоки (16) — почему не <code>sleep</code>. Строки (8) и методы (7) — построитель локаторов и ревизор. Инструменты (17) — JUnit, AssertJ, Gradle, Git.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Чек-лист модуля 18: я умею…</h2>
+    <section class="goals">
+      <h3>Проверь каждый пункт честно</h3>
+      <ul>
+        <li>объяснить, что такое автотест, пирамида тестов и что стоит автоматизировать, а что нет;</li>
+        <li>назвать свойства хорошего автотеста и найти их нарушения в чужом коде;</li>
+        <li>прочитать HTML: теги, атрибуты <code>id</code>, <code>class</code>, <code>data-test-id</code>; найти элемент в DevTools;</li>
+        <li>сам написать CSS-селектор и XPath к элементу и проверить его в DevTools («1 of 1»);</li>
+        <li>отличить стабильный локатор от хрупкого и объяснить почему;</li>
+        <li>прочитать тест на Selenide и рассказать правильными словами, что делает каждая строка: локатор, элемент страницы, действие, проверка состояния; объяснить умные ожидания и вред <code>Thread.sleep</code>;</li>
+        <li>спроектировать Page Object: приватные поля-элементы с локаторами, методы страницы, переходы через тип возвращаемого значения, BasePage и компоненты;</li>
+        <li>описать структуру тестового Gradle-проекта: build.gradle.kts, пакеты, BaseTest, данные, настройки, запуск и отчёт;</li>
+        <li>рассказать, что такое HTTP-запрос, статус-коды и JSON, прочитать тест на REST Assured;</li>
+        <li>написать JUnit 5 + AssertJ тесты с <code>@BeforeEach</code>, параметризацией и граничными значениями — и так, чтобы они ловили баги.</li>
+      </ul>
+    </section>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Большой квиз</h2>
+    <p>Восемь вопросов по всему модулю. Ошибки вернутся в конце — разберись с ними.</p>
+    <div data-widget="check" id="check-m18-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 18 целиком",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини инструмент с его ролью",
+         "left": [
+          "JUnit 5",
+          "AssertJ",
+          "Selenide",
+          "REST Assured"
+         ],
+         "right": [
+          "Запускает тесты, даёт @Test и @BeforeEach",
+          "Проверки assertThat(…).isEqualTo(…)",
+          "Управляет браузером, ждёт элементы",
+          "Отправляет HTTP-запросы и проверяет ответы"
+         ],
+         "why": "Четыре кирпича стека автоматизатора на Java."
+        },
+        {
+         "type": "bug",
+         "q": "Какой локатор сломается первым при правке вёрстки?",
+         "code": "$(\"[data-test-id='checkout']\")\n$(\"#promo\")\n$(\".cart .row:nth-child(2) .col .btn\")\n$(\"input[name='email']\")",
+         "answer": [
+          3
+         ],
+         "why": "Номер строки и длинная цепочка классов: сломается от добавления товара или перестройки блоков."
+        },
+        {
+         "type": "single",
+         "q": "Тест: <code>click()</code>, затем <code>$(\".toast\").shouldHave(text(\"Сохранено\"))</code>. Уведомление появляется через 0,7 с. Что будет?",
+         "options": [
+          "Упадёт сразу",
+          "Пройдёт примерно через 0,8 с",
+          "Пройдёт ровно через 4 с"
+         ],
+         "answer": 1,
+         "why": "Проверка состояния повторяется каждые 200 мс и проходит, как только условие выполнилось."
+        },
+        {
+         "type": "single",
+         "q": "Что должен вернуть метод <code>openCart()</code> в шапке сайта?",
+         "options": [
+          "void",
+          "this — шапку",
+          "CartPage — страницу корзины"
+         ],
+         "answer": 2,
+         "why": "Пользователь оказался в корзине — метод возвращает её объект, и цепочка продолжится методами корзины."
+        },
+        {
+         "type": "predict",
+         "q": "Что напечатает запуск одного теста?",
+         "code": "abstract class BaseTest {\n    @BeforeEach void a() { System.out.print(\"1\"); }\n    @AfterEach  void b() { System.out.print(\"4\"); }\n}\nclass CartTest extends BaseTest {\n    @BeforeEach void c() { System.out.print(\"2\"); }\n    @Test       void t() { System.out.print(\"3\"); }\n}",
+         "answer": "1234",
+         "why": "@BeforeEach родителя → @BeforeEach наследника → тестовый метод → @AfterEach."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "shouldHave(text(\"5\")) пройдёт для счётчика с текстом «15»",
+           "a": true
+          },
+          {
+           "s": "JUnit создаёт новый объект тестового класса для каждого теста",
+           "a": true
+          },
+          {
+           "s": "Ответ 201 означает «создано»",
+           "a": true
+          },
+          {
+           "s": "UI-тестов должно быть больше, чем юнит-тестов",
+           "a": false,
+           "why": "пирамида: UI — узкая верхушка."
+          }
+         ]
+        },
+        {
+         "type": "multi",
+         "q": "Какие проверки нужны, чтобы поймать баг <code>total &gt; 1000</code> вместо <code>total &gt;= 1000</code> в правиле скидки «от 1000»?",
+         "options": [
+          "Сумма 1000",
+          "Сумма 5000",
+          "Сумма 999",
+          "Сумма 300"
+         ],
+         "answer": [
+          0,
+          2
+         ],
+         "why": "Баг живёт на границе: 1000 должна давать скидку, 999 — нет. Значения далеко от границы мутанта не заметят."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><strong>Сделай все задачи.</strong> На <a href="/tasks.html?module=m18">странице практики</a> все семь задач должны быть зелёными — от построителя локаторов до охотника за мутантами.</li>
+      <li><strong>Пройди головоломки</strong> модуля — на экзамене будут похожие.</li>
+      <li><span class="ai-only"><strong>Сделай итоговый проект</strong> по уроку 18.8: свой Gradle-проект с Selenide и Page Object. Его наставник проверяет отдельно, как код-ревью.</span><span class="free-only">Сделай итоговый проект по уроку 18.8: свой Gradle-проект с Selenide и Page Object. Покажи код <span class="ai-name">DeepSeek</span> — как на код-ревью.</span></li>
+      <li><span class="ai-only"><strong>Открой Claude Code в папке курса</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><strong>Будь готов говорить и показывать.</strong> Наставник попросит написать локаторы к куску HTML руками, спроектировать Page Object для описанной страницы, объяснить, почему падает чужой тест, и придумать проверки по требованию.</span><span class="free-only"><strong>Будь готов говорить и показывать.</strong> <span class="ai-name">DeepSeek</span> попросит написать локаторы к куску HTML руками, спроектировать Page Object для описанной страницы, объяснить, почему падает чужой тест, и придумать проверки по требованию.</span></li>
+      <li><span class="ai-only"><strong>Модуль и курс засчитаны</strong>, когда наставник отметит это в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль и курс засчитаны</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p><span class="ai-only">На экзамене не подглядывай в уроки. Не помнишь — так и скажи: наставник подскажет, что перечитать. На настоящем собеседовании честное «не знаю, но вот как я бы выяснил» ценится выше угадывания.</span><span class="free-only">На экзамене не подглядывай в уроки. Не помнишь — так и скажи: <span class="ai-name">DeepSeek</span> подскажет, что перечитать. На настоящем собеседовании честное «не знаю, но вот как я бы выяснил» ценится выше угадывания.</span></p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Напиши: <em>«Давай пробный экзамен по модулю 18 без отметок в progress.md — особенно локаторы руками и Page Object»</em>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что изучать дальше</h2>
+    <p>Курс закончился — учёба нет. Вот куда расти автоматизатору, примерно в порядке пользы:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🗄️</span><h4>SQL</h4><p>SELECT, WHERE, JOIN, GROUP BY. Проверить в базе, что заказ сохранился, или подготовить данные — ежедневная задача.</p></div>
+      <div class="card"><span class="emoji">⚙️</span><h4>CI и Docker</h4><p>Запуск тестов на GitLab CI, Jenkins или GitHub Actions; браузеры в контейнерах (Selenoid, Selenium Grid); параллельный запуск.</p></div>
+      <div class="card"><span class="emoji">📊</span><h4>Allure</h4><p>Шаги, вложения, история прогонов — отчёт, который читает вся команда.</p></div>
+      <div class="card"><span class="emoji">🔌</span><h4>API глубже</h4><p>REST Assured на практике, авторизация и токены, JSON-схемы, Postman-коллекции.</p></div>
+      <div class="card"><span class="emoji">🧠</span><h4>Тест-дизайн</h4><p>Классы эквивалентности, граничные значения, таблицы решений, попарное тестирование — думать, <i>что</i> проверять.</p></div>
+      <div class="card"><span class="emoji">🐧</span><h4>Linux и сети</h4><p>Командная строка, логи сервера, как устроены HTTP и DNS. Полезно, когда тест падает «где-то на стенде».</p></div>
+    </div>
+    <p>Позже можно посмотреть и соседние инструменты: Playwright (другой подход к UI-тестам), Appium (мобильные приложения), Kotlin (язык, на котором тоже пишут тесты). Java-фундамент, который у тебя есть, делает любой из них в разы проще.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Напоследок</h2>
+    <section class="summary">
+      <h2>Ты молодец</h2>
+      <p>Ты начинал с нуля, а теперь умеешь писать на Java, читать чужой код, отлаживать, работать с Git и Gradle и автоматизировать тесты так, как это делают в настоящих командах. Дальше — практика: итоговый проект, своё портфолио на GitHub, первые собеседования. Каждое «не получилось» — это просто следующая задача Мастерской: пойми вход и выход, реши руками, напиши код, проверь.</p>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li>Сделай все семь задач и итоговый проект.</li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и удачи на стажировке! ☕</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и удачи на стажировке! ☕</span></li>
+      </ul>
+    </section>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior и автотестировщику, — с ответами: <a href="/cheatsheet.html#m18">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

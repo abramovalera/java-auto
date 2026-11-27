@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Перебор коллекций и Iterator · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-03">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 13 · Урок 3</div>
+    <h1>Перебор: for-each, индекс и Iterator</h1>
+    <p class="lead">Обойти список — легко. Удалить из него лишнее во время обхода — ловушка, на которой спотыкаются даже опытные: программа падает с <code>ConcurrentModificationException</code> или молча пропускает элементы. Разберёмся, почему и как правильно.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>💥 ConcurrentModificationException</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-03-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Integer x = 127, y = 127;\nInteger p = 300, q = 300;\nSystem.out.println((x == y) + \" \" + (p == q));",
+            "answer": "true false", "why": "127 из кэша — один объект. 300 — два разных объекта, == сравнивает ссылки." },
+          { "type": "single", "q": "Что делает <code>list.remove(2)</code> для <code>List&lt;Integer&gt;</code>?",
+            "options": ["Удаляет число 2", "Удаляет элемент с индексом 2", "Не компилируется"], "answer": 1,
+            "why": "int-аргумент — индекс. Для значения: remove(Integer.valueOf(2))." },
+          { "type": "single", "q": "Какое исключение бросит <code>List.of(1, 2).add(3)</code>?",
+            "options": ["IndexOutOfBoundsException", "UnsupportedOperationException", "NullPointerException"], "answer": 1,
+            "why": "List.of — неизменяемый список." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Три способа обойти список</h2>
+<pre data-file="Loops.java"><code class="java">List&lt;String&gt; links = List.of("Главная", "Каталог", "Корзина");
+
+// 1. По индексу — когда нужен номер элемента
+for (int i = 0; i &lt; links.size(); i++) {
+    System.out.println(i + ": " + links.get(i));
+}
+
+// 2. for-each — когда номер не нужен (чаще всего)
+for (String link : links) {
+    System.out.println(link);
+}
+
+// 3. Iterator — когда во время обхода нужно удалять
+Iterator&lt;String&gt; it = links.iterator();
+while (it.hasNext()) {
+    String link = it.next();
+    System.out.println(link);
+}</code></pre>
+    <p>Первые два ты знаешь по массивам (модуль 6). Только вместо <code>a.length</code> — <code>size()</code>, вместо <code>a[i]</code> — <code>get(i)</code>. for-each работает с <b>любой</b> коллекцией: списком, множеством, очередью. А вот по индексу можно ходить только по списку — у множества номеров нет.</p>
+    <div class="say" data-mood="think"><p>Третий способ выглядит самым громоздким. Но на самом деле for-each — это он и есть: компилятор превращает <code>for (String link : links)</code> ровно в такой цикл с итератором. Запомни это — через минуту пригодится.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Iterator — палец, который ведёт по списку</h2>
+    <p><b>Итератор</b> (от англ. iterate — «повторять, перебирать») — отдельный объект, который умеет проходить коллекцию по одному элементу. У него три метода:</p>
+    <dl class="terms">
+      <dt>hasNext()</dt><dd>«Есть ли ещё элементы впереди?» — true/false. Ничего не сдвигает.</dd>
+      <dt>next()</dt><dd>Шагнуть вперёд и вернуть элемент, через который перешагнул. Если элементов нет — <code>NoSuchElementException</code>.</dd>
+      <dt>remove()</dt><dd>Удалить элемент, который только что вернул <code>next()</code>. Безопасно — итератор сам поправит свою позицию.</dd>
+    </dl>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 190" role="img" aria-label="Итератор стоит между элементами; next перешагивает через элемент и возвращает его">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="60" y="60" width="140" height="50" rx="8" class="d-green"/><text x="130" y="91" text-anchor="middle" class="d-mono-ink">"Главная"</text>
+        <rect x="260" y="60" width="140" height="50" rx="8" class="d-accent"/><text x="330" y="91" text-anchor="middle" class="d-mono-ink">"Каталог"</text>
+        <rect x="460" y="60" width="140" height="50" rx="8" class="d-box"/><text x="530" y="91" text-anchor="middle" class="d-mono-ink">"Корзина"</text>
+        <path d="M230 40 V130" class="d-line"/>
+        <text x="230" y="30" text-anchor="middle" class="d-title">👆 итератор</text>
+        <path d="M236 150 C270 175 390 175 424 150" class="d-arrow"/>
+        <text x="330" y="186" text-anchor="middle" class="d-small">next() перешагнёт «Каталог» и вернёт его</text>
+        <text x="130" y="134" text-anchor="middle" class="d-small">уже пройден</text>
+        <text x="530" y="134" text-anchor="middle" class="d-small">впереди</text>
+        <text x="620" y="30" text-anchor="end" class="d-small">hasNext() = true</text>
+      </svg>
+      <figcaption>Итератор стоит между элементами, как закладка между страницами. next() — перевернуть страницу.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: контролёр в автобусе</span>
+      <p>Контролёр идёт по салону от первого пассажира к последнему. <code>hasNext()</code> — «есть ещё кто-то впереди?», <code>next()</code> — «подойти к следующему», <code>remove()</code> — «высадить того, у кого только что проверил билет». Высаживает сам контролёр — и он точно знает, где остановился.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>💥 ConcurrentModificationException</h2>
+    <p>Задача: убрать из списка отрицательные числа. Первая мысль — for-each и <code>remove</code>:</p>
+<pre data-file="RemoveNegatives.java"><code class="java">List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(List.of(3, -1, 4, -5, 2));
+for (Integer n : nums) {
+    if (n &lt; 0) {
+        nums.remove(n);       // удаляем «в обход» итератора
+    }
+}</code></pre>
+    <p>Запускаем — и программа падает:</p>
+    <div data-widget="ide" id="shot-cme">
+      <script type="application/json">
+      { "tree": false, "file": "RemoveNegatives.java", "runConfig": "RemoveNegatives", "gutterRun": [4, 5], "statusPath": "module-13",
+        "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class RemoveNegatives {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>(List.of(3, -1, 4, -5, 2));\n        for (Integer n : nums) {\n            if (n < 0) {\n                nums.remove(n);\n            }\n        }\n        System.out.println(nums);\n    }\n}",
+        "console": { "title": "RemoveNegatives", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… RemoveNegatives" },
+          { "t": "err", "s": "Exception in thread \"main\" java.util.ConcurrentModificationException" },
+          { "t": "err", "s": "\tat java.base/java.util.ArrayList$Itr.checkForComodification(ArrayList.java:1095)" },
+          { "t": "err", "s": "\tat java.base/java.util.ArrayList$Itr.next(ArrayList.java:1049)" },
+          { "t": "err", "s": "\tat RemoveNegatives.main(RemoveNegatives.java:7)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "side": "bottom", "text": "<b>ConcurrentModificationException</b> — «одновременное изменение». Компилятор ничего не заметил: это ошибка выполнения" },
+                   { "n": 2, "target": "link-2", "text": "Две строки <code>java.base/…</code> — внутренности ArrayList. <code>Itr.next</code> — метод <code>next()</code> скрытого итератора (<code>Itr</code> — его класс), он вызвал <code>checkForComodification</code> — «проверку на изменения», она и бросила исключение" },
+                   { "n": 3, "target": "link-3", "text": "Твоя строка — <b>7</b>, заголовок for-each, а не строка 9 с <code>remove</code>. Удаление прошло тихо, упал следующий шаг цикла, когда итератор сверил счётчик" } ],
+        "caption": "ConcurrentModificationException в консоли Run" }
+      </script>
+    </div>
+    <p><b>Concurrent modification</b> — «одновременное изменение». Почему упало? Вспомни: for-each — это скрытый итератор. Список ведёт счётчик изменений. Итератор при создании запомнил его значение и на каждом <code>next()</code> сверяет: «список менялся без меня?». Мы удалили элемент через <code>nums.remove</code>, в обход итератора, — счётчик не совпал, и итератор честно бросил исключение, чтобы не выдать мусор.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: пересчёт людей в очереди</span>
+      <p>Ты пересчитываешь очередь пальцем: «первый, второй, третий…». Кто-то за твоей спиной ушёл, все сдвинулись. Твой палец теперь указывает не на того человека — пересчёт сломан. Итератор Java замечает такое и громко ругается, вместо того чтобы тихо насчитать неправильно.</p>
+    </div>
+    <p>Правильно — удалять <b>через сам итератор</b>:</p>
+    <div data-widget="parsons" id="parsons-m13-03-iterator" data-code data-title="Удали отрицательные через Iterator" data-icon="🧹"
+         data-hint="Сначала получи итератор, потом цикл «пока есть следующий», внутри — взять элемент и, если он отрицательный, удалить через итератор."
+         data-success="🎉 Верно! it.remove() удаляет элемент, который только что вернул next(), и итератор не сбивается.">
+      <script type="text/plain">
+Iterator<Integer> it = nums.iterator();
+while (it.hasNext()) {
+    Integer n = it.next();
+    if (n < 0) {
+        it.remove();
+    }
+}
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">it.remove() — только после next()</span>
+      <p><code>remove()</code> удаляет то, что вернул последний <code>next()</code>. Вызвать его дважды подряд или до первого <code>next()</code> нельзя — будет <code>IllegalStateException</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Тихая ловушка: удаление в цикле по индексу</h2>
+    <p>«Ладно, — думает новичок, — обойду итератор и пройду по индексу». Исключения не будет. Будет хуже — <b>тихая ошибка</b>. Пройди по шагам:</p>
+    <div data-widget="trace" id="trace-m13-03-skip">
+      <script type="application/json">
+      { "title": "Куда делся −2?",
+        "intro": "Удаляем отрицательные числа циклом по индексу. Следи за i и за тем, какой элемент проверяется.",
+        "code": "List<Integer> nums = new ArrayList<>(List.of(-1, -2, 3));\nfor (int i = 0; i < nums.size(); i++) {\n    if (nums.get(i) < 0) {\n        nums.remove(i);\n    }\n}\nSystem.out.println(nums);",
+        "steps": [
+          { "line": 1, "vars": { "nums": "[-1, -2, 3]" }, "note": "Два отрицательных числа подряд — специально." },
+          { "line": 2, "vars": { "nums": "[-1, -2, 3]", "i": "0" }, "note": "i = 0, 0 &lt; 3 — заходим." },
+          { "line": 3, "vars": { "nums": "[-1, -2, 3]", "i": "0", "nums.get(i)": "-1" }, "note": "Проверяем элемент номер 0: −1 &lt; 0 — да." },
+          { "line": 4, "vars": { "nums": "[-2, 3]", "i": "0" }, "note": "Удалили элемент номер 0. Хвост сдвинулся влево: −2 теперь на месте 0, тройка — на месте 1." },
+          { "line": 2, "vars": { "nums": "[-2, 3]", "i": "1" }, "note": "i++ → 1. Но −2 переехал на место 0, которое мы уже прошли!" },
+          { "line": 3, "vars": { "nums": "[-2, 3]", "i": "1", "nums.get(i)": "3" }, "ask": ["nums.get(i)"], "note": "Элемент номер 1 — это тройка. −2 никто не проверил: его перепрыгнули." },
+          { "line": 2, "vars": { "nums": "[-2, 3]", "i": "2" }, "note": "i = 2, 2 &lt; 2 — ложь. Цикл окончен." },
+          { "line": 7, "vars": { "nums": "[-2, 3]", "i": "—" }, "out": "[-2, 3]\n", "note": "Отрицательное −2 осталось. Ни исключения, ни предупреждения — просто неверный результат." }
+        ] }
+      </script>
+    </div>
+    <p>Два способа починить цикл по индексу:</p>
+    <ul>
+      <li><b>Идти с конца</b>: <code>for (int i = nums.size() - 1; i &gt;= 0; i--)</code>. Удаление сдвигает только элементы <b>правее</b>, а их мы уже проверили.</li>
+      <li>После удаления <b>не увеличивать</b> i (написать <code>i--</code> внутри if). Работает, но читается хуже.</li>
+    </ul>
+    <details class="predict">
+      <summary>Почему проход с конца не пропускает элементы? Проверь на [-1, -2, 3].</summary>
+      <p>i = 2: тройка, оставляем. i = 1: −2, удаляем → [-1, 3]. i = 0: −1, удаляем → [3]. Каждый элемент проверен ровно один раз: сдвигались только те, что мы уже прошли.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: removeIf и «предпоследний элемент»</summary>
+      <p><b>removeIf.</b> В модуле 14 появятся лямбды, и удаление станет одной строкой: <code>nums.removeIf(n -&gt; n &lt; 0);</code>. Внутри — тот же безопасный обход.</p>
+      <p><b>Когда for-each не падает.</b> Если удалить в for-each <b>предпоследний</b> элемент, исключения не будет! После удаления размер уменьшился, и <code>hasNext()</code> (он сравнивает позицию с размером) отвечает «элементов больше нет» — цикл заканчивается раньше, чем <code>next()</code> успеет проверить счётчик. Последний элемент при этом не проверяется вовсе. Это любимый вопрос «со звёздочкой» на собеседованиях — и ещё одна причина никогда так не делать.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-03">
+      <script type="application/json">
+      {
+       "title": "Перебор коллекций — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что будет при запуске?",
+         "code": "List<String> list = new ArrayList<>(List.of(\"a\", \"b\", \"c\", \"d\"));\nfor (String s : list) {\n    if (s.equals(\"a\")) {\n        list.remove(s);\n    }\n}",
+         "options": [
+          "Список станет [b, c, d]",
+          "ConcurrentModificationException",
+          "Ошибка компиляции"
+         ],
+         "answer": 1,
+         "why": "Удалили элемент в обход итератора for-each. На следующем next() итератор заметит изменение и бросит исключение."
+        },
+        {
+         "type": "match",
+         "q": "Соедини метод итератора с его работой",
+         "left": [
+          "hasNext()",
+          "next()",
+          "remove()"
+         ],
+         "right": [
+          "Проверяет, есть ли ещё элементы",
+          "Шагает вперёд и возвращает элемент",
+          "Удаляет элемент, который вернул последний next()"
+         ],
+         "why": "Три метода — весь интерфейс Iterator."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "List<Integer> nums = new ArrayList<>(List.of(4, 4, 5));\nfor (int i = 0; i < nums.size(); i++) {\n    if (nums.get(i) == 4) {\n        nums.remove(i);\n    }\n}\nSystem.out.println(nums);",
+         "answer": "[4, 5]",
+         "why": "Удалили первую четвёрку, вторая сдвинулась на место 0, а i уже стал 1. Вторую четвёрку перепрыгнули. (Сравнение == здесь работает: 4 — маленькое число, и get(i) распаковывается при сравнении с int.)"
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "for-each внутри работает через итератор",
+           "a": true
+          },
+          {
+           "s": "По множеству HashSet можно пройти циклом for (int i …) и get(i)",
+           "a": false,
+           "why": "у множеств нет номеров и метода get. Только for-each или итератор."
+          },
+          {
+           "s": "Удалять элементы во время обхода безопасно через iterator.remove()",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясню своими словами, почему for-each падает при удалении, а цикл по индексу молча пропускает элементы. Поправь меня, если ошибусь»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Обход: по индексу (нужен номер, только List), for-each (чаще всего, любая коллекция), Iterator (нужно удалять).</li>
+        <li>for-each = скрытый итератор. Изменил коллекцию в обход него — <code>ConcurrentModificationException</code>.</li>
+        <li>Удаляй во время обхода через <code>it.remove()</code> — после <code>it.next()</code>.</li>
+        <li>Удаление в цикле по индексу «вперёд» молча перепрыгивает элементы. Иди с конца.</li>
+        <li>В модуле 14: <code>removeIf</code> с лямбдой — то же самое одной строкой.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

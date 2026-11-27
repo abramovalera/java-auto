@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>★ МиниБанк: пополнение с комиссией · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-star">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker star-kicker">Модуль 3 · ★ Проект</div>
+    <h1>★ МиниБанк, шаг 3: пополнение с комиссией</h1>
+    <p class="lead"><b>Обязательное задание для завершения модуля.</b> Клиент хочет положить деньги на счёт. Банк берёт за это комиссию 2%. Посчитаем всё честно — до рубля.</p>
+    <div class="meta"><span>⏱ 40 минут</span><span>★ обязательно</span><span>🧮 арифметика с деньгами</span></div>
+  </header>
+
+  <section class="step">
+    <h2>Перед заданием — освежи</h2>
+    <ul>
+      <li><a href="/lessons/m03/01-arithmetic.html">3.1 Арифметика</a> — целочисленное деление: почему <code>800 / 100 * 2</code> и <code>800 * 2 / 100</code> — не всегда одно и то же;</li>
+      <li><a href="/lessons/m03/03-comparison.html">3.3 Сравнения и boolean</a> — <code>&gt;=</code> и что значит <code>true</code>/<code>false</code>;</li>
+      <li><a href="/lessons/m03/06-math.html">3.6 Класс Math</a> — <code>Math.round</code> и почему он возвращает <code>long</code>;</li>
+      <li><a href="/lessons/m02/06-type-casting.html">2.6 Преобразования типов</a> — <code>(int)</code>, когда из <code>long</code> или <code>double</code> нужен <code>int</code>.</li>
+    </ul>
+  </section>
+
+  <section class="step">
+    <h2>Git на этот раз</h2>
+    <p>Всё как в прошлый раз: новая ветка <code>module-03-deposit</code>, работа, коммит, merge в основную. Если запутался в расчётах и хочешь начать шаг заново — <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd> (Rollback): все несохранённые правки откатятся к последнему коммиту.</p>
+    <div class="cheat">
+      <h3>Шпаргалка: Git на каждый шаг проекта</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Шаг</th><th>В IDEA</th><th>В терминале</th></tr>
+        <tr><td>1. Новая ветка</td><td>Имя ветки → New Branch… → <code>module-03-deposit</code></td><td><code>git switch -c module-03-deposit</code></td></tr>
+        <tr><td>2. Сохраняться по ходу</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd> → Commit</td><td><code>git add .</code> + <code>git commit -m "…"</code></td></tr>
+        <tr><td>Откатить несохранённое</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd></td><td><code>git restore .</code></td></tr>
+        <tr><td>3. В основную ветку</td><td>Имя ветки → main → Checkout</td><td><code>git switch main</code></td></tr>
+        <tr><td>4. Влить работу</td><td>Имя ветки → module-03-deposit → Merge into Current</td><td><code>git merge module-03-deposit</code></td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Задание</h2>
+    <p>Всё, что было в шагах 1 и 2, остаётся. Новый код пишешь <b>ниже</b>, после карточки клиента.</p>
+
+    <h3>1. Спроси сумму пополнения</h3>
+    <p>Тем же сканером: <code>print("Сумма пополнения: ")</code> и прочитай <b>число</b> вызовом метода <code>nextInt()</code>. Объяви переменную, например <code>deposit</code> (тип <code>int</code>), и инициализируй её значением, которое вернёт этот вызов.</p>
+
+    <h3>2. Посчитай — каждое значение в своей переменной</h3>
+    <p>Вспомни «эстафету значений» из урока 2.1: одна переменная считается из другой.</p>
+    <div class="table-wrap"><table>
+      <tr><th>Переменная (пример имени)</th><th>Что в ней</th><th>Как посчитать</th></tr>
+      <tr><td><code>commission</code></td><td>комиссия банка, 2% от суммы, целые рубли</td><td><code>deposit * 0.02</code> → округлить <code>Math.round</code> → привести к <code>int</code></td></tr>
+      <tr><td><code>credited</code></td><td>сколько реально зачислили на счёт</td><td>сумма минус комиссия</td></tr>
+      <tr><td><code>balance</code> (уже есть!)</td><td>новый баланс</td><td>старый баланс плюс зачисленное — переменной присваивается новое значение, вычисленное из старого</td></tr>
+    </table></div>
+    <div class="callout warn">
+      <span class="callout-title">Подвох с округлением</span>
+      <p>2% от 50 ₽ — это 1 ₽, а от 1525 ₽ — 30,5 ₽. Банк округляет по-обычному: 30,5 → 31. Именно так работает <code>Math.round</code>. Но он возвращает <code>long</code>, а у нас <code>int</code> — значит, нужно приведение <code>(int)</code>.</p>
+    </div>
+
+    <h3>3. Выведи итог</h3>
+<pre class="terminal"><span class="out">Сумма пополнения: </span><span class="cmd">800</span>
+<span class="out">Комиссия: 16 ₽
+Зачислено: 784 ₽
+Новый баланс: 1784 ₽
+Хватит на перевод 1500 ₽: true</span></pre>
+    <p>Последняя строка — <b>без <code>if</code></b> (его ещё не было). Это просто <code>boolean</code>-выражение «баланс не меньше 1500», которое Java вычислит в <code>true</code> или <code>false</code>. Не забудь скобки вокруг сравнения внутри склейки — вспомни приоритет операций из урока 3.5.</p>
+
+    <h3>4. Проверь</h3>
+    <p>Сайт подставит разные суммы: 800, 50, 0 и 1525 — проверит и округление, и ноль.</p>
+    <div data-widget="taskcheck" data-task="m03-star"></div>
+
+    <h3>5. Сохрани и влей</h3>
+    <p>Коммит «Пополнение с комиссией» → основная ветка → Merge. Загляни в <kbd>Alt</kbd>+<kbd>9</kbd> → Log: там уже три шага твоего банка.</p>
+    <div class="callout ai">
+      <span class="callout-title">Покажи наставнику</span>
+      <p>Напиши <code>/check m03-star</code>. Наставник спросит, зачем <code>(int)</code> перед <code>Math.round</code> и что выведет программа, если убрать скобки в последней строке.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Застрял? Спроси ИИ</h2>
+    <p class="ai-only">Наставник — <code>/hint m03-star</code>. Или бесплатный ИИ, например <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>:</p>
+    <p class="free-only">Спроси <span class="ai-name">DeepSeek</span>: проси объяснить, а не решить. Ниже — примеры хороших вопросов и кнопка «📋 Скопировать промпт»: в нём уже есть правила учителя, останется дописать свой вопрос.</p>
+    <div class="callout tip free-prompt">
+      <span class="callout-title">Хорошие вопросы к ИИ</span>
+      <p>«Как в Java посчитать 2% от числа и округлить до целого? Объясни, что возвращает <code>Math.round</code> и зачем <code>(int)</code>. Решение задачи не пиши».</p>
+      <p>«Почему <code>"Итог: " + 5 &gt;= 3</code> не компилируется, а со скобками работает?»</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Решение и что дальше</h2>
+    <details class="solution">
+      <summary>🔒 Показать решение — открывай, когда проверка уже зелёная или ты честно попробовал сам</summary>
+<pre data-file="Main.java"><code class="java">import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("==============================");
+        System.out.println("   Добро пожаловать в МиниБанк");
+        System.out.println("==============================");
+        System.out.println("Часы работы: круглосуточно");
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Как вас зовут? ");
+        String name = scanner.nextLine();
+        int balance = 1000;
+
+        System.out.println("Клиент: " + name);
+        System.out.println("Баланс: " + balance + " ₽");
+
+        System.out.print("Сумма пополнения: ");
+        int deposit = scanner.nextInt();
+        int commission = (int) Math.round(deposit * 0.02);
+        int credited = deposit - commission;
+        balance = balance + credited;
+
+        System.out.println("Комиссия: " + commission + " ₽");
+        System.out.println("Зачислено: " + credited + " ₽");
+        System.out.println("Новый баланс: " + balance + " ₽");
+        System.out.println("Хватит на перевод 1500 ₽: " + (balance >= 1500));
+    }
+}</code></pre>
+    </details>
+    <div class="callout ai">
+      <span class="callout-title">Обсуди с ИИ: а как ещё можно?</span>
+      <p>«Вот моё решение. Что будет, если клиент введёт отрицательную сумму? А буквы вместо числа?» — так ты сам найдёшь, что банку не хватает проверок. Их мы добавим в модуле 4 (<code>if</code>) и модуле 12 (исключения).</p>
+      <p>«Почему деньги в настоящих программах не хранят в <code>double</code>?»</p>
+    </div>
+    
+  </section>
+
+</main>
+</body>
+</html>

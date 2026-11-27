@@ -1,0 +1,42 @@
+## id: tr-cond-007
+## title: Зачёт или незачёт
+## file: trainer/cond/CreditTestVerdict.java
+## class: CreditTestVerdict
+## level: 1
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>CreditTestVerdict</code>. За зачётную работу ставят от 0 до 100 баллов, зачёт — от 60 баллов. Программа читает баллы (целое число) и печатает одну строку: <code>Баллы: N — зачёт</code> или <code>Баллы: N — незачёт</code>. Слово выбери тернарным оператором прямо внутри склейки строк.</p>
+<pre class="terminal"><span class="out">ввод:  75
+вывод: Баллы: 75 — зачёт
+
+ввод:  59
+вывод: Баллы: 59 — незачёт</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>тернарный оператор в склейке строк бери в скобки: <code>"…" + (x > 0 ? "да" : "нет")</code></li>
+</ul></div>
+@@ test: Хороший результат
+@@ input
+75
+@@ expect
+Баллы: 75 — зачёт
+@@ test: Ровно 60 — зачёт
+@@ input
+60
+@@ expect
+Баллы: 60 — зачёт
+@@ test: 59 — не хватило балла
+@@ input
+59
+@@ expect
+Баллы: 59 — незачёт
+@@ test: Ноль баллов
+@@ input
+0
+@@ expect
+Баллы: 0 — незачёт
+@@ test: Максимум
+@@ input
+100
+@@ expect
+Баллы: 100 — зачёт
+@@ require: \? | Выбери слово тернарным оператором ? :

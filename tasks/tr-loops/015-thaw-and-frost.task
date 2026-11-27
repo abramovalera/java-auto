@@ -1,0 +1,43 @@
+## id: tr-loops-015
+## title: Оттепель и мороз
+## file: trainer/loops/ThawAndFrostDays.java
+## class: ThawAndFrostDays
+## level: 1
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>ThawAndFrostDays</code>. Метеостанция записала температуру за <code>n</code> дней. В первой строке — <code>n</code> (n ≥ 0), во второй — <code>n</code> целых температур через пробел. Напечатай <code>Тёплых: A, морозных: B</code>: тёплый день — выше нуля, морозный — ниже нуля, ровно ноль не считается ни тем, ни другим.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       3 -2 0 5 -7 1
+вывод: Тёплых: 3, морозных: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>два счётчика: <code>int warm = 0, frosty = 0;</code> — каждый увеличивается в своей ветке <code>if</code></li>
+</ul></div>
+@@ test: Весна
+@@ input
+6
+3 -2 0 5 -7 1
+@@ expect
+Тёплых: 3, морозных: 2
+@@ test: Все нули
+@@ input
+3
+0 0 0
+@@ expect
+Тёплых: 0, морозных: 0
+@@ test: Только морозы
+@@ input
+4
+-1 -15 -30 -2
+@@ expect
+Тёплых: 0, морозных: 4
+@@ test: Один тёплый день
+@@ input
+1
+25
+@@ expect
+Тёплых: 1, морозных: 0
+@@ test: Нет данных
+@@ input
+0
+@@ expect
+Тёплых: 0, морозных: 0

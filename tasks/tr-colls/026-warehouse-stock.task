@@ -1,0 +1,66 @@
+## id: tr-colls-026
+## title: Остаток на складе
+## file: trainer/colls/WarehouseStockQuery.java
+## class: WarehouseStockQuery
+## level: 2
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>WarehouseStockQuery</code>. На склад приходят поставки. В первой строке — количество поставок <code>n</code>, дальше <code>n</code> строк вида <code>товар количество</code> (один товар может приходить несколько раз). В последней строке — товар, о котором спрашивают. Напечатай <code>товар: X</code> — сколько его всего на складе (если не привозили — 0).</p>
+<pre class="terminal"><span class="out">ввод:  4
+       гвозди 100
+       шурупы 50
+       гвозди 25
+       краска 3
+       гвозди
+вывод: гвозди: 125
+
+ввод:  2
+       краска 10
+       кисти 4
+       валики
+вывод: валики: 0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>map.getOrDefault(key, 0)</code> — значение по ключу или 0, если ключа нет</li>
+<li><code>map.put(key, старое + новое)</code> — заменяет значение по ключу суммой</li>
+</ul></div>
+@@ test: Две поставки гвоздей
+@@ input
+4
+гвозди 100
+шурупы 50
+гвозди 25
+краска 3
+гвозди
+@@ expect
+гвозди: 125
+@@ test: Не привозили
+@@ input
+2
+краска 10
+кисти 4
+валики
+@@ expect
+валики: 0
+@@ test: Одна поставка
+@@ input
+1
+доски 12
+доски
+@@ expect
+доски: 12
+@@ test: Три поставки одного
+@@ input
+3
+клей 1
+клей 1
+клей 1
+клей
+@@ expect
+клей: 3
+@@ test: Склад пуст
+@@ input
+0
+гвозди
+@@ expect
+гвозди: 0
+@@ require: getOrDefault | Достань старое количество методом getOrDefault

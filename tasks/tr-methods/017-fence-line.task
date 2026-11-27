@@ -1,0 +1,37 @@
+## id: tr-methods-017
+## title: Забор из символов
+## file: trainer/methods/FenceLineBuilder.java
+## class: FenceLineBuilder
+## level: 1
+## category: Строки и печать
+@@ description
+<p>Рисуем забор между двумя столбами <code>|</code>. Создай класс <code>FenceLineBuilder</code> и напиши метод <code>static String buildLine(char symbol, int length)</code>: он возвращает строку из <code>length</code> одинаковых символов <code>symbol</code> (при <code>length = 0</code> — пустую строку). Метод ничего не печатает.</p>
+<p>main читает символ и длину через пробел и печатает забор: столб, строку от метода и ещё один столб.</p>
+<pre class="terminal"><span class="out">ввод:  # 5     вывод: |#####|
+ввод:  - 0     вывод: ||</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next().charAt(0)</code> — читает слово и берёт из него первый символ</li>
+<li><code>line = line + symbol;</code> — приклеивает символ к концу строки</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+# 5
+@@ expect
+|#####|
+@@ test: Одна доска
+@@ input
+= 1
+@@ expect
+|=|
+@@ test: Пустой забор
+@@ input
+- 0
+@@ expect
+||
+@@ test: Длинный забор
+@@ input
+* 12
+@@ expect
+|************|
+@@ require: static\s+String\s+buildLine\s*\(\s*char\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static String buildLine(char symbol, int length)
+@@ require: \WbuildLine\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать buildLine(...) и напечатать результат

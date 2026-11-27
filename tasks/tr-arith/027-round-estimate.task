@@ -1,0 +1,45 @@
+## id: tr-arith-027
+## title: Смета до сотен
+## file: trainer/arith/RoundEstimateToHundreds.java
+## class: RoundEstimateToHundreds
+## level: 2
+## category: Math и округление
+@@ description
+<p>Мастер по ремонту называет клиенту примерную стоимость — округлённую до сотен рублей по правилам математики (от 50 и выше — вверх). Создай класс <code>RoundEstimateToHundreds</code>. Программа читает точную сумму (целое неотрицательное число) и печатает округлённую.</p>
+<pre class="terminal"><span class="out">ввод:  1249    вывод: Около 1200 руб.
+ввод:  1250    вывод: Около 1300 руб.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.round(x)</code> — округляет дробное число до ближайшего целого (половина — вверх)</li>
+<li>Чтобы округлить до сотен, сумму сначала делят на <code>100.0</code>, а после округления умножают на 100</li>
+</ul></div>
+@@ test: Вниз
+@@ input
+1249
+@@ expect
+Около 1200 руб.
+@@ test: Ровно половина — вверх
+@@ input
+1250
+@@ expect
+Около 1300 руб.
+@@ test: Почти сотня сверху
+@@ input
+1299
+@@ expect
+Около 1300 руб.
+@@ test: Меньше полусотни
+@@ input
+49
+@@ expect
+Около 0 руб.
+@@ test: Ровно полсотни
+@@ input
+50
+@@ expect
+Около 100 руб.
+@@ test: Бесплатно
+@@ input
+0
+@@ expect
+Около 0 руб.
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — округли арифметикой

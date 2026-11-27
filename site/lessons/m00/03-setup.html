@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Подготовка: ставим всё с нуля · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m00-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Вводная · Урок 3</div>
+    <h1>Подготовка: ставим всё с нуля</h1>
+    <p class="lead">Прежде чем писать код, готовим рабочее место: ставим IntelliJ IDEA, открываем в ней папку курса и скачиваем Java. В конце — чек-лист: сайт сам проверит, что всё готово.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🛠 установка</span><span>✅ чек-лист с автопроверкой</span><span>🖼 со скринами</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Что понадобится</h2>
+    <p>Представим, что на компьютере ничего нет. Вот всё, что нужно для курса, и где мы это возьмём:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что</th><th>Зачем</th><th>Где взять</th></tr>
+        <tr><td>Сайт курса</td><td>уроки, мини-игры, кнопка «Проверить» у задач</td><td>✅ уже работает — ты его читаешь</td></tr>
+        <tr><td>IntelliJ IDEA</td><td>программа, в которой ты пишешь и запускаешь код</td><td>ставим в шаге 3</td></tr>
+        <tr><td>Папка <code>workspace</code></td><td>твой учебный проект: сюда ты пишешь решения</td><td>уже есть в папке курса, откроем в шаге 5</td></tr>
+        <tr><td>Java (JDK 21)</td><td>без неё код не скомпилируется и не запустится</td><td>скачаем прямо из IDEA в шаге 6</td></tr>
+        <tr class="ai-only"><td><span class="ai-only">ИИ-наставник</span><span class="free-only">ИИ-<span class="ai-name">DeepSeek</span></span></td><td>объясняет, подсказывает, принимает экзамены</td><td>Claude Code — как его открыть, было в уроке 0.1</td></tr>
+        <tr class="free-only"><td>ИИ-помощник</td><td>объясняет и подсказывает</td><td><span class="ai-name">DeepSeek</span> — в уроках будут готовые промпты</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Главное правило подготовки</span>
+      <p>Решения задач пишутся только в проекте <code>workspace</code>. Сайт проверяет файлы именно в этой папке. Напишешь код в другом проекте — проверка ответит «Файл не найден».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+<section class="step">
+    <h2>Что такое IDE и зачем она нужна</h2>
+    <p>Код можно писать хоть в Блокноте — это обычный текст. Но программисты работают в <b>IDE</b> (Integrated Development Environment, «среда разработки»). Мы будем использовать самую популярную для Java — <b>IntelliJ IDEA</b>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия</span>
+      <p>Блокнот — это лист бумаги и ручка. IDE — мастерская: верстак, инструменты на стене, линейка, которая сама подсказывает размер, и мастер, который заранее говорит: «тут криво, переделай».</p>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">🎨</span><h4>Подсвечивает код</h4><p>Слова разных видов — разным цветом. Читать в разы легче.</p></div>
+      <div class="card"><span class="emoji">🔴</span><h4>Видит ошибки сразу</h4><p>Подчёркивает их красным ещё до запуска — пока ты печатаешь.</p></div>
+      <div class="card"><span class="emoji">💬</span><h4>Подсказывает</h4><p>Начал печатать — она предлагает, как закончить.</p></div>
+      <div class="card"><span class="emoji">▶️</span><h4>Запускает одной кнопкой</h4><p>Зелёный треугольник ▶ — и программа запущена. Что при этом происходит внутри, разберём в уроке 1.2.</p></div>
+    </div>
+    <div class="say" data-mood="cool"><p>И главное: IDEA сама умеет скачать Java. Так что поставим одну программу — и всё готово.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+<section class="step">
+    <h2>Скачиваем и ставим IntelliJ IDEA</h2>
+    <ol class="steps">
+      <li>Открой <a href="https://www.jetbrains.com/idea/download/" target="_blank" rel="noopener">jetbrains.com/idea/download</a> и скачай IntelliJ IDEA для своей системы (Windows или macOS). <b>Платить ничего не нужно</b>: бесплатных возможностей хватит на весь курс. Если предложат пробный период платных функций — можно отказаться.</li>
+      <li><b>Windows:</b> запусти скачанный установщик, жми «Next». На экране настроек полезно отметить ярлык на рабочем столе и связь с файлами <code>.java</code>. <b>macOS:</b> открой файл <code>.dmg</code> и перетащи IDEA в папку «Программы».</li>
+      <li>Запусти IDEA. При первом запуске она может спросить про тему оформления и импорт настроек — выбирай, что нравится.</li>
+    </ol>
+    <div class="callout tip">
+      <span class="callout-title">Язык интерфейса</span>
+      <p>Оставь интерфейс на английском. Во всех статьях и видео пункты меню называются по-английски — и в этом курсе тоже. Так проще находить нужное.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Где лежит папка курса</h2>
+    <p>Курс — это папка <code>java-course</code> на твоём компьютере. Внутри неё лежит <code>workspace</code> — твой учебный проект. Сайт знает, где она, и показывает путь:</p>
+    <div class="setup-path" id="setup-path">
+      <span class="sp-label">Твоя папка <code>workspace</code>:</span>
+      <code class="sp-value">определяю…</code>
+      <button class="btn small green sp-copy" hidden>📋 Скопировать путь</button>
+    </div>
+    <p class="sp-real" hidden>Это <b>настоящий</b> путь на твоём компьютере, поэтому он может не совпадать с примерами в уроках. <code class="sp-user"></code> — имя твоей учётной записи Windows, под ней лежат все твои папки.</p>
+    <p class="sp-help" hidden>Не получилось определить автоматически. Обычно папка курса лежит в <code>C:\Users\ТВОЁ_ИМЯ\IdeaProjects\java-course</code>, а <code>workspace</code> — внутри неё. Найти точно: открой Проводник, в строке поиска справа вверху напиши <code>java-course</code> и дождись результата.</p>
+    <p>Скопируй путь — он понадобится в следующем шаге. Остальные папки рядом с <code>workspace</code> — устройство курса, их не трогай.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step" id="open-workspace">
+    <h2>Открываем workspace в IDEA</h2>
+    <p>Смотря что ты видишь после запуска IDEA — один из двух вариантов. Дальше они сходятся в одно окно выбора папки.</p>
+
+    <h3>Вариант А: стартовое окно IDEA</h3>
+    <p>Если ни один проект не открыт, IDEA показывает приветствие:</p>
+<div data-widget="ide" id="shot-welcome">
+      <script type="application/json">
+      { "welcome": "Open",
+        "marks": [ { "n": 1, "target": "welcome-Open", "side": "top", "text": "<b>Open</b> — «открыть». Нажми сюда и выбери папку <code>workspace</code> внутри папки курса" },
+                   { "n": 2, "target": "welcome-New Project", "side": "top", "text": "<b>New Project</b> — создать новый пустой проект. Сейчас не нужно: проект уже есть, его надо только открыть" },
+                   { "n": 3, "target": "welcome-Clone Repository", "side": "top", "text": "<b>Clone Repository</b> — скачать проект из Git (это «облако» для кода). Тоже пока не трогаем" } ],
+        "caption": "Стартовый экран IntelliJ IDEA: он появляется, когда ни один проект не открыт. Если IDEA сразу открыла какой-то проект — то же самое делается через меню <b>File → Open…</b>" }
+      </script>
+    </div>
+    <p>Нажми <b>Open</b> — откроется окно выбора папки (оно чуть ниже).</p>
+
+    <h3>Вариант Б: в IDEA уже открыт другой проект</h3>
+    <p>Например, ты раньше создавал свой проект, и IDEA открыла его. Ничего не закрывай — откроем <code>workspace</code> рядом, в новом окне. Нажми <b>☰</b> слева вверху → <b>File</b> → <b>Open…</b>:</p>
+    <div data-widget="ide" id="shot-file-open">
+      <script type="application/json">
+      { "project": "MyFirstProject", "statusPath": "src",
+        "tree": [ { "name": "MyFirstProject", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "src", "depth": 1, "open": true },
+                  { "name": "Main", "type": "class", "depth": 2 } ],
+        "menu": { "at": "main-menu", "items": ["File ›", "Edit ›", "View ›", "Navigate ›", "Code ›", "Refactor ›", "Build ›", "Run ›", "Tools ›", "Git ›", "Window ›", "Help ›"], "hl": "File",
+                  "sub": { "items": ["New ›", "Open…", "Recent Projects ›", "Close Project", "-", "Settings…\tCtrl+Alt+S", "Project Structure…\tCtrl+Alt+Shift+S", "-", "Exit"], "hl": "Open…" } },
+        "marks": [ { "n": 1, "target": "main-menu", "text": "<b>☰</b> — главное меню IDEA. В новых версиях оно спрятано за этой кнопкой слева вверху" },
+                   { "n": 2, "target": "menu", "side": "left", "text": "Наведи на <b>File</b> — «файл»" },
+                   { "n": 3, "target": "submenu", "text": "<b>Open…</b> — «открыть». Не <b>New</b>: новый проект для уроков не нужен" } ],
+        "caption": "Уже открыт другой проект: ☰ → File → Open…" }
+      </script>
+    </div>
+
+    <h3>Окно выбора папки</h3>
+    <p>Оба варианта ведут сюда. Проще всего не искать папку мышкой, а вставить путь из шага 4:</p>
+    <div data-widget="ide" id="shot-open-dialog">
+      <script type="application/json">
+      { "tree": false, "project": "workspace",
+        "dialog": { "title": "Open File or Project",
+                    "rows": [ { "label": "Path", "value": "C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace", "hl": true },
+                              { "label": "Folder", "value": "📁 java-course  ›  📁 workspace", "type": "text" } ],
+                    "note": "Hide path ⌃",
+                    "buttons": ["OK", "Cancel"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "field-Path", "text": "Строка пути вверху окна. Щёлкни в неё, выдели всё (<kbd>Ctrl</kbd>+<kbd>A</kbd>) и вставь свой путь (<kbd>Ctrl</kbd>+<kbd>V</kbd>). Строки не видно — нажми <b>Show path</b> над деревом папок" },
+                   { "n": 2, "target": "field-Folder", "text": "Ниже, в дереве, должна выделиться папка <b>workspace</b> — не <code>java-course</code> и не <code>module-01</code>" },
+                   { "n": 3, "target": "btn-OK", "side": "top", "text": "<b>OK</b> — открыть" } ],
+        "caption": "Окно Open: вставь путь к workspace и нажми OK" }
+      </script>
+    </div>
+
+    <h3>Два вопроса IDEA</h3>
+    <p>Первый — доверяешь ли ты этой папке. Это твоя папка курса, так что да:</p>
+    <div data-widget="ide" id="shot-trust">
+      <script type="application/json">
+      { "tree": false, "project": "workspace",
+        "dialog": { "title": "Trust and Open Project 'workspace'?",
+                    "rows": [ { "label": "", "value": "IntelliJ IDEA может запускать код из этой папки. Открывай только проекты, которым доверяешь.", "type": "text" } ],
+                    "buttons": ["Trust Project", "Preview in Safe Mode", "Don't Open"], "primary": "Trust Project" },
+        "marks": [ { "n": 1, "target": "btn-Trust Project", "side": "top", "text": "<b>Trust Project</b> — «доверять». Без этого IDEA не будет запускать код" },
+                   { "n": 2, "target": "btn-Preview in Safe Mode", "side": "top", "text": "«Безопасный просмотр» — код не запустится. Не выбирай" } ],
+        "caption": "IDEA спрашивает, доверяешь ли ты проекту (окно на английском, мы показали смысл)" }
+      </script>
+    </div>
+    <p>Второй вопрос появится, только если был открыт другой проект (вариант Б):</p>
+    <div data-widget="ide" id="shot-new-window">
+      <script type="application/json">
+      { "tree": false, "project": "MyFirstProject", "statusPath": "src",
+        "dialog": { "title": "Open Project",
+                    "rows": [ { "label": "", "value": "Where would you like to open the project?", "type": "text" } ],
+                    "buttons": ["This Window", "New Window", "Cancel"], "primary": "New Window" },
+        "marks": [ { "n": 1, "target": "btn-New Window", "side": "top", "text": "<b>New Window</b> — открыть в новом окне. Старый проект останется в своём окне" },
+                   { "n": 2, "target": "btn-This Window", "side": "top", "text": "<b>This Window</b> — закроет старый проект и откроет workspace на его месте. Тоже можно, если старый не нужен" } ],
+        "caption": "Где открыть: в этом окне или в новом" }
+      </script>
+    </div>
+    <p>Готово: слева дерево с папкой <code>workspace</code>, в ней синие папки <code>module-01</code> … <code>module-18</code> и <code>training</code>. В следующий раз IDEA сама откроет последний проект. А если откроется другой — <b>☰ → File → Recent Projects → workspace</b>.</p>
+    <div class="callout warn">
+      <span class="callout-title">Не создавай свой проект для уроков</span>
+      <p>Кнопка <b>New Project</b> создаёт пустой проект в другой папке. Сайт его не видит, и проверка задач скажет «Файл не найден». Свой проект понадобится позже, в ★-задании модуля 1, — там будет отдельная инструкция.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+<section class="step">
+    <h2>Скачиваем Java прямо из IDEA</h2>
+    <p>Чтобы писать программы на Java, нужен <b>JDK</b> (Java Development Kit) — набор инструментов программиста. Что у него внутри, разберём в уроке 1.2, а сейчас просто скачаем: IDEA сделает это сама.</p>
+    <p>Иногда IDEA уже сама подставила Java, если она есть на компьютере. Тогда в поле <b>SDK</b> будет не <code>&lt;No SDK&gt;</code>, а номер версии. 21 или больше — ничего качать не нужно, переходи к проверке.</p>
+    <p>Открой окно <b>Project Structure</b>: меню <b>File → Project Structure…</b> (или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Слева выбери пункт <b>Project</b>. Окно выглядит так:</p>
+    <div data-widget="ide" id="shot-project-structure">
+      <script type="application/json">
+      { "project": "workspace",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "folder", "depth": 1, "open": true },
+                  { "name": "FixMe.java", "type": "file", "depth": 2 },
+                  { "name": "README.md", "type": "file", "depth": 1 } ],
+        "dialog": { "title": "Project Structure",
+                    "side": ["Project", "Modules", "Libraries", "Facets", "Artifacts", "SDKs", "Global Libraries", "Problems"], "sideHl": "Project",
+                    "rows": [ { "label": "Name:", "value": "workspace" },
+                              { "label": "SDK:", "value": "<No SDK>", "type": "select", "hl": true },
+                              { "label": "Language level:", "value": "SDK default", "type": "select" },
+                              { "label": "Compiler output:", "value": "C:\\Users\\Misha\\java-course\\workspace\\out" } ],
+                    "buttons": ["OK", "Cancel", "Apply"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "dialog", "side": "top", "text": "Окно <b>Project Structure</b> («устройство проекта»): <b>File → Project Structure…</b> или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>. Слева должен быть выбран пункт <b>Project</b>" },
+                   { "n": 2, "target": "field-SDK:", "text": "<b>&lt;No SDK&gt;</b> — Java для проекта ещё не выбрана. Щёлкни по списку → <b>Add SDK</b> → <b>Download JDK…</b>" },
+                   { "n": 3, "target": "field-Language level:", "text": "<b>Language level</b> — какой версии Java пишем код. Подходят оба варианта: <b>SDK default</b> («как у выбранного JDK» — после скачивания это и будет 21) или прямо <b>21</b>. Менять не обязательно" },
+                   { "n": 4, "target": "btn-OK", "side": "top", "text": "В самом конце — <b>OK</b>, чтобы сохранить настройки" } ],
+        "caption": "Project Structure до настройки: SDK не выбран" }
+      </script>
+    </div>
+    <p>Щёлкни по выпадающему списку <b>SDK</b> в этом окне (там, где написано <code>&lt;No SDK&gt;</code>, выноска 2) и выбери <b>Add SDK → Download JDK…</b> — откроется маленькое окно загрузки:</p>
+    <div data-widget="ide" id="shot-download-jdk">
+      <script type="application/json">
+      { "project": "workspace",
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-01", "type": "folder", "depth": 1, "open": true },
+                  { "name": "FixMe.java", "type": "file", "depth": 2 },
+                  { "name": "README.md", "type": "file", "depth": 1 } ],
+        "dialog": { "title": "Download JDK",
+                    "rows": [ { "label": "Version:", "value": "21", "type": "select", "hl": true },
+                              { "label": "Vendor:", "value": "Eclipse Temurin", "type": "select", "hl": true },
+                              { "label": "Location:", "value": "C:\\Users\\Misha\\.jdks\\temurin-21" } ],
+                    "buttons": ["Download", "Cancel"], "primary": "Download" },
+        "marks": [ { "n": 1, "target": "field-Version:", "text": "<b>Version</b> — версия Java. Выбери <b>21</b>" },
+                   { "n": 2, "target": "field-Vendor:", "text": "<b>Vendor</b> — кто собрал JDK. Выбери <b>Eclipse Temurin</b>: бесплатный и самый популярный" },
+                   { "n": 3, "target": "field-Location:", "text": "<b>Location</b> — куда положить JDK. Оставь как предлагает IDEA (папка <code>.jdks</code> в твоей папке пользователя)" },
+                   { "n": 4, "target": "btn-Download", "side": "top", "text": "<b>Download</b> — скачать. Ход загрузки виден внизу окна IDEA, это пара минут" } ],
+        "caption": "Окно Download JDK. В пути IDEA часто пишет и точный номер версии (например, <code>temurin-21.0.5</code>) — цифры у тебя могут отличаться, это нормально" }
+      </script>
+    </div>
+    <p>Ещё раз всё по шагам:</p>
+    <ol class="steps">
+      <li>Открой <b>File → Project Structure…</b> (или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Слева выбери <b>Project</b>.</li>
+      <li>В поле <b>SDK</b> раскрой список → <b>Add SDK</b> → <b>Download JDK…</b></li>
+      <li>В окне выбери <b>Version: 21</b> и <b>Vendor: Eclipse Temurin</b>. Нажми <b>Download</b> — IDEA скачает Java (пару минут).</li>
+      <li>Взгляни на <b>Language level</b>: там <b>SDK default</b> или <b>21</b> — оба варианта верные. Нажми <b>OK</b>.</li>
+    </ol>
+    <div class="say" data-mood="happy"><p>Готово: на твоём компьютере теперь есть настоящий JDK. Просто ставила его IDEA, а не ты руками.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step" id="setup-check">
+    <h2>Проверь подготовку</h2>
+    <p>Сайт заглянет в папку <code>workspace</code> и проверит, что IDEA её открыла и выбрала Java. Ставить галочки самому не нужно — нажми кнопку.</p>
+    <div class="setup-check">
+      <ul class="sc-list">
+        <li data-k="site"><span class="sc-ico">✅</span><span>Сайт курса работает</span></li>
+        <li data-k="path"><span class="sc-ico">⏳</span><span>Папка <code>workspace</code> найдена <small class="sc-note"></small></span></li>
+        <li data-k="idea"><span class="sc-ico">⏳</span><span>IntelliJ IDEA открыла <code>workspace</code> <small class="sc-note"></small></span></li>
+        <li data-k="jdk"><span class="sc-ico">⏳</span><span>Выбрана Java (JDK 21 или новее) <small class="sc-note"></small></span></li>
+        <li data-k="folders"><span class="sc-ico">⏳</span><span>Папки модулей на месте <small class="sc-note"></small></span></li>
+      </ul>
+      <button class="btn green sc-run">Проверить подготовку</button>
+      <p class="sc-result" hidden></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Если что-то пошло не так</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что видишь</th><th>Что делать</th></tr>
+        <tr><td>Проверка: «IDEA ещё не открывала workspace»</td><td>Открой папку по шагу 5. Открыл, а проверка всё равно красная — закрой IDEA и открой снова: IDEA записывает свои настройки при открытии проекта.</td></tr>
+        <tr><td>Проверка: «Java не выбрана»</td><td>Шаг 6: Project Structure → SDK → Download JDK.</td></tr>
+        <tr><td>Жёлтая полоска «Project JDK is not defined» или «Setup SDK»</td><td>JDK не выбран. Нажми на ссылку в полоске или повтори шаг 6.</td></tr>
+        <tr><td>Слева в дереве не <code>workspace</code>, а другое название</td><td>Открыт другой проект. Шаг 5, вариант Б.</td></tr>
+        <tr><td>На странице задачи «Файл не найден», хотя файл создан</td><td>Файл создан не в том проекте. Проверь, что слева в IDEA <code>workspace</code>, а файл лежит в папке модуля из условия.</td></tr>
+        <tr><td>Download JDK не скачивается</td><td>Проверь интернет и попробуй ещё раз через пару минут.</td></tr>
+      </table>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Застрял на подготовке</span>
+      <p>Напиши: <em>«Готовлю IntelliJ IDEA по уроку 0.3 курса «Java с нуля», на шаге … вижу вот это: …»</em> — и приложи скриншот экрана.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Нужны две вещи: IntelliJ IDEA и Java (JDK 21), Java качаем прямо из IDEA.</li>
+        <li>Учебный проект — папка <code>workspace</code> в папке курса. Открываем: Open (или ☰ → File → Open…) → путь → OK → Trust Project.</li>
+        <li>Свой проект для уроков не создаём: сайт проверяет только <code>workspace</code>.</li>
+        <li>Всё ли готово — показывает кнопка «Проверить подготовку».</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+<script>
+// Шаги 4 и 7: путь к workspace на этом компьютере и проверка подготовки (сервер: GET /api/setup)
+(() => {
+  const $ = (s) => document.querySelector(s);
+  async function load() {
+    try { const r = await fetch("/api/setup"); if (r.ok) return await r.json(); } catch (e) { /* сервер недоступен */ }
+    return null;
+  }
+  function showPath(s) {
+    const box = $("#setup-path"); if (!box) return;
+    const val = box.querySelector(".sp-value"), btn = box.querySelector(".sp-copy");
+    if (s && s.hostPath) {
+      val.textContent = s.hostPath; btn.hidden = false;
+      const u = /^[A-Za-z]:\\Users\\([^\\]+)\\/.exec(s.hostPath);
+      if (u) { document.querySelector(".sp-user").textContent = u[1]; document.querySelector(".sp-real").hidden = false; }
+      btn.onclick = async () => {
+        try { await navigator.clipboard.writeText(s.hostPath); btn.textContent = "✓ Скопировано"; }
+        catch (e) { btn.textContent = "Выдели путь мышкой и нажми Ctrl+C"; }
+        setTimeout(() => { btn.textContent = "📋 Скопировать путь"; }, 2500);
+      };
+    } else {
+      val.textContent = "не удалось определить";
+      document.querySelector(".sp-help").hidden = false;
+    }
+  }
+  const jdkVersion = (name) => { const m = String(name || "").match(/(\d+)/); return m ? +m[1] : 0; };
+  function showCheck(s) {
+    const set = (k, ok, note) => {
+      const li = document.querySelector(`.sc-list li[data-k="${k}"]`); if (!li) return;
+      li.querySelector(".sc-ico").textContent = ok === true ? "✅" : ok === false ? "❌" : "⚠️";
+      li.classList.toggle("bad", ok !== true);
+      const n = li.querySelector(".sc-note"); if (n) n.textContent = note || "";
+    };
+    if (!s) { ["path", "idea", "jdk", "folders"].forEach((k) => set(k, null, "сервер курса не ответил — проверь, что Docker запущен")); return false; }
+    set("path", !!s.hostPath, s.hostPath || "путь не определился, но папка есть — найди её по подсказке в шаге 4");
+    set("idea", s.ideaOpened, s.ideaOpened ? "" : "IDEA ещё не открывала workspace — шаг 5");
+    const v = jdkVersion(s.jdk);
+    set("jdk", s.jdk ? v >= 21 : false, s.jdk ? (v >= 21 ? `JDK ${s.jdk}` : `JDK ${s.jdk} — старовата, нужна 21 или новее (шаг 6)`) : "Java не выбрана — шаг 6");
+    set("folders", s.moduleFolders >= 18, `${s.moduleFolders} из 18`);
+    return s.ideaOpened && s.jdk && v >= 21 && s.moduleFolders >= 18;
+  }
+  document.addEventListener("DOMContentLoaded", async () => {
+    showPath(await load());
+    const run = $(".sc-run"), res = $(".sc-result");
+    if (run) run.addEventListener("click", async () => {
+      run.disabled = true; run.textContent = "Проверяю…";
+      const ok = showCheck(await load());
+      run.disabled = false; run.textContent = "Проверить ещё раз";
+      res.hidden = false;
+      res.className = "sc-result " + (ok ? "ok" : "bad");
+      res.textContent = ok ? "🎉 Всё готово! Можно начинать — дальше модуль 1." : "Почти: исправь пункты с ❌ и нажми «Проверить ещё раз».";
+    });
+  });
+})();
+</script>
+</body>
+</html>

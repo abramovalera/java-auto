@@ -1,0 +1,42 @@
+## id: tr-arith-008
+## title: Лифт на нечётные этажи
+## file: trainer/arith/OddFloorElevator.java
+## class: OddFloorElevator
+## level: 1
+## category: Логика: true/false
+@@ description
+<p>В высотке один из лифтов останавливается только на нечётных этажах — в том числе на подземных парковках <code>-1</code> и <code>-3</code>. Создай класс <code>OddFloorElevator</code>. Программа читает номер этажа (целое число, может быть отрицательным) и печатает <code>true</code>, если лифт там останавливается, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  7       вывод: true
+ввод:  -1      вывод: true
+ввод:  4       вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 2</code> — остаток от деления на 2: у чётных он равен 0</li>
+<li>У отрицательного числа остаток тоже отрицательный: <code>-7 % 2</code> равно <code>-1</code>, а не <code>1</code></li>
+</ul></div>
+@@ test: Нечётный этаж
+@@ input
+7
+@@ expect
+true
+@@ test: Чётный этаж
+@@ input
+4
+@@ expect
+false
+@@ test: Парковка -1
+@@ input
+-1
+@@ expect
+true
+@@ test: Парковка -2
+@@ input
+-2
+@@ expect
+false
+@@ test: Нулевой этаж
+@@ input
+0
+@@ expect
+false
+@@ require: % | Чётность проверяется остатком от деления — оператором %
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

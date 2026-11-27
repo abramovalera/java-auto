@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m01-09">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 1 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Ты прошёл путь от «что такое Java» до своих первых программ и умения читать ошибки. Соберём всё в одну картинку, проверим себя — и вперёд, на экзамен к наставнику.</span><span class="free-only">Ты прошёл путь от «что такое Java» до своих первых программ и умения читать ошибки. Соберём всё в одну картинку, проверим себя — и вперёд, на экзамен к <span class="ai-name">DeepSeek</span>.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <p>Всё, что ты узнал, — на одной схеме. Пройдись по каждому блоку и вспомни, что за ним стоит.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 1: что такое Java, как работает, инструменты, анатомия, вывод, ошибки">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">☕ Что такое Java</text>
+        <text x="56" y="80" class="d-small">язык с 1995 года</text>
+        <text x="56" y="100" class="d-small">бэкенд, банки, Android</text>
+        <text x="56" y="120" class="d-small">ООП, сам чистит память</text>
+
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">⚙️ Как работает</text>
+        <text x="526" y="80" class="d-small">.java → javac → .class</text>
+        <text x="526" y="100" class="d-small">байт-код выполняет JVM</text>
+        <text x="526" y="120" class="d-small">JDK ⊃ JRE ⊃ JVM</text>
+
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-yellow"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">🧰 Инструменты</text>
+        <text x="26" y="230" class="d-small">IntelliJ IDEA, JDK 21</text>
+        <text x="26" y="250" class="d-small">кнопка ▶, Sources Root</text>
+
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-violet"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">🦴 Анатомия</text>
+        <text x="556" y="230" class="d-small">class, main, { }</text>
+        <text x="556" y="250" class="d-small">; регистр, имя = файл</text>
+
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-green"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">🖨️ Вывод</text>
+        <text x="56" y="370" class="d-small">print и println</text>
+        <text x="56" y="390" class="d-small">\n  \t  \"  \\</text>
+        <text x="56" y="410" class="d-small">+ склейка, (скобки)</text>
+
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-red"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🐞 Ошибки</text>
+        <text x="526" y="370" class="d-small">компиляции, выполнения,</text>
+        <text x="526" y="390" class="d-small">логические</text>
+        <text x="526" y="410" class="d-small">файл:строка: описание ^</text>
+
+        <ellipse cx="380" cy="220" rx="118" ry="50" class="d-accent"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 1</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Знакомство с Java</text>
+      </svg>
+      <figcaption>Если про какой-то блок сказать нечего — вернись к уроку в меню слева.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Совсем недавно код выглядел как набор непонятных символов. А теперь ты знаешь, что такое JVM и байт-код, пишешь программы руками и не боишься красного текста. С этого начинали все Java-разработчики!</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>объяснить своими словами, что такое Java и где её используют;</li>
+        <li>рассказать путь программы: <code>.java</code> → <code>javac</code> → <code>.class</code> → JVM — и что происходит на каждом шаге;</li>
+        <li>объяснить разницу между JDK, JRE и JVM и почему Java работает на любой системе;</li>
+        <li>установить IntelliJ IDEA, скачать в ней JDK 21 и пометить папку как Sources Root;</li>
+        <li>создать класс, запустить его кнопкой ▶ — и объяснить, что эта кнопка делает под капотом;</li>
+        <li>написать программу с нуля, не подглядывая: объявление класса, метод <code>main</code>, инструкция вывода;</li>
+        <li>объяснить, зачем нужны <code>{ }</code>, <code>;</code>, кавычки у строковых литералов и почему имя файла совпадает с именем класса;</li>
+        <li>выводить текст через <code>print</code>/<code>println</code>, со спецсимволами и склейкой — и не попадаться в ловушку «2 + 2 = 22»;</li>
+        <li>прочитать сообщение компилятора и найти ошибку по номеру строки.</li>
+      </ul>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Честная самопроверка</span>
+      <p><span class="ai-only">На каждый пункт спроси себя: «Смогу ли я показать или объяснить это прямо сейчас, без подсказок?» Сомневаешься — это нормально: перечитай урок. Наставник на экзамене спросит про каждый пункт.</span><span class="free-only">На каждый пункт спроси себя: «Смогу ли я показать или объяснить это прямо сейчас, без подсказок?» Сомневаешься — это нормально: перечитай урок. <span class="ai-name">DeepSeek</span> на экзамене спросит про каждый пункт.</span></p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <p>Девять заданий по всему модулю. Ошибки вернутся в конце — так они лучше запоминаются.</p>
+    <div data-widget="check" id="check-m01-09">
+      <script type="application/json">
+      {
+       "title": "Модуль 1: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что содержится в файле <code>Main.class</code>?",
+         "options": [
+          "Исходный код программы",
+          "Байт-код для JVM",
+          "Машинный код для процессора"
+         ],
+         "answer": 1,
+         "why": "javac переводит исходник <code>Main.java</code> в байт-код, а машинный код делает JVM во время работы. Поэтому <code>.class</code> и работает на любой системе."
+        },
+        {
+         "type": "order",
+         "q": "Ты нажал ▶ в IntelliJ IDEA. Расставь, что происходит",
+         "lines": [
+          "IDEA вызывает компилятор javac",
+          "javac проверяет код и создаёт HelloWorld.class",
+          "IDEA запускает JVM",
+          "JVM выполняет main сверху вниз",
+          "Вывод появляется в панели Run"
+         ],
+         "why": "Сначала компиляция — без байт-кода JVM нечего выполнять. Нашлась ошибка — до JVM дело не дойдёт."
+        },
+        {
+         "type": "single",
+         "q": "Что нужно, чтобы <b>писать</b> программы на Java?",
+         "options": [
+          "JVM",
+          "JRE",
+          "JDK"
+         ],
+         "answer": 2,
+         "why": "JRE хватит, чтобы запускать, но не чтобы компилировать. JDK включает JRE, JVM и инструменты, в том числе javac."
+        },
+        {
+         "type": "single",
+         "q": "Файл называется <code>Tree.java</code>. Какое объявление класса в нём правильное?",
+         "options": [
+          "public class tree",
+          "public class Tree",
+          "public class Tree.java"
+         ],
+         "answer": 1,
+         "why": "Имя public-класса совпадает с именем файла буква в букву, а расширение <code>.java</code> есть только у файла."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "System.out.print(\"Раз\");\nSystem.out.println(\"Два\");\nSystem.out.print(\"Три\");",
+         "answer": "РазДва\nТри",
+         "why": "<code>print</code> оставил каретку после «Раз», <code>println</code> после «Два» перевёл строку."
+        },
+        {
+         "type": "predict",
+         "q": "А это?",
+         "code": "System.out.println(\"Итого: \" + 10 + 5);",
+         "answer": "Итого: 105",
+         "why": "Снежный ком: после склейки со строкой числа приклеиваются как текст. Для 15 нужны скобки: <code>(10 + 5)</code>."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "System.out.println(\"Он сказал: \\\"Да\\\"\");\nSystem.out.println(\"Он сказал: \"Да\"\");\nSystem.out.println(\"Он сказал: 'Да'\");",
+         "answer": [
+          2
+         ],
+         "why": "Во второй строке кавычка перед «Да» закрывает строковый литерал раньше времени. Кавычку внутри строки пишут как <code>\\\"</code>. А одинарные кавычки внутри двойных — обычные символы."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Main.class, собранный на Windows, запустится на Mac, если там есть Java",
+           "a": true
+          },
+          {
+           "s": "IDEA подчёркивает ошибки компиляции ещё до запуска",
+           "a": true
+          },
+          {
+           "s": "Если исправить первую ошибку компиляции, остальные могут исчезнуть сами",
+           "a": true
+          },
+          {
+           "s": "Логическая ошибка роняет программу с исключением",
+           "a": false,
+           "why": "логическая ошибка ничего не роняет: программа отрабатывает, но результат не тот."
+          }
+         ]
+        },
+        {
+         "type": "match",
+         "q": "Соедини ошибку с её видом",
+         "left": [
+          "Забыта точка с запятой",
+          "Деление на ноль: ArithmeticException",
+          "Вывела «Hello world» вместо «Hello, World!»"
+         ],
+         "right": [
+          "Ошибка компиляции",
+          "Ошибка выполнения",
+          "Логическая ошибка"
+         ],
+         "why": "Компиляции — ловит javac до запуска; выполнения — программа падает на ходу; логическая — работает, но не то."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m01">странице практики</a> должны быть решены все восемь задач:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Привет, мир!</td><td>первая программа — <a href="/lessons/m01/04-first-program-idea.html">урок 1.4</a></td></tr>
+        <tr><td>2. Визитка · 3. Открытка в рамке</td><td>несколько <code>println</code>, точный вывод — <a href="/lessons/m01/06-anatomy.html">урок 1.5</a></td></tr>
+        <tr><td>4. Одной строкой · 5. Кавычки, слэши и табуляция · 6. Java считает за тебя</td><td><code>print</code>, спецсимволы, вычисления — <a href="/lessons/m01/07-console-output.html">урок 1.6</a></td></tr>
+        <tr><td>7. Почини программу</td><td>чтение ошибок — <a href="/lessons/m01/08-errors.html">урок 1.7</a></td></tr>
+        <tr><td>8. Ёлочка ★★★</td><td>всё вместе, пробелы важны</td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">И каждую зелёную задачу — разобрать с наставником: <code>/check m01-t01</code>, <code>/check m01-t02</code> и так далее.</span><span class="free-only">И каждую зелёную задачу — разобрать с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <p><span class="ai-only">Быстрая проверка — разминка. Настоящая проверка — разговор с наставником: программист должен уметь не только выбрать правильный вариант, но и <strong>объяснить</strong> и <strong>написать сам</strong>.</span><span class="free-only">Быстрая проверка — разминка. Настоящая проверка — разговор с <span class="ai-name">DeepSeek</span>: программист должен уметь не только выбрать правильный вариант, но и <strong>объяснить</strong> и <strong>написать сам</strong>.</span></p>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника:</strong> приложение Claude → вкладка Code → папка курса. Напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><strong>Пройди экзамен.</strong> Наставник задаёт вопросы по теории, даёт «предскажи, что выведет программа» и «найди ошибку», просит своими словами объяснить, как Java запускает программу. Может попросить написать маленькую программу с нуля в IDEA.</span><span class="free-only"><strong>Пройди экзамен.</strong> <span class="ai-name">DeepSeek</span> задаёт вопросы по теории, даёт «предскажи, что выведет программа» и «найди ошибку», просит своими словами объяснить, как Java запускает программу. Может попросить написать маленькую программу с нуля в IDEA.</span></li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, какие темы повторить. Перечитаешь, потренируешься — и вернёшься. Это не школьная контрольная: «завалить навсегда» нельзя.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, какие темы повторить. Перечитаешь, потренируешься — и вернёшься. Это не школьная контрольная: «завалить навсегда» нельзя.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в файле <code>progress.md</code> в папке курса. Можешь сам открыть этот файл и посмотреть, что уже отмечено.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Без шпаргалок</span>
+      <p><span class="ai-only">На экзамене не подглядывай в уроки. Наставнику важно понять, что ты знаешь сам, — от этого зависит, насколько уверенно пойдёт следующий модуль. Списанный экзамен обманывает только тебя.</span><span class="free-only">На экзамене не подглядывай в уроки. <span class="ai-name">DeepSeek</span> важно понять, что ты знаешь сам, — от этого зависит, насколько уверенно пойдёт следующий модуль. Списанный экзамен обманывает только тебя.</span></p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Хочешь размяться — напиши в Claude Code: <em>«Давай пробный экзамен по модулю 1, но без отметок в progress.md — просто потренироваться»</em>. А когда готов по-настоящему — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">📦</span><h4>Модуль 2: переменные</h4><p>Научим программу запоминать данные: числа, текст, «да/нет». И впервые будем спрашивать что-то у пользователя с клавиатуры.</p></div>
+      <div class="card"><span class="emoji">🧮</span><h4>Склейка пригодится</h4><p>Всё, что ты умеешь с <code>+</code> и строками, станет главным способом показывать результат: <code>"Привет, " + name</code>.</p></div>
+      <div class="card"><span class="emoji">🐞</span><h4>Ошибки — тоже</h4><p>Новых сообщений компилятора станет больше, но читать их ты уже умеешь: файл, строка, описание.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай все восемь задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все восемь задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 2!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 2!</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m01">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

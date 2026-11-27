@@ -1,0 +1,45 @@
+## id: tr-vars-005
+## title: ФИО как в паспорте
+## file: trainer/vars/FullNameJoiner.java
+## class: FullNameJoiner
+## level: 1
+## category: Вывод и склейка строк
+@@ description
+<p>Напиши класс <code>FullNameJoiner</code>. В анкете поля идут в таком порядке: имя, отчество, фамилия — каждое с новой строки. А в паспорте пишут сначала фамилию. Программа читает три строки и печатает их одной строкой в порядке «Фамилия Имя Отчество» через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  Иван
+       Петрович
+       Сидоров
+вывод: Сидоров Иван Петрович</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Scanner scanner = new Scanner(System.in);</code> — создаёт объект для чтения с клавиатуры; сверху файла нужен <code>import java.util.Scanner;</code></li>
+<li><code>scanner.nextLine()</code> — возвращает всю строку до Enter, вместе с пробелами</li>
+<li><code>a + " " + b</code> — пробел между словами нужно приклеить самому</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Иван
+Петрович
+Сидоров
+@@ expect
+Сидоров Иван Петрович
+@@ test: Двойная фамилия через дефис
+@@ input
+Ольга
+Игоревна
+Римская-Корсакова
+@@ expect
+Римская-Корсакова Ольга Игоревна
+@@ test: Фамилия из двух слов
+@@ input
+Мария
+Сергеевна
+Де Лука
+@@ expect
+Де Лука Мария Сергеевна
+@@ test: Короткие части
+@@ input
+Ян
+Янович
+Ли
+@@ expect
+Ли Ян Янович

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>char[], String и String[] args · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m06-07">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 6 · Урок 7</div>
+    <h1>char[], String и тайна String[] args</h1>
+    <p class="lead">Строка — близкая родственница массива символов. А в заголовке <code>main</code> с первого дня курса прятался массив. Пора узнать, что это такое.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>🔤 char[] ↔ String</span><span>🚀 аргументы программы</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m06-07-review">
+      <script type="application/json">
+      { "title": "Двумерные массивы и for-each", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int[][] m = new int[2][5];\nSystem.out.println(m.length + \" \" + m[0].length);",
+            "answer": "2 5", "why": "m.length — число строк, m[0].length — длина строки 0, то есть столбцы." },
+          { "type": "single", "q": "Что выведет код? <code>int[] a = {1, 2}; for (int x : a) { x++; } System.out.println(a[0]);</code>",
+            "options": ["1", "2", "Ошибка компиляции"], "answer": 0,
+            "why": "x — копия элемента. Инкремент изменил копию — массив не изменился." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Массив символов</h2>
+    <p>Тип <code>char</code> — один символ в одинарных кавычках: <code>'J'</code>, <code>'я'</code>, <code>'7'</code>. Массив таких символов — <code>char[]</code>, с ним всё как с <code>int[]</code>:</p>
+<pre data-file="Letters.java"><code class="java">char[] letters = {'J', 'a', 'v', 'a'};
+letters[0] = 'j';                         // ячейку можно поменять
+System.out.println(letters.length);       // 4
+System.out.println(letters);              // java — печатается как текст!</code></pre>
+    <p>Заметь последнюю строку: если передать аргументом <code>int[]</code>, <code>println</code> напечатал бы «паспорт» <code>[I@…</code>, а <code>char[]</code> он умеет печатать как текст. Это единственное такое исключение — <code>println</code> специально обучен массивам символов.</p>
+    <details class="predict">
+      <summary>Что выведет: char[] w = {'о', 'к'}; System.out.println("Ответ: " + w);</summary>
+      <p>Что-то вроде <b>Ответ: [C@7a81197d</b>. Ловушка! Особый режим у <code>println(char[])</code> работает, только когда массив передан единственным аргументом. Здесь же сначала вычисляется выражение <code>"Ответ: " + w</code>, а при склейке массив превращается в «паспорт» (<code>[C</code> — массив <code>char</code>). Чинится так: <code>"Ответ: " + new String(w)</code> или <code>Arrays.toString(w)</code> → <code>[о, к]</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Строка ↔ массив символов</h2>
+    <p>Внутри строки <code>String</code> символы тоже лежат рядом и пронумерованы с нуля. Поэтому строку легко превратить в массив символов и обратно: вызываем у строки метод <code>toCharArray()</code> — он возвращает новый массив; а выражение <code>new String(chars)</code> создаёт новую строку из массива:</p>
+<pre data-file="WordToArray.java"><code class="java">String word = "кот";
+char[] chars = word.toCharArray();     // ['к', 'о', 'т'] — НОВЫЙ массив-копия
+chars[0] = 'р';
+String changed = new String(chars);    // "рот" — новая строка из массива
+System.out.println(word + " → " + changed);   // кот → рот</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 680 200" role="img" aria-label="Строка кот превращается в массив символов методом toCharArray, а массив обратно в строку через new String">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="40" width="200" height="70" rx="12" class="d-yellow"/>
+        <text x="120" y="70" text-anchor="middle" class="d-small">String (не изменить)</text>
+        <text x="120" y="98" text-anchor="middle" class="d-title">"кот"</text>
+        <path d="M226 60 H418" class="d-arrow"/>
+        <text x="322" y="50" text-anchor="middle" class="d-mono-ink">.toCharArray()</text>
+        <path d="M418 100 H226" class="d-arrow"/>
+        <text x="322" y="128" text-anchor="middle" class="d-mono-ink">new String(chars)</text>
+        <rect x="424" y="40" width="74" height="70" rx="8" class="d-blue"/><text x="461" y="84" text-anchor="middle" class="d-title">'к'</text>
+        <rect x="504" y="40" width="74" height="70" rx="8" class="d-blue"/><text x="541" y="84" text-anchor="middle" class="d-title">'о'</text>
+        <rect x="584" y="40" width="74" height="70" rx="8" class="d-blue"/><text x="621" y="84" text-anchor="middle" class="d-title">'т'</text>
+        <text x="461" y="134" text-anchor="middle" class="d-mono-ink">[0]</text><text x="541" y="134" text-anchor="middle" class="d-mono-ink">[1]</text><text x="621" y="134" text-anchor="middle" class="d-mono-ink">[2]</text>
+        <text x="541" y="170" text-anchor="middle" class="d-small">char[] (можно менять)</text>
+      </svg>
+      <figcaption>Строку изменить нельзя, массив — можно. Нужно поправить буквы — перегоняем в массив, правим, собираем новую строку.</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>Массив <code>char[] a</code></th><th>Строка <code>String s</code></th></tr>
+        <tr><td>Символ по индексу</td><td><code>a[i]</code> — обращение по индексу</td><td><code>s.charAt(i)</code> — вызов метода</td></tr>
+        <tr><td>Длина</td><td><code>a.length</code> — поле, <b>без</b> скобок</td><td><code>s.length()</code> — вызов метода, <b>со</b> скобками</td></tr>
+        <tr><td>Поменять символ</td><td><code>a[0] = 'j';</code> — присваивание элементу, можно</td><td>нельзя: строка неизменяемая</td></tr>
+        <tr><td>Вылет за край</td><td><code>ArrayIndexOutOfBoundsException</code></td><td><code>StringIndexOutOfBoundsException</code></td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">length или length()?</span>
+      <p>Вечная путаница, на которой спотыкаются даже опытные: у <b>массива</b> — поле <code>a.length</code>, у <b>строки</b> — метод <code>s.length()</code>, его вызывают со скобками. IDEA подчеркнёт красным, если перепутаешь. А на собеседовании могут спросить именно это.</p>
+    </div>
+    <div data-widget="ide" id="shot-length-mixup">
+      <script type="application/json">
+      { "tree": false, "file": "Lengths.java", "gutterRun": [1, 2], "statusPath": "module-06",
+        "code": "public class Lengths {\n    public static void main(String[] args) {\n        char[] letters = {'J', 'a', 'v', 'a'};\n        String word = \"кот\";\n        System.out.println(letters.length);\n        System.out.println(word.length);\n    }\n}",
+        "errors": [ { "line": 6, "text": "length", "msg": "Cannot resolve symbol 'length'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-5", "text": "У массива <code>length</code> без скобок — тут всё чисто" },
+                   { "n": 2, "target": "err-6", "side": "top", "text": "А у строки без скобок — красное: такого поля у <code>String</code> нет" },
+                   { "n": 3, "target": "tip", "text": "<b>Cannot resolve symbol 'length'</b> — «не понимаю, что такое length». У строки это метод, нужны скобки: <code>word.length()</code>. Перепутаешь наоборот (<code>letters.length()</code>) — тоже будет красное" } ],
+        "caption": "length у строки без скобок — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Подсчитаем буквы «а» в слове — знакомый счётчик, только обходим массив символов, который вернул вызов <code>toCharArray()</code>. Пройди по шагам:</p>
+    <div data-widget="trace" id="trace-m06-07-count">
+      <script type="application/json">
+      { "title": "Сколько букв «а» в слове",
+        "code": "String word = \"банан\";\nint count = 0;\nfor (char ch : word.toCharArray()) {\n    if (ch == 'а') {\n        count++;\n    }\n}\nSystem.out.println(count);",
+        "steps": [
+          { "line": 1, "vars": { "word": "\"банан\"" }, "note": "Объявляем word и инициализируем строковым литералом: пять букв, индексы 0…4." },
+          { "line": 2, "vars": { "word": "\"банан\"", "count": "0" }, "note": "Объявляем счётчик count и инициализируем нулём." },
+          { "line": 3, "vars": { "word": "\"банан\"", "count": "0", "ch": "'б'" }, "note": "for-each по массиву, который вернул вызов word.toCharArray(): переменной ch присваивается первая буква 'б'." },
+          { "line": 4, "vars": { "word": "\"банан\"", "count": "0", "ch": "'б'" }, "note": "Условие 'б' == 'а' — false. Символы сравнивают оператором ==, это примитив char." },
+          { "line": 3, "vars": { "word": "\"банан\"", "count": "0", "ch": "'а'" }, "note": "Следующая итерация: ch = 'а'." },
+          { "line": 5, "vars": { "word": "\"банан\"", "count": "1", "ch": "'а'" }, "ask": ["count"], "note": "Условие true — инкремент count++. count = 1." },
+          { "line": 3, "vars": { "word": "\"банан\"", "count": "1", "ch": "'н'" }, "note": "'н' — не подходит." },
+          { "line": 3, "vars": { "word": "\"банан\"", "count": "1", "ch": "'а'" }, "note": "Снова 'а'." },
+          { "line": 5, "vars": { "word": "\"банан\"", "count": "2", "ch": "'а'" }, "ask": ["count"], "note": "Вторая подходящая буква. count = 2." },
+          { "line": 3, "vars": { "word": "\"банан\"", "count": "2", "ch": "'н'" }, "note": "Последняя буква 'н' — не подходит. Символы кончились." },
+          { "line": 8, "vars": { "word": "\"банан\"", "count": "2" }, "out": "2\n", "note": "Две буквы «а». Если в условии поставить 'А' — ответ будет 0: заглавная и строчная — разные символы." }
+        ] }
+      </script>
+    </div>
+    <p>Строкам посвящён целый модуль 8: там будут <code>charAt</code>, поиск, замена, разворот слова и проверка на палиндром. Всё, что ты сделал в мастерской с массивами, пригодится там почти без изменений.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>String[] args — что это наконец такое</h2>
+    <p>С первой программы ты писал <code>public static void main(String[] args)</code>, не зная, что такое <code>String[] args</code>. Теперь знаешь: это <b>параметр</b> метода <code>main</code> — <b>массив строк</b> с именем <code>args</code> (от arguments — аргументы). Подробно про параметры — в модуле 7, а пока главное: в этот массив Java кладёт слова, которые передали программе <b>при запуске</b>.</p>
+<pre data-file="Greeter.java"><code class="java">public class Greeter {
+    public static void main(String[] args) {
+        System.out.println("Аргументов: " + args.length);
+        for (int i = 0; i &lt; args.length; i++) {
+            System.out.println("args[" + i + "] = " + args[i]);
+        }
+    }
+}</code></pre>
+    <p>Запусти кнопкой ▶ — увидишь <code>Аргументов: 0</code>. Массив есть, но пустой: длина 0, а ссылка не <code>null</code>. Чтобы передать аргументы в IntelliJ IDEA:</p>
+    <ol class="steps">
+      <li>Вверху, рядом с кнопкой ▶, открой список с именем класса → <b>Edit Configurations…</b></li>
+      <li>В поле <b>Program arguments</b> впиши через пробел: <code>Петя 25 Москва</code></li>
+      <li><b>OK</b> и снова ▶.</li>
+    </ol>
+    <div data-widget="ide" id="shot-edit-config-menu">
+      <script type="application/json">
+      { "tree": false, "file": "Greeter.java", "runConfig": "Greeter", "gutterRun": [1, 2], "statusPath": "module-06",
+        "code": "public class Greeter {\n    public static void main(String[] args) {\n        System.out.println(\"Аргументов: \" + args.length);\n        for (int i = 0; i < args.length; i++) {\n            System.out.println(\"args[\" + i + \"] = \" + args[i]);\n        }\n    }\n}",
+        "menu": { "at": "config", "items": ["Current File", "Greeter", "-", "Edit Configurations…"], "hl": "Edit Configurations…" },
+        "marks": [ { "n": 1, "target": "config", "side": "left", "text": "Список конфигураций запуска — рядом с ▶. После первого запуска там появляется имя твоего класса" },
+                   { "n": 2, "target": "menu", "text": "Внизу списка — <b>Edit Configurations…</b>: настройки запуска, в том числе аргументы" } ],
+        "caption": "Шаг 1: открываем настройки запуска" }
+      </script>
+    </div>
+    <div data-widget="ide" id="shot-edit-config-dialog">
+      <script type="application/json">
+      { "tree": false, "file": "Greeter.java", "runConfig": "Greeter", "gutterRun": [1, 2], "statusPath": "module-06",
+        "code": "public class Greeter {\n    public static void main(String[] args) {\n        System.out.println(\"Аргументов: \" + args.length);\n        for (int i = 0; i < args.length; i++) {\n            System.out.println(\"args[\" + i + \"] = \" + args[i]);\n        }\n    }\n}",
+        "dialog": { "title": "Run/Debug Configurations", "side": ["Application", "Greeter"], "sideHl": "Greeter",
+          "rows": [ { "label": "Name", "value": "Greeter" },
+                    { "label": "JDK", "value": "java 21", "type": "select" },
+                    { "label": "Module", "value": "-cp module-06", "type": "select" },
+                    { "label": "Main class", "value": "Greeter" },
+                    { "label": "Program arguments", "value": "Петя 25 Москва", "hl": true } ],
+          "buttons": ["Cancel", "Apply", "OK"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "field-Main class", "text": "Какой класс запускается — тот, чей <code>main</code> получит аргументы" },
+                   { "n": 2, "target": "field-Program arguments", "text": "<b>Program arguments</b> — сюда через пробел пишешь слова для <code>args</code>. Каждое слово станет отдельным элементом массива" },
+                   { "n": 3, "target": "btn-OK", "text": "<b>OK</b> — сохранить. Аргументы запомнятся: они будут передаваться при каждом запуске, пока не сотрёшь" } ],
+        "caption": "Шаг 2: окно Run/Debug Configurations" }
+      </script>
+    </div>
+    <div data-widget="ide" id="shot-args-run">
+      <script type="application/json">
+      { "tree": false, "file": "Greeter.java", "runConfig": "Greeter", "gutterRun": [1, 2], "statusPath": "module-06",
+        "code": "public class Greeter {\n    public static void main(String[] args) {\n        System.out.println(\"Аргументов: \" + args.length);\n        for (int i = 0; i < args.length; i++) {\n            System.out.println(\"args[\" + i + \"] = \" + args[i]);\n        }\n    }\n}",
+        "console": { "title": "Greeter", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Greeter Петя 25 Москва" },
+          { "t": "out", "s": "Аргументов: 3" },
+          { "t": "out", "s": "args[0] = Петя" },
+          { "t": "out", "s": "args[1] = 25" },
+          { "t": "out", "s": "args[2] = Москва" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "cmd", "text": "Серая строка запуска: в самом конце, после имени класса, — твои аргументы. Именно так их передают программе" },
+                   { "n": 2, "target": "output", "text": "Массив <code>args</code> теперь не пустой: длина 3" },
+                   { "n": 3, "target": "output-3", "text": "<code>\"25\"</code> пришло как <b>строка</b>, не число: в <code>args</code> всегда лежат <code>String</code>" } ],
+        "caption": "Шаг 3: запуск с аргументами" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 680 170" role="img" aria-label="Строка аргументов при запуске разбивается по пробелам и попадает в массив args">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="40" width="220" height="60" rx="12" class="d-code"/>
+        <text x="36" y="66" class="d-mono">Program arguments:</text>
+        <text x="36" y="88" class="d-mono">Петя 25 Москва</text>
+        <path d="M246 70 H318" class="d-arrow"/>
+        <text x="282" y="122" text-anchor="middle" class="d-small">JVM режет</text>
+        <text x="282" y="140" text-anchor="middle" class="d-small">по пробелам</text>
+        <text x="330" y="30" class="d-small">String[] args · length 3</text>
+        <rect x="330" y="40" width="100" height="60" rx="8" class="d-teal"/><text x="380" y="76" text-anchor="middle" class="d-text">"Петя"</text>
+        <rect x="440" y="40" width="100" height="60" rx="8" class="d-teal"/><text x="490" y="76" text-anchor="middle" class="d-text">"25"</text>
+        <rect x="550" y="40" width="110" height="60" rx="8" class="d-teal"/><text x="605" y="76" text-anchor="middle" class="d-text">"Москва"</text>
+        <text x="380" y="124" text-anchor="middle" class="d-mono-ink">[0]</text><text x="490" y="124" text-anchor="middle" class="d-mono-ink">[1]</text><text x="605" y="124" text-anchor="middle" class="d-mono-ink">[2]</text>
+      </svg>
+      <figcaption>Каждое слово — отдельная строка в массиве. Даже "25" — это строка, а не число.</figcaption>
+    </figure>
+    <div class="callout warn">
+      <span class="callout-title">Без аргументов — не трогай args[0]</span>
+      <p>Если запустить без аргументов и обратиться к <code>args[0]</code>, получишь знакомое <code>ArrayIndexOutOfBoundsException: Index 0 out of bounds for length 0</code>. Сначала проверяй <code>args.length</code>.</p>
+    </div>
+    <p>Где это используют: консольные утилиты (<code>копировать откуда куда</code>), серверы (<code>--port 8080</code>), игры (<code>--fullscreen</code> — запуск сразу на весь экран). Сейчас тебе <code>args</code> почти не нужен, но больше <code>main</code> не будет выглядеть заклинанием.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: как превратить "25" в число?</summary>
+      <p><code>int age = Integer.parseInt(args[1]);</code> — вызываем метод <code>parseInt</code> и передаём аргумент <code>args[1]</code>; метод возвращает число, им инициализируется <code>age</code>. Если строка не число (<code>"двадцать"</code>), программа упадёт с <code>NumberFormatException</code>. Подробнее — в модулях про строки и исключения.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m06-07">
+      <script type="application/json">
+      { "title": "char[], String и args",
+        "items": [
+          { "type": "match", "q": "Соедини: что у массива, что у строки",
+            "left": ["a.length", "s.length()", "a[i]", "s.charAt(i)"],
+            "right": ["длина массива", "длина строки", "элемент массива по индексу", "символ строки по индексу"],
+            "why": "У массива — поле length и обращение по индексу в квадратных скобках. У строки — вызовы методов со скобками: length(), charAt(i)." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "char[] c = \"сон\".toCharArray();\nchar tmp = c[0];\nc[0] = c[2];\nc[2] = tmp;\nSystem.out.println(new String(c));",
+            "answer": "нос", "why": "Три присваивания поменяли местами первую и последнюю буквы — обмен через tmp из мастерской. new String(c) создаёт строку из массива." },
+          { "type": "single", "q": "Программу запустили без аргументов. Чему равно <code>args.length</code>?",
+            "options": ["Ошибка: args равен null", "0", "1"], "answer": 1,
+            "why": "Параметр args никогда не null при обычном запуске — это пустой массив длины 0." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Program arguments: 10 20 — в args[0] окажется число 10 типа int", "a": false, "why": "args — массив строк. Там строка \"10\"; число из неё получают через Integer.parseInt." },
+              { "s": "System.out.println(charArray) печатает символы как текст", "a": true },
+              { "s": "У строки можно поменять символ так: s.charAt(0) = 'X';", "a": false, "why": "строка неизменяемая, а вызову метода нельзя присвоить значение. Меняют через toCharArray → присваивание элементу → new String." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Теперь я знаю, что такое String[] args. Задай мне три вопроса про main, чтобы проверить»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>char[]</code> — массив символов; <code>println(chars)</code> печатает его как текст, но при склейке со строкой — «паспорт» <code>[C@…</code>.</li>
+        <li>Вызов <code>s.toCharArray()</code> возвращает новый массив символов, <code>new String(chars)</code> создаёт строку из массива.</li>
+        <li>Массив: <code>a.length</code>, <code>a[i]</code>, можно менять. Строка: <code>s.length()</code>, <code>s.charAt(i)</code>, менять нельзя.</li>
+        <li><code>String[] args</code> — параметр метода <code>main</code>, аргументы запуска программы; без аргументов это пустой массив длины 0.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

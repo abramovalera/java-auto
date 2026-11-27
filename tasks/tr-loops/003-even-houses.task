@@ -1,0 +1,37 @@
+## id: tr-loops-003
+## title: Чётная сторона улицы
+## file: trainer/loops/EvenHouseNumbers.java
+## class: EvenHouseNumbers
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>EvenHouseNumbers</code>. Почтальон разносит письма по чётной стороне улицы. Программа читает номер последнего дома на улице <code>n</code> (n ≥ 1) и печатает в одну строку через пробел все чётные номера от 2 до <code>n</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10
+вывод: 2 4 6 8 10
+
+ввод:  9
+вывод: 2 4 6 8</span></pre>
+<p>Если чётных домов нет, напечатай пустую строку.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>i += 2</code> — составное присваивание: шаг цикла через одно число</li>
+</ul></div>
+@@ test: Десять домов
+@@ input
+10
+@@ expect
+2 4 6 8 10
+@@ test: Последний дом нечётный
+@@ input
+9
+@@ expect
+2 4 6 8
+@@ test: Один дом — чётных нет
+@@ input
+1
+@@ expect
+
+@@ test: Ровно два дома
+@@ input
+2
+@@ expect
+2

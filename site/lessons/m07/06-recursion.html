@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Рекурсия · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-06">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 7 · Урок 6</div>
+    <h1>Рекурсия: метод вызывает сам себя</h1>
+    <p class="lead">Метод может вызвать… самого себя. Звучит как фокус, но это мощный способ решать задачи. Посмотрим, как при этом растёт стек, зачем нужен базовый случай и что такое StackOverflowError.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧠 2 трассировки стека</span><span>🧩 сборка кода</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m07-06-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "Можно ли в одном классе объявить int area(int a) и double area(int a)?",
+            "options": ["Да, это перегрузка", "Нет: отличается только тип возвращаемого значения", "Да, если у параметров разные имена"], "answer": 1,
+            "why": "Сигнатура — имя и типы параметров. Тип возвращаемого значения в неё не входит, поэтому методы конфликтуют." },
+          { "type": "predict", "q": "Повторим циклы (модуль 5). Что выведет?",
+            "code": "int f = 1;\nfor (int i = 2; i <= 4; i++) {\n    f = f * i;\n}\nSystem.out.println(f);",
+            "answer": "24", "why": "Накопитель-произведение инициализирован единицей и на каждой итерации умножается на счётчик: 1 * 2 * 3 * 4 = 24. Это факториал четырёх — сегодня посчитаем его по-другому." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Каждый вызов метода кладёт на стек новый фрейм со своими переменными", "a": true },
+              { "s": "Стек вызовов в Java бесконечный", "a": false, "why": "под стек выделен ограниченный кусок памяти — сегодня увидим, что будет, если он кончится." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Какой я в очереди?</h2>
+    <p>Ты стоишь в длинной очереди в кино и хочешь узнать, какой ты по счёту. Выйти и посчитать нельзя. Что делать? Спросить у того, кто впереди: «Ты какой по счёту?» Он не знает — и спрашивает того, кто впереди него. И так далее до самого первого человека. Первый знает точно: «Я — первый!»</p>
+    <p>Ответ идёт обратно по цепочке: «я первый» → «значит, я второй» → «значит, я третий»… и доходит до тебя. Каждый сделал крошечный шаг: спросил впереди стоящего и прибавил 1.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 200" role="img" aria-label="Очередь: вопрос идёт вперёд до первого, ответ возвращается назад с прибавлением единицы">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="20" y="70" width="120" height="60" rx="12" class="d-green"/><text x="80" y="98" text-anchor="middle" class="d-title">1-й</text><text x="80" y="118" text-anchor="middle" class="d-small">«я первый!»</text>
+        <rect x="200" y="70" width="120" height="60" rx="12" class="d-soft"/><text x="260" y="105" text-anchor="middle" class="d-title">?</text>
+        <rect x="380" y="70" width="120" height="60" rx="12" class="d-soft"/><text x="440" y="105" text-anchor="middle" class="d-title">?</text>
+        <rect x="560" y="70" width="160" height="60" rx="12" class="d-accent"/><text x="640" y="98" text-anchor="middle" class="d-title">ты</text><text x="640" y="118" text-anchor="middle" class="d-small">«какой я?»</text>
+        <path d="M560 82 H502" class="d-arrow"/><path d="M380 82 H322" class="d-arrow"/><path d="M200 82 H142" class="d-arrow"/>
+        <text x="370" y="40" text-anchor="middle" class="d-small">вопрос «ты какой?» идёт вперёд ←</text>
+        <path d="M142 118 H198" class="d-arrow"/><path d="M322 118 H378" class="d-arrow"/><path d="M502 118 H558" class="d-arrow"/>
+        <text x="170" y="150" text-anchor="middle" class="d-small">1</text>
+        <text x="350" y="150" text-anchor="middle" class="d-small">1 + 1 = 2</text>
+        <text x="530" y="150" text-anchor="middle" class="d-small">2 + 1 = 3</text>
+        <text x="370" y="185" text-anchor="middle" class="d-small">ответ возвращается назад, каждый прибавляет 1 →</text>
+      </svg>
+      <figcaption>Каждый решает ту же задачу, но для очереди на одного человека короче. Самый первый знает ответ сразу.</figcaption>
+    </figure>
+    <p>Это и есть <b>рекурсия</b>: задача решается через <b>ту же задачу, но поменьше</b>. В Java — метод, в теле которого есть вызов этого же метода с другим аргументом.</p>
+    <dl class="terms">
+      <dt>Рекурсия</dt><dd>Когда в теле метода есть вызов этого же метода. Сам метод называют <b>рекурсивным</b>.</dd>
+      <dt>Базовый случай</dt><dd>Ситуация, когда ответ известен сразу и метод больше себя не вызывает. Как первый в очереди: «я первый».</dd>
+      <dt>Рекурсивный шаг</dt><dd>Вызов себя с аргументом для задачи <b>поменьше</b> — так, чтобы с каждым шагом приближаться к базовому случаю.</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Обратный отсчёт</h2>
+    <p>Простейший пример — обратный отсчёт до старта ракеты:</p>
+<pre data-file="Countdown.java"><code class="java">public class Countdown {
+    public static void main(String[] args) {
+        countdown(3);
+    }
+
+    static void countdown(int n) {
+        if (n == 0) {           // базовый случай
+            System.out.println("Старт!");
+            return;
+        }
+        System.out.println(n);
+        countdown(n - 1);       // рекурсивный шаг: та же задача, но на 1 меньше
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">3
+2
+1
+Старт!</span></pre>
+    <p>Метод говорит: «Чтобы отсчитать от n, напечатай n, а потом вызови себя с аргументом n − 1». А когда n дошло до 0 — «Старт!» и стоп. Посмотри, что при этом творится на стеке — тут самое интересное.</p>
+    <div data-widget="trace" id="trace-m07-06-countdown">
+      <script type="application/json">
+      { "title": "Стек растёт: countdown(3)",
+        "intro": "Один и тот же метод окажется на стеке четыре раза — у каждого вызова свой фрейм и свой параметр <code>n</code>.",
+        "code": "public class Countdown {\n    public static void main(String[] args) {\n        countdown(3);\n    }\n\n    static void countdown(int n) {\n        if (n == 0) {\n            System.out.println(\"Старт!\");\n            return;\n        }\n        System.out.println(n);\n        countdown(n - 1);\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "note": "main вызывает <code>countdown</code> и передаёт аргумент 3." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } } ], "note": "Фрейм countdown: параметр n инициализирован значением 3." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } } ], "out": "3\n", "note": "Условие n == 0 — false, печатаем 3." },
+          { "line": 12, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } } ], "note": "Рекурсивный вызов: аргумент — выражение n - 1, то есть 2. Этот фрейм не заканчивается — он ждёт на строке 12." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } } ], "note": "Второй фрейм <b>того же</b> метода. У него свой параметр n = 2, а n = 3 спокойно лежит ниже." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } } ], "out": "2\n", "note": "Печатаем 2 и снова вызываем себя — с аргументом n − 1." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } }, { "frame": "countdown", "vars": { "n": "1" } } ], "vars": { "n": "1" }, "ask": ["n"], "note": "Каким значением инициализирован параметр n в новом верхнем фрейме? 2 − 1 = 1. Третий фрейм countdown." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } }, { "frame": "countdown", "vars": { "n": "1" } } ], "out": "1\n", "note": "Печатаем 1 и вызываем countdown с аргументом 0." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } }, { "frame": "countdown", "vars": { "n": "1" } }, { "frame": "countdown", "vars": { "n": "0" } } ], "note": "Вершина: пять фреймов, из них четыре — countdown." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } }, { "frame": "countdown", "vars": { "n": "1" } }, { "frame": "countdown", "vars": { "n": "0" } } ], "out": "Старт!\n", "note": "Условие n == 0 — true, это <b>базовый случай</b>. Печатаем «Старт!»." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } }, { "frame": "countdown", "vars": { "n": "1" } }, { "frame": "countdown", "vars": { "n": "0" } } ], "note": "<code>return</code> — новых вызовов больше нет. Теперь стек начнёт <b>разматываться</b>." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } }, { "frame": "countdown", "vars": { "n": "1" } } ], "note": "Вернулись в вызов с n = 1 — сразу после строки 12. Дальше в теле метода ничего нет: он заканчивается." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } }, { "frame": "countdown", "vars": { "n": "2" } } ], "note": "Так же заканчивается вызов с n = 2…" },
+          { "line": 13, "stack": [ { "frame": "main", "vars": {} }, { "frame": "countdown", "vars": { "n": "3" } } ], "note": "…и с n = 3." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": {} } ], "note": "Снова один main. Программа завершается." }
+        ] }
+      </script>
+    </div>
+    <p>Проверь это в IDEA: поставь точку останова на строку <code>System.out.println("Старт!");</code> и запусти отладку 🐞. В панели Frames будет видно, что <code>countdown</code> лежит на стеке четыре раза:</p>
+    <div data-widget="ide" id="shot-recursion-frames">
+      <script type="application/json">
+      { "tree": false, "file": "Countdown.java", "runConfig": "Countdown", "statusPath": "module-07",
+        "code": "public class Countdown {\n    public static void main(String[] args) {\n        countdown(3);\n    }\n\n    static void countdown(int n) {\n        if (n == 0) {\n            System.out.println(\"Старт!\");\n            return;\n        }\n        System.out.println(n);\n        countdown(n - 1);\n    }\n}",
+        "breakpoints": [8], "execLine": 8, "vals": { "6": "n: 0" },
+        "debug": { "title": "Countdown", "sel": 0,
+          "frames": ["countdown:8, Countdown", "countdown:12, Countdown", "countdown:12, Countdown", "countdown:12, Countdown", "main:3, Countdown"],
+          "vars": [ { "name": "n", "value": "0" } ] },
+        "marks": [ { "n": 1, "target": "frame-1", "text": "Верхний фрейм — вызов с <code>n = 0</code>: он дошёл до базового случая и стоит на строке 8. Числа 3, 2, 1 уже напечатаны (их видно на вкладке <b>Console</b> панели Debug)" },
+                   { "n": 2, "target": "frame-4", "text": "Ниже — ещё три фрейма того же метода. Каждый ждёт на строке 12, где вызвал себя. Щёлкни по любому — в Variables увидишь значение его параметра <code>n</code>: 1, 2, 3" },
+                   { "n": 3, "target": "vars", "text": "Переменные выбранного (верхнего) фрейма: <code>n = 0</code>" } ],
+        "caption": "Рекурсия в отладчике: один метод — четыре фрейма" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что напечатает программа, если в countdown поменять местами строки 11 и 12 — сначала вызов себя, потом печать?</summary>
+      <p><b>Старт!, 1, 2, 3.</b> Теперь каждый вызов сначала уходит «вглубь» и печатает значение своего параметра n только на обратном пути, когда стек разматывается. Первым допечатает самый верхний фрейм (n = 1), последним — нижний (n = 3). Код <b>до</b> рекурсивного вызова выполняется по пути вниз, код <b>после</b> — по пути наверх.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Факториал: рекурсия с результатом</h2>
+    <p><b>Факториал</b> числа n (пишут n!) — произведение всех чисел от 1 до n: 4! = 1 · 2 · 3 · 4 = 24. В модуле 5 ты считал его циклом. А теперь заметим: 4! = 4 · 3!. И 3! = 3 · 2!. Каждый факториал — это n, умноженное на факториал поменьше. А 1! = 1 и 0! = 1 — это мы знаем сразу.</p>
+<pre data-file="Fact.java"><code class="java">static int factorial(int n) {
+    if (n &lt;= 1) {                      // базовый случай: 0! = 1! = 1
+        return 1;
+    }
+    return n * factorial(n - 1);       // рекурсивный шаг: n! = n · (n−1)!
+}</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 270" role="img" aria-label="Вызовы factorial идут вниз до базового случая, ответы поднимаются вверх и перемножаются">
+        <rect x="30" y="20" width="250" height="50" rx="12" class="d-accent"/><text x="155" y="51" text-anchor="middle" class="d-mono-ink">factorial(3) = 3 * ?</text>
+        <rect x="130" y="105" width="250" height="50" rx="12" class="d-accent"/><text x="255" y="136" text-anchor="middle" class="d-mono-ink">factorial(2) = 2 * ?</text>
+        <rect x="230" y="190" width="250" height="50" rx="12" class="d-green"/><text x="355" y="221" text-anchor="middle" class="d-mono-ink">factorial(1) = 1</text>
+        <path d="M100 70 V128 H128" class="d-arrow"/>
+        <path d="M200 155 V213 H228" class="d-arrow"/>
+        <text x="40" y="100" class="d-small">вызов</text>
+        <text x="140" y="185" class="d-small">вызов</text>
+        <path d="M480 215 C560 215 560 130 382 130" class="d-arrow"/>
+        <path d="M382 120 C600 120 620 45 282 45" class="d-arrow"/>
+        <text x="580" y="185" class="d-small">вернул 1 → 2 * 1 = 2</text>
+        <text x="555" y="97" class="d-small">вернул 2 → 3 * 2 = 6</text>
+        <text x="500" y="258" class="d-small">базовый случай: ответ сразу</text>
+      </svg>
+      <figcaption>Вниз идут вызовы: каждый откладывает умножение «на потом». Вверх идут ответы: отложенные умножения выполняются одно за другим.</figcaption>
+    </figure>
+    <div data-widget="trace" id="trace-m07-06-factorial">
+      <script type="application/json">
+      { "title": "Как возвращается factorial(3)",
+        "intro": "В колонке «вернёт» — что фрейм отдаст наверх, когда узнает ответ. Впиши значения сам.",
+        "code": "public class Fact {\n    public static void main(String[] args) {\n        int f = factorial(3);\n        System.out.println(f);\n    }\n\n    static int factorial(int n) {\n        if (n <= 1) {\n            return 1;\n        }\n        return n * factorial(n - 1);\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "note": "Вызываем <code>factorial</code> и передаём аргумент 3." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "factorial", "vars": { "n": "3", "вернёт": "3 * ?" } } ], "note": "Условие n <= 1 — false. Нужно вычислить выражение 3 * factorial(2) — умножение откладывается, сначала вызываем factorial(2)." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "factorial", "vars": { "n": "3", "вернёт": "3 * ?" } }, { "frame": "factorial", "vars": { "n": "2", "вернёт": "2 * ?" } } ], "note": "Новый фрейм, n = 2. Опять откладываем: 2 * factorial(1)." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "factorial", "vars": { "n": "3", "вернёт": "3 * ?" } }, { "frame": "factorial", "vars": { "n": "2", "вернёт": "2 * ?" } }, { "frame": "factorial", "vars": { "n": "1", "вернёт": "1" } } ], "note": "n = 1 — базовый случай. Возвращаемое значение известно сразу: return 1. Дальше вызовов нет." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "factorial", "vars": { "n": "3", "вернёт": "3 * ?" } }, { "frame": "factorial", "vars": { "n": "2", "вернёт": "2" } } ], "vars": { "вернёт": "2" }, "ask": ["вернёт"], "note": "factorial(1) вернул 1, теперь доделай отложенное умножение. 2 * 1 = 2." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": {} }, { "frame": "factorial", "vars": { "n": "3", "вернёт": "6" } } ], "vars": { "вернёт": "6" }, "ask": ["вернёт"], "note": "factorial(2) вернул 2, умножь на n этого фрейма. 3 * 2 = 6." },
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "f": "6" } } ], "vars": { "f": "6" }, "note": "Возвращённым значением инициализируется f = 6. Все фреймы factorial сняты." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "f": "6" } } ], "out": "6\n", "note": "3! = 6. Готово." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Факториал растёт очень быстро</span>
+      <p>13! = 6 227 020 800 — это уже больше, чем влезает в <code>int</code> (максимум около 2,1 миллиарда). Помнишь переполнение из модуля 3? <code>factorial(13)</code> с типом возвращаемого значения int вернёт мусор. Для факториалов до 20! объявляй метод с типом <code>long</code>, дальше не хватит и его.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>StackOverflowError: когда стек кончился</h2>
+    <p>Что будет, если забыть базовый случай?</p>
+<pre data-file="Endless.java"><code class="java">public class Endless {
+    public static void main(String[] args) {
+        countdown(3);
+    }
+
+    static void countdown(int n) {
+        System.out.println(n);
+        countdown(n - 1);          // базового случая нет!
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-stack-overflow">
+      <script type="application/json">
+      { "tree": false, "file": "Endless.java", "runConfig": "Endless", "gutterRun": [1, 2], "statusPath": "module-07",
+        "code": "public class Endless {\n    public static void main(String[] args) {\n        countdown(3);\n    }\n\n    static void countdown(int n) {\n        System.out.println(n);\n        countdown(n - 1);\n    }\n}",
+        "warnings": [ { "line": 6, "text": "countdown", "msg": "Method 'countdown()' recurses infinitely, and can only end by throwing an exception" } ],
+        "console": { "title": "Endless", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Endless" },
+          { "t": "out", "s": "3" },
+          { "t": "out", "s": "2" },
+          { "t": "out", "s": "1" },
+          { "t": "out", "s": "0" },
+          { "t": "out", "s": "-1" },
+          { "t": "out", "s": "…" },
+          { "t": "out", "s": "-11417" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.StackOverflowError" },
+          { "t": "err", "s": "\tat java.base/java.io.PrintStream.println(PrintStream.java:1168)" },
+          { "t": "err", "s": "\tat Endless.countdown(Endless.java:7)" },
+          { "t": "err", "s": "\tat Endless.countdown(Endless.java:8)" },
+          { "t": "err", "s": "\tat Endless.countdown(Endless.java:8)" },
+          { "t": "err", "s": "\tat Endless.countdown(Endless.java:8)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "err-6", "side": "top", "text": "IDEA предупреждала заранее: жёлтым подчёркнуто имя метода. Наведи мышку — «метод уходит в бесконечную рекурсию и может закончиться только исключением»" },
+                   { "n": 2, "target": "output-7", "text": "Тысячи чисел, а потом авария. На каком числе упадёт — зависит от настроек JVM, у тебя будет другое" },
+                   { "n": 3, "target": "error", "text": "<b>StackOverflowError</b> — «переполнение стека». Причину Java не пишет: её видно по строкам ниже" },
+                   { "n": 4, "target": "link-1", "text": "Сверху — строки из кода JDK: стек кончился, когда <code>println</code> начал свою работу (номера строк JDK у тебя могут отличаться)" },
+                   { "n": 5, "target": "link-3", "text": "Дальше — одна и та же строка <code>countdown(Endless.java:8)</code>, сотни раз подряд: фреймы одного метода лежат на стеке друг на друге. Java печатает только первые 1024 строки, остальное отрезает" } ],
+        "caption": "StackOverflowError: бесконечная рекурсия в консоли Run" }
+      </script>
+    </div>
+    <p>Метод вызывает себя снова и снова, и каждый вызов кладёт на стек новый фрейм. Но под стек выделен <b>ограниченный</b> кусок памяти. Через несколько тысяч фреймов (точное число зависит от настроек JVM и размера фрейма) место кончается — и Java аварийно останавливает программу: <b>StackOverflowError</b>, «переполнение стека». В stack trace — тысячи одинаковых строк: тот самый метод, лежащий на стеке сам на себе.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: стопка тарелок до потолка</span>
+      <p>Тарелки кладут, кладут и ни одной не снимают. Рано или поздно стопка упрётся в потолок. Базовый случай — это момент, когда наконец начинают снимать.</p>
+    </div>
+    <p>Переполнение бывает, даже если базовый случай есть, но до него <b>нельзя дойти</b>. Например, базовый случай <code>if (n == 0)</code>, а метод вызвали с аргументом <code>-1</code>: n будет −2, −3, … и никогда не станет нулём. Поэтому в факториале выше условие <code>n &lt;= 1</code>, а не <code>n == 1</code>: так метод не уйдёт в бесконечность и на 0, и на отрицательных.</p>
+    <div class="say" data-mood="oops"><p>Кстати, сайт <b>Stack Overflow</b> — главный форум программистов, где ищут ответы на вопросы, — назван как раз в честь этой ошибки. Ты туда ещё не раз попадёшь из поисковика 🙂</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Как придумать рекурсию</h2>
+    <p>Рецепт из трёх вопросов:</p>
+    <ol class="steps">
+      <li><b>Базовый случай.</b> Для какого самого маленького входа ответ очевиден? (0! = 1; отсчёт от 0 — «Старт!»; число из одной цифры — сумма цифр равна ему самому.)</li>
+      <li><b>Как уменьшить задачу?</b> Как выразить возвращаемое значение через результат вызова с аргументом поменьше? (n! = n · (n−1)!)</li>
+      <li><b>Поверь.</b> Пиши рекурсивный шаг так, будто метод для меньшего входа уже работает. Не пытайся в голове развернуть все вызовы — за тебя это сделает стек.</li>
+    </ol>
+    <p>Попробуй: собери объявление метода <code>power(base, exp)</code> с двумя параметрами — возведение в степень. Например, 2<sup>5</sup> = 2 · 2<sup>4</sup>, а любое число в степени 0 равно 1.</p>
+    <div data-widget="parsons" id="parsons-m07-06" data-code data-title="Степень рекурсией" data-icon="🧩"
+         data-hint="Сначала заголовок метода, потом базовый случай, потом рекурсивный шаг."
+         data-success="🎉 Верно! Базовый случай: exp == 0 → return 1. Шаг: base * power(base, exp - 1) — каждый вызов передаёт аргументом степень на 1 меньше.">
+      <script type="text/plain">
+static int power(int base, int exp) {
+    if (exp == 0) {
+        return 1;
+    }
+    return base * power(base, exp - 1);
+}
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: рекурсия или цикл?</summary>
+      <p>Любую рекурсию можно переписать циклом, и наоборот. Факториал и степень циклом считать проще и быстрее: не тратится стек, нет риска StackOverflowError. Здесь они нужны, чтобы понять механизм.</p>
+      <p>Рекурсия по-настоящему хороша там, где сама задача «вложенная»: папки внутри папок (обойти все файлы на диске), HTML-элементы внутри элементов (так устроена любая страница сайта), меню с подменю. Там цикл получается громоздким, а рекурсия — естественной: «обработай папку = обработай файлы + обработай каждую вложенную папку <b>тем же методом</b>».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m07-06">
+      <script type="application/json">
+      {
+       "title": "Рекурсия — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет up(3)?",
+         "code": "static void up(int n) {\n    if (n == 0) {\n        return;\n    }\n    up(n - 1);\n    System.out.println(n);\n}",
+         "answer": "1\n2\n3",
+         "why": "Вызов println стоит после рекурсивного вызова — он выполняется на обратном пути, начиная с самого верхнего фрейма (n = 1)."
+        },
+        {
+         "type": "single",
+         "q": "Сколько раз будет вызван метод sum, если в main написать sum(4)?",
+         "code": "static int sum(int n) {\n    if (n == 0) {\n        return 0;\n    }\n    return n + sum(n - 1);\n}",
+         "options": [
+          "4",
+          "5",
+          "Бесконечно — будет StackOverflowError"
+         ],
+         "answer": 1,
+         "why": "sum(4), sum(3), sum(2), sum(1) и ещё sum(0) — базовый случай. Всего 5 вызовов."
+        },
+        {
+         "type": "bug",
+         "q": "Метод должен считать сумму 1 + 2 + … + n, но падает с StackOverflowError. Какая строка виновата?",
+         "code": "static int total(int n) {\n    if (n == 0) {\n        return 0;\n    }\n    return n + total(n + 1);\n}",
+         "answer": [
+          5
+         ],
+         "why": "Аргумент n + 1 уводит от базового случая: n растёт и никогда не станет 0. Нужно total(n - 1)."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "У рекурсивного метода обязательно должен быть базовый случай",
+           "a": true
+          },
+          {
+           "s": "Все вызовы рекурсивного метода работают с одной общей переменной n",
+           "a": false,
+           "why": "у каждого вызова свой фрейм и свой параметр n."
+          },
+          {
+           "s": "StackOverflowError — это ошибка компиляции",
+           "a": false,
+           "why": "это ошибка во время выполнения: компилятор не знает, сколько раз метод вызовет себя."
+          },
+          {
+           "s": "Факториал можно посчитать и циклом, и рекурсией",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 7.6. Дай мне рекурсивный метод, а я нарисую в чате, как растёт и разматывается стек, и скажу, что он напечатает»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Рекурсия</b> — метод вызывает сам себя с аргументом для задачи поменьше.</li>
+        <li>Нужны два куска: <b>базовый случай</b> (return сразу, без вызова) и <b>рекурсивный шаг</b>, который приближает к базовому случаю.</li>
+        <li>Каждый вызов — отдельный фрейм со своими параметрами и локальными переменными. Стек растёт до базового случая, потом разматывается.</li>
+        <li>Код до рекурсивного вызова работает по пути вниз, код после — по пути наверх.</li>
+        <li>Нет базового случая или до него не дойти — <code>StackOverflowError</code>: стек не бесконечный.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

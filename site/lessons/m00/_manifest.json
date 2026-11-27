@@ -1,0 +1,23 @@
+{
+  "id": "m00",
+  "num": "0",
+  "title": "Вводная",
+  "summary": "Как устроен курс, что такое программирование и подготовка рабочего места: IntelliJ IDEA, Java и папка workspace.",
+  "lessons": [
+    {
+      "id": "m00-01",
+      "title": "Как устроен этот курс",
+      "url": "/lessons/m00/01-how-it-works.html"
+    },
+    {
+      "id": "m00-02",
+      "title": "Что такое программирование",
+      "url": "/lessons/m00/02-what-is-programming.html"
+    },
+    {
+      "id": "m00-03",
+      "title": "Подготовка: ставим всё с нуля",
+      "url": "/lessons/m00/03-setup.html"
+    }
+  ]
+}

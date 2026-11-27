@@ -1,0 +1,13 @@
+{ "id": "m15", "num": "15", "title": "Файлы и ввод-вывод",
+  "summary": "Пути и рабочая папка, чтение и запись через Files, потоки и try-with-resources, папки, CSV и config.properties.",
+  "lessons": [
+    { "id": "m15-01", "title": "Файлы и пути", "url": "/lessons/m15/01-paths.html" },
+    { "id": "m15-02", "title": "Чтение текстовых файлов", "url": "/lessons/m15/02-reading.html" },
+    { "id": "m15-03", "title": "Запись в файл", "url": "/lessons/m15/03-writing.html" },
+    { "id": "m15-04", "title": "Потоки ввода-вывода", "url": "/lessons/m15/04-streams.html" },
+    { "id": "m15-05", "title": "Работа с папками", "url": "/lessons/m15/05-directories.html" },
+    { "id": "m15-06", "title": "Практика: CSV и properties", "url": "/lessons/m15/06-csv-properties.html" },
+    { "id": "m15-pz", "title": "Головоломки: что в файле?", "url": "/lessons/m15/07-puzzles.html" },
+    { "id": "m15-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m15/08-summary.html" }
+  ],
+  "taskCount": 8 }

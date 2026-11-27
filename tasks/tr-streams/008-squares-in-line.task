@@ -1,0 +1,39 @@
+## id: tr-streams-008
+## title: Квадраты через пробел
+## file: trainer/streams/SquaresInLine.java
+## class: SquaresInLine
+## level: 1
+## category: filter и map
+@@ description
+<p>Напиши класс <code>SquaresInLine</code>. Тренажёр устного счёта показывает квадраты чисел. В одной строке — целые числа через пробел (хотя бы одно, по модулю не больше 10 000). Напечатай квадрат каждого числа в том же порядке, через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  1 2 3 4
+вывод: 1 4 9 16</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.map(x -&gt; x * x)</code> — заменяет каждый элемент результатом лямбды</li>
+<li><code>.mapToObj(String::valueOf)</code> — превращает числа <code>IntStream</code> в стрим строк</li>
+<li><code>.collect(Collectors.joining(" "))</code> — склеивает строки через пробел</li>
+</ul></div>
+@@ test: Первые числа
+@@ input
+1 2 3 4
+@@ expect
+1 4 9 16
+@@ test: Минус в квадрате — плюс
+@@ input
+-3 0 5
+@@ expect
+9 0 25
+@@ test: Одно число
+@@ input
+12
+@@ expect
+144
+@@ test: Крупные числа
+@@ input
+10000 -9999
+@@ expect
+100000000 99980001
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.map\s*\( | Возведи числа в квадрат промежуточной операцией map

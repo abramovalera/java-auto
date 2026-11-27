@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Приведение типов и instanceof · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m10-06">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 10 · Урок 6</div>
+    <h1>Приведение типов и instanceof</h1>
+    <p class="lead">В коробке с ярлыком «животное» лежит кот. Как его оттуда достать и попросить помяукать? И что будет, если в коробке окажется собака? Разбираемся с приведением типа ссылок на объекты, проверкой instanceof и исключением ClassCastException.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>↕️ upcast / downcast</span><span>🛠 Мастерская</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m10-06-review">
+      <script type="application/json">
+      { "title": "Вспомним ярлык и объект", "kind": "Повторение",
+        "items": [
+          { "type": "single", "q": "<code>Animal a = new Cat();</code> Почему не компилируется <code>a.meow();</code>?",
+            "options": ["У кота нет метода meow", "Компилятор смотрит на тип переменной Animal, а у Animal нет meow()", "meow() — private"], "answer": 1,
+            "why": "Что можно вызвать, решает тип переменной. В уроке 4 мы обещали показать, как «достать кота» — время пришло." },
+          { "type": "predict", "q": "Модуль 3. Что выведет?",
+            "code": "double d = 7.9;\nint n = (int) d;\nSystem.out.println(n);",
+            "answer": "7", "why": "Явное приведение double → int отбрасывает дробную часть. Сегодня — приведение, но для объектов." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Вверх — само, вниз — явно</h2>
+    <p>В модуле 3 ты приводил числа: <code>int</code> → <code>long</code> само (безопасно), <code>double</code> → <code>int</code> только явно, со скобками (можно потерять данные). С объектами похожая история, только двигаемся по <b>иерархии наследования</b>:</p>
+<pre data-file="Casting.java"><code class="java">Cat cat = new Cat();
+Animal a = cat;          // восходящее (upcasting): кот → животное, само
+Cat back = (Cat) a;      // нисходящее (downcasting): животное → кот, явно
+back.meow();             // ✔ теперь можно</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 260" role="img" aria-label="Иерархия Animal, под ним Cat и Dog. Стрелка вверх: автоматически и безопасно. Стрелка вниз: только явно, со скобками, с проверкой при запуске">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="250" y="20" width="160" height="50" rx="12" class="d-violet"/>
+        <text x="330" y="51" text-anchor="middle" class="d-title">Animal</text>
+        <rect x="170" y="180" width="140" height="50" rx="12" class="d-blue"/>
+        <text x="240" y="211" text-anchor="middle" class="d-title">Cat</text>
+        <rect x="350" y="180" width="140" height="50" rx="12" class="d-teal"/>
+        <text x="420" y="211" text-anchor="middle" class="d-title">Dog</text>
+        <path d="M240 178 L300 72" class="d-line"/>
+        <path d="M420 178 L360 72" class="d-line"/>
+        <path d="M110 200 V50" class="d-arrow"/>
+        <text x="20" y="110" class="d-c-green d-text">⬆ вверх</text>
+        <text x="20" y="134" class="d-small">автоматически,</text>
+        <text x="20" y="152" class="d-small">всегда безопасно</text>
+        <path d="M560 50 V200" class="d-arrow"/>
+        <text x="575" y="110" class="d-c-red d-text">⬇ вниз</text>
+        <text x="575" y="134" class="d-small">только (Cat) a,</text>
+        <text x="575" y="152" class="d-small">JVM проверит</text>
+        <text x="575" y="170" class="d-small">при запуске</text>
+      </svg>
+      <figcaption>Кот всегда является животным — вверх можно без вопросов. Животное не всегда кот — вниз только явно и на свой риск.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: переноска для животных</span>
+      <p>Ты сажаешь кота в переноску с надписью «Животное» — никаких проблем (вверх). Потом ты открываешь переноску и говоришь: «Я точно знаю, тут кот — сейчас поглажу его за ушком» — это <code>(Cat) a</code> (вниз). Если там правда кот — всё хорошо. Если там собака… в Java на этот случай есть специальное исключение.</p>
+    </div>
+    <p><b>Важно:</b> приведение не превращает объект в другой. Кот остаётся котом. Меняется только <b>ярлык</b> — тип ссылки (переменной), через которую ты на него смотришь, а значит, и список методов, которые компилятор разрешит вызвать.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>ClassCastException</h2>
+    <p>Компилятор верит тебе на слово: <code>(Cat) a</code> он пропустит, раз переменная типа Animal вообще может ссылаться на кота. А проверяет JVM — во время работы:</p>
+<pre data-file="Oops.java"><code class="java">public class Oops {
+    public static void main(String[] args) {
+        Animal a = new Dog();
+        Cat c = (Cat) a;
+        c.meow();
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется? Что будет при запуске?</summary>
+      <p><b>Скомпилируется</b>, но при запуске программа упадёт на строке 4 — переменная ссылается на собаку, а мы пообещали кота. До <code>meow()</code> дело не дойдёт.</p>
+    </details>
+    <div data-widget="ide" id="shot-class-cast">
+      <script type="application/json">
+      { "tree": false, "file": "Oops.java", "runConfig": "Oops", "statusPath": "module-10", "gutterRun": [1, 2],
+        "code": "public class Oops {\n    public static void main(String[] args) {\n        Animal a = new Dog();\n        Cat c = (Cat) a;\n        c.meow();\n    }\n}",
+        "warnings": [ { "line": 4, "text": "(Cat) a", "msg": "Casting 'a' to 'Cat' will produce 'ClassCastException' for any non-null value" } ],
+        "console": { "title": "Oops", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Oops" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ClassCastException: class Dog cannot be cast to class Cat (Dog and Cat are in unnamed module of loader 'app')" },
+          { "t": "err", "s": "\tat Oops.main(Oops.java:4)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Красного нет: <code>(Cat) a</code> компилируется — переменная типа Animal теоретически может ссылаться на кота. Но IDEA умнее компилятора и подсвечивает жёлтым — это <b>предупреждение</b>. Наведёшь мышь — прочитаешь: <i>Casting 'a' to 'Cat' will produce 'ClassCastException'…</i> — «это приведение упадёт». Жёлтое не мешает запуску, но читать его стоит" },
+                   { "n": 2, "target": "error", "text": "При запуске — <b>ClassCastException</b>: <i>class Dog cannot be cast to class Cat</i> — «собаку нельзя привести к коту». Хвост в скобках про unnamed module можно не читать" },
+                   { "n": 3, "target": "link-1", "text": "Где упало: <b>Oops.java</b>, строка <b>4</b> — та самая, с приведением. Щёлкни по ссылке — IDEA откроет эту строку" },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 1</b> — программа завершилась аварией, до <code>meow()</code> не дошло" } ],
+        "caption": "ClassCastException в консоли Run" }
+      </script>
+    </div>
+    <p>Читаем stack trace, как в модуле 9: исключение <code>ClassCastException</code> («ошибка приведения класса»), причина — «Dog нельзя привести к Cat», место — <code>Oops.java</code>, строка 4. Хвост про «unnamed module» — служебные подробности, его можно пропустить.</p>
+    <p>А если классы вообще не родственники, ошибку поймает уже компилятор:</p>
+<pre data-file="Never.java"><code class="java">Cat cat = new Cat();
+// ✗ incompatible types: Cat cannot be converted to Dog
+Dog dog = (Dog) cat;
+// ✗ тоже: кот никогда не бывает строкой
+String s = (String) cat;</code></pre>
+    <div data-widget="ide" id="shot-inconvertible">
+      <script type="application/json">
+      { "tree": false, "file": "Never.java", "statusPath": "module-10", "gutterRun": [1, 2],
+        "code": "public class Never {\n    public static void main(String[] args) {\n        Cat cat = new Cat();\n        Dog dog = (Dog) cat;\n    }\n}",
+        "errors": [ { "line": 4, "text": "(Dog) cat", "msg": "Inconvertible types; cannot cast 'Cat' to 'Dog'", "tip": true } ],
+        "unused": [ { "line": 4, "text": "dog" } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Красным — всё приведение целиком. Сравни с <code>(Cat) a</code> выше: там редактор молчал, а падало при запуске" },
+                   { "n": 2, "target": "tip", "text": "<b>Inconvertible types; cannot cast 'Cat' to 'Dog'</b> — «типы не приводятся: нельзя привести Cat к Dog». <code>javac</code> скажет <code>incompatible types: Cat cannot be converted to Dog</code> — смысл тот же" } ],
+        "caption": "Приведение между неродственными классами — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Переменная типа <code>Cat</code> никогда не может ссылаться на собаку — компилятор это знает и не даёт даже попробовать. Приведение имеет смысл только <b>вдоль одной ветки</b> иерархии.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>instanceof: сначала посмотри, потом бери</h2>
+    <p>Чтобы не падать, перед приведением спрашивают: «этот объект — кот?». Оператор <b><code>instanceof</code></b> («является экземпляром» класса) возвращает <code>true</code> или <code>false</code>:</p>
+<pre data-file="Check.java"><code class="java">Animal a = getSomeAnimal();     // не знаем, кто там
+if (a instanceof Cat) {
+    Cat c = (Cat) a;            // теперь приведение безопасно
+    c.meow();
+} else {
+    System.out.println("Это не кот");
+}</code></pre>
+    <p>Три правила instanceof, которые спрашивают на собеседованиях:</p>
+    <ul>
+      <li><b>Наследники тоже подходят.</b> Если <code>Kitten extends Cat</code>, то для котёнка <code>a instanceof Cat</code> — <code>true</code>. Котёнок является котом. И <code>a instanceof Animal</code> — тоже true.</li>
+      <li><b>null — никогда.</b> <code>null instanceof Cat</code> — <code>false</code>, без исключения. Отдельно проверять на null перед instanceof не нужно.</li>
+      <li><b>Неродственные типы — ошибка компиляции.</b> <code>cat instanceof Dog</code>, где <code>cat</code> типа <code>Cat</code>, не скомпилируется: ответ и так всегда false.</li>
+    </ul>
+    <details class="predict">
+      <summary>Предскажи: <code>Animal a = new Kitten();</code> Что даст <code>a instanceof Dog</code>, <code>a instanceof Cat</code>, <code>a instanceof Kitten</code>?</summary>
+      <p><b>false, true, true.</b> Котёнок — не собака; котёнок является котом (через наследование); и, конечно, котёнком. instanceof проверяет «является», а не «в точности этот класс». Для точного совпадения есть <code>a.getClass() == Cat.class</code> — для котёнка это false.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Pattern matching: проверка и приведение за раз</h2>
+    <p>Писать <code>Cat</code> три раза подряд (в instanceof, в типе переменной, в скобках) утомительно. С Java 16 можно короче — <b>сопоставление с образцом</b> (pattern matching):</p>
+<pre data-file="Pattern.java"><code class="java">// проверили И сразу получили переменную c типа Cat
+if (a instanceof Cat c) {
+    c.meow();
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>a instanceof Cat c</code><div><p>Если <code>a</code> ссылается на кота, Java сама объявляет переменную <code>c</code> типа <code>Cat</code> и инициализирует её уже приведённой ссылкой. Если нет — условие false, и <code>c</code> не появляется.</p></div></div>
+      <div class="annot-row"><code>{ c.meow(); }</code><div><p>Переменная <code>c</code> видна только там, где проверка точно прошла, — внутри if. За его пределами её нет (область видимости из модуля 7).</p></div></div>
+    </div>
+    <p>Её можно сразу использовать дальше в условии через <code>&amp;&amp;</code> — ленивое «и» из модуля 3 гарантирует, что правая часть выполнится только для собаки:</p>
+<pre data-file="Guard.java"><code class="java">if (a instanceof Dog d &amp;&amp; d.isGuard()) {
+    System.out.println(d.getName() + " охраняет двор");
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли <code>if (a instanceof Dog d || d.isGuard())</code>?</summary>
+      <p><b>Нет.</b> С <code>||</code> правая часть выполняется как раз тогда, когда левая ложна — то есть когда <code>a</code> <b>не</b> собака, и переменной <code>d</code> нет. Компилятор это видит: <code>cannot find symbol: variable d</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>🛠 Мастерская: перепись зоопарка</h2>
+    <p>Задача (почти как m10-t05): есть массив <code>Animal[] zoo</code>. Посчитать кошачьих (котята тоже коты!), собак и среди собак — сторожевых. Пройдём по шаблону Мастерской.</p>
+    <ol class="steps">
+      <li><b>Пойми задачу.</b> Вход: массив животных разных классов. Выход: три числа. Пример: [Кот Мурка, Собака Шарик (сторож), Котёнок Пушок, Собака Бобик (домашняя)] → 2 кошачьих, 2 собаки, 1 сторож. Граничный случай: пустой массив → 0 0 0.</li>
+      <li><b>Реши руками.</b> Беру каждого по очереди: Мурка — кот, кошачьих 1. Шарик — собака, собак 1, сторож — сторожей 1. Пушок — котёнок, но котёнок является котом: кошачьих 2. Бобик — собака, собак 2, не сторож.</li>
+      <li><b>Роли переменных.</b> <code>i</code> — шагающая по массиву; <code>cats</code>, <code>dogs</code>, <code>guards</code> — три <b>счётчика</b>, все начинаются с 0.</li>
+      <li><b>Псевдокод.</b> «Для каждого животного: если оно кот — cats + 1; иначе если оно собака — dogs + 1, и если она сторож — guards + 1».</li>
+      <li><b>Код</b> — перевод псевдокода строка в строку. Проверь трассировкой ниже.</li>
+    </ol>
+    <div data-widget="trace" id="trace-m10-06-census">
+      <script type="application/json">
+      { "title": "Считаем зверей через instanceof", "icon": "🛠", "kind": "Мастерская",
+        "intro": "zoo = [Cat «Мурка», Dog «Шарик» (сторож), Kitten «Пушок», Dog «Бобик» (домашняя)]. Kitten extends Cat. Впиши значения счётчиков.",
+        "code": "int cats = 0;\nint dogs = 0;\nint guards = 0;\nfor (int i = 0; i < zoo.length; i++) {\n    if (zoo[i] instanceof Cat) {\n        cats++;\n    } else if (zoo[i] instanceof Dog dog) {\n        dogs++;\n        if (dog.isGuard()) {\n            guards++;\n        }\n    }\n}\nSystem.out.println(cats + \" \" + dogs + \" \" + guards);",
+        "steps": [
+          { "line": 3, "vars": { "cats": "0", "dogs": "0", "guards": "0" }, "note": "Три счётчика начинаются с нуля." },
+          { "line": 5, "vars": { "cats": "0", "dogs": "0", "guards": "0", "i": "0", "zoo[i]": "Cat Мурка" }, "note": "zoo[0] — кот. instanceof Cat → true." },
+          { "line": 6, "vars": { "cats": "1", "dogs": "0", "guards": "0", "i": "0", "zoo[i]": "Cat Мурка" }, "ask": ["cats"], "note": "Условие с котом выполнилось, значит, работает счётчик кошачьих. cats++ → 1." },
+          { "line": 7, "vars": { "cats": "1", "dogs": "0", "guards": "0", "i": "1", "zoo[i]": "Dog Шарик", "dog": "Шарик" }, "note": "zoo[1] — собака: не кот, переходим к else if. instanceof Dog → true, и сразу объявлена переменная dog типа Dog." },
+          { "line": 8, "vars": { "cats": "1", "dogs": "1", "guards": "0", "i": "1", "zoo[i]": "Dog Шарик", "dog": "Шарик" }, "note": "dogs++ → 1." },
+          { "line": 10, "vars": { "cats": "1", "dogs": "1", "guards": "1", "i": "1", "zoo[i]": "Dog Шарик", "dog": "Шарик" }, "ask": ["guards"], "note": "Шарик — сторож, isGuard() вернул true. Вызвать isGuard() мы смогли только через dog типа Dog." },
+          { "line": 5, "vars": { "cats": "1", "dogs": "1", "guards": "1", "i": "2", "zoo[i]": "Kitten Пушок" }, "note": "zoo[2] — котёнок. Вопрос с подвохом: что ответит instanceof Cat?" },
+          { "line": 6, "vars": { "cats": "2", "dogs": "1", "guards": "1", "i": "2", "zoo[i]": "Kitten Пушок" }, "ask": ["cats"], "note": "Вспомни, от кого наследуется Kitten. Котёнок является котом: instanceof Cat → true, cats → 2." },
+          { "line": 7, "vars": { "cats": "2", "dogs": "1", "guards": "1", "i": "3", "zoo[i]": "Dog Бобик", "dog": "Бобик" }, "note": "zoo[3] — собака Бобик." },
+          { "line": 8, "vars": { "cats": "2", "dogs": "2", "guards": "1", "i": "3", "zoo[i]": "Dog Бобик", "dog": "Бобик" }, "ask": ["dogs"], "note": "Это снова собака. Растёт счётчик собак: dogs → 2." },
+          { "line": 9, "vars": { "cats": "2", "dogs": "2", "guards": "1", "i": "3", "zoo[i]": "Dog Бобик", "dog": "Бобик" }, "note": "Бобик домашний: isGuard() → false, guards не меняется." },
+          { "line": 14, "vars": { "cats": "2", "dogs": "2", "guards": "1", "i": "4" }, "out": "2 2 1\n", "note": "i = 4, цикл окончен. Ответ совпал с ручным решением: 2 2 1." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Когда instanceof — тревожный знак</h2>
+    <p>instanceof полезен, но если код превращается в цепочку «если кот — делай так, если собака — эдак, если попугай — вот так», это почти всегда значит, что <b>полиморфизм не использован</b>:</p>
+<pre data-file="Smell.java"><code class="java">// ✗ плохо: каждый новый зверь — правка этого метода
+if (a instanceof Cat) System.out.println("Мяу");
+else if (a instanceof Dog) System.out.println("Гав");
+else if (a instanceof Parrot) System.out.println("Привет!");
+
+// ✔ хорошо: каждый зверь сам знает свой голос (урок 4)
+a.speak();</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Правило большого пальца</span>
+      <p>Поведение, которое различается по типам, — переноси в переопределённый метод. instanceof оставь для случаев, когда нужно <b>отобрать</b> объекты одного вида (посчитать собак, найти все электромобили в гараже) или когда класс чужой и добавить в него метод нельзя. Ещё одно законное место — <code>equals</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m10-06">
+      <script type="application/json">
+      {
+       "title": "Приведение и instanceof — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Что будет?",
+         "code": "Animal a = new Cat();\nDog d = (Dog) a;\nSystem.out.println(\"ok\");",
+         "options": [
+          "Напечатает ok",
+          "Ошибка компиляции",
+          "Скомпилируется, при запуске ClassCastException на строке 2"
+         ],
+         "answer": 2,
+         "why": "Переменная типа Animal может ссылаться на собаку, поэтому компилятор пропускает. Но объект — кот, и JVM выбрасывает ClassCastException."
+        },
+        {
+         "type": "predict",
+         "q": "Kitten extends Cat extends Animal. Что выведет?",
+         "code": "Animal a = new Kitten();\nSystem.out.println(a instanceof Animal);\nSystem.out.println(a instanceof Cat);\nSystem.out.println(a instanceof Dog);\nAnimal n = null;\nSystem.out.println(n instanceof Animal);",
+         "answer": "true\ntrue\nfalse\nfalse",
+         "why": "instanceof проверяет «является» — по всей цепочке. null не является ничем."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "Cat cat = new Cat();\nAnimal a = cat;\nCat c2 = (Cat) a;\nDog dog = (Dog) cat;",
+         "answer": [
+          4
+         ],
+         "why": "Переменная типа Cat никогда не ссылается на собаку — компилятор знает это заранее: incompatible types."
+        },
+        {
+         "type": "match",
+         "q": "Соедини",
+         "left": [
+          "Animal a = cat;",
+          "Cat c = (Cat) a;",
+          "a instanceof Cat",
+          "ClassCastException"
+         ],
+         "right": [
+          "восходящее приведение, автоматически",
+          "нисходящее приведение, явно",
+          "проверка «является ли котом»",
+          "приведение к неверному типу при запуске"
+         ],
+         "why": "Вверх — само, вниз — явно и после проверки, иначе — исключение."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 10.6. Покажи мне 3 фрагмента с приведением типов, а я скажу: компилируется ли, что будет при запуске и почему»</em>. Потом решай задачу m10-t05 «Перепись зоопарка» — сначала план по шаблону Мастерской, потом код.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Вверх по иерархии (кот → животное) — автоматически и безопасно.</li>
+        <li>Вниз (животное → кот) — только явно <code>(Cat) a</code>; если объект не тот — <code>ClassCastException</code> при запуске.</li>
+        <li>Приведение между неродственными типами — ошибка компиляции.</li>
+        <li><code>instanceof</code> проверяет «является» по всей цепочке; для <code>null</code> — false.</li>
+        <li>Java 16+: <code>if (a instanceof Cat c)</code> — проверка и приведение за раз.</li>
+        <li>Цепочка instanceof вместо переопределённого метода — повод использовать полиморфизм.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

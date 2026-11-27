@@ -1,0 +1,39 @@
+## id: tr-streams-014
+## title: Хештеги без повторов
+## file: trainer/streams/UniqueHashtags.java
+## class: UniqueHashtags
+## level: 1
+## category: Сортировка и топ
+@@ description
+<p>Напиши класс <code>UniqueHashtags</code>. Блогер набросал теги к посту, некоторые повторил. В одной строке — теги через пробел (хотя бы один, маленькими буквами одного алфавита, без «ё»). Напечатай каждый тег один раз, по алфавиту, со значком <code>#</code> впереди, через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  кот милота кот утро милота
+вывод: #кот #милота #утро</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.distinct()</code> — убирает повторы</li>
+<li><code>.sorted()</code> — сортирует строки по алфавиту</li>
+<li><code>.map(t -&gt; "#" + t)</code> — приклеивает значок к каждому тегу</li>
+</ul></div>
+@@ test: Пост про кота
+@@ input
+кот милота кот утро милота
+@@ expect
+#кот #милота #утро
+@@ test: Латиница
+@@ input
+java stream java lambda
+@@ expect
+#java #lambda #stream
+@@ test: Один тег много раз
+@@ input
+лето лето лето
+@@ expect
+#лето
+@@ test: Без повторов
+@@ input
+море
+@@ expect
+#море
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.distinct\s*\( | Убери повторы методом distinct

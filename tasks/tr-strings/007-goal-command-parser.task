@@ -1,0 +1,34 @@
+## id: tr-strings-007
+## title: Переводчик команд робота
+## file: trainer/strings/GoalCommandParser.java
+## class: GoalCommandParser
+## level: 1
+## category: Шифры и коды
+@@ description
+<p>Напиши класс <code>GoalCommandParser</code>. Робот-комментатор понимает три команды: <code>G</code> — это буква <code>G</code>, <code>()</code> — буква <code>o</code>, <code>(al)</code> — буквы <code>al</code>. Программа читает строку из команд и печатает перевод.</p>
+<pre class="terminal"><span class="out">ввод:  G()(al)          вывод: Goal
+ввод:  G()()()()(al)    вывод: Gooooal</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.replace(a, b)</code> — возвращает новую строку, в которой каждый кусок <code>a</code> заменён на <code>b</code></li>
+<li>Вызовы можно писать цепочкой: <code>s.replace(…).replace(…)</code></li>
+</ul></div>
+@@ test: Гол
+@@ input
+G()(al)
+@@ expect
+Goal
+@@ test: Длинный гол
+@@ input
+G()()()()(al)
+@@ expect
+Gooooal
+@@ test: Вперемешку
+@@ input
+(al)G(al)()()G
+@@ expect
+alGalooG
+@@ test: Только G
+@@ input
+GGG
+@@ expect
+GGG

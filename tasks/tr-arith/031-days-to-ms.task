@@ -1,0 +1,46 @@
+## id: tr-arith-031
+## title: Дни в миллисекунды
+## file: trainer/arith/DaysToMilliseconds.java
+## class: DaysToMilliseconds
+## level: 2
+## category: Типы и переполнение
+@@ description
+<p>Компьютеры часто считают время в миллисекундах (в секунде 1000 миллисекунд). Создай класс <code>DaysToMilliseconds</code>. Программа читает количество дней (целое число) и печатает, сколько это миллисекунд.</p>
+<pre class="terminal"><span class="out">ввод:  1       вывод: 86400000
+ввод:  25      вывод: 2160000000</span></pre>
+<p>Подвох: уже 25 дней не помещаются в <code>int</code> (максимум около 2,1 миллиарда). И <code>long ms = days * 24 * 60 * 60 * 1000;</code> не спасёт: справа всё считается в <code>int</code> и переполняется <b>до</b> того, как результат попадёт в <code>long</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>24L</code> — литерал типа <code>long</code>; если в умножении есть <code>long</code>, оно идёт в <code>long</code></li>
+<li><code>Integer.MAX_VALUE</code> — самое большое <code>int</code>: 2147483647</li>
+</ul></div>
+@@ test: Сутки
+@@ input
+1
+@@ expect
+86400000
+@@ test: Ноль дней
+@@ input
+0
+@@ expect
+0
+@@ test: Ещё помещается в int
+@@ input
+24
+@@ expect
+2073600000
+@@ test: Уже не помещается в int
+@@ input
+25
+@@ expect
+2160000000
+@@ test: Год
+@@ input
+365
+@@ expect
+31536000000
+@@ test: Десять тысяч дней
+@@ input
+10000
+@@ expect
+864000000000
+@@ require: \blong\b|\d[lL]\b | Результат не помещается в int — нужен тип long

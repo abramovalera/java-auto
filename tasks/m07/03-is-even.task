@@ -1,0 +1,46 @@
+## id: m07-t03
+## title: Чётное или нечётное
+## file: module-07/EvenOddMethod.java
+## class: EvenOddMethod
+## level: 1
+@@ description
+<p>Напиши метод <code>static boolean isEven(int n)</code> — он отвечает на вопрос «чётное ли n?»: возвращает <code>true</code> или <code>false</code> и ничего не печатает.</p>
+<p>main сначала читает количество чисел <code>k</code>, потом сами <code>k</code> чисел и для каждого печатает строку «число чётное» или «число нечётное». Решение, что печатать, main принимает с помощью <code>isEven</code>.</p>
+<pre class="terminal"><span class="out">4
+12 7 0 -8
+12 чётное
+7 нечётное
+0 чётное
+-8 чётное</span></pre>
+<p>Первые две строки — ввод, остальные — вывод. Приглашений к вводу не печатай.</p>
+<p>⚠️ Подвох: отрицательные числа. Чему равно <code>-3 % 2</code> в Java? Проверь, прежде чем писать условие.</p>
+<p>📖 <a href="/lessons/m07/07-workshop.html">Мастерская: имена методов (is/has/can)</a></p>
+@@ test: Пример из условия
+@@ input
+4
+12 7 0 -8
+@@ expect
+12 чётное
+7 нечётное
+0 чётное
+-8 чётное
+@@ test: Отрицательные нечётные
+@@ input
+3
+-3 -1 5
+@@ expect
+-3 нечётное
+-1 нечётное
+5 нечётное
+@@ test: Одно число
+@@ input
+1
+1000000
+@@ expect
+1000000 чётное
+@@ test: Ноль чисел — ничего не печатаем
+@@ input
+0
+@@ expect
+@@ require: static\s+boolean\s+isEven\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isEven(int n)
+@@ require: \WisEven\s*\((?!\s*int\s) | main должен решать, что печатать, с помощью вызова isEven(...)

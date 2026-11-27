@@ -1,0 +1,48 @@
+## id: tr-methods-026
+## title: Средняя температура недели
+## file: trainer/methods/WeatherAverageMethod.java
+## class: WeatherAverageMethod
+## level: 2
+## category: Методы и массивы
+@@ description
+<p>Создай класс <code>WeatherAverageMethod</code> и напиши метод <code>static double average(double[] values)</code>: он возвращает среднее арифметическое элементов массива. Если массив пустой, метод возвращает <code>0.0</code>.</p>
+<p>main читает в первой строке количество замеров <code>n</code> (может быть 0), во второй — <code>n</code> дробных температур через пробел, и печатает <code>Средняя температура: X</code>, округлив до десятых.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       20 22.5 19
+вывод: Средняя температура: 20.5</span></pre>
+<p>⚠️ Подвох: в пустом массиве нет элементов — делить на <code>0</code> нельзя.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>values.length</code> — длина массива</li>
+<li><code>Math.round(x * 10) / 10.0</code> — округление до десятых</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+20 22.5 19
+@@ expect
+Средняя температура: 20.5
+@@ test: Один замер
+@@ input
+1
+-3.5
+@@ expect
+Средняя температура: -3.5
+@@ test: Нет замеров
+@@ input
+0
+@@ expect
+Средняя температура: 0.0
+@@ test: Плюс и минус гасят друг друга
+@@ input
+4
+-2 -1 1 2
+@@ expect
+Средняя температура: 0.0
+@@ test: Бесконечная дробь
+@@ input
+3
+1 2 2
+@@ expect
+Средняя температура: 1.7
+@@ require: static\s+double\s+average\s*\(\s*double\s*\[\s*\]\s*\w+\s*\) | Нужен метод static double average(double[] values)
+@@ require: \Waverage\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать average(...) и передать массив

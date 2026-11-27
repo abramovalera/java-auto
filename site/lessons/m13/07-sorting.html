@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Сортировка: Comparable и Comparator · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-07">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 13 · Урок 7</div>
+    <h1>Сортировка: Comparable и Comparator</h1>
+    <p class="lead">Числа и строки Java сортирует сама. А как отсортировать товары по цене, студентов — по баллу, а при равенстве — по имени? Научим объекты сравниваться.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>⚖️ сравнение объектов</span><span>🧩 сортировка по нескольким полям</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m13-07-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "Deque<String> st = new ArrayDeque<>();\nst.push(\"a\");\nst.push(\"b\");\nst.push(\"c\");\nst.pop();\nSystem.out.println(st.peek());",
+            "answer": "b", "why": "Сняли верхнюю «c», наверху осталась «b»." },
+          { "type": "single", "q": "Что выведет <code>\"кот\".compareTo(\"кит\")</code> — какого знака число? (модуль 8)",
+            "options": ["Отрицательное: «кот» раньше по алфавиту", "Положительное: «кот» позже по алфавиту", "0"], "answer": 1,
+            "why": "Первая разница — во второй букве: «о» идёт после «и», значит «кот» больше. compareTo вернёт положительное число." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Collections.sort: числа и строки</h2>
+    <p>В модуле 6 был <code>Arrays.sort</code> для массивов. Для списков есть класс-помощник <code>Collections</code> (с <b>s</b> на конце — не путай с интерфейсом <code>Collection</code>):</p>
+<pre data-file="SortDemo.java"><code class="java">List&lt;Integer&gt; prices = new ArrayList&lt;&gt;(List.of(300, 45, 89, 120));
+Collections.sort(prices);                               // [45, 89, 120, 300]
+Collections.sort(prices, Collections.reverseOrder());   // [300, 120, 89, 45]
+
+List&lt;String&gt; names = new ArrayList&lt;&gt;(List.of("Вера", "Аня", "Борис"));
+Collections.sort(names);                                // [Аня, Борис, Вера]
+// просто развернуть, без сортировки:
+Collections.reverse(names);                             // [Вера, Борис, Аня]</code></pre>
+    <p>Сортировка <b>меняет сам список</b>. Поэтому <code>List.of(…)</code> напрямую отсортировать нельзя — он неизменяемый (<code>UnsupportedOperationException</code>), сначала копия в ArrayList.</p>
+    <div class="callout try">
+      <span class="callout-title">В тестах на JUnit</span>
+      <p>Классическая проверка в тесте (их ты будешь писать в модуле 17) «каталог отсортирован по цене»: собрать цены, которые вернул каталог, в список, сделать <b>копию</b>, отсортировать копию и сравнить с оригиналом: <code>actual.equals(sortedCopy)</code>. Списки сравниваются через <code>equals</code> поэлементно и по порядку.</p>
+    </div>
+    <details class="predict">
+      <summary>Почему Collections.sort знает, как сравнивать числа и строки, но не знает, как сравнить два товара?</summary>
+      <p>Потому что <code>Integer</code> и <code>String</code> реализуют интерфейс <code>Comparable</code> — «я умею сравниваться с себе подобным». Это их <b>естественный порядок</b>: числа по возрастанию, строки по кодам символов. Для своего класса порядок придумываешь ты.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Comparable: естественный порядок своего класса</h2>
+    <p>Сначала посмотрим на проблему. Вот товар-record без всякого порядка и попытка отсортировать корзину:</p>
+    <div data-widget="ide" id="shot-sort-no-comparable">
+      <script type="application/json">
+      { "tree": false, "file": "SortCart.java", "gutterRun": [7, 8], "statusPath": "module-13",
+        "code": "import java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.List;\n\nrecord Product(String name, int price) { }\n\npublic class SortCart {\n    public static void main(String[] args) {\n        List<Product> cart = new ArrayList<>();\n        cart.add(new Product(\"сыр\", 300));\n        Collections.sort(cart);\n    }\n}",
+        "errors": [ { "line": 11, "text": "sort", "msg": "Inferred type 'Product' for type parameter 'T' is not within its bound; should implement 'java.lang.Comparable<? super Product>'", "tip": true } ],
+        "build": { "file": "SortCart.java", "path": "src/module-13", "fullPath": "C:\\Users\\Misha\\java-course\\workspace\\module-13\\SortCart.java", "errors": [ { "msg": "no suitable method found for sort(java.util.List<Product>)", "line": 11, "col": 20 } ] },
+        "marks": [ { "n": 1, "target": "tip", "text": "IDEA объясняет по-своему: «тип <code>Product</code> не подходит для <code>T</code>; он <b>should implement Comparable</b> — должен реализовать Comparable». Это и есть подсказка, что делать" },
+                   { "n": 2, "target": "build-err-1", "text": "При запуске ▶ — панель Build со словами <code>javac</code>: <b>no suitable method found for sort</b> — «не нашёл подходящего метода sort»" },
+                   { "n": 3, "target": "build-out", "text": "Строка <b>11</b>, символ 20 — точка перед <code>sort</code>. Программа не запускалась вообще" } ],
+        "caption": "Collections.sort для класса без Comparable — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Попробуй отсортировать список своих объектов — компилятор откажется: <code>no suitable method found for sort(List&lt;Product&gt;)</code>. Объяснить ему порядок можно, реализовав интерфейс <code>Comparable&lt;T&gt;</code> с одним методом <code>compareTo</code>:</p>
+<pre data-file="Product.java"><code class="java">record Product(String name, int price) implements Comparable&lt;Product&gt; {
+    @Override
+    public int compareTo(Product other) {
+        // по цене, по возрастанию
+        return Integer.compare(this.price, other.price);
+    }
+}
+
+List&lt;Product&gt; cart = new ArrayList&lt;&gt;(List.of(
+        new Product("сыр", 300),
+        new Product("хлеб", 45),
+        new Product("молоко", 89)));
+Collections.sort(cart);
+System.out.println(cart.get(0).name());   // хлеб — самый дешёвый</code></pre>
+    <p>Правило <code>compareTo</code> — как у строк в модуле 8. <code>a.compareTo(b)</code> возвращает:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 170" role="img" aria-label="compareTo: отрицательное — a раньше b, ноль — равны, положительное — a позже b">
+        <rect x="20" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="125" y="54" text-anchor="middle" class="d-title">отрицательное</text>
+        <text x="125" y="82" text-anchor="middle" class="d-mono-ink">a, b</text>
+        <text x="125" y="110" text-anchor="middle" class="d-small">a встанет раньше b</text>
+        <rect x="255" y="20" width="210" height="110" rx="14" class="d-yellow"/>
+        <text x="360" y="54" text-anchor="middle" class="d-title">0</text>
+        <text x="360" y="82" text-anchor="middle" class="d-mono-ink">a = b</text>
+        <text x="360" y="110" text-anchor="middle" class="d-small">для сортировки равны</text>
+        <rect x="490" y="20" width="210" height="110" rx="14" class="d-violet"/>
+        <text x="595" y="54" text-anchor="middle" class="d-title">положительное</text>
+        <text x="595" y="82" text-anchor="middle" class="d-mono-ink">b, a</text>
+        <text x="595" y="110" text-anchor="middle" class="d-small">a встанет позже b</text>
+        <text x="360" y="160" text-anchor="middle" class="d-small">Важен только знак числа: −1 и −500 означают одно и то же.</text>
+      </svg>
+      <figcaption>compareTo — судья, который смотрит на двух участников и говорит, кто идёт первым.</figcaption>
+    </figure>
+    <div class="callout tip">
+      <span class="callout-title">Integer.compare и compareTo — готовые судьи</span>
+      <p>Для чисел — <code>Integer.compare(x, y)</code> (и <code>Double.compare</code>), для строк — <code>s1.compareTo(s2)</code>. Не изобретай сравнение через <code>if</code>: готовые методы короче и без ошибок.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: почему не пишут return this.price - other.price</summary>
+      <p>Вычитание выглядит изящно и в учебниках встречается. Но при больших числах разных знаков оно <b>переполняет int</b> (модуль 3): <code>2_000_000_000 - (-2_000_000_000)</code> даёт отрицательное число, и сортировка молча становится неправильной. <code>Integer.compare</code> такой проблемы не имеет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Comparator: сколько угодно порядков</h2>
+    <p>Естественный порядок у класса один. А товары хочется сортировать то по цене, то по названию, то по убыванию цены. Тут нужен <b>Comparator</b> — отдельный объект-судья, который сравнивает двух других: метод <code>compare(a, b)</code> с тем же правилом знаков.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: Comparable — рост, Comparator — жюри конкурса</span>
+      <p>У спортсменов есть «естественный» порядок для построения на физкультуре — по росту (Comparable). А на конкурсе жюри может расставить их по скорости, по прыжкам, по артистизму — каждое жюри со своими правилами (Comparator). Жюри не меняет самих спортсменов, оно просто сравнивает.</p>
+    </div>
+    <p>Способ 1 — <b>отдельный класс</b>:</p>
+<pre data-file="ByNameComparator.java"><code class="java">class ByNameComparator implements Comparator&lt;Product&gt; {
+    @Override
+    public int compare(Product a, Product b) {
+        return a.name().compareTo(b.name());
+    }
+}
+
+cart.sort(new ByNameComparator());  // [молоко, сыр, хлеб] — по алфавиту
+// то же самое, старая запись:
+Collections.sort(cart, new ByNameComparator());</code></pre>
+    <p>Способ 2 — <b>анонимный класс</b> (модуль 11): класс без имени, объявленный прямо там, где нужен. Удобно для «одноразового» судьи:</p>
+<pre data-file="AnonymousComparator.java"><code class="java">cart.sort(new Comparator&lt;Product&gt;() {
+    @Override
+    public int compare(Product a, Product b) {
+        // b и a поменяли местами — по убыванию
+        return Integer.compare(b.price(), a.price());
+    }
+});</code></pre>
+    <details class="predict">
+      <summary>Почему Integer.compare(b.price(), a.price()) сортирует по убыванию?</summary>
+      <p>Поменяв аргументы местами, мы переворачиваем знак ответа. Там, где «по возрастанию» судья сказал бы «a раньше» (отрицательное), теперь он говорит «a позже» (положительное). Альтернатива — обернуть готового судью: <code>Collections.reverseOrder(new ByNameComparator())</code>.</p>
+    </details>
+    <p>Comparator принимают и другие коллекции: <code>new TreeSet&lt;&gt;(new ByNameComparator())</code>, <code>new TreeMap&lt;&gt;(…)</code>, <code>new PriorityQueue&lt;&gt;(…)</code> — тогда они упорядочивают элементы по твоему правилу. Так в TreeSet можно положить и класс без Comparable.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Сортировка по нескольким полям</h2>
+    <p>Частая задача: «по цене, а при одинаковой цене — по названию». Идея — <b>сравнивать по очереди</b>, как словарь сравнивает слова по буквам: первое поле решает, если отличается; если равно — слово за вторым полем.</p>
+<pre data-file="ByPriceThenName.java"><code class="java">class ByPriceThenName implements Comparator&lt;Product&gt; {
+    @Override
+    public int compare(Product a, Product b) {
+        int byPrice = Integer.compare(a.price(), b.price());
+        if (byPrice != 0) {
+            return byPrice;  // цены разные — они и решают
+        }
+        return a.name().compareTo(b.name());  // цены равны — решает название
+    }
+}</code></pre>
+    <p>Отсортируем <code>[молоко 89, хлеб 45, кефир 89, сыр 300]</code>. Собери результат:</p>
+    <div data-widget="parsons" id="parsons-m13-07-order" data-title="Порядок после ByPriceThenName" data-icon="🏷️"
+         data-hint="Сначала по цене от меньшей к большей. Молоко и кефир стоят одинаково — их рассудит название."
+         data-success="🎉 Верно! Хлеб самый дешёвый, сыр самый дорогой, а между молоком и кефиром по 89 ₽ решил алфавит: «к» раньше «м».">
+      <script type="text/plain">
+хлеб — 45
+кефир — 89
+молоко — 89
+сыр — 300
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Частая ошибка</span>
+      <p>Написать два отдельных сравнения подряд без <code>if</code>: <code>Integer.compare(…); return a.name().compareTo(…);</code> — результат первого просто выброшен, сортировка окажется по одному названию. Второе поле должно решать <b>только</b> при равенстве первого.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: стабильность и Comparator.comparing</summary>
+      <p><b>Стабильность.</b> <code>Collections.sort</code> и <code>list.sort</code> — стабильные: равные элементы сохраняют исходный взаимный порядок. Поэтому можно сначала отсортировать по названию, потом по цене — и получить «по цене, при равенстве по названию». Но явный двухпольный Comparator понятнее.</p>
+      <p><b>Будущее.</b> В модуле 14 этот класс уместится в одну строку: <code>Comparator.comparing(Product::price).thenComparing(Product::name)</code>. Чтобы понимать, что делает эта строка внутри, сначала нужно уметь написать её «руками» — как сейчас.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-07">
+      <script type="application/json">
+      {
+       "title": "Сортировка — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини понятие с описанием",
+         "left": [
+          "Comparable",
+          "Comparator",
+          "Collections.sort(list)",
+          "Collections.reverseOrder()"
+         ],
+         "right": [
+          "Класс сам умеет сравниваться: метод compareTo",
+          "Отдельный судья: метод compare(a, b)",
+          "Сортирует список по естественному порядку",
+          "Судья «наоборот» для естественного порядка"
+         ],
+         "why": "Comparable — внутри класса, один порядок. Comparator — снаружи, сколько угодно порядков."
+        },
+        {
+         "type": "single",
+         "q": "<code>compare(a, b)</code> вернул 7. Что это значит?",
+         "options": [
+          "a встанет раньше b",
+          "a встанет позже b",
+          "a и b переставят 7 раз"
+         ],
+         "answer": 1,
+         "why": "Положительное — a «больше», значит позже. Важен только знак."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "List<String> w = new ArrayList<>(List.of(\"ёж\", \"кот\", \"ара\", \"ко\"));\nCollections.sort(w, Collections.reverseOrder());\nSystem.out.println(w);",
+         "answer": "[ёж, кот, ко, ара]",
+         "why": "По убыванию. Подвох: буква «ё» в таблице символов стоит после «я», поэтому «ёж» оказался «самым большим». «кот» больше «ко»: более длинное слово с тем же началом идёт позже."
+        },
+        {
+         "type": "bug",
+         "q": "Компаратор должен сортировать по баллу, а при равенстве — по имени. Но сортирует только по имени. Где ошибка?",
+         "code": "public int compare(Student a, Student b) {\n    Integer.compare(a.score(), b.score());\n    return a.name().compareTo(b.name());\n}",
+         "answer": [
+          2
+         ],
+         "why": "Результат сравнения по баллу никуда не сохраняется и не возвращается. Нужно: int r = Integer.compare(…); if (r != 0) return r;"
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Collections.sort меняет сам список",
+           "a": true
+          },
+          {
+           "s": "Список из List.of можно отсортировать через Collections.sort",
+           "a": false,
+           "why": "List.of неизменяемый — UnsupportedOperationException. Сначала копия: new ArrayList&lt;&gt;(…)."
+          },
+          {
+           "s": "TreeSet может принять Comparator и упорядочивать элементы по нему",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне класс с тремя полями и попроси отсортировать по двум из них. Я напишу компаратор, а ты найди, где я перепутал знак»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Collections.sort(list)</code> — естественный порядок; <code>Collections.reverseOrder()</code> — наоборот; сортировка меняет сам список.</li>
+        <li><code>Comparable&lt;T&gt;</code> + <code>compareTo</code> — «класс сам умеет сравниваться», порядок один.</li>
+        <li><code>Comparator&lt;T&gt;</code> + <code>compare(a, b)</code> — отдельный судья: классом или анонимным классом. Передаётся в <code>sort</code>, TreeSet, TreeMap, PriorityQueue.</li>
+        <li>Знак ответа: минус — a раньше, ноль — равны, плюс — a позже. Для чисел — <code>Integer.compare</code>.</li>
+        <li>Несколько полей: сравни по первому; если не 0 — верни, иначе сравнивай по второму.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

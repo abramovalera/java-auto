@@ -1,0 +1,47 @@
+## id: tr-cond-045
+## title: Что за символ
+## file: trainer/cond/CharKindDetector.java
+## class: CharKindDetector
+## level: 2
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>CharKindDetector</code>. Программа читает один символ (без пробелов) и печатает, что это: <code>Цифра</code>, <code>Заглавная латинская буква</code>, <code>Строчная латинская буква</code> или <code>Другой символ</code> (русские буквы и знаки — тоже «другой»).</p>
+<pre class="terminal"><span class="out">ввод:  7
+вывод: Цифра
+
+ввод:  Q
+вывод: Заглавная латинская буква</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next().charAt(0)</code> — первый символ прочитанного слова</li>
+<li>символы можно сравнивать: <code>c >= 'a' && c <= 'z'</code> — строчная латинская буква</li>
+</ul></div>
+@@ test: Цифра
+@@ input
+7
+@@ expect
+Цифра
+@@ test: Заглавная
+@@ input
+Q
+@@ expect
+Заглавная латинская буква
+@@ test: Строчная
+@@ input
+q
+@@ expect
+Строчная латинская буква
+@@ test: Русская буква
+@@ input
+ж
+@@ expect
+Другой символ
+@@ test: Знак вопроса
+@@ input
+?
+@@ expect
+Другой символ
+@@ test: Ноль — тоже цифра
+@@ input
+0
+@@ expect
+Цифра

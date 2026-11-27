@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Что такое исключение · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-01">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 12 · Урок 1</div>
+    <h1>Что такое исключение</h1>
+    <p class="lead">Программа делила пиццу на друзей — и вдруг красный текст, и всё остановилось. Разберёмся, что на самом деле произошло, куда «летит» исключение и почему для разработчика это одна из главных тем всей Java.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>💥 исключения</span><span>🧠 стек по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Программа «падает»</h2>
+    <p>Ты уже видел это много раз: в панели Run вместо ответа — красные строки, а программа закончилась раньше времени. Вот программа, которая делит пиццу поровну между друзьями. Друзей, к сожалению, ноль:</p>
+<pre data-file="Pizza.java"><code class="java">public class Pizza {
+    public static void main(String[] args) {
+        System.out.println("Считаем пиццу");
+        printShare(8, 0);
+        System.out.println("Приятного аппетита!");
+    }
+
+    static void printShare(int slices, int friends) {
+        int each = share(slices, friends);
+        System.out.println("Каждому: " + each);
+    }
+
+    static int share(int slices, int friends) {
+        return slices / friends;
+    }
+}</code></pre>
+    <p>Запусти её в IDEA — внизу, в панели Run, будет вот что:</p>
+    <div data-widget="ide" id="shot-pizza-crash">
+      <script type="application/json">
+      { "tree": false, "file": "Pizza.java", "runConfig": "Pizza", "statusPath": "module-12", "gutterRun": [1, 2],
+        "code": "public class Pizza {\n    public static void main(String[] args) {\n        System.out.println(\"Считаем пиццу\");\n        printShare(8, 0);\n        System.out.println(\"Приятного аппетита!\");\n    }\n\n    static void printShare(int slices, int friends) {\n        int each = share(slices, friends);\n        System.out.println(\"Каждому: \" + each);\n    }\n\n    static int share(int slices, int friends) {\n        return slices / friends;\n    }\n}",
+        "console": { "title": "Pizza", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Pizza" },
+          { "t": "out", "s": "Считаем пиццу" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ArithmeticException: / by zero" },
+          { "t": "err", "s": "\tat Pizza.share(Pizza.java:14)" },
+          { "t": "err", "s": "\tat Pizza.printShare(Pizza.java:9)" },
+          { "t": "err", "s": "\tat Pizza.main(Pizza.java:4)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Обычный вывод — белым. Строка 3 успела выполниться" },
+                   { "n": 2, "target": "error", "text": "Красным — <b>stack trace</b>. Первая строка: <b>что</b> случилось — <code>ArithmeticException</code>, после двоеточия причина: <code>/ by zero</code>" },
+                   { "n": 3, "target": "link-1", "text": "Строки <code>at …</code> — <b>где</b>. Верхняя — место аварии: метод <code>share</code>, <b>строка 14</b>. Синие ссылки кликабельны: щелчок откроет эту строку в редакторе" },
+                   { "n": 4, "target": "link-3", "text": "Ниже — кто кого вызвал: <code>main</code> (строка 4) → <code>printShare</code> (строка 9) → <code>share</code>. Это стек вызовов из модуля 7" },
+                   { "n": 5, "target": "exit", "text": "<b>exit code 1</b> — авария. «Приятного аппетита!» так и не напечаталось" } ],
+        "caption": "Неперехваченное исключение в консоли Run" }
+      </script>
+    </div>
+    <p>Компилятор ничего не заметил: с точки зрения синтаксиса всё правильно. Беда случилась <b>во время работы</b>, на строке 14: целое число на ноль делить нельзя. Java не может продолжать как ни в чём не бывало — и <b>выбрасывает исключение</b>.</p>
+    <dl class="terms">
+      <dt>Исключение (exception)</dt><dd>Сигнал «случилось что-то, из-за чего я не могу выполнить эту строку». В Java это <b>объект</b>: в нём записано, что случилось (тип и сообщение) и где (стек вызовов).</dd>
+      <dt>Выбросить исключение (throw)</dt><dd>Прервать обычное выполнение и «запустить» этот объект вверх по цепочке вызовов, пока кто-нибудь его не поймает.</dd>
+      <dt>Перехватить (поймать) исключение (catch)</dt><dd>Принять его в блоке <code>catch</code> и что-то сделать: показать сообщение, попросить ввести заново, попробовать ещё раз. Научимся в уроке 3.</dd>
+    </dl>
+    <details class="predict">
+      <summary>Предскажи: почему не напечаталось «Приятного аппетита!», хотя строка 5 ни в чём не виновата?</summary>
+      <p>Исключение никто не перехватил. Оно пролетело через <code>share</code>, <code>printShare</code> и <code>main</code>, и Java завершила программу целиком. Всё, что должно было выполниться после аварии, просто не выполнилось. <code>exit code 1</code> — знак, что программа закончилась аварией, а не нормально (тогда было бы <code>0</code>).</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Знакомься: четыре самых частых</h2>
+    <p>У каждого исключения есть <b>тип</b> — имя класса, которое говорит, какого рода беда. Имя всегда заканчивается на <code>Exception</code> и, если перевести, почти дословно описывает проблему. Вот четыре, которые ты встретишь чаще всего:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">➗</span><h4>ArithmeticException</h4><p>Арифметическая ошибка. Почти всегда — целочисленное деление на ноль: <code>8 / 0</code>.</p></div>
+      <div class="card"><span class="emoji">📦</span><h4>ArrayIndexOutOfBoundsException</h4><p>Индекс вне границ массива: <code>a[3]</code>, когда в массиве 3 элемента (индексы 0, 1, 2).</p></div>
+      <div class="card"><span class="emoji">🕳️</span><h4>NullPointerException</h4><p>Вызвали метод у <code>null</code> — у ссылки, которая никуда не указывает. Сокращённо NPE.</p></div>
+      <div class="card"><span class="emoji">🔢</span><h4>NumberFormatException</h4><p>Строку не удалось превратить в число: <code>Integer.parseInt("12a")</code>.</p></div>
+    </div>
+<pre data-file="Examples.java"><code class="java">int a = 8 / 0;                        // ArithmeticException
+
+int[] arr = new int[3];
+arr[3] = 1;                           // ArrayIndexOutOfBoundsException
+
+String name = null;
+System.out.println(name.length());   // NullPointerException
+
+int n = Integer.parseInt("12a");     // NumberFormatException</code></pre>
+    <p>А вот что про каждое из них скажет Java 21. Читай не только тип, но и <b>сообщение</b> после двоеточия — оно часто подсказывает причину прямым текстом:</p>
+<pre class="terminal"><span class="err">java.lang.ArithmeticException: / by zero
+java.lang.ArrayIndexOutOfBoundsException: Index 3 out of bounds for length 3
+java.lang.NullPointerException: Cannot invoke "String.length()" because "name" is null
+java.lang.NumberFormatException: For input string: "12a"</span></pre>
+    <div class="say" data-mood="think"><p>Смотри, какие они разговорчивые: «индекс 3 вне границ для длины 3», «не могу вызвать <code>length()</code>, потому что <code>name</code> равно null», «для входной строки "12a"». Половину ошибок можно починить, просто внимательно прочитав сообщение.</p></div>
+    <details class="predict">
+      <summary>Предскажи: что выбросит <code>Integer.parseInt(" 15")</code> — с пробелом перед цифрами?</summary>
+      <p><b>NumberFormatException: For input string: " 15"</b>. <code>parseInt</code> строгий: пробел — не цифра. Поэтому строку от пользователя сначала чистят методом <code>trim()</code> из модуля 8. А <code>Integer.parseInt("")</code> — пустая строка — тоже NumberFormatException.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Как исключение «всплывает» по стеку</h2>
+    <p>Вспомни стек вызовов из модуля 7: каждый вызов метода кладёт на стопку новый фрейм, а работает только верхний. В момент аварии стопка такая: <code>main</code> → <code>printShare</code> → <code>share</code>. Что делает Java, когда в <code>share</code> случилось деление на ноль?</p>
+    <ol class="steps">
+      <li>Создаёт объект исключения <code>ArithmeticException</code>, записывает в него сообщение и снимок стека — и выбрасывает его.</li>
+      <li>Смотрит: есть ли в <b>текущем</b> методе блок <code>catch</code>, который перехватит такое исключение? В <code>share</code> нет — метод прерывается прямо посреди строки, его фрейм снимают.</li>
+      <li>Исключение прилетает в метод, который вызвал <code>share</code>, — в <code>printShare</code>, на строку 9. Там тоже нет catch — фрейм снимают, строка 10 так и не выполнится.</li>
+      <li>То же в <code>main</code>. Стек опустел, а исключение так никто и не перехватил.</li>
+      <li>Тогда за дело берётся сама JVM: печатает stack trace в консоль (красным, в поток ошибок) и завершает программу с кодом 1.</li>
+    </ol>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 340" role="img" aria-label="Исключение возникает в верхнем фрейме share и всплывает вниз по стеку через printShare и main к JVM">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="40" y="26" class="d-small">вершина стека ↑ (кто работает сейчас)</text>
+        <rect x="40" y="40" width="310" height="52" rx="10" class="d-red"/>
+        <text x="58" y="64" class="d-mono-ink">share(8, 0)</text>
+        <text x="58" y="83" class="d-small">💥 8 / 0 → ArithmeticException</text>
+        <rect x="40" y="112" width="310" height="52" rx="10" class="d-soft"/>
+        <text x="58" y="136" class="d-mono-ink">printShare(8, 0)</text>
+        <text x="58" y="155" class="d-small">ждёт на строке 9</text>
+        <rect x="40" y="184" width="310" height="52" rx="10" class="d-soft"/>
+        <text x="58" y="208" class="d-mono-ink">main</text>
+        <text x="58" y="227" class="d-small">ждёт на строке 4</text>
+        <path d="M372 70 C 410 80, 410 120, 376 134" class="d-arrow"/>
+        <path d="M372 142 C 410 152, 410 192, 376 206" class="d-arrow"/>
+        <path d="M372 214 C 410 226, 410 262, 376 276" class="d-arrow"/>
+        <text x="424" y="98" class="d-text">нет catch → фрейм share снят</text>
+        <text x="424" y="170" class="d-text">нет catch → фрейм printShare снят</text>
+        <text x="424" y="242" class="d-text">нет catch и в main</text>
+        <rect x="40" y="256" width="310" height="70" rx="10" class="d-yellow"/>
+        <text x="58" y="282" class="d-title">JVM</text>
+        <text x="58" y="304" class="d-small">печатает stack trace</text>
+        <text x="58" y="320" class="d-small">и завершает программу (exit code 1)</text>
+        <text x="424" y="296" class="d-small">исключение «всплыло» до самого дна —</text>
+        <text x="424" y="316" class="d-small">его так никто и не перехватил</text>
+      </svg>
+      <figcaption>Исключение выбрасывается в глубине (в верхнем фрейме) и пролетает через каждый вызывающий метод, пока его не перехватят в <code>catch</code>. Не перехватил никто — программа аварийно завершается («падает»).</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: жалоба в большой компании</span>
+      <p>Курьер не может доставить посылку: адреса не существует. Сам решить не может — передаёт жалобу начальнику смены. Тот тоже не знает, что делать, — передаёт директору склада. Если и директор не разберётся — жалоба уходит на самый верх, и работа останавливается. Исключение — эта жалоба, а <code>catch</code> — человек, который наконец говорит: «Я разберусь».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Пройди аварию по шагам</h2>
+    <p>Смотри, как меняется стек. Обрати внимание: когда исключение пролетает через метод, фрейм снимается <b>без</b> <code>return</code> — метод не возвращает никакого значения, он просто прерывается.</p>
+    <div data-widget="trace" id="trace-m12-01-pizza">
+      <script type="application/json">
+      { "title": "Исключение всплывает по стеку", "icon": "💥",
+        "intro": "Справа стек вызовов: верхний фрейм — тот, кто работает сейчас. Жми «Шаг ▶» и следи, куда летит исключение.",
+        "code": "public class Pizza {\n    public static void main(String[] args) {\n        System.out.println(\"Считаем пиццу\");\n        printShare(8, 0);\n        System.out.println(\"Приятного аппетита!\");\n    }\n\n    static void printShare(int slices, int friends) {\n        int each = share(slices, friends);\n        System.out.println(\"Каждому: \" + each);\n    }\n\n    static int share(int slices, int friends) {\n        return slices / friends;\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": {} } ], "out": "Считаем пиццу\n", "note": "Обычная печать — пока всё хорошо." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": {} } ], "note": "main вызывает <code>printShare(8, 0)</code> и замирает на строке 4 в ожидании." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "printShare", "vars": { "slices": "8", "friends": "0" } } ], "note": "Новый фрейм printShare. Чтобы получить <code>each</code>, он вызывает share и тоже ждёт." },
+          { "line": 14, "stack": [ { "frame": "main", "vars": {} }, { "frame": "printShare", "vars": { "slices": "8", "friends": "0" } }, { "frame": "share", "vars": { "slices": "8", "friends": "0" } } ], "note": "8 / 0 — 💥 Java создаёт объект <code>ArithmeticException</code> с сообщением «/ by zero» и выбрасывает его. В share нет catch — метод прерывается, <code>return</code> так и не сработает." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": {} }, { "frame": "printShare", "vars": { "slices": "8", "friends": "0" } } ], "note": "Фрейм share снят. Исключение прилетело в printShare — ровно на строку 9, где тот ждал ответа. Переменная <code>each</code> так и не получила значение. Catch нет — строка 10 пропускается, фрейм снимают." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": {} } ], "note": "Исключение в main, на строке 4. Catch нет и здесь. Строка 5 («Приятного аппетита!») не выполнится никогда." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": {} } ], "out": "Exception in thread \"main\" java.lang.ArithmeticException: / by zero\n\tat Pizza.share(Pizza.java:14)\n\tat Pizza.printShare(Pizza.java:9)\n\tat Pizza.main(Pizza.java:4)\n", "note": "main тоже прерван, стек пуст. Исключение никто не перехватил — JVM печатает stack trace (в IDEA он красный) и завершает программу с exit code 1." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="wow"><p>Заметил? Stack trace — это и есть стопка фреймов в момент аварии: <code>share</code> сверху, <code>main</code> внизу. Java сфотографировала стек, когда создавала исключение. Читать такие «фотографии» научимся в следующем уроке.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Ошибка компиляции или исключение?</h2>
+    <p>В модуле 1 мы делили ошибки на три вида. Исключения — это ровно «ошибки выполнения»: код скомпилировался, программа запустилась, и уже на ходу что-то пошло не так.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>Ошибка компиляции</th><th>Исключение</th></tr>
+        <tr><td>Когда</td><td>до запуска, javac не пропускает код</td><td>во время работы программы</td></tr>
+        <tr><td>Кто находит</td><td>компилятор, IDEA подчёркивает красным</td><td>JVM, когда доходит до опасной строки</td></tr>
+        <tr><td>Пример</td><td>забыл <code>;</code>, опечатка в имени</td><td>деление на ноль, «abc» вместо числа</td></tr>
+        <tr><td>Зависит от данных?</td><td>нет — код просто неправильный</td><td>часто да: <code>8 / friends</code> работает, пока friends ≠ 0</td></tr>
+      </table>
+    </div>
+    <p>Последняя строка — самая важная. Одна и та же программа с одними данными работает, а с другими падает. Поэтому исключения так коварны: на твоём компьютере всё хорошо, а пользователь ввёл «двенадцать» вместо «12».</p>
+    <details class="predict">
+      <summary>Предскажи: если в программе про пиццу вызвать <code>printShare(8, 4)</code>, что напечатается?</summary>
+      <p>«Считаем пиццу», «Каждому: 2», «Приятного аппетита!». Никакого исключения: тот же код, но данные другие. Опасная строка опасна только при некоторых значениях.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Зачем это разработчику</h2>
+    <p>В настоящей программе исключения — обычное дело: файл не нашёлся, сервер не ответил, пользователь ввёл буквы вместо суммы. А в модуле 17 ты научишься писать тесты на JUnit, и там тот же секрет: <b>упавший тест — это исключение</b>. Тест «проверяет» результат специальными методами-проверками. Если результат не тот, проверка выбрасывает исключение, тест прерывается, а JUnit (программа, которая запускает тесты) перехватывает его и рисует красный крестик.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">❌</span><h4>AssertionError</h4><p>«Ожидалось одно, получилось другое»: <code>expected: &lt;5&gt; but was: &lt;4&gt;</code>. Главный сигнал упавшей проверки в тесте.</p></div>
+      <div class="card"><span class="emoji">🔍</span><h4>NoSuchElementException</h4><p>Scanner ждал ещё одно число, а ввод уже закончился. Нельзя прочитать то, чего нет.</p></div>
+      <div class="card"><span class="emoji">📁</span><h4>FileNotFoundException</h4><p>Программа хотела открыть файл с заказами, а его нет на диске. Тоже прилетает со stack trace.</p></div>
+    </div>
+    <div class="callout fact">
+      <span class="callout-title">Главный навык разработчика</span>
+      <p>Разработчик каждый день видит в логах сервера или в панели Run stack trace на 30–80 строк. Кто умеет за минуту найти в нём строку своего кода и понять причину, тот работает в разы быстрее. Поэтому весь этот модуль — про то, чтобы исключения перестали пугать.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m12-01">
+      <script type="application/json">
+      { "title": "Что такое исключение — главное",
+        "items": [
+          { "type": "match", "q": "Соедини исключение с причиной",
+            "left": ["ArithmeticException", "ArrayIndexOutOfBoundsException", "NullPointerException", "NumberFormatException"],
+            "right": ["Целое число поделили на ноль", "Обратились к элементу массива, которого нет", "Вызвали метод у ссылки, равной null", "Строку не удалось превратить в число"],
+            "why": "Имя исключения почти дословно описывает беду — привыкай его переводить." },
+          { "type": "predict", "q": "Что успеет напечатать программа до падения?",
+            "code": "System.out.println(\"A\");\nint[] arr = new int[2];\narr[2] = 7;\nSystem.out.println(\"B\");",
+            "answer": "A", "why": "Индексы массива длины 2 — это 0 и 1. На <code>arr[2]</code> вылетает ArrayIndexOutOfBoundsException, и до «B» дело не доходит." },
+          { "type": "single", "q": "main вызвал a(), a вызвал b(), в b() случилось исключение, catch нигде нет. Что произойдёт?",
+            "options": ["b() вернёт 0, и программа спокойно продолжит работу", "Программа завершится со stack trace", "Программа зависнет и будет ждать"], "answer": 1,
+            "why": "Без catch исключение снимает фрейм за фреймом до самого дна стека, а потом JVM печатает stack trace и останавливает программу." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Исключение — это объект, в котором записаны тип, сообщение и стек вызовов", "a": true },
+              { "s": "Если код скомпилировался, исключений при запуске быть не может", "a": false, "why": "компилятор проверяет форму кода, а исключения зависят от данных во время работы." },
+              { "s": "Integer.parseInt(\"12a\") выбросит NumberFormatException", "a": true },
+              { "s": "Упавший тест на JUnit — тоже исключение", "a": true }
+            ] },
+          { "type": "single", "q": "Что значит <code>exit code 1</code> в конце панели Run?",
+            "options": ["Программа выполнила одну строку", "Программа завершилась аварийно", "Программа успешно завершилась"], "answer": 1,
+            "why": "0 — успешное завершение, всё остальное — что-то пошло не так. Неперехваченное исключение даёт код 1." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 12.1. Дай мне три коротких куска кода, а я угадаю, какое исключение вылетит в каждом и почему»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Исключение — объект-сигнал «не могу выполнить эту строку» с типом, сообщением и снимком стека.</li>
+        <li>Оно выбрасывается в глубине и всплывает по стеку вызовов, снимая фреймы, пока его не перехватят в <code>catch</code>.</li>
+        <li>Не перехватил никто — JVM печатает stack trace и завершает программу с exit code 1.</li>
+        <li>Частые: ArithmeticException, ArrayIndexOutOfBoundsException, NullPointerException, NumberFormatException. Читай и тип, и сообщение.</li>
+        <li>Сбой в программе и упавший тест — это исключение, поэтому stack trace — главный инструмент разработчика.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

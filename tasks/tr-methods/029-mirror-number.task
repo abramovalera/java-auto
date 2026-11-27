@@ -1,0 +1,43 @@
+## id: tr-methods-029
+## title: Зеркальные номера
+## file: trainer/methods/MirrorNumberCheck.java
+## class: MirrorNumberCheck
+## level: 2
+## category: Методы-проверки
+@@ description
+<p>Коллекционер ищет «зеркальные» номера автобусов — те, что читаются одинаково слева направо и справа налево: 121, 7, 1001. Создай класс <code>MirrorNumberCheck</code> и напиши метод <code>static boolean isPalindrome(int n)</code>. Для отрицательных чисел он возвращает <code>false</code>.</p>
+<p>main читает в первой строке количество чисел <code>k</code>, во второй — <code>k</code> целых чисел через пробел, и печатает через пробел только зеркальные, в том же порядке. Если таких нет — печатает <code>нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       121 123 7 1001 10
+вывод: 121 7 1001</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 10</code> — последняя цифра, <code>n / 10</code> — число без последней цифры</li>
+<li>перевёрнутое число собирают так: <code>rev = rev * 10 + цифра</code></li>
+<li>параметр <code>n</code> лучше не портить — скопируй его в отдельную переменную</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+5
+121 123 7 1001 10
+@@ expect
+121 7 1001
+@@ test: Нет зеркальных
+@@ input
+3
+10 -121 12
+@@ expect
+нет
+@@ test: Ноль
+@@ input
+1
+0
+@@ expect
+0
+@@ test: Большие числа
+@@ input
+3
+2147447412 1000000000 22
+@@ expect
+2147447412 22
+@@ require: static\s+boolean\s+isPalindrome\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isPalindrome(int n)
+@@ require: \WisPalindrome\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать isPalindrome(...) для каждого числа

@@ -1,0 +1,35 @@
+## id: tr-strings-008
+## title: Имя файла из заголовка
+## file: trainer/strings/FileNameFromTitle.java
+## class: FileNameFromTitle
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>FileNameFromTitle</code>. Программа заметок сама придумывает имя файла по заголовку. Она читает заголовок (слова разделены одним пробелом, по краям могут быть лишние пробелы), убирает пробелы по краям, переводит буквы в нижний регистр, заменяет пробелы на <code>_</code> и добавляет в конец <code>.txt</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Отчёт за Март    вывод: отчёт_за_март.txt
+ввод:  README           вывод: readme.txt</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.strip()</code> — убирает пробелы по краям</li>
+<li><code>s.toLowerCase()</code> — возвращает строку маленькими буквами</li>
+<li><code>s.replace(" ", "_")</code> — заменяет каждый пробел</li>
+</ul></div>
+@@ test: Три слова
+@@ input
+Отчёт за Март
+@@ expect
+отчёт_за_март.txt
+@@ test: Одно слово
+@@ input
+README
+@@ expect
+readme.txt
+@@ test: Пробелы по краям
+@@ input
+   Фото с моря 2024  
+@@ expect
+фото_с_моря_2024.txt
+@@ test: Английский
+@@ input
+My Big Plan
+@@ expect
+my_big_plan.txt

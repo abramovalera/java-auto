@@ -1,0 +1,35 @@
+## id: m17-t05
+## title: Билеты в кино: параметризованный тест
+## file: module-17/CinemaTicketPriceTest.java
+## class: CinemaTicketPriceTest
+## level: 2
+## mode: junit
+@@ description
+<p>🛠 <b>Мастерская: какие тесты написать.</b> Кинотеатр продаёт билеты по возрасту: <b>до 7 лет</b> — бесплатно, <b>7–17</b> — 250 ₽, <b>18–64</b> — 400 ₽, <b>65 и старше</b> — 200 ₽. Отрицательный возраст — ошибка (<code>IllegalArgumentException</code>).</p>
+<p>Создай <code>module-17/CinemaTicketPriceTest.java</code> и набери в него класс (без <code>public</code>):</p>
+<pre><code class="java">class CinemaTicketPrice {
+    static int priceForAge(int age) {
+        if (age &lt; 0) {
+            throw new IllegalArgumentException("Возраст не может быть отрицательным: " + age);
+        }
+        if (age &lt; 7) {
+            return 0;
+        }
+        if (age &lt; 18) {
+            return 250;
+        }
+        if (age &lt; 65) {
+            return 400;
+        }
+        return 200;
+    }
+}</code></pre>
+<p>Восемь почти одинаковых <code>@Test</code> писать скучно. Напиши <b>один</b> <code>@ParameterizedTest</code> с <code>@CsvSource</code>: каждая строка — «возраст, ожидаемая цена». Какие возрасты брать? Сначала спланируй по шаблону Мастерской: найди <b>классы эквивалентности</b> (группы, где цена одинаковая) и их <b>границы</b>. Для каждой границы проверь значение по обе стороны: 6 и 7, 17 и 18… Нужно <b>минимум 8 строк</b>.</p>
+<p>Отдельным тестом проверь, что отрицательный возраст бросает исключение (<code>assertThrows</code>; можно тоже параметризованным, с <code>@ValueSource(ints = {…})</code>).</p>
+<p>Импорты: <code>org.junit.jupiter.params.ParameterizedTest</code>, <code>org.junit.jupiter.params.provider.CsvSource</code>. Покажи свой план границ наставнику при <code>/check</code>.</p>
+<p>📖 <a href="/lessons/m17/06-junit-deeper.html">JUnit 5 глубже</a> · <a href="/lessons/m17/07-workshop-tests.html">Мастерская: какие тесты написать</a></p>
+@@ require: @ParameterizedTest | Нужен параметризованный тест @ParameterizedTest
+@@ require: @CsvSource\s*\(\s*\{?(\s*"[^"]*"\s*,?){8} | В @CsvSource нужно минимум 8 строк — по две на каждую границу
+@@ require: assertThrows\s*\(\s*IllegalArgumentException\.class | Проверь через assertThrows, что отрицательный возраст — ошибка
+@@ require: class\s+CinemaTicketPrice\b | Набери в файл класс CinemaTicketPrice из условия
+@@ forbid: @Disabled | Выключенный тест — не тест. Убери @Disabled

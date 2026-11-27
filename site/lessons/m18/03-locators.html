@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Локаторы: CSS и XPath · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 18 · Урок 3</div>
+    <h1>Локаторы: CSS и XPath</h1>
+    <p class="lead">Локатор — адрес элемента на странице. От того, как ты его напишешь, зависит, проживёт тест год или сломается завтра. Главный навык UI-автоматизатора — и тренируется он только руками.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🎯 песочница прямо на странице</span><span>✍️ локаторы пишешь сам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m18-03-review">
+      <script type="application/json">
+      { "title": "Вспомним урок про страницу", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Какой атрибут разработчики добавляют специально для автотестов?",
+            "options": ["class", "placeholder", "data-test-id"], "answer": 2,
+            "why": "data-атрибуты не влияют на дизайн, поэтому их незачем менять." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "<code>id</code> должен быть уникальным на странице", "a": true },
+              { "s": "DevTools открываются клавишей F12", "a": true },
+              { "s": "У элемента может быть только один класс", "a": false, "why": "классов может быть сколько угодно, через пробел." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Локатор — это адрес</h2>
+    <p>Автотест не видит страницу глазами. Чтобы нажать кнопку, ему нужно точное описание: «тот элемент, у которого вот такой атрибут». Это описание — <b>локатор</b> (от англ. locate — «находить»). Пишут их на одном из двух языков: <b>CSS-селекторы</b> и <b>XPath</b>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: доставка пиццы</span>
+      <p>Можно объяснить курьеру: «от остановки третий дом слева, второй подъезд, пятая дверь после лифта». Работает — пока не построят новый дом или не перекрасят двери. А можно дать адрес: «ул. Садовая, 5, кв. 12». Он не зависит от того, что вокруг. <b>Хрупкий локатор</b> — первый способ, <b>стабильный</b> — второй.</p>
+    </div>
+    <p>Тренироваться будем на этой песочнице. Это <b>настоящие элементы на этой странице</b> — не картинка. Нажми <kbd>F12</kbd> и найди их в Elements.</p>
+    <div class="nook-demo" data-test-id="catalog">
+      <p><input id="nook-search" name="q" placeholder="Поиск книг" data-test-id="search">
+         <a href="#nook-search" class="cart-link" data-test-id="cart">Корзина <span class="badge">0</span></a></p>
+      <div class="cards">
+        <div class="card book-card" data-test-id="book-101">
+          <span class="emoji">📗</span><h4 class="title">Java для тестировщиков</h4>
+          <p><span class="price">990 ₽</span></p>
+          <button class="btn small green" data-test-id="buy-101">В корзину</button>
+        </div>
+        <div class="card book-card" data-test-id="book-102">
+          <span class="emoji">📘</span><h4 class="title">Чистый код</h4>
+          <p><span class="price">1 290 ₽</span></p>
+          <button class="btn small ghost" data-test-id="buy-102" disabled>Нет в наличии</button>
+        </div>
+        <div class="card book-card" data-test-id="book-103">
+          <span class="emoji">📙</span><h4 class="title">Java. Полное руководство</h4>
+          <p><span class="price">2 450 ₽</span></p>
+          <button class="btn small green" data-test-id="buy-103">В корзину</button>
+        </div>
+      </div>
+    </div>
+    <p>Упрощённо их HTML выглядит так:</p>
+<pre data-file="catalog.html"><code>&lt;div class="nook-demo" data-test-id="catalog"&gt;
+  &lt;input id="nook-search" name="q" placeholder="Поиск книг"
+         data-test-id="search"&gt;
+  &lt;a href="…" class="cart-link"
+     data-test-id="cart"&gt;Корзина &lt;span class="badge"&gt;0&lt;/span&gt;&lt;/a&gt;
+  &lt;div class="cards"&gt;
+    &lt;div class="card book-card" data-test-id="book-101"&gt;
+      &lt;h4 class="title"&gt;Java для тестировщиков&lt;/h4&gt;
+      &lt;span class="price"&gt;990 ₽&lt;/span&gt;
+      &lt;button class="btn small green" data-test-id="buy-101"&gt;В корзину&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="card book-card" data-test-id="book-102"&gt;
+      … «Чистый код», кнопка disabled …
+    &lt;/div&gt;
+    &lt;div class="card book-card" data-test-id="book-103"&gt;
+      … «Java. Полное руководство» …
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>CSS-селекторы</h2>
+    <p><b>CSS</b> — язык оформления страниц. Дизайнеры им говорят «покрась вот эти элементы», а мы — «найди вот эти элементы». Короткий и быстрый, его в Selenide используют чаще всего.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Селектор</th><th>Что найдёт</th><th>В песочнице</th></tr>
+        <tr><td><code>#nook-search</code></td><td>элемент с <code>id="nook-search"</code> (решётка = id)</td><td>поле поиска</td></tr>
+        <tr><td><code>.book-card</code></td><td>все элементы с классом <code>book-card</code> (точка = класс)</td><td>3 карточки</td></tr>
+        <tr><td><code>[data-test-id='buy-101']</code></td><td>элемент с атрибутом и точным значением</td><td>кнопка первой книги</td></tr>
+        <tr><td><code>input[name='q']</code></td><td>тег <code>input</code> <b>и</b> атрибут <code>name='q'</code></td><td>поле поиска</td></tr>
+        <tr><td><code>button.green</code></td><td>тег <code>button</code> <b>и</b> класс <code>green</code> (без пробела = «и»)</td><td>2 активные кнопки</td></tr>
+        <tr><td><code>.book-card .price</code></td><td><code>.price</code> <b>где-то внутри</b> <code>.book-card</code> (пробел = «внутри, на любой глубине»)</td><td>3 цены</td></tr>
+        <tr><td><code>.cards &gt; .book-card</code></td><td>прямые дети: на один уровень ниже (<code>&gt;</code>)</td><td>3 карточки</td></tr>
+        <tr><td><code>[data-test-id^='book-']</code></td><td>значение атрибута <b>начинается</b> с <code>book-</code></td><td>3 карточки</td></tr>
+        <tr><td><code>[placeholder*='книг']</code></td><td>значение атрибута <b>содержит</b> кусок</td><td>поле поиска</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Пробел в CSS — не украшение</span>
+      <p><code>button.green</code> — «кнопка, у которой класс green». <code>button .green</code> (с пробелом) — «элемент с классом green <b>внутри</b> кнопки». Один пробел — совсем другой локатор.</p>
+    </div>
+    <details class="predict">
+      <summary>Сколько элементов найдёт <code>.book-card button</code>? А <code>.book-card button[disabled]</code>?</summary>
+      <p>Первый — 3: в каждой карточке по кнопке. Второй — 1: квадратные скобки без значения <code>[disabled]</code> значат «у элемента есть такой атрибут». Неактивна только кнопка «Нет в наличии».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>XPath</h2>
+    <p><b>XPath</b> — язык путей по дереву документа. Длиннее, чем CSS, но умеет то, чего CSS не умеет: искать <b>по тексту</b> и ходить <b>вверх</b>, к родителю.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>XPath</th><th>Что найдёт</th></tr>
+        <tr><td><code>//input</code></td><td>любой <code>input</code> на любой глубине (<code>//</code> = «где угодно ниже»)</td></tr>
+        <tr><td><code>//input[@id='nook-search']</code></td><td><code>input</code> с атрибутом: в XPath перед именем атрибута ставят <code>@</code></td></tr>
+        <tr><td><code>//*[@data-test-id='buy-101']</code></td><td><code>*</code> — любой тег. Для тестовых атрибутов так и пишут: тег не важен, пусть верстальщик его меняет</td></tr>
+        <tr><td><code>//button[text()='В корзину']</code></td><td>кнопка с <b>точным</b> текстом</td></tr>
+        <tr><td><code>//h4[contains(text(),'Java')]</code></td><td>заголовок, в тексте которого <b>есть</b> «Java»</td></tr>
+        <tr><td><code>//div[contains(@class,'book-card')]</code></td><td>класс <b>содержит</b> <code>book-card</code></td></tr>
+        <tr><td><code>//*[@data-test-id='book-102']//button</code></td><td>кнопка где-то внутри карточки 102</td></tr>
+        <tr><td><code>//h4[text()='Чистый код']/..</code></td><td><code>..</code> — родитель: карточка, в которой этот заголовок</td></tr>
+        <tr><td><code>//div[@class='cards']/div</code></td><td>одиночный <code>/</code> — ровно на уровень ниже (как <code>&gt;</code> в CSS)</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка с классом в XPath</span>
+      <p><code>//div[@class='book-card']</code> не найдёт <code>&lt;div class="card book-card"&gt;</code>: XPath сравнивает <b>всю строку</b> атрибута целиком, а там <code>"card book-card"</code>. Для классов используй <code>contains(@class,'book-card')</code> — или CSS <code>.book-card</code>, который понимает классы правильно.</p>
+    </div>
+    <details class="predict">
+      <summary>Как найти кнопку именно у книги «Чистый код», если у кнопок нет data-test-id?</summary>
+      <p>Найти заголовок по тексту, подняться к карточке и спуститься к кнопке: <code>//h4[text()='Чистый код']/../button</code>. В CSS так нельзя: CSS не умеет искать по тексту и не умеет ходить вверх. Это главная причина, по которой XPath живёт рядом с CSS.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: оси XPath</summary>
+      <p>Кроме <code>..</code> в XPath есть «оси» — направления движения по дереву: <code>ancestor::div</code> — любой предок-div, <code>following-sibling::button</code> — кнопка-соседка после текущего элемента, <code>preceding-sibling::</code> — соседи до. Пример: <code>//h4[text()='Чистый код']/ancestor::div[contains(@class,'book-card')]</code>. Нужно редко, но на собеседовании про оси иногда спрашивают.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>CSS или XPath?</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>CSS</th><th>XPath</th></tr>
+        <tr><td>Длина</td><td>короче: <code>#id</code>, <code>.class</code></td><td>длиннее: <code>//*[@id='…']</code></td></tr>
+        <tr><td>Поиск по тексту</td><td>❌ нет</td><td>✅ <code>text()</code>, <code>contains()</code></td></tr>
+        <tr><td>Вверх к родителю</td><td>❌ нет</td><td>✅ <code>..</code>, <code>ancestor::</code></td></tr>
+        <tr><td>Классы</td><td>✅ понимает список классов</td><td>⚠️ только через <code>contains(@class, …)</code></td></tr>
+        <tr><td>Когда брать</td><td>по умолчанию</td><td>когда нужен текст или путь вверх</td></tr>
+      </table>
+    </div>
+    <p>Правило на практике: <b>сначала CSS по тестовому атрибуту</b>. XPath — когда без текста или родителя не обойтись.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Стабильные и хрупкие локаторы</h2>
+    <p>Любой локатор, который находит элемент сегодня, — рабочий. Хороший — тот, что найдёт его и <b>после изменений вёрстки</b>. Вот лестница: чем выше, тем надёжнее.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="Лестница стабильности локаторов от data-test-id до абсолютного пути">
+        <rect x="20" y="14" width="720" height="44" rx="10" class="d-green"/>
+        <text x="36" y="42" class="d-title">1. data-test-id</text>
+        <text x="250" y="42" class="d-mono-ink">[data-test-id='buy-101']</text>
+        <text x="724" y="42" text-anchor="end" class="d-small">для тестов, не меняют</text>
+        <rect x="20" y="66" width="660" height="44" rx="10" class="d-green"/>
+        <text x="36" y="94" class="d-title">2. id</text>
+        <text x="250" y="94" class="d-mono-ink">#nook-search</text>
+        <text x="664" y="94" text-anchor="end" class="d-small">если не сгенерирован</text>
+        <rect x="20" y="118" width="600" height="44" rx="10" class="d-teal"/>
+        <text x="36" y="146" class="d-title">3. name, type</text>
+        <text x="250" y="146" class="d-mono-ink">input[name='q']</text>
+        <text x="604" y="146" text-anchor="end" class="d-small">смысловые атрибуты</text>
+        <rect x="20" y="170" width="540" height="44" rx="10" class="d-yellow"/>
+        <text x="36" y="198" class="d-title">4. Осмысленный класс</text>
+        <text x="250" y="198" class="d-mono-ink">.cart-link</text>
+        <text x="544" y="198" text-anchor="end" class="d-small">меняет дизайнер</text>
+        <rect x="20" y="222" width="480" height="44" rx="10" class="d-yellow"/>
+        <text x="36" y="250" class="d-title">5. Текст</text>
+        <text x="250" y="250" class="d-mono-ink">//button[text()=…]</text>
+        <rect x="20" y="274" width="420" height="44" rx="10" class="d-red"/>
+        <text x="36" y="302" class="d-title">6. Путь, номер</text>
+        <text x="250" y="302" class="d-mono-ink">/html/body/div[3]</text>
+        <text x="516" y="250" class="d-small">меняют тексты и переводы</text>
+        <text x="456" y="302" class="d-small">ломается от любой правки вёрстки</text>
+      </svg>
+      <figcaption>Чем выше по лестнице, тем дольше проживёт локатор. Нижняя ступенька — только если других вариантов совсем нет.</figcaption>
+    </figure>
+    <p>Почему низ лестницы хрупкий:</p>
+    <ul>
+      <li><b>Абсолютный путь</b> <code>/html/body/div[3]/div[2]/button</code> зависит от <i>каждого</i> элемента на пути. Добавили баннер вверху — номера сдвинулись, тест упал.</li>
+      <li><b>Номер элемента</b> <code>(//button)[2]</code>, <code>li:nth-child(3)</code> — сломается, если поменяется порядок или добавится книга.</li>
+      <li><b>Длинная цепочка классов</b> <code>.page .content .left .catalog .row .card .btn</code> — сломается от любой перестройки блоков.</li>
+      <li><b>Текст</b> зависит от копирайтера и языка: «В корзину» → «Добавить в корзину» — и тест красный.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="callout-title">Нет data-test-id? Попроси</span>
+      <p>Нормальная рабочая ситуация: автоматизатор пишет разработчику «добавьте, пожалуйста, <code>data-test-id</code> на кнопку оплаты и поле промокода». Это пять минут их работы и годы спокойной жизни твоих тестов.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Практика: составь локаторы руками</h2>
+    <div class="say" data-mood="think"><p>Правило этого курса (и практика его автора на работе): <b>локаторы ты составляешь сам</b>. Не копируй из DevTools через «Copy selector» / «Copy XPath» — браузер выдаёт длинный хрупкий путь вроде <code>#root &gt; div &gt; div:nth-child(3) &gt; button</code>. И не проси ИИ «дай локатор» — проси объяснить, почему твой не находит. Глаза и руки учатся только так.</p></div>
+    <p>Для каждого пункта: найди элемент в песочнице через <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>, напиши локатор на бумажке или в блокноте, проверь его во вкладке <b>Console</b>: <code>$$("твой CSS")</code> или <code>$x("твой XPath")</code> — в ответе увидишь, сколько элементов нашлось. Только потом открывай ответ.</p>
+    <details class="predict">
+      <summary>1. Поле поиска — CSS по id</summary>
+      <p><code>#nook-search</code>. Проверка: <code>$$("#nook-search")</code> → массив из одного элемента.</p>
+    </details>
+    <details class="predict">
+      <summary>2. Кнопка «В корзину» у книги 101 — CSS и XPath по тестовому атрибуту</summary>
+      <p><code>[data-test-id='buy-101']</code> и <code>//*[@data-test-id='buy-101']</code>. Заметь звёздочку в XPath: тег не важен.</p>
+    </details>
+    <details class="predict">
+      <summary>3. Все три цены — одним CSS-локатором</summary>
+      <p><code>.book-card .price</code> (или просто <code>.price</code>, если на странице нет других цен). В тестах такой «списочный» локатор передают аргументом в метод Selenide <code>$$(…)</code> (урок 4) — он возвращает коллекцию элементов, чтобы посчитать их или проверить тексты разом.</p>
+    </details>
+    <details class="predict">
+      <summary>4. Заголовок книги «Чистый код» — XPath по точному тексту</summary>
+      <p><code>//h4[text()='Чистый код']</code>. Проверь в консоли: <code>$x("//h4[text()='Чистый код']")</code>.</p>
+    </details>
+    <details class="predict">
+      <summary>5. Все книги, в названии которых есть слово «Java»</summary>
+      <p><code>//h4[contains(text(),'Java')]</code> — найдёт два заголовка. Точный <code>text()='Java'</code> не нашёл бы ничего: такого заголовка целиком нет.</p>
+    </details>
+    <details class="predict">
+      <summary>6. Неактивная кнопка в карточках — CSS</summary>
+      <p><code>.book-card button[disabled]</code>. Без <code>.book-card</code> в начале нашлись бы и другие неактивные кнопки на этой странице — например, «Проверить» в быстрой проверке ниже, пока ты не выбрал ответ. Отличный пример, зачем уточнять «где искать».</p>
+    </details>
+    <details class="predict">
+      <summary>7. Счётчик товаров в корзине (цифра 0)</summary>
+      <p>Хорошо: <code>[data-test-id='cart'] .badge</code> — «значок внутри ссылки на корзину». Хрупко: <code>.badge</code> — значков на реальном сайте обычно много.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m18-03">
+      <script type="application/json">
+      {
+       "title": "Локаторы — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини, что нужно найти, с локатором",
+         "left": [
+          "Элемент с id=\"login\"",
+          "Все элементы с классом price",
+          "Любой тег с data-test-id=\"cart\"",
+          "Кнопка с текстом «Оплатить»"
+         ],
+         "right": [
+          "#login",
+          ".price",
+          "//*[@data-test-id='cart']",
+          "//button[text()='Оплатить']"
+         ],
+         "why": "# — id, точка — класс, @ — атрибут в XPath, text() — текст элемента."
+        },
+        {
+         "type": "bug",
+         "q": "Какой локатор хрупкий?",
+         "code": "$(\"[data-test-id='pay']\")\n$(\"#promo-code\")\n$x(\"/html/body/div[2]/div[3]/form/button\")\n$(\"input[name='email']\")",
+         "answer": [
+          3
+         ],
+         "why": "Абсолютный путь с номерами: добавят любой блок выше — номера сдвинутся и тест упадёт."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "CSS умеет искать элемент по его тексту",
+           "a": false,
+           "why": "по тексту ищет только XPath: text(), contains(text(), …)."
+          },
+          {
+           "s": "В XPath <code>..</code> переходит к родителю элемента",
+           "a": true
+          },
+          {
+           "s": "<code>//div[@class='book-card']</code> найдёт <code>&lt;div class=\"card book-card\"&gt;</code>",
+           "a": false,
+           "why": "XPath сравнивает строку атрибута целиком. Нужен contains(@class,'book-card')."
+          },
+          {
+           "s": "<code>button.green</code> и <code>button .green</code> — одно и то же",
+           "a": false,
+           "why": "пробел значит «внутри»: второй ищет элемент с классом green внутри кнопки."
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "В DevTools во вкладке Elements по <kbd>Ctrl</kbd>+<kbd>F</kbd> твой локатор показывает «1 of 4». Что это значит?",
+         "options": [
+          "Локатор отличный",
+          "Подходят 4 элемента — локатор надо уточнить",
+          "В локаторе ошибка"
+         ],
+         "answer": 1,
+         "why": "Для одного элемента нужен локатор, находящий ровно один. Уточни контейнер или возьми тестовый атрибут."
+        },
+        {
+         "type": "single",
+         "q": "Тебе выдали локатор <code>.page .main .left .catalog .row .card .btn</code>. Что с ним не так?",
+         "options": [
+          "Ничего — чем точнее, тем лучше",
+          "Длинная цепочка: сломается от любой перестройки блоков",
+          "CSS не умеет так писать"
+         ],
+         "answer": 1,
+         "why": "Каждое звено — ещё одна причина упасть. Лучше короткий локатор по тестовому атрибуту."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне кусок HTML и 5 элементов в нём. Я сам напишу на каждый CSS и XPath, а ты скажи, какие из моих локаторов хрупкие и почему»</em>. Задача на сайте: <a href="/tasks.html?module=m18">«Построитель локаторов» и «Ревизор локаторов»</a>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Локатор — адрес элемента. CSS: <code>#id</code>, <code>.class</code>, <code>[attr='v']</code>, пробел — «внутри», <code>&gt;</code> — «прямой ребёнок».</li>
+        <li>XPath: <code>//tag[@attr='v']</code>, <code>//*[@data-test-id='…']</code>, <code>text()</code>, <code>contains()</code>, <code>..</code> — к родителю.</li>
+        <li>По умолчанию — CSS; XPath — когда нужен текст или путь вверх.</li>
+        <li>Лестница стабильности: data-test-id → id → name → класс → текст → путь с номерами.</li>
+        <li>Локаторы пишешь руками и проверяешь в DevTools: хороший находит ровно один элемент.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

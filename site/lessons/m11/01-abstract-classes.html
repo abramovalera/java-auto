@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Абстрактные классы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-01">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 11 · Урок 1</div>
+    <h1>Абстрактные классы</h1>
+    <p class="lead">Бывают классы-заготовки: общий план есть, а одной детали не хватает. Учимся писать такие «полуфабрикаты» — и разбираемся, почему Java не даёт создать из них объект.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <p>Этот модуль стоит на плечах модуля 10. Вспомним наследование и полиморфизм — без них дальше никак.</p>
+    <div data-widget="check" id="check-m11-01-review">
+      <script type="application/json">
+      { "title": "Вспомним ООП", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "class Animal {\n    String voice() { return \"...\"; }\n}\nclass Cat extends Animal {\n    @Override\n    String voice() { return \"Мяу\"; }\n}\n\nAnimal a = new Cat();\nSystem.out.println(a.voice());",
+            "answer": "Мяу",
+            "why": "Это полиморфизм: переменная типа <code>Animal</code> хранит ссылку на объект <code>Cat</code>. Вызывается переопределённый метод того объекта, на который указывает ссылка." },
+          { "type": "single", "q": "Сколько родительских классов может быть у класса после <code>extends</code>?",
+            "options": ["Ровно один", "Сколько угодно", "Ни одного — extends только для интерфейсов"], "answer": 0,
+            "why": "В Java у класса один родитель. Запомни это — в следующем уроке это ограничение станет важным." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "@Override просит компилятор проверить, что мы действительно переопределяем метод родителя", "a": true },
+              { "s": "Конструктор наследника вызывает конструктор родителя через super(...)", "a": true },
+              { "s": "Если в наследнике не переопределить метод, программа не скомпилируется", "a": false, "why": "обычный метод можно не переопределять — тогда наследник использует версию родителя." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA, абстрактные классы и интерфейсы</h3>
+      <p>В этом модуле IDEA будет часто писать за тебя заготовки методов. Перепиши таблицу руками в свою шпаргалку.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>I</kbd></td><td>Implement Methods: список методов, которые класс <b>обязан</b> написать, — IDEA вставит заготовки</td><td>Унаследовал абстрактный класс или реализовал интерфейс (<code>implements</code>)</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на красном заголовке класса → <b>Implement methods</b></td><td>То же самое, но прямо из подсказки к ошибке «must … implement abstract method»</td><td>Класс подчёркнут красным: не все методы написаны</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd> на абстрактном методе или интерфейсе</td><td>Показать все классы, где он реализован</td><td>«Кто вообще подписал этот контракт?»</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на <code>switch</code> по enum → <b>Create missing switch branches</b></td><td>Дописать ветки <code>case</code> для всех констант</td><td>Урок 5: switch по enum</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Какая площадь у «фигуры вообще»?</h2>
+    <p>Пишем программу для геометрии. У всех фигур есть название и площадь, поэтому общий родитель напрашивается сам:</p>
+<pre data-file="Shape.java"><code class="java">class Shape {
+    double area() {
+        return 0;     // ??? а какая площадь у «просто фигуры»?
+    }
+}
+
+class Circle extends Shape { … area() считает π·r² … }
+class Triangle extends Shape { … про area() забыли … }</code></pre>
+    <p>Вот и проблема. Площадь «фигуры вообще» посчитать невозможно — это не круг, не квадрат, а просто идея. Мы написали <code>return 0</code>, потому что Java требует тело метода. Но это <b>враньё</b>, и оно опасно.</p>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>new Triangle().area()</code>, если в Triangle забыли переопределить <code>area()</code>?</summary>
+      <p><code>0.0</code> — и никакой ошибки! Треугольник молча взял «враньё» родителя. Это логическая ошибка: программа работает, но считает неправильно, и компилятор ничего не заметил. Хочется, чтобы Java <b>заставила</b> каждого наследника написать свою площадь.</p>
+    </details>
+    <div class="say" data-mood="think"><p>Нам нужен способ сказать: «Площадь есть у каждой фигуры, но как её считать — решит конкретная фигура. А “просто фигуру” создавать вообще нельзя». Именно это и умеет слово <code>abstract</code>.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>abstract: метод без тела, класс-заготовка</h2>
+<pre data-file="Shape.java"><code class="java">abstract class Shape {
+    abstract double area();   // только заголовок и ; — тела нет
+}
+
+class Circle extends Shape {
+    private final double r;
+
+    Circle(double r) {
+        this.r = r;
+    }
+
+    @Override
+    double area() {           // наследник ОБЯЗАН написать тело
+        return Math.PI * r * r;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>abstract class Shape</code><div><p><b>Абстрактный класс</b> — класс-заготовка. Из него нельзя создать объект (экземпляр), его можно только наследовать через <code>extends</code>.</p></div></div>
+      <div class="annot-row"><code>abstract double area();</code><div><p><b>Абстрактный метод</b> — метод без тела: есть заголовок (имя, параметры, тип возвращаемого значения), но нет фигурных скобок с телом — сразу <code>;</code>. Это обещание: «у каждой фигуры будет area()».</p></div></div>
+      <div class="annot-row"><code>@Override double area() { … }</code><div><p>Наследник выполняет обещание: <b>переопределяет</b> метод и пишет тело — то есть <b>реализует</b> абстрактный метод. Обычный (не абстрактный) класс ещё называют <b>конкретным</b>.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: основа для пиццы</span>
+      <p>В пиццерии есть «основа»: тесто, соус, сыр — общая часть для всех пицц. Но продать «просто основу» нельзя: это ещё не пицца. Каждая пицца — «Маргарита», «Пепперони» — добавляет свою начинку. <b>Абстрактный класс — основа</b>: в нём всё общее и пустое место под начинку (абстрактный метод). <b>Наследник — конкретная пицца</b>.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 300" role="img" aria-label="Абстрактный класс Shape наверху, три наследника Circle, Rect, Triangle внизу, каждый реализует area">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="230" y="16" width="260" height="100" rx="14" class="d-violet" stroke-dasharray="8 5"/>
+        <text x="360" y="44" text-anchor="middle" class="d-small">abstract class</text>
+        <text x="360" y="68" text-anchor="middle" class="d-title">Shape</text>
+        <text x="360" y="94" text-anchor="middle" class="d-mono-ink">area() — ???</text>
+        <rect x="530" y="30" width="170" height="72" rx="12" class="d-red"/>
+        <text x="615" y="60" text-anchor="middle" class="d-mono-ink">new Shape()</text>
+        <text x="615" y="86" text-anchor="middle" class="d-small">✗ нельзя</text>
+        <rect x="20" y="196" width="200" height="88" rx="14" class="d-green"/>
+        <text x="120" y="228" text-anchor="middle" class="d-title">Circle</text>
+        <text x="120" y="258" text-anchor="middle" class="d-mono-ink">area() = π·r²</text>
+        <rect x="260" y="196" width="200" height="88" rx="14" class="d-green"/>
+        <text x="360" y="228" text-anchor="middle" class="d-title">Rect</text>
+        <text x="360" y="258" text-anchor="middle" class="d-mono-ink">area() = a·b</text>
+        <rect x="500" y="196" width="200" height="88" rx="14" class="d-green"/>
+        <text x="600" y="228" text-anchor="middle" class="d-title">Triangle</text>
+        <text x="600" y="258" text-anchor="middle" class="d-mono-ink">area() = a·h/2</text>
+        <path d="M120 194 L300 120" class="d-arrow"/>
+        <path d="M360 194 L360 120" class="d-arrow"/>
+        <path d="M600 194 L420 120" class="d-arrow"/>
+        <text x="185" y="150" class="d-small">extends</text>
+        <text x="368" y="160" class="d-small">extends</text>
+        <text x="500" y="150" class="d-small">extends</text>
+      </svg>
+      <figcaption>Пунктирная рамка — заготовка: объектов Shape не бывает. Зелёные — конкретные классы: у каждого своя площадь.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Два правила, которые проверяет компилятор</h2>
+    <p><b>Правило 1. Объект абстрактного класса создать нельзя.</b></p>
+<pre data-file="Main.java"><code class="java">Shape s = new Shape();     // ✗ ошибка компиляции</code></pre>
+<pre class="terminal"><span class="err">Main.java:3: error: Shape is abstract; cannot be instantiated
+        Shape s = new Shape();
+                  ^</span></pre>
+    <div data-widget="ide" id="shot-abstract-new">
+      <script type="application/json">
+      { "tree": false, "file": "Main.java", "statusPath": "module-11", "gutterRun": [1, 2],
+        "code": "public class Main {\n    public static void main(String[] args) {\n        Shape s = new Shape();\n    }\n}",
+        "errors": [ { "line": 3, "text": "new Shape()", "msg": "'Shape' is abstract; cannot be instantiated", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Красным — попытка создать объект: <code>new Shape()</code>. Левая часть <code>Shape s</code> не подчёркнута — объявить переменную такого типа можно" },
+                   { "n": 2, "target": "tip", "text": "<b>'Shape' is abstract; cannot be instantiated</b> — «Shape абстрактный, создать его объект нельзя». У <code>javac</code> слова те же, только без кавычек" } ],
+        "caption": "Объект абстрактного класса создать нельзя" }
+      </script>
+    </div>
+    <p>Логично: если создать «просто фигуру» и вызвать <code>s.area()</code>, выполнять нечего — тела-то нет. Java защищает от этого заранее. Но обрати внимание: <b>объявить переменную</b> типа <code>Shape</code> — пожалуйста. Она будет хранить <b>ссылку</b> на объект-круг или объект-прямоугольник.</p>
+<pre data-file="Main.java"><code class="java">// ✓ переменная абстрактного типа, объект — конкретный
+Shape s = new Circle(2);</code></pre>
+    <p><b>Правило 2. Наследник обязан реализовать все абстрактные методы</b> — или сам стать абстрактным.</p>
+<pre data-file="Main.java"><code class="java">class Triangle extends Shape {
+    // забыли area()
+}</code></pre>
+<pre class="terminal"><span class="err">Main.java:12: error: Triangle is not abstract and does not override abstract method area() in Shape
+class Triangle extends Shape {
+^</span></pre>
+    <p>В IDEA эту ошибку видно сразу, как только написал <code>extends Shape</code>:</p>
+    <div data-widget="ide" id="shot-must-implement">
+      <script type="application/json">
+      { "tree": false, "file": "Main.java", "statusPath": "module-11",
+        "code": "abstract class Shape {\n    abstract double area();\n}\n\nclass Triangle extends Shape {\n    // забыли area()\n}",
+        "errors": [ { "line": 5, "text": "class Triangle extends Shape", "msg": "Class 'Triangle' must either be declared abstract or implement abstract method 'area()' in 'Shape'", "tip": true, "fix": "Implement methods" } ],
+        "marks": [ { "n": 1, "target": "err-5", "side": "top", "text": "Подчёркнут весь заголовок класса: претензия к классу целиком, а не к одной строке" },
+                   { "n": 2, "target": "tip", "text": "<b>Class 'Triangle' must either be declared abstract or implement abstract method 'area()' in 'Shape'</b> — «класс Triangle должен либо стать abstract, либо реализовать абстрактный метод area() из Shape». Это и есть правило 2 слово в слово" },
+                   { "n": 3, "target": "line-2", "text": "Вот обещание, которое Triangle не выполнил" } ],
+        "caption": "Наследник не реализовал абстрактный метод" }
+      </script>
+    </div>
+    <p>Чинить можно руками, а можно доверить IDEA: поставь курсор на красное и нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> (или сразу <kbd>Ctrl</kbd>+<kbd>I</kbd> из шпаргалки):</p>
+    <div data-widget="ide" id="shot-implement-fix">
+      <script type="application/json">
+      { "tree": false, "file": "Main.java", "statusPath": "module-11",
+        "code": "abstract class Shape {\n    abstract double area();\n}\n\nclass Triangle extends Shape {\n    // забыли area()\n}", "caretLine": 5,
+        "errors": [ { "line": 5, "text": "class Triangle extends Shape", "msg": "" } ],
+        "menu": { "at": "line-5", "items": ["Implement methods", "Make 'Triangle' abstract"], "hl": "Implement methods" },
+        "marks": [ { "n": 1, "target": "menu", "text": "<b>Implement methods</b> — «реализовать методы»: IDEA вставит заготовку <code>area()</code> с <code>@Override</code>, останется написать формулу" },
+                   { "n": 2, "target": "err-5", "side": "top", "text": "Второй вариант — <b>Make 'Triangle' abstract</b>: объявить Triangle тоже абстрактным (заготовкой). Выбирай его, только если треугольник и правда «недоделанный»" } ],
+        "caption": "Alt+Enter на ошибке: два способа починить" }
+      </script>
+    </div>
+    <p>Вот она, защита от «вранья» с <code>return 0</code>: забыть площадь теперь невозможно — программа просто не скомпилируется. Ошибка компиляции лучше логической: её видно сразу, а не через месяц в отчёте.</p>
+    <details class="predict">
+      <summary>Предскажи: а что если написать <code>abstract class Triangle extends Shape { }</code>?</summary>
+      <p>Скомпилируется. Абстрактный наследник имеет право не реализовывать <code>area()</code> — он тоже заготовка. Обязанность просто переходит дальше: первый <b>конкретный</b> наследник (например, <code>RightTriangle extends Triangle</code>) должен будет написать тело.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Шаблон «общая часть + своя деталь»</h2>
+    <p>В абстрактном классе можно держать не только абстрактные методы. В нём бывают <b>поля, конструктор и обычные методы</b> — всё общее, что не хочется копировать в каждого наследника. И самое интересное: обычный метод может <b>вызывать абстрактный</b>.</p>
+<pre data-file="Shapes.java"><code class="java">abstract class Shape {
+    private final String name;
+
+    // да, у абстрактного класса есть конструктор
+    Shape(String name) {
+        this.name = name;
+    }
+
+    abstract double area();
+
+    String describe() {  // общая часть: одна на всех
+        return name + ", площадь " + area();   // своя деталь: area() наследника
+    }
+}
+
+class Rect extends Shape {
+    private final double a;
+    private final double b;
+
+    Rect(double a, double b) {
+        // конструктор Shape вызывается через super
+        super("Прямоугольник");
+        this.a = a;
+        this.b = b;
+    }
+
+    @Override
+    double area() {
+        return a * b;
+    }
+}</code></pre>
+    <p>Метод <code>describe()</code> объявлен <b>один раз</b>, но у объекта-круга он вызовет <code>area()</code> из <code>Circle</code>, а у прямоугольника — из <code>Rect</code>. Пройди по шагам и посмотри, чья <code>area()</code> вызывается:</p>
+    <div data-widget="trace" id="trace-describe">
+      <script type="application/json">
+      { "title": "describe() зовёт area() наследника", "icon": "🧩",
+        "intro": "В массиве лежат прямоугольник 2×3 и круг радиусом 1. Цикл вызывает describe() — общий для всех. Угадывай, что вернёт area() на каждом круге.",
+        "code": "Shape[] shapes = { new Rect(2, 3), new Circle(1) };\nfor (Shape s : shapes) {\n    System.out.println(s.describe());\n}",
+        "steps": [
+          { "line": 1, "vars": { "shapes": "[Rect 2×3, Circle r=1]" }, "note": "Массив типа Shape[]: элементы — ссылки абстрактного типа Shape, а объекты, на которые они указывают, конкретные: Rect и Circle." },
+          { "line": 2, "vars": { "s": "Rect 2×3" }, "note": "Первый круг цикла: s указывает на прямоугольник." },
+          { "line": 3, "vars": { "s": "Rect 2×3", "чья area()": "Rect", "area()": "6.0" }, "ask": ["area()"], "note": "describe() объявлен в Shape, но внутри него вызывается area() того объекта, на который указывает s, — переопределённый метод Rect: 2 · 3.", "out": "Прямоугольник, площадь 6.0\n" },
+          { "line": 2, "vars": { "s": "Circle r=1" }, "note": "Второй круг: s указывает на круг." },
+          { "line": 3, "vars": { "s": "Circle r=1", "чья area()": "Circle", "area()": "3.14159…" }, "note": "Тот же самый describe(), но теперь area() — круглая: π · 1 · 1.", "out": "Круг, площадь 3.141592653589793\n" },
+          { "line": 4, "vars": { "s": "—" }, "note": "Массив кончился. Один describe() — два разных результата. Это шаблон «общая часть + своя деталь»." }
+        ] }
+      </script>
+    </div>
+    <div class="callout fact">
+      <span class="callout-title">У этого приёма есть имя</span>
+      <p>Когда общий метод родителя задаёт порядок действий, а отдельные шаги оставляет наследникам, это называют <b>шаблонным методом</b> (Template Method). На собеседованиях его любят спрашивать — и он повсюду в библиотеках Java.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Где это в настоящих программах</h2>
+    <p>В больших программах почти всегда есть абстрактный «базовый» класс. Общие действия написаны там один раз, а каждый наследник добавляет свою деталь. Например, доставка в интернет-магазине: везут заказ все одинаково, а адрес у каждого вида доставки свой.</p>
+<pre data-file="Deliveries.java"><code class="java">abstract class Delivery {
+    abstract String address();                 // у каждой доставки свой адрес
+
+    void deliver() {                           // везти умеют все одинаково
+        System.out.println("Везу заказ: " + address());
+        System.out.println("Отправляю SMS: заказ в пути…");
+    }
+}
+
+class HomeDelivery extends Delivery {
+    @Override
+    String address() { return "ул. Лесная, 5"; }
+}
+
+class PickupDelivery extends Delivery {
+    @Override
+    String address() { return "пункт выдачи №12"; }
+}</code></pre>
+<pre class="terminal"><span class="out">Везу заказ: ул. Лесная, 5
+Отправляю SMS: заказ в пути…</span></pre>
+    <p>Захотели добавить в <code>deliver()</code> фото посылки — правим <b>одно</b> место, и это работает для всех доставок. А новый вид доставки нельзя «забыть» снабдить адресом: компилятор не пустит.</p>
+    <details class="predict">
+      <summary>Предскажи: можно ли написать <code>Delivery d = new HomeDelivery(); d.deliver();</code>? Что напечатается?</summary>
+      <p>Можно: переменная абстрактного типа <code>Delivery</code> хранит ссылку на объект конкретного класса <code>HomeDelivery</code>. Напечатается «Везу заказ: ул. Лесная, 5» и «Отправляю SMS: заказ в пути…». <code>deliver()</code> унаследован от Delivery, а <code>address()</code> вызывается переопределённый — из HomeDelivery.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Что может быть в абстрактном классе</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Можно ли?</th><th>Ответ</th></tr>
+        <tr><td>Поля (в том числе private)</td><td>✓ да</td></tr>
+        <tr><td>Конструктор</td><td>✓ да — его вызывают наследники через <code>super(...)</code></td></tr>
+        <tr><td>Обычные методы с телом</td><td>✓ да</td></tr>
+        <tr><td>Абстрактные методы</td><td>✓ сколько угодно, даже ни одного</td></tr>
+        <tr><td>Переменная этого типа, массив <code>Shape[]</code></td><td>✓ да</td></tr>
+        <tr><td><code>new Shape()</code></td><td>✗ нет</td></tr>
+        <tr><td>Абстрактный метод в обычном (не abstract) классе</td><td>✗ нет — класс с абстрактным методом обязан быть abstract</td></tr>
+      </table>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: странные сочетания слов, о которых спрашивают на собеседованиях</summary>
+      <ul>
+        <li><code>abstract final class</code> — ошибка. <code>final</code> запрещает наследование, а абстрактный класс без наследников бесполезен.</li>
+        <li><code>private abstract void m();</code> — ошибка. Наследник не видит private-метод, значит, не сможет его реализовать.</li>
+        <li><code>static abstract void m();</code> — ошибка. Статический метод принадлежит классу и не переопределяется, а абстрактный только для того и существует.</li>
+        <li><code>abstract class Helper { }</code> без единого абстрактного метода — законно. Так делают, когда хотят запретить создавать объекты «общего» класса.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m11-01">
+      <script type="application/json">
+      {
+       "title": "Абстрактные классы — главное",
+       "items": [
+        {
+         "type": "bug",
+         "q": "В какой строке ошибка компиляции?",
+         "code": "abstract class Shape {\n    abstract double area();\n}\nclass Square extends Shape {\n    double area() { return 4; }\n}\nShape a = new Square();\nShape b = new Shape();",
+         "answer": [
+          8
+         ],
+         "why": "Объект абстрактного класса создать нельзя. А <code>Shape a = new Square()</code> — нормально: переменная абстрактного типа хранит ссылку на объект конкретного класса."
+        },
+        {
+         "type": "single",
+         "q": "Класс <code>Square extends Shape</code> не реализовал абстрактный <code>area()</code>. Что будет?",
+         "options": [
+          "Ошибка компиляции, если Square не abstract",
+          "Компилируется, area() вернёт 0",
+          "Ошибка только при вызове area()"
+         ],
+         "answer": 0,
+         "why": "Компилятор требует: либо реализуй все абстрактные методы, либо объяви класс abstract."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "abstract class Pizza {\n    String make() { return \"тесто + \" + topping(); }\n    abstract String topping();\n}\nclass Pepperoni extends Pizza {\n    String topping() { return \"колбаса\"; }\n}\n\nPizza p = new Pepperoni();\nSystem.out.println(p.make());",
+         "answer": "тесто + колбаса",
+         "why": "make() — общая часть из Pizza, topping() — своя деталь из Pepperoni. Шаблонный метод."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "У абстрактного класса может быть конструктор",
+           "a": true
+          },
+          {
+           "s": "В абстрактном классе все методы должны быть абстрактными",
+           "a": false,
+           "why": "можно смешивать: обычные методы с телом и абстрактные."
+          },
+          {
+           "s": "Массив Shape[] можно создать, даже если Shape абстрактный",
+           "a": true
+          },
+          {
+           "s": "Абстрактный метод можно объявить в обычном классе",
+           "a": false,
+           "why": "если есть хоть один абстрактный метод, класс обязан быть abstract."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясни мне на примере не из урока, зачем делать класс абстрактным, если можно просто не создавать его объекты»</em>. А потом попробуй сам ответить, почему <code>return 0</code> в методе родителя — плохая идея.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>abstract class</code> — заготовка: наследовать можно, создавать объект нельзя.</li>
+        <li><code>abstract</code>-метод — только заголовок и <code>;</code>. Каждый конкретный наследник обязан написать тело, иначе ошибка компиляции.</li>
+        <li>В абстрактном классе бывают поля, конструктор и обычные методы — вся общая часть.</li>
+        <li>Обычный метод может вызывать абстрактный: «общая часть + своя деталь» (шаблонный метод).</li>
+        <li>Переменные и массивы абстрактного типа — можно: они хранят ссылки на объекты конкретных классов.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

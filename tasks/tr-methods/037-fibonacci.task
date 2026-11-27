@@ -1,0 +1,42 @@
+## id: tr-methods-037
+## title: Кролики Фибоначчи
+## file: trainer/methods/RabbitFibonacciRecursion.java
+## class: RabbitFibonacciRecursion
+## level: 2
+## category: Рекурсия
+@@ description
+<p>Числа Фибоначчи: <code>F(0) = 0</code>, <code>F(1) = 1</code>, а каждое следующее — сумма двух предыдущих. Ими описывают, сколько пар кроликов будет через <code>n</code> месяцев. Создай класс <code>RabbitFibonacciRecursion</code> и напиши <b>рекурсивный</b> метод <code>static long fib(int n)</code>, без циклов.</p>
+<p>main читает <code>n</code> от 0 до 35 и печатает <code>Пар кроликов в месяце n: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10     вывод: Пар кроликов в месяце 10: 55</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>базовых случаев два: <code>n == 0</code> и <code>n == 1</code></li>
+<li>метод может вызвать себя дважды в одном выражении: <code>f(n - 1) + f(n - 2)</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+10
+@@ expect
+Пар кроликов в месяце 10: 55
+@@ test: Нулевой месяц
+@@ input
+0
+@@ expect
+Пар кроликов в месяце 0: 0
+@@ test: Первый месяц
+@@ input
+1
+@@ expect
+Пар кроликов в месяце 1: 1
+@@ test: Второй месяц
+@@ input
+2
+@@ expect
+Пар кроликов в месяце 2: 1
+@@ test: Тридцать пятый
+@@ input
+35
+@@ expect
+Пар кроликов в месяце 35: 9227465
+@@ require: static\s+long\s+fib\s*\(\s*int\s+\w+\s*\) | Нужен метод static long fib(int n)
+@@ require: \bfib\s*\(\s*\w+\s*-\s*2\s*\) | Метод должен вызывать сам себя: fib(n - 1) + fib(n - 2)
+@@ forbid: \b(for|while)\s*\( | Здесь без циклов: повторение делает рекурсия

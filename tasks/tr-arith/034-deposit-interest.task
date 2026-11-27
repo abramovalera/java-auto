@@ -1,0 +1,53 @@
+## id: tr-arith-034
+## title: Вклад со сложными процентами
+## file: trainer/arith/DepositCompoundInterest.java
+## class: DepositCompoundInterest
+## level: 2
+## category: Деньги и проценты
+@@ description
+<p>Банк раз в год начисляет проценты на всю сумму вклада, включая прошлые проценты. За один год сумма умножается на <code>(1 + ставка / 100)</code>, за несколько лет — на это число в степени «количество лет». Создай класс <code>DepositCompoundInterest</code>. Программа читает три целых числа, каждое с новой строки: сумму вклада, ставку в процентах годовых и срок в годах. Она печатает сумму в конце срока, округлённую до копеек.</p>
+<pre class="terminal"><span class="out">ввод:  10000
+       10
+       2
+вывод: На счёте: 12100.0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.pow(a, b)</code> — возводит <code>a</code> в степень <code>b</code>, возвращает <code>double</code></li>
+<li>Ставка целая: <code>10 / 100</code> равно <code>0</code>, а <code>10 / 100.0</code> равно <code>0.1</code></li>
+<li><code>Math.round(x * 100) / 100.0</code> — округляет до двух знаков после точки</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+10000
+10
+2
+@@ expect
+На счёте: 12100.0
+@@ test: Пять лет под 8%
+@@ input
+100000
+8
+5
+@@ expect
+На счёте: 146932.81
+@@ test: Нулевая ставка
+@@ input
+1000
+0
+10
+@@ expect
+На счёте: 1000.0
+@@ test: Срок ноль лет
+@@ input
+5000
+12
+0
+@@ expect
+На счёте: 5000.0
+@@ test: Удвоение каждый год
+@@ input
+1
+100
+10
+@@ expect
+На счёте: 1024.0
+@@ require: Math\.pow | Степень считается методом Math.pow

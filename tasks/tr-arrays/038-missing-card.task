@@ -1,0 +1,44 @@
+## id: tr-arrays-038
+## title: Потерянная карточка
+## file: trainer/arrays/MissingCardNumber.java
+## class: MissingCardNumber
+## level: 2
+## category: Поиск
+@@ description
+<p>Напиши класс <code>MissingCardNumber</code>. В наборе были карточки с номерами от 1 до <code>n</code>, каждая по одной, но одна потерялась. В первой строке — <code>n</code> (n ≥ 1), во второй — оставшиеся <code>n - 1</code> номеров в случайном порядке (если <code>n = 1</code>, вторая строка пустая). Напечатай номер потерянной карточки.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       3 1 5 2
+вывод: 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>способ 1: <code>boolean[] seen = new boolean[n + 1];</code> — отметь каждый номер, потом найди неотмеченный</li>
+<li>способ 2: сумма чисел от 1 до <code>n</code> минус сумма оставшихся</li>
+</ul></div>
+@@ test: Пять карточек
+@@ input
+5
+3 1 5 2
+@@ expect
+4
+@@ test: Пропала последняя
+@@ input
+4
+1 2 3
+@@ expect
+4
+@@ test: Пропала первая
+@@ input
+3
+3 2
+@@ expect
+1
+@@ test: Была одна
+@@ input
+1
+@@ expect
+1
+@@ test: Десять карточек
+@@ input
+10
+10 9 8 7 6 4 3 2 1
+@@ expect
+5

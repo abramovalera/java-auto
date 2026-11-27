@@ -1,0 +1,45 @@
+## id: tr-arith-037
+## title: День рождения 29 февраля
+## file: trainer/arith/Feb29BirthdayYear.java
+## class: Feb29BirthdayYear
+## level: 2
+## category: Время и календарь
+@@ description
+<p>Тот, кто родился 29 февраля, празднует день рождения в «свой» день только в високосные годы. Год високосный, если он делится на 4, но не делится на 100, — <b>или</b> если он делится на 400. Создай класс <code>Feb29BirthdayYear</code>. Программа читает год и печатает <code>true</code>, если в этом году будет 29 февраля, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2028    вывод: true
+ввод:  1900    вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>year % 100 != 0</code> — «не делится на 100»</li>
+<li><code>&amp;&amp;</code> выполняется раньше <code>||</code>, но скобки делают выражение понятнее</li>
+</ul></div>
+@@ test: Обычный високосный
+@@ input
+2028
+@@ expect
+true
+@@ test: Невисокосный
+@@ input
+2026
+@@ expect
+false
+@@ test: Делится на 100
+@@ input
+1900
+@@ expect
+false
+@@ test: Делится на 400
+@@ input
+2000
+@@ expect
+true
+@@ test: 2100 — тоже нет
+@@ input
+2100
+@@ expect
+false
+@@ test: Недавний
+@@ input
+2024
+@@ expect
+true
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

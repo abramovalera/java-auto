@@ -1,0 +1,66 @@
+## id: tr-except-021
+## title: Снятие с карты
+## file: trainer/except/CardWithdrawalLog.java
+## class: CardWithdrawalLog
+## level: 2
+## category: throw и свои исключения
+@@ description
+<p>Напиши класс <code>CardWithdrawalLog</code>. Банкомат выдаёт деньги с карты. Объяви своё проверяемое исключение <code>CardBalanceTooLowException</code> (наследник <code>Exception</code>, в том же файле без <code>public</code>).</p>
+<p>Храни баланс в статическом поле. Напиши метод <code>static void withdraw(int amount) throws CardBalanceTooLowException</code>:</p>
+<ul>
+<li>сумма 0 или меньше — выбрасывает <code>IllegalArgumentException</code> с сообщением <code>сумма должна быть больше нуля</code>;</li>
+<li>сумма больше баланса — выбрасывает <code>CardBalanceTooLowException</code> с сообщением <code>не хватает X руб.</code>, где X — сколько не хватает;</li>
+<li>иначе уменьшает баланс.</li>
+</ul>
+<p>Ввод: баланс, количество операций n и n сумм — целые числа, каждое с новой строки. На каждую операцию программа печатает <code>Снято A, осталось B</code> или <code>Отказ: </code> и сообщение исключения. В конце — <code>Итоговый баланс: B</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1000     вывод: Снято 300, осталось 700
+       2               Отказ: не хватает 100 руб.
+       300             Итоговый баланс: 700
+       800</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>catch (CardBalanceTooLowException | IllegalArgumentException e)</code> — один блок на оба исключения</li>
+<li><code>static int balance;</code> — поле класса, его видят все статические методы</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+1000
+2
+300
+800
+@@ expect
+Снято 300, осталось 700
+Отказ: не хватает 100 руб.
+Итоговый баланс: 700
+@@ test: Снять всё до нуля
+@@ input
+500
+2
+500
+1
+@@ expect
+Снято 500, осталось 0
+Отказ: не хватает 1 руб.
+Итоговый баланс: 0
+@@ test: Ноль и минус
+@@ input
+200
+3
+0
+-50
+150
+@@ expect
+Отказ: сумма должна быть больше нуля
+Отказ: сумма должна быть больше нуля
+Снято 150, осталось 50
+Итоговый баланс: 50
+@@ test: Пустая карта
+@@ input
+0
+1
+10
+@@ expect
+Отказ: не хватает 10 руб.
+Итоговый баланс: 0
+@@ require: class\s+CardBalanceTooLowException\s+extends\s+Exception | Объяви класс CardBalanceTooLowException extends Exception
+@@ require: throws\s+CardBalanceTooLowException | Объяви в сигнатуре withdraw: throws CardBalanceTooLowException
+@@ require: throw\s+new\s+IllegalArgumentException | На сумму 0 и меньше выбрасывай IllegalArgumentException

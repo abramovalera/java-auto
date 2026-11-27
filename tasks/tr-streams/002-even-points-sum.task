@@ -1,0 +1,37 @@
+## id: tr-streams-002
+## title: Очки только за чётные
+## file: trainer/streams/EvenPointsSum.java
+## class: EvenPointsSum
+## level: 1
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>EvenPointsSum</code>. В настольной игре за ход выпадает несколько очков, но в зачёт идут только чётные. В одной строке — целые числа через пробел (хотя бы одно, могут быть отрицательные — штрафы). Напечатай <code>Сумма чётных: X</code>. Если чётных нет — сумма равна 0.</p>
+<pre class="terminal"><span class="out">ввод:  1 2 3 4 5 6
+вывод: Сумма чётных: 12</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>x % 2 == 0</code> — число чётное (работает и для отрицательных)</li>
+<li><code>.sum()</code> — у <code>IntStream</code> возвращает сумму всех элементов (для пустого стрима — 0)</li>
+</ul></div>
+@@ test: Обычный ход
+@@ input
+1 2 3 4 5 6
+@@ expect
+Сумма чётных: 12
+@@ test: Отрицательные чётные тоже считаются
+@@ input
+-4 3 -2
+@@ expect
+Сумма чётных: -6
+@@ test: Ни одного чётного
+@@ input
+1 3 5 7
+@@ expect
+Сумма чётных: 0
+@@ test: Ноль — чётное число
+@@ input
+0
+@@ expect
+Сумма чётных: 0
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

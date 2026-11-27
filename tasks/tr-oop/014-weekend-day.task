@@ -1,0 +1,46 @@
+## id: tr-oop-014
+## title: Выходной или нет?
+## file: trainer/oop/WeekendDayCheck.java
+## class: WeekendDayCheck
+## level: 1
+## category: enum и record
+@@ description
+<p>Создай класс <code>WeekendDayCheck</code> с методом <code>main</code>, а ниже в том же файле — перечисление <code>enum CalendarDay</code> с константами <code>MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY</code> (именно в этом порядке).</p>
+<p>В перечислении объяви метод <code>boolean isWeekend()</code> — возвращает <code>true</code> для субботы и воскресенья.</p>
+<p><code>main</code> читает английское название дня — в любом регистре (<code>saturday</code>, <code>Saturday</code>, <code>SATURDAY</code>), получает константу перечисления и печатает две строки: номер дня в неделе с названием константы и <code>Выходной!</code> или <code>Рабочий день</code>.</p>
+<pre class="terminal"><span class="out">ввод:  saturday
+вывод: День №6: SATURDAY
+       Выходной!</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>CalendarDay.valueOf("MONDAY")</code> — возвращает константу по её имени (имя должно совпасть точно, с регистром)</li>
+<li><code>day.ordinal()</code> — порядковый номер константы, считая с 0</li>
+<li><code>this == SUNDAY</code> — внутри метода enum <code>this</code> — это текущая константа</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+saturday
+@@ expect
+День №6: SATURDAY
+Выходной!
+@@ test: Понедельник
+@@ input
+MONDAY
+@@ expect
+День №1: MONDAY
+Рабочий день
+@@ test: Воскресенье, смешанный регистр
+@@ input
+SunDay
+@@ expect
+День №7: SUNDAY
+Выходной!
+@@ test: Пятница ещё рабочая
+@@ input
+Friday
+@@ expect
+День №5: FRIDAY
+Рабочий день
+@@ require: \benum\s+CalendarDay\b | Объяви в том же файле перечисление enum CalendarDay
+@@ require: \bboolean\s+isWeekend\s*\(\s*\) | Объяви в перечислении метод boolean isWeekend()
+@@ require: CalendarDay\.valueOf\s*\( | Получи константу методом CalendarDay.valueOf(...)
+@@ require: \.ordinal\s*\(\s*\) | Номер дня возьми из ordinal()

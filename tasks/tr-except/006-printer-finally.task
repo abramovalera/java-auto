@@ -1,0 +1,45 @@
+## id: tr-except-006
+## title: Принтер освободился
+## file: trainer/except/PrinterJobFinally.java
+## class: PrinterJobFinally
+## level: 1
+## category: try/catch/finally
+@@ description
+<p>Напиши класс <code>PrinterJobFinally</code>. Принтер получает количество копий строкой. Программа читает строку через <code>nextLine()</code>:</p>
+<ul>
+<li>если это целое число — печатает <code>Печатаю копий: N</code>;</li>
+<li>если нет — печатает <code>Неверное количество копий</code>.</li>
+</ul>
+<p>И в любом случае последней строкой печатает <code>Принтер свободен</code> — эту строку выведи из блока <code>finally</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3          вывод: Печатаю копий: 3
+                         Принтер свободен
+ввод:  три        вывод: Неверное количество копий
+                         Принтер свободен</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>try { … } catch (…) { … } finally { … }</code> — блок <code>finally</code> выполняется всегда: и после успешного <code>try</code>, и после <code>catch</code></li>
+</ul></div>
+@@ test: Число копий
+@@ input
+3
+@@ expect
+Печатаю копий: 3
+Принтер свободен
+@@ test: Словами
+@@ input
+три
+@@ expect
+Неверное количество копий
+Принтер свободен
+@@ test: Ноль копий — тоже число
+@@ input
+0
+@@ expect
+Печатаю копий: 0
+Принтер свободен
+@@ test: Число со словом
+@@ input
+5 копий
+@@ expect
+Неверное количество копий
+Принтер свободен
+@@ require: \bfinally\b | Строку «Принтер свободен» печатай в блоке finally

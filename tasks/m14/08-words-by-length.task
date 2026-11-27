@@ -1,0 +1,44 @@
+## id: m14-t08
+## title: Группировка слов по длине
+## file: module-14/WordsByLengthGroup.java
+## class: WordsByLengthGroup
+## level: 2
+@@ description
+<p>В одной строке вводятся слова через пробел. Разложи их по группам по длине и выведи группы <b>по возрастанию длины</b>: длина, двоеточие, список слов:</p>
+<pre class="terminal"><span class="out">ввод:  Кот дом Мышь кот слон стол Крокодил
+
+3: [кот, дом]
+4: [мышь, слон, стол]
+8: [крокодил]</span></pre>
+<p>Правила: все слова приводим к <b>нижнему регистру</b>, повторы убираем (<code>Кот</code> и <code>кот</code> — одно слово), внутри группы слова идут в порядке <b>первого появления</b>.</p>
+<p>Группирует <code>Collectors.groupingBy</code>. Обычный <code>HashMap</code> не обещает порядок ключей, поэтому попроси у <code>groupingBy</code> положить всё в <code>TreeMap</code> — он хранит ключи отсортированными. Печатай через <code>map.forEach((длина, слова) -&gt; …)</code>. Циклы запрещены.</p>
+<p>📖 <a href="/lessons/m14/07-collectors.html">Collectors: groupingBy и TreeMap</a></p>
+@@ test: Пример из условия
+@@ input
+Кот дом Мышь кот слон стол Крокодил
+@@ expect
+3: [кот, дом]
+4: [мышь, слон, стол]
+8: [крокодил]
+@@ test: Одно слово
+@@ input
+assert
+@@ expect
+6: [assert]
+@@ test: Все одной длины и повторы
+@@ input
+ab AB cd ab ef
+@@ expect
+2: [ab, cd, ef]
+@@ test: Длинные раньше коротких во вводе
+@@ input
+mountain river is a lake
+@@ expect
+1: [a]
+2: [is]
+4: [lake]
+5: [river]
+8: [mountain]
+@@ require: groupingBy\s*\( | Сгруппируй слова через Collectors.groupingBy
+@@ require: TreeMap | Чтобы группы шли по возрастанию длины, собери их в TreeMap
+@@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

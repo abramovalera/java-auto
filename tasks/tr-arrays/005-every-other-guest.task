@@ -1,0 +1,40 @@
+## id: tr-arrays-005
+## title: Гости через одного
+## file: trainer/arrays/EveryOtherGuestSeats.java
+## class: EveryOtherGuestSeats
+## level: 1
+## category: Обход и подсчёт
+@@ description
+<p>Напиши класс <code>EveryOtherGuestSeats</code>. Гости стоят в очереди, у каждого — номер билета. По правилам рассадки в первый ряд проходят гости с <b>чётными индексами</b>: 0, 2, 4… (первый, третий, пятый в очереди). В первой строке — <code>n</code> (n ≥ 1), во второй — <code>n</code> номеров билетов. Напечатай номера тех, кто проходит в первый ряд, в одну строку через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       101 102 103 104 105 106
+вывод: 101 103 105</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>i += 2</code> — шаг цикла через один элемент</li>
+<li>индексы массива начинаются с 0: первый гость — <code>a[0]</code></li>
+</ul></div>
+@@ test: Шесть гостей
+@@ input
+6
+101 102 103 104 105 106
+@@ expect
+101 103 105
+@@ test: Нечётное количество
+@@ input
+5
+9 8 7 6 5
+@@ expect
+9 7 5
+@@ test: Один гость
+@@ input
+1
+77
+@@ expect
+77
+@@ test: Два гостя
+@@ input
+2
+4 2
+@@ expect
+4
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

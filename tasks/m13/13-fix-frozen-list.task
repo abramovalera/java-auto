@@ -1,0 +1,27 @@
+## id: m13-t13
+## title: Почини список браузеров
+## file: module-13/BrowsersFix.java
+## class: BrowsersFix
+## level: 1
+@@ description
+<p>Файл <code>workspace/module-13/BrowsersFix.java</code> уже лежит в папке. Программа берёт список браузеров, которые поддерживает сайт интернет-магазина, добавляет к нему браузеры, введённые с клавиатуры (до слова <code>END</code>), и печатает итоговый список.</p>
+<pre class="terminal"><span class="out">ввод:  safari opera END
+вывод: [chrome, firefox, safari, opera]</span></pre>
+<p>Запусти в IDEA — программа падает. Прочитай имя исключения и найди в stack trace строку своего кода. Исправь <b>одну строку</b> — ту, где создаётся список, — не переписывая остальное.</p>
+<p>📖 <a href="/lessons/m13/13-methods.html">Главные методы коллекций и ловушки</a></p>
+@@ test: Два новых браузера
+@@ input
+safari opera END
+@@ expect
+[chrome, firefox, safari, opera]
+@@ test: Ничего не добавили
+@@ input
+END
+@@ expect
+[chrome, firefox]
+@@ test: Один браузер
+@@ input
+edge END
+@@ expect
+[chrome, firefox, edge]
+@@ require: "chrome"\s*,\s*"firefox" | Начальный список (chrome, firefox) оставь в коде — меняй только то, как создаётся список

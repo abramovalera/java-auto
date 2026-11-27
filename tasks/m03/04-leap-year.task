@@ -1,0 +1,50 @@
+## id: m03-t04
+## title: Високосный год одной строкой
+## file: module-03/LeapYearExpression.java
+## class: LeapYearExpression
+## level: 2
+@@ description
+<p>Год високосный, если он делится на 4, но <b>не</b> делится на 100. Исключение: годы, которые делятся на 400, — всё-таки високосные. Поэтому 2024 — високосный, 2023 — нет, 1900 — нет, а 2000 — да.</p>
+<p>Программа читает год и печатает <code>true</code> или <code>false</code>:</p>
+<pre class="terminal"><span class="out">2024
+true</span></pre>
+<p>Правило: <b>без <code>if</code></b>. Весь ответ — <b>одно логическое выражение</b> из <code>%</code>, сравнений, <code>&amp;&amp;</code> и <code>||</code>, которое ты кладёшь в переменную <code>boolean</code>. Сначала запиши правило по-русски со словами «и», «или», «не», потом переведи в Java. Подумай, где нужны скобки, а где их можно не ставить.</p>
+<p>📖 Уроки: <a href="/lessons/m03/04-logic.html">Логические операции</a>, <a href="/lessons/m03/05-precedence.html">Приоритет операций</a></p>
+@@ test: 2024 — обычный високосный
+@@ input
+2024
+@@ expect
+true
+@@ test: 2023 — обычный
+@@ input
+2023
+@@ expect
+false
+@@ test: 1900 — делится на 100, не високосный
+@@ input
+1900
+@@ expect
+false
+@@ test: 2000 — делится на 400, високосный
+@@ input
+2000
+@@ expect
+true
+@@ test: 2100
+@@ input
+2100
+@@ expect
+false
+@@ test: 1600
+@@ input
+1600
+@@ expect
+true
+@@ test: 4 год нашей эры
+@@ input
+4
+@@ expect
+true
+@@ require: &&|\|\| | Нужно логическое выражение с && и/или ||
+@@ forbid: \bif\s*\( | if ещё не пройден — собери ответ в одно логическое выражение
+@@ forbid: \bswitch\b | switch ещё не пройден — собери ответ в одно логическое выражение

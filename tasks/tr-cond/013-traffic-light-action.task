@@ -1,0 +1,42 @@
+## id: tr-cond-013
+## title: Светофор
+## file: trainer/cond/TrafficLightAction.java
+## class: TrafficLightAction
+## level: 1
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>TrafficLightAction</code>. Программа читает строку — цвет светофора маленькими буквами — и печатает, что делать пешеходу: <code>красный</code> → <code>Стой</code>, <code>жёлтый</code> → <code>Жди</code>, <code>зелёный</code> → <code>Иди</code>. Любой другой текст (даже <code>Красный</code> с большой буквы) — <code>Светофор сломан</code>.</p>
+<pre class="terminal"><span class="out">ввод:  красный
+вывод: Стой
+
+ввод:  синий
+вывод: Светофор сломан</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLine()</code> — читает строку целиком</li>
+<li><code>switch</code> по строке сравнивает её по содержимому; регистр букв важен</li>
+</ul></div>
+@@ test: Красный
+@@ input
+красный
+@@ expect
+Стой
+@@ test: Жёлтый
+@@ input
+жёлтый
+@@ expect
+Жди
+@@ test: Зелёный
+@@ input
+зелёный
+@@ expect
+Иди
+@@ test: Неизвестный цвет
+@@ input
+синий
+@@ expect
+Светофор сломан
+@@ test: С большой буквы — не узнаём
+@@ input
+Красный
+@@ expect
+Светофор сломан

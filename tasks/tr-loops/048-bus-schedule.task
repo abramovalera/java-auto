@@ -1,0 +1,40 @@
+## id: tr-loops-048
+## title: Два автобуса
+## file: trainer/loops/BusScheduleLcm.java
+## class: BusScheduleLcm
+## level: 2
+## category: Делители и простые
+@@ description
+<p>Напиши класс <code>BusScheduleLcm</code>. Два автобуса одновременно отходят от остановки. Первый возвращается каждые <code>a</code> минут, второй — каждые <code>b</code> минут (каждое число с новой строки, 1 ≤ a, b ≤ 2·10<sup>9</sup>). Через сколько минут они снова отойдут вместе? Это наименьшее общее кратное (НОК).</p>
+<pre class="terminal"><span class="out">ввод:  6
+       10
+вывод: 30</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>НОК = a / НОД * b</code> — сначала дели, потом умножай, чтобы не переполнить</li>
+<li>НОД — алгоритм Евклида: пока <code>b != 0</code>, заменяй (a, b) на (b, a % b)</li>
+<li><code>long</code> — ответ может быть до 4·10<sup>18</sup></li>
+</ul></div>
+@@ test: 6 и 10
+@@ input
+6
+10
+@@ expect
+30
+@@ test: Одинаковые
+@@ input
+7
+7
+@@ expect
+7
+@@ test: Один каждую минуту
+@@ input
+1
+13
+@@ expect
+13
+@@ test: Огромные интервалы
+@@ input
+1000000007
+998244353
+@@ expect
+998244359987710471

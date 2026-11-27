@@ -1,0 +1,82 @@
+## id: tr-oop-023
+## title: Лифт в офисе
+## file: trainer/oop/OfficeElevatorRide.java
+## class: OfficeElevatorRide
+## level: 2
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>OfficeElevatorRide</code> с методом <code>main</code>, а ниже в том же файле — класс <code>OfficeElevator</code>:</p>
+<ul>
+<li>закрытые поля: нижний и верхний этаж здания (<code>final</code>), текущий этаж (в начале — 1) и сколько этажей лифт проехал всего;</li>
+<li>конструктор <code>OfficeElevator(int minFloor, int maxFloor)</code>; нижний этаж может быть отрицательным — это парковка;</li>
+<li><code>String goTo(int target)</code> — едет на этаж и возвращает сообщение:
+<ul>
+<li>этажа нет в здании — <code>Этажа X нет</code>, лифт стоит на месте;</li>
+<li>лифт уже там — <code>Уже на этаже X</code>;</li>
+<li>иначе <code>Еду: откуда -&gt; куда</code>, лифт переезжает, а к пробегу прибавляется число пройденных этажей;</li>
+</ul></li>
+<li>геттеры <code>int getFloor()</code> и <code>int getTravelled()</code>.</li>
+</ul>
+<p>Ввод: в первой строке — нижний и верхний этаж, во второй — количество вызовов <code>n</code>, в третьей — <code>n</code> номеров этажей. Печатай ответ лифта на каждый вызов, а в конце — итог.</p>
+<pre class="terminal"><span class="out">ввод:  -2 9
+       3
+       5 12 -2
+вывод: Еду: 1 -&gt; 5
+       Этажа 12 нет
+       Еду: 5 -&gt; -2
+       Лифт на этаже -2, проехал этажей: 11</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.abs(a - b)</code> — расстояние между числами без знака</li>
+<li>сначала запомни строку с маршрутом, потом меняй поле этажа — иначе «откуда» потеряется</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+-2 9
+3
+5 12 -2
+@@ expect
+Еду: 1 -> 5
+Этажа 12 нет
+Еду: 5 -> -2
+Лифт на этаже -2, проехал этажей: 11
+@@ test: Вызов на текущий этаж
+@@ input
+1 5
+3
+1 3 3
+@@ expect
+Уже на этаже 1
+Еду: 1 -> 3
+Уже на этаже 3
+Лифт на этаже 3, проехал этажей: 2
+@@ test: Ниже парковки и выше крыши
+@@ input
+-1 4
+4
+-2 5 4 -1
+@@ expect
+Этажа -2 нет
+Этажа 5 нет
+Еду: 1 -> 4
+Еду: 4 -> -1
+Лифт на этаже -1, проехал этажей: 8
+@@ test: Ни одного вызова
+@@ input
+1 16
+0
+@@ expect
+Лифт на этаже 1, проехал этажей: 0
+@@ test: Ровно на границы
+@@ input
+-3 20
+2
+20 -3
+@@ expect
+Еду: 1 -> 20
+Еду: 20 -> -3
+Лифт на этаже -3, проехал этажей: 42
+@@ require: \bclass\s+OfficeElevator\b | Объяви в том же файле класс OfficeElevator
+@@ require: OfficeElevator\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен конструктор OfficeElevator(int minFloor, int maxFloor)
+@@ require: \bString\s+goTo\s*\(\s*int\s+\w+\s*\) | Нужен метод String goTo(int target)
+@@ require: \bint\s+getTravelled\s*\(\s*\) | Нужен геттер int getTravelled()
+@@ require: private\s+final\s+int\s+\w+ | Границы здания сделай полями private final int

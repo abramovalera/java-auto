@@ -1,0 +1,41 @@
+## id: tr-strings-004
+## title: Промокод без лишних пробелов
+## file: trainer/strings/PromoCodeCleanup.java
+## class: PromoCodeCleanup
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>PromoCodeCleanup</code>. Покупатель вставляет промокод в поле на сайте магазина, часто с лишними пробелами по краям и в любом регистре. Программа читает строку, убирает пробелы по краям, переводит буквы в верхний регистр и печатает <code>Промокод: КОД</code>. Пробелы внутри кода не трогай. Если после очистки строка пустая, напечатай <code>Промокод не введён</code>.</p>
+<pre class="terminal"><span class="out">ввод:    sale20      вывод: Промокод: SALE20
+ввод:  summer        вывод: Промокод: SUMMER</span></pre>
+<p>В первом примере на входе <code>"  sale20  "</code> — с пробелами по краям.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.strip()</code> — возвращает строку без пробелов в начале и в конце</li>
+<li><code>s.isEmpty()</code> — <code>true</code>, если в строке нет ни одного символа</li>
+<li>Строки неизменяемы: результат метода нужно присвоить переменной — <code>s = s.strip();</code></li>
+</ul></div>
+@@ test: Пробелы по краям
+@@ input
+  sale20  
+@@ expect
+Промокод: SALE20
+@@ test: Маленькие буквы
+@@ input
+summer
+@@ expect
+Промокод: SUMMER
+@@ test: Пробел внутри остаётся
+@@ input
+ black friday 
+@@ expect
+Промокод: BLACK FRIDAY
+@@ test: Одни пробелы
+@@ input
+     
+@@ expect
+Промокод не введён
+@@ test: Пустая строка
+@@ input
+
+@@ expect
+Промокод не введён

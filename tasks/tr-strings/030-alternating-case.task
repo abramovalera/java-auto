@@ -1,0 +1,40 @@
+## id: tr-strings-030
+## title: Пила из букв
+## file: trainer/strings/AlternatingCase.java
+## class: AlternatingCase
+## level: 2
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>AlternatingCase</code>. Программа читает строку и делает из неё «пилу»: буквы по очереди становятся заглавной, маленькой, заглавной, маленькой… Первая буква — заглавная. Пробелы, цифры и знаки не меняются и в очереди <b>не участвуют</b>: следующая после них буква продолжает чередование.</p>
+<pre class="terminal"><span class="out">ввод:  hello world    вывод: HeLlO wOrLd
+ввод:  abc 123 def    вывод: AbC 123 dEf</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Character.isLetter(c)</code> — <code>true</code>, если <code>c</code> — буква</li>
+<li><code>boolean upper = true;</code> — флаг «следующая буква заглавная», после каждой буквы переключай: <code>upper = !upper;</code></li>
+<li><code>Character.toUpperCase(c)</code>, <code>Character.toLowerCase(c)</code> — меняют регистр символа</li>
+</ul></div>
+@@ test: Два слова
+@@ input
+hello world
+@@ expect
+HeLlO wOrLd
+@@ test: Цифры не считаются
+@@ input
+abc 123 def
+@@ expect
+AbC 123 dEf
+@@ test: Заглавные на входе
+@@ input
+ПРИВЕТ
+@@ expect
+ПрИвЕт
+@@ test: Одна буква
+@@ input
+я
+@@ expect
+Я
+@@ test: Знаки между буквами
+@@ input
+a-b-c-d
+@@ expect
+A-b-C-d

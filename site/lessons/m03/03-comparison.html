@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Сравнения и boolean · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-03">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 3 · Урок 3</div>
+    <h1>Сравнения и boolean</h1>
+    <p class="lead">Программы постоянно задают вопросы: «хватает ли денег?», «совпал ли пароль?», «есть ли товар на складе?». Ответ на такой вопрос — <code>true</code> или <code>false</code>. Учимся задавать вопросы правильно — и узнаём, почему 0.1 + 0.2 не равно 0.3.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>⚖️ шесть операторов сравнения</span><span>🪤 ловушка с double</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m03-03-review">
+      <script type="application/json">
+      { "title": "Вспомним уроки 3.1 и 3.2",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "int n = 10;\nn -= 3;\nn *= 2;\nSystem.out.println(n);", "answer": "14",
+            "why": "Составное присваивание n -= 3 даёт 10 − 3 = 7, потом n *= 2 даёт 7 × 2 = 14." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "int a = 2;\nint b = a++ + 1;\nSystem.out.println(a + \" \" + b);", "answer": "3 3",
+            "why": "Постфиксный a++ отдаёт 2 (и a становится 3), значением выражения 2 + 1 = 3 инициализируется b." },
+          { "type": "single", "q": "Сколько полных недель в 45 днях?", "code": "int weeks = 45 / 7;", "options": ["6", "6.43", "3"], "answer": 0,
+            "why": "Целочисленное деление: 7 помещается в 45 шесть раз, дробь отбрасывается. 45 % 7 = 3 — оставшиеся дни." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Вопрос, на который ответ — да или нет</h2>
+    <p>В модуле 2 ты познакомился с типом <code>boolean</code>: у него всего два значения, <code>true</code> (истина, «да») и <code>false</code> (ложь, «нет»). Откуда они берутся в программах? Чаще всего — из <b>сравнений</b>: выражений с операторами сравнения.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Оператор</th><th>Вопрос</th><th>Пример</th><th>Результат</th></tr>
+        <tr><td><code>==</code></td><td>равно?</td><td><code>5 == 5</code></td><td><code>true</code></td></tr>
+        <tr><td><code>!=</code></td><td>не равно?</td><td><code>5 != 5</code></td><td><code>false</code></td></tr>
+        <tr><td><code>&gt;</code></td><td>больше?</td><td><code>7 &gt; 3</code></td><td><code>true</code></td></tr>
+        <tr><td><code>&lt;</code></td><td>меньше?</td><td><code>7 &lt; 3</code></td><td><code>false</code></td></tr>
+        <tr><td><code>&gt;=</code></td><td>больше или равно?</td><td><code>18 &gt;= 18</code></td><td><code>true</code></td></tr>
+        <tr><td><code>&lt;=</code></td><td>меньше или равно?</td><td><code>20 &lt;= 18</code></td><td><code>false</code></td></tr>
+      </table>
+    </div>
+    <p>Сравнение — тоже <b>выражение</b>, просто его значение имеет тип <code>boolean</code>. Значит, его можно напечатать или присвоить переменной типа <code>boolean</code> — положить ответ в коробку:</p>
+<pre data-file="Compare.java"><code class="java">int age = 20;
+boolean isAdult = age &gt;= 18;
+System.out.println(isAdult);           // true
+System.out.println(age &lt; 14);          // false
+System.out.println("Взрослый: " + isAdult);   // Взрослый: true</code></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 210" role="img" aria-label="Сравнение age >= 18 как весы: Java взвешивает 20 и 18 и выдаёт true">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <path d="M200 60 L200 170 M150 180 H250" class="d-line"/>
+        <path d="M90 88 L310 52" class="d-line"/>
+        <rect x="40" y="88" width="100" height="44" rx="10" class="d-blue"/>
+        <text x="90" y="116" text-anchor="middle" class="d-mono-ink">age = 20</text>
+        <rect x="260" y="52" width="100" height="44" rx="10" class="d-blue"/>
+        <text x="310" y="80" text-anchor="middle" class="d-mono-ink">18</text>
+        <text x="200" y="40" text-anchor="middle" class="d-title">age &gt;= 18 ?</text>
+        <path d="M380 115 H470" class="d-arrow"/>
+        <rect x="480" y="80" width="190" height="70" rx="14" class="d-green"/>
+        <text x="575" y="112" text-anchor="middle" class="d-title">true</text>
+        <text x="575" y="134" text-anchor="middle" class="d-small">тип boolean</text>
+      </svg>
+      <figcaption>Оператор сравнения — как весы: смотрит на две стороны и выдаёт один ответ, <code>true</code> или <code>false</code>.</figcaption>
+    </figure>
+    <div class="callout fact">
+      <span class="callout-title">Это сердце любой проверки</span>
+      <p>«Пароль совпал с сохранённым?», «баланс не меньше суммы перевода?» — за каждой такой проверкой стоит сравнение. Даже тесты на JUnit из модуля 17 в конце задают вопрос «то, что получилось, равно тому, что ожидали?»: <code>assertEquals(391, result)</code> внутри сравнивает два значения. Тест зелёный — ответ <code>true</code>, красный — <code>false</code>. Сравнения ты будешь писать каждый день.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>= и == — не перепутай</h2>
+    <p>Самая частая ошибка новичков (и не только):</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">📥</span><h4><code>x = 5</code></h4><p><b>Присваивание</b>: переменной x присваивается 5 — «положи 5 в x». Это команда.</p></div>
+      <div class="card"><span class="emoji">❓</span><h4><code>x == 5</code></h4><p><b>Сравнение</b>: выражение «в x лежит 5?». Это вопрос, ответ — true или false.</p></div>
+    </div>
+<pre data-file="Oops.java"><code class="java">int x = 7;
+boolean isFive = x = 5;    // ошибка компиляции!</code></pre>
+    <p>IDEA подчеркнёт ошибку ещё до запуска:</p>
+    <div data-widget="ide" id="shot-assign-boolean">
+      <script type="application/json">
+      { "tree": false, "file": "Oops.java", "gutterRun": [1, 2],
+        "code": "public class Oops {\n    public static void main(String[] args) {\n        int x = 7;\n        boolean isFive = x = 5;\n    }\n}",
+        "errors": [ { "line": 4, "text": "x = 5", "msg": "Incompatible types. Found: 'int', required: 'boolean'", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Красная волна под <code>x = 5</code> — это присваивание, а не вопрос" },
+                   { "n": 2, "target": "tip", "text": "<b>Incompatible types. Found: 'int', required: 'boolean'</b> — «несовместимые типы: получилось int, а нужен boolean». Значение присваивания — число 5" },
+                   { "n": 3, "target": "problems", "text": "<b>❗1</b> — в файле одна ошибка. Программа не запустится, пока её не исправишь" } ],
+        "caption": "= вместо == — ошибка компиляции" }
+      </script>
+    </div>
+    <p>А <code>javac</code> (и проверка на сайте) напишет так:</p>
+<pre class="terminal"><span class="err">Oops.java:2: error: incompatible types: int cannot be converted to boolean
+        boolean isFive = x = 5;
+                           ^</span></pre>
+    <p>Компилятор спасает: <code>x = 5</code> — это присваивание, и его значение — число 5, а переменную boolean числом не инициализируешь. Правильно: <code>boolean isFive = x == 5;</code></p>
+    <div class="say" data-mood="cool"><p>Запоминалка: одно <code>=</code> — «положи», два <code>==</code> — «спроси». Вопросу нужно больше знаков, чем ответу 🙂</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Что с чем можно сравнивать</h2>
+    <ul>
+      <li><b>Числа разных типов</b> — можно: <code>5 == 5.0</code> → <code>true</code>. Java расширит int до double, как в арифметике.</li>
+      <li><b>Символы</b> — тоже, по их кодам: <code>'a' &lt; 'b'</code> → <code>true</code> (97 &lt; 98). Но осторожно: <code>'a' &lt; 'B'</code> → <code>false</code>, потому что у больших латинских букв коды меньше (B — 66). А <code>'A' == 65</code> → <code>true</code>.</li>
+      <li><b>boolean</b> — только на равенство: <code>true == false</code> → <code>false</code>. А «больше-меньше» у true и false не бывает — <code>true &gt; false</code> не скомпилируется.</li>
+    </ul>
+    <details class="predict">
+      <summary>Хотим проверить, что x от 1 до 10. Скомпилируется ли boolean ok = 1 &lt; x &lt; 10; ?</summary>
+      <p><b>Нет!</b> В математике так пишут, а в Java сравнения выполняются по одному, слева направо. Сначала вычисляется выражение <code>1 &lt; x</code> → получается значение типа boolean, например <code>true</code>. Потом <code>true &lt; 10</code> — сравнить «да» с числом нельзя. <code>javac</code> скажет <code>bad operand types for binary operator '&lt;'</code>, а IDEA — так:</p>
+      <div data-widget="ide" id="shot-range-compare">
+        <script type="application/json">
+        { "tree": false, "file": "Range.java", "gutterRun": [1, 2],
+          "code": "public class Range {\n    public static void main(String[] args) {\n        int x = 5;\n        boolean ok = 1 < x < 10;\n    }\n}",
+          "errors": [ { "line": 4, "text": "1 < x < 10", "msg": "Operator '<' cannot be applied to 'boolean', 'int'", "tip": true, "fix": false } ],
+          "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Волна под всем выражением сравнения" },
+                     { "n": 2, "target": "tip", "text": "<b>Operator '&lt;' cannot be applied to 'boolean', 'int'</b> — «оператор &lt; нельзя применить к boolean и int». Слева уже готовый ответ <code>1 &lt; x</code> (boolean), справа — число 10" } ],
+          "caption": "Двойное сравнение «как в математике» не компилируется" }
+        </script>
+      </div>
+      <p>Как правильно — в следующем уроке, там нам понадобится «И».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Ловушка: 0.1 + 0.2 != 0.3</h2>
+<pre data-file="Doubles.java"><code class="java">System.out.println(0.1 + 0.2);           // 0.30000000000000004
+System.out.println(0.1 + 0.2 == 0.3);    // false (!)</code></pre>
+    <p>Это не ошибка Java — так ведут себя дробные числа почти во всех языках. Компьютер хранит числа в <b>двоичной</b> системе (из нулей и единиц), а в ней 0.1 нельзя записать точно — получается бесконечная дробь, которую приходится обрезать.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: треть торта</span>
+      <p>Попробуй записать 1/3 десятичной дробью: 0.3333… — бесконечно. На бумажке хватит места, скажем, для 0.3333. Сложи три таких: 0.9999, а не 1. Так и компьютер: 0.1 для него — «бесконечная дробь», и крошечная погрешность вылезает при сложении.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 170" role="img" aria-label="На числовой прямой 0.3 и 0.30000000000000004 — две очень близкие, но разные точки">
+        <path d="M30 90 H670" class="d-line"/>
+        <path d="M200 78 V102 M500 78 V102" class="d-line"/>
+        <circle cx="200" cy="90" r="9" class="d-blue"/>
+        <circle cx="500" cy="90" r="9" class="d-red"/>
+        <text x="200" y="60" text-anchor="middle" class="d-mono-ink">0.3</text>
+        <text x="500" y="60" text-anchor="middle" class="d-mono-ink">0.30000000000000004</text>
+        <text x="200" y="130" text-anchor="middle" class="d-small">то, что написали</text>
+        <text x="500" y="130" text-anchor="middle" class="d-small">то, что получилось у 0.1 + 0.2</text>
+        <text x="350" y="160" text-anchor="middle" class="d-small">(под огромной лупой: разница — 0.00000000000000004)</text>
+      </svg>
+      <figcaption>Числа почти равны, но <code>==</code> проверяет точное совпадение, до последнего бита.</figcaption>
+    </figure>
+    <p>Правило: <b>дробные числа не сравнивают через <code>==</code></b>. Вместо этого проверяют, что они «достаточно близки» — разница меньше крошечного допуска:</p>
+<pre data-file="Doubles.java"><code class="java">double sum = 0.1 + 0.2;
+boolean almostEqual = Math.abs(sum - 0.3) &lt; 0.000001;   // true</code></pre>
+    <p><code>Math.abs</code> — метод, который возвращает модуль числа (отбрасывает минус); класс <code>Math</code> разберём в уроке 3.6. Кстати, в JUnit для дробей так и пишут: <code>assertEquals(0.3, sum, 0.000001)</code> — третий аргумент и есть допуск.</p>
+    <div class="callout warn">
+      <span class="callout-title">А деньги?</span>
+      <p>Из-за таких погрешностей деньги в настоящих программах не хранят в double: используют копейки в <code>long</code> или специальный класс <code>BigDecimal</code>. В учебных задачах double для цен — нормально.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Строки через == — пока только предупреждение</h2>
+    <p>Хочется сравнить строки так же, как числа: <code>answer == "да"</code>. Иногда это даже работает… и именно поэтому опасно.</p>
+<pre data-file="Strings.java"><code class="java">Scanner scanner = new Scanner(System.in);
+String answer = scanner.next();             // ввели: да
+System.out.println(answer == "да");         // false (!!)
+System.out.println(answer.equals("да"));    // true</code></pre>
+    <p>Запусти, введи в консоли <code>да</code> и нажми Enter:</p>
+    <div data-widget="ide" id="shot-string-eq">
+      <script type="application/json">
+      { "tree": false, "file": "Strings.java", "runConfig": "Strings", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Strings {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String answer = scanner.next();\n        System.out.println(answer == \"да\");\n        System.out.println(answer.equals(\"да\"));\n    }\n}",
+        "warnings": [ { "line": 7, "text": "answer == \"да\"", "msg": "String values are compared using '==', not 'equals()'", "tip": true, "fix": "Replace '==' with 'equals()'" } ],
+        "console": { "title": "Strings", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Strings" },
+          { "t": "in", "s": "да" },
+          { "t": "out", "s": "false" },
+          { "t": "out", "s": "true" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tip", "text": "Жёлтое — это <b>предупреждение</b>: <b>String values are compared using '==', not 'equals()'</b> — «строки сравниваются через ==, а не через equals()». Программа запустится, но IDEA намекает: здесь, скорее всего, ошибка. <kbd>Alt</kbd>+<kbd>Enter</kbd> сам заменит на <code>equals</code>" },
+                   { "n": 2, "target": "input", "text": "Зелёным — то, что ты сам напечатал в консоли и отправил клавишей Enter. Именно эту строку вернул вызов метода <code>scanner.next()</code>" },
+                   { "n": 3, "target": "output", "text": "Выражение <code>answer == \"да\"</code> дало <b>false</b>, хотя буквы те же", "box": true },
+                   { "n": 4, "target": "output-2", "text": "А метод <code>equals</code> сравнил текст и вернул <b>true</b>" } ],
+        "caption": "Сравнение строк через == — жёлтое предупреждение и неожиданный false" }
+      </script>
+    </div>
+    <p>Вспомни стек и кучу из модуля 2: строка — это <b>объект</b> в куче, а в переменной лежит только <b>ссылка</b> на него. Оператор <code>==</code> для объектов сравнивает ссылки — «это один и тот же объект?», а не «одинаковый ли текст?». Строка, которую ввели с клавиатуры, — новый объект, поэтому ответ <code>false</code>, хотя буквы те же.</p>
+    <div class="callout warn">
+      <span class="callout-title">Запомни на будущее</span>
+      <p>Текст строк сравнивают методом <code>.equals()</code>: <code>answer.equals("да")</code> — вызываем метод <code>equals</code> у объекта <code>answer</code> и передаём аргумент <code>"да"</code>. Почему так и когда <code>==</code> «случайно» работает — подробно разберём в модуле 8 «Строки».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m03-03">
+      <script type="application/json">
+      {
+       "title": "Сравнения — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int age = 17;\nboolean adult = age >= 18;\nSystem.out.println(adult);",
+         "answer": "false",
+         "why": "Выражение 17 >= 18 ложно — его значением false инициализируется adult."
+        },
+        {
+         "type": "bug",
+         "q": "В какой строке ошибка компиляции?",
+         "code": "int x = 7;\nboolean big = x > 5;\nboolean five = x = 5;\nSystem.out.println(big + \" \" + five);",
+         "answer": [
+          3
+         ],
+         "why": "x = 5 — присваивание, его значение — число 5. Для сравнения нужно x == 5."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>5 == 5.0</code> даёт true",
+           "a": true
+          },
+          {
+           "s": "<code>'a' &lt; 'B'</code> даёт true",
+           "a": false,
+           "why": "сравниваются коды: 'a' — 97, 'B' — 66."
+          },
+          {
+           "s": "<code>0.1 + 0.2 == 0.3</code> даёт true",
+           "a": false,
+           "why": "из-за двоичной погрешности слева 0.30000000000000004."
+          },
+          {
+           "s": "Результат сравнения можно сохранить в переменную boolean",
+           "a": true
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Что будет с этой строкой?",
+         "code": "boolean ok = 1 < x < 10;",
+         "options": [
+          "Проверит, что x от 1 до 10",
+          "Ошибка компиляции",
+          "Всегда false"
+         ],
+         "answer": 1,
+         "why": "1 < x даёт boolean, а сравнить boolean с 10 нельзя. Нужно два сравнения, соединённые «И» — следующий урок."
+        },
+        {
+         "type": "single",
+         "q": "Как правильно сравнить текст двух строк?",
+         "options": [
+          "<code>a == b</code>",
+          "<code>a.equals(b)</code>",
+          "<code>a = b</code>",
+          "<code>a.length() == b.length()</code>"
+         ],
+         "answer": 1,
+         "why": "== для строк сравнивает ссылки на объекты, а не текст. Подробно — в модуле 8."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Объясни ещё раз, почему 0.1 + 0.2 не равно 0.3, на другом примере, а потом спроси, как я понял»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Шесть операторов сравнения: <code>== != &gt; &lt; &gt;= &lt;=</code>. Результат — boolean: <code>true</code> или <code>false</code>.</li>
+        <li><code>=</code> — оператор присваивания (кладёт), <code>==</code> — оператор сравнения (спрашивает).</li>
+        <li>Цепочка <code>1 &lt; x &lt; 10</code> не работает — сравнения по одному.</li>
+        <li>double не сравнивают через <code>==</code>: проверяют, что разница меньше допуска.</li>
+        <li>Строки сравнивают через <code>.equals()</code>, а не <code>==</code> (подробно — модуль 8).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

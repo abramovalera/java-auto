@@ -1,0 +1,40 @@
+## id: tr-strings-042
+## title: Глубина скобок
+## file: trainer/strings/ParenthesesNestingDepth.java
+## class: ParenthesesNestingDepth
+## level: 2
+## category: Проверка формата
+@@ description
+<p>Напиши класс <code>ParenthesesNestingDepth</code>. Программа читает выражение, в котором скобки расставлены правильно, и печатает глубину вложенности — сколько скобок максимум открыто одновременно. Если скобок нет — <code>0</code>.</p>
+<pre class="terminal"><span class="out">ввод:  (1+(2*3)+((8)/4))+1    вывод: 3
+ввод:  ()(())                 вывод: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Счётчик открытых скобок растёт на <code>(</code> и уменьшается на <code>)</code></li>
+<li>Запоминай самое большое значение счётчика — как поиск максимума</li>
+<li><code>Math.max(a, b)</code> — большее из двух чисел</li>
+</ul></div>
+@@ test: Пример
+@@ input
+(1+(2*3)+((8)/4))+1
+@@ expect
+3
+@@ test: Рядом и внутри
+@@ input
+()(())
+@@ expect
+2
+@@ test: Нет скобок
+@@ input
+1
+@@ expect
+0
+@@ test: Матрёшка
+@@ input
+((((x))))
+@@ expect
+4
+@@ test: Много пар на одном уровне
+@@ input
+(a)(b)(c)
+@@ expect
+1

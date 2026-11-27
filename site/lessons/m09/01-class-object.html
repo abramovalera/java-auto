@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>От чертежа к коду: класс и объект · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m09-01">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 9 · Урок 1</div>
+    <h1>От чертежа к коду: класс и объект</h1>
+    <p class="lead">Помнишь чертёж «Кот» из самого первого урока? Пора написать его по-настоящему: свой класс, свои объекты в куче и ссылки на них.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧠 память по шагам</span><span>💥 NullPointerException</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Зачем нужны свои классы</h2>
+    <p>Допустим, программа ведёт учёт котов в приюте. С тем, что ты уже знаешь, данные придётся раскладывать по разным переменным или по нескольким массивам:</p>
+<pre data-file="Shelter.java"><code class="java">String[] names = {"Мурзик", "Барсик", "Пушок"};
+int[] ages     = {3, 5, 1};
+double[] weights = {4.2, 5.8, 2.1};
+
+// возраст Барсика — ages[1], вес — weights[1], имя — names[1]
+// удалил кота из одного массива и забыл про другой — всё поехало</code></pre>
+    <p>Имя, возраст и вес одного кота живут в трёх разных местах, а связывает их только одинаковый номер. Ошибёшься в номере — и возраст Барсика достанется Пушку.</p>
+    <p>Хочется, чтобы <b>всё про одного кота лежало вместе</b>, в одной «вещи». Для этого в Java есть <b>классы</b>. Ты описываешь новый тип данных — «Кот» — и дальше работаешь с котами целиком, а не с кусочками.</p>
+    <div class="say" data-mood="happy">
+      <p>Ты уже знаешь типы <code>int</code>, <code>double</code>, <code>String</code>. Сегодня ты научишься придумывать <b>свои</b> типы. Это главная идея Java — недаром её называют объектно-ориентированным языком.</p>
+    </div>
+    <div class="callout fact">
+      <span class="callout-title">Где это в реальных программах</span>
+      <p>В реальных программах почти всё — объекты. Клиент банка (имя, телефон, email) — объект. Его счёт — тоже объект: у него есть данные (номер, баланс) и действия «пополнить», «снять» (методы). Без классов большие программы не пишут.</p>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA, часть 3 — свои классы</h3>
+      <p>В этом модуле ты будешь создавать много классов и переходить между ними. Выпиши эти клавиши в тетрадь — они понадобятся уже сегодня и дальше во всех уроках модуля.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Insert</kbd> в дереве проекта</td><td>Меню <b>New</b>: создать класс (Java Class), папку, файл</td><td>Нужен новый класс — выдели папку <code>module-09</code> и жми</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Insert</kbd> в редакторе, внутри класса</td><td>Меню <b>Generate</b>: IDEA пишет за тебя конструктор, геттеры и сеттеры, <code>toString()</code></td><td>Уроки 9.3, 9.5, 9.8 — когда уже умеешь писать это руками</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F6</kbd></td><td><b>Rename</b> — переименовать класс, поле, метод или переменную. IDEA исправит имя везде, где оно встречается, а у класса — ещё и имя файла</td><td>Неудачное имя или IDEA пишет <em>duplicate class</em></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Список недавних файлов</td><td>Быстро прыгать между <code>Cat.java</code> и <code>CatDemo.java</code></td></tr>
+      </table></div>
+      <p style="margin-top:10px">Переименовывать руками (стереть и написать заново) — плохая идея: старое имя останется во всех местах, где класс используется, и код перестанет компилироваться. <kbd>Shift</kbd>+<kbd>F6</kbd> меняет всё сразу.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Класс — это чертёж</h2>
+    <p>Опишем кота. Создай в папке <code>module-09</code> новый класс: правый клик → <b>New → Java Class</b> → имя <code>Cat</code>. И напиши:</p>
+<pre data-file="Cat.java"><code class="java">public class Cat {
+    String name;
+    int age;
+    double weight;
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>public class Cat {</code><div><p><b>Объявление класса</b> <code>Cat</code>: объявляем новый класс. С этой секунды в программе есть новый тип данных — такой же, как <code>String</code>, только твой.</p></div></div>
+      <div class="annot-row"><code>String name;</code><div><p><b>Поле</b> — переменная, объявленная прямо в классе, а не внутри метода. У каждого кота будет своё имя.</p></div></div>
+      <div class="annot-row"><code>int age;</code><div><p>Ещё одно поле — возраст. Полей может быть сколько угодно, любых типов.</p></div></div>
+      <div class="annot-row"><code>}</code><div><p>Метода <code>main</code> тут нет — и не нужно. Класс <code>Cat</code> — не программа, а <b>описание</b>: какие данные есть у любого кота.</p></div></div>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: бланк анкеты</span>
+      <p>Класс — это <b>пустой бланк</b> с графами «Имя», «Возраст», «Вес». Сам по себе бланк — не кот. <b>Объект</b> — заполненная анкета конкретного кота. Бланк один, анкет — сколько угодно, и в каждой свои данные.</p>
+    </div>
+    <dl class="terms">
+      <dt>Класс</dt><dd>Описание нового типа: какие данные (поля) и какие действия (методы) будут у его объектов.</dd>
+      <dt>Поле</dt><dd>Переменная внутри класса. Своя копия поля есть у каждого объекта.</dd>
+      <dt>Объект (экземпляр)</dt><dd>Конкретная «вещь», созданная по классу. Мурзик и Барсик — два объекта класса <code>Cat</code>.</dd>
+    </dl>
+    <div class="callout tip">
+      <span class="callout-title">Имена классов</span>
+      <p>Имя класса — существительное с большой буквы: <code>Cat</code>, <code>BankAccount</code>, <code>ShoppingCart</code>. Поля — с маленькой: <code>name</code>, <code>age</code>. Это не прихоть, а договорённость всех Java-программистов: по регистру сразу видно, где класс, а где переменная.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>new: строим объект по чертежу</h2>
+    <p>Теперь создадим объекты — котов. Рядом с <code>Cat.java</code> создай класс <code>CatDemo</code> — в нём будет <code>main</code>:</p>
+<pre data-file="CatDemo.java"><code class="java">public class CatDemo {
+    public static void main(String[] args) {
+        Cat murzik = new Cat();
+        murzik.name = "Мурзик";
+        murzik.age = 3;
+
+        System.out.println(murzik.name + ", " + murzik.age + " года");
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-catdemo-run">
+      <script type="application/json">
+      { "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-09", "type": "src", "depth": 1, "open": true },
+                  { "name": "Cat", "type": "class", "depth": 2 },
+                  { "name": "CatDemo", "type": "class", "depth": 2, "selected": true } ],
+        "file": "CatDemo.java", "tabs": ["CatDemo.java", "Cat.java"], "runConfig": "CatDemo", "gutterRun": [1, 2], "statusPath": "module-09",
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat murzik = new Cat();\n        murzik.name = \"Мурзик\";\n        murzik.age = 3;\n\n        System.out.println(murzik.name + \", \" + murzik.age + \" года\");\n    }\n}",
+        "console": { "title": "CatDemo", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… CatDemo" },
+          { "t": "out", "s": "Мурзик, 3 года" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "tree-Cat", "text": "Два класса в одной папке: <b>Cat</b> — чертёж, <b>CatDemo</b> — программа" },
+                   { "n": 2, "target": "tab", "text": "Открыты оба файла — переключайся вкладками или <kbd>Ctrl</kbd>+<kbd>E</kbd>" },
+                   { "n": 3, "target": "gutter-2", "side": "left", "text": "Зелёный ▶ есть только у <code>CatDemo</code>: у него есть <code>main</code>. У <code>Cat</code> запускать нечего" },
+                   { "n": 4, "target": "output", "text": "Программа прочитала поля объекта и напечатала их", "box": true } ],
+        "caption": "Класс Cat и программа CatDemo в модуле 9" }
+      </script>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>Cat murzik</code><div><p><b>Объявляем</b> переменную <code>murzik</code> типа <code>Cat</code>. Как <code>String s</code>, только тип наш. Переменная будет хранить не сам объект-кот, а <b>ссылку</b> на него — помнишь номерок из гардероба (урок 2.4)?</p></div></div>
+      <div class="annot-row"><code>new Cat()</code><div><p><b>Создание объекта</b> (<b>экземпляра</b>) класса <code>Cat</code> оператором <code>new</code>; скобки <code>()</code> — <b>вызов конструктора</b> (о нём — в уроке 9.3). Java выделяет место в куче, раскладывает там поля и возвращает ссылку — номерок. Этой ссылкой и инициализируется <code>murzik</code>.</p></div></div>
+      <div class="annot-row"><code>murzik.name = "Мурзик";</code><div><p><b>Точка</b> — обращение к полю объекта, «зайти внутрь»: по ссылке из <code>murzik</code> дойти до объекта и <b>присвоить</b> значение <b>его</b> полю <code>name</code>.</p></div></div>
+      <div class="annot-row"><code>murzik.age</code><div><p>Так же читаем значение поля: «поле <code>age</code> того объекта, на который указывает ссылка в <code>murzik</code>».</p></div></div>
+    </div>
+    <p>Классы <code>Cat</code> и <code>CatDemo</code> лежат в одной папке, поэтому <code>CatDemo</code> видит <code>Cat</code> без всяких подключений. Запускать нужно <code>CatDemo</code> — у него есть <code>main</code>.</p>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>System.out.println(murzik.weight);</code>, если вес мы так и не записали?</summary>
+      <p><b>0.0.</b> Поля нового объекта Java сама заполняет значениями по умолчанию — как элементы нового массива из модуля 6: числа — <code>0</code> и <code>0.0</code>, <code>boolean</code> — <code>false</code>, ссылки (в том числе <code>String</code>) — <code>null</code>. Поэтому <code>new Cat()</code> сразу даёт кота с именем <code>null</code> и возрастом <code>0</code>.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Если IDEA пишет «Duplicate class»</span>
+      <p>Все папки курса — части одного проекта, и два класса с одинаковым именем в разных папках мешают друг другу. Если IDEA подчеркнула имя класса и пишет <em>duplicate class</em>, значит, такое имя уже есть в другом модуле. Назови свой класс иначе, например <code>Cat9</code>. Удобнее всего — поставить курсор на имя класса и нажать <kbd>Shift</kbd>+<kbd>F6</kbd> (Rename): IDEA переименует и класс, и файл, и все места, где он используется.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Где живут объекты</h2>
+    <p>Вспомни модуль 2: в памяти есть <b>стек</b> — там лежат переменные методов — и <b>куча</b>, где живут объекты. С котами всё точно так же, как с массивами и строками:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="Класс Cat — чертёж; в куче два объекта; переменные murzik и same в стеке указывают на один объект, barsik — на другой">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="270" y="10" width="220" height="92" rx="12" class="d-code"/>
+        <text x="380" y="34" text-anchor="middle" class="d-small">чертёж (класс)</text>
+        <text x="290" y="58" class="d-mono">class Cat {</text>
+        <text x="290" y="78" class="d-mono">  String name; int age;</text>
+        <text x="290" y="96" class="d-mono">}</text>
+
+        <rect x="20" y="130" width="220" height="186" rx="14" class="d-soft"/>
+        <text x="130" y="154" text-anchor="middle" class="d-title">Стек (main)</text>
+        <rect x="36" y="170" width="188" height="36" rx="8" class="d-box"/>
+        <text x="48" y="193" class="d-mono-ink">murzik</text><text x="200" y="193" text-anchor="end" class="d-small">● #1</text>
+        <rect x="36" y="216" width="188" height="36" rx="8" class="d-box"/>
+        <text x="48" y="239" class="d-mono-ink">barsik</text><text x="200" y="239" text-anchor="end" class="d-small">● #2</text>
+        <rect x="36" y="262" width="188" height="36" rx="8" class="d-box"/>
+        <text x="48" y="285" class="d-mono-ink">same</text><text x="200" y="285" text-anchor="end" class="d-small">● #1</text>
+
+        <rect x="420" y="130" width="320" height="186" rx="14" class="d-soft"/>
+        <text x="580" y="154" text-anchor="middle" class="d-title">Куча (объекты)</text>
+        <rect x="500" y="166" width="220" height="64" rx="10" class="d-accent"/>
+        <text x="514" y="188" class="d-small">#1 · Cat</text>
+        <text x="514" y="208" class="d-mono-ink">name = "Мурзик"</text>
+        <text x="514" y="224" class="d-mono-ink">age = 3</text>
+        <rect x="500" y="240" width="220" height="64" rx="10" class="d-teal"/>
+        <text x="514" y="262" class="d-small">#2 · Cat</text>
+        <text x="514" y="282" class="d-mono-ink">name = "Барсик"</text>
+        <text x="514" y="298" class="d-mono-ink">age = 0</text>
+
+        <path d="M226 188 C 360 188, 380 196, 496 196" class="d-arrow"/>
+        <path d="M226 280 C 360 280, 380 214, 496 210" class="d-arrow"/>
+        <path d="M226 234 C 360 234, 380 270, 496 270" class="d-arrow"/>
+        <path d="M440 102 L 480 132" class="d-dash"/>
+        <text x="470" y="118" class="d-small">по чертежу</text>
+      </svg>
+      <figcaption>Чертёж один, объектов два. В переменных лежат не коты, а ссылки на них. Две переменные могут указывать на один объект.</figcaption>
+    </figure>
+    <p>Пройди программу по шагам и следи за стрелками. Самое интересное — строки 8 и 9.</p>
+    <div data-widget="trace" id="trace-m09-01-cats">
+      <script type="application/json">
+      { "title": "Коты в памяти",
+        "intro": "Слева стек: переменные main. Справа куча: объекты. Стрелка — ссылка. Жми «Шаг ▶».",
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat murzik = new Cat();\n        murzik.name = \"Мурзик\";\n        murzik.age = 3;\n        Cat barsik = new Cat();\n        barsik.name = \"Барсик\";\n        Cat same = murzik;\n        same.age = 10;\n        int years = murzik.age;\n        System.out.println(years);\n        murzik = null;\n        System.out.println(same.name);\n    }\n}",
+        "steps": [
+          { "line": 3, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "null", "age": "0" } } ], "note": "<code>new Cat()</code> создал в куче объект #1. Поля пока по умолчанию: <code>null</code> и <code>0</code>. Переменная <code>murzik</code> инициализирована ссылкой на него." },
+          { "line": 4, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "0" } } ], "note": "Идём по ссылке из <code>murzik</code> и присваиваем значение полю <code>name</code> объекта #1." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "murzik": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3" } } ], "note": "Возраст — 3." },
+          { "line": 6, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3" } }, { "id": "#2", "label": "Cat", "fields": { "name": "null", "age": "0" } } ], "note": "Второй <code>new</code> — второй объект (экземпляр), со своими полями. Коты друг про друга ничего не знают." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "Имя Барсика присвоено полю <code>name</code> объекта #2. Полю <code>age</code> ничего не присвоили — осталось 0." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2", "same": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "3" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "Внимание! <code>new</code> здесь нет — значит, нового кота нет. Переменную <code>same</code> инициализировали копией <b>ссылки</b>: теперь <code>same</code> и <code>murzik</code> — два номерка от одного пальто." },
+          { "line": 9, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2", "same": "→#1" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "10" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "Меняем возраст «через same». Но same указывает на объект #1 — значит, поменялся Мурзик." },
+          { "line": 10, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2", "same": "→#1", "years": "10" } } ], "vars": { "years": "10" }, "ask": ["years"], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "10" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "Возраст Мурзика — это поле объекта #1, а его только что поменяли через same. years = 10." },
+          { "line": 11, "stack": [ { "frame": "main", "vars": { "murzik": "→#1", "barsik": "→#2", "same": "→#1", "years": "10" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "10" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "out": "10\n", "note": "Печатаем 10. Кто ждал 3 — попался в главную ловушку объектов." },
+          { "line": 12, "stack": [ { "frame": "main", "vars": { "murzik": "null", "barsik": "→#2", "same": "→#1", "years": "10" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "10" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "note": "<code>murzik = null</code> — переменной <code>murzik</code> присвоили <code>null</code>, отпустили одну ниточку. Сам объект не тронут: его всё ещё держит <code>same</code>." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": { "murzik": "null", "barsik": "→#2", "same": "→#1", "years": "10" } } ], "heap": [ { "id": "#1", "label": "Cat", "fields": { "name": "\"Мурзик\"", "age": "10" } }, { "id": "#2", "label": "Cat", "fields": { "name": "\"Барсик\"", "age": "0" } } ], "out": "Мурзик\n", "note": "Через <code>same</code> до кота по-прежнему можно дотянуться. Сборщик мусора уберёт объект, только когда на него не останется ни одной ссылки." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Две ссылки — один кот</h2>
+    <p>Строка <code>Cat same = murzik;</code> — самое важное место урока. Здесь <b>не</b> создаётся новый объект: переменная <code>same</code> инициализируется копией ссылки из <code>murzik</code>. Копируется только номерок. Новый объект появляется <b>только</b> там, где написано <code>new</code>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: ключи от квартиры</span>
+      <p>У тебя есть ключ от квартиры. Ты сделал дубликат и отдал другу. Квартира от этого не удвоилась! Если друг переставит диван, ты, придя домой, увидишь диван на новом месте. Переменные-ссылки — это ключи, объект — квартира.</p>
+    </div>
+    <p>А как проверить, один это кот или два одинаковых? Оператор <code>==</code> для объектов сравнивает <b>ссылки</b>: «ведут ли номерки к одному и тому же пальто». Ты уже встречал это со строками в модуле 8.</p>
+<pre data-file="CatDemo.java"><code class="java">Cat a = new Cat();
+a.name = "Пушок";
+Cat b = new Cat();
+b.name = "Пушок";
+Cat c = a;
+
+System.out.println(a == b);   // false: два разных объекта, хоть и одинаковые
+System.out.println(a == c);   // true: одна и та же ссылка</code></pre>
+    <p>Ссылки можно увидеть своими глазами в <b>отладчике</b> (ты знаешь его по модулям 5 и 7). Поставь точку останова на строку с первым <code>println</code>, запусти 🐞 Debug — и раскрой переменные в панели <b>Variables</b>:</p>
+    <div data-widget="ide" id="shot-debug-same-cat">
+      <script type="application/json">
+      { "tree": false, "file": "CatDemo.java", "runConfig": "CatDemo", "gutterRun": [1, 2], "breakpoints": [8], "execLine": 8,
+        "code": "public class CatDemo {\n    public static void main(String[] args) {\n        Cat a = new Cat();\n        a.name = \"Пушок\";\n        Cat b = new Cat();\n        b.name = \"Пушок\";\n        Cat c = a;\n        System.out.println(a == b);\n        System.out.println(a == c);\n    }\n}",
+        "debug": { "title": "CatDemo", "frames": ["main:8, CatDemo"], "sel": 0,
+                   "vars": [ { "name": "args", "type": "String[0]@812", "value": "[]", "open": false },
+                             { "name": "a", "type": "Cat@815", "value": "", "open": true },
+                             { "name": "name", "value": "\"Пушок\"", "depth": 1 },
+                             { "name": "age", "value": "0", "depth": 1 },
+                             { "name": "weight", "value": "0.0", "depth": 1 },
+                             { "name": "b", "type": "Cat@816", "value": "", "open": false },
+                             { "name": "c", "type": "Cat@815", "value": "", "open": false } ] },
+        "marks": [ { "n": 1, "target": "bp-8", "side": "left", "text": "Красная точка — точка останова. Синяя строка — здесь программа замерла; сама строка ещё не выполнена" },
+                   { "n": 2, "target": "var-a", "text": "<b>{Cat@815}</b> — так отладчик показывает ссылку: объект класса <code>Cat</code> с номером 815. Стрелка ⌄ раскрывает его поля" },
+                   { "n": 3, "target": "var-b", "text": "У <code>b</code> номер <b>816</b> — это другой объект, хоть имя внутри такое же" },
+                   { "n": 4, "target": "var-c", "text": "А у <code>c</code> снова <b>815</b> — тот же самый кот, что в <code>a</code>. Поэтому <code>a == c</code> даст true" } ],
+        "caption": "Отладчик: одинаковый номер @815 — один и тот же объект" }
+      </script>
+    </div>
+    <p>Номера вроде <code>@815</code> отладчик раздаёт сам, у тебя они будут другими. Важно не число, а совпадает ли оно у двух переменных.</p>
+    <details class="predict">
+      <summary>Предскажи: после <code>c.name = "Снежок";</code> что напечатает <code>System.out.println(a.name);</code>?</summary>
+      <p><b>Снежок.</b> <code>c</code> и <code>a</code> указывают на один объект. Меняешь через одну ссылку — видно через другую. А у <code>b</code> имя осталось «Пушок»: это отдельный кот.</p>
+    </details>
+    <div class="say" data-mood="think"><p>Сравнить котов «по содержимому» (одинаковые ли у них имена и возраст) оператор <code>==</code> не умеет. Для этого есть метод <code>equals</code> — ты знаешь его по строкам. Как научить ему свои классы, разберём в модуле 10.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>null и NullPointerException</h2>
+    <p>Переменная типа <code>Cat</code> может не указывать ни на какого кота — тогда в ней <code>null</code>, «пустой номерок». Читать поле по пустому номерку нельзя: идти некуда.</p>
+<pre data-file="Ghost.java"><code class="java">public class Ghost {
+    public static void main(String[] args) {
+        Cat ghost = null;
+        System.out.println("Ищу кота...");
+        System.out.println(ghost.name);
+        System.out.println("Нашёл!");
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-npe-ghost">
+      <script type="application/json">
+      { "tree": false, "file": "Ghost.java", "runConfig": "Ghost", "gutterRun": [1, 2],
+        "code": "public class Ghost {\n    public static void main(String[] args) {\n        Cat ghost = null;\n        System.out.println(\"Ищу кота...\");\n        System.out.println(ghost.name);\n        System.out.println(\"Нашёл!\");\n    }\n}",
+        "warnings": [ { "line": 5, "text": "ghost", "msg": "Dereference of 'ghost' will produce 'NullPointerException'" } ],
+        "console": { "title": "Ghost", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Ghost" },
+          { "t": "out", "s": "Ищу кота..." },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NullPointerException: Cannot read field \"name\" because \"ghost\" is null" },
+          { "t": "err", "s": "\tat Ghost.main(Ghost.java:5)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "err-5", "side": "top", "text": "IDEA видит, что в <code>ghost</code> точно null, и подсвечивает жёлтым. Но это только предупреждение: программа запустится" },
+                   { "n": 2, "target": "output", "text": "Строка 4 успела выполниться" },
+                   { "n": 3, "target": "error", "text": "<b>NullPointerException</b>: <b>Cannot read field \"name\"</b> — не могу прочитать поле name, <b>because \"ghost\" is null</b> — потому что в ghost null" },
+                   { "n": 4, "target": "link-1", "text": "Где: строка 5. Щёлкни — IDEA откроет её" },
+                   { "n": 5, "target": "exit", "text": "«Нашёл!» так и не напечаталось, <b>exit code 1</b>" } ],
+        "caption": "NullPointerException при чтении поля" }
+      </script>
+    </div>
+    <p>Программа скомпилировалась — компилятор не знает, что в <code>ghost</code> будет <code>null</code>. А при запуске упала на строке 5 с <b>NullPointerException</b> (NPE) — «исключение пустой ссылки». Java честно пишет: не могу прочитать поле <code>name</code>, потому что <code>ghost</code> — null.</p>
+    <ul>
+      <li><code>Cannot read field "name"</code> — пытались прочитать поле;</li>
+      <li><code>Cannot assign field "name"</code> — пытались записать в поле;</li>
+      <li><code>Cannot invoke "..."</code> — пытались вызвать метод (это будет в следующем уроке).</li>
+    </ul>
+    <details class="predict">
+      <summary>Предскажи: напечатается ли «Нашёл!»?</summary>
+      <p><b>Нет.</b> Исключение останавливает программу на строке 5. Всё, что ниже, уже не выполнится.</p>
+    </details>
+    <div class="callout fact">
+      <span class="callout-title">Самая частая ошибка в Java</span>
+      <p>NPE — чемпион среди ошибок Java-программистов: «клиента в базе не нашли, в переменной null, а мы вызываем у неё метод». Как только видишь NPE — ищи в строке из stack trace, <b>какая переменная слева от точки</b> оказалась null, и выясняй, почему туда не попал объект.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m09-01">
+      <script type="application/json">
+      {
+       "title": "Класс и объект — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини слово с его смыслом",
+         "left": [
+          "Класс",
+          "Объект",
+          "Поле",
+          "new"
+         ],
+         "right": [
+          "Чертёж нового типа данных",
+          "Конкретная вещь в куче, построенная по чертежу",
+          "Переменная внутри класса, своя у каждого объекта",
+          "Создаёт объект и возвращает ссылку на него"
+         ],
+         "why": "Класс Cat — бланк анкеты, объект — заполненная анкета, поле — графа, new — «заполнить новую анкету»."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Cat a = new Cat();\na.age = 2;\nCat b = a;\nb.age = 7;\nSystem.out.println(a.age);",
+         "answer": "7",
+         "why": "<code>Cat b = a</code> копирует ссылку, а не кота. Через b поменяли того же самого кота."
+        },
+        {
+         "type": "predict",
+         "q": "А эта?",
+         "code": "Cat a = new Cat();\nSystem.out.println(a.name);\nSystem.out.println(a.age);",
+         "answer": "null\n0",
+         "why": "Поля нового объекта заполнены значениями по умолчанию: ссылки — null, числа — 0."
+        },
+        {
+         "type": "bug",
+         "q": "В какой строке программа упадёт при запуске?",
+         "code": "Cat a = new Cat();\nCat b = null;\na.name = \"Рыжик\";\nb.name = \"Снежок\";\nSystem.out.println(a.name);",
+         "answer": [
+          4
+         ],
+         "why": "В b лежит null — по пустой ссылке записать поле нельзя: NullPointerException на строке 4."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Строка Cat c = a; создаёт нового кота",
+           "a": false,
+           "why": "новый объект появляется только при new. Здесь копируется ссылка."
+          },
+          {
+           "s": "Объекты живут в куче, а переменные main — в стеке",
+           "a": true
+          },
+          {
+           "s": "a == b для двух разных котов с одинаковыми именами даст true",
+           "a": false,
+           "why": "== сравнивает ссылки, а объекты разные."
+          },
+          {
+           "s": "В классе Cat обязательно должен быть метод main",
+           "a": false,
+           "why": "main нужен только классу, который запускают. Cat — просто описание."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши в Claude Code: <em>«Я прошёл урок 9.1. Нарисуй мне в чате стек и кучу для программы с тремя котами и двумя ссылками на одного, а я скажу, что она напечатает»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Класс — чертёж нового типа: <code>class Cat { String name; int age; }</code>. Переменные внутри класса — поля.</li>
+        <li><code>new Cat()</code> создаёт объект (экземпляр) в куче, вызывая конструктор, и возвращает ссылку. Поля нового объекта: 0, 0.0, false, null.</li>
+        <li>Точка — обращение к полю объекта по ссылке («пройти по ссылке к объекту»): <code>murzik.name</code>.</li>
+        <li><code>Cat b = a;</code> копирует ссылку, а не объект: дальше a и b — один и тот же кот. <code>==</code> сравнивает ссылки.</li>
+        <li>По ссылке <code>null</code> нельзя читать поля и вызывать методы — будет NullPointerException.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

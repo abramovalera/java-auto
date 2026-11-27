@@ -1,0 +1,55 @@
+## id: tr-methods-014
+## title: Выходной или рабочий
+## file: trainer/methods/WeekendDayMethod.java
+## class: WeekendDayMethod
+## level: 1
+## category: Методы-проверки
+@@ description
+<p>Дни недели пронумерованы от 1 (понедельник) до 7 (воскресенье). Создай класс <code>WeekendDayMethod</code> и напиши метод <code>static boolean isWeekend(int day)</code>: он возвращает <code>true</code> для субботы и воскресенья.</p>
+<p>main читает в первой строке количество дней <code>k</code>, во второй — <code>k</code> номеров через пробел, и для каждого печатает отдельной строкой <code>День N: выходной</code> или <code>День N: рабочий</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       1 6 7
+вывод: День 1: рабочий
+       День 6: выходной
+       День 7: выходной</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>||</code> — «или»: выражение истинно, если истинна хотя бы одна часть</li>
+<li>метод можно вызывать в цикле много раз — каждый раз с новым аргументом</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+1 6 7
+@@ expect
+День 1: рабочий
+День 6: выходной
+День 7: выходной
+@@ test: Вся неделя
+@@ input
+7
+1 2 3 4 5 6 7
+@@ expect
+День 1: рабочий
+День 2: рабочий
+День 3: рабочий
+День 4: рабочий
+День 5: рабочий
+День 6: выходной
+День 7: выходной
+@@ test: Один день — пятница
+@@ input
+1
+5
+@@ expect
+День 5: рабочий
+@@ test: Повторы
+@@ input
+4
+6 6 2 2
+@@ expect
+День 6: выходной
+День 6: выходной
+День 2: рабочий
+День 2: рабочий
+@@ require: static\s+boolean\s+isWeekend\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isWeekend(int day)
+@@ require: \WisWeekend\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать isWeekend(...) для каждого дня

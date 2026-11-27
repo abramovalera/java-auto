@@ -1,0 +1,52 @@
+## id: tr-arith-026
+## title: Автобусы на экскурсию
+## file: trainer/arith/ExcursionBusesNeeded.java
+## class: ExcursionBusesNeeded
+## level: 2
+## category: Деление и остаток
+@@ description
+<p>Школа везёт учеников на экскурсию. Создай класс <code>ExcursionBusesNeeded</code>. Программа читает два целых числа, каждое с новой строки: сколько учеников едет и сколько мест в одном автобусе. Она печатает, сколько автобусов нужно заказать, чтобы поместились все. Даже если в последнем автобусе поедет один человек — он нужен.</p>
+<pre class="terminal"><span class="out">ввод:  100
+       40
+вывод: Автобусов: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.ceil(x)</code> — округляет вверх, но только дробное <code>x</code>: <code>Math.ceil(100 / 40)</code> уже опоздал, деление было целым</li>
+<li>Есть и приём без дробей: <code>(n + k - 1) / k</code> — деление с округлением вверх</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+100
+40
+@@ expect
+Автобусов: 3
+@@ test: Ровно два автобуса
+@@ input
+80
+40
+@@ expect
+Автобусов: 2
+@@ test: На одного больше
+@@ input
+41
+40
+@@ expect
+Автобусов: 2
+@@ test: Один ученик
+@@ input
+1
+40
+@@ expect
+Автобусов: 1
+@@ test: Никто не едет
+@@ input
+0
+40
+@@ expect
+Автобусов: 0
+@@ test: Автобусы-одиночки
+@@ input
+7
+1
+@@ expect
+Автобусов: 7
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — округлить вверх можно и без него

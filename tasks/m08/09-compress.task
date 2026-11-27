@@ -1,0 +1,55 @@
+## id: m08-t09
+## title: Сжатие строки aaabb → a3b2
+## file: module-08/RunLengthCompress.java
+## class: RunLengthCompress
+## level: 3
+@@ description
+<p>🛠 <b>Мастерская.</b> Классика собеседований. Программа читает строку и «сжимает» её: каждую серию одинаковых символов подряд заменяет на <b>символ и длину серии</b>.</p>
+<pre class="terminal"><span class="out">ввод: aaabb          →  вывод: a3b2
+ввод: aabcccccaaa    →  вывод: a2b1c5a3
+ввод: abc            →  вывод: a1b1c1</span></pre>
+<p>Обрати внимание: <code>a</code> в начале и в конце строки «aabcccccaaa» — <b>разные</b> серии, их не складывают. Регистр важен: <code>a</code> и <code>A</code> — разные символы. Пробел — тоже символ.</p>
+<p>Решай по шаблону. Сначала руками на «aaabb»: что ты делаешь, когда символ совпадает с предыдущим, а что — когда серия закончилась? Какие нужны роли: шагающая, <b>счётчик</b> длины серии, накопитель результата? Особое внимание — <b>последней серии</b>: многие решения забывают её дописать. Пустая строка → пустой вывод.</p>
+<p>Результат собирай в <code>StringBuilder</code> — это проверяется.</p>
+<p>📖 <a href="/lessons/m08/05-stringbuilder.html">StringBuilder</a> · <a href="/lessons/m08/07-workshop.html">Мастерская: шаблон решения</a></p>
+@@ test: aaabb
+@@ input
+aaabb
+@@ expect
+a3b2
+@@ test: Одинаковые символы в разных сериях
+@@ input
+aabcccccaaa
+@@ expect
+a2b1c5a3
+@@ test: Все разные
+@@ input
+abc
+@@ expect
+a1b1c1
+@@ test: Одна буква
+@@ input
+a
+@@ expect
+a1
+@@ test: Длинная серия (двузначное число)
+@@ input
+zzzzzzzzzzzz
+@@ expect
+z12
+@@ test: Регистр важен
+@@ input
+aAa
+@@ expect
+a1A1a1
+@@ test: Пробелы — тоже символы
+@@ input
+ab  c
+@@ expect
+a1b1 2c1
+@@ test: Пустая строка
+@@ input
+
+@@ expect
+
+@@ require: StringBuilder | Собирай результат в StringBuilder — склейка + в цикле каждый раз копирует всю строку.

@@ -1,0 +1,47 @@
+## id: tr-cond-055
+## title: Сколько дней в месяце
+## file: trainer/cond/DaysInMonthCount.java
+## class: DaysInMonthCount
+## level: 3
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>DaysInMonthCount</code>. Программа читает номер месяца и год — два целых числа через пробел — и печатает <code>Дней: N</code>. В феврале 29 дней в високосный год и 28 — в обычный. Год високосный, если делится на 4, но не делится на 100, — или если делится на 400. Для номера месяца вне 1–12 напечатай <code>Нет такого месяца</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2 2024
+вывод: Дней: 29
+
+ввод:  2 1900
+вывод: Дней: 28</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>switch</code> по месяцу: <code>case 4, 6, 9, 11 -></code> — месяцы по 30 дней</li>
+<li><code>year % 4 == 0 && year % 100 != 0 || year % 400 == 0</code> — проверка на високосный год</li>
+</ul></div>
+@@ test: Февраль високосного года
+@@ input
+2 2024
+@@ expect
+Дней: 29
+@@ test: 1900 — не високосный
+@@ input
+2 1900
+@@ expect
+Дней: 28
+@@ test: 2000 — високосный
+@@ input
+2 2000
+@@ expect
+Дней: 29
+@@ test: Апрель
+@@ input
+4 2025
+@@ expect
+Дней: 30
+@@ test: Декабрь
+@@ input
+12 2025
+@@ expect
+Дней: 31
+@@ test: 13-й месяц
+@@ input
+13 2025
+@@ expect
+Нет такого месяца

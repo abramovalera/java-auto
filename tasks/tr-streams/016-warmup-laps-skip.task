@@ -1,0 +1,43 @@
+## id: tr-streams-016
+## title: Без разминочных кругов
+## file: trainer/streams/WarmupLapsSkip.java
+## class: WarmupLapsSkip
+## level: 1
+## category: Подсчёт и сумма
+@@ description
+<p>Напиши класс <code>WarmupLapsSkip</code>. Бегун записал время каждого круга в секундах. Первые <code>k</code> кругов были разминкой и в зачёт не идут. В первой строке — время кругов через пробел (хотя бы один круг), во второй — число <code>k</code> (0 или больше). Напечатай <code>Зачётное время: X</code> — сумму остальных кругов. Если разминка заняла все круги — время 0.</p>
+<pre class="terminal"><span class="out">ввод:  95 90 70 68 72
+       2
+вывод: Зачётное время: 210</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.skip(k)</code> — пропускает первые <code>k</code> элементов, остальные идут дальше</li>
+<li><code>.sum()</code> — сумма элементов <code>IntStream</code></li>
+</ul></div>
+@@ test: Два разминочных круга
+@@ input
+95 90 70 68 72
+2
+@@ expect
+Зачётное время: 210
+@@ test: Без разминки
+@@ input
+60 61 62
+0
+@@ expect
+Зачётное время: 183
+@@ test: Разминка — все круги
+@@ input
+80 85
+2
+@@ expect
+Зачётное время: 0
+@@ test: k больше числа кругов
+@@ input
+100
+5
+@@ expect
+Зачётное время: 0
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: \.skip\s*\( | Пропусти разминочные круги методом skip

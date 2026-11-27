@@ -1,0 +1,45 @@
+## id: tr-arrays-023
+## title: Опоздавший участник
+## file: trainer/arrays/AppendLateRunner.java
+## class: AppendLateRunner
+## level: 1
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>AppendLateRunner</code>. На забег уже записались <code>n</code> бегунов, и тут прибегает ещё один. Длину массива менять нельзя, поэтому создай копию на один элемент длиннее и запиши новичка в конец. Ввод: в первой строке — <code>n</code>, во второй — <code>n</code> стартовых номеров, в третьей — номер опоздавшего. Напечатай новый массив через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       11 25 7
+       40
+вывод: [11, 25, 7, 40]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.copyOf(a, len)</code> — возвращает новый массив длины <code>len</code>: начало копируется из <code>a</code>, остаток заполняется нулями</li>
+<li>последний индекс массива длины <code>len</code> — <code>len - 1</code></li>
+</ul></div>
+@@ test: Трое и опоздавший
+@@ input
+3
+11 25 7
+40
+@@ expect
+[11, 25, 7, 40]
+@@ test: Никто не записался
+@@ input
+0
+1
+@@ expect
+[1]
+@@ test: Один бегун
+@@ input
+1
+5
+5
+@@ expect
+[5, 5]
+@@ test: Номер 0
+@@ input
+2
+3 4
+0
+@@ expect
+[3, 4, 0]
+@@ require: Arrays\s*\.\s*copyOf\s*\( | Сделай копию длиннее через Arrays.copyOf
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString

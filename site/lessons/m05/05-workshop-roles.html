@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская: роли переменных · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m05-05">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 5 · Урок 5 · 🛠 Мастерская алгоритмов</div>
+    <h1>Мастерская: роли переменных</h1>
+    <p class="lead">Синтаксис циклов ты знаешь. Но как придумать решение задачи? Секрет: в циклах переменные почти всегда играют одну из шести ролей. Узнаёшь роль — решение наполовину готово.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>🛠 мастерская</span><span>🔍 5 трассировок</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m05-05-review">
+      <script type="application/json">
+      { "title": "Разминка: вложенные циклы и for",
+        "items": [
+          { "type": "single", "q": "Сколько раз выполнится тело внутреннего цикла?", "code": "for (int i = 0; i < 3; i++) {\n    for (int j = 0; j < 3; j++) {\n        …\n    }\n}",
+            "options": ["3", "6", "9"], "answer": 2, "why": "3 итерации внешнего × 3 итерации внутреннего = 9." },
+          { "type": "predict", "q": "Что выведет код?", "code": "int x = 1;\nfor (int i = 1; i <= 3; i++) {\n    x = x * 2;\n}\nSystem.out.println(x);",
+            "answer": "8", "why": "На каждой из трёх итераций переменной x присваивается x * 2: 2, 4, 8." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "В do-while условие проверяется перед телом", "a": false, "why": "после тела — поэтому тело выполняется хотя бы раз." },
+              { "s": "Перед кодом картинки из звёздочек полезно составить табличку «строка → пробелы → звёздочки»", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>У переменных есть профессии</h2>
+    <p>Новичок смотрит на задачу «посчитай что-нибудь» и не знает, с чего начать. Опытный программист думает иначе: «Ага, здесь нужен <b>счётчик</b> и <b>шагающая</b> переменная». Финский учёный Йорма Саяниеми изучил тысячи учебных программ и заметил: почти каждая переменная в цикле выполняет одну из немногих типовых «работ». Он назвал их <b>ролями</b>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: футбольная команда</span>
+      <p>На поле нет «просто игроков»: есть вратарь, защитник, нападающий. У каждого своя работа, и по позиции сразу понятно, что он будет делать. Так и в цикле: роль подсказывает, каким значением переменную инициализировать и как она меняется на каждой итерации.</p>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">👣</span><h4>Шагающая</h4><p>Проходит значения по порядку: 1, 2, 3… Обычно это <code>i</code>, объявленная в заголовке <code>for</code> (её же называют счётчиком цикла).</p></div>
+      <div class="card"><span class="emoji">🔢</span><h4>Счётчик</h4><p>Считает, <b>сколько раз</b> что-то случилось: инкремент <code>count++</code>.</p></div>
+      <div class="card"><span class="emoji">🧺</span><h4>Накопитель</h4><p>Собирает сумму или произведение: составное присваивание <code>sum += x</code>.</p></div>
+      <div class="card"><span class="emoji">🏆</span><h4>Рекордсмен</h4><p>Помнит лучший результат: максимум или минимум.</p></div>
+      <div class="card"><span class="emoji">🚩</span><h4>Флаг</h4><p>Да или нет: «нашёл?», «было ли?». Тип <code>boolean</code>.</p></div>
+      <div class="card"><span class="emoji">🕰️</span><h4>Последнее значение</h4><p>Помнит, что было на прошлой итерации: <code>prev</code>.</p></div>
+    </div>
+    <p>Посмотри, как все шесть ролей «смотрят» на одни и те же числа, которые по очереди вводит пользователь: 4, 9, 2, 9.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 680 300" role="img" aria-label="Таблица: как меняются шагающая, счётчик чётных, накопитель суммы, максимум, флаг и предыдущее значение для чисел 4, 9, 2, 9">
+        <rect x="290" y="10" width="80" height="34" rx="8" class="d-blue"/><text x="330" y="33" text-anchor="middle" class="d-title">4</text>
+        <rect x="390" y="10" width="80" height="34" rx="8" class="d-blue"/><text x="430" y="33" text-anchor="middle" class="d-title">9</text>
+        <rect x="490" y="10" width="80" height="34" rx="8" class="d-blue"/><text x="530" y="33" text-anchor="middle" class="d-title">2</text>
+        <rect x="590" y="10" width="80" height="34" rx="8" class="d-blue"/><text x="630" y="33" text-anchor="middle" class="d-title">9</text>
+        <text x="20" y="33" class="d-small">пришло число →</text>
+
+        <rect x="10" y="56" width="660" height="38" rx="8" class="d-soft"/>
+        <text x="20" y="80" class="d-text">👣 шагающая: номер числа</text>
+        <text x="330" y="80" text-anchor="middle" class="d-mono-ink">1</text><text x="430" y="80" text-anchor="middle" class="d-mono-ink">2</text><text x="530" y="80" text-anchor="middle" class="d-mono-ink">3</text><text x="630" y="80" text-anchor="middle" class="d-mono-ink">4</text>
+
+        <text x="20" y="122" class="d-text">🔢 счётчик: сколько чётных</text>
+        <text x="330" y="122" text-anchor="middle" class="d-mono-ink">1</text><text x="430" y="122" text-anchor="middle" class="d-mono-ink">1</text><text x="530" y="122" text-anchor="middle" class="d-mono-ink">2</text><text x="630" y="122" text-anchor="middle" class="d-mono-ink">2</text>
+
+        <rect x="10" y="140" width="660" height="38" rx="8" class="d-soft"/>
+        <text x="20" y="164" class="d-text">🧺 накопитель: сумма</text>
+        <text x="330" y="164" text-anchor="middle" class="d-mono-ink">4</text><text x="430" y="164" text-anchor="middle" class="d-mono-ink">13</text><text x="530" y="164" text-anchor="middle" class="d-mono-ink">15</text><text x="630" y="164" text-anchor="middle" class="d-mono-ink">24</text>
+
+        <text x="20" y="206" class="d-text">🏆 рекордсмен: максимум</text>
+        <text x="330" y="206" text-anchor="middle" class="d-mono-ink">4</text><text x="430" y="206" text-anchor="middle" class="d-mono-ink">9</text><text x="530" y="206" text-anchor="middle" class="d-mono-ink">9</text><text x="630" y="206" text-anchor="middle" class="d-mono-ink">9</text>
+
+        <rect x="10" y="224" width="660" height="38" rx="8" class="d-soft"/>
+        <text x="20" y="248" class="d-text">🚩 флаг: было число &gt; 8?</text>
+        <text x="330" y="248" text-anchor="middle" class="d-mono-ink">false</text><text x="430" y="248" text-anchor="middle" class="d-mono-ink">true</text><text x="530" y="248" text-anchor="middle" class="d-mono-ink">true</text><text x="630" y="248" text-anchor="middle" class="d-mono-ink">true</text>
+
+        <text x="20" y="290" class="d-text">🕰️ prev: предыдущее число</text>
+        <text x="330" y="290" text-anchor="middle" class="d-mono-ink">—</text><text x="430" y="290" text-anchor="middle" class="d-mono-ink">4</text><text x="530" y="290" text-anchor="middle" class="d-mono-ink">9</text><text x="630" y="290" text-anchor="middle" class="d-mono-ink">2</text>
+      </svg>
+      <figcaption>Одни и те же числа — шесть разных «работ». Это и есть трассировочная таблица, которую мы будем строить в каждой задаче.</figcaption>
+    </figure>
+    <p>Напомню шаблон «Мастерской», по которому решаем любые задачи на логику:</p>
+    <ol class="steps">
+      <li><b>Пойми задачу.</b> Что на входе, что на выходе? 2–3 примера, включая граничные: 0, 1, отрицательное.</li>
+      <li><b>Реши руками</b> и запиши, что делал. Какие действия повторялись?</li>
+      <li><b>Найди роли переменных</b> — шагающая, счётчик, накопитель, рекордсмен, флаг, последнее значение.</li>
+      <li><b>Псевдокод</b> на русском.</li>
+      <li><b>Код</b> — перевод псевдокода строка в строку.</li>
+      <li><b>Трассировка</b>: таблица значений по шагам, потом граничные случаи.</li>
+    </ol>
+    <p>Дальше — по мини-задаче на каждую роль. Шаги 1–4 проговариваем коротко, шаг 6 делаешь ты в трассировщике.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>👣 Шагающая и 🔢 счётчик</h2>
+    <p><b>Задача.</b> Сколько чисел от 1 до N делятся на 3 или на 5?</p>
+    <ol class="steps">
+      <li><b>Вход/выход:</b> N = 10 → 5 (это 3, 5, 6, 9, 10). N = 2 → 0. N = 0 → 0.</li>
+      <li><b>Руками:</b> иду по числам 1, 2, … 10 и на каждом ставлю галочку, если подходит. В конце считаю галочки.</li>
+      <li><b>Роли:</b> «иду по числам» — <b>шагающая</b> <code>i</code>; «галочки» — <b>счётчик</b> <code>count</code>. Счётчик инициализируем нулём, и он растёт только на +1.</li>
+      <li><b>Псевдокод:</b> count = 0; для i от 1 до N: если i делится на 3 или на 5 — count + 1; вывести count.</li>
+    </ol>
+<pre data-file="CountMultiples.java"><code class="java">int n = 6;
+int count = 0;
+for (int i = 1; i &lt;= n; i++) {
+    if (i % 3 == 0 || i % 5 == 0) {
+        count++;
+    }
+}
+System.out.println(count);</code></pre>
+    <div data-widget="trace" id="trace-counter">
+      <script type="application/json">
+      { "title": "Счётчик: сколько делятся на 3 или на 5 (N = 6)",
+        "intro": "Следи за двумя ролями: i шагает по числам, count растёт только когда условие верно.",
+        "code": "int n = 6;\nint count = 0;\nfor (int i = 1; i <= n; i++) {\n    if (i % 3 == 0 || i % 5 == 0) {\n        count++;\n    }\n}\nSystem.out.println(count);",
+        "steps": [
+          { "line": 2, "vars": { "n": "6", "count": "0" }, "note": "Объявляем счётчик count и инициализируем его нулём: пока ничего не нашли." },
+          { "line": 4, "vars": { "n": "6", "count": "0", "i": "1" }, "note": "i = 1: не делится ни на 3, ни на 5. Счётчик не трогаем." },
+          { "line": 4, "vars": { "n": "6", "count": "0", "i": "2" }, "note": "i = 2: тоже нет." },
+          { "line": 5, "vars": { "n": "6", "count": "1", "i": "3" }, "ask": ["count"], "note": "i = 3: делится на 3, условие true — выполняется инкремент count++. Было 0, стало 1." },
+          { "line": 4, "vars": { "n": "6", "count": "1", "i": "4" }, "note": "i = 4: нет." },
+          { "line": 5, "vars": { "n": "6", "count": "2", "i": "5" }, "ask": ["count"], "note": "i = 5: делится на 5 — снова count++. Было 1, стало 2." },
+          { "line": 5, "vars": { "n": "6", "count": "3", "i": "6" }, "ask": ["count"], "note": "i = 6: делится на 3. Ещё одна галочка: 3." },
+          { "line": 3, "vars": { "n": "6", "count": "3", "i": "7" }, "note": "i = 7, условие 7 <= 6 — false, цикл закончен." },
+          { "line": 8, "vars": { "n": "6", "count": "3" }, "out": "3\n", "note": "Ответ: 3 (это 3, 5 и 6). Граничный случай N = 0: тело цикла не выполнится ни разу, выведется 0 — верно." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>🧺 Накопитель</h2>
+    <p><b>Задача.</b> Посчитать сумму квадратов от 1 до N: 1² + 2² + … + N².</p>
+    <ol class="steps">
+      <li><b>Вход/выход:</b> N = 3 → 1 + 4 + 9 = 14. N = 1 → 1. N = 0 → 0.</li>
+      <li><b>Руками:</b> держу в голове «сумму пока что» и прибавляю к ней очередной квадрат.</li>
+      <li><b>Роли:</b> <code>i</code> — шагающая, <code>sum</code> — <b>накопитель</b>: он «копит» результат: на каждой итерации <code>sum = sum + что-то</code> — вычисляем выражение и присваиваем результат той же переменной.</li>
+      <li><b>Псевдокод:</b> sum = 0; для i от 1 до N: sum += i·i; вывести sum.</li>
+    </ol>
+<pre data-file="SumOfSquares.java"><code class="java">int n = 3;
+int sum = 0;
+for (int i = 1; i &lt;= n; i++) {
+    sum += i * i;
+}
+System.out.println(sum);</code></pre>
+    <div data-widget="trace" id="trace-accumulator">
+      <script type="application/json">
+      { "title": "Накопитель: сумма квадратов (N = 3)",
+        "code": "int n = 3;\nint sum = 0;\nfor (int i = 1; i <= n; i++) {\n    sum += i * i;\n}\nSystem.out.println(sum);",
+        "steps": [
+          { "line": 2, "vars": { "n": "3", "sum": "0" }, "note": "Объявляем накопитель sum и инициализируем нулём: «пока ничего не накопили»." },
+          { "line": 4, "vars": { "n": "3", "sum": "1", "i": "1" }, "ask": ["sum"], "note": "i = 1: составное присваивание sum += i * i прибавляет 1 · 1. Было 0, стало 1." },
+          { "line": 4, "vars": { "n": "3", "sum": "5", "i": "2" }, "ask": ["sum"], "note": "i = 2, прибавляем 2 · 2 = 4. Было 1, стало 5." },
+          { "line": 4, "vars": { "n": "3", "sum": "14", "i": "3" }, "ask": ["sum"], "note": "i = 3, прибавляем 3 · 3 = 9. Было 5, стало 14." },
+          { "line": 3, "vars": { "n": "3", "sum": "14", "i": "4" }, "note": "4 <= 3 — false, выходим из цикла." },
+          { "line": 6, "vars": { "n": "3", "sum": "14" }, "out": "14\n", "note": "Ответ 14 — совпал с ручным подсчётом." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">С чего начинать накопитель</span>
+      <p>Накопитель суммы инициализируем <b>нулём</b>: ноль не меняет сумму. Для произведения — с <b>1</b>: единица не меняет произведение. Начнёшь произведение с 0 — и всё, что ни умножай, останется нулём. Это пригодится в задаче «Факториал».</p>
+    </div>
+    <details class="predict">
+      <summary>Где объявить <code>sum</code> — до цикла или внутри него?</summary>
+      <p><b>До цикла.</b> Переменная, объявленная внутри тела, создаётся заново на каждой итерации: объявление с инициализацией <code>int sum = 0;</code> в теле обнулит накопленное. И после цикла её уже не будет видно. Это одна из самых частых ошибок — разберём её в уроке 5.7.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>🏆 Рекордсмен (максимум и минимум)</h2>
+    <p><b>Задача.</b> Пользователь вводит температуру за 5 дней. Найти самую низкую.</p>
+    <ol class="steps">
+      <li><b>Вход/выход:</b> −3 2 −8 0 −8 → −8. 5 3 7 1 4 → 1 (все плюсовые). Все одинаковые 2 2 2 2 2 → 2.</li>
+      <li><b>Руками:</b> смотрю на первое число и запоминаю его как «самое холодное пока». Каждое следующее сравниваю с запомненным: холоднее — запоминаю новое.</li>
+      <li><b>Роли:</b> <code>day</code> — шагающая, <code>t</code> — очередное число, <code>min</code> — <b>рекордсмен</b>: его инициализируем первым введённым числом.</li>
+      <li><b>Псевдокод:</b> min = первое число; для дней со 2-го по 5-й: прочитать t; если t &lt; min — min = t; вывести min.</li>
+    </ol>
+<pre data-file="ColdestDay.java"><code class="java">Scanner scanner = new Scanner(System.in);
+int min = scanner.nextInt();       // первый день — пока рекордсмен
+for (int day = 2; day &lt;= 5; day++) {
+    int t = scanner.nextInt();
+    if (t &lt; min) {
+        min = t;
+    }
+}
+System.out.println("Самый холодный день: " + min);</code></pre>
+    <div data-widget="trace" id="trace-record">
+      <script type="application/json">
+      { "title": "Рекордсмен: минимум из 5 чисел",
+        "intro": "Пользователь ввёл: -3 2 -8 0 -8. Следи за min: он меняется только когда пришёл новый рекорд.",
+        "code": "Scanner scanner = new Scanner(System.in);\nint min = scanner.nextInt();\nfor (int day = 2; day <= 5; day++) {\n    int t = scanner.nextInt();\n    if (t < min) {\n        min = t;\n    }\n}\nSystem.out.println(\"Самый холодный день: \" + min);",
+        "steps": [
+          { "line": 2, "vars": { "min": "-3" }, "note": "Объявляем min и инициализируем результатом вызова nextInt() — первое число −3 сразу становится рекордсменом. Сравнивать его пока не с кем." },
+          { "line": 4, "vars": { "min": "-3", "day": "2", "t": "2" }, "note": "День 2: объявляем t и инициализируем результатом вызова nextInt() — это 2." },
+          { "line": 5, "vars": { "min": "-3", "day": "2", "t": "2" }, "note": "2 < −3? Нет. Рекорд остаётся." },
+          { "line": 4, "vars": { "min": "-3", "day": "3", "t": "-8" }, "note": "День 3: t = −8." },
+          { "line": 6, "vars": { "min": "-8", "day": "3", "t": "-8" }, "ask": ["min"], "note": "−8 < −3 — true, новый рекорд холода. Переменной min присваивается значение t, то есть −8." },
+          { "line": 5, "vars": { "min": "-8", "day": "4", "t": "0" }, "note": "День 4: t = 0. 0 < −8? Нет." },
+          { "line": 5, "vars": { "min": "-8", "day": "5", "t": "-8" }, "ask": ["min"], "note": "День 5: t = −8. −8 < −8? Оператор < строгий, поэтому false. min не меняется." },
+          { "line": 9, "vars": { "min": "-8" }, "out": "Самый холодный день: -8\n", "note": "Ответ −8. Повтор рекорда ничего не сломал." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Главная ловушка рекордсмена</span>
+      <p>Хочется инициализировать рекордсмена нулём: <code>int min = 0;</code>. Проверь на примере 5 3 7 1 4: ни одно число не меньше 0 — программа напечатает 0, а такой температуры не было! С максимумом то же самое: <code>max = 0</code> ломается, когда все числа отрицательные. Надёжный способ — инициализировать рекордсмена <b>первым значением</b>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>🚩 Флаг</h2>
+    <p><b>Задача.</b> Пользователь вводит 3 числа. Было ли среди них отрицательное? Ответ: «да» или «нет».</p>
+    <ol class="steps">
+      <li><b>Вход/выход:</b> 4 −1 7 → да. 4 1 7 → нет. −5 −5 −5 → да.</li>
+      <li><b>Руками:</b> держу в голове «пока не видел». Увидел отрицательное — поднимаю флажок, и он остаётся поднятым, что бы ни пришло дальше.</li>
+      <li><b>Роли:</b> <code>found</code> — <b>флаг</b>: <code>boolean</code>, инициализируем значением <code>false</code>; дальше ему можно только присвоить <code>true</code> — «поднять».</li>
+      <li><b>Псевдокод:</b> found = false; 3 раза: прочитать x; если x &lt; 0 — found = true. После цикла: found ? «да» : «нет».</li>
+    </ol>
+<pre data-file="HasNegative.java"><code class="java">Scanner scanner = new Scanner(System.in);
+boolean found = false;
+for (int i = 1; i &lt;= 3; i++) {
+    int x = scanner.nextInt();
+    if (x &lt; 0) {
+        found = true;
+    }
+}
+System.out.println(found ? "да" : "нет");</code></pre>
+    <div data-widget="trace" id="trace-flag">
+      <script type="application/json">
+      { "title": "Флаг: было ли отрицательное?",
+        "intro": "Пользователь ввёл: 4 -1 7. Главное — что станет с флагом после числа 7.",
+        "code": "Scanner scanner = new Scanner(System.in);\nboolean found = false;\nfor (int i = 1; i <= 3; i++) {\n    int x = scanner.nextInt();\n    if (x < 0) {\n        found = true;\n    }\n}\nSystem.out.println(found ? \"да\" : \"нет\");",
+        "steps": [
+          { "line": 2, "vars": { "found": "false" }, "note": "Флаг опущен: отрицательных пока не видели." },
+          { "line": 5, "vars": { "found": "false", "i": "1", "x": "4" }, "note": "x = 4. 4 < 0? Нет. Флаг не трогаем." },
+          { "line": 6, "vars": { "found": "true", "i": "2", "x": "-1" }, "ask": ["found"], "note": "x = −1. Условие x < 0 — true, поднимаем флаг: переменной found присваивается true." },
+          { "line": 5, "vars": { "found": "true", "i": "3", "x": "7" }, "ask": ["found"], "note": "x = 7. Условие false, но ветки else нет — флаг остаётся поднятым: true." },
+          { "line": 9, "vars": { "found": "true" }, "out": "да\n", "note": "После цикла смотрим на флаг — да. Тернарный оператор ?: из модуля 4 выбрал «да»." }
+        ] }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка: else у флага</span>
+      <p>Если дописать ветку <code>else { found = false; }</code>, флаг будет «забывать»: после 7 он опустится, и программа скажет «нет», хотя −1 было. Флаг поднимают, но внутри цикла <b>не опускают</b>. Когда флаг поднят, дальше можно не искать — тут к месту <code>break</code> из урока 5.3.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>🕰️ Последнее значение: числа Фибоначчи</h2>
+    <p><b>Задача.</b> Напечатать первые 6 чисел Фибоначчи: 1 1 2 3 5 8. Каждое следующее — сумма двух предыдущих. Такие числа встречаются в природе: в спиралях подсолнуха и раковин.</p>
+    <ol class="steps">
+      <li><b>Вход/выход:</b> 6 чисел → 1 1 2 3 5 8.</li>
+      <li><b>Руками:</b> держу в голове <b>два</b> последних числа. Складываю их — получаю новое. Потом «сдвигаюсь»: старое второе становится первым, новое — вторым.</li>
+      <li><b>Роли:</b> <code>prev</code> — <b>последнее значение</b> (предыдущее число), <code>cur</code> — текущее, <code>next</code> — <b>временная</b>: объявлена в теле цикла и живёт одну итерацию, чтобы ничего не потерять при сдвиге.</li>
+      <li><b>Псевдокод:</b> prev = 0, cur = 1; 6 раз: напечатать cur; next = prev + cur; prev = cur; cur = next.</li>
+    </ol>
+<pre data-file="Fibonacci.java"><code class="java">int prev = 0;
+int cur = 1;
+for (int i = 1; i &lt;= 6; i++) {
+    System.out.print(cur + " ");
+    int next = prev + cur;
+    prev = cur;
+    cur = next;
+}</code></pre>
+    <div data-widget="trace" id="trace-fib">
+      <script type="application/json">
+      { "title": "Последнее значение: Фибоначчи",
+        "intro": "prev и cur — «два последних числа». На каждой итерации они сдвигаются на одну позицию вперёд.",
+        "code": "int prev = 0;\nint cur = 1;\nfor (int i = 1; i <= 6; i++) {\n    System.out.print(cur + \" \");\n    int next = prev + cur;\n    prev = cur;\n    cur = next;\n}",
+        "steps": [
+          { "line": 2, "vars": { "prev": "0", "cur": "1" }, "note": "Объявляем prev и cur и инициализируем стартовой парой: 0 и 1." },
+          { "line": 4, "vars": { "prev": "0", "cur": "1", "i": "1" }, "out": "1 ", "note": "Печатаем cur = 1." },
+          { "line": 5, "vars": { "prev": "0", "cur": "1", "i": "1", "next": "1" }, "note": "Объявляем next и инициализируем результатом выражения prev + cur: 0 + 1 = 1." },
+          { "line": 7, "vars": { "prev": "1", "cur": "1", "i": "1", "next": "1" }, "note": "Сдвиг — два присваивания: prev = cur (1), cur = next (1)." },
+          { "line": 4, "vars": { "prev": "1", "cur": "1", "i": "2" }, "out": "1 ", "note": "Вторая итерация: печатаем 1." },
+          { "line": 5, "vars": { "prev": "1", "cur": "1", "i": "2", "next": "2" }, "ask": ["next"], "note": "next = prev + cur. Складываем 1 и 1." },
+          { "line": 7, "vars": { "prev": "1", "cur": "2", "i": "2", "next": "2" }, "ask": ["prev", "cur"], "note": "Сдвиг: prev получает старое cur, cur получает next. Теперь пара 1 и 2." },
+          { "line": 4, "vars": { "prev": "1", "cur": "2", "i": "3" }, "out": "2 ", "note": "Печатаем 2." },
+          { "line": 7, "vars": { "prev": "2", "cur": "3", "i": "3", "next": "3" }, "ask": ["cur"], "note": "next = 1 + 2. Сдвиг: пара становится 2 и 3." },
+          { "line": 4, "vars": { "prev": "2", "cur": "3", "i": "4" }, "out": "3 ", "note": "Печатаем 3." },
+          { "line": 7, "vars": { "prev": "3", "cur": "5", "i": "4", "next": "5" }, "ask": ["cur"], "note": "next = 2 + 3. Пара: 3 и 5." },
+          { "line": 4, "vars": { "prev": "3", "cur": "5", "i": "5" }, "out": "5 ", "note": "Печатаем 5." },
+          { "line": 7, "vars": { "prev": "5", "cur": "8", "i": "5", "next": "8" }, "note": "next = 3 + 5 = 8. Пара: 5 и 8." },
+          { "line": 4, "vars": { "prev": "5", "cur": "8", "i": "6" }, "out": "8 ", "note": "Шестая итерация: печатаем 8. Дальше i станет 7 — выход. Итог: 1 1 2 3 5 8." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Зачем временная <code>next</code>? Что выведется, если написать без неё: <code>prev = cur; cur = prev + cur;</code>?</summary>
+      <p><b>1 2 4 8 16 32</b> — числа просто удваиваются. После присваивания <code>prev = cur</code> старое значение <code>prev</code> потеряно, и выражение <code>prev + cur</code> превращается в <code>cur + cur</code>. Временная переменная сохраняет результат, пока мы «переставляем» остальные. Как при обмене двух стаканов с соком нужен третий, пустой.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Шпаргалка по ролям</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Роль</th><th>До цикла</th><th>В цикле</th><th>Частая ошибка</th></tr>
+        <tr><td>👣 Шагающая</td><td>в заголовке <code>for</code></td><td><code>i++</code>, <code>i += 2</code>…</td><td>лишняя или недостающая итерация (&lt; вместо &lt;=)</td></tr>
+        <tr><td>🔢 Счётчик</td><td><code>count = 0</code></td><td><code>count++</code> по условию</td><td>объявлен внутри цикла</td></tr>
+        <tr><td>🧺 Накопитель</td><td>сумма <code>0</code>, произведение <code>1</code></td><td><code>sum += x</code>, <code>p *= x</code></td><td>произведение с 0; тип <code>int</code> вместо <code>long</code></td></tr>
+        <tr><td>🏆 Рекордсмен</td><td><b>первое значение</b></td><td><code>if (x &gt; max) max = x;</code></td><td>старт с 0</td></tr>
+        <tr><td>🚩 Флаг</td><td><code>false</code></td><td><code>if (…) found = true;</code></td><td>лишний <code>else found = false</code></td></tr>
+        <tr><td>🕰️ Последнее</td><td>первое значение</td><td>в конце итерации <code>prev = cur</code></td><td>потеря значения без временной</td></tr>
+      </table>
+    </div>
+    <p>Собери решение из строк. Задача: <b>сумма чётных чисел от 1 до N</b>. Подумай сначала, какие тут роли.</p>
+    <div data-widget="parsons" id="roles-parsons" data-code data-title="Сумма чётных от 1 до N" data-icon="🧺"
+         data-hint="Сначала объявление и инициализация ролей, потом цикл с шагающей, внутри — условие и накопитель, после цикла — вывод."
+         data-success="🎉 Верно! i — шагающая, sum — накопитель. А можно ли обойтись без if? Подсказка: шаг i += 2.">
+      <script type="text/plain">
+int n = scanner.nextInt();
+int sum = 0;
+for (int i = 1; i <= n; i++) {
+    if (i % 2 == 0) {
+        sum += i;
+    }
+}
+System.out.println(sum);
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m05-05">
+      <script type="application/json">
+      {
+       "title": "Быстрая проверка: роли переменных",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини задачу с главной ролью переменной-ответа",
+         "left": [
+          "Сколько раз пользователь ввёл 0",
+          "Сумма покупок в чеке",
+          "Самая высокая оценка в классе",
+          "Есть ли в тексте ошибка — да/нет"
+         ],
+         "right": [
+          "Счётчик",
+          "Накопитель",
+          "Рекордсмен",
+          "Флаг"
+         ],
+         "why": "«Сколько раз» — счётчик, «сумма» — накопитель, «самый» — рекордсмен, «да/нет» — флаг."
+        },
+        {
+         "type": "bug",
+         "q": "Программа ищет, было ли среди 5 чисел число 7, но иногда отвечает «нет», хотя 7 было. Где ошибка?",
+         "code": "boolean found = false;\nfor (int i = 1; i <= 5; i++) {\n    int x = scanner.nextInt();\n    if (x == 7) {\n        found = true;\n    } else {\n        found = false;\n    }\n}",
+         "answer": [
+          7
+         ],
+         "why": "Ветка else присваивает флагу false на каждом числе, не равном 7. Если 7 было не последним — флаг «забудет» о нём."
+        },
+        {
+         "type": "single",
+         "q": "Пользователь вводит числа: −4 −9 −1. Программа с int max = 0 и if (x > max) max = x выведет…",
+         "options": [
+          "−1",
+          "0",
+          "−9"
+         ],
+         "answer": 1,
+         "why": "Ни одно число не больше 0, рекорд не обновился. Правильно — инициализировать max первым числом."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет код? Найди роли — так считать легче.",
+         "code": "int count = 0;\nint sum = 0;\nfor (int i = 1; i <= 10; i++) {\n    if (i % 4 == 0) {\n        count++;\n        sum += i;\n    }\n}\nSystem.out.println(count + \" \" + sum);",
+         "answer": "2 12",
+         "why": "Кратные 4 до 10: 4 и 8. Счётчик — 2, накопитель — 12."
+        },
+        {
+         "type": "order",
+         "q": "Расставь шаги «Мастерской» по порядку",
+         "lines": [
+          "Понять вход и выход, придумать примеры",
+          "Решить руками",
+          "Найти роли переменных",
+          "Написать псевдокод",
+          "Перевести псевдокод в код",
+          "Проверить трассировкой и граничными случаями"
+         ],
+         "why": "Сначала думаем, потом пишем, потом проверяем."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне задачу на цикл. Я не буду писать код — назову роли переменных и напишу псевдокод, а ты проверь»</em>. Это лучший тренажёр перед задачами модуля.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Переменные в цикле играют роли: шагающая, счётчик, накопитель, рекордсмен, флаг, последнее значение (+ временная).</li>
+        <li>Роль подсказывает, каким значением инициализировать переменную и как она меняется на каждой итерации.</li>
+        <li>Инициализируем: сумму — нулём, произведение — единицей, рекордсмена — первым значением, флаг — <code>false</code>.</li>
+        <li>Решаем по шаблону: вход/выход → руками → роли → псевдокод → код → трассировка.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

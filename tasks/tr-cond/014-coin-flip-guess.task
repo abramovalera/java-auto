@@ -1,0 +1,43 @@
+## id: tr-cond-014
+## title: Орёл или решка
+## file: trainer/cond/CoinFlipGuess.java
+## class: CoinFlipGuess
+## level: 1
+## category: Игры и правила
+@@ description
+<p>Напиши класс <code>CoinFlipGuess</code>. Программа читает две строки: в первой — что загадал игрок (<code>орёл</code> или <code>решка</code>), во второй — что выпало на монетке. Напечатай <code>Угадал!</code>, если совпало, иначе <code>Не угадал. Выпало: …</code> — и то, что выпало.</p>
+<pre class="terminal"><span class="out">ввод:  орёл
+       орёл
+вывод: Угадал!
+
+ввод:  орёл
+       решка
+вывод: Не угадал. Выпало: решка</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a.equals(b)</code> — сравнивает строки по содержимому (не <code>==</code>!)</li>
+</ul></div>
+@@ test: Загадал орла — выпал орёл
+@@ input
+орёл
+орёл
+@@ expect
+Угадал!
+@@ test: Загадал орла — выпала решка
+@@ input
+орёл
+решка
+@@ expect
+Не угадал. Выпало: решка
+@@ test: Решка и решка
+@@ input
+решка
+решка
+@@ expect
+Угадал!
+@@ test: Загадал решку — выпал орёл
+@@ input
+решка
+орёл
+@@ expect
+Не угадал. Выпало: орёл
+@@ require: \.equals\s*\( | Сравнивай строки методом equals

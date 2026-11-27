@@ -1,0 +1,36 @@
+## id: tr-cond-003
+## title: Место у окна
+## file: trainer/cond/BusSeatSide.java
+## class: BusSeatSide
+## level: 1
+## category: Цифры и делимость
+@@ description
+<p>Напиши класс <code>BusSeatSide</code>. В автобусе места с нечётными номерами — у окна, с чётными — у прохода. Программа читает номер места (целое положительное число) и печатает <code>У окна</code> или <code>У прохода</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1
+вывод: У окна
+
+ввод:  2
+вывод: У прохода</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 2</code> — остаток от деления на 2: у чётных чисел он 0, у нечётных 1</li>
+</ul></div>
+@@ test: Первое место
+@@ input
+1
+@@ expect
+У окна
+@@ test: Второе место
+@@ input
+2
+@@ expect
+У прохода
+@@ test: Нечётное двузначное
+@@ input
+15
+@@ expect
+У окна
+@@ test: Последний ряд
+@@ input
+40
+@@ expect
+У прохода

@@ -1,0 +1,42 @@
+## id: tr-cond-012
+## title: Рабочий или выходной
+## file: trainer/cond/WorkdayOrWeekend.java
+## class: WorkdayOrWeekend
+## level: 1
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>WorkdayOrWeekend</code>. Программа читает номер дня недели (1 — понедельник, 7 — воскресенье) и печатает <code>Рабочий день</code> для дней с 1 по 5, <code>Выходной</code> для 6 и 7, а для остальных чисел — <code>Нет такого дня</code>. Используй <code>switch</code>.</p>
+<pre class="terminal"><span class="out">ввод:  6
+вывод: Выходной
+
+ввод:  0
+вывод: Нет такого дня</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>case 6, 7 -></code> — несколько значений в одной ветке, через запятую</li>
+</ul></div>
+@@ test: Пятница
+@@ input
+5
+@@ expect
+Рабочий день
+@@ test: Суббота
+@@ input
+6
+@@ expect
+Выходной
+@@ test: Воскресенье
+@@ input
+7
+@@ expect
+Выходной
+@@ test: Ноль — нет такого дня
+@@ input
+0
+@@ expect
+Нет такого дня
+@@ test: Восьмой день
+@@ input
+8
+@@ expect
+Нет такого дня
+@@ require: switch\s*\( | Реши задачу через switch

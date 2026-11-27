@@ -1,0 +1,41 @@
+## id: tr-loops-041
+## title: Номер задом наперёд
+## file: trainer/loops/ReverseHouseNumber.java
+## class: ReverseHouseNumber
+## level: 2
+## category: Цифры числа
+@@ description
+<p>Напиши класс <code>ReverseHouseNumber</code>. Программа читает целое число типа <code>int</code> (может быть отрицательным) и печатает его цифры в обратном порядке. Минус остаётся впереди, нули в начале результата пропадают: <code>1200</code> → <code>21</code>. Считай арифметикой, без строк.</p>
+<pre class="terminal"><span class="out">ввод:  12345
+вывод: 54321</span></pre>
+<p>Осторожно: перевёрнутое число может не поместиться в <code>int</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>reversed = reversed * 10 + n % 10;</code> — дописать последнюю цифру n в конец результата</li>
+<li><code>long reversed = 0;</code> — результат в long</li>
+</ul></div>
+@@ test: Пять цифр
+@@ input
+12345
+@@ expect
+54321
+@@ test: Нули в конце
+@@ input
+1200
+@@ expect
+21
+@@ test: Отрицательное
+@@ input
+-123
+@@ expect
+-321
+@@ test: Одна цифра
+@@ input
+7
+@@ expect
+7
+@@ test: Не влезет в int
+@@ input
+1000000009
+@@ expect
+9000000001
+@@ forbid: StringBuilder|\.reverse\(|\.length\(\)|charAt|String\.valueOf|Integer\.toString | Разверни число арифметикой (% 10, / 10, * 10), а не через строки

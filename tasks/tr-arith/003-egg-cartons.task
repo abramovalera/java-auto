@@ -1,0 +1,46 @@
+## id: tr-arith-003
+## title: Яйца по коробкам
+## file: trainer/arith/EggCartonPacking.java
+## class: EggCartonPacking
+## level: 1
+## category: Деление и остаток
+@@ description
+<p>На птицеферме яйца раскладывают в коробки по 10 штук. Создай класс <code>EggCartonPacking</code>. Программа читает одно целое число — сколько яиц собрали — и печатает две строки: сколько <b>полных</b> коробок получилось и сколько яиц осталось без коробки.</p>
+<pre class="terminal"><span class="out">ввод:  43
+вывод: Коробок: 4
+       Осталось яиц: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a / b</code> для двух <code>int</code> — целочисленное деление, дробная часть отбрасывается: <code>43 / 10</code> равно <code>4</code></li>
+<li><code>a % b</code> — остаток от деления: <code>43 % 10</code> равно <code>3</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+43
+@@ expect
+Коробок: 4
+Осталось яиц: 3
+@@ test: Ровно четыре коробки
+@@ input
+40
+@@ expect
+Коробок: 4
+Осталось яиц: 0
+@@ test: Меньше одной коробки
+@@ input
+7
+@@ expect
+Коробок: 0
+Осталось яиц: 7
+@@ test: Ничего не собрали
+@@ input
+0
+@@ expect
+Коробок: 0
+Осталось яиц: 0
+@@ test: Большой урожай
+@@ input
+1009
+@@ expect
+Коробок: 100
+Осталось яиц: 9
+@@ require: % | Остаток считается оператором %

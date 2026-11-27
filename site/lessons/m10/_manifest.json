@@ -1,0 +1,14 @@
+{ "id": "m10", "num": "10", "title": "ООП: инкапсуляция, наследование, полиморфизм",
+  "summary": "Три кита ООП: прячем данные, строим иерархии через extends, переопределяем методы и пишем полиморфный код. Класс Object, equals и hashCode, приведение типов, композиция.",
+  "lessons": [
+    { "id": "m10-01", "title": "Инкапсуляция: прячем данные", "url": "/lessons/m10/01-encapsulation.html" },
+    { "id": "m10-02", "title": "Наследование: extends и super", "url": "/lessons/m10/02-inheritance.html" },
+    { "id": "m10-03", "title": "Переопределение методов и final", "url": "/lessons/m10/03-overriding.html" },
+    { "id": "m10-04", "title": "Полиморфизм", "url": "/lessons/m10/04-polymorphism.html" },
+    { "id": "m10-05", "title": "Класс Object: toString, equals, hashCode", "url": "/lessons/m10/05-object-class.html" },
+    { "id": "m10-06", "title": "Приведение типов и instanceof", "url": "/lessons/m10/06-casting.html" },
+    { "id": "m10-07", "title": "Композиция против наследования", "url": "/lessons/m10/07-composition.html" },
+    { "id": "m10-pz", "title": "Головоломки: какой метод вызовется?", "url": "/lessons/m10/08-puzzles.html" },
+    { "id": "m10-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m10/09-summary.html" }
+  ],
+  "taskCount": 8 }

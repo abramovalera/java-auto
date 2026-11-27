@@ -1,0 +1,39 @@
+## id: tr-strings-014
+## title: Имя с большой буквы
+## file: trainer/strings/NameCapitalized.java
+## class: NameCapitalized
+## level: 1
+## category: Преобразование текста
+@@ description
+<p>Напиши класс <code>NameCapitalized</code>. При регистрации люди пишут имя как попало: <code>иВАН</code>, <code>АННА</code>. Программа читает имя (одно слово, хотя бы одна буква) и печатает его правильно: первая буква заглавная, остальные — маленькие.</p>
+<pre class="terminal"><span class="out">ввод:  иВАН    вывод: Иван
+ввод:  АННА    вывод: Анна</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.substring(0, 1)</code> — первый символ в виде строки, <code>s.substring(1)</code> — всё остальное</li>
+<li><code>toUpperCase()</code> и <code>toLowerCase()</code> — меняют регистр</li>
+</ul></div>
+@@ test: Перепутан регистр
+@@ input
+иВАН
+@@ expect
+Иван
+@@ test: Всё заглавными
+@@ input
+АННА
+@@ expect
+Анна
+@@ test: Одна буква
+@@ input
+я
+@@ expect
+Я
+@@ test: Уже правильно
+@@ input
+Oleg
+@@ expect
+Oleg
+@@ test: Апостроф
+@@ input
+o'NEIL
+@@ expect
+O'neil

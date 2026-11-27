@@ -1,0 +1,40 @@
+## id: tr-strings-021
+## title: Последнее слово
+## file: trainer/strings/LastWordOfPhrase.java
+## class: LastWordOfPhrase
+## level: 1
+## category: Слова и разбор
+@@ description
+<p>Напиши класс <code>LastWordOfPhrase</code>. Программа читает фразу (хотя бы одно слово). Слова разделены пробелами, по краям и между словами могут быть лишние пробелы. Напечатай последнее слово и через пробел его длину.</p>
+<pre class="terminal"><span class="out">ввод:  Hello World             вывод: World 5
+ввод:  fly me to the moon      вывод: moon 4</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.strip()</code> — убирает пробелы по краям</li>
+<li><code>s.lastIndexOf(' ')</code> — индекс последнего пробела или <code>-1</code>, если пробелов нет</li>
+<li><code>s.substring(i)</code> — кусок с индекса <code>i</code> до конца</li>
+</ul></div>
+@@ test: Два слова
+@@ input
+Hello World
+@@ expect
+World 5
+@@ test: Пробелы в конце
+@@ input
+fly me to the moon  
+@@ expect
+moon 4
+@@ test: Одно слово
+@@ input
+Java
+@@ expect
+Java 4
+@@ test: Лишние пробелы везде
+@@ input
+   жили   были  дед  
+@@ expect
+дед 3
+@@ test: Одна буква
+@@ input
+a 
+@@ expect
+a 1

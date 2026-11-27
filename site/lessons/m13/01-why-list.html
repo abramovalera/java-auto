@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Почему не массив: List и ArrayList · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m13-01">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 13 · Урок 1</div>
+    <h1>Почему не массив: List и ArrayList</h1>
+    <p class="lead">Массив — шкаф с фиксированным числом ячеек. А в жизни данных то больше, то меньше: товары в корзине, строки в таблице, сообщения в чате. Знакомься со списком — массивом, который растёт сам.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>📚 первая коллекция</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Боль массива: размер навсегда</h2>
+    <p>Вспомни модуль 6. Массив создаётся с размером, и этот размер <b>больше никогда не меняется</b>:</p>
+<pre data-file="Cart.java"><code class="java">String[] cart = new String[3];
+cart[0] = "хлеб";
+cart[1] = "молоко";
+cart[2] = "сыр";
+cart[3] = "кефир";   // ❌ ArrayIndexOutOfBoundsException: места нет</code></pre>
+    <p>Чтобы положить четвёртый товар, придётся создать новый массив побольше и переложить туда всё старое: <code>cart = Arrays.copyOf(cart, 4);</code>. А удалить товар из середины — вообще морока: сдвигать все элементы влево руками. И ещё нужно отдельно помнить, сколько ячеек реально занято.</p>
+    <div class="say" data-mood="think"><p>Программисты делали это так часто, что в Java давно есть готовый класс, который всё это делает сам. Ты просто говоришь «добавь» и «удали» — а перекладывание происходит внутри.</p></div>
+    <details class="predict">
+      <summary>Предскажи: зачем это в настоящих программах? Сколько товаров найдёт поиск в интернет-магазине?</summary>
+      <p>Заранее — <b>неизвестно</b>. Сегодня в каталоге 12 товаров, завтра 15, после фильтра — 3. Программа магазина получает найденные товары от сервера и складывает их в коллекцию. Массив с фиксированным размером тут неудобен, а список — в самый раз. Поэтому методы вида «найди всё, что подходит» в Java-библиотеках обычно и возвращают <b>список</b>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Резиновый пенал</h2>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: пенал</span>
+      <p>Массив — <b>жёсткий пенал</b> с прорезями ровно под 12 карандашей. Тринадцатый не влезет, а пустая прорезь так и будет пустовать.</p>
+      <p>Список <code>ArrayList</code> — <b>резиновый пенал</b>: кладёшь сколько угодно карандашей, он растягивается. Вынул карандаш из середины — остальные сами сдвинулись, дырки нет.</p>
+    </div>
+    <p>Вот как создают список строк и работают с ним:</p>
+<pre data-file="CartDemo.java"><code class="java">import java.util.ArrayList;
+import java.util.List;
+
+public class CartDemo {
+    public static void main(String[] args) {
+        List&lt;String&gt; cart = new ArrayList&lt;&gt;();
+        cart.add("хлеб");
+        cart.add("молоко");
+        cart.add("сыр");
+        cart.add("кефир");                 // места хватит всегда
+        System.out.println(cart);          // [хлеб, молоко, сыр, кефир]
+        System.out.println(cart.size());   // 4
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>import java.util.ArrayList;</code><div><p>Коллекции живут в пакете <code>java.util</code> («утилиты»). Его нужно импортировать — IDEA предложит это сама по <kbd>Alt</kbd>+<kbd>Enter</kbd>.</p></div></div>
+      <div class="annot-row"><code>List&lt;String&gt;</code><div><p>Тип переменной: <b>список строк</b>. В угловых скобках — тип элементов. Подробно про скобки — в следующем уроке.</p></div></div>
+      <div class="annot-row"><code>new ArrayList&lt;&gt;()</code><div><p>Создаём пустой список в куче. Пустые скобки <code>&lt;&gt;</code> («ромб») значат: «тип элементов возьми слева».</p></div></div>
+      <div class="annot-row"><code>cart.add("хлеб")</code><div><p>Добавить в конец. Размер вырос на 1.</p></div></div>
+      <div class="annot-row"><code>System.out.println(cart)</code><div><p>Список печатается красиво, в квадратных скобках. Помнишь, массив печатался «паспортом» <code>[I@1b6d…</code>? Со списком <code>Arrays.toString</code> не нужен.</p></div></div>
+    </div>
+    <p>Запусти ▶ — вот что появится в консоли Run:</p>
+    <div data-widget="ide" id="shot-list-print">
+      <script type="application/json">
+      { "tree": false, "file": "CartDemo.java", "runConfig": "CartDemo", "gutterRun": [4, 5], "statusPath": "module-13",
+        "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class CartDemo {\n    public static void main(String[] args) {\n        List<String> cart = new ArrayList<>();\n        cart.add(\"хлеб\");\n        cart.add(\"молоко\");\n        cart.add(\"сыр\");\n        cart.add(\"кефир\");\n        System.out.println(cart);\n        System.out.println(cart.size());\n    }\n}",
+        "console": { "title": "CartDemo", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… CartDemo" },
+          { "t": "out", "s": "[хлеб, молоко, сыр, кефир]" },
+          { "t": "out", "s": "4" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Так печатается список: элементы через запятую в <b>квадратных скобках</b>, в порядке добавления. Кавычек у строк нет" },
+                   { "n": 2, "target": "output-2", "text": "<code>cart.size()</code> — сколько элементов: 4" } ],
+        "caption": "Вывод списка в консоли Run" }
+      </script>
+    </div>
+    <p>А если забыть <code>import</code>, IDEA сразу покажет красным имя класса, которого она «не знает». Наведи мышку на красное слово:</p>
+    <div data-widget="ide" id="shot-list-import">
+      <script type="application/json">
+      { "tree": false, "file": "CartDemo.java", "gutterRun": [3, 4], "statusPath": "module-13",
+        "code": "import java.util.List;\n\npublic class CartDemo {\n    public static void main(String[] args) {\n        List<String> cart = new ArrayList<>();\n        cart.add(\"хлеб\");\n    }\n}",
+        "errors": [ { "line": 5, "text": "ArrayList", "msg": "Cannot resolve symbol 'ArrayList'", "tip": true, "fix": "Import class" } ],
+        "marks": [ { "n": 1, "target": "line-1", "text": "<code>List</code> импортирован — с ним всё в порядке…" },
+                   { "n": 2, "target": "err-5", "side": "top", "text": "…а строки <code>import java.util.ArrayList;</code> нет, и <code>ArrayList</code> стал красным" },
+                   { "n": 3, "target": "tip", "text": "<b>Cannot resolve symbol</b> — «не понимаю имя». Нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> → <b>Import class</b>, и IDEA сама допишет import наверху файла" } ],
+        "caption": "Забытый import: Cannot resolve symbol" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>List — интерфейс, ArrayList — класс</h2>
+    <p>Почему слева <code>List</code>, а справа <code>ArrayList</code>? Ты знаешь это из модуля 11 про интерфейсы:</p>
+    <dl class="terms">
+      <dt>List</dt><dd><b>Интерфейс</b> — контракт «упорядоченный список: элементы идут по номерам, можно добавлять, получать по индексу, удалять». Сам он ничего не хранит.</dd>
+      <dt>ArrayList</dt><dd><b>Класс</b>, который выполняет этот контракт с помощью массива внутри. Есть и другие реализации, например <code>LinkedList</code> (урок 6).</dd>
+    </dl>
+    <p><b>Объявляем переменную типа интерфейса</b> и инициализируем её объектом класса: <code>List&lt;String&gt; cart = new ArrayList&lt;&gt;();</code> — «объявляем переменную <code>cart</code> типа <code>List&lt;String&gt;</code> и инициализируем её новым объектом <code>ArrayList</code>». Так остальной код зависит только от контракта «список», и реализацию можно поменять в одном месте. Это то же правило, что «программируй через интерфейс» из модуля 11.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 300" role="img" aria-label="Массив фиксированного размера и ArrayList, у которого внутри массив с запасом">
+        <text x="20" y="28" class="d-title">Массив new String[4]</text>
+        <rect x="20" y="42" width="70" height="44" rx="6" class="d-blue"/><text x="55" y="70" text-anchor="middle" class="d-mono-ink">хлеб</text>
+        <rect x="94" y="42" width="70" height="44" rx="6" class="d-blue"/><text x="129" y="70" text-anchor="middle" class="d-mono-ink">молоко</text>
+        <rect x="168" y="42" width="70" height="44" rx="6" class="d-blue"/><text x="203" y="70" text-anchor="middle" class="d-mono-ink">сыр</text>
+        <rect x="242" y="42" width="70" height="44" rx="6" class="d-blue"/><text x="277" y="70" text-anchor="middle" class="d-mono-ink">кефир</text>
+        <rect x="340" y="42" width="230" height="44" rx="10" class="d-red"/><text x="455" y="70" text-anchor="middle" class="d-text">+ «соль»: места нет ✗</text>
+
+        <text x="20" y="136" class="d-title">ArrayList: внутри массив с запасом</text>
+        <rect x="20" y="150" width="62" height="44" rx="6" class="d-accent"/><text x="51" y="178" text-anchor="middle" class="d-mono-ink">хлеб</text>
+        <rect x="86" y="150" width="62" height="44" rx="6" class="d-accent"/><text x="117" y="178" text-anchor="middle" class="d-mono-ink">молоко</text>
+        <rect x="152" y="150" width="62" height="44" rx="6" class="d-accent"/><text x="183" y="178" text-anchor="middle" class="d-mono-ink">сыр</text>
+        <rect x="218" y="150" width="62" height="44" rx="6" class="d-accent"/><text x="249" y="178" text-anchor="middle" class="d-mono-ink">кефир</text>
+        <rect x="284" y="150" width="62" height="44" rx="6" class="d-green"/><text x="315" y="178" text-anchor="middle" class="d-mono-ink">соль</text>
+        <rect x="350" y="150" width="62" height="44" rx="6" class="d-soft"/>
+        <rect x="416" y="150" width="62" height="44" rx="6" class="d-soft"/>
+        <rect x="482" y="150" width="62" height="44" rx="6" class="d-soft"/>
+        <rect x="548" y="150" width="62" height="44" rx="6" class="d-soft"/>
+        <rect x="614" y="150" width="62" height="44" rx="6" class="d-soft"/>
+        <path d="M20 206 V214 H346 V206" class="d-line"/>
+        <text x="183" y="234" text-anchor="middle" class="d-small">size() = 5 — сколько элементов</text>
+        <path d="M20 248 V256 H676 V248" class="d-dash"/>
+        <text x="348" y="276" text-anchor="middle" class="d-small">ёмкость = 10 ячеек; кончатся — ArrayList сам создаст массив в 1,5 раза больше и всё перенесёт</text>
+      </svg>
+      <figcaption>Внутри ArrayList — обычный массив, просто с запасом. Перекладывание в больший массив он делает сам.</figcaption>
+    </figure>
+    <details class="curious">
+      <summary>🔎 Для любопытных: как именно растёт ArrayList</summary>
+      <p>Пустой <code>new ArrayList&lt;&gt;()</code> при первом <code>add</code> заводит массив на 10 ячеек. Когда ячейки кончаются, он создаёт новый массив размером <b>старый + половина старого</b> (10 → 15 → 22 → 33…) и копирует туда элементы — тот самый <code>Arrays.copyOf</code>. Копирование дорогое, но случается редко, поэтому в среднем <code>add</code> в конец — быстрая операция. Если заранее знаешь, что элементов будет 10 000, можно сразу задать ёмкость: <code>new ArrayList&lt;&gt;(10_000)</code>. Это не размер! <code>size()</code> всё равно будет 0.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Главные методы списка</h2>
+    <p>Индексы — как у массива, <b>с нуля</b>. Только вместо квадратных скобок — методы.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает</th><th>Аналог у массива</th></tr>
+        <tr><td><code>add(x)</code></td><td>добавить в конец</td><td>— (нужен новый массив)</td></tr>
+        <tr><td><code>add(i, x)</code></td><td>вставить на место i, остальные сдвинутся вправо</td><td>сдвиг руками</td></tr>
+        <tr><td><code>get(i)</code></td><td>взять элемент с номером i</td><td><code>a[i]</code></td></tr>
+        <tr><td><code>set(i, x)</code></td><td>заменить элемент с номером i</td><td><code>a[i] = x</code></td></tr>
+        <tr><td><code>remove(i)</code> / <code>remove(x)</code></td><td>удалить по номеру / по значению (первое совпадение), остальные сдвинутся влево</td><td>сдвиг руками</td></tr>
+        <tr><td><code>size()</code></td><td>сколько элементов</td><td><code>a.length</code></td></tr>
+        <tr><td><code>contains(x)</code></td><td>есть ли такой элемент (true/false)</td><td>цикл поиска</td></tr>
+        <tr><td><code>indexOf(x)</code></td><td>номер первого такого элемента или −1</td><td>цикл поиска</td></tr>
+        <tr><td><code>isEmpty()</code>, <code>clear()</code></td><td>пуст ли список; очистить его</td><td>—</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">size(), а не length</span>
+      <p>У массива — поле <code>length</code> без скобок, у строки — метод <code>length()</code>, у списка — метод <code>size()</code>. Путают все, IDEA подчеркнёт красным. А <code>contains</code> и <code>indexOf</code> сравнивают элементы через <code>equals</code> — как и положено для строк (модуль 8).</p>
+    </div>
+    <p>Пройди программу по шагам и предскажи значения сам:</p>
+    <div data-widget="trace" id="trace-m13-01-cart">
+      <script type="application/json">
+      { "title": "Корзина покупок по шагам",
+        "intro": "Следи за списком cart: что в нём лежит и под какими номерами. Индексы — с нуля.",
+        "code": "List<String> cart = new ArrayList<>();\ncart.add(\"хлеб\");\ncart.add(\"молоко\");\ncart.add(0, \"сыр\");\nString x = cart.get(1);\ncart.set(2, \"кефир\");\ncart.remove(\"хлеб\");\nint n = cart.size();\nSystem.out.println(cart + \" \" + n);",
+        "steps": [
+          { "line": 1, "vars": { "cart": "[]" }, "note": "Пустой список. size() = 0." },
+          { "line": 2, "vars": { "cart": "[хлеб]" }, "note": "add кладёт в конец. «хлеб» получил номер 0." },
+          { "line": 3, "vars": { "cart": "[хлеб, молоко]" }, "note": "«молоко» — номер 1." },
+          { "line": 4, "vars": { "cart": "[сыр, хлеб, молоко]" }, "note": "add(0, …) вставляет в начало. Все остальные сдвинулись вправо: хлеб теперь номер 1, молоко — номер 2." },
+          { "line": 5, "vars": { "cart": "[сыр, хлеб, молоко]", "x": "\"хлеб\"" }, "ask": ["x"], "note": "get(1) — второй элемент. После вставки «сыра» это «хлеб»." },
+          { "line": 6, "vars": { "cart": "[сыр, хлеб, кефир]", "x": "\"хлеб\"" }, "note": "set(2, …) заменяет элемент номер 2: молоко → кефир. Размер не изменился." },
+          { "line": 7, "vars": { "cart": "[сыр, кефир]", "x": "\"хлеб\"" }, "note": "remove(\"хлеб\") ищет элемент по значению (через equals) и удаляет первое совпадение. Кефир сдвинулся на место 1." },
+          { "line": 8, "vars": { "cart": "[сыр, кефир]", "x": "\"хлеб\"", "n": "2" }, "ask": ["n"], "note": "Осталось два элемента: n = 2." },
+          { "line": 9, "vars": { "cart": "[сыр, кефир]", "x": "\"хлеб\"", "n": "2" }, "out": "[сыр, кефир] 2\n", "note": "Список склеился со строкой так же красиво, как печатается через println." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Что будет, если в конце вызвать cart.get(2)?</summary>
+      <p>Исключение <b>IndexOutOfBoundsException: Index 2 out of bounds for length 2</b>. В списке два элемента, номера 0 и 1. Ёмкость внутреннего массива тут ни при чём: список честно проверяет индекс по <code>size()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Быстрая проверка</h2>
+    <div data-widget="check" id="check-m13-01-mid">
+      <script type="application/json">
+      { "title": "Методы списка",
+        "items": [
+          { "type": "match", "q": "Соедини метод с тем, что он делает",
+            "left": ["add(x)", "get(i)", "set(i, x)", "remove(i)", "indexOf(x)"],
+            "right": ["Кладёт элемент в конец", "Возвращает элемент с номером i", "Заменяет элемент с номером i", "Удаляет элемент с номером i, хвост сдвигается", "Номер первого совпадения или −1"],
+            "why": "Пять методов, которыми делается 90% работы со списком." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "List<String> names = new ArrayList<>();\nnames.add(\"Аня\");\nnames.add(\"Борис\");\nnames.add(1, \"Вера\");\nSystem.out.println(names);\nSystem.out.println(names.indexOf(\"Борис\"));",
+            "answer": "[Аня, Вера, Борис]\n2", "why": "add(1, …) вставил Веру на место 1, Борис сдвинулся на место 2." },
+          { "type": "single", "q": "Как узнать, сколько элементов в списке <code>list</code>?",
+            "options": ["list.length", "list.size()", "list.length()", "list.count()"], "answer": 1,
+            "why": "У списка — метод size(). length — у массива, length() — у строки." },
+          { "type": "bug", "q": "В какой строке программа упадёт при запуске?",
+            "code": "List<String> days = new ArrayList<>();\ndays.add(\"пн\");\ndays.add(\"вт\");\ndays.set(1, \"ср\");\ndays.set(2, \"чт\");",
+            "answer": [5], "why": "set меняет существующий элемент, а элемента номер 2 нет: размер 2. Будет IndexOutOfBoundsException. Добавлять — через add." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>List.of — список, который нельзя менять</h2>
+    <p>Часто список нужен сразу с готовыми значениями: дни недели, ожидаемые пункты меню в тесте. Для этого есть короткая запись:</p>
+<pre data-file="MenuTest.java"><code class="java">List&lt;String&gt; expectedMenu = List.of("Главная", "Каталог", "Корзина");
+System.out.println(expectedMenu.get(0));   // Главная
+expectedMenu.add("Профиль");                // 💥 UnsupportedOperationException</code></pre>
+    <p><code>List.of(...)</code> создаёт <b>неизменяемый</b> список: читать можно, а <code>add</code>, <code>remove</code>, <code>set</code> бросают <code>UnsupportedOperationException</code> («операция не поддерживается»). Компилятор не предупредит — метод <code>add</code> в интерфейсе List есть, просто эта реализация его запрещает.</p>
+    <p>Вот как это выглядит при запуске — твой первый <b>stack trace</b> из коллекций:</p>
+    <div data-widget="ide" id="shot-list-of-add">
+      <script type="application/json">
+      { "tree": false, "file": "MenuTest.java", "runConfig": "MenuTest", "gutterRun": [3, 4], "statusPath": "module-13",
+        "code": "import java.util.List;\n\npublic class MenuTest {\n    public static void main(String[] args) {\n        List<String> expectedMenu = List.of(\"Главная\", \"Каталог\", \"Корзина\");\n        System.out.println(expectedMenu.get(0));\n        expectedMenu.add(\"Профиль\");\n    }\n}",
+        "console": { "title": "MenuTest", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… MenuTest" },
+          { "t": "out", "s": "Главная" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.UnsupportedOperationException" },
+          { "t": "err", "s": "\tat java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java:142)" },
+          { "t": "err", "s": "\tat java.base/java.util.ImmutableCollections$AbstractImmutableCollection.add(ImmutableCollections.java:147)" },
+          { "t": "err", "s": "\tat MenuTest.main(MenuTest.java:7)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Читать можно: <code>get(0)</code> отработал" },
+                   { "n": 2, "target": "error", "text": "<b>UnsupportedOperationException</b> — «операция не поддерживается». Текста после двоеточия нет: имя исключения говорит само за себя" },
+                   { "n": 3, "target": "link-1", "side": "left", "text": "Строки <code>java.base/…</code> — это внутренности самой Java (класс <code>ImmutableCollections</code> — «неизменяемые коллекции»). Их читать не нужно, ищи глазами <b>свой</b> файл" },
+                   { "n": 4, "target": "link-3", "text": "Вот он: <b>MenuTest.java:7</b> — строка с <code>add</code>. Щёлкни по ссылке, и IDEA откроет это место" } ],
+        "caption": "add в List.of — исключение при запуске, компилятор молчал" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Нужен изменяемый список с готовыми значениями?</span>
+      <p>Скопируй неизменяемый в новый ArrayList: <code>List&lt;String&gt; menu = new ArrayList&lt;&gt;(List.of("Главная", "Каталог"));</code> — теперь в <code>menu</code> можно добавлять.</p>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: меню в ламинате</span>
+      <p><code>List.of</code> — меню ресторана, запаянное в пластик: читать удобно, дописать блюдо ручкой нельзя. Хочешь править — перепиши на обычный лист (<code>new ArrayList&lt;&gt;(…)</code>).</p>
+    </div>
+    <details class="predict">
+      <summary>Зачем вообще нужны неизменяемые списки, если они «хуже»?</summary>
+      <p>Они <b>надёжнее</b>. Если ты передал список в метод, никто случайно его не испортит. Справочные данные — дни недели, страны доставки, допустимые статусы заказа — обычно и хранят в <code>List.of</code>: менять их по ходу работы программы нельзя по смыслу.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: Arrays.asList — «полуизменяемый» список</summary>
+      <p>Есть старый способ: <code>Arrays.asList("а", "б")</code>. Он даёт список-обёртку над массивом: <code>set</code> работает, а <code>add</code> и <code>remove</code> — нет (тот же <code>UnsupportedOperationException</code>), ведь массив внутри не растёт. Ещё <code>List.of</code> не разрешает <code>null</code> в элементах (будет <code>NullPointerException</code>), а <code>Arrays.asList</code> разрешает. На собеседованиях про эту разницу любят спросить.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m13-01">
+      <script type="application/json">
+      {
+       "title": "List и ArrayList — главное",
+       "items": [
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "ArrayList сам увеличивается, когда в нём кончается место",
+           "a": true
+          },
+          {
+           "s": "List — это класс, у которого можно вызвать new List&lt;&gt;()",
+           "a": false,
+           "why": "List — интерфейс, объект создают из класса-реализации: new ArrayList&lt;&gt;()."
+          },
+          {
+           "s": "System.out.println(list) печатает элементы в квадратных скобках",
+           "a": true
+          },
+          {
+           "s": "В List.of(\"a\", \"b\") можно добавить третий элемент через add",
+           "a": false,
+           "why": "List.of — неизменяемый список, add бросит UnsupportedOperationException."
+          }
+         ]
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "List<String> list = new ArrayList<>();\nlist.add(\"a\");\nlist.add(\"b\");\nlist.add(\"c\");\nlist.remove(0);\nlist.add(\"d\");\nSystem.out.println(list + \" \" + list.size());",
+         "answer": "[b, c, d] 3",
+         "why": "remove(0) убрал «a», остальные сдвинулись, d встал в конец. Элементов три."
+        },
+        {
+         "type": "single",
+         "q": "Что выведет <code>System.out.println(List.of(\"x\", \"y\").contains(\"y\"));</code>?",
+         "options": [
+          "true",
+          "false",
+          "UnsupportedOperationException"
+         ],
+         "answer": 0,
+         "why": "Читать неизменяемый список можно: contains ничего не меняет."
+        },
+        {
+         "type": "order",
+         "q": "Расставь строки: создать список, наполнить, напечатать размер",
+         "lines": [
+          "List<Integer> scores = new ArrayList<>();",
+          "scores.add(90);",
+          "scores.add(75);",
+          "System.out.println(scores.size());"
+         ],
+         "code": true,
+         "accept": [ ["List<Integer> scores = new ArrayList<>();", "scores.add(75);", "scores.add(90);", "System.out.println(scores.size());"] ],
+         "why": "Сначала создаём, потом наполняем, потом спрашиваем размер. Две строки add можно поменять местами — размер всё равно будет 2. Integer вместо int — тема следующего урока."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 13.1. Спроси меня, чем ArrayList лучше массива и в чём он хуже, а я отвечу своими словами»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Массив не меняет размер. <code>ArrayList</code> растёт сам: внутри у него массив с запасом.</li>
+        <li><code>List</code> — интерфейс (контракт), <code>ArrayList</code> — класс. Переменную объявляем типа интерфейса и инициализируем объектом класса: <code>List&lt;String&gt; x = new ArrayList&lt;&gt;();</code></li>
+        <li>Методы: <code>add</code>, <code>add(i, x)</code>, <code>get</code>, <code>set</code>, <code>remove</code>, <code>size</code>, <code>contains</code>, <code>indexOf</code>. Индексы с нуля, вне границ — <code>IndexOutOfBoundsException</code>.</li>
+        <li>Список печатается красиво: <code>[a, b, c]</code>.</li>
+        <li><code>List.of(...)</code> — неизменяемый: <code>add</code> бросает <code>UnsupportedOperationException</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

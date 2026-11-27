@@ -1,0 +1,49 @@
+## id: tr-streams-036
+## title: Траты по клиентам
+## file: trainer/streams/SpendingByClient.java
+## class: SpendingByClient
+## level: 3
+## category: Группировка
+@@ description
+<p>Напиши класс <code>SpendingByClient</code>. Кофейня ведёт журнал заказов одной строкой: записи через пробел, каждая в виде <code>имя:сумма</code> (хотя бы одна запись). Один клиент мог заказывать несколько раз. Напечатай для каждого клиента строку <code>имя: сумма всех его заказов</code> — клиенты по алфавиту, — а последней строкой <code>Итого: X</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Аня:200 Борис:150 Аня:50 Вика:300 Борис:100
+вывод: Аня: 250
+       Борис: 250
+       Вика: 300
+       Итого: 800</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Collectors.summingInt(x -&gt; …)</code> — коллектор для полки: складывает числа, а не собирает список</li>
+<li><code>Collectors.groupingBy(ключ, TreeMap::new, коллектор)</code> — Map с ключами по алфавиту</li>
+<li><code>map.values().stream()</code> — стрим из значений Map</li>
+</ul></div>
+@@ test: Утро в кофейне
+@@ input
+Аня:200 Борис:150 Аня:50 Вика:300 Борис:100
+@@ expect
+Аня: 250
+Борис: 250
+Вика: 300
+Итого: 800
+@@ test: Один клиент
+@@ input
+Гоша:120
+@@ expect
+Гоша: 120
+Итого: 120
+@@ test: Постоянный гость
+@@ input
+Дима:90 Дима:90 Дима:90
+@@ expect
+Дима: 270
+Итого: 270
+@@ test: Бесплатный кофе
+@@ input
+Оля:0 Ира:250
+@@ expect
+Ира: 250
+Оля: 0
+Итого: 250
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: groupingBy\s*\(|toMap\s*\( | Сгруппируй заказы по имени коллектором groupingBy

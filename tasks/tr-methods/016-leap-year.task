@@ -1,0 +1,49 @@
+## id: tr-methods-016
+## title: Високосный год
+## file: trainer/methods/LeapYearCalendarMethod.java
+## class: LeapYearCalendarMethod
+## level: 1
+## category: Методы-проверки
+@@ description
+<p>Год високосный, если делится на 4, но не делится на 100, — или если делится на 400. Создай класс <code>LeapYearCalendarMethod</code> и напиши метод <code>static boolean isLeapYear(int year)</code>.</p>
+<p>main читает в первой строке количество лет <code>k</code>, во второй — <code>k</code> годов через пробел, и для каждого печатает отдельной строкой <code>ГОД: 366 дней</code> или <code>ГОД: 365 дней</code>.</p>
+<pre class="terminal"><span class="out">ввод:  2
+       2024 2023
+вывод: 2024: 366 дней
+       2023: 365 дней</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>year % 4 == 0</code> — год делится на 4 без остатка</li>
+<li>сложное условие собирают из <code>&amp;&amp;</code>, <code>||</code> и скобок</li>
+<li><code>cond ? a : b</code> — тернарный оператор: возвращает <code>a</code> или <code>b</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+2
+2024 2023
+@@ expect
+2024: 366 дней
+2023: 365 дней
+@@ test: Век — не високосный
+@@ input
+1
+1900
+@@ expect
+1900: 365 дней
+@@ test: Делится на 400 — високосный
+@@ input
+1
+2000
+@@ expect
+2000: 366 дней
+@@ test: Смесь
+@@ input
+5
+2100 1996 2400 2025 4
+@@ expect
+2100: 365 дней
+1996: 366 дней
+2400: 366 дней
+2025: 365 дней
+4: 366 дней
+@@ require: static\s+boolean\s+isLeapYear\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isLeapYear(int year)
+@@ require: \WisLeapYear\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать isLeapYear(...) для каждого года

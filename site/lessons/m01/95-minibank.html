@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>★ МиниБанк: открываем банк · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m01-star">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker star-kicker">Модуль 1 · ★ Проект</div>
+    <h1>★ МиниБанк, шаг 1: открываем банк</h1>
+    <p class="lead">Это <b>обязательное задание</b>: без него модуль не закрывается. Сегодня ты начинаешь <b>свой проект</b> — маленький банк. Он будет расти вместе с тобой до последнего модуля курса.</p>
+    <div class="meta"><span>⏱ 30–40 минут</span><span>★ обязательно</span><span>🏦 проект на весь курс</span></div>
+  </header>
+
+  <section class="step">
+    <h2>Что такое сквозной проект</h2>
+    <p>Обычные задачи на странице «Практика» — отдельные маленькие программы: решил и забыл. <b>МиниБанк</b> — другое. Это <b>одна программа</b>, к которой ты будешь возвращаться в конце каждого модуля: дописывать, переделывать, улучшать тем, что только что изучил. Как настоящий программист, который годами ведёт свой проект.</p>
+    <div class="table-wrap"><table>
+      <tr><th>Когда</th><th>Что появится в банке</th></tr>
+      <tr><td>Модуль 1 (сейчас)</td><td>Проект, Git и вывеска банка</td></tr>
+      <tr><td>Модули 2–3</td><td>Карточка клиента, баланс, пополнение с комиссией</td></tr>
+      <tr><td>Модули 4–6</td><td>Проверки «недостаточно средств», меню, несколько счетов</td></tr>
+      <tr><td>Модули 7–11</td><td>Методы, классы <code>Client</code> и <code>Account</code>, виды счетов, тарифы</td></tr>
+      <tr><td>Модули 12–16</td><td>Ошибки, история операций, выписка, сохранение в файл, одновременные переводы</td></tr>
+      <tr><td>Модуль 17</td><td>Тесты на JUnit: программа сама проверяет, что банк правильно считает деньги</td></tr>
+    </table></div>
+    <div class="say" data-mood="happy"><p>Пугаться не надо: в каждом шаге ты используешь <b>только то, что уже прошёл</b>. Сегодня это <code>println</code> — и всё.</p></div>
+  </section>
+
+  <section class="step">
+    <h2>Перед заданием — освежи</h2>
+    <p>Всё, что понадобится, уже было. Если что-то подзабылось — открой и перечитай, это нормально:</p>
+    <ul>
+      <li><a href="/lessons/m01/03-setup-idea.html#new-project">1.3, шаг «Свой проект с нуля»</a> — как заполнить окно New Project: каждое поле со скриншотом;</li>
+      <li><a href="/lessons/m01/03-setup-idea.html">1.3 IntelliJ IDEA: твой проект и окно</a> — как устроены проект и окно IDEA;</li>
+      <li><a href="/lessons/m01/04-first-program-idea.html">1.4 Первая программа</a> — создать класс, <code>psvm</code>, <code>sout</code>, запуск ▶ и консоль;</li>
+      <li><a href="/lessons/m01/07-console-output.html">1.6 Вывод в консоль</a> — <code>println</code> и <code>print</code>;</li>
+      <li><a href="/lessons/m01/08-errors.html">1.7 Ошибки</a> — если что-то покраснеет.</li>
+    </ul>
+  </section>
+
+  <section class="step">
+    <h2>Git: сохранения для кода</h2>
+    <p>Помнишь сохранения в играх? Дошёл до сложного места — сохранился. Не получилось — загрузился и пробуешь снова. <b>Git</b> — то же самое для кода. Каждое сохранение называется <b>коммит</b> (commit): снимок всех файлов проекта с подписью «что я сделал». К любому коммиту можно вернуться.</p>
+    <p>Git знает каждый программист — без него не работает ни одна команда. Поэтому МиниБанк с первого дня живёт в Git. Подробно Git разберём в модуле 17, а пока хватит трёх действий:</p>
+    <div class="cheat">
+      <h3>Выпиши себе: Git, часть 0</h3>
+      <p>Слева — как в IDEA (так и будем делать), справа — то же командой в терминале, для любопытных.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что сделать</th><th>В IDEA</th><th>В терминале</th></tr>
+        <tr><td>Сохранить (коммит)</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd> → отметить файлы → написать, что сделал → <b>Commit</b></td><td><code>git add .</code><br><code>git commit -m "что сделал"</code></td></tr>
+        <tr><td>Посмотреть историю</td><td><kbd>Alt</kbd>+<kbd>9</kbd> — окно Git, вкладка <b>Log</b></td><td><code>git log --oneline</code></td></tr>
+        <tr><td>Отменить несохранённые правки</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd> — <b>Rollback</b></td><td><code>git restore .</code></td></tr>
+        <tr><td>Что изменилось с последнего коммита</td><td>Синие и зелёные полоски у номеров строк; имена файлов меняют цвет</td><td><code>git status</code></td></tr>
+      </table></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Если IDEA скажет «Git is not installed»</span>
+      <p>Нажми <b>Download and Install</b> — IDEA сама скачает и поставит Git. Это нормально, один раз.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Задание</h2>
+
+    <h3>1. Создай проект МиниБанк</h3>
+    <p>В IDEA: <b>File → New → Project</b>. Заполни окно, как на скрине. Важно: проект кладём <b>в папку курса</b> (там, где лежат папки <code>workspace</code> и <code>site</code>) — так сайт сможет его проверять.</p>
+    <div data-widget="ide" id="shot-minibank-new">
+      <script type="application/json">
+      { "tree": false, "project": "workspace",
+        "dialog": { "title": "New Project", "side": ["Java", "Kotlin", "Groovy", "Empty Project"], "sideHl": "Java",
+                    "rows": [ { "label": "Name", "value": "MiniBank", "hl": true },
+                              { "label": "Location", "value": "C:\\Users\\Misha\\java-course" },
+                              { "label": "", "value": "Project will be created in: C:\\Users\\Misha\\java-course\\MiniBank", "type": "text", "hl": true },
+                              { "label": "Git", "value": "☑ Create Git repository", "type": "text" },
+                              { "label": "Build system", "value": "[ IntelliJ ]   Maven   Gradle", "type": "text" },
+                              { "label": "JDK", "value": "21  Eclipse Temurin", "type": "select" },
+                              { "label": "Sample code", "value": "☑ Add sample code", "type": "text" } ],
+                    "buttons": ["Create", "Cancel"], "primary": "Create" },
+        "marks": [ { "n": 1, "target": "field-Name", "text": "Имя проекта — <b>MiniBank</b>, буква в букву: по этому имени сайт ищет папку" },
+                   { "n": 2, "target": "field-Location", "text": "Папка курса — та, где лежат <code>workspace</code> и <code>site</code>. У тебя путь будет свой. <code>MiniBank</code> в конце сюда <b>не</b> дописывай" },
+                   { "n": 3, "target": "field-", "text": "Проверь итоговый путь: должно быть <code>…\\папка-курса\\MiniBank</code>. Если видишь <code>MiniBank\\MiniBank</code> — убери лишнее из Location, иначе сайт не найдёт проект" },
+                   { "n": 4, "target": "field-Git", "text": "Галочка <b>Create Git repository</b> — проект сразу под Git" },
+                   { "n": 5, "target": "field-Build system", "text": "<b>IntelliJ</b> — простой проект без сборщика. Сборщики (Gradle) будут в модуле 17" },
+                   { "n": 6, "target": "field-Sample code", "text": "Галочку <b>Add sample code</b> (по умолчанию стоит) сними — класс напишешь сам" } ],
+        "caption": "File → New → Project (упрощённо)" }
+      </script>
+    </div>
+    <p>Нажми <b>Create</b>. IDEA спросит, открыть проект в этом окне или в новом, — выбирай <b>New Window</b>: курс и МиниБанк будут открыты в двух окнах рядом.</p>
+
+    <h3>2. Создай класс <code>Main</code></h3>
+    <p>В новом проекте есть папка <code>src</code>. Правый клик по ней → <b>New → Java Class</b> → имя <code>Main</code>. Так обычно называют класс, с которого начинается программа. Внутри — метод <code>main</code> (<code>psvm</code> + <kbd>Tab</kbd>).</p>
+
+    <h3>3. Напиши вывеску банка</h3>
+    <p>Программа должна напечатать четыре строки — вот такую вывеску:</p>
+<pre class="terminal"><span class="out">==============================
+   Добро пожаловать в МиниБанк
+==============================
+Часы работы: круглосуточно</span></pre>
+    <ul>
+      <li>одна строка на экране — один вызов <code>System.out.println(…)</code> (<code>sout</code> + <kbd>Tab</kbd>);</li>
+      <li>полоски — 30 знаков <code>=</code>; можно чуть больше или меньше, проверка не придирается;</li>
+      <li>перед «Добро пожаловать» три пробела — чтобы надпись стояла по центру.</li>
+    </ul>
+
+    <h3>4. Запусти и проверь</h3>
+    <p>Нажми ▶ рядом с <code>main</code> — в консоли внизу должна появиться вывеска. Потом нажми «Проверить» ниже: сайт сам скомпилирует твой проект и сверит вывод.</p>
+    <div data-widget="taskcheck" data-task="m01-star"></div>
+
+    <h3>5. Сохрани в Git — первый коммит</h3>
+    <p>Нажми <kbd>Ctrl</kbd>+<kbd>K</kbd>. Слева откроется окно <b>Commit</b>:</p>
+    <div data-widget="ide" id="shot-minibank-commit">
+      <script type="application/json">
+      { "tree": false, "project": "MiniBank", "status": "MiniBank › src › Main.java",
+        "dialog": { "title": "Commit", "side": ["Changes", "☑ src/Main.java", "☑ .gitignore", "☑ MiniBank.iml"], "sideHl": "☑ src/Main.java",
+                    "rows": [ { "label": "Сообщение", "value": "Открыли банк: вывеска", "hl": true } ],
+                    "note": "Файлы .idea IDEA не предлагает — она сама положила их в .gitignore",
+                    "buttons": ["Commit", "Commit and Push…"], "primary": "Commit" },
+        "marks": [ { "n": 1, "target": "side-☑ src/Main.java", "text": "Галочки — какие файлы войдут в коммит. Для первого коммита отметь все" },
+                   { "n": 2, "target": "field-Сообщение", "text": "Сообщение — коротко, <b>что ты сделал</b>. Через месяц по нему ты найдёшь нужное сохранение" },
+                   { "n": 3, "target": "btn-Commit", "side": "bottom", "text": "<b>Commit</b> — сохранить. Push пока не нужен: он отправляет код на сервер, это модуль 17" } ],
+        "caption": "Окно Commit (Ctrl+K), упрощённо" }
+      </script>
+    </div>
+    <p>Готово: <kbd>Alt</kbd>+<kbd>9</kbd> → вкладка <b>Log</b> — там твой первый коммит. Первая запись в истории твоего банка.</p>
+    <div class="callout ai">
+      <span class="callout-title">Покажи наставнику</span>
+      <p>Когда проверка зелёная — напиши в Claude Code <code>/check m01-star</code>. Наставник спросит, что такое коммит и зачем он нужен.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Застрял? Спроси ИИ</h2>
+    <p>Застрять — нормально. Не сиди час над одной строкой — спроси:</p>
+    <ul>
+      <li class="ai-only"><b>наставника</b> в Claude Code: <code>/hint m01-star</code> — он подскажет, куда смотреть, но решение не напишет;</li>
+      <li class="ai-only">или <b>любой бесплатный ИИ</b>, например <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>. Проси <b>объяснить</b>, а не решить:</li>
+      <li class="free-only"><b><span class="ai-name">DeepSeek</span></b> — проси <b>объяснить</b>, а не решить. Ниже — примеры хороших вопросов и кнопка «📋 Скопировать промпт» с правилами учителя:</li>
+    </ul>
+    <div class="callout tip free-prompt">
+      <span class="callout-title">Хорошие вопросы к ИИ</span>
+      <p>«Я новичок в Java. Объясни на простом примере, чем <code>println</code> отличается от <code>print</code>. Решение моей задачи не пиши».</p>
+      <p>«Что такое коммит в Git? Объясни, как будто мне 12 лет, с аналогией».</p>
+      <p>«IDEA пишет вот такую ошибку: (вставь текст). Что она значит и где искать причину?»</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Решение и что дальше</h2>
+    <details class="solution">
+      <summary>🔒 Показать решение — открывай, когда проверка уже зелёная или ты честно попробовал сам</summary>
+<pre data-file="Main.java"><code class="java">public class Main {
+    public static void main(String[] args) {
+        System.out.println("==============================");
+        System.out.println("   Добро пожаловать в МиниБанк");
+        System.out.println("==============================");
+        System.out.println("Часы работы: круглосуточно");
+    }
+}</code></pre>
+      <p>Твой вариант может отличаться — главное, чтобы вывод был таким же.</p>
+    </details>
+    <div class="callout ai">
+      <span class="callout-title">Обсуди с ИИ: а как ещё можно?</span>
+      <p>Покажи ИИ (наставнику или DeepSeek) своё решение и спроси:</p>
+      <p>«Как ещё можно напечатать эту вывеску — например, одним вызовом <code>println</code>? Какой вариант удобнее читать и менять?»</p>
+      <p>«Почему главный класс часто называют <code>Main</code>? Обязательно ли так?»</p>
+    </div>
+    
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>МиниБанк — твой проект на весь курс: отдельное окно IDEA, папка <code>MiniBank</code> в папке курса.</li>
+        <li>Git — сохранения для кода. Коммит: <kbd>Ctrl</kbd>+<kbd>K</kbd> → сообщение → Commit.</li>
+        <li><span class="ai-only">Модуль закрыт, когда проверка ★ зелёная и наставник принял <code>/check m01-star</code>.</span><span class="free-only">Модуль закрыт, когда проверка ★ зелёная и ты разобрал решение с <span class="ai-name">DeepSeek</span>.</span></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

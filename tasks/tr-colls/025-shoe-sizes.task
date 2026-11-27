@@ -1,0 +1,46 @@
+## id: tr-colls-025
+## title: Какие размеры обуви продали
+## file: trainer/colls/ShoeSizeCounts.java
+## class: ShoeSizeCounts
+## level: 2
+## category: Частоты и Map
+@@ description
+<p>Напиши класс <code>ShoeSizeCounts</code>. Обувной магазин хочет знать, какие размеры покупают чаще. В первой строке — количество проданных пар <code>n</code>, во второй — <code>n</code> размеров через пробел. Для каждого размера напечатай строку <code>размер: количество</code>, размеры — по возрастанию. Если продаж не было — <code>Продаж нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  7
+       38 42 38 40 42 38 36
+вывод: 36: 1
+       38: 3
+       40: 1
+       42: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>TreeMap&lt;Integer, Integer&gt;</code> — словарь, в котором ключи всегда идут по возрастанию</li>
+<li><code>map.getOrDefault(key, 0) + 1</code> — новое значение счётчика, даже если ключа ещё не было</li>
+<li><code>for (Map.Entry&lt;Integer, Integer&gt; e : map.entrySet())</code> — обход пар; <code>e.getKey()</code>, <code>e.getValue()</code></li>
+</ul></div>
+@@ test: Обычный день
+@@ input
+7
+38 42 38 40 42 38 36
+@@ expect
+36: 1
+38: 3
+40: 1
+42: 2
+@@ test: Одна пара
+@@ input
+1
+44
+@@ expect
+44: 1
+@@ test: Все одного размера
+@@ input
+3
+37 37 37
+@@ expect
+37: 3
+@@ test: Продаж не было
+@@ input
+0
+@@ expect
+Продаж нет
+@@ require: TreeMap | Считай размеры в TreeMap — тогда они сами встанут по возрастанию

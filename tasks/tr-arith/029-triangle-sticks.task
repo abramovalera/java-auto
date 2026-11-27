@@ -1,0 +1,60 @@
+## id: tr-arith-029
+## title: Треугольник из палочек
+## file: trainer/arith/TriangleFromSticks.java
+## class: TriangleFromSticks
+## level: 2
+## category: Логика: true/false
+@@ description
+<p>У ребёнка три палочки. Из них получится треугольник, только если каждая палочка <b>короче</b> суммы двух других (если ровно равна — треугольник сплющится в отрезок). Создай класс <code>TriangleFromSticks</code>. Программа читает три длины (целые положительные числа), каждую с новой строки, и печатает <code>true</code>, если треугольник сложить можно, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3       вывод: true
+       4
+       5</span></pre>
+<p>Длины идут в любом порядке: самая длинная палочка может оказаться и первой, и второй.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Проверить нужно три неравенства — по одному на каждую палочку</li>
+<li><code>&amp;&amp;</code> соединяет сколько угодно условий: <code>x &amp;&amp; y &amp;&amp; z</code></li>
+</ul></div>
+@@ test: Египетский треугольник
+@@ input
+3
+4
+5
+@@ expect
+true
+@@ test: Сплющенный в отрезок
+@@ input
+1
+2
+3
+@@ expect
+false
+@@ test: Одна слишком длинная
+@@ input
+1
+1
+5
+@@ expect
+false
+@@ test: Длинная — первой
+@@ input
+7
+2
+3
+@@ expect
+false
+@@ test: Равносторонний
+@@ input
+5
+5
+5
+@@ expect
+true
+@@ test: Узкий, но настоящий
+@@ input
+10
+1
+10
+@@ expect
+true
+@@ require: && | Нужно соединить несколько условий оператором &&
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

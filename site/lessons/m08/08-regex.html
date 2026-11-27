@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Регулярные выражения · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m08-08">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 8 · Урок 8 · Для любопытных</div>
+    <h1>Регулярные выражения: шаблоны для текста</h1>
+    <p class="lead">Как проверить, что строка похожа на email или телефон? Как одной строчкой оставить в тексте только цифры? Для этого есть мини-язык шаблонов — регулярные выражения. Урок необязательный, но в реальных проектах регулярки встречаются постоянно: проверка форм, поиск по логам, чистка данных.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔎 для любопытных</span><span>🧪 примеры из реальных задач</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m08-08-review">
+      <script type="application/json">
+      { "title": "Методы строк", "icon": "🔁",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "String phone = \"+7 999 123\";\nSystem.out.println(phone.replace(\" \", \"\"));",
+            "answer": "+7999123", "why": "Вызов <code>replace</code> возвращает новую строку, где заменены все вхождения куска — пробелы заменили пустой строкой." },
+          { "type": "single", "q": "Что вернёт <code>\"a b\".split(\" \").length</code>?",
+            "options": ["1", "2", "3"], "answer": 1, "why": "Один пробел делит строку на два куска: split возвращает массив из «a» и «b», поле length равно 2." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Зачем нужен шаблон</h2>
+    <p>Задача из жизни: пользователь вводит телефон в форме регистрации. Надо проверить, что он <b>в правильном формате</b> — «+7» и ровно 10 цифр. Конкретный номер мы заранее не знаем (каждый вводит свой), значит, <code>equals</code> не подходит. Можно написать цикл с вызовами <code>charAt</code> и десятком проверок… или одну строчку — объявить переменную <code>ok</code> и инициализировать её результатом вызова <code>matches</code>:</p>
+<pre data-file="PhoneCheck.java"><code class="java">String phone = "+79991234567";
+boolean ok = phone.matches("\\+7\\d{10}");   // true</code></pre>
+    <p><code>"\\+7\\d{10}"</code> — аргумент метода, это <b>регулярное выражение</b> (regular expression, коротко regex или «регулярка»): строка-шаблон, описывающая, <b>как должен выглядеть текст</b>. Читается так: «плюс, семёрка, потом ровно 10 цифр».</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: трафарет</span>
+      <p>Обычный <code>equals</code> — это сравнение с готовой надписью: совпадает буква в букву или нет. Регулярка — <b>трафарет</b>: «здесь любая цифра, здесь любая буква, тут повтори три раза». Под трафарет подходит много разных строк одинакового вида.</p>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">✅</span><h4>Проверить формат</h4><p>Метод <code>matches</code> возвращает boolean: email, телефон, дата, индекс, номер заказа.</p></div>
+      <div class="card"><span class="emoji">🧹</span><h4>Почистить</h4><p>Метод <code>replaceAll</code> возвращает новую строку: оставить только цифры, схлопнуть пробелы.</p></div>
+      <div class="card"><span class="emoji">✂️</span><h4>Разрезать</h4><p>Метод <code>split</code> возвращает массив: по нескольким пробелам, по запятой или точке с запятой.</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Азбука регулярок</h2>
+    <p>Большинство символов в шаблоне означают сами себя: <code>"кот"</code> подходит только под «кот». Особый смысл есть у немногих:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Шаблон</th><th>Означает</th><th>Подходит</th></tr>
+        <tr><td><code>\d</code></td><td>любая цифра</td><td>0 … 9</td></tr>
+        <tr><td><code>\D</code></td><td>что угодно, <b>кроме</b> цифры</td><td>a, пробел, +</td></tr>
+        <tr><td><code>\w</code></td><td>латинская буква, цифра или _</td><td>a, Z, 7, _ (кириллицу — нет!)</td></tr>
+        <tr><td><code>\s</code></td><td>пробельный символ</td><td>пробел, табуляция, перевод строки</td></tr>
+        <tr><td><code>.</code></td><td>один любой символ</td><td>a, 5, !, пробел</td></tr>
+        <tr><td><code>[abc]</code></td><td>один из перечисленных</td><td>a, b или c</td></tr>
+        <tr><td><code>[а-яё]</code></td><td>один из диапазона</td><td>любая маленькая русская буква</td></tr>
+        <tr><td><code>[^0-9]</code></td><td>любой, <b>кроме</b> перечисленных</td><td>всё, что не цифра</td></tr>
+      </table>
+    </div>
+    <p>После символа можно указать, <b>сколько раз</b> он повторяется:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Сколько</th><th>Означает</th><th>Пример</th></tr>
+        <tr><td><code>+</code></td><td>1 или больше</td><td><code>\d+</code> — «число из одной и более цифр»</td></tr>
+        <tr><td><code>*</code></td><td>0 или больше</td><td><code>\s*</code> — «пробелы, а может, их нет»</td></tr>
+        <tr><td><code>?</code></td><td>0 или 1 (необязательный)</td><td><code>colou?r</code> — color и colour</td></tr>
+        <tr><td><code>{n}</code></td><td>ровно n раз</td><td><code>\d{6}</code> — почтовый индекс</td></tr>
+        <tr><td><code>{n,m}</code> / <code>{n,}</code></td><td>от n до m / от n и больше</td><td><code>[a-z]{2,}</code> — 2+ латинские буквы</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Двойной обратный слэш в Java</span>
+      <p>В регулярках пишут <code>\d</code>. Но в строковом литерале Java обратный слэш — спецсимвол (помнишь <code>\n</code> и <code>\\</code> из модуля 1?). Чтобы в строку попал один <code>\</code>, его надо написать в литерале дважды. Поэтому в коде всегда <code>"\\d"</code>, <code>"\\s+"</code>, <code>"\\."</code>. А чтобы найти сам особый символ — точку, плюс, скобку — его экранируют: <code>\\.</code> — «именно точка», <code>\\+</code> — «именно плюс».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>matches: подходит ли строка под шаблон</h2>
+    <p>Вызов <code>s.matches(regex)</code> — шаблон передаём аргументом — возвращает <code>true</code>, если под шаблон подходит <b>вся строка целиком</b> — от первого до последнего символа.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 220" role="img" aria-label="Разбор шаблона email: [\w.-]+ — имя из букв, цифр, точек и дефисов; @ — собака; [\w-]+ — домен; \. — точка; [a-z]{2,} — зона из двух и более букв">
+        <rect x="20" y="30" width="170" height="56" rx="10" class="d-blue"/><text x="105" y="64" text-anchor="middle" class="d-mono-ink">[\w.-]+</text>
+        <rect x="200" y="30" width="60" height="56" rx="10" class="d-yellow"/><text x="230" y="64" text-anchor="middle" class="d-mono-ink">@</text>
+        <rect x="270" y="30" width="150" height="56" rx="10" class="d-teal"/><text x="345" y="64" text-anchor="middle" class="d-mono-ink">[\w-]+</text>
+        <rect x="430" y="30" width="70" height="56" rx="10" class="d-yellow"/><text x="465" y="64" text-anchor="middle" class="d-mono-ink">\.</text>
+        <rect x="510" y="30" width="200" height="56" rx="10" class="d-violet"/><text x="610" y="64" text-anchor="middle" class="d-mono-ink">[a-z]{2,}</text>
+        <text x="105" y="112" text-anchor="middle" class="d-small">имя: буквы, цифры,</text>
+        <text x="105" y="130" text-anchor="middle" class="d-small">точки, дефисы — 1+</text>
+        <text x="230" y="112" text-anchor="middle" class="d-small">собака</text>
+        <text x="345" y="112" text-anchor="middle" class="d-small">домен — 1+</text>
+        <text x="465" y="112" text-anchor="middle" class="d-small">точка</text>
+        <text x="610" y="112" text-anchor="middle" class="d-small">зона: 2+ буквы</text>
+        <text x="105" y="176" text-anchor="middle" class="d-mono-ink">ivan.petrov</text>
+        <text x="230" y="176" text-anchor="middle" class="d-mono-ink">@</text>
+        <text x="345" y="176" text-anchor="middle" class="d-mono-ink">mail</text>
+        <text x="465" y="176" text-anchor="middle" class="d-mono-ink">.</text>
+        <text x="610" y="176" text-anchor="middle" class="d-mono-ink">ru</text>
+        <text x="370" y="208" text-anchor="middle" class="d-small">каждый кусок шаблона «съедает» свой кусок строки — и строка должна закончиться ровно там, где шаблон</text>
+      </svg>
+      <figcaption>Шаблон email <code>"[\\w.-]+@[\\w-]+\\.[a-z]{2,}"</code> по кусочкам. Упрощённый, но для проверки формы хватает.</figcaption>
+    </figure>
+<pre data-file="Formats.java"><code class="java">"ivan.petrov@mail.ru".matches("[\\w.-]+@[\\w-]+\\.[a-z]{2,}")   // true
+// нет точки и зоны
+"ivan@mail".matches("[\\w.-]+@[\\w-]+\\.[a-z]{2,}")             // false
+
+// телефон в привычной записи
+"+7 (999) 123-45-67".matches("\\+7 \\(\\d{3}\\) \\d{3}-\\d{2}-\\d{2}")  // true
+// дата ДД.ММ.ГГГГ
+"27.11.2026".matches("\\d{2}\\.\\d{2}\\.\\d{4}")                // true
+
+"123456".matches("\\d{6}")    // true — индекс
+"abc".matches("b")            // false! нужна вся строка
+"abc".matches(".*b.*")        // true — «что угодно, b, что угодно»</code></pre>
+    <details class="predict">
+      <summary>"иван@mail.ru".matches("[\\w.-]+@[\\w-]+\\.[a-z]{2,}") — true или false?</summary>
+      <p><b>false</b>. <code>\w</code> в Java по умолчанию — только латиница, цифры и подчёркивание, кириллицу не берёт. Хочешь русские буквы — пиши диапазон явно: <code>[а-яёА-ЯЁ]</code>. Такие мелочи и есть причина, почему регулярки обязательно проверяют на примерах — в том числе на «плохих».</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Как проверять свою регулярку</span>
+      <p>Составь таблицу «строка → должно подойти?» с хорошими и плохими примерами (это же шаг 1 Мастерской!) и для каждой вызови <code>matches</code>. Ещё удобно на сайте regex101.com — выбери там вариант <b>Java</b>, и он подсветит, какая часть шаблона что «съела».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>replaceAll: найти по шаблону и заменить</h2>
+    <p><code>replaceAll(regex, замена)</code> — два аргумента, как у <code>replace</code>, только метод ищет не точный кусок, а всё, что подходит под шаблон, и возвращает новую строку.</p>
+<pre data-file="Clean.java"><code class="java">// убрать всё, кроме цифр
+"+7 (999) 123-45-67".replaceAll("\\D", "")        // "79991234567"
+"  много    пробелов  ".trim().replaceAll("\\s+", " ")  // "много пробелов"
+// цена из чека → в число
+"1 299 ₽".replaceAll("[^0-9]", "")                 // "1299"
+"Заказ №123 от 27.11".replaceAll("\\d", "#")       // "Заказ №### от ##.##"</code></pre>
+    <p>Типичная задача: пользователь ввёл телефон как «+7 (999) 123-45-67», а в базе лежит «79991234567». Сравнивать их как есть бесполезно. Приводим оба к одному виду — вызов <code>replaceAll("\\D", "")</code> — и уже потом сравниваем по содержимому через <code>equals</code>. То же с текстом, скопированным из документа: в нём бывают лишние пробелы и переводы строк, а <code>replaceAll("\\s+", " ")</code> их схлопнет.</p>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка: replace против replaceAll</span>
+      <p><code>replace</code> понимает аргумент <b>буквально</b>, <code>replaceAll</code> — как шаблон. Поэтому <code>"a.b".replace(".", "*")</code> → «a*b», а <code>"a.b".replaceAll(".", "*")</code> → «***»: точка в регулярке — «любой символ», и заменилось всё. Не нужен шаблон — бери <code>replace</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>split по шаблону — теперь понятно, что за \\s+</h2>
+    <p>Открою секрет: параметр метода <code>split</code> — это всегда регулярка. Поэтому:</p>
+<pre data-file="SplitRegex.java"><code class="java">// \\s+ — «один или больше пробелов»
+"  кот   пёс  ".trim().split("\\s+")      // ["кот", "пёс"]
+// запятая или ;, потом пробелы, если есть
+"яблоко, груша;слива".split("[,;]\\s*")  // ["яблоко", "груша", "слива"]
+// пусто! точка = любой символ, всё ушло в разделители
+"a.b.c".split(".")                        // []
+"a.b.c".split("\\.")                      // ["a", "b", "c"] — именно точка</code></pre>
+    <div class="say" data-mood="oops"><p>Классика багов: вызов <code>version.split(".")</code> для «1.2.3» возвращает пустой массив, а следующая строчка с обращением по индексу <code>[0]</code> падает с ArrayIndexOutOfBoundsException. Точка, плюс, звёздочка, скобки, вертикальная черта <code>|</code> в <code>split</code> — особые символы. Экранируй.</p></div>
+    <div data-widget="ide" id="shot-split-dot">
+      <script type="application/json">
+      { "tree": false, "file": "Version.java", "runConfig": "Version", "gutterRun": [1, 2],
+        "code": "public class Version {\n    public static void main(String[] args) {\n        String version = \"1.2.3\";\n        String[] parts = version.split(\".\");\n        System.out.println(\"Мажорная версия: \" + parts[0]);\n    }\n}",
+        "console": { "title": "Version", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Version" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ArrayIndexOutOfBoundsException: Index 0 out of bounds for length 0" },
+          { "t": "err", "s": "\tat Version.main(Version.java:5)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "line-4", "side": "top", "text": "Настоящая причина — здесь: точка в <code>split</code> означает «любой символ», и массив получился пустым" },
+                   { "n": 2, "target": "error", "text": "<b>ArrayIndexOutOfBoundsException: Index 0 out of bounds for length 0</b> — «индекса 0 нет: длина массива 0». Даже первого элемента нет" },
+                   { "n": 3, "target": "link-1", "text": "Stack trace показывает строку <b>5</b> — где упало. А ошибка сделана строкой выше. Так бывает часто: смотри, откуда пришли данные" } ],
+        "caption": "split(\".\") вернул пустой массив — падение на следующей строке" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Меру знай</h2>
+    <ul>
+      <li>Регулярки — мощный, но <b>плохо читаемый</b> инструмент. Если хватает <code>contains</code>, <code>startsWith</code>, <code>replace</code> — бери их.</li>
+      <li>«Настоящая» проверка email по стандарту занимает страницу. Для обычной программы хватает упрощённой — главное, честно понимать, что именно она проверяет.</li>
+      <li>Сложную регулярку подпиши комментарием: <code>// +7 и 10 цифр</code>. Через месяц ты сам её не прочитаешь.</li>
+    </ul>
+    <details class="curious">
+      <summary>🔎 Для любопытных: группы и перестановка кусков</summary>
+      <p>Круглые скобки делают <b>группу</b> — запоминают, что совпало. В замене на группу ссылаются через <code>$1</code>, <code>$2</code>… Так можно переставить части даты:</p>
+<pre data-file="Groups.java"><code class="java">"2026-11-27".replaceAll("(\\d+)-(\\d+)-(\\d+)", "$3.$2.$1")   // "27.11.2026"</code></pre>
+      <p>Для серьёзной работы с регулярками в Java есть классы <code>Pattern</code> и <code>Matcher</code> — они умеют искать все совпадения в тексте по очереди. Понадобятся, когда будешь доставать, например, все номера заказов из длинного лога.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m08-08">
+      <script type="application/json">
+      {
+       "title": "Регулярные выражения",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини шаблон и смысл",
+         "left": [
+          "\\d",
+          "\\s+",
+          "[^0-9]",
+          "\\d{6}",
+          "\\."
+         ],
+         "right": [
+          "одна цифра",
+          "один или больше пробелов",
+          "любой символ, кроме цифры",
+          "ровно шесть цифр",
+          "именно точка"
+         ],
+         "why": "Цифра, пробелы, «кроме», количество и экранирование — пять кирпичиков, которых хватает на большинство задач."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "String s = \"Тел.: 8 (912) 000-11-22\";\nSystem.out.println(s.replaceAll(\"\\\\D\", \"\"));",
+         "answer": "89120001122",
+         "why": "<code>\\D</code> — всё, что не цифра. replaceAll заменил это пустой строкой и вернул строку из одних цифр."
+        },
+        {
+         "type": "single",
+         "q": "Что вернёт <code>\"abc\".matches(\"b\")</code>?",
+         "options": [
+          "true — b в строке есть",
+          "false — matches проверяет строку целиком",
+          "Ошибку компиляции"
+         ],
+         "answer": 1,
+         "why": "<code>matches</code> возвращает true, только если под шаблон подошла вся строка. «Есть ли кусок» — это вызов <code>contains</code> или шаблон <code>.*b.*</code>."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "String v = \"1.2.3\";\nSystem.out.println(v.split(\".\").length);\nSystem.out.println(v.split(\"\\\\.\").length);",
+         "answer": "0\n3",
+         "why": "Точка в регулярке — любой символ: вся строка ушла в разделители, остались пустые куски, а их split отбрасывает — length массива 0. С <code>\\\\.</code> — именно точка, три элемента."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>\"a.b\".replace(\".\", \"*\")</code> вернёт «a*b»",
+           "a": true
+          },
+          {
+           "s": "<code>\"a.b\".replaceAll(\".\", \"*\")</code> вернёт «a*b»",
+           "a": false,
+           "why": "в replaceAll точка — любой символ, получится «***»."
+          },
+          {
+           "s": "<code>\\w</code> в Java по умолчанию подходит под русские буквы",
+           "a": false,
+           "why": "только латиница, цифры и _."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поиграй с наставником</span>
+      <p>Напиши: <em>«Дай мне 3 строки и скажи, какой формат они должны проверять. Я напишу регулярки и список хороших и плохих примеров, а ты найди дыры»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Регулярка — шаблон вида текста. В строковом литерале Java слэши удваиваются: <code>"\\d"</code>, <code>"\\s+"</code>, <code>"\\."</code>.</li>
+        <li><code>\d</code> цифра, <code>\s</code> пробел, <code>\w</code> латиница/цифра/_, <code>.</code> любой, <code>[…]</code> один из, <code>[^…]</code> кроме; <code>+ * ? {n} {n,m}</code> — сколько раз.</li>
+        <li><code>matches</code> возвращает boolean — подходит ли <b>вся</b> строка. <code>replaceAll</code> возвращает новую строку с заменой по шаблону. <code>split</code> — тоже по шаблону, возвращает массив.</li>
+        <li>Не нужен шаблон — бери <code>replace</code>, <code>contains</code>. Точку в <code>split</code> экранируй.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

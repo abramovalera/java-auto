@@ -1,0 +1,46 @@
+## id: m07-t07
+## title: Перегрузка: площадь круга и прямоугольника
+## file: module-07/AreaOverload.java
+## class: AreaOverload
+## level: 2
+@@ description
+<p>Напиши два <b>перегруженных</b> метода с одним именем <code>area</code>:</p>
+<ul>
+<li><code>static double area(double radius)</code> — площадь круга: π · r². Число π бери из <code>Math.PI</code>;</li>
+<li><code>static double area(double width, double height)</code> — площадь прямоугольника: ширина · высота.</li>
+</ul>
+<p>main читает радиус, потом ширину и высоту (через <code>nextDouble()</code>), вызывает оба метода и печатает результаты как есть, без округления:</p>
+<pre class="terminal"><span class="out">2
+3 4
+Круг: 12.566370614359172
+Прямоугольник: 12.0</span></pre>
+<p>Первые две строки — ввод. Обрати внимание: методы называются одинаково, а Java сама выбирает нужный по количеству аргументов.</p>
+<p>📖 <a href="/lessons/m07/05-overload-scope.html">Перегрузка методов</a></p>
+@@ test: Радиус 2, прямоугольник 3 × 4
+@@ input
+2
+3 4
+@@ expect-regex
+Круг: 12\.5663706\d*\nПрямоугольник: 12\.0
+@@ test: Радиус 1, прямоугольник 2 × 7
+@@ input
+1
+2 7
+@@ expect-regex
+Круг: 3\.1415926\d*\nПрямоугольник: 14\.0
+@@ test: Нулевые размеры
+@@ input
+0
+0 5
+@@ expect
+Круг: 0.0
+Прямоугольник: 0.0
+@@ test: Радиус 10, прямоугольник 25 × 4
+@@ input
+10
+25 4
+@@ expect-regex
+Круг: 314\.159265\d*\nПрямоугольник: 100\.0
+@@ require: static\s+double\s+area\s*\(\s*double\s+\w+\s*\) | Нужен метод static double area(double radius)
+@@ require: static\s+double\s+area\s*\(\s*double\s+\w+\s*,\s*double\s+\w+\s*\) | Нужен метод static double area(double width, double height)
+@@ require: Math\s*\.\s*PI | Для круга используй Math.PI

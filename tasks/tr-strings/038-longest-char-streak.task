@@ -1,0 +1,39 @@
+## id: tr-strings-038
+## title: Самая длинная серия
+## file: trainer/strings/LongestCharStreak.java
+## class: LongestCharStreak
+## level: 2
+## category: Подсчёт символов
+@@ description
+<p>Напиши класс <code>LongestCharStreak</code>. Метеостанция записывает погоду по дням буквами: <code>s</code> — солнце, <code>r</code> — дождь и так далее. Программа читает такую строку (хотя бы один символ) и находит самую длинную серию одинаковых символов подряд. Напечатай символ и длину серии через пробел. Если таких серий несколько — ту, что встретилась первой.</p>
+<pre class="terminal"><span class="out">ввод:  ssrrrss    вывод: r 3
+ввод:  srs        вывод: s 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Два счётчика: длина текущей серии и длина лучшей серии</li>
+<li>Символ не равен предыдущему — текущая серия начинается заново с 1</li>
+</ul></div>
+@@ test: Пример
+@@ input
+ssrrrss
+@@ expect
+r 3
+@@ test: Все серии по одному
+@@ input
+srs
+@@ expect
+s 1
+@@ test: Одна серия
+@@ input
+zzzz
+@@ expect
+z 4
+@@ test: Ничья — берём первую
+@@ input
+aabb
+@@ expect
+a 2
+@@ test: Лучшая в конце
+@@ input
+ab1112222
+@@ expect
+2 4

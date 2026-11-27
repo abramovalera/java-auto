@@ -1,0 +1,41 @@
+## id: tr-vars-035
+## title: Половинки билета
+## file: trainer/vars/TicketHalvesSum.java
+## class: TicketHalvesSum
+## level: 3
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>TicketHalvesSum</code>. Номер автобусного билета — шесть цифр. Билет считают счастливым, если сумма первых трёх цифр равна сумме последних трёх. Программа читает номер билета и печатает обе суммы: <code>Слева: 13, справа: 10</code> — сравнить их сможешь сам.</p>
+<pre class="terminal"><span class="out">ввод:  472109
+вывод: Слева: 13, справа: 10</span></pre>
+<p>Номер может начинаться с нулей, например <code>001100</code>, поэтому читай его как слово, а не как число.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next()</code> — возвращает одно слово (до пробела или Enter)</li>
+<li><code>s.charAt(0)</code> — возвращает символ строки <code>s</code> по индексу (счёт с нуля)</li>
+<li><code>ticket.charAt(2) - '0'</code> — цифра из символа: разность кодов</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+472109
+@@ expect
+Слева: 13, справа: 10
+@@ test: Счастливый билет
+@@ input
+123321
+@@ expect
+Слева: 6, справа: 6
+@@ test: Все нули
+@@ input
+000000
+@@ expect
+Слева: 0, справа: 0
+@@ test: Все девятки
+@@ input
+999999
+@@ expect
+Слева: 27, справа: 27
+@@ test: Нули впереди
+@@ input
+001100
+@@ expect
+Слева: 1, справа: 1

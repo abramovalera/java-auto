@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Иерархия исключений, checked и throws · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-05">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 12 · Урок 5</div>
+    <h1>Иерархия исключений, checked и throws</h1>
+    <p class="lead">Исключения — обычные классы, и у них есть родословная, как у классов из модуля 10. Она объясняет всё: почему catch перехватывает «родственников», почему одни исключения компилятор заставляет обрабатывать, а другие нет, и зачем в сигнатуре метода слово throws.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🌳 дерево классов</span><span>🎮 1 мини-игра</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m12-05-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Модуль 10: <code>class Cat extends Animal</code>. Можно ли положить объект Cat в переменную типа Animal?",
+            "options": ["Да, кот — это животное", "Нет, типы разные", "Только с приведением типа"], "answer": 0,
+            "why": "Потомок может стоять там, где ждут родителя. Это полиморфизм — сегодня он объяснит, как работает catch." },
+          { "type": "predict", "q": "Что выведет код?",
+            "code": "static int f() {\n    try {\n        return 1;\n    } finally {\n        System.out.println(\"F\");\n    }\n}\n// в main:\nSystem.out.println(f());",
+            "answer": "F\n1", "why": "finally выполняется до того, как метод вернёт отложенное значение. Сначала «F», потом main печатает 1." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Родословная исключений</h2>
+    <p>Каждое исключение — объект какого-то класса. А классы исключений связаны <b>наследованием</b> (<code>extends</code>), как классы из модуля 10. Например, в JDK написано примерно так: <code>class NumberFormatException extends IllegalArgumentException</code>. Всё дерево начинается с класса <code>Throwable</code> — «то, что можно выбросить».</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 470" role="img" aria-label="Дерево исключений: Throwable делится на Error и Exception; Exception делится на checked-исключения и RuntimeException с его потомками">
+        <path d="M380 60 L125 100" class="d-line"/>
+        <path d="M380 60 L480 100" class="d-line"/>
+        <path d="M125 140 V180" class="d-line"/>
+        <path d="M480 140 L370 180" class="d-line"/>
+        <path d="M480 140 L625 180" class="d-line"/>
+
+        <rect x="300" y="20" width="160" height="40" rx="10" class="d-violet"/>
+        <text x="380" y="46" text-anchor="middle" class="d-mono-ink">Throwable</text>
+
+        <rect x="20" y="100" width="210" height="40" rx="10" class="d-red"/>
+        <text x="125" y="126" text-anchor="middle" class="d-mono-ink">Error</text>
+        <rect x="380" y="100" width="200" height="40" rx="10" class="d-blue"/>
+        <text x="480" y="126" text-anchor="middle" class="d-mono-ink">Exception</text>
+
+        <rect x="20" y="180" width="210" height="40" rx="10" class="d-red"/>
+        <text x="125" y="205" text-anchor="middle" class="d-mono-ink">OutOfMemoryError</text>
+        <rect x="20" y="228" width="210" height="40" rx="10" class="d-red"/>
+        <text x="125" y="253" text-anchor="middle" class="d-mono-ink">StackOverflowError</text>
+        <rect x="20" y="276" width="210" height="40" rx="10" class="d-red"/>
+        <text x="125" y="301" text-anchor="middle" class="d-mono-ink">AssertionError</text>
+
+        <rect x="260" y="180" width="220" height="40" rx="10" class="d-teal"/>
+        <text x="370" y="205" text-anchor="middle" class="d-mono-ink">IOException</text>
+        <rect x="260" y="228" width="220" height="40" rx="10" class="d-teal"/>
+        <text x="370" y="253" text-anchor="middle" class="d-mono-ink">InterruptedException</text>
+        <rect x="260" y="276" width="220" height="40" rx="10" class="d-teal"/>
+        <text x="370" y="301" text-anchor="middle" class="d-small">твои: extends Exception</text>
+
+        <rect x="500" y="180" width="250" height="40" rx="10" class="d-yellow"/>
+        <text x="625" y="205" text-anchor="middle" class="d-mono-ink">RuntimeException</text>
+        <rect x="500" y="228" width="250" height="186" rx="10" class="d-soft"/>
+        <text x="514" y="252" class="d-mono-ink" style="font-size:12px">ArithmeticException</text>
+        <text x="514" y="276" class="d-mono-ink" style="font-size:12px">NullPointerException</text>
+        <text x="514" y="300" class="d-mono-ink" style="font-size:12px">ArrayIndexOutOfBoundsException</text>
+        <text x="514" y="324" class="d-mono-ink" style="font-size:12px">IllegalArgumentException</text>
+        <text x="528" y="348" class="d-mono-ink" style="font-size:12px">└ NumberFormatException</text>
+        <text x="514" y="372" class="d-mono-ink" style="font-size:12px">IllegalStateException</text>
+        <text x="514" y="396" class="d-mono-ink" style="font-size:12px">ClassCastException</text>
+
+        <rect x="20" y="436" width="18" height="18" rx="4" class="d-red"/><text x="46" y="450" class="d-small">Error: сбой JVM, не ловим</text>
+        <rect x="260" y="436" width="18" height="18" rx="4" class="d-teal"/><text x="286" y="450" class="d-small">checked: компилятор заставит</text>
+        <rect x="500" y="436" width="18" height="18" rx="4" class="d-yellow"/><text x="526" y="450" class="d-small">unchecked: ошибки в коде</text>
+      </svg>
+      <figcaption>Упрощённое дерево: показаны только самые важные классы. В JDK их сотни, и все пристроены где-то в этом дереве.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Throwable</dt><dd>Корень. Выбросить через <code>throw</code> и перехватить в <code>catch</code> можно только объекты класса Throwable и его потомков.</dd>
+      <dt>Error</dt><dd>Серьёзный сбой самой JVM или окружения: кончилась память, переполнился стек. Программа обычно ничего не может с этим сделать — такие не перехватывают.</dd>
+      <dt>Exception</dt><dd>Проблемы, с которыми программа может и должна справляться.</dd>
+      <dt>RuntimeException</dt><dd>Ветка Exception для ошибок в логике программы: деление на ноль, null, выход за массив. Все знакомые тебе исключения — отсюда.</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>catch перехватывает и всех потомков</h2>
+    <p>Помнишь полиморфизм: там, где ждут <code>Animal</code>, может прийти <code>Cat</code>. С исключениями то же самое. <code>catch (IllegalArgumentException e)</code> перехватит и само IllegalArgumentException, и любого его потомка — например, NumberFormatException:</p>
+<pre data-file="CatchParent.java"><code class="java">try {
+    int n = Integer.parseInt("пять");
+} catch (IllegalArgumentException e) {
+    System.out.println("Поймали: " + e.getClass().getSimpleName());
+}</code></pre>
+<pre class="terminal"><span class="out">Поймали: NumberFormatException</span></pre>
+    <p>Вызов <code>e.getClass().getSimpleName()</code> возвращает короткое имя настоящего класса объекта (метод <code>getClass()</code> есть у любого объекта, он из класса Object). Переменная <code>e</code> объявлена с типом IllegalArgumentException, а ссылается на объект NumberFormatException.</p>
+    <p>Теперь понятно правило из урока 3. <code>catch (RuntimeException e)</code> перехватывает <b>всю</b> жёлтую ветку дерева. Если он стоит выше <code>catch (NumberFormatException e)</code>, второму ничего не достанется — отсюда «has already been caught». А <code>catch (Exception e)</code> перехватывает вообще почти всё.</p>
+    <details class="predict">
+      <summary>Предскажи: перехватит ли <code>catch (Exception e)</code> ошибку StackOverflowError?</summary>
+      <p><b>Нет.</b> StackOverflowError — потомок <code>Error</code>, а не <code>Exception</code>. Это соседние ветки, у них общий только Throwable. Так что catch (Exception) перехватывает «почти всё» — кроме Error.</p>
+    </details>
+    <div class="callout fact">
+      <span class="callout-title">Важно для тестов на JUnit</span>
+      <p>В модуле 17 ты будешь писать тесты на JUnit. Упавшая проверка в тесте — это <code>AssertionError</code>, а он потомок <b>Error</b>. Поэтому <code>catch (Exception e)</code> в тесте не перехватит провал проверки — и это хорошо: тест честно покраснеет. Создатели Java специально вынесли его в Error: проверку не должны «случайно» проглотить.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Error: когда ломается сама машина</h2>
+    <p>Самый простой способ увидеть Error — бесконечная рекурсия из модуля 7. Метод вызывает себя без условия остановки, фреймы копятся, пока стек не переполнится:</p>
+<pre data-file="Forever.java"><code class="java">public class Forever {
+    public static void main(String[] args) {
+        countDown(10);
+    }
+
+    static void countDown(int n) {
+        countDown(n - 1);   // забыли условие остановки
+    }
+}</code></pre>
+<pre class="terminal"><span class="err">Exception in thread "main" java.lang.StackOverflowError
+	at Forever.countDown(Forever.java:7)
+	at Forever.countDown(Forever.java:7)
+	at Forever.countDown(Forever.java:7)
+	… (ещё около тысячи одинаковых строк)</span></pre>
+    <p>Stack trace из тысячи одинаковых строк — верный признак бесконечной рекурсии. Перехватывать такую ошибку бессмысленно: надо чинить код. С <code>OutOfMemoryError</code> (кончилась память в куче) то же самое. Правило: <b>Error не перехватываем</b>.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>checked и unchecked</h2>
+    <p>Теперь главное деление. Попробуй сделать паузу в программе — метод <code>Thread.sleep</code> «усыпляет» её на заданное число миллисекунд:</p>
+<pre data-file="Pause.java"><code class="java">public class Pause {
+    public static void main(String[] args) {
+        System.out.println("Ждём секунду…");
+        Thread.sleep(1000);
+        System.out.println("Готово");
+    }
+}</code></pre>
+<pre class="terminal"><span class="err">Pause.java:4: error: unreported exception InterruptedException; must be caught or declared to be thrown
+        Thread.sleep(1000);
+                    ^</span></pre>
+    <p>Это текст <code>javac</code>. В IDEA ты увидишь ошибку раньше, прямо в редакторе, и сформулирована она короче:</p>
+    <div data-widget="ide" id="shot-unhandled-sleep">
+      <script type="application/json">
+      { "tree": false, "file": "Pause.java", "statusPath": "module-12", "gutterRun": [1, 2],
+        "code": "public class Pause {\n    public static void main(String[] args) {\n        System.out.println(\"Ждём секунду…\");\n        Thread.sleep(1000);\n        System.out.println(\"Готово\");\n    }\n}",
+        "errors": [ { "line": 4, "text": "Thread.sleep(1000)", "msg": "Unhandled exception: java.lang.InterruptedException", "tip": true, "fix": "Add exception to method signature" } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Подчёркнут вызов, который может выбросить checked-исключение" },
+                   { "n": 2, "target": "tip", "text": "<b>Unhandled exception</b> — «необработанное исключение», дальше его полное имя. У <code>javac</code> то же звучит как <code>unreported exception … must be caught or declared to be thrown</code> — «нужно перехватить (caught) или объявить в throws (declared to be thrown)»" },
+                   { "n": 3, "target": "problems", "text": "❗1 — пока не ответишь компилятору, программа не запустится вообще" } ],
+        "caption": "Checked-исключение без обработки: Unhandled exception" }
+      </script>
+    </div>
+    <p>Код даже не компилируется! <code>Thread.sleep</code> может выбросить <code>InterruptedException</code> (сон прервали извне), а это исключение — <b>checked</b> («проверяемое»). Компилятор проверяет: «ты подумал, что делать, если это случится?» — и не пропустит код, пока ты не ответишь.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>checked (проверяемые)</th><th>unchecked (непроверяемые)</th></tr>
+        <tr><td>Кто</td><td>Exception и потомки, <b>кроме</b> ветки RuntimeException: IOException, InterruptedException…</td><td>RuntimeException и потомки + все Error</td></tr>
+        <tr><td>Компилятор</td><td>заставляет перехватить или объявить в <code>throws</code></td><td>молчит</td></tr>
+        <tr><td>Смысл</td><td>внешние обстоятельства, которые не зависят от программиста: нет файла, упала сеть, прервали поток</td><td>ошибки в самом коде: null, деление на ноль, неверный индекс</td></tr>
+        <tr><td>Что делать</td><td>подготовить план Б</td><td>не перехватывать, а исправить код</td></tr>
+      </table>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: прогноз погоды</span>
+      <p>Checked — это прогноз «возможен дождь». Дождь от тебя не зависит, но выходя из дома, ты обязан решить: беру зонт (catch) или пусть решает тот, кто меня послал (throws). Unchecked — это «наступил в лужу, потому что смотрел в телефон». Такое не планируют — от такого отучаются.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>throws: «не перехватываю — пробрасываю дальше»</h2>
+    <p>На checked-исключение у тебя два ответа компилятору. Первый — перехватить в catch:</p>
+<pre data-file="Pause.java"><code class="java">try {
+    Thread.sleep(1000);
+} catch (InterruptedException e) {
+    System.out.println("Сон прервали");
+}</code></pre>
+    <p>Второй — <b>объявить</b> исключение в сигнатуре метода: «я могу выбросить это исключение, пусть разбирается тот, кто меня вызвал». Для этого после скобок с параметрами пишут <code>throws</code> и тип:</p>
+<pre data-file="Pause.java"><code class="java">public class Pause {
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("Ждём…");
+        pause(2);
+        System.out.println("Готово");
+    }
+
+    static void pause(int seconds) throws InterruptedException {
+        Thread.sleep(seconds * 1000);
+    }
+}</code></pre>
+    <p><code>pause</code> не перехватывает исключение, а объявляет его в <code>throws</code> — <b>пробрасывает дальше</b> тому, кто её вызвал. Теперь вызывающий <code>main</code> сам должен решить: перехватывать или тоже объявить <code>throws</code>. main объявил — значит, если сон прервут, исключение вылетит из main и уронит программу, как в уроке 1. Для учебных программ это нормально.</p>
+    <p>Оба ответа IDEA напишет за тебя. Поставь курсор на красное и нажми <kbd>Alt</kbd>+<kbd>Enter</kbd> — первые два пункта меню и есть «перехватить» и «пробросить дальше»:</p>
+    <div data-widget="ide" id="shot-unhandled-fix">
+      <script type="application/json">
+      { "tree": false, "file": "Pause.java", "statusPath": "module-12", "gutterRun": [1, 2], "caretLine": 4,
+        "code": "public class Pause {\n    public static void main(String[] args) {\n        System.out.println(\"Ждём секунду…\");\n        Thread.sleep(1000);\n        System.out.println(\"Готово\");\n    }\n}",
+        "errors": [ { "line": 4, "text": "Thread.sleep(1000)", "msg": "" } ],
+        "menu": { "at": "line-4", "items": ["Add exception to method signature", "Surround with try/catch"], "hl": "Add exception to method signature" },
+        "marks": [ { "n": 1, "target": "menu", "text": "<b>Add exception to method signature</b> — «добавить исключение в сигнатуру»: допишет <code>throws InterruptedException</code> к <code>main</code>. Это ответ «передаю дальше»" },
+                   { "n": 2, "target": "err-4", "side": "top", "text": "<b>Surround with try/catch</b> — «окружить try/catch»: обернёт эту строку, в catch будет нужный тип. Это ответ «перехватываю здесь». Не забудь потом написать в catch что-то осмысленное" } ],
+        "caption": "Alt+Enter на Unhandled exception: два ответа компилятору" }
+      </script>
+    </div>
+    <p>Чаще всего checked-исключения встретятся тебе при работе с файлами (модуль 15). Там главное из них — <code>IOException</code> («ошибка ввода-вывода»: файла нет, нет прав, диск отключили). Выглядит точно так же:</p>
+    <div data-widget="ide" id="shot-unhandled-io">
+      <script type="application/json">
+      { "tree": false, "file": "ReadConfig.java", "statusPath": "module-12", "gutterRun": [4, 5],
+        "code": "import java.nio.file.Files;\nimport java.nio.file.Path;\n\npublic class ReadConfig {\n    public static void main(String[] args) {\n        String text = Files.readString(Path.of(\"config.txt\"));\n        System.out.println(text);\n    }\n}",
+        "errors": [ { "line": 6, "text": "Files.readString(Path.of(\"config.txt\"))", "msg": "Unhandled exception: java.io.IOException", "tip": true, "fix": "Add exception to method signature" } ],
+        "marks": [ { "n": 1, "target": "err-6", "side": "top", "text": "<code>Files.readString</code> читает файл целиком. Файла может не оказаться — значит, возможен <code>IOException</code>" },
+                   { "n": 2, "target": "tip", "text": "<b>Unhandled exception: java.io.IOException</b>. <code>java.io</code> — пакет ввода-вывода. Решение то же: <kbd>Alt</kbd>+<kbd>Enter</kbd> → <code>throws</code> или try/catch" } ],
+        "caption": "Unhandled exception: java.io.IOException" }
+      </script>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 170" role="img" aria-label="throws передаёт ответственность вниз по стеку: Thread.sleep, pause, main; каждый либо ловит, либо объявляет throws">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="40" width="190" height="64" rx="12" class="d-blue"/>
+        <text x="115" y="68" text-anchor="middle" class="d-mono-ink">Thread.sleep</text>
+        <text x="115" y="90" text-anchor="middle" class="d-small">может выбросить checked</text>
+        <rect x="285" y="40" width="190" height="64" rx="12" class="d-teal"/>
+        <text x="380" y="68" text-anchor="middle" class="d-mono-ink">pause</text>
+        <text x="380" y="90" text-anchor="middle" class="d-small">throws — передаю</text>
+        <rect x="550" y="40" width="190" height="64" rx="12" class="d-accent"/>
+        <text x="645" y="68" text-anchor="middle" class="d-mono-ink">main</text>
+        <text x="645" y="90" text-anchor="middle" class="d-small">catch или throws</text>
+        <path d="M212 72 H281" class="d-arrow"/>
+        <path d="M477 72 H546" class="d-arrow"/>
+        <text x="380" y="145" text-anchor="middle" class="d-small">каждый метод отвечает компилятору: «перехватываю» (catch) или «пробрасываю дальше» (throws)</text>
+      </svg>
+      <figcaption>throws — как горячая картошка: кто не хочет держать, обязан громко сказать «лови!» тому, кто его вызвал.</figcaption>
+    </figure>
+    <div class="callout warn">
+      <span class="callout-title">throw и throws — разные слова</span>
+      <p><code>throws</code> (с «s») пишется в <b>сигнатуре</b> метода и <b>предупреждает</b>: «могу выбросить». <code>throw</code> (без «s») пишется в <b>теле</b> метода и <b>выбрасывает</b> исключение прямо сейчас. Его разберём в следующем уроке. Путают их постоянно — на собеседовании это любимый вопрос.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: а можно throws у unchecked?</summary>
+      <p>Можно: <code>void setAge(int age) throws IllegalArgumentException</code> скомпилируется. Но компилятор этого не требует, и вызывающему перехватывать его необязательно. Иногда так пишут как документацию — «имей в виду». Обратное правило тоже есть: перехватить checked-исключение, которое код в try выбросить не может, нельзя: <code>catch (IOException e)</code> вокруг <code>println</code> даст ошибку <code>exception IOException is never thrown in body of corresponding try statement</code>. С unchecked такой проверки нет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Разложи по веткам</h2>
+    <p>Мини-игра: к какой ветке дерева относится исключение?</p>
+    <div data-widget="buckets" id="buckets-m12-05">
+      <script type="application/json">
+      { "title": "checked, unchecked или Error?", "icon": "🌳",
+        "buckets": [ { "id": "checked", "label": "🧾 checked", "style": "indigo" }, { "id": "unchecked", "label": "🐛 unchecked", "style": "green" }, { "id": "error", "label": "🔥 Error", "style": "red" } ],
+        "items": [
+          { "emoji": "🔢", "text": "NumberFormatException", "bucket": "unchecked", "why": "Потомок IllegalArgumentException → RuntimeException. Компилятор не заставляет его ловить." },
+          { "emoji": "😴", "text": "InterruptedException", "bucket": "checked", "why": "Прямой потомок Exception, не из ветки RuntimeException. Без catch или throws не скомпилируется." },
+          { "emoji": "📁", "text": "IOException", "bucket": "checked", "why": "Ошибка ввода-вывода: файл не открылся, сеть упала. Внешнее обстоятельство — checked." },
+          { "emoji": "🕳️", "text": "NullPointerException", "bucket": "unchecked", "why": "Ошибка в коде: обратились к null. RuntimeException." },
+          { "emoji": "♾️", "text": "StackOverflowError", "bucket": "error", "why": "Переполнение стека — проблема JVM. Ветка Error." },
+          { "emoji": "❌", "text": "AssertionError", "bucket": "error", "why": "Провал проверки в тесте — потомок Error. Поэтому catch (Exception) его не перехватит." },
+          { "emoji": "🏦", "text": "class MyException extends Exception", "bucket": "checked", "why": "Наследник Exception, но не RuntimeException — значит, checked." },
+          { "emoji": "🚦", "text": "class MyException extends RuntimeException", "bucket": "unchecked", "why": "Наследник RuntimeException — unchecked." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m12-05">
+      <script type="application/json">
+      {
+       "title": "Иерархия и checked — главное",
+       "items": [
+        {
+         "type": "single",
+         "q": "Скомпилируется ли?",
+         "code": "public static void main(String[] args) {\n    Thread.sleep(500);\n}",
+         "options": [
+          "Да",
+          "Нет: checked-исключение не обработано",
+          "Нет: Thread.sleep нельзя вызывать из статического метода main"
+         ],
+         "answer": 1,
+         "why": "InterruptedException — checked. Нужно перехватить его или объявить <code>throws InterruptedException</code> у main."
+        },
+        {
+         "type": "single",
+         "q": "Что напечатает код?",
+         "code": "try {\n    Integer.parseInt(\"x\");\n} catch (IllegalArgumentException e) {\n    System.out.println(\"IAE\");\n} catch (RuntimeException e) {\n    System.out.println(\"RE\");\n}",
+         "options": [
+          "IAE",
+          "RE",
+          "Ошибка компиляции",
+          "Программа упадёт с NumberFormatException"
+         ],
+         "answer": 0,
+         "why": "NumberFormatException — потомок IllegalArgumentException, первый catch подходит. Порядок правильный: частный выше общего."
+        },
+        {
+         "type": "match",
+         "q": "Соедини",
+         "left": [
+          "Throwable",
+          "Error",
+          "RuntimeException",
+          "checked"
+         ],
+         "right": [
+          "Корень всех исключений",
+          "Сбой JVM, не перехватываем",
+          "Ошибки в логике, компилятор не следит",
+          "Компилятор требует catch или throws"
+         ],
+         "why": "Это и есть дерево исключений в четырёх строчках."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "catch (Exception e) перехватит NullPointerException",
+           "a": true
+          },
+          {
+           "s": "catch (Exception e) перехватит StackOverflowError",
+           "a": false,
+           "why": "это Error — соседняя ветка, не Exception."
+          },
+          {
+           "s": "throws пишется в сигнатуре метода",
+           "a": true
+          },
+          {
+           "s": "Все исключения нужно объявлять в throws",
+           "a": false,
+           "why": "только checked; unchecked компилятор не требует."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 12.5. Спроси меня, чем checked отличается от unchecked, и придумай пример, где я должен решить: catch или throws»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Throwable → Error (сбои JVM, не перехватываем) и Exception → RuntimeException (ошибки в коде) + checked-исключения.</li>
+        <li>catch перехватывает свой тип и всех потомков. Поэтому частные catch — выше общих.</li>
+        <li>Checked (Exception, но не RuntimeException) компилятор заставляет перехватить или объявить в <code>throws</code>. Unchecked — нет.</li>
+        <li><code>throws</code> в сигнатуре — «объявляю и пробрасываю дальше»; <code>throw</code> в теле — «выбрасываю сейчас».</li>
+        <li>AssertionError — это Error, поэтому catch (Exception) не спрячет упавшую проверку теста.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

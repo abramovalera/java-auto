@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Строки, var, константы и имена · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-03">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 2 · Урок 3</div>
+    <h1>Строки, var, константы и хорошие имена</h1>
+    <p class="lead">Текст — самые частые данные в программах: имена, адреса, сообщения об ошибках. Знакомимся с типом String, учимся не повторять тип дважды и называть переменные так, чтобы код читался как книга.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔤 String</span><span>🏷️ имена</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m02-03-review">
+      <script type="application/json">
+      { "title": "Разминка", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Какой тип подойдёт для числа 5 000 000 000?", "options": ["int", "long", "char"], "answer": 1, "why": "int вмещает только до 2,1 миллиарда. И не забудь L в литерале: 5_000_000_000L." },
+          { "type": "bug", "q": "В какой строке ошибка?", "code": "boolean ready = true;\nchar letter = 'Q';\ndouble price = 19,99;\nint count = 3;", "answer": [3], "why": "Дробную часть отделяют точкой: 19.99." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "int lives = 3;\nlives = lives - 1;\nSystem.out.println(\"Жизней: \" + lives);", "answer": "Жизней: 2", "why": "Выражение lives - 1 даёт 3 − 1 = 2, результат присваивается lives. Потом склейка со строкой." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>String — тип для текста</h2>
+    <p>Ты пользовался строками с первого урока: всё, что в двойных кавычках, — это строка (строковый литерал). Теперь строкой можно инициализировать переменную — положить текст в коробку. Тип для текста называется <code>String</code> (англ. «нить», «цепочка» — цепочка символов):</p>
+<pre data-file="Strings.java"><code class="java">String name = "Аня";
+String city = "Казань";
+String empty = "";              // пустая строка: ноль символов
+System.out.println("Привет, " + name + " из города " + city + "!");</code></pre>
+<pre class="terminal"><span class="out">Привет, Аня из города Казань!</span></pre>
+    <p>Заметь: <code>String</code> пишется с <b>большой</b> буквы, а <code>int</code> и <code>double</code> — с маленькой. Это не случайность. String — <b>не примитивный тип</b>, а <b>класс</b>. Помнишь «чертёж» из урока 1.1? Каждая строка — это <b>объект</b>, сделанный по чертежу String. А у объектов есть <b>методы</b> — то, что объект умеет делать.</p>
+    <div class="say" data-mood="wow"><p>Чем строка-объект отличается от числа-примитива в памяти компьютера, разберём в следующем уроке. Там будет красиво: стрелки, стек и куча!</p></div>
+    <details class="predict">
+      <summary>Что выведет программа?<br><code>String a = "10";</code><br><code>String b = "5";</code><br><code>System.out.println(a + b);</code></summary>
+      <p><b>105.</b> Это строки, а не числа: <code>+</code> их склеивает. Кавычки решают всё: <code>"10"</code> — текст из двух символов, <code>10</code> — число.</p>
+    </details>
+
+    <h3>Главное правило: всё, что в кавычках, — строка</h3>
+    <p>Внутри кавычек может быть что угодно — цифры, имя переменной, даже кусок кода. Для Java это <b>просто текст</b>, набор символов. Она не смотрит внутрь и ничего там не считает.</p>
+    <div class="table-wrap"><table>
+      <tr><th>Написано в коде</th><th>Что это для Java</th><th>Что получится</th></tr>
+      <tr><td><code>5 + 5</code></td><td>два числа</td><td><code>10</code> — сложила</td></tr>
+      <tr><td><code>"5" + "5"</code></td><td>две строки</td><td><code>"55"</code> — склеила</td></tr>
+      <tr><td><code>"5 + 5"</code></td><td>одна строка из пяти символов</td><td><code>"5 + 5"</code> — как есть, ничего не считала</td></tr>
+      <tr><td><code>age</code></td><td>имя переменной</td><td>значение переменной (то, что в коробке), например <code>20</code></td></tr>
+      <tr><td><code>"age"</code></td><td>строка из трёх букв</td><td>текст <code>age</code></td></tr>
+      <tr><td><code>Артём</code> (без кавычек)</td><td>имя переменной, которой нет</td><td>ошибка компиляции <code>Cannot resolve symbol 'Артём'</code></td></tr>
+    </table></div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 150" role="img" aria-label="Число 20 и строка двадцать в кавычках — разные вещи: с числом можно считать, строку можно только склеивать">
+        <rect x="20" y="30" width="300" height="90" rx="14" class="d-blue"/>
+        <text x="170" y="64" text-anchor="middle" class="d-title" style="font-size:26px">20</text>
+        <text x="170" y="98" text-anchor="middle" class="d-small">int: можно считать  20 + 1 → 21</text>
+        <text x="360" y="82" text-anchor="middle" class="d-title">≠</text>
+        <rect x="400" y="30" width="300" height="90" rx="14" class="d-yellow"/>
+        <text x="550" y="64" text-anchor="middle" class="d-title" style="font-size:26px">"20"</text>
+        <text x="550" y="98" text-anchor="middle" class="d-small">String: только склеивать  "20" + 1 → "201"</text>
+      </svg>
+      <figcaption>Число и строка с теми же цифрами — разные вещи. Кавычки превращают что угодно в текст.</figcaption>
+    </figure>
+
+    <h3>Как превратить число в строку — и обратно</h3>
+    <p>Постоянная задача: из числа сделать текст (чтобы напечатать или склеить с другим текстом) или наоборот — из текста, который ввёл человек, достать число, чтобы считать.</p>
+<pre data-file="Convert.java"><code class="java">int age = 21;
+
+// число → строка: три способа, результат одинаковый — "21"
+String a = String.valueOf(age);
+String b = Integer.toString(age);
+String c = "" + age;            // склейка с пустой строкой
+
+// строка → число: только если внутри правда число
+int back = Integer.parseInt("21");
+double price = Double.parseDouble("99.5");</code></pre>
+    <ul>
+      <li><code>String.valueOf(...)</code> — самый понятный способ: метод возвращает строку из значения любого типа: числа, <code>boolean</code>, символа.</li>
+      <li><code>"" + age</code> — короткий трюк: строка в начале склейки превращает в строку всё, что дальше.</li>
+      <li><code>Integer.parseInt("abc")</code> упадёт с ошибкой <code>NumberFormatException</code> — подробно про это в <a href="/lessons/m02/06-type-casting.html">уроке 2.6</a>.</li>
+    </ul>
+    <details class="predict">
+      <summary>Что выведет программа?<br><code>int age = 20;</code><br><code>String text = "" + age;</code><br><code>System.out.println(text + 1);</code><br><code>System.out.println(age + 1);</code></summary>
+      <p><b>201</b> и <b>21</b>. Переменная <code>text</code> инициализирована строкой «20», к ней приклеилась «1». А в <code>age</code> — число, к нему прибавилась единица. Одни и те же цифры, но разные типы — и совсем разный результат.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Строка умеет кое-что сама</h2>
+    <p>Чтобы попросить объект что-то сделать, после имени переменной ставят точку и пишут имя метода со скобками. Это называется <b>вызов метода</b> у объекта. Метод выполняет работу и <b>возвращает</b> результат — например, число или новую строку. Три метода для начала:</p>
+<pre data-file="Strings.java"><code class="java">String word = "Java";
+System.out.println(word.length());       // 4 — сколько символов
+System.out.println(word.charAt(0));      // J — символ под номером 0
+System.out.println(word.toUpperCase());  // JAVA — большими буквами</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>word.length()</code><div><p>Метод возвращает длину строки — сколько в ней символов. Пробелы и знаки препинания тоже считаются: у <code>"Привет, мир"</code> длина 11. У пустой строки <code>""</code> длина 0.</p></div></div>
+      <div class="annot-row"><code>word.charAt(0)</code><div><p>Метод возвращает символ (<code>char</code>) по номеру. <b>Нумерация с нуля!</b> В <code>"Java"</code>: 0 — J, 1 — a, 2 — v, 3 — a. Последний символ — под номером <code>length() - 1</code>.</p></div></div>
+      <div class="annot-row"><code>word.toUpperCase()</code><div><p>Метод возвращает новую строку большими буквами. Сама <code>word</code> не меняется — строки в Java неизменяемы (подробнее в модуле 8).</p></div></div>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 640 160" role="img" aria-label="Строка Java разложена по ячейкам с номерами 0, 1, 2, 3; длина 4">
+        <rect x="140" y="40" width="80" height="70" rx="10" class="d-blue"/>
+        <rect x="230" y="40" width="80" height="70" rx="10" class="d-blue"/>
+        <rect x="320" y="40" width="80" height="70" rx="10" class="d-blue"/>
+        <rect x="410" y="40" width="80" height="70" rx="10" class="d-blue"/>
+        <text x="180" y="86" text-anchor="middle" class="d-title" style="font-size:28px">J</text>
+        <text x="270" y="86" text-anchor="middle" class="d-title" style="font-size:28px">a</text>
+        <text x="360" y="86" text-anchor="middle" class="d-title" style="font-size:28px">v</text>
+        <text x="450" y="86" text-anchor="middle" class="d-title" style="font-size:28px">a</text>
+        <text x="180" y="132" text-anchor="middle" class="d-mono-ink">0</text>
+        <text x="270" y="132" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="360" y="132" text-anchor="middle" class="d-mono-ink">2</text>
+        <text x="450" y="132" text-anchor="middle" class="d-mono-ink">3</text>
+        <text x="40" y="132" class="d-small">номер:</text>
+        <text x="40" y="82" class="d-small">символ:</text>
+        <text x="315" y="26" text-anchor="middle" class="d-small">length() = 4, а последний номер = 3</text>
+      </svg>
+      <figcaption>Символы строки пронумерованы с нуля, как места в очереди у программистов.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Что выведет <code>System.out.println("Кот".charAt(3));</code>?</summary>
+      <p><b>Программа упадёт</b> с ошибкой <code>StringIndexOutOfBoundsException</code>: в слове «Кот» символы с номерами 0, 1, 2. Номера 3 нет. Эта ошибка случится не при компиляции, а во время работы программы.</p>
+      <div data-widget="ide" id="shot-charat-crash">
+        <script type="application/json">
+        { "tree": false, "file": "Letters.java", "runConfig": "Letters", "gutterRun": [1, 2],
+          "code": "public class Letters {\n    public static void main(String[] args) {\n        System.out.println(\"Кот\".charAt(3));\n    }\n}",
+          "console": { "title": "Letters", "lines": [
+            { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Letters" },
+            { "t": "err", "s": "Exception in thread \"main\" java.lang.StringIndexOutOfBoundsException: Index 3 out of bounds for length 3" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$1.apply(Preconditions.java:55)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$1.apply(Preconditions.java:52)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:213)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions$4.apply(Preconditions.java:210)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.outOfBounds(Preconditions.java:98)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.outOfBoundsCheckIndex(Preconditions.java:106)" },
+            { "t": "err", "s": "\tat java.base/jdk.internal.util.Preconditions.checkIndex(Preconditions.java:302)" },
+            { "t": "err", "s": "\tat java.base/java.lang.String.checkIndex(String.java:4832)" },
+            { "t": "err", "s": "\tat java.base/java.lang.StringUTF16.checkIndex(StringUTF16.java:1613)" },
+            { "t": "err", "s": "\tat java.base/java.lang.StringUTF16.charAt(StringUTF16.java:1418)" },
+            { "t": "err", "s": "\tat java.base/java.lang.String.charAt(String.java:1557)" },
+            { "t": "err", "s": "\tat Letters.main(Letters.java:3)" },
+            { "t": "exit", "s": "Process finished with exit code 1" } ] },
+          "marks": [ { "n": 1, "target": "error", "text": "Первая строка — главное: имя ошибки <b>StringIndexOutOfBoundsException</b> и пояснение <b>Index 3 out of bounds for length 3</b> — «номер 3 вне границ для длины 3»" },
+                     { "n": 2, "target": "error-5", "text": "Строки <code>at java.base/…</code> — это «внутренности» самой Java, куда провалился вызов <code>charAt</code>. Их смело пропускай" },
+                     { "n": 3, "target": "link-12", "text": "Ищи строку со <b>своим</b> файлом: <b>Letters.java:3</b> — ошибка в строке 3. По синей ссылке можно щёлкнуть — IDEA откроет это место" },
+                     { "n": 4, "target": "exit", "text": "<b>exit code 1</b> — программа завершилась аварийно" } ],
+          "caption": "Программа упала во время работы: stack trace в панели Run" }
+        </script>
+      </div>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>var: пусть Java сама догадается о типе</h2>
+    <p>В строке <code>String city = "Казань";</code> тип указан дважды: словом <code>String</code> и самими кавычками. С Java 10 можно писать короче:</p>
+<pre data-file="VarDemo.java"><code class="java">var city = "Казань";     // String — из-за кавычек
+var age = 25;            // int
+var price = 9.99;        // double
+var big = 5_000_000_000L; // long</code></pre>
+    <p><code>var</code> — не «тип на любой вкус». Компилятор смотрит на значение справа (инициализатор) и навсегда ставит переменной подходящий тип — это называется <b>вывод типа</b>. Дальше это обычная переменная с обычным строгим типом.</p>
+    <ul>
+      <li><code>var x;</code> — ошибка: без инициализации не по чему угадывать тип.</li>
+      <li><code>var age = 25; age = "двадцать";</code> — ошибка: строку присвоить нельзя, age уже навсегда int.</li>
+      <li><code>var</code> работает только для переменных внутри методов (как наши — внутри <code>main</code>).</li>
+    </ul>
+    <div class="callout tip">
+      <span class="callout-title">Как писать в этом курсе</span>
+      <p>Пока учишься, пиши типы явно: <code>int</code>, <code>String</code>, <code>double</code>. Так ты лучше чувствуешь, что где лежит. <code>var</code> пригодится позже, когда типы станут длинными, вроде <code>Map&lt;String, List&lt;Integer&gt;&gt;</code>. Но читать код с var ты уже умеешь.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Константы: final</h2>
+    <p>Иногда значение не должно меняться никогда: число дней в неделе, максимум попыток входа, адрес сайта магазина. Для таких значений перед типом пишут слово <code>final</code> (англ. «окончательный»):</p>
+<pre data-file="Game.java"><code class="java">final int MAX_LIVES = 3;
+final double VAT_RATE = 0.2;
+final String BASE_URL = "https://shop.example.com";
+
+MAX_LIVES = 5;   // ошибка компиляции!</code></pre>
+    <p>IDEA подчеркнёт такую строку сразу, а при запуске ▶ сборка остановится:</p>
+    <div data-widget="ide" id="shot-final-assign">
+      <script type="application/json">
+      { "tree": false, "file": "Game.java", "gutterRun": [1, 2],
+        "code": "public class Game {\n    public static void main(String[] args) {\n        final int MAX_LIVES = 3;\n        System.out.println(\"Жизней: \" + MAX_LIVES);\n        MAX_LIVES = 5;\n    }\n}",
+        "errors": [ { "line": 5, "text": "MAX_LIVES", "msg": "Cannot assign a value to final variable 'MAX_LIVES'", "tip": true, "fix": "Make 'MAX_LIVES' not final" } ],
+        "build": { "file": "Game.java", "errors": [ { "msg": "cannot assign a value to final variable MAX_LIVES", "line": 5, "col": 9 } ] },
+        "marks": [ { "n": 1, "target": "line-3", "side": "top", "text": "<code>final</code> — объявляем константу: коробка «заклеена скотчем» сразу при инициализации" },
+                   { "n": 2, "target": "tip", "text": "<b>Cannot assign a value to final variable</b> — «нельзя присвоить значение final-переменной». IDEA предлагает снять <code>final</code>, но обычно ошибка в другом: константу менять и не нужно" },
+                   { "n": 3, "target": "build-err-1", "text": "То же в панели Build после ▶ — и номер строки <b>:5</b>" } ],
+        "caption": "Попытка изменить константу" }
+      </script>
+    </div>
+    <p>Так объявляют <b>константу</b>: после инициализации присвоить ей другое значение нельзя. Это коробка, которую заклеили скотчем: положить значение можно один раз, поменять — нельзя. Зачем это нужно:</p>
+    <ul>
+      <li><b>Защита от случайностей.</b> Компилятор не даст поменять то, что менять нельзя.</li>
+      <li><b>Нет «магических чисел».</b> Что значит <code>price * 0.2</code>? Непонятно. А <code>price * VAT_RATE</code> — ясно: налог.</li>
+      <li><b>Одно место для правки.</b> Если сайт магазина переедет, адрес меняют в одной строке, а не в двадцати.</li>
+    </ul>
+    <div class="say" data-mood="cool"><p>В реальных проектах константы на каждом шагу: адрес сервера, ставка налога, максимум попыток входа. Увидишь <code>MAX_LOGIN_ATTEMPTS</code> большими буквами — знай, это final.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Как называть: стили и «говорящие» имена</h2>
+    <p>Компилятору всё равно, как ты назовёшь переменную. А людям — нет. Код читают в десять раз чаще, чем пишут, поэтому у Java-программистов есть общие договорённости:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="Три стиля имён: camelCase для переменных, PascalCase для классов, UPPER_SNAKE_CASE для констант">
+        <rect x="16" y="30" width="216" height="140" rx="14" class="d-green"/>
+        <text x="124" y="62" text-anchor="middle" class="d-title">camelCase</text>
+        <text x="124" y="92" text-anchor="middle" class="d-mono-ink">userName</text>
+        <text x="124" y="116" text-anchor="middle" class="d-mono-ink">totalPrice</text>
+        <text x="124" y="154" text-anchor="middle" class="d-small">переменные и методы</text>
+
+        <rect x="252" y="30" width="216" height="140" rx="14" class="d-blue"/>
+        <text x="360" y="62" text-anchor="middle" class="d-title">PascalCase</text>
+        <text x="360" y="92" text-anchor="middle" class="d-mono-ink">HelloWorld</text>
+        <text x="360" y="116" text-anchor="middle" class="d-mono-ink">String, Scanner</text>
+        <text x="360" y="154" text-anchor="middle" class="d-small">классы</text>
+
+        <rect x="488" y="30" width="216" height="140" rx="14" class="d-violet"/>
+        <text x="596" y="62" text-anchor="middle" class="d-title">UPPER_SNAKE_CASE</text>
+        <text x="596" y="92" text-anchor="middle" class="d-mono-ink">MAX_LIVES</text>
+        <text x="596" y="116" text-anchor="middle" class="d-mono-ink">BASE_URL</text>
+        <text x="596" y="154" text-anchor="middle" class="d-small">константы (final)</text>
+      </svg>
+      <figcaption>camelCase — «верблюжий горб»: слова слитно, первое с маленькой буквы, каждое следующее — с большой. PascalCase — то же, но с большой буквы каждое слово, включая первое (его ты видел в уроке 1.5).</figcaption>
+    </figure>
+    <p><b>«Говорящее» имя</b> объясняет, что лежит в коробке, без комментариев. Сравни:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Плохо</th><th>Хорошо</th><th>Почему</th></tr>
+        <tr><td><code>int d = 7;</code></td><td><code>int daysUntilRelease = 7;</code></td><td>d — что угодно: день, дистанция, долг…</td></tr>
+        <tr><td><code>String s;</code></td><td><code>String userEmail;</code></td><td>Видно, какой текст ждём.</td></tr>
+        <tr><td><code>boolean flag;</code></td><td><code>boolean isLoggedIn;</code></td><td>Имя-вопрос для boolean: ответ да/нет.</td></tr>
+        <tr><td><code>String имяИгрока;</code></td><td><code>String playerName;</code></td><td>Кириллица в именах технически работает, но так не пишут.</td></tr>
+      </table>
+    </div>
+    <p>Имена пишут по-английски — так принято во всём мире. Не знаешь слово — переводчик в помощь, это нормально.</p>
+    <div data-widget="parsons" id="shop-parsons" data-code data-title="Собери программу «Чек»" data-icon="🧾"
+         data-hint="Константы принято объявлять первыми. Дальше каждая строка пользуется только тем, что уже объявлено выше."
+         data-success="🎉 Верно! Константа → цена → налог → итог → вывод. Каждое имя используется только после объявления.">
+      <script type="text/plain">
+final double VAT_RATE = 0.2;
+double price = 1000.0;
+double tax = price * VAT_RATE;
+double total = price + tax;
+System.out.println("Итого: " + total);
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m02-03">
+      <script type="application/json">
+      { "title": "Строки, var и имена — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?", "code": "String word = \"Привет\";\nSystem.out.println(word.length());\nSystem.out.println(word.charAt(1));", "answer": "6\nр", "why": "В «Привет» 6 букв. Нумерация с нуля: 0 — П, 1 — р." },
+          { "type": "match", "q": "Соедини имя с тем, что это скорее всего", "left": ["maxSpeed", "MAX_SPEED", "MaxSpeed"], "right": ["Переменная", "Константа (final)", "Класс"], "why": "camelCase — переменные, UPPER_SNAKE_CASE — константы, PascalCase — классы." },
+          { "type": "bug", "q": "В какой строке ошибка компиляции?", "code": "final int DAYS_IN_WEEK = 7;\nvar title = \"Неделя\";\nint weeks = 4;\nDAYS_IN_WEEK = 8;\nSystem.out.println(title + \": \" + DAYS_IN_WEEK * weeks);", "answer": [4], "why": "Константе (final-переменной) значение присваивают только один раз — при инициализации. cannot assign a value to final variable." },
+          { "type": "tf", "q": "Верно или нет?", "statements": [
+            { "s": "<code>var x;</code> — законное объявление", "a": false, "why": "без инициализатора справа компилятору не по чему угадать тип." },
+            { "s": "<code>var n = 5;</code> — после этого переменной n можно присвоить строку", "a": false, "why": "var выводит тип один раз: n навсегда int." },
+            { "s": "String пишется с большой буквы, потому что это класс, а не примитив", "a": true },
+            { "s": "У пустой строки <code>\"\"</code> длина 0", "a": true }
+          ] },
+          { "type": "single", "q": "Какое имя лучше для переменной, где хранится количество попыток входа?", "options": ["n", "loginAttempts", "LoginAttempts", "LOGIN_ATTEMPTS"], "answer": 1, "why": "Переменная — camelCase, и имя говорит, что внутри. PascalCase — для классов, UPPER_SNAKE_CASE — для констант." },
+          { "type": "predict", "q": "Что выведет программа?", "code": "String a = \"7\";\nint b = 7;\nSystem.out.println(a + b);\nSystem.out.println(b + b);", "answer": "77\n14", "why": "Строка + число = склейка «77». А два int складываются: 14." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне 5 плохих имён переменных из чужого кода, а я предложу хорошие»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>String</code> — тип для текста в двойных кавычках. Это класс, а не примитив, поэтому с большой буквы.</li>
+        <li>Вызовы методов строки: <code>s.length()</code> возвращает длину, <code>s.charAt(i)</code> — символ по номеру (с нуля), <code>s.toUpperCase()</code> — большими буквами.</li>
+        <li><code>var</code> — вывод типа: компилятор определяет тип по инициализатору справа; без инициализации нельзя, сменить тип потом нельзя.</li>
+        <li><code>final</code> — константа: значение присваивается один раз, при инициализации. Имена констант — <code>UPPER_SNAKE_CASE</code>.</li>
+        <li>Переменные — <code>camelCase</code>, классы — <code>PascalCase</code>. Имена по-английски и «говорящие».</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,41 @@
+## id: tr-vars-020
+## title: Следующий символ
+## file: trainer/vars/NextLetterInAlphabet.java
+## class: NextLetterInAlphabet
+## level: 2
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>NextLetterInAlphabet</code>. Программа читает один символ и печатает <code>После A идёт B</code> — символ, чей код на единицу больше.</p>
+<pre class="terminal"><span class="out">ввод:  A
+вывод: После A идёт B</span></pre>
+<p>Подвох: <code>symbol + 1</code> — это уже <code>int</code>, и напечатается число. Чтобы получить символ, результат нужно явно привести к <code>char</code>. А что идёт после <code>Я</code>, проверь сам.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next().charAt(0)</code> — так читают один символ: метода <code>nextChar()</code> нет</li>
+<li><code>(char) (symbol + 1)</code> — сначала код + 1, потом приведение обратно к символу</li>
+<li><code>char</code> + <code>int</code> = <code>int</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+A
+@@ expect
+После A идёт B
+@@ test: Русская маленькая
+@@ input
+к
+@@ expect
+После к идёт л
+@@ test: После Я — сюрприз
+@@ input
+Я
+@@ expect
+После Я идёт а
+@@ test: Цифра
+@@ input
+9
+@@ expect
+После 9 идёт :
+@@ test: Конец латиницы
+@@ input
+z
+@@ expect
+После z идёт {

@@ -1,0 +1,48 @@
+## id: tr-methods-036
+## title: Сумма цифр и цифровой корень
+## file: trainer/methods/DigitSumRecursion.java
+## class: DigitSumRecursion
+## level: 2
+## category: Рекурсия
+@@ description
+<p>Создай класс <code>DigitSumRecursion</code> и напиши <b>рекурсивный</b> метод <code>static int digitSum(int n)</code> для <code>n ≥ 0</code>: сумма цифр — это последняя цифра плюс сумма цифр числа без неё.</p>
+<p>main читает целое число и печатает две строки: <code>Сумма цифр: S</code> и <code>Цифровой корень: R</code>. Цифровой корень получают, повторяя <code>digitSum</code>, пока не останется одна цифра.</p>
+<pre class="terminal"><span class="out">ввод:  12345
+вывод: Сумма цифр: 15
+       Цифровой корень: 6</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>базовый случай — однозначное число: его сумма цифр — оно само</li>
+<li><code>n % 10</code> — последняя цифра, <code>n / 10</code> — число без неё</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+12345
+@@ expect
+Сумма цифр: 15
+Цифровой корень: 6
+@@ test: Ноль
+@@ input
+0
+@@ expect
+Сумма цифр: 0
+Цифровой корень: 0
+@@ test: Одна цифра
+@@ input
+7
+@@ expect
+Сумма цифр: 7
+Цифровой корень: 7
+@@ test: Девять девяток
+@@ input
+999999999
+@@ expect
+Сумма цифр: 81
+Цифровой корень: 9
+@@ test: Нули внутри
+@@ input
+1000
+@@ expect
+Сумма цифр: 1
+Цифровой корень: 1
+@@ require: static\s+int\s+digitSum\s*\(\s*int\s+\w+\s*\) | Нужен метод static int digitSum(int n)
+@@ require: \bdigitSum\s*\(\s*\w+\s*/\s*10\s*\) | Метод должен вызывать сам себя для числа без последней цифры: digitSum(n / 10)

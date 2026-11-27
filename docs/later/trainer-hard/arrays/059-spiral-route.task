@@ -1,0 +1,63 @@
+## id: tr-arrays-059
+## title: Обход музея по спирали
+## file: trainer/arrays/SpiralMuseumRoute.java
+## class: SpiralMuseumRoute
+## level: 3
+## category: Матрицы
+@@ description
+<p>Напиши класс <code>SpiralMuseumRoute</code>. Залы музея расположены таблицей <code>r × c</code>, у каждого — номер. Экскурсия идёт по спирали: от левого верхнего зала вправо по верхнему ряду, затем вниз по правому столбцу, влево по нижнему ряду, вверх по левому столбцу — и так далее внутрь, пока не обойдёт все залы. В первой строке — <code>r</code> и <code>c</code> (оба ≥ 1), дальше <code>r</code> строк по <code>c</code> чисел. Напечатай номера залов в порядке обхода в одну строку через пробел.</p>
+<pre class="terminal"><span class="out">ввод:  3 3
+       1 2 3
+       4 5 6
+       7 8 9
+вывод: 1 2 3 6 9 8 7 4 5</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>держи четыре границы: <code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>; пройдя сторону, сдвигай её границу внутрь</li>
+<li>перед проходом по нижнему ряду и левому столбцу проверь, что границы ещё не сошлись (<code>top &lt;= bottom</code>, <code>left &lt;= right</code>) — иначе один ряд пройдёшь дважды</li>
+</ul></div>
+@@ test: Три на три
+@@ input
+3 3
+1 2 3
+4 5 6
+7 8 9
+@@ expect
+1 2 3 6 9 8 7 4 5
+@@ test: Три на четыре
+@@ input
+3 4
+1 2 3 4
+5 6 7 8
+9 10 11 12
+@@ expect
+1 2 3 4 8 12 11 10 9 5 6 7
+@@ test: Одна строка
+@@ input
+1 4
+1 2 3 4
+@@ expect
+1 2 3 4
+@@ test: Один столбец
+@@ input
+3 1
+1
+2
+3
+@@ expect
+1 2 3
+@@ test: Четыре на два
+@@ input
+4 2
+1 2
+3 4
+5 6
+7 8
+@@ expect
+1 2 4 6 8 7 5 3
+@@ test: Один зал
+@@ input
+1 1
+42
+@@ expect
+42
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];

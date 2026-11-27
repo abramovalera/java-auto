@@ -1,0 +1,58 @@
+## id: tr-oop-011
+## title: Две рамки для фото
+## file: trainer/oop/PhotoFrameSizes.java
+## class: PhotoFrameSizes
+## level: 1
+## category: Поля и методы
+@@ description
+<p>Создай класс <code>PhotoFrameSizes</code> с методом <code>main</code>, а ниже в том же файле — класс <code>PhotoFrame</code> с <b>двумя</b> конструкторами:</p>
+<ul>
+<li>поля <code>int width</code> и <code>int height</code>;</li>
+<li>конструктор <code>PhotoFrame(int width, int height)</code> — для прямоугольной рамки;</li>
+<li>конструктор <code>PhotoFrame(int side)</code> — для квадратной: он не присваивает поля сам, а вызывает первый конструктор через <code>this(side, side)</code>;</li>
+<li><code>int area()</code> — площадь;</li>
+<li><code>boolean biggerThan(PhotoFrame other)</code> — <code>true</code>, если площадь этой рамки строго больше площади <code>other</code>;</li>
+<li><code>toString()</code> — возвращает <code>ширинаxвысота</code>, например <code>4x6</code> (между числами — латинская буква x).</li>
+</ul>
+<p><code>main</code> читает через пробел три числа: ширину и высоту первой рамки и сторону второй, квадратной. Печатает:</p>
+<pre class="terminal"><span class="out">ввод:  4 6 5
+вывод: Рамка 4x6, площадь 24
+       Рамка 5x5, площадь 25
+       Первая больше: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>this(a, b);</code> — вызов другого конструктора этого же класса; должен стоять первой строкой</li>
+<li>конструкторы с разными параметрами — это перегрузка, как у методов</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4 6 5
+@@ expect
+Рамка 4x6, площадь 24
+Рамка 5x5, площадь 25
+Первая больше: false
+@@ test: Первая больше
+@@ input
+10 3 4
+@@ expect
+Рамка 10x3, площадь 30
+Рамка 4x4, площадь 16
+Первая больше: true
+@@ test: Площади равны — не больше
+@@ input
+2 8 4
+@@ expect
+Рамка 2x8, площадь 16
+Рамка 4x4, площадь 16
+Первая больше: false
+@@ test: Обе квадратные
+@@ input
+7 7 6
+@@ expect
+Рамка 7x7, площадь 49
+Рамка 6x6, площадь 36
+Первая больше: true
+@@ require: \bclass\s+PhotoFrame\b | Объяви в том же файле класс PhotoFrame
+@@ require: PhotoFrame\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен конструктор PhotoFrame(int width, int height)
+@@ require: PhotoFrame\s*\(\s*int\s+\w+\s*\)\s*\{ | Нужен второй конструктор PhotoFrame(int side)
+@@ require: \bthis\s*\(\s*\w+\s*,\s*\w+\s*\)\s*; | Квадратный конструктор должен вызвать первый: this(side, side);
+@@ require: \bboolean\s+biggerThan\s*\(\s*PhotoFrame\s+\w+\s*\) | Нужен метод boolean biggerThan(PhotoFrame other)

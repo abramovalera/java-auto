@@ -1,0 +1,44 @@
+## id: tr-loops-039
+## title: Високосные годы
+## file: trainer/loops/LeapYearsBetween.java
+## class: LeapYearsBetween
+## level: 2
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>LeapYearsBetween</code>. В первой строке — год <code>a</code>, во второй — год <code>b</code> (1 ≤ a ≤ b). Напечатай, сколько високосных лет с <code>a</code> по <code>b</code> включительно. Год високосный, если делится на 4, но не делится на 100, — или если делится на 400. Так, 2000 високосный, а 1900 — нет.</p>
+<pre class="terminal"><span class="out">ввод:  2000
+       2024
+вывод: 7</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>(year % 4 == 0 &amp;&amp; year % 100 != 0) || year % 400 == 0</code> — условие високосного года</li>
+</ul></div>
+@@ test: XXI век
+@@ input
+2000
+2024
+@@ expect
+7
+@@ test: Через 1900-й
+@@ input
+1896
+1912
+@@ expect
+4
+@@ test: Один невисокосный год
+@@ input
+1900
+1900
+@@ expect
+0
+@@ test: Один високосный год
+@@ input
+2024
+2024
+@@ expect
+1
+@@ test: Две тысячи лет
+@@ input
+1
+2000
+@@ expect
+485

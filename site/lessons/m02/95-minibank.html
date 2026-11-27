@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>★ МиниБанк: карточка клиента · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-star">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker star-kicker">Модуль 2 · ★ Проект</div>
+    <h1>★ МиниБанк, шаг 2: карточка клиента</h1>
+    <p class="lead"><b>Обязательное задание для завершения модуля.</b> Банк уже умеет здороваться, но не знает, кто к нему пришёл. Научим его спрашивать имя и показывать баланс.</p>
+    <div class="meta"><span>⏱ 30–40 минут</span><span>★ обязательно</span><span>🌿 первая Git-ветка</span></div>
+  </header>
+
+  <section class="step">
+    <h2>Перед заданием — освежи</h2>
+    <p>В этом шаге пригодится всё самое главное из модуля 2. Перечитай, если что-то подзабылось:</p>
+    <ul>
+      <li><a href="/lessons/m02/01-variables.html">2.1 Переменные</a> — коробки с ярлыками, «переменные работают вместе»;</li>
+      <li><a href="/lessons/m02/03-strings-names.html">2.3 Строки и имена</a> — <code>String</code>, «всё, что в кавычках, — строка», говорящие имена;</li>
+      <li><a href="/lessons/m02/05-scanner.html">2.5 Ввод с клавиатуры: Scanner</a> — <code>import</code>, <code>nextLine()</code>, программа ждёт ввода.</li>
+    </ul>
+  </section>
+
+  <section class="step">
+    <h2>Git на этот раз: работаем в ветке</h2>
+    <p>Новая идея: <b>ветка</b>. Это параллельная копия проекта, где можно спокойно пробовать. Основная ветка (<code>main</code> или <code>master</code> — смотря как настроен Git, это одно и то же) остаётся рабочей. Получилось в ветке — переносишь изменения в основную (<b>merge</b>, «слияние»). Не получилось — просто возвращаешься в основную, будто ничего не было.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: Git, часть 1 — ветки</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Что сделать</th><th>В IDEA</th><th>В терминале</th></tr>
+        <tr><td>Создать ветку и перейти в неё</td><td>Слева вверху имя ветки (<code>main</code>) → <b>New Branch…</b> → имя → Create</td><td><code>git switch -c module-02-client</code></td></tr>
+        <tr><td>Сохранить (коммит)</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd> → сообщение → <b>Commit</b></td><td><code>git add .</code><br><code>git commit -m "…"</code></td></tr>
+        <tr><td>Отменить правки, которые ещё не сохранены</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd> — <b>Rollback</b></td><td><code>git restore .</code></td></tr>
+        <tr><td>Вернуться в основную ветку</td><td>Имя ветки → <code>main</code> → <b>Checkout</b></td><td><code>git switch main</code></td></tr>
+        <tr><td>Перенести работу из ветки в основную</td><td>Находясь в <code>main</code>: имя ветки → <code>module-02-client</code> → <b>Merge into Current</b></td><td><code>git merge module-02-client</code></td></tr>
+      </table></div>
+    </div>
+    <div data-widget="ide" id="shot-minibank-branch">
+      <script type="application/json">
+      { "tree": false, "project": "MiniBank", "status": "MiniBank › src › Main.java",
+        "file": "Main.java", "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"==============================\");\n        System.out.println(\"   Добро пожаловать в МиниБанк\");",
+        "branch": "main", "menu": { "at": "branch", "title": "Git Branches", "items": ["＋ New Branch…\tCtrl+Alt+N", "-", "Local", "main", "module-02-client ›"], "hl": "＋ New Branch…",
+                  "sub": { "items": ["Checkout", "Merge into Current", "Rename…", "Delete"], "hl": "Merge into Current" } },
+        "marks": [ { "n": 1, "target": "branch", "side": "bottom", "text": "Имя текущей ветки — в шапке окна, рядом с именем проекта. Клик — меню веток" },
+                   { "n": 2, "target": "menu", "text": "<b>New Branch…</b> — новая ветка. Ниже — список веток: в какой сейчас, отмечено" },
+                   { "n": 3, "target": "submenu", "text": "Клик по ветке: <b>Checkout</b> — перейти в неё, <b>Merge into Current</b> — влить её в ту, где ты сейчас" } ],
+        "caption": "Меню веток в IDEA (упрощённо)" }
+      </script>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Задание</h2>
+    <h3>1. Открой проект и создай ветку</h3>
+    <p>Открой окно с проектом МиниБанк. Создай ветку <code>module-02-client</code> — дальше работаешь в ней.</p>
+
+    <h3>2. Объяви переменные</h3>
+    <p>Под вывеской из шага 1 (её не трогаем!) нужно объявить три переменные. Придумай им <b>говорящие</b> имена по-английски, как в уроке 2.3:</p>
+    <div class="table-wrap"><table>
+      <tr><th>Что хранит</th><th>Тип</th><th>Чем инициализировать</th><th>Пример имени</th></tr>
+      <tr><td>сканер, чтобы читать с клавиатуры</td><td><code>Scanner</code></td><td><code>new Scanner(System.in)</code> (не забудь <code>import</code>)</td><td><code>scanner</code></td></tr>
+      <tr><td>имя клиента</td><td><code>String</code> — это текст</td><td>результатом вызова метода <code>nextLine()</code> — он возвращает всю введённую строку, и «Анна Мария» тоже</td><td><code>name</code>, <code>clientName</code></td></tr>
+      <tr><td>баланс клиента в рублях</td><td><code>int</code> — целое число</td><td>пока просто литералом <code>1000</code>: каждому новому клиенту банк дарит 1000 ₽</td><td><code>balance</code></td></tr>
+    </table></div>
+    <div class="callout tip">
+      <span class="callout-title">Почему int, а не double?</span>
+      <p>Рубли в нашем банке целые. Кстати, в настоящих банках деньги в <code>double</code> не хранят вообще: дробные числа считаются с крошечными ошибками (помнишь <code>0.1 + 0.2</code>?). Хранят в копейках — целым числом.</p>
+    </div>
+
+    <h3>3. Выведи карточку клиента</h3>
+    <p>Программа спрашивает имя, а потом печатает карточку. В IDEA это выглядит так (зелёным — то, что вводишь ты):</p>
+<pre class="terminal"><span class="out">==============================
+   Добро пожаловать в МиниБанк
+==============================
+Часы работы: круглосуточно
+Как вас зовут? </span><span class="cmd">Анна</span>
+<span class="out">Клиент: Анна
+Баланс: 1000 ₽</span></pre>
+    <ul>
+      <li>вопрос напечатай через <code>print</code>, а не <code>println</code> — тогда имя вводится на той же строке, как в примере;</li>
+      <li><b>имя и баланс подставляй из переменных</b> через <code>+</code>. Написать <code>"Клиент: Анна"</code> в кавычках нельзя: ведь клиент может быть кем угодно. Вспомни таблицу «всё, что в кавычках, — строка».</li>
+    </ul>
+
+    <h3>4. Проверь</h3>
+    <p>Запусти ▶ и введи своё имя. Потом нажми «Проверить»: сайт сам подставит разные имена — «Анна» и «Анна Мария».</p>
+    <div data-widget="taskcheck" data-task="m02-star"></div>
+    <div class="callout fact">
+      <span class="callout-title">Почему в проверке «Как вас зовут? Клиент: Анна» в одну строку?</span>
+      <p>Когда вводишь имя руками, ты нажимаешь Enter — и курсор переходит на новую строку. Сайт подставляет имя сам, без Enter на экране, поэтому вопрос и карточка «слипаются». Это нормально.</p>
+    </div>
+
+    <h3>5. Сохрани и влей в основную ветку</h3>
+    <ol class="steps">
+      <li><kbd>Ctrl</kbd>+<kbd>K</kbd> → сообщение «Карточка клиента» → <b>Commit</b>.</li>
+      <li>Вернись в основную ветку: имя ветки → <code>main</code> → <b>Checkout</b>. Посмотри на код — карточки клиента нет! Не пугайся: она в ветке.</li>
+      <li>Имя ветки → <code>module-02-client</code> → <b>Merge into Current</b>. Карточка появилась и в основной ветке. Готово.</li>
+    </ol>
+    <div class="callout ai">
+      <span class="callout-title">Покажи наставнику</span>
+      <p>Проверка зелёная — напиши <code>/check m02-star</code>. Наставник спросит, почему баланс — <code>int</code>, а имя — <code>String</code>, и что такое ветка.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Застрял? Спроси ИИ</h2>
+    <p class="ai-only">Наставник — <code>/hint m02-star</code>. Или любой бесплатный ИИ, например <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>. Проси объяснить, а не написать за тебя:</p>
+    <p class="free-only">Спроси <span class="ai-name">DeepSeek</span>: проси объяснить, а не решить. Ниже — примеры хороших вопросов и кнопка «📋 Скопировать промпт»: в нём уже есть правила учителя, останется дописать свой вопрос.</p>
+    <div class="callout tip free-prompt">
+      <span class="callout-title">Хорошие вопросы к ИИ</span>
+      <p>«Я новичок в Java. Как объявить и инициализировать переменную для имени и для числа? Объясни разницу между <code>String</code> и <code>int</code> на примерах. Готовое решение моей задачи не пиши».</p>
+      <p>«Чем <code>nextLine()</code> отличается от <code>next()</code> у Scanner?»</p>
+      <p>«Что такое ветка в Git и зачем она нужна? Объясни с аналогией».</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Решение и что дальше</h2>
+    <details class="solution">
+      <summary>🔒 Показать решение — открывай, когда проверка уже зелёная или ты честно попробовал сам</summary>
+<pre data-file="Main.java"><code class="java">import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("==============================");
+        System.out.println("   Добро пожаловать в МиниБанк");
+        System.out.println("==============================");
+        System.out.println("Часы работы: круглосуточно");
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Как вас зовут? ");
+        String name = scanner.nextLine();
+        int balance = 1000;
+
+        System.out.println("Клиент: " + name);
+        System.out.println("Баланс: " + balance + " ₽");
+    }
+}</code></pre>
+    </details>
+    <div class="callout ai">
+      <span class="callout-title">Обсуди с ИИ: а как ещё можно?</span>
+      <p>«Вот моё решение (вставь код). Как сделать его понятнее? Хорошие ли у меня имена переменных?»</p>
+      <p>«Как вывести баланс с пробелами между тысячами: <code>1 000 ₽</code>?» — подсказка: <code>String.format</code>, к нему мы ещё вернёмся в модуле 8.</p>
+    </div>
+    
+  </section>
+
+</main>
+</body>
+</html>

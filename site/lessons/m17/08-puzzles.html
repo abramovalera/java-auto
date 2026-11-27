@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: тесты, Git и отладчик · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 17 · Головоломки</div>
+    <h1>Головоломки: тесты, Git и отладчик</h1>
+    <p class="lead">На собеседовании Java-разработчика часто покажут тест и спросят: «Он зелёный или красный? Что напишет JUnit? Что тут не так?» А потом — пару вопросов про Git. Тренируемся.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — с подвохом</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Как разбирать тест в голове</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 140" role="img" aria-label="Четыре вопроса к тесту: что вызывается, что вернётся, что сравнивается и с чем, какой итог">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="20" width="158" height="100" rx="14" class="d-blue"/>
+        <text x="89" y="52" text-anchor="middle" class="d-title">① Что зовём?</text>
+        <text x="89" y="78" text-anchor="middle" class="d-small">какой метод и</text>
+        <text x="89" y="96" text-anchor="middle" class="d-small">с какими данными</text>
+        <path d="M170 70 H190" class="d-arrow"/>
+        <rect x="194" y="20" width="158" height="100" rx="14" class="d-violet"/>
+        <text x="273" y="52" text-anchor="middle" class="d-title">② Что вернёт?</text>
+        <text x="273" y="78" text-anchor="middle" class="d-small">выполни метод</text>
+        <text x="273" y="96" text-anchor="middle" class="d-small">в голове</text>
+        <path d="M354 70 H374" class="d-arrow"/>
+        <rect x="378" y="20" width="158" height="100" rx="14" class="d-accent"/>
+        <text x="457" y="52" text-anchor="middle" class="d-title">③ С чем сравним?</text>
+        <text x="457" y="78" text-anchor="middle" class="d-small">expected — первым,</text>
+        <text x="457" y="96" text-anchor="middle" class="d-small">есть ли assert вообще</text>
+        <path d="M538 70 H558" class="d-arrow"/>
+        <rect x="562" y="20" width="148" height="100" rx="14" class="d-green"/>
+        <text x="636" y="52" text-anchor="middle" class="d-title">④ Итог</text>
+        <text x="636" y="78" text-anchor="middle" class="d-small">зелёный, красный</text>
+        <text x="636" y="96" text-anchor="middle" class="d-small">или не запустится</text>
+      </svg>
+      <figcaption>Отвечай вслух и объясняй «почему» — без этого ответ не засчитывается.</figcaption>
+    </figure>
+    <div class="say" data-mood="think"><p>Многие задачки здесь можно проверить в IDEA: набери тест и запусти. Но сначала ответь сам — на собеседовании IDEA не дадут.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что покажет JUnit?</h2>
+    <div data-widget="check" id="check-m17-pz-junit">
+      <script type="application/json">
+      { "title": "Тесты: зелёный, красный, что напишет", "icon": "🧪",
+        "items": [
+          { "type": "predict", "q": "1. Метод <code>Calc.add(2, 2)</code> вернул 4. Аргументы в проверке перепутаны. Какое сообщение покажет JUnit?",
+            "code": "int sum = Calc.add(2, 2);\nassertEquals(sum, 5);",
+            "answer": "expected: <4> but was: <5>",
+            "why": "JUnit считает первый аргумент ожидаемым значением, второй — фактическим. Тест падает правильно, но сообщение врёт: будто ждали 4, а метод вернул 5. На деле всё наоборот. Порядок — сначала expected." },
+          { "type": "single", "q": "2. Метод со скидкой содержит баг и возвращает 1000 вместо 900. Какой будет тест?",
+            "code": "@Test\nvoid discountWorks() {\n    int price = ShopDiscount.priceAfterDiscount(1000, 10);\n    System.out.println(price);\n}",
+            "options": ["Красный: 1000 ≠ 900", "Зелёный", "Не скомпилируется"], "answer": 1,
+            "why": "Здесь нет ни одной проверки. Тест падает только от проверки (assert) или исключения, а вызов println ничего не сравнивает. Такой тест всегда зелёный и бесполезен." },
+          { "type": "predict", "q": "3. ★★ Что напечатается при запуске класса? (Пусть first выполнится раньше second.)",
+            "code": "CounterTest() { System.out.println(\"конструктор\"); }\n@BeforeAll static void all() { System.out.println(\"BeforeAll\"); }\n@BeforeEach void each() { System.out.println(\"BeforeEach\"); }\n@Test void first() { System.out.println(\"тест\"); }\n@Test void second() { System.out.println(\"тест\"); }",
+            "answer": "BeforeAll\nконструктор\nBeforeEach\nтест\nконструктор\nBeforeEach\nтест",
+            "why": "BeforeAll — static, до создания объектов. Потом перед каждым тестовым методом JUnit создаёт НОВЫЙ объект (вызывает конструктор), вызывает BeforeEach и сам тест." },
+          { "type": "predict", "q": "4. ★★★ Классика собеседований. Что напечатают два теста?",
+            "code": "class CounterTest {\n    int count = 0;\n\n    @Test void a() { count++; System.out.println(count); }\n    @Test void b() { count++; System.out.println(count); }\n}",
+            "answer": "1\n1",
+            "why": "Для каждого тестового метода JUnit создаёт свой объект CounterTest, а значит и своё поле count, инициализированное нулём. Счётчик не «копится» между тестами. Поэтому тесты и независимы." },
+          { "type": "single", "q": "5. Скомпилируется? Что при запуске?",
+            "code": "@BeforeAll\nvoid connectToDatabase() {\n    System.out.println(\"Подключились к базе\");\n}",
+            "options": ["Не скомпилируется", "Скомпилируется, но JUnit выдаст ошибку: метод @BeforeAll должен быть static — тесты класса не выполнятся", "Всё работает, просто метод вызовется перед каждым тестом"], "answer": 1,
+            "why": "Компилятор смысл этой аннотации не проверяет — её читает JUnit при запуске. А JUnit вызывает метод с @BeforeAll до создания объектов, поэтому требует static (если класс не помечен особой аннотацией @TestInstance)." },
+          { "type": "single", "q": "6. Метод <code>feeFor(0)</code> по ошибке возвращает 199 и ничего не бросает. Что с тестом?",
+            "code": "assertThrows(IllegalArgumentException.class,\n        () -> DeliveryFee.feeFor(0));",
+            "options": ["Зелёный — ведь исключения не было", "Красный: ждали исключение, но ничего не было брошено", "Красный: 199 ≠ 0"], "answer": 1,
+            "why": "assertThrows требует, чтобы исключение БЫЛО. Сообщение: Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown." },
+          { "type": "single", "q": "7. Зелёный или красный?",
+            "code": "assertEquals(0.3, 0.1 + 0.2);",
+            "options": ["Зелёный", "Красный"], "answer": 1,
+            "why": "0.1 + 0.2 в double — 0.30000000000000004 (модуль 2: дробные числа хранятся неточно). Нужна погрешность: assertEquals(0.3, 0.1 + 0.2, 0.0001)." },
+          { "type": "single", "q": "8. ★★ Зелёный или красный?",
+            "code": "int[] expected = {1, 2, 3};\nint[] actual = {1, 2, 3};\nassertEquals(expected, actual);",
+            "options": ["Зелёный: элементы одинаковые", "Красный: это два разных массива-объекта"], "answer": 1,
+            "why": "У массивов equals работает как == — сравнивает ссылки (модуль 10). Для массивов есть assertArrayEquals, а в AssertJ — assertThat(actual).containsExactly(1, 2, 3)." },
+          { "type": "single", "q": "9. ★★ Список пустой, хотя должен быть с товарами. Что с тестом?",
+            "code": "List<String> cart = shop.cartItems();\nassertThat(cart.isEmpty() == false);",
+            "options": ["Красный: условие ложно", "Зелёный: assertThat без проверки после точки ничего не проверяет", "Не скомпилируется"], "answer": 1,
+            "why": "Вызов assertThat(…) только оборачивает фактическое значение в объект-проверку. Проверяет метод, вызванный после точки: .isTrue(). А правильнее совсем просто: assertThat(cart).isNotEmpty()." },
+          { "type": "single", "q": "10. Список <code>[\"чай\", \"кофе\", \"сок\"]</code>. Какая проверка упадёт?",
+            "options": ["assertThat(list).contains(\"сок\", \"чай\")", "assertThat(list).containsExactly(\"чай\", \"кофе\")", "assertThat(list).doesNotContain(\"какао\")"], "answer": 1,
+            "why": "containsExactly требует ровно эти элементы и только их, в этом порядке. «сок» лишний — красный." },
+          { "type": "bug", "q": "11. Найди строку, из-за которой тест бесполезен",
+            "code": "@Test\nvoid passwordWithoutDigitIsWeak() {\n    boolean result = SignupPasswordRules.isStrong(\"Summertime\");\n    assertTrue(result == false || result == true);\n}",
+            "answer": [4],
+            "why": "Условие «ложь или истина» верно всегда — тест зелёный при любом поведении метода. Нужно assertFalse(result)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Git, Gradle и отладчик</h2>
+    <div data-widget="check" id="check-m17-pz-tools">
+      <script type="application/json">
+      { "title": "Инструменты: что будет?", "icon": "🛠️",
+        "items": [
+          { "type": "single", "q": "12. Ты поменял <code>LoginTest.java</code> и сразу выполнил команду. Что будет?",
+            "code": "git commit -m \"Почини тест входа\"",
+            "options": ["Коммит с изменённым файлом", "Коммит не создастся: no changes added to commit — изменения не добавлены в индекс", "Git сам сделает add и закоммитит"], "answer": 1,
+            "why": "Коммит собирается из индекса. Сначала git add LoginTest.java (или флаг -a для уже отслеживаемых файлов). В IDEA галочки в окне Commit делают add за тебя." },
+          { "type": "tf", "q": "13. В main было <code>int timeout = 4;</code> (строка 10). Когда при слиянии веток будет конфликт?",
+            "statements": [
+              { "s": "Аня поменяла строку 10 на 10, Боря — строку 10 на 6", "a": true },
+              { "s": "Аня поменяла строку 10, Боря — строку 40 того же файла", "a": false, "why": "разные места файла Git сливает сам." },
+              { "s": "Аня поменяла LoginTest.java, Боря — CartTest.java", "a": false, "why": "разные файлы — никаких конфликтов." },
+              { "s": "Аня и Боря оба поменяли строку 10 на одно и то же: 10", "a": false, "why": "изменения одинаковые — Git видит, что спорить не о чем." }
+            ] },
+          { "type": "single", "q": "14. JUnit подключён в build.gradle.kts через <code>testImplementation</code>. Что будет при <code>gradle compileJava</code>?",
+            "code": "// файл src/main/java/ru/shop/Cart.java\nimport org.junit.jupiter.api.Assertions;",
+            "options": ["Всё соберётся", "Ошибка компиляции: package org.junit.jupiter.api does not exist", "Соберётся, но упадёт при запуске"], "answer": 1,
+            "why": "Зависимости в конфигурации testImplementation видны только в src/test/java. Для main-кода JUnit не существует — и это правильно: тестовые библиотеки не должны попадать в программу." },
+          { "type": "single", "q": "15. Отладчик стоит на строке 3. Ты жмёшь F8 (Step Over). Где окажешься? А если F7 (Step Into)?",
+            "code": "public static void main(String[] args) {\n    int[] prices = {100, 250};\n    int total = sum(prices);\n    System.out.println(total);\n}\n\nstatic int sum(int[] values) {\n    int s = 0;\n    for (int v : values) s += v;\n    return s;\n}",
+            "options": ["F8 — на строке 8 внутри sum; F7 — на строке 4", "F8 — на строке 4, sum отработал целиком; F7 — на строке 8, первой строке sum", "Обе клавиши — на строке 4"], "answer": 1,
+            "why": "Step Over выполняет вызов «за кадром» и встаёт на следующую строку того же метода. Step Into ныряет внутрь вызываемого метода (если это твой код, а не JDK)." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Читаем код</h2>
+    <p>Теперь не «зелёный или красный», а «что здесь написано». Прочитай каждую строку вслух правильными словами: <b>аннотация</b>, <b>тестовый метод</b>, <b>проверка</b>, <b>ожидаемое</b> и <b>фактическое значение</b>, <b>зависимость</b>. В одних заданиях выбери описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m17-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 17", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что означает строка над методом?", "code": "@Test\nvoid smallOrderPaysFee() { … }",
+            "options": ["Аннотация <code>@Test</code> помечает метод <code>smallOrderPaysFee</code> как тестовый — JUnit сам найдёт и вызовет его", "Вызов метода <code>Test</code> перед методом <code>smallOrderPaysFee</code>", "Объявление переменной <code>Test</code>", "Комментарий для читателя — на запуск не влияет", "Импорт класса <code>Test</code> из библиотеки JUnit"],
+            "answer": 0, "why": "Знак <code>@</code> — аннотация, метка перед объявлением метода. Её читает JUnit: находит методы с <code>@Test</code>, создаёт объект тестового класса и вызывает их. Импорт — отдельная строка <code>import</code> в начале файла." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "assertEquals(199, fee);",
+            "options": ["Присваивание значения 199 переменной <code>fee</code>", "Вызов проверки <code>assertEquals</code>: ожидаемое значение 199, фактическое — значение переменной <code>fee</code>", "Вызов проверки <code>assertEquals</code>: ожидаемое значение — <code>fee</code>, фактическое — 199", "Объявление переменной <code>fee</code> и её инициализация значением 199", "Сравнение, результат которого нужно сохранить в переменную, иначе тест не упадёт"],
+            "answer": 1, "why": "<code>assertEquals</code> — статический метод класса <code>Assertions</code>. Первый аргумент — ожидаемое значение (expected), второй — фактическое (actual). Не равны — метод бросает <code>AssertionFailedError</code>, и тест падает; сохранять ничего не нужно." },
+          { "type": "build", "q": "Собери описание строки (шаг Act в тесте)", "code": "int fee = DeliveryFee.feeFor(500);",
+            "answer": ["объявляем переменную <code>fee</code> типа <code>int</code>", "и инициализируем её значением,", "которое возвращает вызов статического метода <code>feeFor</code>", "с аргументом 500"],
+            "extra": ["создаём объект <code>DeliveryFee</code>", "и проверяем, что оно равно 500", "присваиваем полю <code>feeFor</code>"] },
+          { "type": "single", "q": "Что происходит в строке?", "code": "assertThat(names).containsExactly(\"Аня\", \"Боря\");",
+            "options": ["Присваивание списку <code>names</code> двух элементов", "Вызов <code>assertThat</code> с ожидаемым значением <code>names</code>; аргументы <code>containsExactly</code> — фактические значения", "Вызов <code>assertThat</code> с фактическим значением <code>names</code>, затем у результата вызывается проверка <code>containsExactly</code> с ожидаемыми элементами", "Проверка, что в <code>names</code> есть «Аня» и «Боря» — в любом порядке и среди любых других элементов", "Создание нового списка из двух строк"],
+            "answer": 2, "why": "В AssertJ фактическое значение передают в <code>assertThat(…)</code>, а ожидаемое — аргументами метода-проверки после точки. <code>containsExactly</code> требует ровно эти элементы и в этом порядке; «в любом порядке, среди других» — это <code>contains</code>." },
+          { "type": "build", "q": "Собери описание строки", "code": "assertThrows(IllegalArgumentException.class, () -> DeliveryFee.feeFor(0));",
+            "answer": ["вызываем проверку <code>assertThrows</code>:", "первый аргумент — ожидаемый тип исключения,", "второй — лямбда-выражение без параметров,", "в теле которого вызывается <code>feeFor(0)</code>"],
+            "extra": ["создаём и выбрасываем исключение", "сравниваем возвращаемое значение с 0", "объявляем метод <code>feeFor</code>"] },
+          { "type": "single", "q": "Поле <code>cart</code> объявлено в тестовом классе. Что происходит здесь?", "code": "@BeforeEach\nvoid setUp() {\n    cart = new Cart();\n}",
+            "options": ["Метод вызывается один раз перед всеми тестами класса и поэтому должен быть <code>static</code>", "Объявление переменной <code>cart</code> и её инициализация", "Тестовый метод, который проверяет, что корзина создаётся", "Метод с аннотацией <code>@BeforeEach</code>: JUnit вызывает его перед каждым тестовым методом, и полю <code>cart</code> присваивается новый объект <code>Cart</code>", "Конструктор класса <code>Cart</code>"],
+            "answer": 3, "why": "<code>@BeforeEach</code> — подготовка перед каждым тестом. Типа слева от <code>cart</code> нет — значит, это не объявление, а присваивание полю нового объекта, созданного через <code>new Cart()</code>. Один раз на класс и <code>static</code> — это <code>@BeforeAll</code>." },
+          { "type": "single", "q": "Что это за строка в блоке <code>dependencies</code> файла build.gradle.kts?", "code": "testImplementation(\"org.assertj:assertj-core:3.27.3\")",
+            "options": ["Импорт класса AssertJ в тестовый файл", "Объявление переменной <code>testImplementation</code>", "Запуск тестов AssertJ версии 3.27.3", "Объявление зависимости, которая попадёт в итоговую программу и будет видна в <code>src/main/java</code>", "Объявление зависимости: вызов функции <code>testImplementation</code> с аргументом-строкой — координатами библиотеки «группа:имя:версия»; библиотека нужна только тестам"],
+            "answer": 4, "why": "Строка в блоке <code>dependencies</code> — объявление зависимости. <code>testImplementation</code> — конфигурация: библиотека видна только в <code>src/test/java</code>. Подключает библиотеку build-файл, а <code>import</code> в Java-файле лишь сокращает имя класса." },
+          { "type": "build", "q": "Собери описание заголовка теста", "code": "@ParameterizedTest\n@ValueSource(ints = {0, -1})\nvoid nonPositiveSumIsRejected(int orderSum) {",
+            "answer": ["аннотация <code>@ParameterizedTest</code> помечает метод как параметризованный тест,", "у метода есть параметр <code>orderSum</code>,", "JUnit вызовет метод дважды", "и передаст аргументы 0 и -1"],
+            "extra": ["метод вызовется один раз с массивом", "<code>orderSum</code> — возвращаемое значение", "метод обязан быть <code>static</code>"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Хочешь ещё?</h2>
+    <div class="callout ai">
+      <span class="callout-title">Головоломки от наставника</span>
+      <p>Напиши: <em>«Дай мне 3 головоломки по модулю 17: тест зелёный или красный и почему. По одной, ответ не говори, пока я не объясню»</em>. На экзамене модуля такие тоже будут — плюс вопросы про Git.</p>
+    </div>
+    <div class="summary">
+      <h2>Что тренируют эти задачки</h2>
+      <ul>
+        <li>Читать тест как код: какой метод вызывается и с какими аргументами, какое фактическое значение сравнивается с каким ожидаемым — и есть ли проверка вообще.</li>
+        <li>Помнить, что JUnit создаёт новый объект тестового класса на каждый тестовый метод и требует static у метода с @BeforeAll.</li>
+        <li>Знать ловушки проверок: порядок аргументов, double, массивы, assertThat без проверки.</li>
+        <li>Понимать Git и Gradle на уровне «что будет, если…» — именно так о них спрашивают.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

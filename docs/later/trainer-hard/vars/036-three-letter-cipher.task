@@ -1,0 +1,42 @@
+## id: tr-vars-036
+## title: Шифр сдвига
+## file: trainer/vars/ThreeLetterShiftCipher.java
+## class: ThreeLetterShiftCipher
+## level: 3
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>ThreeLetterShiftCipher</code>. Простой шифр: каждый символ заменяют следующим по таблице Unicode. Программа читает слово ровно из трёх символов и печатает его зашифрованным.</p>
+<pre class="terminal"><span class="out">ввод:  HAL
+вывод: IBM</span></pre>
+<p>Подвох: если сложить три <code>char</code> через <code>+</code>, сложатся их коды, и получится число, а не слово.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.next()</code> — возвращает одно слово (до пробела или Enter)</li>
+<li><code>s.charAt(0)</code> — возвращает символ строки <code>s</code> по индексу (счёт с нуля)</li>
+<li><code>(char) (c + 1)</code> — следующий символ по таблице</li>
+<li><code>"" + a + b</code> — если слева пустая строка, символы склеятся в текст</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+HAL
+@@ expect
+IBM
+@@ test: Маленькие латинские
+@@ input
+abc
+@@ expect
+bcd
+@@ test: Русское слово
+@@ input
+кот
+@@ expect
+лпу
+@@ test: Заглавная и строчные
+@@ input
+Ура
+@@ expect
+Фсб
+@@ test: Цифры и знаки
+@@ input
+1+1
+@@ expect
+2,2

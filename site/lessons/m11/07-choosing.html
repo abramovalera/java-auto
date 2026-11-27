@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Как выбрать: class, abstract, interface, enum, record · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-07">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 11 · Урок 7</div>
+    <h1>Как выбрать: class, abstract class, interface, enum или record</h1>
+    <p class="lead">Пять инструментов в одном ящике. Сведём всё в одну схему выбора и соберём из них маленькую игру с заданиями, где каждый на своём месте.</p>
+    <div class="meta"><span>⏱ 15 минут</span><span>🧭 схема выбора</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m11-07-review">
+      <script type="application/json">
+      { "title": "Вспомним record", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "record Money(int amount, String currency) { }\n\nMoney m = new Money(100, \"RUB\");\nMoney more = new Money(m.amount() * 2, m.currency());\nSystem.out.println(m);\nSystem.out.println(more.amount());",
+            "answer": "Money[amount=100, currency=RUB]\n200", "why": "Старый объект не меняется — «изменение» — это создание нового объекта. toString печатает компоненты в квадратных скобках." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "У record метод доступа к полю price называется getPrice()", "a": false, "why": "просто price() — без get." },
+              { "s": "Компактный конструктор record может исправить параметр перед тем, как его значение присвоят полю", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Пять инструментов</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">🧱</span><h4>class</h4><p>Обычный класс: состояние + поведение. Корзина, игровой персонаж, счёт. Инструмент по умолчанию.</p></div>
+      <div class="card"><span class="emoji">🍕</span><h4>abstract class</h4><p>Заготовка для родственников: общие поля и код, а деталь — у каждого своя. Delivery, Shape.</p></div>
+      <div class="card"><span class="emoji">🔌</span><h4>interface</h4><p>Контракт «умеет делать» для кого угодно; класс может реализовать много интерфейсов. Payment, Comparator, Runnable.</p></div>
+      <div class="card"><span class="emoji">🚦</span><h4>enum</h4><p>Фиксированный список вариантов, возможно с данными. Статусы, роли, языки.</p></div>
+      <div class="card"><span class="emoji">🧾</span><h4>record</h4><p>Неизменяемые данные с готовыми equals/toString. Товар, точка, пользователь форума.</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Схема выбора</h2>
+    <p>Задавай вопросы сверху вниз. Первый ответ «да» — и инструмент найден.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 430" role="img" aria-label="Схема выбора: фиксированный список — enum; неизменяемые данные — record; только умение — interface; общие поля и своя деталь — abstract class; иначе class">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="16" width="420" height="58" rx="12" class="d-soft"/>
+        <text x="230" y="51" text-anchor="middle" class="d-text">Значения — фиксированный список?</text>
+        <rect x="510" y="16" width="190" height="58" rx="12" class="d-yellow"/>
+        <text x="605" y="51" text-anchor="middle" class="d-title">🚦 enum</text>
+        <path d="M442 45 H506" class="d-arrow"/>
+        <text x="474" y="37" text-anchor="middle" class="d-small">да</text>
+
+        <rect x="20" y="104" width="420" height="58" rx="12" class="d-soft"/>
+        <text x="230" y="139" text-anchor="middle" class="d-text">Просто данные, которые не меняются?</text>
+        <rect x="510" y="104" width="190" height="58" rx="12" class="d-teal"/>
+        <text x="605" y="139" text-anchor="middle" class="d-title">🧾 record</text>
+        <path d="M442 133 H506" class="d-arrow"/>
+        <text x="474" y="125" text-anchor="middle" class="d-small">да</text>
+
+        <rect x="20" y="192" width="420" height="58" rx="12" class="d-soft"/>
+        <text x="230" y="227" text-anchor="middle" class="d-text">Только умение, нужное разным классам?</text>
+        <rect x="510" y="192" width="190" height="58" rx="12" class="d-blue"/>
+        <text x="605" y="227" text-anchor="middle" class="d-title">🔌 interface</text>
+        <path d="M442 221 H506" class="d-arrow"/>
+        <text x="474" y="213" text-anchor="middle" class="d-small">да</text>
+
+        <rect x="20" y="280" width="420" height="58" rx="12" class="d-soft"/>
+        <text x="230" y="315" text-anchor="middle" class="d-text">Общие поля и код, а деталь у каждого своя?</text>
+        <rect x="510" y="280" width="190" height="58" rx="12" class="d-violet"/>
+        <text x="605" y="315" text-anchor="middle" class="d-title">🍕 abstract</text>
+        <path d="M442 309 H506" class="d-arrow"/>
+        <text x="474" y="301" text-anchor="middle" class="d-small">да</text>
+
+        <rect x="120" y="364" width="220" height="54" rx="12" class="d-green"/>
+        <text x="230" y="397" text-anchor="middle" class="d-title">🧱 обычный class</text>
+
+        <path d="M230 76 V100" class="d-arrow"/>
+        <path d="M230 164 V188" class="d-arrow"/>
+        <path d="M230 252 V276" class="d-arrow"/>
+        <path d="M230 340 V360" class="d-arrow"/>
+        <text x="240" y="93" class="d-small">нет</text>
+        <text x="240" y="181" class="d-small">нет</text>
+        <text x="240" y="269" class="d-small">нет</text>
+        <text x="240" y="355" class="d-small">нет</text>
+      </svg>
+      <figcaption>Схема — подсказка, а не закон. Но для 9 случаев из 10 она даёт правильный ответ.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: «день недели», «координаты точки на карте», «умеет сохраняться в файл» — что для каждого?</summary>
+      <p>День недели — <b>enum</b> (семь вариантов, и всё). Координаты — <b>record</b> (просто два числа, одинаковые координаты — одна и та же точка). «Умеет сохраняться» — <b>interface</b>: это умение может понадобиться документу, картинке, настройкам.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Сравнительная таблица</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>class</th><th>abstract class</th><th>interface</th><th>enum</th><th>record</th></tr>
+        <tr><td><code>new</code></td><td>✓</td><td>✗</td><td>✗</td><td>✗ только константы</td><td>✓</td></tr>
+        <tr><td>Поля объекта</td><td>✓</td><td>✓</td><td>✗ только константы</td><td>✓</td><td>только компоненты, final</td></tr>
+        <tr><td>Можно наследовать от него</td><td>✓ (если не final)</td><td>✓ для того и нужен</td><td>✓ реализовать (implements), много</td><td>✗</td><td>✗</td></tr>
+        <tr><td>Сам может extends</td><td>✓ один класс</td><td>✓ один класс</td><td>✓ интерфейсы</td><td>✗</td><td>✗</td></tr>
+        <tr><td>implements</td><td>✓</td><td>✓</td><td>—</td><td>✓</td><td>✓</td></tr>
+        <tr><td>equals по данным «из коробки»</td><td>✗</td><td>✗</td><td>—</td><td>не нужен: <code>==</code></td><td>✓</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="think"><p>Не зубри таблицу построчно. Каждая клетка выводится из смысла: enum — «список готовых объектов», значит, <code>new</code> нельзя. record — «неизменяемые данные», значит, поля final и наследников нет. Спроси себя «зачем этот инструмент» — и клетка заполнится сама.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Все вместе: игрушечная игра с заданиями</h2>
+    <p>Настоящие игры устроены сложнее, но кирпичики у них те же. Найди в коде каждый из пяти инструментов:</p>
+<pre data-file="MiniQuests.java"><code class="java">enum Status { DONE, FAILED }
+
+record Result(String quest, Status status) { }
+
+interface Reporter {
+    void report(Result r);
+}
+
+abstract class Quest {
+    abstract String name();
+    abstract boolean play();                     // своя деталь каждого задания
+
+    Result start() {                             // общая часть для всех заданий
+        System.out.println("▶ " + name());
+        Status st = play() ? Status.DONE : Status.FAILED;
+        return new Result(name(), st);
+    }
+}
+
+class DragonQuest extends Quest {
+    String name() { return "dragon"; }
+    boolean play() { return true; }
+}
+
+class RiddleQuest extends Quest {
+    String name() { return "riddle"; }
+    boolean play() { return 2 + 2 == 5; }
+}
+
+class ConsoleReporter implements Reporter {
+    public void report(Result r) {
+        System.out.println("  " + r);
+    }
+}
+
+// в main:
+Quest[] quests = { new DragonQuest(), new RiddleQuest() };
+Reporter reporter = new ConsoleReporter();
+for (Quest q : quests) {
+    reporter.report(q.start());
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи вывод программы</summary>
+<pre class="terminal"><span class="out">▶ dragon
+  Result[quest=dragon, status=DONE]
+▶ riddle
+  Result[quest=riddle, status=FAILED]</span></pre>
+      <p>Цикл работает только с переменными типов <code>Quest</code> и <code>Reporter</code>. <code>start()</code> — общий шаблон, <code>play()</code> — своя деталь, результат — неизменяемый record, статус — enum, печать — через интерфейс (завтра можно подставить «отчёт в файл»).</p>
+    </details>
+    <div data-widget="check" id="check-m11-07-framework">
+      <script type="application/json">
+      { "title": "Кто есть кто в мини-игре", "kind": "Разбор кода",
+        "items": [
+          { "type": "match", "q": "Соедини часть игры с инструментом",
+            "left": ["Status", "Result", "Reporter", "Quest", "DragonQuest"],
+            "right": ["enum", "record", "interface", "abstract class", "обычный class"],
+            "why": "Варианты результата — enum, неизменяемые данные — record, умение «отчитываться» — interface, общий шаблон задания — abstract class, конкретное задание — обычный class." },
+          { "type": "single", "q": "Хотим, чтобы результаты писались ещё и в файл. Что меньше всего придётся трогать?",
+            "options": ["Написать FileReporter implements Reporter — остальной код не меняется", "Добавить в Quest поле «файл»", "Добавить в Status константу FILE"], "answer": 0,
+            "why": "Новый класс, реализующий интерфейс, — и всё. Задания и цикл не знают, куда идёт отчёт." },
+          { "type": "single", "q": "Можно ли в main написать <code>new Quest()</code>?",
+            "options": ["Да", "Нет — Quest абстрактный", "Да, если не вызывать play()"], "answer": 1,
+            "why": "Абстрактный класс — заготовка. Создаём объекты только конкретных классов-заданий." }
+        ] }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: sealed — закрытый список наследников</summary>
+      <p>Иногда хочется сказать: «Фигуры бывают только круги и квадраты, и никто больше не может добавить свою». Для этого в Java 17 появилось слово <code>sealed</code> («запечатанный»):</p>
+<pre data-file="Shapes.java"><code class="java">sealed interface Shape permits Circle, Square { }
+
+record Circle(double r) implements Shape { }
+record Square(double side) implements Shape { }
+
+// class Triangle implements Shape { }   ✗ ошибка: Triangle нет в списке permits</code></pre>
+      <p>Это что-то среднее между enum и интерфейсом: вариантов фиксированное количество, но каждый вариант — полноценный класс со своими данными. В новых версиях Java такие иерархии красиво разбирают через <code>switch</code>. В учебных программах это редкость, а на собеседованиях иногда спрашивают «что такое sealed».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m11-07">
+      <script type="application/json">
+      { "title": "Что выбрать?",
+        "items": [
+          { "type": "match", "q": "Соедини задачу с инструментом",
+            "left": ["Уровни логирования: DEBUG, INFO, ERROR", "Ответ сервера: код и текст, не меняется", "«Умеет делать скриншот» — для страницы и для отдельного элемента", "Корзина: товары добавляются и удаляются"],
+            "right": ["enum", "record", "interface", "обычный class"],
+            "why": "Фиксированный список — enum, неизменяемые данные — record, умение для разных — interface, меняющееся состояние — class." },
+          { "type": "single", "q": "У всех страниц сайта есть поле «заголовок», одинаковый метод open() и свой адрес. Что выбрать для общей основы?",
+            "options": ["interface", "abstract class", "record", "enum"], "answer": 1,
+            "why": "Общее состояние (поле) + общий код + своя деталь — абстрактный класс. В интерфейсе поле объекта не объявишь — только константы." },
+          { "type": "multi", "q": "Из чего нельзя создать объект через <code>new</code>? Отметь все",
+            "options": ["abstract class", "interface", "enum", "record", "обычный class"], "answer": [0, 1, 2],
+            "why": "Абстрактный класс и интерфейс — заготовки, а объекты enum создаёт сама Java — по одному на константу. record и class создаются через new." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Класс может одновременно наследовать абстрактный класс и реализовать несколько интерфейсов", "a": true },
+              { "s": "record можно сделать наследником абстрактного класса", "a": false, "why": "record не может extends — он уже наследует java.lang.Record. Реализовать интерфейс — может." },
+              { "s": "enum может реализовать интерфейс", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Опиши мне маленькую программу (библиотека, кафе, магазин), а я разложу её на class, abstract class, interface, enum и record»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Фиксированный список → <code>enum</code>. Неизменяемые данные → <code>record</code>.</li>
+        <li>Умение для разных классов → <code>interface</code>. Общие поля и код + своя деталь → <code>abstract class</code>.</li>
+        <li>Всё остальное (состояние меняется, есть поведение) → обычный <code>class</code>.</li>
+        <li>В реальном коде их комбинируют: enum внутри record, интерфейс + абстрактный класс с общей частью.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

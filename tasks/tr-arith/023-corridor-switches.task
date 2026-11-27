@@ -1,0 +1,39 @@
+## id: tr-arith-023
+## title: Два выключателя в коридоре
+## file: trainer/arith/CorridorTwoSwitches.java
+## class: CorridorTwoSwitches
+## level: 2
+## category: Логика: true/false
+@@ description
+<p>В длинном коридоре свет управляется двумя выключателями — у одного конца и у другого. Лампа горит, когда включён <b>ровно один</b> выключатель: если щёлкнуть любым, состояние лампы меняется. Создай класс <code>CorridorTwoSwitches</code>. Программа читает два значения <code>true</code>/<code>false</code> (включён ли первый и второй выключатель), каждое с новой строки, и печатает <code>true</code>, если лампа горит, иначе <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  true    вывод: true
+       false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextBoolean()</code> — читает <code>true</code> или <code>false</code></li>
+<li>Значения <code>boolean</code> тоже можно сравнивать через <code>==</code> и <code>!=</code></li>
+</ul></div>
+@@ test: Включён первый
+@@ input
+true
+false
+@@ expect
+true
+@@ test: Включён второй
+@@ input
+false
+true
+@@ expect
+true
+@@ test: Включены оба
+@@ input
+true
+true
+@@ expect
+false
+@@ test: Оба выключены
+@@ input
+false
+false
+@@ expect
+false
+@@ forbid: \bif\s*\(|\bswitch\b | if ещё не пройден — собери ответ в одно логическое выражение

@@ -1,0 +1,36 @@
+## id: tr-methods-008
+## title: Время забега в секундах
+## file: trainer/methods/RaceTimeSeconds.java
+## class: RaceTimeSeconds
+## level: 1
+## category: Вычисления
+@@ description
+<p>Судьи марафона записывают время в часах, минутах и секундах, а для таблицы результатов нужны только секунды. Создай класс <code>RaceTimeSeconds</code> и напиши метод <code>static int toSeconds(int hours, int minutes, int seconds)</code>, который возвращает общее время в секундах.</p>
+<p>main читает три целых числа через пробел — часы, минуты, секунды — и печатает <code>Время в секундах: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1 2 3     вывод: Время в секундах: 3723</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>в часе 3600 секунд, в минуте — 60</li>
+<li>у метода может быть сколько угодно параметров, через запятую: <code>(int a, int b, int c)</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+1 2 3
+@@ expect
+Время в секундах: 3723
+@@ test: Нулевое время
+@@ input
+0 0 0
+@@ expect
+Время в секундах: 0
+@@ test: Без часов
+@@ input
+0 59 59
+@@ expect
+Время в секундах: 3599
+@@ test: Долгий забег
+@@ input
+10 30 0
+@@ expect
+Время в секундах: 37800
+@@ require: static\s+int\s+toSeconds\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int toSeconds(int hours, int minutes, int seconds)
+@@ require: \WtoSeconds\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать toSeconds(...) и передать три числа

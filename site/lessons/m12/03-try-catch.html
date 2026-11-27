@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>try/catch: поймать и обработать · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-03">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 12 · Урок 3</div>
+    <h1>try/catch: поймать и обработать</h1>
+    <p class="lead">Хватит падать. Научимся перехватывать (ловить) исключение и делать «план Б»: показать понятное сообщение, переспросить пользователя, продолжить работу. А в Мастерской напишем ввод числа, который не ломается ни от какого мусора.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🛠 Мастерская</span><span>🧠 трассировка с вводом</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m12-03-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Как найти в stack trace место, где искать ошибку в своём коде?",
+            "options": ["Взять самую последнюю строку", "Найти первую строку at со своим классом", "Найти первую строку с java.base/ — там всегда виновник"], "answer": 1,
+            "why": "Строки JDK и библиотек пропускаем. Первая своя строка — то место, где наша программа попала в беду." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Неперехваченное исключение снимает фреймы стека один за другим до самого main", "a": true },
+              { "s": "Integer.parseInt(\" 7\") вернёт 7", "a": false, "why": "пробел — не цифра, будет NumberFormatException. Сначала trim()." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA и исключения</h3>
+      <p>С этого урока IDEA будет помогать перехватывать исключения. Перепиши таблицу руками — пригодится весь модуль и весь курс дальше.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td>Выделить строки + <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd></td><td>Surround With: обернуть выделенное в <code>try / catch</code>, <code>try / finally</code>, <code>if</code>, цикл…</td><td>Опасный код уже написан, нужно завернуть его в try</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на красном <i>Unhandled exception</i> → <b>Surround with try/catch</b></td><td>IDEA сама напишет try/catch вокруг строки с нужным типом исключения</td><td>Урок 5: checked-исключение, которое хочешь перехватить здесь</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на красном <i>Unhandled exception</i> → <b>Add exception to method signature</b></td><td>Допишет <code>throws ТипИсключения</code> в заголовок метода</td><td>Урок 5: перехватывать будешь не здесь, а выше по стеку</td></tr>
+        <tr><td>Клик по синей ссылке <code>(Файл.java:N)</code> в консоли</td><td>Открывает файл на строке N</td><td>Читаешь stack trace — прыгай сразу к своей строке</td></tr>
+              <tr><td><code>serr</code> + <kbd>Tab</kbd></td><td><code>System.err.println();</code> — печать в <b>поток ошибок</b>: в консоли IDEA такие строки красные. Сообщения об ошибках в <code>catch</code> принято печатать именно так</td><td>—</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>try — попробуй, catch — план Б</h2>
+    <p>Опасный код кладут в <b>блок <code>try</code></b> («попробуй»). Сразу за ним пишут <b>блок <code>catch</code></b> («поймай»): он <b>перехватывает</b> исключение нужного типа, если его выбросили внутри try, и говорит, что делать дальше:</p>
+<pre data-file="AgeInput.java"><code class="java">import java.util.Scanner;
+
+public class AgeInput {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String text = scanner.nextLine();
+        try {
+            int age = Integer.parseInt(text);
+            System.out.println("Через год тебе будет " + (age + 1));
+        } catch (NumberFormatException e) {
+            System.out.println("«" + text + "» — это не число");
+        }
+        System.out.println("Спасибо!");
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>try { … }</code><div><p>Охраняемый участок. Java выполняет его строку за строкой, как обычно, но «следит»: не вылетит ли исключение.</p></div></div>
+      <div class="annot-row"><code>catch (NumberFormatException e)</code><div><p>Обработчик. В скобках — <b>какой тип</b> исключений перехватываем и <b>имя переменной</b>, в которую попадёт ссылка на перехваченный объект исключения. Обычно её называют <code>e</code> (от exception). Перехватывается только этот тип — ArithmeticException сюда не попадёт.</p></div></div>
+      <div class="annot-row"><code>{ System.out.println(…); }</code><div><p>План Б: что делать вместо упавшего кода. Здесь — вежливое сообщение.</p></div></div>
+      <div class="annot-row"><code>System.out.println("Спасибо!");</code><div><p>После try/catch программа продолжает работу <b>в любом случае</b>: исключение перехвачено, авария отменяется.</p></div></div>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 260" role="img" aria-label="Два пути выполнения try/catch: без исключения выполняется весь try, с исключением остаток try пропускается и выполняется catch; затем в обоих случаях код после try/catch">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="20" y="90" width="200" height="74" rx="12" class="d-blue"/>
+        <text x="120" y="120" text-anchor="middle" class="d-mono-ink">try {</text>
+        <text x="120" y="144" text-anchor="middle" class="d-small">опасная строка</text>
+        <rect x="290" y="20" width="200" height="64" rx="12" class="d-green"/>
+        <text x="390" y="47" text-anchor="middle" class="d-text">остаток try</text>
+        <text x="390" y="69" text-anchor="middle" class="d-small">выполняется до конца</text>
+        <rect x="290" y="170" width="200" height="64" rx="12" class="d-red"/>
+        <text x="390" y="197" text-anchor="middle" class="d-mono-ink">catch (…) {</text>
+        <text x="390" y="219" text-anchor="middle" class="d-small">план Б</text>
+        <rect x="560" y="95" width="180" height="64" rx="12" class="d-accent"/>
+        <text x="650" y="122" text-anchor="middle" class="d-text">код после</text>
+        <text x="650" y="144" text-anchor="middle" class="d-small">try/catch</text>
+        <path d="M222 112 C 255 112, 255 52, 286 52" class="d-arrow"/>
+        <path d="M222 142 C 255 142, 255 202, 286 202" class="d-arrow"/>
+        <path d="M492 52 C 525 52, 525 115, 556 115" class="d-arrow"/>
+        <path d="M492 202 C 525 202, 525 140, 556 140" class="d-arrow"/>
+        <text x="240" y="30" text-anchor="middle" class="d-small">всё хорошо</text>
+        <text x="225" y="236" text-anchor="middle" class="d-small">💥 исключение</text>
+      </svg>
+      <figcaption>Выполнится ровно один из двух путей: либо весь try, либо начало try + catch. Дальше программа идёт как обычно.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: страховочная сетка</span>
+      <p>Акробат (код в try) работает как обычно. Сорвался (исключение) — падает не на арену, а в сетку (catch). Представление продолжается. Нет сетки — падение заканчивает шоу.</p>
+    </div>
+    <h3>IDEA обернёт сама: Ctrl+Alt+T</h3>
+    <p>Набирать <code>try { … } catch (…) { … }</code> руками не обязательно. Напиши сначала «как есть», без защиты, потом <b>выдели опасные строки</b> (7 и 8) и нажми <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>:</p>
+    <div data-widget="ide" id="shot-surround-with">
+      <script type="application/json">
+      { "tree": false, "file": "AgeInput.java", "statusPath": "module-12", "gutterRun": [3, 4], "caretLine": 8, "selLines": [7, 8],
+        "code": "import java.util.Scanner;\n\npublic class AgeInput {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String text = scanner.nextLine();\n        int age = Integer.parseInt(text);\n        System.out.println(\"Через год тебе будет \" + (age + 1));\n        System.out.println(\"Спасибо!\");\n    }\n}",
+        "menu": { "at": "line-8", "title": "Surround With", "items": ["1. if", "2. if / else", "3. while", "4. do / while", "5. for", "6. try / catch", "7. try / finally", "8. try / catch / finally"], "hl": "6. try / catch" },
+        "marks": [ { "n": 1, "target": "line-7", "side": "left", "text": "Синим выделены строки 7–8: разбор числа и всё, что от него зависит" },
+                   { "n": 2, "target": "menu", "text": "Меню <b>Surround With</b> («окружить»). Выбери <b>try / catch</b> (или нажми цифру 6)" } ],
+        "caption": "Surround With (Ctrl+Alt+T)" }
+      </script>
+    </div>
+    <p>IDEA обернёт строки в try и допишет заготовку catch. Посмотри, какой тип исключения она туда поставила: если не <code>NumberFormatException</code> — исправь (почему общий тип хуже — в уроке 7). Тело catch замени своим сообщением — получится код из начала урока. Запусти его и введи не число:</p>
+    <div data-widget="ide" id="shot-age-caught">
+      <script type="application/json">
+      { "tree": false, "file": "AgeInput.java", "runConfig": "AgeInput", "statusPath": "module-12", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class AgeInput {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String text = scanner.nextLine();\n        try {\n            int age = Integer.parseInt(text);\n            System.out.println(\"Через год тебе будет \" + (age + 1));\n        } catch (NumberFormatException e) {\n            System.out.println(\"«\" + text + \"» — это не число\");\n        }\n        System.out.println(\"Спасибо!\");\n    }\n}",
+        "console": { "title": "AgeInput", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… AgeInput" },
+          { "t": "in", "s": "двадцать" },
+          { "t": "out", "s": "«двадцать» — это не число" },
+          { "t": "out", "s": "Спасибо!" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "input", "text": "Зелёным — то, что ты ввёл с клавиатуры" },
+                   { "n": 2, "target": "output", "text": "Сработал catch — план Б. Никакого красного stack trace" },
+                   { "n": 3, "target": "output-2", "text": "Программа пошла дальше и дошла до конца" },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 0</b> — завершилась нормально. Исключение было, но его перехватили в catch — аварии нет" } ],
+        "caption": "Исключение перехвачено: программа не упала" }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Что выполнится, а что — нет</h2>
+    <p>Главное правило: как только в try вылетело исключение, <b>остаток try пропускается</b>. Java не возвращается назад, чтобы «доделать».</p>
+<pre data-file="Steps.java"><code class="java">try {
+    System.out.println("1");
+    int x = Integer.parseInt("сорок");
+    System.out.println("2");
+} catch (NumberFormatException e) {
+    System.out.println("3");
+}
+System.out.println("4");</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает этот код?</summary>
+      <p><b>1, 3, 4</b> — каждое на своей строке. «1» печатается, <code>parseInt("сорок")</code> выбрасывает исключение, «2» пропускается, срабатывает catch («3»), потом код после («4»). А если бы там было <code>parseInt("40")</code> — вывелось бы 1, 2, 4: catch выполняется только при исключении.</p>
+    </details>
+    <p>С перехваченным объектом исключения <code>e</code> можно работать — это обычный объект, у него можно вызывать методы:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Код</th><th>Что даст для <code>parseInt("сорок")</code></th></tr>
+        <tr><td><code>e.getMessage()</code></td><td>метод возвращает сообщение: <code>For input string: "сорок"</code></td></tr>
+        <tr><td><code>System.out.println(e)</code></td><td>тип + сообщение: <code>java.lang.NumberFormatException: For input string: "сорок"</code></td></tr>
+        <tr><td><code>e.printStackTrace()</code></td><td>полный stack trace, как при падении, но программа не падает</td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Переменные из try не видны снаружи</span>
+      <p><code>age</code>, объявленная внутри try, живёт только в его фигурных скобках — как переменная цикла в модуле 5. Нужна после try/catch — объяви её <b>до</b> try. И дай ей значение в обоих путях, иначе компилятор скажет <code>variable age might not have been initialized</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>🛠 Мастерская: ввод числа с повтором</h2>
+    <p><b>Задача.</b> Метод <code>readInt(Scanner scanner)</code> читает строки, пока пользователь не введёт целое число, и возвращает его. На каждый неудачный ввод — сообщение. Решаем по шаблону Мастерской.</p>
+    <ol class="steps">
+      <li><b>Пойми задачу.</b> Вход — любые строки, выход — одно целое число. Примеры: «42» → 42. «abc» → переспросить. «&nbsp;7&nbsp;» → 7 (пробелы по краям уберём). Пустая строка → переспросить. «3.5» → переспросить: не целое. «99999999999» → переспросить: не влезает в <code>int</code>, parseInt тоже выбросит NumberFormatException.</li>
+      <li><b>Реши руками.</b> «Читаю строку. Пробую превратить в число. Не вышло — говорю об этом и читаю следующую. Вышло — всё, ответ готов». Повторяется пара «прочитать + попробовать» — значит, цикл. Сколько раз — заранее неизвестно.</li>
+      <li><b>Роли переменных.</b> <code>line</code> — <b>временная</b>: текущая попытка, на следующем круге её заменит новая. Счётчика нет. Ответ отдаём сразу через <code>return</code> — он же и выход из цикла.</li>
+      <li><b>Псевдокод.</b> «Повторять всегда: прочитать строку и обрезать пробелы; попробовать вернуть число из неё; если не число — напечатать сообщение (и цикл пойдёт на новый круг)».</li>
+    </ol>
+<pre data-file="RetryDemo.java"><code class="java">static int readInt(Scanner scanner) {
+    while (true) {
+        String line = scanner.nextLine().trim();
+        try {
+            return Integer.parseInt(line);
+        } catch (NumberFormatException e) {
+            System.out.println("«" + line
+                    + "» — не целое число, попробуй ещё раз");
+        }
+    }
+}</code></pre>
+    <p><b>5. Код</b> — вот он, строка в строку по псевдокоду. <code>while (true)</code> — цикл без условия выхода: выходим из него через <code>return</code>, когда число получилось. <b>6. Трассировка.</b> Пользователь ввёл «abc», потом «7». Впиши значения сам:</p>
+    <div data-widget="trace" id="trace-m12-03-retry">
+      <script type="application/json">
+      { "title": "Ввод с повтором по шагам", "icon": "🔁",
+        "intro": "На ленте ввода: abc⏎7⏎. Переменная (ввод) показывает, что ещё не прочитано.",
+        "code": "static int readInt(Scanner scanner) {\n    while (true) {\n        String line = scanner.nextLine().trim();\n        try {\n            return Integer.parseInt(line);\n        } catch (NumberFormatException e) {\n            System.out.println(\"«\" + line\n                    + \"» — не целое число, попробуй ещё раз\");\n        }\n    }\n}",
+        "steps": [
+          { "line": 2, "vars": { "(ввод)": "abc⏎7⏎" }, "note": "while (true) — входим в цикл. Условие всегда истинно, выходить будем через return." },
+          { "line": 3, "vars": { "(ввод)": "7⏎", "line": "abc" }, "ask": ["line"], "note": "nextLine() забирает строку до ⏎, trim() убирает пробелы по краям (их нет)." },
+          { "line": 5, "vars": { "(ввод)": "7⏎", "line": "abc" }, "note": "💥 parseInt(\"abc\") выбрасывает NumberFormatException. return не успевает сработать — Java ищет подходящий catch." },
+          { "line": 7, "vars": { "(ввод)": "7⏎", "line": "abc" }, "out": "«abc» — не целое число, попробуй ещё раз\n", "note": "catch подходит по типу и перехватывает исключение — печатаем сообщение. Исключение обработано, программа не падает." },
+          { "line": 2, "vars": { "(ввод)": "7⏎", "line": "abc" }, "note": "Конец тела цикла — новый круг. Старая line сейчас будет заменена." },
+          { "line": 3, "vars": { "(ввод)": "(пусто)", "line": "7" }, "ask": ["line"], "note": "Читаем следующую строку." },
+          { "line": 5, "vars": { "(ввод)": "(пусто)", "line": "7", "результат": "7" }, "ask": ["результат"], "note": "parseInt(\"7\") — успех. return 7 возвращает число и сразу выходит и из try, и из цикла, и из метода." }
+        ] }
+      </script>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: почему не scanner.nextInt()?</summary>
+      <p>Можно и так: на «abc» <code>nextInt()</code> выбросит <code>InputMismatchException</code>. Но есть ловушка: «abc» <b>остаётся на ленте ввода</b>. Следующий круг цикла снова вызовет <code>nextInt()</code>, снова наткнётся на «abc» — и программа бесконечно будет печатать «не число». Чтобы этого не было, в catch нужно «доесть» плохое слово: <code>scanner.next();</code>. Вариант с <code>nextLine()</code> + <code>parseInt</code> от этой ловушки свободен: строка уже прочитана целиком, что бы в ней ни было.</p>
+    </details>
+    <div class="callout try">
+      <span class="callout-title">Твоя задача</span>
+      <p>Это задача <a href="/tasks.html?module=m12">m12-t03 «Ввод числа с повтором»</a>. Набери метод сам, добавь main и запусти: вводи в панели Run всякий мусор и смотри, как программа переспрашивает.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Несколько catch и их порядок</h2>
+    <p>В одном try могут случиться разные беды. На каждую — свой catch, они проверяются <b>сверху вниз</b>, срабатывает первый подходящий:</p>
+<pre data-file="WordByNumber.java"><code class="java">String[] words = {"ноль", "один", "два"};
+try {
+    int index = Integer.parseInt(text);
+    System.out.println(words[index]);
+} catch (NumberFormatException e) {
+    System.out.println("Это не число");
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("Нет слова с номером " + text);
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатается для text = "1", "5" и "x"?</summary>
+      <p>«один» — всё хорошо. «Нет слова с номером 5» — индекс за границей массива. «Это не число» — parseInt не справился, до массива дело не дошло.</p>
+    </details>
+    <p>Теперь ловушка. Есть исключения «общего вида»: catch с таким типом перехватывает сразу многие. Например, <code>RuntimeException</code> — общий родитель всех четырёх исключений из урока 1 (откуда он взялся — в уроке 5). Если поставить его <b>первым</b>:</p>
+<pre data-file="WrongOrder.java"><code class="java">try {
+    int index = Integer.parseInt(text);
+    System.out.println(words[index]);
+} catch (RuntimeException e) {
+    System.out.println("Что-то пошло не так");
+} catch (NumberFormatException e) {
+    System.out.println("Это не число");
+}</code></pre>
+<pre class="terminal"><span class="err">WrongOrder.java:6: error: exception NumberFormatException has already been caught
+} catch (NumberFormatException e) {
+  ^</span></pre>
+    <div data-widget="ide" id="shot-already-caught">
+      <script type="application/json">
+      { "tree": false, "file": "WrongOrder.java", "statusPath": "module-12", "gutterRun": [1, 2],
+        "code": "public class WrongOrder {\n    public static void main(String[] args) {\n        String[] words = {\"ноль\", \"один\", \"два\"};\n        String text = \"5\";\n        try {\n            int index = Integer.parseInt(text);\n            System.out.println(words[index]);\n        } catch (RuntimeException e) {\n            System.out.println(\"Что-то пошло не так\");\n        } catch (NumberFormatException e) {\n            System.out.println(\"Это не число\");\n        }\n    }\n}",
+        "errors": [ { "line": 10, "text": "NumberFormatException", "msg": "Exception 'java.lang.NumberFormatException' has already been caught", "tip": true } ],
+        "marks": [ { "n": 1, "target": "line-8", "text": "Общий <code>catch (RuntimeException e)</code> стоит первым и забирает себе всё" },
+                   { "n": 2, "target": "err-10", "side": "top", "text": "Красным — тип во втором catch: до него очередь никогда не дойдёт" },
+                   { "n": 3, "target": "tip", "text": "<b>has already been caught</b> — «уже поймано» (выше). Починка: поменять catch местами — частный выше, общий ниже" } ],
+        "caption": "Общий catch раньше частного — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Общий catch первым перехватывает все исключения, второй catch никогда не сработает. Недостижимый код Java не пропускает — как строку сразу после <code>return</code>. Правило: <b>catch идут от частного к общему</b>, общий — последним, «на всё остальное».</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: сортировка на почте</span>
+      <p>Сортировщик раскладывает письма по ячейкам. Сначала — точные адреса: «ул. Ленина, 5». В самом конце — ячейка «всё остальное». Если начать с «всё остальное», в точные ячейки не попадёт ни одно письмо.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Один catch на несколько типов: |</h2>
+    <p>Если для разных исключений план Б одинаковый, не копируй catch — перечисли типы через вертикальную черту <code>|</code> (читается «или»). Это называется <b>multi-catch</b>:</p>
+<pre data-file="MultiCatch.java"><code class="java">try {
+    int index = Integer.parseInt(text);
+    System.out.println(words[index]);
+} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+    System.out.println("Плохой номер: " + text);
+}</code></pre>
+    <p>Ограничение: типы в multi-catch не должны быть «родителем и потомком». <code>catch (NumberFormatException | IllegalArgumentException e)</code> не скомпилируется: NumberFormatException — разновидность IllegalArgumentException, его и так перехватит второй тип. Компилятор так и скажет: <code>Alternatives in a multi-catch statement cannot be related by subclassing</code>.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m12-03">
+      <script type="application/json">
+      {
+       "title": "try/catch — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет код?",
+         "code": "try {\n    System.out.println(\"A\");\n    int x = 10 / 0;\n    System.out.println(\"B\");\n} catch (ArithmeticException e) {\n    System.out.println(\"C\");\n}\nSystem.out.println(\"D\");",
+         "answer": "A\nC\nD",
+         "why": "После исключения остаток try (B) пропускается, срабатывает catch (C), дальше код после (D)."
+        },
+        {
+         "type": "predict",
+         "q": "А этот? Исключения не будет.",
+         "code": "try {\n    System.out.println(\"A\");\n    int x = Integer.parseInt(\"5\");\n    System.out.println(\"B\" + x);\n} catch (NumberFormatException e) {\n    System.out.println(\"C\");\n}\nSystem.out.println(\"D\");",
+         "answer": "A\nB5\nD",
+         "why": "Без исключения try выполняется целиком, а catch пропускается."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "try {\n    int n = Integer.parseInt(text);\n} catch (RuntimeException e) {\n    System.out.println(\"Ошибка\");\n} catch (NumberFormatException e) {\n    System.out.println(\"Не число\");\n}",
+         "answer": [
+          5
+         ],
+         "why": "RuntimeException — общий родитель, catch с ним уже перехватывает и NumberFormatException. catch (NumberFormatException) недостижим: «has already been caught». Частные catch — выше общих."
+        },
+        {
+         "type": "single",
+         "q": "ArithmeticException вылетела в try, а catch есть только для NumberFormatException. Что будет?",
+         "options": [
+          "catch всё равно сработает",
+          "Исключение полетит дальше по стеку",
+          "Программа пропустит опасную строку и продолжит работу"
+         ],
+         "answer": 1,
+         "why": "catch перехватывает только свой тип (и его потомков). Чужое исключение пролетает мимо и всплывает дальше по стеку."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Если в try не было исключения, catch не выполняется",
+           "a": true
+          },
+          {
+           "s": "После catch Java возвращается в try и доделывает пропущенные строки",
+           "a": false,
+           "why": "остаток try пропадает навсегда; выполнение идёт дальше после try/catch."
+          },
+          {
+           "s": "catch (A | B e) — один обработчик на два типа исключений",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 12.3. Проверь мой readInt из задачи m12-t03 и спроси, почему я выбрал nextLine, а не nextInt»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>try { опасный код } catch (Тип e) { план Б }</code> — перехватить исключение и продолжить работу.</li>
+        <li>После исключения остаток try пропускается; catch выполняется, только если исключение было и подошло по типу.</li>
+        <li>У перехваченного <code>e</code> можно вызвать <code>getMessage()</code>, <code>printStackTrace()</code>.</li>
+        <li>Несколько catch проверяются сверху вниз: от частного к общему, иначе ошибка компиляции «has already been caught».</li>
+        <li>Multi-catch <code>catch (A | B e)</code> — один план Б для нескольких типов (не родственных).</li>
+        <li>Ввод с повтором: <code>while (true)</code> + <code>nextLine().trim()</code> + <code>return Integer.parseInt(...)</code> в try.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "id": "m01",
+  "num": "1",
+  "title": "Знакомство с Java",
+  "summary": "Что такое Java, как она запускает программы, IntelliJ IDEA, первая программа, вывод в консоль и чтение ошибок.",
+  "lessons": [
+    {
+      "id": "m01-01",
+      "title": "Что такое Java и где она живёт",
+      "url": "/lessons/m01/01-what-is-java.html"
+    },
+    {
+      "id": "m01-02",
+      "title": "Как Java запускает программу",
+      "url": "/lessons/m01/02-how-java-works.html"
+    },
+    {
+      "id": "m01-03",
+      "title": "IntelliJ IDEA: твой проект и окно",
+      "url": "/lessons/m01/03-setup-idea.html"
+    },
+    {
+      "id": "m01-04",
+      "title": "Первая программа в IntelliJ IDEA",
+      "url": "/lessons/m01/04-first-program-idea.html"
+    },
+    {
+      "id": "m01-06",
+      "title": "Анатомия программы",
+      "url": "/lessons/m01/06-anatomy.html"
+    },
+    {
+      "id": "m01-07",
+      "title": "Вывод в консоль",
+      "url": "/lessons/m01/07-console-output.html"
+    },
+    {
+      "id": "m01-08",
+      "title": "Ошибки — твои друзья",
+      "url": "/lessons/m01/08-errors.html"
+    },
+    {
+      "id": "m01-10",
+      "title": "Головоломки: что выведется?",
+      "url": "/lessons/m01/10-puzzles.html"
+    },
+    {
+      "id": "m01-star",
+      "title": "★ МиниБанк: открываем банк",
+      "url": "/lessons/m01/95-minibank.html"
+    },
+    {
+      "id": "m01-09",
+      "title": "Итоги модуля и экзамен",
+      "url": "/lessons/m01/09-summary.html"
+    }
+  ],
+  "taskCount": 9
+}

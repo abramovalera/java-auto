@@ -1,0 +1,38 @@
+## id: tr-methods-006
+## title: Цена со скидкой
+## file: trainer/methods/ShopDiscountMethod.java
+## class: ShopDiscountMethod
+## level: 1
+## category: Вычисления
+@@ description
+<p>Создай класс <code>ShopDiscountMethod</code> и напиши метод <code>static double applyDiscount(double price, int percent)</code>: он принимает цену товара и скидку в процентах (от 0 до 100) и возвращает цену после скидки.</p>
+<p>main читает два числа через пробел — цену (дробную) и процент скидки (целый) — и печатает <code>К оплате: X</code>, где <code>X</code> — результат метода без округления.</p>
+<pre class="terminal"><span class="out">ввод:  1000 15    вывод: К оплате: 850.0
+ввод:  250 100    вывод: К оплате: 0.0</span></pre>
+<p>⚠️ Подвох: <code>15 / 100</code> в целых числах даёт <code>0</code>. Подумай, в каком порядке умножать и делить.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>скидка 15% — это оплата 85% цены</li>
+<li>если в выражении есть <code>double</code>, результат тоже <code>double</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+1000 15
+@@ expect
+К оплате: 850.0
+@@ test: Без скидки
+@@ input
+999.5 0
+@@ expect
+К оплате: 999.5
+@@ test: Скидка 100%
+@@ input
+250 100
+@@ expect
+К оплате: 0.0
+@@ test: Половина цены
+@@ input
+80 50
+@@ expect
+К оплате: 40.0
+@@ require: static\s+double\s+applyDiscount\s*\(\s*double\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static double applyDiscount(double price, int percent)
+@@ require: \WapplyDiscount\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать applyDiscount(...)

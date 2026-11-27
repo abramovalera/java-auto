@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Игра «Раннер» · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m04-runner">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 4 · Игра</div>
+    <h1>Игра «Раннер»: научи Джавика прыгать</h1>
+    <p class="lead">Джавик бежит по трассе, навстречу — жуки и летучие ошибки. Сначала пробеги сам, а потом научи его делать это без тебя — с помощью <code>if</code>, который ты только что выучил.</p>
+    <div class="meta"><span>⏱ 30–40 минут</span><span>🏃 3 уровня</span><span>✍️ код прямо на странице</span></div>
+  </header>
+
+  <section class="step">
+    <h2>Сначала — руками</h2>
+    <p>Джавик бежит сам. Твоя работа — вовремя нажимать: <b>прыжок</b> через жука 🐛 на земле и <b>присесть</b> под летучей ошибкой 🦇 на уровне головы. Попробуй — и обрати внимание, <b>за сколько клеток</b> до препятствия ты нажимаешь (это показывает радар справа).</p>
+    <div data-widget="runnerhand" id="runner-hand"></div>
+    <div class="callout tip">
+      <span class="callout-title">Что ты сейчас делал</span>
+      <p>Перед каждым нажатием ты смотрел вперёд и решал: <b>если</b> впереди близко жук — прыгаю, <b>если</b> летучая ошибка — приседаю, <b>иначе</b> просто бегу. Это и есть программа. Осталось записать её на Java — и Джавик будет бегать сам.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Как то же самое записать кодом</h2>
+    <p>На каждом ходу игра вызывает твой метод <code>decide</code> и передаёт ему аргумент — <b>радар</b>. Метод смотрит на радар и <b>возвращает команду</b>: <code>"RUN"</code> — бежать, <code>"JUMP"</code> — прыгнуть, <code>"DUCK"</code> — пригнуться.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="Каждый ход: игра даёт радар, метод decide возвращает команду, Джавик её выполняет">
+        <defs><marker id="arrow-rn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="14" y="30" width="190" height="100" rx="16" class="d-blue"/>
+        <text x="109" y="68" text-anchor="middle" class="d-title">🎮 Игра</text>
+        <text x="109" y="94" text-anchor="middle" class="d-small">«Вот радар. Что делаем?»</text>
+        <path d="M206 80 H290" class="d-arrow" marker-end="url(#arrow-rn)"/>
+        <rect x="296" y="30" width="220" height="100" rx="16" class="d-accent"/>
+        <text x="406" y="64" text-anchor="middle" class="d-title">🧑‍💻 Твой код</text>
+        <text x="406" y="92" text-anchor="middle" class="d-mono-ink">decide(radar)</text>
+        <text x="406" y="114" text-anchor="middle" class="d-small">смотрит на радар — решает</text>
+        <path d="M518 80 H596" class="d-arrow" marker-end="url(#arrow-rn)"/>
+        <text x="557" y="70" text-anchor="middle" class="d-small">"JUMP"</text>
+        <rect x="602" y="30" width="104" height="100" rx="16" class="d-green"/>
+        <text x="654" y="80" text-anchor="middle" font-size="32">☕</text>
+        <text x="654" y="112" text-anchor="middle" class="d-small">прыгает</text>
+        <path d="M654 132 V170 H109 V132" class="d-dash"/>
+        <text x="380" y="190" text-anchor="middle" class="d-small">и так на каждом ходу, пока Джавик не добежит</text>
+      </svg>
+      <figcaption>Ты не жмёшь кнопки — ты пишешь правила, а Джавик сам следует им на каждом ходу.</figcaption>
+    </figure>
+    <div class="table-wrap"><table>
+      <tr><th>Вызов метода у радара</th><th>Что вернёт</th></tr>
+      <tr><td><code>radar.distance()</code></td><td>Сколько клеток до ближайшего препятствия. Впереди пусто — <code>99</code>.</td></tr>
+      <tr><td><code>radar.isLow()</code></td><td><code>true</code> — это жук на земле (прыгай), <code>false</code> — летучая ошибка (пригнись).</td></tr>
+      <tr><td><code>radar.speed()</code></td><td>Сколько клеток Джавик пробегает за ход: 1 или 2 (понадобится на уровне 3).</td></tr>
+    </table></div>
+    <p>Прыжок длится <b>4 хода</b>, присед — <b>3</b>. Прыгнешь поздно — врежешься в жука. Прыгнешь рано — <b>приземлишься прямо на него</b>. А за сколько клеток надо? Мы специально не говорим: пробуй разные числа и смотри забег — так работают настоящие программисты.</p>
+    <div data-widget="check" id="check-m04-runner">
+      <script type="application/json">
+      { "title": "Разберись с радаром",
+        "items": [
+          { "type": "match", "q": "Что увидел радар → что вернуть",
+            "left": ["distance() = 2, isLow() = true", "distance() = 2, isLow() = false", "distance() = 99"],
+            "right": ["\"JUMP\" — жук рядом", "\"DUCK\" — летучая ошибка рядом", "\"RUN\" — впереди пусто"] },
+          { "type": "predict", "q": "Радар: distance() = 1, isLow() = true. Что вернёт метод?",
+            "code": "if (radar.distance() <= 2) {\n    if (radar.isLow()) {\n        return \"JUMP\";\n    }\n    return \"DUCK\";\n}\nreturn \"RUN\";",
+            "answer": "JUMP", "why": "Условие 1 ≤ 2 истинно — заходим в тело внешнего if; жук (isLow() вернул true) — метод возвращает JUMP. return сразу заканчивает метод." },
+          { "type": "single", "q": "Метод всегда возвращает \"JUMP\". Что будет?",
+            "options": ["Джавик перепрыгнет всё", "Врежется в первую летучую ошибку — в прыжке он на уровне головы", "Программа не скомпилируется"], "answer": 1,
+            "why": "Прыжок поднимает Джавика как раз на высоту летучих ошибок. Под ними надо пригибаться." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Пиши код — и смотри забег</h2>
+    <p>Код пишется <b>прямо здесь</b>. Заготовка уже есть: внутри метода <code>decide</code> добавь свои <code>if</code>. Нажми <b>▶ Запустить</b> — сервер скомпилирует твой Java-код (ошибки компиляции — настоящие, как в уроке 1.7) и прогонит Джавика по трём разным трассам. Ниже появится забег: его можно смотреть по ходам — что видел радар и что вернул твой код.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🐛</span><h4>Уровень 1</h4><p>Только жуки — короткие и длинные. Хватит одного <code>if</code> и правильного числа клеток.</p></div>
+      <div class="card"><span class="emoji">🦇</span><h4>Уровень 2</h4><p>Добавились летучие ошибки. Нужен выбор: прыгнуть или пригнуться.</p></div>
+      <div class="card"><span class="emoji">⚡</span><h4>Уровень 3 ★★★</h4><p>С середины трассы скорость 2. Решение с уровня 2 вдруг врезается — разберись почему.</p></div>
+    </div>
+    <div data-widget="runnercode" id="runner-code"></div>
+    <div class="callout tip">
+      <span class="callout-title">Как искать ошибку</span>
+      <p>Открой трассу с ❌ и пролистай ходы до столкновения. Спроси себя: <em>что показывал радар? какая ветка if сработала? какая должна была?</em> Можно печатать подсказки себе: <code>System.out.println("до жука " + radar.distance());</code> — напечатанное появится под трассой на нужном ходу.</p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Наставник</span>
+      <p>Застрял — напиши <code>/hint m04-r2</code> (номер уровня в конце). Прошёл уровень — <code>/check m04-r1</code>: наставник спросит, почему выбрал именно такое число клеток.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Игра на каждом ходу вызывает метод <code>decide</code>, передаёт ему радар аргументом и выполняет команду, которую метод вернул.</li>
+        <li>Правила записываются через <code>if</code> / <code>else</code>: «если близко жук — прыгай, если летучая — пригнись, иначе беги».</li>
+        <li>Не знаешь число — <b>экспериментируй</b>: запусти, посмотри ход столкновения, поправь.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

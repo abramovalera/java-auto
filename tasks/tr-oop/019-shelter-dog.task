@@ -1,0 +1,76 @@
+## id: tr-oop-019
+## title: Собака из приюта — extends и super
+## file: trainer/oop/ShelterDogInfo.java
+## class: ShelterDogInfo
+## level: 2
+## category: Наследование и интерфейсы
+@@ description
+<p>Создай класс <code>ShelterDogInfo</code> с методом <code>main</code>, а ниже в том же файле — два класса.</p>
+<p><code>ShelterPet</code> — любой питомец приюта:</p>
+<ul>
+<li>закрытые поля <code>private final String name</code> и <code>private final int age</code> (возраст в годах);</li>
+<li>конструктор <code>ShelterPet(String name, int age)</code>;</li>
+<li><code>String getName()</code>;</li>
+<li><code>boolean isBaby()</code> — <code>true</code>, если питомцу меньше года (возраст 0);</li>
+<li><code>toString()</code> — <code>Имя, возраст N</code>.</li>
+</ul>
+<p><code>ShelterDog extends ShelterPet</code> — собака, у неё есть ещё порода:</p>
+<ul>
+<li>поле <code>private final String breed</code>;</li>
+<li>конструктор <code>ShelterDog(String name, int age, String breed)</code> — имя и возраст передаёт в конструктор родителя через <code>super(...)</code>;</li>
+<li>переопределённый <code>toString()</code> — берёт строку родителя (<code>super.toString()</code>) и дописывает <code>, порода …</code>.</li>
+</ul>
+<p>Ввод: в первой строке — имя и возраст питомца, во второй — имя, возраст и порода собаки (всё одним словом, через пробел).</p>
+<pre class="terminal"><span class="out">ввод:  Мурка 3
+       Рекс 0 такса
+вывод: Питомец: Мурка, возраст 3
+       Собака: Рекс, возраст 0, порода такса
+       Мурка — малыш: false
+       Рекс — малыш: true</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>super(name, age);</code> — вызов конструктора родителя, первой строкой конструктора наследника</li>
+<li><code>super.toString()</code> — вызов версии метода из родителя внутри переопределённого метода</li>
+<li><code>dog.isBaby()</code> — метод достался собаке по наследству, писать его заново не нужно</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Мурка 3
+Рекс 0 такса
+@@ expect
+Питомец: Мурка, возраст 3
+Собака: Рекс, возраст 0, порода такса
+Мурка — малыш: false
+Рекс — малыш: true
+@@ test: Оба взрослые
+@@ input
+Кеша 5
+Шарик 7 дворняга
+@@ expect
+Питомец: Кеша, возраст 5
+Собака: Шарик, возраст 7, порода дворняга
+Кеша — малыш: false
+Шарик — малыш: false
+@@ test: Оба малыши
+@@ input
+Пушок 0
+Бим 0 сеттер
+@@ expect
+Питомец: Пушок, возраст 0
+Собака: Бим, возраст 0, порода сеттер
+Пушок — малыш: true
+Бим — малыш: true
+@@ test: Ровно год — уже не малыш
+@@ input
+Луна 1
+Граф 1 дог
+@@ expect
+Питомец: Луна, возраст 1
+Собака: Граф, возраст 1, порода дог
+Луна — малыш: false
+Граф — малыш: false
+@@ require: \bclass\s+ShelterPet\b | Объяви в том же файле класс ShelterPet
+@@ require: \bclass\s+ShelterDog\s+extends\s+ShelterPet\b | ShelterDog должен наследовать ShelterPet: class ShelterDog extends ShelterPet
+@@ require: \bsuper\s*\(\s*\w+\s*,\s*\w+\s*\)\s*; | В конструкторе ShelterDog вызови super(name, age)
+@@ require: super\.toString\s*\(\s*\) | В toString собаки используй super.toString()
+@@ require: private\s+final\s+String\s+breed\b | Порода — поле private final String breed
+@@ require: @Override | Помечай переопределённые методы аннотацией @Override

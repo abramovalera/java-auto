@@ -1,0 +1,45 @@
+## id: tr-colls-008
+## title: Уникальные посетители сайта
+## file: trainer/colls/UniqueVisitorsCount.java
+## class: UniqueVisitorsCount
+## level: 1
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>UniqueVisitorsCount</code>. В журнале сайта записано, кто заходил, — один человек мог зайти много раз. В первой строке — количество записей <code>n</code>, во второй — <code>n</code> логинов через пробел. Напечатай <code>Уникальных посетителей: X</code>. Логины <code>Max</code> и <code>max</code> — это разные люди.</p>
+<pre class="terminal"><span class="out">ввод:  6
+       max olga max ivan olga max
+вывод: Уникальных посетителей: 3</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Set&lt;String&gt; set = new HashSet&lt;&gt;();</code> — множество хранит каждый элемент только один раз</li>
+<li><code>set.add(x)</code> — добавляет элемент; повтор просто не добавится</li>
+</ul></div>
+@@ test: Обычный день
+@@ input
+6
+max olga max ivan olga max
+@@ expect
+Уникальных посетителей: 3
+@@ test: Все разные
+@@ input
+3
+anna boris vera
+@@ expect
+Уникальных посетителей: 3
+@@ test: Один человек весь день
+@@ input
+4
+bot bot bot bot
+@@ expect
+Уникальных посетителей: 1
+@@ test: Регистр важен
+@@ input
+3
+Max max MAX
+@@ expect
+Уникальных посетителей: 3
+@@ test: Никто не заходил
+@@ input
+0
+@@ expect
+Уникальных посетителей: 0
+@@ require: Set\s*<|HashSet | Посчитай уникальных через множество Set

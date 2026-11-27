@@ -1,0 +1,55 @@
+## id: tr-oop-012
+## title: Дневник бегуна
+## file: trainer/oop/MarathonDiary.java
+## class: MarathonDiary
+## level: 1
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>MarathonDiary</code> с методом <code>main</code>, а ниже в том же файле — класс <code>MarathonRunner</code>:</p>
+<ul>
+<li>закрытые поля: <code>private final String name</code>, <code>private int totalKm</code> (сколько всего пробежал) и <code>private int runs</code> (сколько было пробежек);</li>
+<li>конструктор <code>MarathonRunner(String name)</code>;</li>
+<li><code>void addRun(int km)</code> — записывает пробежку. Пробежки на 0 км и меньше — ошибка ввода, их метод не засчитывает;</li>
+<li>геттеры <code>getName()</code>, <code>getTotalKm()</code>, <code>getRuns()</code>.</li>
+</ul>
+<p>Ввод: в первой строке — имя, во второй — количество пробежек <code>n</code>, в третьей — <code>n</code> целых чисел через пробел (километры). Вывод — одна строка:</p>
+<pre class="terminal"><span class="out">ввод:  Аня
+       3
+       5 10 6
+вывод: Аня: пробежек 3, всего 21 км</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>final</code> у поля — его значение присваивается один раз, в конструкторе, и дальше не меняется</li>
+<li>проверку «засчитывать или нет» делай внутри <code>addRun</code>, а не в <code>main</code> — объект сам следит за своими данными</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Аня
+3
+5 10 6
+@@ expect
+Аня: пробежек 3, всего 21 км
+@@ test: Ошибочные пробежки не засчитываются
+@@ input
+Боря
+4
+7 0 -3 12
+@@ expect
+Боря: пробежек 2, всего 19 км
+@@ test: Пробежек не было
+@@ input
+Вика
+0
+@@ expect
+Вика: пробежек 0, всего 0 км
+@@ test: Одна длинная пробежка
+@@ input
+Гена
+1
+42
+@@ expect
+Гена: пробежек 1, всего 42 км
+@@ require: \bclass\s+MarathonRunner\b | Объяви в том же файле класс MarathonRunner
+@@ require: private\s+final\s+String\s+name\b | Поле name должно быть private final
+@@ require: private\s+int\s+totalKm\b | Поле totalKm должно быть private
+@@ require: private\s+int\s+runs\b | Поле runs должно быть private
+@@ require: \bvoid\s+addRun\s*\(\s*int\s+\w+\s*\) | Нужен метод void addRun(int km)

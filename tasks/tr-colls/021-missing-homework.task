@@ -1,0 +1,52 @@
+## id: tr-colls-021
+## title: Кто не сдал домашку
+## file: trainer/colls/MissingHomeworkList.java
+## class: MissingHomeworkList
+## level: 1
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>MissingHomeworkList</code>. В первой строке — количество учеников <code>n</code>, во второй — их имена через пробел в порядке журнала. В третьей — количество сданных работ <code>m</code>, в четвёртой — имена тех, кто сдал (в любом порядке; кто-то мог сдать дважды). Напечатай тех, кто не сдал, в порядке журнала, каждого с новой строки. Если сдали все — <code>Все сдали</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       Аня Боря Вова Галя Дима
+       3
+       Галя Аня Вова
+вывод: Боря
+       Дима</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>a.removeAll(b)</code> — удаляет из <code>a</code> все элементы, которые есть в <code>b</code> (разность)</li>
+<li>у <code>ArrayList</code> порядок после <code>removeAll</code> сохраняется</li>
+</ul></div>
+@@ test: Двое не сдали
+@@ input
+5
+Аня Боря Вова Галя Дима
+3
+Галя Аня Вова
+@@ expect
+Боря
+Дима
+@@ test: Все сдали, кто-то дважды
+@@ input
+3
+Ева Жора Зоя
+4
+Зоя Ева Ева Жора
+@@ expect
+Все сдали
+@@ test: Никто не сдал
+@@ input
+2
+Ира Костя
+0
+@@ expect
+Ира
+Костя
+@@ test: Сдал кто-то чужой
+@@ input
+2
+Лена Макс
+2
+Нина Лена
+@@ expect
+Макс
+@@ require: removeAll | Найди разность методом removeAll

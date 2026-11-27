@@ -1,0 +1,38 @@
+## id: tr-streams-010
+## title: Прибыльные дни в скобках
+## file: trainer/streams/ProfitDaysBrackets.java
+## class: ProfitDaysBrackets
+## level: 1
+## category: Collectors и группировка
+@@ description
+<p>Напиши класс <code>ProfitDaysBrackets</code>. Кафе записывало прибыль за каждый день (целые числа через пробел в одной строке, хотя бы одно; убыток — отрицательное число). Напечатай только прибыльные дни (больше нуля) в исходном порядке в виде <code>[a, b, c]</code>. Если прибыльных дней нет — <code>[]</code>.</p>
+<pre class="terminal"><span class="out">ввод:  1200 -300 0 450 -15
+вывод: [1200, 450]</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Collectors.joining(", ", "[", "]")</code> — склеивает через <code>", "</code> и добавляет скобки в начале и в конце (даже если элементов нет)</li>
+<li><code>.mapToObj(String::valueOf)</code> — превращает числа <code>IntStream</code> в строки</li>
+</ul></div>
+@@ test: Обычная неделя
+@@ input
+1200 -300 0 450 -15
+@@ expect
+[1200, 450]
+@@ test: Плохая неделя
+@@ input
+-1 -2 0
+@@ expect
+[]
+@@ test: Один хороший день
+@@ input
+77
+@@ expect
+[77]
+@@ test: Всё в плюсе
+@@ input
+5 10 15
+@@ expect
+[5, 10, 15]
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while
+@@ require: joining\s*\( | Собери ответ коллектором Collectors.joining

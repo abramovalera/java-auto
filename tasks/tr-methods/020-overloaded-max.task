@@ -1,0 +1,52 @@
+## id: tr-methods-020
+## title: Лучший результат: перегрузка max
+## file: trainer/methods/OverloadedMaxScores.java
+## class: OverloadedMaxScores
+## level: 1
+## category: Перегрузка
+@@ description
+<p>На соревнованиях одни спортсмены делают две попытки, другие — три. Создай класс <code>OverloadedMaxScores</code> и напиши <b>два</b> метода с одним именем (перегрузка):</p>
+<ul>
+<li><code>static int max(int a, int b)</code> — возвращает большее из двух чисел;</li>
+<li><code>static int max(int a, int b, int c)</code> — возвращает большее из трёх.</li>
+</ul>
+<p>main читает в первой строке два целых числа, во второй — три, и печатает две строки: <code>Лучший из двух: X</code> и <code>Лучший из трёх: Y</code>.</p>
+<pre class="terminal"><span class="out">ввод:  7 12
+       5 9 3
+вывод: Лучший из двух: 12
+       Лучший из трёх: 9</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>перегрузка — несколько методов с одним именем, но разным числом или типами параметров</li>
+<li>один метод может вызывать другой: результат вызова — тоже аргумент</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+7 12
+5 9 3
+@@ expect
+Лучший из двух: 12
+Лучший из трёх: 9
+@@ test: Одинаковые результаты
+@@ input
+4 4
+6 6 6
+@@ expect
+Лучший из двух: 4
+Лучший из трёх: 6
+@@ test: Отрицательные очки
+@@ input
+-3 -8
+-5 -1 -9
+@@ expect
+Лучший из двух: -3
+Лучший из трёх: -1
+@@ test: Максимум последним
+@@ input
+0 1
+1 2 30
+@@ expect
+Лучший из двух: 1
+Лучший из трёх: 30
+@@ require: static\s+int\s+max\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int max(int a, int b)
+@@ require: static\s+int\s+max\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен перегруженный метод static int max(int a, int b, int c)
+@@ forbid: Math\s*\.\s*max | Напиши сравнение сам — без Math.max

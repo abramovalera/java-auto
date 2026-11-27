@@ -1,0 +1,40 @@
+## id: tr-cond-033
+## title: Восточный календарь
+## file: trainer/cond/ChineseZodiacYear.java
+## class: ChineseZodiacYear
+## level: 2
+## category: switch и выбор
+@@ description
+<p>Напиши класс <code>ChineseZodiacYear</code>. В восточном календаре у каждого года есть животное, и они повторяются каждые 12 лет. Остаток от деления года на 12 подсказывает животное: 0 — Обезьяна, 1 — Петух, 2 — Собака, 3 — Свинья, 4 — Крыса, 5 — Бык, 6 — Тигр, 7 — Кролик, 8 — Дракон, 9 — Змея, 10 — Лошадь, 11 — Коза. Программа читает год (целое положительное число) и печатает <code>Год: животное</code>. Для простоты считаем, что год начинается 1 января.</p>
+<pre class="terminal"><span class="out">ввод:  2020
+вывод: Год: Крыса</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>switch (year % 12)</code> — выбор ветки по остатку</li>
+<li>switch-выражение: <code>String name = switch (x) { case 0 -> "…"; … default -> "…"; };</code></li>
+</ul></div>
+@@ test: 2020
+@@ input
+2020
+@@ expect
+Год: Крыса
+@@ test: 2024
+@@ input
+2024
+@@ expect
+Год: Дракон
+@@ test: 1990
+@@ input
+1990
+@@ expect
+Год: Лошадь
+@@ test: 2023
+@@ input
+2023
+@@ expect
+Год: Кролик
+@@ test: 2016 — остаток 0
+@@ input
+2016
+@@ expect
+Год: Обезьяна
+@@ require: switch\s*\( | Выбери животное через switch

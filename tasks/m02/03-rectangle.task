@@ -1,0 +1,54 @@
+## id: m02-t03
+## title: Площадь и периметр
+## file: module-02/RectangleArea.java
+## class: RectangleArea
+## level: 1
+@@ description
+<p>Ремонт: нужно знать площадь комнаты (сколько купить ламината) и периметр (сколько плинтуса). Создай класс <code>RectangleArea</code>: программа спрашивает ширину и длину комнаты в метрах (целые числа) и печатает площадь и периметр.</p>
+<pre class="terminal"><span class="out">Ширина:</span>
+<span class="cmd">3</span>
+<span class="out">Длина:</span>
+<span class="cmd">4</span>
+<span class="out">Площадь: 12
+Периметр: 14</span></pre>
+<p>Площадь прямоугольника — ширина × длина, периметр — сумма всех четырёх сторон. Положи результаты в переменные <code>area</code> и <code>perimeter</code>, а потом напечатай.</p>
+<p>📖 Уроки: <a href="/lessons/m02/01-variables.html">Переменные</a>, <a href="/lessons/m02/05-scanner.html">Scanner</a></p>
+@@ test: Комната 3 × 4
+@@ input
+3
+4
+@@ expect
+Ширина:
+Длина:
+Площадь: 12
+Периметр: 14
+@@ test: Квадрат 1 × 1
+@@ input
+1
+1
+@@ expect
+Ширина:
+Длина:
+Площадь: 1
+Периметр: 4
+@@ test: Нулевая ширина
+@@ input
+0
+5
+@@ expect
+Ширина:
+Длина:
+Площадь: 0
+Периметр: 10
+@@ test: Огромный зал 1000 × 2000
+@@ input
+1000
+2000
+@@ expect
+Ширина:
+Длина:
+Площадь: 2000000
+Периметр: 6000
+@@ require: nextInt\s*\( | Читай целые числа методом nextInt()
+@@ require: \barea\s*= | Положи площадь в переменную area
+@@ require: \bperimeter\s*= | Положи периметр в переменную perimeter

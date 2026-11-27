@@ -1,0 +1,47 @@
+## id: tr-methods-027
+## title: Плейлист задом наперёд
+## file: trainer/methods/ReversedPlaylistCopy.java
+## class: ReversedPlaylistCopy
+## level: 2
+## category: Методы и массивы
+@@ description
+<p>Создай класс <code>ReversedPlaylistCopy</code> и напиши метод <code>static int[] reverse(int[] tracks)</code>: он возвращает <b>новый</b> массив с треками в обратном порядке. Исходный массив менять нельзя — исходный плейлист должен остаться как был.</p>
+<p>main читает в первой строке количество треков <code>n</code> (может быть 0), во второй — <code>n</code> номеров треков через пробел. Сначала вызывает <code>reverse</code>, а потом печатает две строки: <code>Было: […]</code> (исходный массив) и <code>Стало: […]</code> (новый).</p>
+<pre class="terminal"><span class="out">ввод:  4
+       5 2 9 1
+вывод: Было: [5, 2, 9, 1]
+       Стало: [1, 9, 2, 5]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>new int[arr.length]</code> — новый массив той же длины</li>
+<li><code>Arrays.toString(arr)</code> — строка вида <code>[5, 2, 9, 1]</code> (нужен <code>import java.util.Arrays;</code>)</li>
+<li>в метод передаётся копия ссылки: если менять элементы параметра, изменится массив из main</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+4
+5 2 9 1
+@@ expect
+Было: [5, 2, 9, 1]
+Стало: [1, 9, 2, 5]
+@@ test: Нечётная длина
+@@ input
+5
+1 2 3 4 5
+@@ expect
+Было: [1, 2, 3, 4, 5]
+Стало: [5, 4, 3, 2, 1]
+@@ test: Один трек
+@@ input
+1
+7
+@@ expect
+Было: [7]
+Стало: [7]
+@@ test: Пустой плейлист
+@@ input
+0
+@@ expect
+Было: []
+Стало: []
+@@ require: static\s+int\s*\[\s*\]\s*reverse\s*\(\s*int\s*\[\s*\]\s*\w+\s*\) | Нужен метод static int[] reverse(int[] tracks)
+@@ require: \Wreverse\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать reverse(...) и передать массив

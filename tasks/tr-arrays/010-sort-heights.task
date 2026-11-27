@@ -1,0 +1,46 @@
+## id: tr-arrays-010
+## title: Строимся по росту
+## file: trainer/arrays/SortStudentHeights.java
+## class: SortStudentHeights
+## level: 1
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>SortStudentHeights</code>. На физкультуре класс строится по росту — от самого низкого к самому высокому. В первой строке — количество учеников <code>n</code>, во второй — <code>n</code> ростов в сантиметрах. Отсортируй массив по возрастанию и напечатай его через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       152 140 167 149 158
+вывод: [140, 149, 152, 158, 167]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Arrays.sort(a)</code> — сортирует массив по возрастанию прямо на месте, ничего не возвращает</li>
+<li><code>Arrays.toString(a)</code> — возвращает строку вида <code>[1, 2, 3]</code> (нужен <code>import java.util.Arrays;</code>)</li>
+</ul></div>
+@@ test: Класс
+@@ input
+5
+152 140 167 149 158
+@@ expect
+[140, 149, 152, 158, 167]
+@@ test: Одинаковый рост
+@@ input
+4
+150 145 150 145
+@@ expect
+[145, 145, 150, 150]
+@@ test: Уже по порядку
+@@ input
+3
+130 131 132
+@@ expect
+[130, 131, 132]
+@@ test: Один ученик
+@@ input
+1
+160
+@@ expect
+[160]
+@@ test: Пустой зал
+@@ input
+0
+@@ expect
+[]
+@@ require: Arrays\s*\.\s*sort\s*\( | Отсортируй массив через Arrays.sort
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString

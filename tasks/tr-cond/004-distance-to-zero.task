@@ -1,0 +1,38 @@
+## id: tr-cond-004
+## title: Расстояние до нуля
+## file: trainer/cond/DistanceToZero.java
+## class: DistanceToZero
+## level: 1
+## category: Сравнения и максимум
+@@ description
+<p>Напиши класс <code>DistanceToZero</code>. Программа читает целое число и печатает, на каком расстоянии от нуля оно стоит на числовой прямой (это модуль числа). Сделай это сам через <code>if</code>, без <code>Math.abs</code>.</p>
+<pre class="terminal"><span class="out">ввод:  -7
+вывод: 7
+
+ввод:  12
+вывод: 12</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>если число отрицательное, у него нужно сменить знак: <code>-n</code></li>
+</ul></div>
+@@ test: Отрицательное
+@@ input
+-7
+@@ expect
+7
+@@ test: Положительное
+@@ input
+12
+@@ expect
+12
+@@ test: Ноль
+@@ input
+0
+@@ expect
+0
+@@ test: Минус один
+@@ input
+-1
+@@ expect
+1
+@@ forbid: Math\.abs | Здесь нужно обойтись без Math.abs — сделай через if
+@@ require: \bif\s*\( | Используй условный оператор if

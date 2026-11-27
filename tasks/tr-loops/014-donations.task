@@ -1,0 +1,43 @@
+## id: tr-loops-014
+## title: Сбор пожертвований
+## file: trainer/loops/PositiveDonationsSum.java
+## class: PositiveDonationsSum
+## level: 1
+## category: Ввод и статистика
+@@ description
+<p>Напиши класс <code>PositiveDonationsSum</code>. Терминал сбора пожертвований записал <code>n</code> платежей, но иногда сбоил и записывал отрицательную сумму — это ошибка, её надо пропустить. В первой строке — <code>n</code> (n ≥ 0), во второй — <code>n</code> целых сумм через пробел. Напечатай <code>Собрано: S, ошибок: E</code>, где S — сумма неотрицательных платежей, E — сколько было отрицательных.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       100 -5 250 -1 50
+вывод: Собрано: 400, ошибок: 2</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>continue;</code> — переход к следующей итерации: остаток тела цикла пропускается</li>
+</ul></div>
+@@ test: Две ошибки
+@@ input
+5
+100 -5 250 -1 50
+@@ expect
+Собрано: 400, ошибок: 2
+@@ test: Без ошибок
+@@ input
+3
+10 20 30
+@@ expect
+Собрано: 60, ошибок: 0
+@@ test: Только ошибки
+@@ input
+2
+-10 -20
+@@ expect
+Собрано: 0, ошибок: 2
+@@ test: Нулевой платёж — не ошибка
+@@ input
+3
+0 -7 0
+@@ expect
+Собрано: 0, ошибок: 1
+@@ test: Платежей нет
+@@ input
+0
+@@ expect
+Собрано: 0, ошибок: 0

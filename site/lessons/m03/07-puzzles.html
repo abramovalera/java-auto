@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки по операторам · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 3 · Головоломки</div>
+    <h1>Что выведется? Скомпилируется ли?</h1>
+    <p class="lead">Операторы — любимая тема собеседований: <code>i++ + ++i</code>, <code>7 / 2 * 2</code>, остаток от отрицательного числа, символы, которые внезапно складываются как числа. Здесь собраны классические ловушки — решай в голове, запускать нельзя.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — со звёздочкой</span></div>
+  </header>
+
+  <div class="callout tip">
+    <span class="callout-title">Как решать</span>
+    <p>Сначала <strong>скажи ответ вслух и объясни почему</strong>, только потом кликай. Для задач с <code>++</code> рисуй на бумажке табличку «переменная | значение» и меняй её на каждом шаге — как в трассировщике из уроков.</p>
+  </div>
+
+  <h2>Что выведется на экран?</h2>
+
+  <div class="quiz">
+    <p class="q">1. Разминка. Что напечатает?</p>
+<pre><code class="java">System.out.println(7 / 2 * 2);</code></pre>
+    <ul>
+      <li data-why="Хочется сократить «/ 2 * 2», но Java считает по шагам: сначала 7 / 2 — целочисленно.">7</li>
+      <li data-correct data-why="/ и * одного приоритета, слева направо: 7 / 2 = 3 (целые!), потом 3 * 2 = 6. Потерянную половинку умножение не вернёт.">6</li>
+      <li data-why="Дробей тут нет: все числа int, результат тоже int.">7.0</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Остаток с минусами. Что напечатает?</p>
+<pre><code class="java">System.out.println(5 % -3 + " " + -5 % 3);</code></pre>
+    <ul>
+      <li data-correct data-why="Знак остатка — как у левого числа (делимого). 5 % -3: 5 положительное → 2. -5 % 3: −5 отрицательное → −2. Минус у делителя на знак не влияет.">2 -2</li>
+      <li data-why="Наоборот: знак остатка берётся у ЛЕВОГО числа, а не у правого.">-2 2</li>
+      <li data-why="Модуль остатка верный, но у -5 % 3 остаток отрицательный: знак как у делимого.">2 1</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. Классика собеседований. Что напечатает?</p>
+<pre><code class="java">int i = 5;
+i = i++ + ++i;
+System.out.println(i);</code></pre>
+    <ul>
+      <li data-why="Похоже на 5 + 6, но второй операнд ++i увеличивает уже шестёрку.">11</li>
+      <li data-correct data-why="Операнды вычисляются слева направо: i++ отдаёт 5, i становится 6. Потом ++i делает i = 7 и отдаёт 7. 5 + 7 = 12, и этот результат присваивается i.">12</li>
+      <li data-why="Похоже на 6 + 7, но постфиксный i++ отдаёт СТАРОЕ значение — 5.">13</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Символы и числа. Что напечатают две строки?</p>
+<pre><code class="java">char c = 'A';
+System.out.println(c + 1);
+c++;
+System.out.println(c);</code></pre>
+    <ul>
+      <li data-why="c + 1 — это арифметика: char превращается в свой код, и результат — число int, а не символ.">B и B</li>
+      <li data-correct data-why="c + 1: код 'A' (65) + 1 = 66, тип int — печатается число. А c++ меняет саму переменную типа char — в ней теперь следующий символ, 'B'.">66 и B</li>
+      <li data-why="c++ не меняет тип переменной: c остаётся char и печатается как символ.">66 и 66</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Цифра в кавычках. Что напечатает?</p>
+<pre><code class="java">System.out.println('1' + 2);</code></pre>
+    <ul>
+      <li data-why="Склейка бывает только со String (двойные кавычки). '1' — это char, то есть число-код.">12</li>
+      <li data-why="'1' — не число 1, а символ «единица». Его код совсем не 1.">3</li>
+      <li data-correct data-why="Символ '1' имеет код 49. char + int — арифметика: 49 + 2 = 51. Для склейки нужно &quot;1&quot; + 2 → 12.">51</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">6. Что напечатает?</p>
+<pre><code class="java">System.out.println((0.1 + 0.2 == 0.3) + " " + (0.5 + 0.25 == 0.75));</code></pre>
+    <ul>
+      <li data-why="0.1 и 0.2 нельзя точно записать в двоичной системе — сумма получается 0.30000000000000004.">true true</li>
+      <li data-correct data-why="0.1 и 0.2 в двоичном виде — бесконечные дроби, и сумма чуть-чуть не равна 0.3. А 0.5 (1/2) и 0.25 (1/4) записываются в двоичной системе точно, и сумма ровно 0.75. Но надеяться на это нельзя — double сравнивают с допуском.">false true</li>
+      <li data-why="Не все дроби неточные: половинки и четвертинки двоичная система хранит идеально.">false false</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">7. Короткое замыкание. Что напечатает?</p>
+<pre><code class="java">int x = 0;
+boolean r = x == 0 || x++ &gt; 0;
+System.out.println(x + " " + r);</code></pre>
+    <ul>
+      <li data-why="x++ так и не выполнился: левый операнд || уже true.">1 true</li>
+      <li data-correct data-why="x == 0 — true, а для || этого достаточно. Правый операнд Java не вычисляет — x остаётся 0.">0 true</li>
+      <li data-why="Левый операнд true, значит, всё выражение || — true.">0 false</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется ли?</h2>
+
+  <div class="quiz">
+    <p class="q">8. Проверка диапазона, как в математике. Скомпилируется?</p>
+<pre><code class="java">int x = 5;
+boolean ok = 1 &lt; x &lt; 10;</code></pre>
+    <ul>
+      <li data-why="В математике так пишут, но в Java сравнения идут по одному.">Да, ok = true</li>
+      <li data-correct data-why="1 &lt; x даёт boolean (true), потом true &lt; 10 — сравнивать boolean с числом нельзя: bad operand types. Правильно: x &gt; 1 &amp;&amp; x &lt; 10.">Нет: boolean нельзя сравнить с числом</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">9. Скомпилируется?</p>
+<pre><code class="java">int power = Math.pow(2, 3);</code></pre>
+    <ul>
+      <li data-why="2 в кубе — 8, это правда, но тип результата у pow не int.">Да, power = 8</li>
+      <li data-correct data-why="Math.pow всегда возвращает double (8.0). Инициализировать переменную int значением double без приведения нельзя: possible lossy conversion. Нужно (int) Math.pow(2, 3).">Нет: pow возвращает double</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">10. ★★★ Скомпилируется? Если да — что выведет?</p>
+<pre><code class="java">int x = 10;
+x += 2.7;
+System.out.println(x);</code></pre>
+    <ul>
+      <li data-why="Для x = x + 2.7 это было бы верно. Но составное присваивание ведёт себя иначе.">Нет: нельзя прибавить double к int</li>
+      <li data-correct data-why="Составное присваивание само приводит результат к типу переменной: x = (int) (10 + 2.7) = (int) 12.7 = 12. Компилируется молча — и дробь теряется.">Да, выведет 12</li>
+      <li data-why="x — переменная int, дробную часть она хранить не может.">Да, выведет 12.7</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется, но что будет при запуске?</h2>
+
+  <div class="quiz">
+    <p class="q">11. Что произойдёт при запуске?</p>
+<pre><code class="java">System.out.println(10.0 / 0);
+System.out.println(10 / 0);</code></pre>
+    <ul>
+      <li data-why="double на ноль не падает, но int на ноль — падает.">Напечатает Infinity и Infinity</li>
+      <li data-correct data-why="10.0 / 0 — деление double, получится Infinity. А 10 / 0 — деление int: ArithmeticException: / by zero. Программа успеет напечатать первую строку и упадёт на второй.">Напечатает Infinity, потом упадёт с ArithmeticException</li>
+      <li data-why="Компилятор такое не ловит: и 10.0 / 0, и 10 / 0 компилируются.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">12. Бросаем кубик. Какие числа будут выпадать?</p>
+<pre><code class="java">int dice = (int) Math.random() * 6 + 1;
+System.out.println(dice);</code></pre>
+    <ul>
+      <li data-why="Так было бы с правильными скобками: (int) (Math.random() * 6) + 1.">От 1 до 6</li>
+      <li data-correct data-why="Приведение (int) — унарный оператор, он главнее умножения. (int) Math.random() — всегда 0 (число от 0 до 0.999 без дроби). 0 * 6 + 1 = 1. Кубик всегда показывает единицу.">Всегда 1</li>
+      <li data-why="Ноль получается на промежуточном шаге, но потом прибавляется 1.">Всегда 0</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">13. Бесплатный обед. Что напечатает?</p>
+<pre><code class="java">int x = 0;
+boolean r = x != 0 &amp;&amp; 10 / x &gt; 1;
+System.out.println(r);</code></pre>
+    <ul>
+      <li data-why="До деления дело не доходит: x != 0 уже false.">ArithmeticException: / by zero</li>
+      <li data-correct data-why="x != 0 — false, и &amp;&amp; сразу отвечает false, не вычисляя 10 / x. Порядок «сначала проверь, потом дели» спасает от аварии.">false</li>
+      <li data-why="Для true оба операнда должны быть true, а левый — false.">true</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">14. ★★★ Переменная long — значит, места хватит? Что напечатает?</p>
+<pre><code class="java">long big = 1_000_000 * 1_000_000;
+System.out.println(big);</code></pre>
+    <ul>
+      <li data-why="Так было бы, если бы умножение шло в long. Но оба множителя — int.">1000000000000</li>
+      <li data-correct data-why="Выражение справа вычисляется первым: int * int = int, триллион в int не помещается — переполнение, получается мусор −727379968. Только потом этим значением инициализируется переменная long. Лечится буквой L: 1_000_000L * 1_000_000.">-727379968</li>
+      <li data-why="Переполнение int не вызывает ошибку компиляции или запуска — число просто «заворачивается».">Ошибка: число слишком большое</li>
+    </ul>
+  </div>
+
+  <h2>Найди ошибки</h2>
+
+  <div class="quiz">
+    <p class="q">15. Программа делит 17 конфет на 5 человек и проверяет, поровну ли вышло. Сколько здесь ошибок?</p>
+<pre><code class="java">int total = 17;
+int people = 5;
+double each = total / people;
+boolean fair = total % people = 0;
+System.out.println(each + " " + fair);</code></pre>
+    <ul>
+      <li data-why="Это главная ошибка — компиляции. Но есть и вторая, тихая: посмотри на строку 3.">Одна: в строке 4 = вместо ==</li>
+      <li data-correct data-why="1) Строка 4: = вместо == — не скомпилируется. 2) Строка 3: total / people — деление int, получится 3.0 вместо 3.4. Нужно (double) total / people. Вторая ошибка логическая: компилятор её не заметит.">Две: = вместо == в строке 4 и целочисленное деление в строке 3</li>
+      <li data-why="Перечитай строку 4: там присваивание, а не сравнение.">Ошибок нет</li>
+    </ul>
+  </div>
+
+  <section class="pz-reading">
+    <h2>Читаем код</h2>
+    <p>Головоломки решены — теперь прочитай каждую строку вслух правильными словами: <b>выражение</b>, <b>оператор</b> и <b>операнды</b>, <b>инкремент</b>, <b>составное присваивание</b>, <b>сравнение</b>, <b>вызов метода</b>. В одних заданиях выбери верное описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m03-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 3", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке?", "code": "count++;",
+            "options": ["Объявление переменной <code>count</code> типа int", "Инкремент: <code>count</code> увеличивается на 1", "Сравнение значения <code>count</code> с литералом 1", "Вызов метода <code>count</code> без аргументов", "Инициализация переменной <code>count</code> значением 1"],
+            "answer": 1, "why": "<code>++</code> — оператор инкремента: увеличивает значение переменной на 1. Строка — отдельная инструкция, поэтому здесь неважно, постфиксный он или префиксный." },
+          { "type": "single", "q": "Переменные уже объявлены. Что делает строка?", "code": "total += price;",
+            "options": ["Объявляет переменную <code>total</code> и инициализирует её значением <code>price</code>", "Составное присваивание: <code>total</code> присваивается <code>total + price</code>", "Сравнивает <code>total</code> и <code>price</code>", "Присваивает переменной <code>price</code> значение <code>total</code>", "Склеивает <code>total</code> и <code>price</code> в строку"],
+            "answer": 1, "why": "<code>+=</code> — оператор составного присваивания: <code>total += price</code> значит <code>total = total + price</code>. Типа слева нет — значит, новая переменная не объявляется." },
+          { "type": "single", "q": "Переменная <code>a</code> равна 5. Что происходит?", "code": "int b = a++;",
+            "options": ["Объявляем <code>b</code> и инициализируем новым значением <code>a</code> (6): <code>a</code> сначала увеличился", "Объявляем <code>b</code> и инициализируем старым значением <code>a</code> (5), затем <code>a</code> становится 6", "Присваиваем переменной <code>a</code> значение переменной <code>b</code>, увеличенное на единицу", "Сравниваем <code>b</code> и <code>a</code>, потом увеличиваем <code>a</code>", "Объявляем <code>b</code>, а <code>a</code> не меняется"],
+            "answer": 1, "why": "Постфиксный инкремент: значение выражения <code>a++</code> — старое (5), им инициализируется <code>b</code>. Увеличение <code>a</code> до 6 происходит после." },
+          { "type": "single", "q": "Какие операнды у оператора <code>%</code>?", "code": "int left = eggs % perBox;",
+            "options": ["<code>left</code> и <code>eggs</code>", "<code>eggs</code> и <code>perBox</code>", "<code>int</code> и <code>left</code>", "<code>=</code> и <code>%</code>", "только <code>perBox</code>"],
+            "answer": 1, "why": "Операнды — то, над чем действует оператор: значения слева и справа от <code>%</code>. <code>left</code> — переменная, которую инициализируют результатом, <code>=</code> — оператор присваивания." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "boolean isAdult = age >= 18;",
+            "options": ["Переменной <code>age</code> присваивается значение 18", "Объявляем <code>isAdult</code> типа <code>boolean</code> и инициализируем её литералом 18", "Объявляем <code>isAdult</code> и инициализируем результатом сравнения <code>age >= 18</code>", "Вызываем метод <code>isAdult</code> с аргументом <code>age</code>", "Сравниваем <code>isAdult</code> с <code>age</code>"],
+            "answer": 2, "why": "Сравнение — выражение типа <code>boolean</code>. Его значение (true или false) и инициализирует переменную <code>isAdult</code>. Число 18 в переменную не попадает — это операнд сравнения." },
+          { "type": "single", "q": "Что произойдёт, если <code>count</code> равен 0?", "code": "boolean ok = count != 0 && sum / count > 2;",
+            "options": ["Программа упадёт с ArithmeticException: / by zero", "Вычислятся оба операнда <code>&amp;&amp;</code>: сначала сравнение, потом деление, и <code>ok</code> будет false", "Левый операнд — false, правый не вычисляется, <code>ok</code> инициализируется значением false", "Ошибка компиляции: на переменную делить нельзя", "<code>ok</code> инициализируется значением true"],
+            "answer": 2, "why": "Короткое замыкание: левый операнд <code>count != 0</code> — false, значит, результат <code>&amp;&amp;</code> уже ясен. Правый операнд с делением не вычисляется — аварии нет." },
+          { "type": "build", "q": "Собери описание строки", "code": "double root = Math.sqrt(16);",
+            "answer": ["объявляем переменную <code>root</code> типа <code>double</code>", "и инициализируем её значением,", "которое возвращает вызов метода <code>Math.sqrt</code>", "с аргументом 16"],
+            "extra": ["и сравниваем с 16", "присваиваем литерал 4", "объявляем метод <code>sqrt</code>"] },
+          { "type": "build", "q": "Собери описание строки (переменная <code>x</code> объявлена раньше)", "code": "x = x * 2 + 1;",
+            "answer": ["вычисляется выражение <code>x * 2 + 1</code>", "и его результат", "присваивается переменной <code>x</code>"],
+            "extra": ["объявляется переменная <code>x</code>", "сначала выполняется сложение", "и сравнивается с <code>x</code>"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <div class="callout ai">
+    <span class="callout-title">Хочешь ещё?</span>
+    <p>Напиши наставнику: <em>«Дай мне 3 головоломки по операторам уровня собеседования — с ++, приоритетом и остатком. По одной, ответ не говори, пока я не объясню»</em>. На экзамене модуля такие тоже будут.</p>
+  </div>
+
+  <section class="summary">
+    <h2>Что запомнить из головоломок</h2>
+    <ul>
+      <li>int / int — целое; дробь теряется на первом же делении и уже не возвращается.</li>
+      <li>Знак остатка — как у левого числа. Символ в одинарных кавычках — это число-код.</li>
+      <li><code>i++</code> отдаёт старое, <code>++i</code> — новое; операнды вычисляются слева направо.</li>
+      <li><code>&amp;&amp;</code> и <code>||</code> не вычисляют правый операнд, если ответ уже ясен по левому.</li>
+      <li>Тип результата решает всё: <code>Math.pow</code> → double, <code>int * int</code> переполняется, <code>+=</code> молча обрезает дробь.</li>
+    </ul>
+  </section>
+
+</main>
+</body>
+</html>

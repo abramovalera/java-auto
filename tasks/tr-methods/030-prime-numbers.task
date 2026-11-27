@@ -1,0 +1,54 @@
+## id: tr-methods-030
+## title: Простые числа
+## file: trainer/methods/PrimeNumbersMethod.java
+## class: PrimeNumbersMethod
+## level: 2
+## category: Методы-проверки
+@@ description
+<p>Простое число больше 1 и делится только на 1 и на себя. Создай класс <code>PrimeNumbersMethod</code> и напиши метод <code>static boolean isPrime(int n)</code>. Для 0, 1 и отрицательных чисел он возвращает <code>false</code>.</p>
+<p>main читает в первой строке количество чисел <code>k</code>, во второй — <code>k</code> целых чисел через пробел, и для каждого печатает отдельной строкой <code>N — простое</code> или <code>N — не простое</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       7 8 1
+вывод: 7 — простое
+       8 — не простое
+       1 — не простое</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>делители достаточно искать от 2, пока <code>d * d &lt;= n</code> — иначе на больших числах будет долго</li>
+<li>нашёл делитель — сразу <code>return false;</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+7 8 1
+@@ expect
+7 — простое
+8 — не простое
+1 — не простое
+@@ test: Маленькие числа
+@@ input
+5
+2 3 4 9 25
+@@ expect
+2 — простое
+3 — простое
+4 — не простое
+9 — не простое
+25 — не простое
+@@ test: Ноль и отрицательные
+@@ input
+3
+0 -7 -2
+@@ expect
+0 — не простое
+-7 — не простое
+-2 — не простое
+@@ test: Большие числа
+@@ input
+3
+1000003 1000001 999983
+@@ expect
+1000003 — простое
+1000001 — не простое
+999983 — простое
+@@ require: static\s+boolean\s+isPrime\s*\(\s*int\s+\w+\s*\) | Нужен метод static boolean isPrime(int n)
+@@ require: \WisPrime\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать isPrime(...) для каждого числа

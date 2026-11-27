@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Многопоточность в автотестах · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m16-05">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 16 · Урок 5</div>
+    <h1>Многопоточность в автотестах</h1>
+    <p class="lead">Зачем всё это автоматизатору? Тесты гоняют параллельно, браузер грузит страницу в своём темпе, а флаки-тесты съедают нервы всей команде. Собираем модуль в практические правила.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🏎 параллельный запуск</span><span>⏳ ожидания вместо sleep</span><span>🎤 вопросы с собеседований</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m16-05-review">
+      <script type="application/json">
+      { "title": "Вспомним уроки 16.2–16.4", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Программа зависла, процессор не загружен, ошибок нет. Два потока берут два замка. Что это, скорее всего?",
+            "options": ["Гонка данных", "Deadlock", "Утечка памяти"], "answer": 1,
+            "why": "Каждый держит один замок и ждёт второй — круг ожидания." },
+          { "type": "match", "q": "Соедини проблему с лекарством",
+            "left": ["count++ теряет обновления", "Поток не видит изменённый флаг", "ArrayList из нескольких потоков", "Deadlock"],
+            "right": ["AtomicInteger или synchronized", "volatile", "Collections.synchronizedList или CopyOnWriteArrayList", "Брать замки в одном порядке"],
+            "why": "Четыре главные болезни многопоточности и их стандартные лекарства." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Параллельный запуск тестов</h2>
+    <p>UI-тест в основном <b>ждёт</b>: пока откроется браузер, загрузится страница, ответит сервер. Процессор при этом почти свободен. Значит, несколько тестов можно гнать одновременно, каждый в своём потоке и со своим браузером.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Шесть тестов по очереди занимают 30 минут, в три потока — около 10 минут">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="20" y="30" class="d-title">По очереди: 1 поток</text>
+        <rect x="20" y="44" width="110" height="34" rx="6" class="d-blue"/><text x="75" y="66" text-anchor="middle" class="d-small">тест 1</text>
+        <rect x="134" y="44" width="110" height="34" rx="6" class="d-blue"/><text x="189" y="66" text-anchor="middle" class="d-small">тест 2</text>
+        <rect x="248" y="44" width="110" height="34" rx="6" class="d-blue"/><text x="303" y="66" text-anchor="middle" class="d-small">тест 3</text>
+        <rect x="362" y="44" width="110" height="34" rx="6" class="d-blue"/><text x="417" y="66" text-anchor="middle" class="d-small">тест 4</text>
+        <rect x="476" y="44" width="110" height="34" rx="6" class="d-blue"/><text x="531" y="66" text-anchor="middle" class="d-small">тест 5</text>
+        <rect x="590" y="44" width="110" height="34" rx="6" class="d-blue"/><text x="645" y="66" text-anchor="middle" class="d-small">тест 6</text>
+        <text x="706" y="66" class="d-small">30 мин</text>
+        <text x="20" y="118" class="d-title">Параллельно: 3 потока</text>
+        <text x="20" y="152" class="d-small">поток 1</text>
+        <rect x="90" y="134" width="110" height="28" rx="6" class="d-teal"/><text x="145" y="153" text-anchor="middle" class="d-small">тест 1</text>
+        <rect x="204" y="134" width="110" height="28" rx="6" class="d-teal"/><text x="259" y="153" text-anchor="middle" class="d-small">тест 4</text>
+        <text x="20" y="186" class="d-small">поток 2</text>
+        <rect x="90" y="168" width="110" height="28" rx="6" class="d-teal"/><text x="145" y="187" text-anchor="middle" class="d-small">тест 2</text>
+        <rect x="204" y="168" width="110" height="28" rx="6" class="d-teal"/><text x="259" y="187" text-anchor="middle" class="d-small">тест 5</text>
+        <text x="20" y="220" class="d-small">поток 3</text>
+        <rect x="90" y="202" width="110" height="28" rx="6" class="d-teal"/><text x="145" y="221" text-anchor="middle" class="d-small">тест 3</text>
+        <rect x="204" y="202" width="110" height="28" rx="6" class="d-teal"/><text x="259" y="221" text-anchor="middle" class="d-small">тест 6</text>
+        <text x="324" y="187" class="d-small">≈ 10 мин</text>
+        <rect x="430" y="140" width="310" height="84" rx="12" class="d-yellow"/>
+        <text x="446" y="166" class="d-text">Цена скорости:</text>
+        <text x="446" y="190" class="d-small">тесты не должны мешать друг другу —</text>
+        <text x="446" y="210" class="d-small">никаких общих изменяемых данных</text>
+      </svg>
+      <figcaption>Те же шесть тестов: по очереди и в три потока. Пул потоков из урока 3 — только теперь его держит тестовый фреймворк.</figcaption>
+    </figure>
+    <p>Создавать объекты потоков (<code>new Thread</code>) в тестах не придётся: параллельность включают <b>настройкой</b>, а потоки создаёт и запускает сам фреймворк. Например, в JUnit 5 (модуль 17) — файлом <code>src/test/resources/junit-platform.properties</code>:</p>
+<pre data-file="junit-platform.properties"><code class="java">junit.jupiter.execution.parallel.enabled = true
+junit.jupiter.execution.parallel.mode.default = concurrent</code></pre>
+    <div data-widget="ide" id="shot-junit-properties">
+      <script type="application/json">
+      { "project": "shop-autotests", "status": "shop-autotests › src › test › resources › junit-platform.properties",
+        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+                  { "name": "src", "type": "folder", "depth": 1, "open": true },
+                  { "name": "main", "type": "folder", "depth": 2 },
+                  { "name": "test", "type": "folder", "depth": 2, "open": true },
+                  { "name": "java", "type": "src", "depth": 3, "note": "тесты" },
+                  { "name": "resources", "type": "folder", "depth": 3, "open": true, "note": "настройки" },
+                  { "name": "junit-platform.properties", "type": "file", "depth": 4, "selected": true },
+                  { "name": "build.gradle.kts", "type": "file", "depth": 1 } ],
+        "file": "junit-platform.properties",
+        "code": "junit.jupiter.execution.parallel.enabled = true\njunit.jupiter.execution.parallel.mode.default = concurrent",
+        "marks": [ { "n": 1, "target": "tree-resources", "text": "Папка <b>src/test/resources</b> — для файлов-настроек тестов (не Java-кода). JUnit сам ищет там файл с таким именем" },
+                   { "n": 2, "target": "tree-junit-platform.properties", "side": "left", "text": "Имя файла — ровно <code>junit-platform.properties</code>, буква в букву. Создать: правый клик по <b>resources</b> → <b>New</b> → <b>File</b>" },
+                   { "n": 3, "target": "line-1", "side": "top", "text": "Каждая строка — «ключ = значение». Первая включает параллельный запуск, вторая говорит запускать тесты одновременно" } ],
+        "caption": "Где лежит настройка параллельного запуска JUnit" }
+      </script>
+    </div>
+    <p>Одна строчка — и тесты побежали в несколько потоков. А вот сделать так, чтобы они при этом не ломались, — уже работа автоматизатора.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Что ломается при параллельном запуске</h2>
+    <p>По одному все тесты зелёные, вместе — то один красный, то другой. Почти всегда причина — <b>общие данные</b>. Это та же гонка из урока 2, только «общий счётчик» здесь — пользователь, заказ или поле класса.</p>
+<pre data-file="CartTest.java"><code class="java">// ПЛОХО: одно поле на все тесты, а тесты идут в разных потоках
+static String orderId;
+
+// поток 1 записал свой заказ…
+void createOrder() { orderId = api.createOrder(); }
+// …а прочитал — заказ потока 2
+void checkOrder() { assertPaid(api.getOrder(orderId)); }
+
+// ХОРОШО: всё нужное тест создаёт себе сам, в локальных переменных
+void orderIsPaid() {
+    String login = "user_" + UUID.randomUUID();   // уникальный пользователь
+    String orderId = api.createOrder(login);
+    assertPaid(api.getOrder(orderId));
+}</code></pre>
+    <div class="cards">
+      <div class="card"><span class="emoji">🧍</span><h4>Свои данные</h4><p>Каждый тест создаёт своего пользователя, свой заказ, файл с уникальным именем. <code>UUID.randomUUID()</code> — случайный уникальный кусок для имён.</p></div>
+      <div class="card"><span class="emoji">🚫</span><h4>Без static-состояния</h4><p>Изменяемые <code>static</code>-поля в тестах — главный источник гонок. Общими могут быть только неизменяемые настройки: адрес стенда, таймауты.</p></div>
+      <div class="card"><span class="emoji">🔀</span><h4>Без порядка</h4><p>Тест B не должен рассчитывать, что тест A уже отработал. При параллельном запуске порядка нет — как с выводом потоков в уроке 1.</p></div>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: ThreadLocal — «у каждого потока своя копия»</summary>
+      <p>Как Selenide даёт каждому параллельному тесту свой браузер, если в коде просто <code>open("/login")</code> без всякого драйвера? Через <code>ThreadLocal</code>: это «переменная с отдельной ячейкой для каждого потока». Поток 1 кладёт туда свой браузер, поток 2 — свой, и они не пересекаются. Похожий приём используют для своих фреймворков: <code>ThreadLocal&lt;WebDriver&gt; driver = new ThreadLocal&lt;&gt;();</code>, потом <code>driver.set(...)</code> и <code>driver.get()</code> — каждый поток видит своё. Не забывай вызывать <code>driver.remove()</code> в конце: потоки пула живут долго, а данные прошлого теста могут достаться следующему.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Ожидания: почему Thread.sleep — плохо</h2>
+    <p>Ты нажал «Оплатить», а надпись «Оплачено» появится, когда ответит сервер — через 0,3 секунды или через 3. Сам браузер — отдельная программа со своими потоками, твой тест не знает, когда она закончит. Первое, что приходит в голову:</p>
+<pre data-file="PayTest.java"><code class="java">payButton.click();
+Thread.sleep(5000);  // подождём 5 секунд «на всякий случай»
+assertEquals("Оплачено", status.getText());</code></pre>
+    <div class="cards">
+      <div class="card"><span class="emoji">🐢</span><h4>Слишком долго</h4><p>Обычно ответ за 0,5 секунды, а тест всегда спит 5. Двести таких мест — 16 минут чистого сна в каждом прогоне.</p></div>
+      <div class="card"><span class="emoji">🎲</span><h4>Слишком коротко</h4><p>Стенд под нагрузкой ответил за 6 секунд — тест упал, хотя приложение работает. Флаки. Увеличишь до 10 — станет ещё медленнее.</p></div>
+    </div>
+    <p>Правильно — <b>явное ожидание</b> (explicit wait): проверять условие часто, например каждые 100 мс, и идти дальше, <b>как только</b> оно выполнилось. А если не выполнилось за таймаут — падать с понятной ошибкой.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 220" role="img" aria-label="sleep всегда ждёт 5 секунд, явное ожидание проверяет каждые 100 мс и продолжает через 1,2 секунды">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <path d="M150 30 V190" class="d-dash"/>
+        <path d="M262 30 V190" class="d-dash"/>
+        <text x="262" y="208" text-anchor="middle" class="d-small">надпись появилась (1,2 с)</text>
+        <text x="20" y="62" class="d-text">sleep(5000)</text>
+        <rect x="150" y="42" width="560" height="32" rx="8" class="d-red"/>
+        <text x="430" y="63" text-anchor="middle" class="d-small">спим 5 секунд, что бы ни случилось</text>
+        <text x="20" y="140" class="d-text">ожидание</text>
+        <rect x="150" y="120" width="112" height="32" rx="8" class="d-green"/>
+        <text x="206" y="141" text-anchor="middle" class="d-small">проверки</text>
+        <path d="M168 116 V108 M186 116 V108 M204 116 V108 M222 116 V108 M240 116 V108 M258 116 V108" class="d-line"/>
+        <path d="M266 136 H330" class="d-arrow"/>
+        <text x="338" y="141" class="d-small">дальше, тест идёт сразу</text>
+        <path d="M150 180 H720" class="d-arrow"/>
+        <text x="720" y="200" text-anchor="end" class="d-small">время →</text>
+      </svg>
+      <figcaption>Явное ожидание ждёт ровно столько, сколько нужно, и не больше таймаута.</figcaption>
+    </figure>
+    <p>Самодельное явное ожидание — это просто цикл, который ты уже умеешь написать:</p>
+<pre data-file="Waits.java"><code class="java">static void waitUntil(BooleanSupplier condition, long timeoutMs)
+        throws InterruptedException {
+    long deadline = System.currentTimeMillis() + timeoutMs;
+    while (!condition.getAsBoolean()) {
+        if (System.currentTimeMillis() &gt; deadline) {
+            throw new AssertionError("Не дождались за " + timeoutMs + " мс");
+        }
+        Thread.sleep(100);                // короткая пауза между проверками
+    }
+}
+
+// в тесте:
+waitUntil(() -&gt; status.getText().equals("Оплачено"), 10_000);</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>BooleanSupplier condition</code><div><p>Параметр <code>condition</code> имеет тип функционального интерфейса из модуля 14: его метод <code>getAsBoolean()</code> без параметров возвращает <code>boolean</code>. При вызове <code>waitUntil</code> условие передаём аргументом — лямбда-выражением, чтобы его можно было проверять снова и снова.</p></div></div>
+      <div class="annot-row"><code>Thread.sleep(100)</code><div><p>Вызов статического метода <code>sleep</code> с аргументом 100 здесь уместен: это не «гадание на время», а пауза между проверками, чтобы не нагружать процессор.</p></div></div>
+    </div>
+    <p>В настоящих проектах такой цикл уже написан за тебя:</p>
+<pre data-file="SelenideExample.java"><code class="java">// Selenide: каждая проверка сама ждёт до 4 секунд (Configuration.timeout)
+$("#status").shouldHave(text("Оплачено"));
+
+// Selenium без Selenide: ожидание приходится писать явно
+new WebDriverWait(driver, Duration.ofSeconds(10))
+        .until(ExpectedConditions.textToBe(By.id("status"), "Оплачено"));</code></pre>
+    <div class="say" data-mood="happy"><p>Вот почему в модуле 18 мы возьмём Selenide: он ждёт сам, и <code>Thread.sleep</code> в тестах тебе почти никогда не понадобится. Увидишь <code>sleep</code> в чужом тесте — это повод задать вопрос на код-ревью.</p></div>
+    <details class="predict">
+      <summary>Тест с явным ожиданием (таймаут 10 с) упал по таймауту. Это лучше или хуже, чем падение теста со sleep(5000)?</summary>
+      <p>Лучше. Явное ожидание падает, только когда условие <b>не выполнилось за 10 секунд</b> — значит, приложение действительно тормозит или сломано, это настоящий баг. А тест со <code>sleep</code> падает и тогда, когда всё работает, просто на секунду медленнее обычного.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Шпаргалка к собеседованию</h2>
+    <p>Вопросы, которые задают джуну-автоматизатору по многопоточности. Сначала ответь вслух, потом открой.</p>
+    <details class="predict">
+      <summary>Чем процесс отличается от потока?</summary>
+      <p>Процесс — запущенная программа со своей памятью. Поток — исполнитель внутри процесса. Потоки одного процесса делят общую кучу (объекты), но у каждого свой стек (локальные переменные).</p>
+    </details>
+    <details class="predict">
+      <summary>Как создать поток? Чем start() отличается от run()?</summary>
+      <p>Наследник <code>Thread</code> или создание объекта потока <code>new Thread(...)</code> с задачей <code>Runnable</code> (лямбда-выражением) в аргументе конструктора; в реальном коде — пул <code>ExecutorService</code>. Вызов <code>start()</code> запускает новый поток, <code>run()</code> — обычный вызов метода в текущем потоке. Повторный <code>start()</code> — <code>IllegalThreadStateException</code>.</p>
+    </details>
+    <details class="predict">
+      <summary>Что такое race condition и как её избежать?</summary>
+      <p>Результат зависит от того, какой поток успел первым, когда несколько потоков меняют общие данные. Лечение: синхронизированный блок <code>synchronized</code>, атомики (<code>AtomicInteger</code>), потокобезопасные коллекции, а лучше — не делить изменяемые данные вовсе.</p>
+    </details>
+    <details class="predict">
+      <summary>Что делает volatile? Делает ли он count++ безопасным?</summary>
+      <p>Гарантирует видимость: каждое чтение — свежее значение из общей памяти. Атомарности не даёт: <code>count++</code> на <code>volatile</code> всё равно теряет обновления.</p>
+    </details>
+    <details class="predict">
+      <summary>Что такое deadlock и как его избежать?</summary>
+      <p>Потоки держат по замку и ждут замки друг друга — круг ожидания, программа висит. Избежать — брать замки всегда в одном порядке (или ждать с таймаутом через <code>tryLock</code>).</p>
+    </details>
+    <details class="predict">
+      <summary>Runnable и Callable — разница? Что такое Future?</summary>
+      <p>Задача <code>Runnable</code>: метод <code>run()</code> ничего не возвращает и не бросает проверяемых исключений; задача <code>Callable</code>: метод <code>call()</code> возвращает значение и может бросать. <code>Future</code> — «чек» на будущий результат: вызов <code>get()</code> ждёт и возвращает его.</p>
+    </details>
+    <details class="predict">
+      <summary>Почему Thread.sleep в UI-тестах — плохо?</summary>
+      <p>Фиксированная пауза либо слишком длинная (медленные тесты), либо слишком короткая (флаки). Нужны явные ожидания условия с таймаутом; Selenide делает их сам.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: CompletableFuture одним абзацем</summary>
+      <p><code>CompletableFuture</code> — «прокачанный Future»: к результату можно прицепить следующие шаги, как в стримах, не блокируя поток на <code>get()</code>. <code>CompletableFuture.supplyAsync(() -&gt; api.getUser(id))</code> запускает задачу в общем пуле, <code>.thenApply(user -&gt; user.getName())</code> обработает результат, когда он появится, а <code>.join()</code> в конце дождётся всего (как <code>get()</code>, но без проверяемых исключений). Можно запустить три запроса сразу и дождаться всех: <code>CompletableFuture.allOf(a, b, c).join()</code>. В автотестах встречается редко — например, чтобы параллельно подготовить тестовые данные через API.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m16-05">
+      <script type="application/json">
+      { "title": "Потоки и автотесты",
+        "items": [
+          { "type": "single", "q": "Тесты по одному зелёные, при параллельном запуске иногда падают. Что проверить в первую очередь?",
+            "options": ["Нет ли общих изменяемых данных: static-полей, общего пользователя, общего файла", "Хватает ли памяти компьютеру", "Не забыли ли вызвать run() вместо start()"], "answer": 0,
+            "why": "Главная причина флаки при параллельности — тесты делят данные и мешают друг другу." },
+          { "type": "multi", "q": "Что делает тесты независимыми?",
+            "options": ["Уникальный пользователь в каждом тесте", "Общее static-поле для id созданного заказа", "Локальные переменные вместо полей класса", "Расчёт на то, что тест A выполнится раньше теста B"],
+            "answer": [0, 2], "why": "Свои данные и локальные переменные — да. Общие static-поля и порядок запуска при параллельности ломаются." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Thread.sleep(5000) перед проверкой гарантирует, что тест не будет флаки", "a": false, "why": "стенд может ответить и через 6 секунд. Нужно ожидание условия." },
+              { "s": "Явное ожидание продолжает тест сразу, как только условие выполнилось", "a": true },
+              { "s": "Selenide-проверка shouldHave сама ждёт появления нужного текста до таймаута", "a": true }
+            ] },
+          { "type": "order", "q": "Собери явное ожидание",
+            "lines": ["long deadline = System.currentTimeMillis() + timeoutMs;", "while (!condition.getAsBoolean()) {", "    if (System.currentTimeMillis() > deadline) {", "        throw new AssertionError(\"Не дождались\");", "    }", "    Thread.sleep(100);", "}"], "code": true,
+            "why": "Запомнили крайний срок → пока условие ложно: не вышло ли время? → короткая пауза и снова проверка." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 16.5. Устрой мне мини-собеседование по многопоточности: 5 вопросов по одному, без подсказок»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Тесты гоняют параллельно ради скорости; потоки создаёт фреймворк, а не ты.</li>
+        <li>Параллельные тесты ломаются от общих изменяемых данных. Лечение — независимость: свои данные, локальные переменные, никакого порядка.</li>
+        <li><code>Thread.sleep</code> в тестах — либо медленно, либо флаки. Нужно явное ожидание условия с таймаутом.</li>
+        <li>Selenide ждёт сам (до 4 секунд по умолчанию); в Selenium — <code>WebDriverWait</code>.</li>
+        <li>На собеседовании: процесс и поток, start и run, гонка, synchronized, volatile, deadlock, ExecutorService, Callable и Future.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,38 @@
+## id: tr-cond-022
+## title: Бросок двух кубиков
+## file: trainer/cond/DiceRollResult.java
+## class: DiceRollResult
+## level: 1
+## category: Игры и правила
+@@ description
+<p>Напиши класс <code>DiceRollResult</code>. В настольной игре бросают два кубика. Программа читает два числа от 1 до 6 через пробел. Если выпали одинаковые — напечатай <code>Дубль! Ходи ещё раз</code>. Иначе, если в сумме 7, — <code>Семёрка! Бери бонус</code>. В остальных случаях — <code>Сумма: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3 3
+вывод: Дубль! Ходи ещё раз
+
+ввод:  1 6
+вывод: Семёрка! Бери бонус</span></pre>
+@@ test: Две тройки
+@@ input
+3 3
+@@ expect
+Дубль! Ходи ещё раз
+@@ test: Один и шесть
+@@ input
+1 6
+@@ expect
+Семёрка! Бери бонус
+@@ test: Обычный бросок
+@@ input
+2 3
+@@ expect
+Сумма: 5
+@@ test: Две шестёрки
+@@ input
+6 6
+@@ expect
+Дубль! Ходи ещё раз
+@@ test: Четыре и три
+@@ input
+4 3
+@@ expect
+Семёрка! Бери бонус

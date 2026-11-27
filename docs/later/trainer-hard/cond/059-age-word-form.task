@@ -1,0 +1,47 @@
+## id: tr-cond-059
+## title: Год, года или лет
+## file: trainer/cond/AgeWordForm.java
+## class: AgeWordForm
+## level: 3
+## category: Цифры и делимость
+@@ description
+<p>Напиши класс <code>AgeWordForm</code>. Программа читает возраст (целое число от 0 до 150) и печатает его с правильным словом: <code>1 год</code>, <code>22 года</code>, <code>5 лет</code>.</p>
+<p>Правило: если число оканчивается на 11, 12, 13 или 14 — всегда «лет». Иначе смотрим на последнюю цифру: 1 — «год»; 2, 3, 4 — «года»; остальные — «лет».</p>
+<pre class="terminal"><span class="out">ввод:  1
+вывод: 1 год
+
+ввод:  11
+вывод: 11 лет</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 10</code> — последняя цифра, <code>n % 100</code> — две последние</li>
+</ul></div>
+@@ test: Один год
+@@ input
+1
+@@ expect
+1 год
+@@ test: Двадцать два
+@@ input
+22
+@@ expect
+22 года
+@@ test: Ноль лет
+@@ input
+0
+@@ expect
+0 лет
+@@ test: Одиннадцать — исключение
+@@ input
+11
+@@ expect
+11 лет
+@@ test: Сто один
+@@ input
+101
+@@ expect
+101 год
+@@ test: Сто двенадцать
+@@ input
+112
+@@ expect
+112 лет

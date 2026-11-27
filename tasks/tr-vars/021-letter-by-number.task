@@ -1,0 +1,36 @@
+## id: tr-vars-021
+## title: Буква по номеру
+## file: trainer/vars/AlphabetLetterByNumber.java
+## class: AlphabetLetterByNumber
+## level: 2
+## category: Символы и их коды
+@@ description
+<p>Напиши класс <code>AlphabetLetterByNumber</code>. Программа читает целое число <code>n</code> от 1 до 26 и печатает <code>Буква №n: X</code> — n-ю заглавную букву латинского алфавита (первая — <code>A</code>).</p>
+<pre class="terminal"><span class="out">ввод:  3
+вывод: Буква №3: C</span></pre>
+<p>Буквы в таблице Unicode идут подряд, поэтому к коду <code>'A'</code> можно прибавить число.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>'A' + 2</code> — это <code>int</code> 67, код буквы C</li>
+<li><code>(char) 67</code> — приведение кода обратно к символу</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+@@ expect
+Буква №3: C
+@@ test: Первая буква
+@@ input
+1
+@@ expect
+Буква №1: A
+@@ test: Последняя буква
+@@ input
+26
+@@ expect
+Буква №26: Z
+@@ test: Середина алфавита
+@@ input
+13
+@@ expect
+Буква №13: M

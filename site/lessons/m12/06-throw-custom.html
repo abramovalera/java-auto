@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>throw и свои исключения · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m12-06">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 12 · Урок 6</div>
+    <h1>throw и свои исключения</h1>
+    <p class="lead">До сих пор исключения выбрасывала Java. Теперь выбрасывать будешь ты: метод, которому дали плохие данные, должен громко отказаться, а не молча посчитать ерунду. И научимся создавать свои классы исключений с сообщениями, которые реально помогают.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🎟️ кинотеатр</span><span>🧠 стек и куча по шагам</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m12-06-review">
+      <script type="application/json">
+      { "title": "Вспомним прошлое", "kind": "Повторение", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Какое исключение компилятор заставит перехватить или объявить в throws?",
+            "options": ["NullPointerException", "InterruptedException", "ArithmeticException"], "answer": 1,
+            "why": "InterruptedException — checked: потомок Exception, но не RuntimeException. Два других — unchecked." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "catch (IllegalArgumentException e) перехватит NumberFormatException", "a": true },
+              { "s": "Модуль 9: private-поле класса можно менять напрямую из другого класса", "a": false, "why": "private виден только внутри своего класса — менять через методы. Сегодня эти методы научатся отказываться от плохих значений." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>throw: выбросить исключение самому</h2>
+    <p>В модуле 9 ты прятал поля за <code>private</code> и менял их через методы. А что делать методу, если ему передали ерунду? Уровень игрока −3, возраст 500, цена −100. Молча сохранить нельзя — ошибка всплывёт потом, в неожиданном месте. Правильно — <b>отказаться сразу и громко</b>:</p>
+<pre data-file="Player.java"><code class="java">public class Player {
+    private int level;
+
+    void setLevel(int level) {
+        if (level &lt; 1 || level &gt; 100) {
+            throw new IllegalArgumentException(
+                    "уровень должен быть от 1 до 100, а пришло: " + level);
+        }
+        this.level = level;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>new IllegalArgumentException("…")</code><div><p><b>Создаём объект исключения</b> — как любой другой объект, оператором <code>new</code> с вызовом конструктора. Конструктору передаём аргументом сообщение: оно попадёт в <code>getMessage()</code> и в первую строку stack trace.</p></div></div>
+      <div class="annot-row"><code>throw …;</code><div><p><b>Выбрасываем</b> этот объект оператором <code>throw</code>. Метод <b>немедленно</b> прерывается, как при return, только вместо результата наружу летит исключение — и всплывает по стеку, как в уроке 1. Строка <code>this.level = level</code> не выполнится.</p></div></div>
+    </div>
+    <p>Если где-то в <code>main</code> класса <code>Game</code> вызвать <code>player.setLevel(-3)</code> и не перехватить исключение:</p>
+    <div data-widget="ide" id="shot-throw-level">
+      <script type="application/json">
+      { "tree": false, "tabs": ["Game.java", "Player.java"], "runConfig": "Game", "statusPath": "module-12", "gutterRun": [1, 2],
+        "code": "public class Game {\n    public static void main(String[] args) {\n        Player player = new Player();\n        player.setLevel(-3);\n        System.out.println(\"Уровень установлен\");\n    }\n}",
+        "console": { "title": "Game", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Game" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.IllegalArgumentException: уровень должен быть от 1 до 100, а пришло: -3" },
+          { "t": "err", "s": "\tat Player.setLevel(Player.java:6)" },
+          { "t": "err", "s": "\tat Game.main(Game.java:4)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "text": "После двоеточия — <b>твоё</b> сообщение из <code>throw</code>: что не так и какое значение пришло" },
+                   { "n": 2, "target": "link-1", "text": "Где выбросили: строка 6 в Player.java — та самая с <code>throw</code>" },
+                   { "n": 3, "target": "link-2", "text": "Кто передал −3: <code>main</code>, строка 4. Виноват вызывающий — туда и идём чинить" } ],
+        "caption": "Своё исключение с понятным сообщением" }
+      </script>
+    </div>
+    <p>Прочитай это глазами того, кто вызвал метод: сразу понятно, что не так, какое значение пришло и где искать. Это и есть цель.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: досмотр в аэропорту</span>
+      <p>Опасные вещи ищут на входе, до посадки, а не когда самолёт уже в воздухе. Проверка аргументов в начале метода — тот же досмотр: плохие данные не проходят внутрь. По-английски этот принцип называют <b>fail fast</b> — «падай быстро».</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли строка сразу после throw в том же блоке, например <code>throw new IllegalStateException("x"); System.out.println("y");</code>?</summary>
+      <p><b>Нет:</b> <code>unreachable statement</code> — недостижимый код. После throw управление никогда не дойдёт до следующей строки, как и после return.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Какое исключение выбрасывать</h2>
+    <p>Для большинства случаев в JDK уже есть подходящий класс. Выбирай по смыслу:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Исключение</th><th>Когда выбрасывать</th><th>Пример сообщения</th></tr>
+        <tr><td><code>IllegalArgumentException</code></td><td>передали плохой аргумент</td><td>«возраст не может быть отрицательным: -5»</td></tr>
+        <tr><td><code>IllegalStateException</code></td><td>аргумент нормальный, но объект сейчас не в том состоянии</td><td>«нельзя пополнить закрытый счёт №42»</td></tr>
+        <tr><td><code>UnsupportedOperationException</code></td><td>операция в принципе не поддерживается</td><td>«этот список только для чтения»</td></tr>
+      </table>
+    </div>
+    <p>Эти три — unchecked, поэтому <code>throws</code> писать не нужно: они сообщают об <b>ошибке того, кто вызвал</b> метод. Вызывающий должен не перехватывать их, а не передавать плохие данные.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: проверка в record</summary>
+      <p>В модуле 11 ты делал record. Проверять данные удобно прямо в его компактном конструкторе (без скобок с параметрами) — тогда неправильный объект просто невозможно создать:</p>
+<pre data-file="Temperature.java"><code class="java">record Temperature(int celsius) {
+    Temperature {
+        if (celsius &lt; -273) {
+            throw new IllegalArgumentException(
+                    "ниже абсолютного нуля: " + celsius);
+        }
+    }
+}</code></pre>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Свой класс исключения</h2>
+    <p>Иногда стандартного мало: ситуация — часть правил твоей программы, и вызывающий должен уметь её отличить и обработать. Например, в кинотеатре кончились места. Это не баг, а нормальная жизненная ситуация, на которую нужен план Б. Объявляем <b>собственный класс исключения</b> — обычным наследованием от <code>Exception</code>:</p>
+<pre data-file="Cinema.java"><code class="java">public class Cinema {
+    public static void main(String[] args) {
+        CinemaHall hall = new CinemaHall(3);
+        try {
+            hall.buy(2);
+            hall.buy(2);
+            System.out.println("Приятного просмотра!");
+        } catch (SoldOutException e) {
+            System.out.println("Не получилось: " + e.getMessage());
+            System.out.println("Можно купить не больше " + e.getFreeSeats());
+        }
+    }
+}
+
+class SoldOutException extends Exception {
+    private final int freeSeats;
+
+    SoldOutException(int requested, int freeSeats) {
+        super("мест не хватает: запрошено " + requested
+                + ", свободно " + freeSeats);
+        this.freeSeats = freeSeats;
+    }
+
+    int getFreeSeats() {
+        return freeSeats;
+    }
+}
+
+class CinemaHall {
+    private int freeSeats;
+
+    CinemaHall(int seats) {
+        this.freeSeats = seats;
+    }
+
+    void buy(int count) throws SoldOutException {
+        if (count &lt;= 0) {
+            throw new IllegalArgumentException(
+                    "билетов должно быть больше нуля, а пришло: " + count);
+        }
+        if (count &gt; freeSeats) {
+            throw new SoldOutException(count, freeSeats);
+        }
+        freeSeats -= count;
+        System.out.println("Куплено: " + count + ", свободно: " + freeSeats);
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Куплено: 2, свободно: 1
+Не получилось: мест не хватает: запрошено 2, свободно 1
+Можно купить не больше 1</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>class SoldOutException extends Exception</code><div><p>Свой класс — наследник Exception, значит, <b>checked</b>. Имя по традиции заканчивается на <code>Exception</code> и описывает ситуацию. Три класса в одном файле — можно, если public только один (тот, чьё имя совпадает с файлом).</p></div></div>
+      <div class="annot-row"><code>super("мест не хватает: …")</code><div><p><b>Вызываем конструктор родителя</b> через <code>super</code> (модуль 10) и передаём ему аргументом сообщение. Именно его потом вернёт <code>getMessage()</code> — свой метод для этого писать не нужно.</p></div></div>
+      <div class="annot-row"><code>private final int freeSeats;</code><div><p>Исключение — обычный класс, ему можно дать поля и геттеры. Блок catch получает из него данные вызовом геттера: «сколько всё-таки можно купить».</p></div></div>
+      <div class="annot-row"><code>void buy(int count) throws SoldOutException</code><div><p>Раз исключение checked, метод обязан объявить его в сигнатуре через <code>throws</code>. А main обязан перехватить его (или тоже объявить throws) — иначе не скомпилируется. Компилятор не даст забыть про «мест нет».</p></div></div>
+    </div>
+    <p>Проверь, как компилятор следит за своим checked-исключением: убери из <code>main</code> try/catch и оставь голый вызов.</p>
+    <div data-widget="ide" id="shot-unhandled-custom">
+      <script type="application/json">
+      { "tree": false, "file": "Cinema.java", "statusPath": "module-12", "gutterRun": [1, 2],
+        "code": "public class Cinema {\n    public static void main(String[] args) {\n        CinemaHall hall = new CinemaHall(3);\n        hall.buy(2);\n        System.out.println(\"Приятного просмотра!\");\n    }\n}",
+        "errors": [ { "line": 4, "text": "hall.buy(2)", "msg": "Unhandled exception: SoldOutException", "tip": true, "fix": "Add exception to method signature" } ],
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "Вызов <code>buy</code> подчёркнут: в его сигнатуре <code>throws SoldOutException</code>, а исключение checked" },
+                   { "n": 2, "target": "tip", "text": "Та же ошибка, что с <code>Thread.sleep</code> в уроке 5, только с <b>твоим</b> классом: <b>Unhandled exception: SoldOutException</b>. Лечится так же: <kbd>Alt</kbd>+<kbd>Enter</kbd> → try/catch или <code>throws</code>" } ],
+        "caption": "Своё checked-исключение компилятор тоже не даст забыть" }
+      </script>
+    </div>
+    <p>Посмотри, что происходит в памяти, когда второй <code>buy</code> выбрасывает исключение:</p>
+    <div data-widget="trace" id="trace-m12-06-cinema">
+      <script type="application/json">
+      { "title": "throw в buy, catch в main", "icon": "🎟️",
+        "intro": "Код сокращён: показаны только main и метод buy. Слева стек, справа куча с объектами.",
+        "code": "public static void main(String[] args) {\n    CinemaHall hall = new CinemaHall(3);\n    try {\n        hall.buy(2);\n        hall.buy(2);\n        System.out.println(\"Приятного просмотра!\");\n    } catch (SoldOutException e) {\n        System.out.println(\"Не получилось: \" + e.getMessage());\n    }\n}\n\nvoid buy(int count) throws SoldOutException {\n    if (count > freeSeats) {\n        throw new SoldOutException(count, freeSeats);\n    }\n    freeSeats -= count;\n    System.out.println(\"Куплено: \" + count\n            + \", свободно: \" + freeSeats);\n}",
+        "steps": [
+          { "line": 2, "stack": [ { "frame": "main", "vars": { "hall": "→#1" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "3" } } ], "note": "Зал на 3 места. В main — ссылка на него." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": { "hall": "→#1" } }, { "frame": "buy", "vars": { "count": "2" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "3" } } ], "note": "Первый buy(2). 2 &gt; 3? Нет — throw пропускаем." },
+          { "line": 17, "stack": [ { "frame": "main", "vars": { "hall": "→#1" } }, { "frame": "buy", "vars": { "count": "2" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "1" } } ], "out": "Куплено: 2, свободно: 1\n", "note": "Места списаны, buy закончился нормально." },
+          { "line": 5, "stack": [ { "frame": "main", "vars": { "hall": "→#1" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "1" } } ], "note": "Снова buy(2)." },
+          { "line": 13, "stack": [ { "frame": "main", "vars": { "hall": "→#1" } }, { "frame": "buy", "vars": { "count": "2" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "1" } } ], "note": "2 &gt; 1? Да — мест не хватает." },
+          { "line": 14, "stack": [ { "frame": "main", "vars": { "hall": "→#1" } }, { "frame": "buy", "vars": { "count": "2" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "1" } }, { "id": "#2", "label": "SoldOutException", "fields": { "message": "\"мест не хватает…\"", "freeSeats": "1" } } ], "note": "new создаёт объект исключения в куче (вызывается конструктор SoldOutException), throw его выбрасывает. Строки 16–18 не выполнятся, места не списываются." },
+          { "line": 7, "stack": [ { "frame": "main", "vars": { "hall": "→#1", "e": "→#2" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "1" } }, { "id": "#2", "label": "SoldOutException", "fields": { "message": "\"мест не хватает…\"", "freeSeats": "1" } } ], "note": "Фрейм buy снят. В main строка 6 пропущена, catch подошёл по типу и перехватил исключение — переменная e теперь хранит ссылку на тот самый объект." },
+          { "line": 8, "stack": [ { "frame": "main", "vars": { "hall": "→#1", "e": "→#2" } } ], "heap": [ { "id": "#1", "label": "CinemaHall", "fields": { "freeSeats": "1" } }, { "id": "#2", "label": "SoldOutException", "fields": { "message": "\"мест не хватает…\"", "freeSeats": "1" } } ], "out": "Не получилось: мест не хватает: запрошено 2, свободно 1\n", "note": "В catch вызываем у объекта метод getMessage() — он возвращает сообщение. Программа не упала." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>extends Exception или RuntimeException?</h2>
+    <p>Свой класс можно сделать checked или unchecked — смотря от кого наследуешь:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 210" role="img" aria-label="Выбор родителя для своего исключения: Exception — вызывающий обязан обработать; RuntimeException — ошибка вызывающего, компилятор не следит">
+        <rect x="270" y="14" width="220" height="50" rx="12" class="d-violet"/>
+        <text x="380" y="36" text-anchor="middle" class="d-title">Своё исключение</text>
+        <text x="380" y="55" text-anchor="middle" class="d-small">от кого наследовать?</text>
+        <path d="M330 64 L195 96" class="d-line"/>
+        <path d="M430 64 L565 96" class="d-line"/>
+        <rect x="20" y="96" width="350" height="100" rx="12" class="d-teal"/>
+        <text x="195" y="122" text-anchor="middle" class="d-mono-ink">extends Exception</text>
+        <text x="36" y="148" class="d-small">ожидаемая ситуация из правил программы:</text>
+        <text x="36" y="168" class="d-small">мест нет, денег мало, товар закончился.</text>
+        <text x="36" y="188" class="d-small">Вызывающий обязан решить, что делать.</text>
+        <rect x="390" y="96" width="350" height="100" rx="12" class="d-yellow"/>
+        <text x="565" y="122" text-anchor="middle" class="d-mono-ink">extends RuntimeException</text>
+        <text x="406" y="148" class="d-small">ошибка в использовании или неожиданный</text>
+        <text x="406" y="168" class="d-small">сбой: обработать всё равно нечем.</text>
+        <text x="406" y="188" class="d-small">Не захламляет код обязательными catch.</text>
+      </svg>
+      <figcaption>Простое правило: «можно ли тут осмысленно что-то сделать?» Да — checked. Нет — unchecked.</figcaption>
+    </figure>
+    <p>В современных библиотеках чаще встречается RuntimeException: checked-исключения заставляют писать catch или throws в каждом методе по пути, и код быстро обрастает ими. Например, все исключения Spring, Jackson и JUnit — unchecked. Но для учебной копилки в задаче m12-t06 мы сделаем именно checked: пусть компилятор следит, чтобы «недостаточно денег» всегда обрабатывали.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Сообщения, которые помогают</h2>
+    <p>Сообщение исключения читает человек — часто ночью, в отчёте упавших тестов. Сравни:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Плохо</th><th>Хорошо</th></tr>
+        <tr><td><code>"Ошибка"</code></td><td><code>"возраст не может быть отрицательным: -5"</code></td></tr>
+        <tr><td><code>"Неверные данные"</code></td><td><code>"строка 3 в config.txt: нет знака '=' в «timeout 30»"</code></td></tr>
+        <tr><td><code>"Недостаточно средств"</code></td><td><code>"нельзя снять 500: на счёте 300"</code></td></tr>
+      </table>
+    </div>
+    <p>Хорошее сообщение отвечает на три вопроса: <b>что не так</b>, <b>какое значение пришло</b> и <b>где</b> (какая строка, какой объект). Пиши его по-русски или по-английски, но обязательно с конкретным значением.</p>
+    <p>И ещё один приём из урока 2. Если перехватил «низкоуровневое» исключение и выбрасываешь своё, <b>передай перехваченное как причину</b> вторым аргументом конструктора:</p>
+<pre data-file="SettingsLoader.java"><code class="java">try {
+    return Integer.parseInt(value);
+} catch (NumberFormatException e) {
+    throw new IllegalStateException("Не прочитать настройку: " + line, e);
+}</code></pre>
+    <p>Тогда в stack trace появится <code>Caused by: java.lang.NumberFormatException…</code>, и корень проблемы не потеряется. У своих исключений для этого делают конструктор <code>(String message, Throwable cause)</code>, который вызывает <code>super(message, cause)</code>. Достать причину в коде — <code>e.getCause()</code>. Это задача <a href="/tasks.html?module=m12">m12-t08 «Исключение с причиной»</a>.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m12-06">
+      <script type="application/json">
+      {
+       "title": "throw и свои исключения — главное",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини",
+         "left": [
+          "throw",
+          "throws",
+          "super(message)",
+          "getMessage()"
+         ],
+         "right": [
+          "Выбрасывает исключение прямо сейчас",
+          "В сигнатуре: «могу выбросить»",
+          "Передаёт сообщение в конструктор родителя",
+          "Возвращает сообщение перехваченного исключения"
+         ],
+         "why": "throw — действие в теле метода, throws — предупреждение в сигнатуре."
+        },
+        {
+         "type": "single",
+         "q": "Скомпилируется ли?",
+         "code": "class LowBatteryException extends Exception {\n    LowBatteryException(String msg) { super(msg); }\n}\n\nvoid start(int charge) {\n    if (charge < 5) {\n        throw new LowBatteryException(\"заряд \" + charge + \"%\");\n    }\n}",
+         "options": [
+          "Да",
+          "Нет: у start не хватает throws LowBatteryException",
+          "Нет: свои исключения можно наследовать только от RuntimeException"
+         ],
+         "answer": 1,
+         "why": "LowBatteryException — наследник Exception, значит checked. Метод, который его выбрасывает и не перехватывает, обязан объявить throws."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет код?",
+         "code": "try {\n    throw new IllegalStateException(\"счёт закрыт\");\n} catch (IllegalStateException e) {\n    System.out.println(\"Ошибка: \" + e.getMessage());\n}",
+         "answer": "Ошибка: счёт закрыт",
+         "why": "Сообщение, переданное в конструктор, возвращает getMessage()."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Проверять аргументы лучше в начале метода и падать сразу",
+           "a": true
+          },
+          {
+           "s": "Сообщение «Ошибка» — достаточно информативное",
+           "a": false,
+           "why": "нужно: что не так, какое значение пришло, где."
+          },
+          {
+           "s": "class MyError extends RuntimeException — это unchecked-исключение",
+           "a": true
+          },
+          {
+           "s": "Передать перехваченное исключение как причину: new MyException(\"…\", e)",
+           "a": true
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 12.6. Посмотри мой класс PiggyInsufficientFundsException из задачи m12-t06: хорошее ли у него сообщение и правильно ли я выбрал checked?»</em></p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>throw new Тип("сообщение")</code> — создать объект исключения и выбросить его; метод прерывается сразу.</li>
+        <li>Плохие аргументы — <code>IllegalArgumentException</code>, неподходящее состояние — <code>IllegalStateException</code>. Проверяй в начале метода (fail fast).</li>
+        <li>Свой класс: <code>class XxxException extends Exception</code> (checked) или <code>extends RuntimeException</code> (unchecked), сообщение — через <code>super(message)</code>, можно добавить поля.</li>
+        <li>Хорошее сообщение: что не так + какое значение + где.</li>
+        <li>Заворачивая исключение в своё, передай его как причину: <code>new X("…", e)</code> → «Caused by» в stack trace.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

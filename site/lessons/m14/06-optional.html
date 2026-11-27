@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Optional: вместо null · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m14-06">
+
+  <header class="lesson-head" data-mood="oops">
+    <div class="kicker">Модуль 14 · Урок 6</div>
+    <h1>Optional: коробка, в которой может быть пусто</h1>
+    <p class="lead"><code>NullPointerException</code> — самое частое исключение в Java. Optional — способ прямо в типе сказать: «результата может не быть, проверь». Научимся открывать эту коробку правильно.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>📦 Optional</span><span>🧩 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m14-06-review">
+      <script type="application/json">
+      { "title": "Вспомним терминальные операции", "icon": "🔁",
+        "items": [
+          { "type": "multi", "q": "Какие операции возвращают Optional?",
+            "options": ["findFirst()", "count()", "max(Comparator)", "anyMatch(…)", "min(Comparator)"], "answer": [0, 2, 4],
+            "why": "findFirst, min, max могут «ничего не найти» — поэтому Optional. count — long, anyMatch — boolean." },
+          { "type": "predict", "q": "Что выведет?",
+            "code": "System.out.println(Stream.of(3, 8, 5).filter(x -> x > 4).findFirst());",
+            "answer": "Optional[8]", "why": "Первый элемент больше 4 — это 8. Он лежит в коробке Optional." },
+          { "type": "single", "q": "Модуль 12: что будет при <code>String s = null; s.length();</code>?",
+            "options": ["0", "Ошибка компиляции", "NullPointerException при запуске"], "answer": 2,
+            "why": "У null нет методов: вызов любого метода на null роняет программу с NPE." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чем плох null</h2>
+    <p>Представь метод из программы интернет-магазина: найти пользователя по email. А если такого нет? Раньше возвращали <code>null</code>:</p>
+<pre data-file="NullProblem.java"><code class="java">static String findUserName(String email) {
+    if (email.equals("anna@mail.ru")) {
+        return "Анна";
+    }
+    return null;                         // не нашли — молча вернули «ничего»
+}
+
+String name = findUserName("boris@mail.ru");
+System.out.println(name.toUpperCase());  // 💥 NullPointerException</code></pre>
+    <div data-widget="ide" id="shot-null-npe">
+      <script type="application/json">
+      { "tree": false, "file": "NullProblem.java", "runConfig": "NullProblem", "gutterRun": [1, 9], "statusPath": "module-14",
+        "code": "public class NullProblem {\n    static String findUserName(String email) {\n        if (email.equals(\"anna@mail.ru\")) {\n            return \"Анна\";\n        }\n        return null;\n    }\n\n    public static void main(String[] args) {\n        String name = findUserName(\"boris@mail.ru\");\n        System.out.println(name.toUpperCase());\n    }\n}",
+        "console": { "title": "NullProblem", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… NullProblem" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke \"String.toUpperCase()\" because \"name\" is null" },
+          { "t": "err", "s": "\tat NullProblem.main(NullProblem.java:11)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "line-6", "text": "Здесь всё и началось: метод молча вернул <code>null</code>" },
+                   { "n": 2, "target": "error", "side": "bottom", "text": "А упало вот где: «не могу вызвать <code>toUpperCase()</code>, потому что <code>name</code> — null»" },
+                   { "n": 3, "target": "link-1", "text": "Строка <b>11</b> — в другом методе. В большой программе между «вернул null» и «упало» могут быть сотни строк и десяток файлов" } ],
+        "caption": "NullPointerException далеко от места, где появился null" }
+      </script>
+    </div>
+    <p>Беда не в том, что пользователя нет, — это нормальная ситуация. Беда в том, что по типу <code>String</code> этого <b>не видно</b>. Тот, кто вызывает метод, легко забудет проверить на <code>null</code>, и программа упадёт где-то далеко от места, где всё началось.</p>
+    <p><b>Optional&lt;T&gt;</b> — это класс-обёртка: объект <code>Optional</code> («коробка») либо содержит один объект типа T, либо пуст. Если метод возвращает <code>Optional&lt;String&gt;</code>, сам тип возвращаемого значения кричит: «тут может быть пусто — разберись».</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 240" role="img" aria-label="Optional — коробка: полная, с объектом внутри, или пустая. Чтобы взять значение, коробку надо открыть одним из методов">
+        <rect x="30" y="30" width="200" height="130" rx="14" class="d-green"/>
+        <path d="M30 70 H230" class="d-line"/>
+        <text x="130" y="56" text-anchor="middle" class="d-title">Optional[Анна]</text>
+        <rect x="80" y="88" width="100" height="48" rx="10" class="d-box"/>
+        <text x="130" y="118" text-anchor="middle" class="d-mono-ink">"Анна"</text>
+        <text x="130" y="186" text-anchor="middle" class="d-small">полная коробка</text>
+        <text x="130" y="206" text-anchor="middle" class="d-small">Optional.of("Анна")</text>
+
+        <rect x="280" y="30" width="200" height="130" rx="14" class="d-soft"/>
+        <path d="M280 70 H480" class="d-line"/>
+        <text x="380" y="56" text-anchor="middle" class="d-title">Optional.empty</text>
+        <text x="380" y="118" text-anchor="middle" class="d-small">пусто</text>
+        <text x="380" y="186" text-anchor="middle" class="d-small">пустая коробка</text>
+        <text x="380" y="206" text-anchor="middle" class="d-small">Optional.empty()</text>
+
+        <rect x="530" y="30" width="210" height="130" rx="14" class="d-yellow"/>
+        <text x="635" y="58" text-anchor="middle" class="d-title">Как открыть</text>
+        <text x="548" y="86" class="d-small">• orElse("гость")</text>
+        <text x="548" y="108" class="d-small">• ifPresent(…)</text>
+        <text x="548" y="130" class="d-small">• map(…).orElse(…)</text>
+        <text x="548" y="152" class="d-small">• orElseThrow()</text>
+        <text x="635" y="196" text-anchor="middle" class="d-small">снаружи не видно,</text>
+        <text x="635" y="216" text-anchor="middle" class="d-small">что внутри — открой!</text>
+      </svg>
+      <figcaption>Optional — посылка. Прежде чем пользоваться содержимым, её надо открыть — и решить, что делать, если внутри пусто.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Как создать Optional</h2>
+<pre data-file="CreateOptional.java"><code class="java">Optional&lt;String&gt; full = Optional.of("Анна");          // точно не null
+Optional&lt;String&gt; empty = Optional.empty();            // точно пусто
+// name может быть null — тогда будет пусто
+Optional&lt;String&gt; maybe = Optional.ofNullable(name);</code></pre>
+    <dl class="terms">
+      <dt>Optional.of(x)</dt><dd>Вызов статического метода <code>of</code> с аргументом x возвращает коробку с x. Если x окажется <code>null</code> — метод сразу выбросит <code>NullPointerException</code>. Бери, когда уверен, что значение есть.</dd>
+      <dt>Optional.empty()</dt><dd>Возвращает пустой Optional — пустую коробку.</dd>
+      <dt>Optional.ofNullable(x)</dt><dd>«Мост» из старого мира: если аргумент x — <code>null</code>, метод возвращает пустую коробку, иначе — коробку с x.</dd>
+    </dl>
+    <p>Перепишем поиск пользователя:</p>
+<pre data-file="FindUser.java"><code class="java">static Optional&lt;String&gt; findUserName(String email) {
+    if (email.equals("anna@mail.ru")) {
+        return Optional.of("Анна");
+    }
+    return Optional.empty();
+}</code></pre>
+    <p>Но чаще всего Optional ты не создаёшь руками, а <b>получаешь</b> как возвращаемое значение терминальных операций стрима: <code>findFirst()</code>, <code>min</code>, <code>max</code>.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Как открыть коробку правильно</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Метод</th><th>Что делает</th><th>Когда брать</th></tr>
+        <tr><td><code>orElse(запасное)</code></td><td>возвращает значение или запасное</td><td>есть разумное значение по умолчанию</td></tr>
+        <tr><td><code>orElseGet(() -&gt; …)</code></td><td>возвращает значение или результат вызова Supplier (лямбды без параметров)</td><td>запасное дорого вычислять</td></tr>
+        <tr><td><code>orElseThrow()</code></td><td>возвращает значение или выбрасывает исключение <code>NoSuchElementException</code></td><td>пустота — это ошибка в данных</td></tr>
+        <tr><td><code>orElseThrow(() -&gt; new …)</code></td><td>возвращает значение или выбрасывает исключение, которое создаёт твоя лямбда</td><td>нужно понятное сообщение об ошибке</td></tr>
+        <tr><td><code>ifPresent(x -&gt; …)</code></td><td>вызвать Consumer (лямбду) со значением, если не пусто</td><td>сделать что-то только при наличии</td></tr>
+        <tr><td><code>ifPresentOrElse(x -&gt; …, () -&gt; …)</code></td><td>одно из двух действий</td><td>есть — одно, нет — другое</td></tr>
+        <tr><td><code>isPresent()</code> / <code>isEmpty()</code></td><td>есть ли внутри значение</td><td>обычный <code>if</code></td></tr>
+      </table>
+    </div>
+<pre data-file="OpenBox.java"><code class="java">Optional&lt;String&gt; anna = findUserName("anna@mail.ru");
+Optional&lt;String&gt; nobody = findUserName("boris@mail.ru");
+
+System.out.println(anna.orElse("гость"));     // Анна
+System.out.println(nobody.orElse("гость"));   // гость
+
+// напечатает: Пользователь не найден
+nobody.ifPresentOrElse(
+        n -&gt; System.out.println("Привет, " + n),
+        () -&gt; System.out.println("Пользователь не найден"));
+
+if (anna.isPresent()) {
+    System.out.println("Есть такой пользователь");
+}</code></pre>
+    <h3>Склад: «найди товар или сообщи понятную ошибку»</h3>
+    <p>Иногда пустой результат означает ошибку в данных: товар обязан быть в каталоге. Тогда не нужно запасное значение — нужно сразу выбросить исключение и написать в его сообщении, что именно не нашлось:</p>
+<pre data-file="FindProduct.java"><code class="java">record Product(String title, boolean inStock) { }
+
+List&lt;Product&gt; products = List.of(
+        new Product("Чайник", true),
+        new Product("Тостер", false));
+
+Product toaster = products.stream()
+        .filter(p -&gt; p.title().equals("Тостер"))
+        .findFirst()
+        .orElseThrow(() -&gt; new IllegalStateException(
+                "Товар «Тостер» не найден в каталоге"));
+
+System.out.println(toaster.inStock());   // false — в каталоге есть, но закончился</code></pre>
+    <div class="say" data-mood="cool"><p>Сравни с <code>null</code>: там программа упала бы где-то дальше с безликим NPE. А тут сообщение сразу говорит, <b>что</b> сломалось. Хорошая программа падает понятно.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>map и filter — прямо в коробке</h2>
+    <p>Optional похож на маленький стрим из нуля или одного элемента. У него тоже есть методы <code>map</code> и <code>filter</code>: им передают аргументом лямбда-выражение, они работают с содержимым, если оно есть, и ничего не делают с пустой коробкой.</p>
+<pre data-file="OptionalMap.java"><code class="java">record Student(String name, int score) { }
+
+List&lt;Student&gt; group = List.of(
+        new Student("Аня", 72),
+        new Student("Борис", 91),
+        new Student("Вика", 95));
+
+String first = group.stream()
+        .filter(s -&gt; s.score() &gt; 90)
+        .findFirst()           // Optional[Student[name=Борис, score=91]]
+        .map(Student::name)    // Optional[Борис]
+        .orElse("Не найден");  // "Борис"
+
+String none = group.stream()
+        .filter(s -&gt; s.score() &gt; 100)
+        .findFirst()           // Optional.empty
+        .map(Student::name)    // Optional.empty — map пропущен
+        .orElse("Не найден");  // "Не найден"</code></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: курьер и пустая коробка</span>
+      <p><code>map</code> — сотрудник, который «открывает коробку, перекладывает содержимое в новую упаковку и закрывает». Если коробка пустая, он ничего не делает и передаёт дальше пустую. В конце <code>orElse</code> — получатель: «если пусто — дайте мне вот это».</p>
+    </div>
+    <details class="predict">
+      <summary>Что вернёт <code>Optional.of("  ").filter(s -&gt; !s.isBlank()).orElse("пусто")</code>?</summary>
+      <p><code>"пусто"</code>. В коробке была строка из пробелов, <code>filter</code> её не пропустил и вернул пустую коробку — <code>orElse</code> вернул запасное значение.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Как не надо</h2>
+    <div class="callout warn">
+      <span class="callout-title">❌ get() без проверки</span>
+      <p>Вызов <code>opt.get()</code> возвращает значение, а если пусто — выбрасывает <code>NoSuchElementException: No value present</code>. Это тот же NPE, только в профиль. Вместо <code>get()</code> бери <code>orElse</code>, <code>orElseThrow</code>, <code>map</code>. (В новых версиях Java <code>orElseThrow()</code> без аргументов делает то же, что <code>get()</code>, но по имени честно предупреждает: «может выбросить исключение».)</p>
+    </div>
+<pre data-file="BadOptional.java"><code class="java">Optional&lt;String&gt; nobody = Optional.empty();
+
+nobody.get();                          // ❌ NoSuchElementException
+if (nobody.isPresent()) {              // 🤔 работает, но это тот же if != null,
+    System.out.println(nobody.get());  //    только длиннее
+}
+nobody.ifPresent(System.out::println); // ✅ коротко и безопасно
+
+// ❌ NullPointerException — для null есть ofNullable
+Optional&lt;String&gt; x = Optional.of(null);
+// ❌ сам Optional не должен быть null — проверяй isEmpty()
+if (nobody == null) { … }</code></pre>
+    <p>Голый <code>get()</code> IDEA ловит сама — подсвечивает жёлтым. Вот предупреждение и то, что будет, если его проигнорировать:</p>
+    <div data-widget="ide" id="shot-optional-get">
+      <script type="application/json">
+      { "tree": false, "file": "BadOptional.java", "runConfig": "BadOptional", "gutterRun": [4, 5], "statusPath": "module-14",
+        "code": "import java.util.List;\nimport java.util.Optional;\n\npublic class BadOptional {\n    public static void main(String[] args) {\n        List<String> users = List.of(\"anna\", \"boris\");\n        Optional<String> vera = users.stream().filter(u -> u.startsWith(\"v\")).findFirst();\n        System.out.println(vera.get());\n    }\n}",
+        "warnings": [ { "line": 8, "text": "get", "msg": "'Optional.get()' without 'isPresent()' check", "tip": true } ],
+        "console": { "title": "BadOptional", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… BadOptional" },
+          { "t": "err", "s": "Exception in thread \"main\" java.util.NoSuchElementException: No value present" },
+          { "t": "err", "s": "\tat java.base/java.util.Optional.get(Optional.java:143)" },
+          { "t": "err", "s": "\tat BadOptional.main(BadOptional.java:8)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "tip", "text": "«<code>get()</code> без проверки <code>isPresent()</code>». IDEA знает, что коробка может оказаться пустой" },
+                   { "n": 2, "target": "error", "side": "bottom", "text": "Пользователя на «v» нет — коробка пустая: <b>NoSuchElementException: No value present</b> — «значения нет»" },
+                   { "n": 3, "target": "link-2", "text": "Строка <b>8</b> — та самая, жёлтая. Предупреждения IDEA стоит читать: это бесплатная проверка до запуска" } ],
+        "caption": "Optional.get() на пустой коробке" }
+      </script>
+    </div>
+    <ul>
+      <li><b>Optional — для возвращаемых значений.</b> Не объявляй поля и параметры методов типа Optional — так не принято, это усложняет код.</li>
+      <li><b>Не заворачивай коллекции.</b> Вместо <code>Optional&lt;List&lt;…&gt;&gt;</code> возвращай пустой список.</li>
+    </ul>
+    <details class="predict">
+      <summary>Ловушка с собеседования: что напечатает <code>Optional.of("A").orElse(make())</code>, если <code>make()</code> печатает «make» и возвращает «B»?</summary>
+      <p>Сначала <b>make</b>, потом <b>A</b>. Аргумент <code>orElse</code> вычисляется <b>всегда</b> — до вызова метода, как у любого метода Java. Значение «B» просто выбрасывается. А <code>orElseGet(() -&gt; make())</code> вызовет <code>make()</code> только для пустой коробки. Если запасное значение дорогое (запрос к базе, чтение большого файла) — бери <code>orElseGet</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m14-06">
+      <script type="application/json">
+      { "title": "Optional — главное",
+        "items": [
+          { "type": "predict", "q": "Что выведет?",
+            "code": "Optional<String> a = Optional.of(\"java\");\nOptional<String> b = Optional.empty();\nSystem.out.println(a.map(String::toUpperCase).orElse(\"-\"));\nSystem.out.println(b.map(String::toUpperCase).orElse(\"-\"));",
+            "answer": "JAVA\n-", "why": "map работает с содержимым полной коробки и пропускает пустую. orElse отдаёт запасное значение только для пустой." },
+          { "type": "single", "q": "Что будет при <code>Optional.empty().get()</code>?",
+            "options": ["Вернёт null", "NoSuchElementException", "Ошибка компиляции"], "answer": 1,
+            "why": "get() на пустой коробке выбрасывает NoSuchElementException: No value present. Поэтому get без проверки — плохая идея." },
+          { "type": "match", "q": "Соедини задачу и метод Optional",
+            "left": ["Есть запасное значение", "Пусто = баг, упасть с сообщением", "Сделать что-то, только если есть", "Значение может быть null"],
+            "right": ["orElse(…)", "orElseThrow(() -&gt; new …)", "ifPresent(…)", "Optional.ofNullable(…)"],
+            "why": "orElse — по умолчанию, orElseThrow — пустота как ошибка, ifPresent — действие при наличии, ofNullable — мост из мира null." },
+          { "type": "bug", "q": "Какая строка упадёт при запуске?",
+            "code": "Optional<String> a = Optional.ofNullable(null);\nOptional<String> b = Optional.empty();\nString c = a.orElse(\"гость\");\nOptional<String> d = Optional.of(null);",
+            "answer": [4], "why": "Optional.of(null) выбрасывает NullPointerException. ofNullable(null) спокойно возвращает пустую коробку." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Аргумент <code>orElse(…)</code> вычисляется, даже если коробка полная", "a": true },
+              { "s": "Optional хорошо использовать как тип поля класса", "a": false, "why": "Optional задуман для возвращаемых значений методов." },
+              { "s": "<code>filter</code> у Optional может превратить полную коробку в пустую", "a": true },
+              { "s": "Если метод вернул Optional, его стоит проверять на <code>== null</code>", "a": false, "why": "сам Optional никогда не должен быть null; проверяют isEmpty()/isPresent()." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Урок 14.6. Объясню своими словами, зачем нужен Optional и почему get() без проверки — плохо. А потом дай мне метод, который возвращает null, — я перепишу его на Optional»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><code>Optional&lt;T&gt;</code> — объект-обёртка («коробка»): либо один объект, либо пусто. Тип возвращаемого значения сам предупреждает «может не быть».</li>
+        <li>Создать: <code>Optional.of</code>, <code>Optional.empty()</code>, <code>Optional.ofNullable</code>. Чаще — получить из <code>findFirst</code>, <code>min</code>, <code>max</code>.</li>
+        <li>Открыть: <code>orElse</code>, <code>orElseGet</code>, <code>orElseThrow</code>, <code>ifPresent</code>, <code>ifPresentOrElse</code>; преобразовать: <code>map</code>, <code>filter</code>.</li>
+        <li>Не надо: <code>get()</code> без проверки, <code>Optional.of(null)</code>, Optional в полях и параметрах.</li>
+        <li><code>orElse</code> вычисляет аргумент всегда, <code>orElseGet</code> — только для пустой коробки.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

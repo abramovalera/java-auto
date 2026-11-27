@@ -1,0 +1,54 @@
+## id: tr-oop-008
+## title: Настольная лампа
+## file: trainer/oop/DeskLampToggle.java
+## class: DeskLampToggle
+## level: 1
+## category: Инкапсуляция
+@@ description
+<p>Создай класс <code>DeskLampToggle</code> с методом <code>main</code>, а ниже в том же файле — класс <code>DeskLamp</code>:</p>
+<ul>
+<li>закрытые поля <code>private boolean on</code> (сначала лампа выключена) и <code>private int brightness</code> (яркость от 1 до 5, сначала 3);</li>
+<li><code>void toggle()</code> — включает выключенную лампу и выключает включённую;</li>
+<li><code>void brighter()</code> — прибавляет яркость на 1, но не выше 5;</li>
+<li><code>void dimmer()</code> — убавляет яркость на 1, но не ниже 1;</li>
+<li>пока лампа выключена, <code>brighter()</code> и <code>dimmer()</code> ничего не меняют;</li>
+<li><code>toString()</code> — возвращает <code>Лампа включена, яркость N</code> или <code>Лампа выключена</code>.</li>
+</ul>
+<p><code>main</code> читает одно слово из символов <code>T</code> (выключатель), <code>+</code> и <code>-</code>, выполняет команды по порядку и печатает лампу.</p>
+<pre class="terminal"><span class="out">ввод:  T++          вывод: Лампа включена, яркость 5
+ввод:  ++T-         вывод: Лампа включена, яркость 2</span></pre>
+<p>Во втором примере первые два <code>+</code> нажаты на выключенной лампе и ничего не изменили.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>on = !on;</code> — переключает логическое поле на противоположное значение</li>
+<li><code>private int brightness = 3;</code> — поле можно инициализировать прямо при объявлении</li>
+</ul></div>
+@@ test: Пример 1
+@@ input
+T++
+@@ expect
+Лампа включена, яркость 5
+@@ test: Пример 2 — кнопки на выключенной лампе
+@@ input
+++T-
+@@ expect
+Лампа включена, яркость 2
+@@ test: Включили и выключили
+@@ input
+T+T
+@@ expect
+Лампа выключена
+@@ test: Яркость не опускается ниже 1
+@@ input
+T-----
+@@ expect
+Лампа включена, яркость 1
+@@ test: Яркость сохраняется после выключения
+@@ input
+T+++++T+T
+@@ expect
+Лампа включена, яркость 5
+@@ require: \bclass\s+DeskLamp\b | Объяви в том же файле класс DeskLamp
+@@ require: private\s+boolean\s+on\b | Поле on должно быть private boolean
+@@ require: private\s+int\s+brightness\b | Поле brightness должно быть private int
+@@ require: \bvoid\s+toggle\s*\(\s*\) | Нужен метод void toggle()
+@@ require: public\s+String\s+toString\s*\(\s*\) | Переопредели метод public String toString()

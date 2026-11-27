@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Как читать код: правильные слова · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m02-reading">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 2 · Урок 7</div>
+    <h1>Как читать код: правильные слова</h1>
+    <p class="lead">Программисты не говорят «тут переменная, кладём в неё число». Они говорят «объявляем переменную и инициализируем её». Учимся читать каждую строку кода вслух так, как скажут на собеседовании и на код-ревью.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🗣 читаем вслух</span><span>🧩 тренажёр «что происходит»</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Зачем правильные слова</h2>
+    <p>Код читают гораздо чаще, чем пишут: коллеги на код-ревью, ты сам через месяц, собеседующий на интервью. И везде нужен общий язык. Когда ты говоришь «<b>инициализируем</b> переменную результатом <b>вызова метода</b>», любой программист сразу понимает, что происходит, — а «тут мы кладём штуку из сканера» понятно только тебе.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🎤</span><h4>Собеседование</h4><p>«Прочитай этот код и объясни, что он делает» — один из самых частых вопросов.</p></div>
+      <div class="card"><span class="emoji">👀</span><h4>Код-ревью</h4><p>Замечания пишут терминами: «здесь переменная объявлена, но не инициализирована».</p></div>
+      <div class="card"><span class="emoji">🤖</span><h4>Вопросы ИИ</h4><p>Точные слова — точный ответ. ИИ лучше понимает «почему не компилируется присваивание», чем «почему не работает».</p></div>
+    </div>
+    <div class="say" data-mood="happy"><p>Аналогии вроде «коробки с ярлыком» никуда не денутся — они помогают понять. Но рядом с аналогией всегда будет правильное слово. Его и запоминаем.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Объявление, инициализация, присваивание</h2>
+    <p>Три слова, которые путают чаще всего. Смотри на одну переменную в трёх строках:</p>
+<pre class="code" data-file="Playground.java · внутри main"><code>int count;      // 1
+count = 3;      // 2
+count = 5;      // 3</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Строка</th><th>Как называется</th><th>Что происходит (аналогия)</th></tr>
+        <tr><td><code>int count;</code></td><td><b>Объявление</b> переменной <code>count</code> типа <code>int</code></td><td>Завели коробку с ярлыком <code>count</code>, в которую помещаются целые числа. Она пока пустая — читать из неё нельзя.</td></tr>
+        <tr><td><code>count = 3;</code></td><td><b>Инициализация</b> — первое <b>присваивание</b> значения</td><td>Впервые положили в коробку число 3.</td></tr>
+        <tr><td><code>count = 5;</code></td><td><b>Присваивание</b> нового значения</td><td>Вынули 3, положили 5. Старое значение потеряно.</td></tr>
+      </table>
+    </div>
+    <p>Чаще всего объявление и инициализацию пишут одной строкой:</p>
+<pre class="code" data-file="Playground.java · внутри main"><code>int count = 3;  // объявляем count и сразу инициализируем значением 3</code></pre>
+    <p>Читается так: «<b>объявляем</b> переменную <code>count</code> типа <code>int</code> и <b>инициализируем</b> её значением 3». А знак <code>=</code> называется <b>оператор присваивания</b>: он вычисляет то, что справа, и кладёт результат в переменную слева.</p>
+    <div class="callout warn">
+      <span class="callout-title">Главная ошибка новичка</span>
+      <p>Объявил, но не инициализировал — и прочитал: <code>int count; System.out.println(count);</code>. Компилятор ответит <code>variable count might not have been initialized</code> — «переменная, возможно, не инициализирована». Теперь ты понимаешь каждое слово в этой ошибке.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Литерал, выражение, оператор, инструкция</h2>
+    <p>Разберём одну строку на детали:</p>
+<pre class="code" data-file="Playground.java · внутри main"><code>int total = price * count + 50;</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Часть</th><th>Термин</th><th>Что это</th></tr>
+        <tr><td><code>int</code></td><td><b>тип</b></td><td>какие значения можно хранить — целые числа</td></tr>
+        <tr><td><code>total</code></td><td><b>имя переменной</b></td><td>ярлык на коробке</td></tr>
+        <tr><td><code>=</code></td><td><b>оператор присваивания</b></td><td>«вычисли правую часть и положи результат в <code>total</code>»</td></tr>
+        <tr><td><code>price * count + 50</code></td><td><b>выражение</b></td><td>всё, что вычисляется в одно значение</td></tr>
+        <tr><td><code>*</code> и <code>+</code></td><td><b>операторы</b></td><td>действия над значениями</td></tr>
+        <tr><td><code>price</code>, <code>count</code>, <code>50</code></td><td><b>операнды</b></td><td>то, над чем действуют операторы</td></tr>
+        <tr><td><code>50</code></td><td><b>литерал</b></td><td>значение, записанное прямо в коде. Литералы бывают разные: <code>50</code>, <code>4.5</code>, <code>"Аня"</code>, <code>'A'</code>, <code>true</code></td></tr>
+        <tr><td>вся строка с <code>;</code></td><td><b>инструкция</b></td><td>законченное действие программы. Здесь — объявление с инициализацией</td></tr>
+      </table>
+    </div>
+    <p>Целиком строка читается так: «<b>объявляем</b> переменную <code>total</code> типа <code>int</code> и <b>инициализируем</b> её результатом <b>выражения</b> <code>price * count + 50</code>».</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Читаем программу по строкам</h2>
+    <p>Набери программу в <code>training</code> (новый класс <code>Shop</code>) и запусти. А потом прочитай каждую строку вслух — полным предложением, как в таблице.</p>
+<pre class="code" data-file="Shop.java"><code>public class Shop {
+    public static void main(String[] args) {
+        final int DISCOUNT = 10;
+        int price = 250;
+        int count;
+        count = 3;
+        int total = price * count;
+        total = total - DISCOUNT;
+        String text = "Итого: " + total;
+        System.out.println(text);
+    }
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Строка</th><th>Как читать вслух</th></tr>
+        <tr><td><code>final int DISCOUNT = 10;</code></td><td>Объявляем <b>константу</b> <code>DISCOUNT</code> типа <code>int</code> и инициализируем её литералом 10. Присвоить ей другое значение уже нельзя.</td></tr>
+        <tr><td><code>int price = 250;</code></td><td>Объявляем переменную <code>price</code> типа <code>int</code> и инициализируем литералом 250.</td></tr>
+        <tr><td><code>int count;</code></td><td>Объявляем переменную <code>count</code> типа <code>int</code> без значения.</td></tr>
+        <tr><td><code>count = 3;</code></td><td>Присваиваем переменной <code>count</code> значение 3. Это её инициализация — первое значение.</td></tr>
+        <tr><td><code>int total = price * count;</code></td><td>Объявляем <code>total</code> и инициализируем результатом выражения <code>price * count</code> — это 750.</td></tr>
+        <tr><td><code>total = total - DISCOUNT;</code></td><td>Вычисляется выражение <code>total - DISCOUNT</code> (740), результат присваивается переменной <code>total</code>. Старое значение 750 заменяется.</td></tr>
+        <tr><td><code>String text = "Итого: " + total;</code></td><td>Объявляем <code>text</code> типа <code>String</code> и инициализируем результатом выражения: строковый литерал <code>"Итого: "</code> склеивается со значением <code>total</code>.</td></tr>
+        <tr><td><code>System.out.println(text);</code></td><td><b>Вызываем метод</b> <code>println</code> у объекта <code>System.out</code> и <b>передаём ему аргумент</b> <code>text</code>. Метод печатает строку и ничего не возвращает.</td></tr>
+      </table>
+    </div>
+<pre class="terminal"><span class="out">Итого: 740</span></pre>
+    <div class="callout tip">
+      <span class="callout-title">Привычка на весь курс</span>
+      <p>Встречаешь новый код — прочитай его вслух по строкам этими словами. Дальше в курсе будут новые слова: <b>условие</b> и <b>тело</b> <code>if</code>, <b>итерация</b> цикла, <b>параметры</b> и <b>возвращаемое значение</b> метода, <b>создание объекта</b>. Каждое — в своём модуле, а все вместе — в <a href="/cheatsheet.html#reading">шпаргалке</a>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Тренажёр: что происходит в строке?</h2>
+    <p>Два вида заданий. В одних выбираешь правильное описание из пяти. В других собираешь описание из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m02-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 2", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в этой строке?", "code": "int age;",
+            "options": ["Объявление переменной <code>age</code> типа <code>int</code> без значения", "Инициализация переменной <code>age</code> нулём", "Присваивание переменной <code>age</code>", "Вызов метода <code>age</code>", "Создание объекта <code>age</code>"],
+            "answer": 0, "why": "Есть тип и имя, но нет <code>=</code>: переменную только объявили. Значения в ней пока нет — читать её нельзя." },
+          { "type": "single", "q": "А здесь?", "code": "int age = 25;",
+            "options": ["Только объявление", "Объявление переменной <code>age</code> и её инициализация литералом 25", "Присваивание без объявления", "Сравнение <code>age</code> и 25", "Вызов метода с аргументом 25"],
+            "answer": 1, "why": "Тип + имя — объявление, <code>= 25</code> — инициализация первым значением. Всё в одной инструкции." },
+          { "type": "single", "q": "Переменная <code>age</code> уже объявлена выше. Что делает строка?", "code": "age = age + 1;",
+            "options": ["Объявляет вторую переменную <code>age</code>", "Сравнивает <code>age</code> с <code>age + 1</code>", "Вычисляет выражение <code>age + 1</code> и присваивает результат переменной <code>age</code>", "Инициализирует <code>age</code> единицей", "Вызывает метод <code>age</code>"],
+            "answer": 2, "why": "Сначала вычисляется правая часть — выражение <code>age + 1</code>, потом оператор присваивания кладёт результат в <code>age</code>. Типа слева нет — значит, это не объявление." },
+          { "type": "single", "q": "Что происходит?", "code": "String name = sc.nextLine();",
+            "options": ["Присваивание строки методу <code>nextLine</code>", "Объявление переменной <code>name</code> типа <code>String</code> и её инициализация результатом вызова метода <code>nextLine()</code> у объекта <code>sc</code>", "Создание нового объекта <code>Scanner</code>", "Объявление метода <code>name</code>", "Сравнение <code>name</code> со строкой"],
+            "answer": 1, "why": "Слева — объявление, справа — вызов метода. Метод возвращает введённую строку, ею и инициализируется <code>name</code>." },
+          { "type": "single", "q": "Что здесь литерал?", "code": "double price = 4.5 * count;",
+            "options": ["<code>double</code>", "<code>price</code>", "<code>4.5</code>", "<code>*</code>", "<code>count</code>"],
+            "answer": 2, "why": "Литерал — значение, записанное прямо в коде. <code>double</code> — тип, <code>price</code> и <code>count</code> — имена переменных, <code>*</code> — оператор." },
+          { "type": "single", "q": "Что происходит?", "code": "int whole = (int) 3.9;",
+            "options": ["Округление 3.9 до 4", "Объявление <code>whole</code> и инициализация результатом приведения <code>3.9</code> к <code>int</code> — будет 3", "Ошибка компиляции", "Вызов метода <code>int</code>", "Присваивание без объявления"],
+            "answer": 1, "why": "<code>(int)</code> — приведение типа: дробная часть отбрасывается, а не округляется. Результатом приведения инициализируется новая переменная." },
+          { "type": "build", "q": "Собери описание строки", "code": "int total = price * count;",
+            "answer": ["объявляем переменную <code>total</code> типа <code>int</code>", "и инициализируем её", "результатом выражения <code>price * count</code>"],
+            "extra": ["вызываем метод <code>total</code>", "литералом 750", "и сравниваем с <code>count</code>"] },
+          { "type": "build", "q": "Собери описание строки (переменная <code>count</code> объявлена раньше)", "code": "count = 3;",
+            "answer": ["переменной <code>count</code>", "присваивается", "значение 3"],
+            "extra": ["объявляется", "типа <code>int</code>", "вызывается метод"] },
+          { "type": "build", "q": "Собери описание строки", "code": "System.out.println(text);",
+            "answer": ["вызываем метод <code>println</code>", "у объекта <code>System.out</code>", "и передаём ему аргумент <code>text</code>"],
+            "extra": ["объявляем переменную <code>text</code>", "и присваиваем ему <code>text</code>", "метод возвращает <code>text</code>"] },
+          { "type": "single", "q": "В какой строке происходит инициализация переменной <code>count</code>?", "code": "int price = 250;\nint count;\ncount = 3;\ncount = count + 1;",
+            "options": ["В строке 1", "В строке 2", "В строке 3", "В строке 4", "Нигде — переменная не инициализирована"],
+            "answer": 2, "why": "Строка 2 — только объявление. Первое значение <code>count</code> получает в строке 3 — это и есть инициализация. Строка 4 — уже обычное присваивание." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Потренируйся с ИИ</span>
+      <p>Напиши: <em>«Дай мне 5 строк кода на Java по одной: переменные, выражения, вызовы методов. Я прочитаю каждую вслух правильными терминами (объявление, инициализация, присваивание, выражение, вызов метода), а ты поправь, если я ошибся»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Объявление</b> — заводим переменную: тип и имя. <b>Инициализация</b> — первое значение. <b>Присваивание</b> — запись значения через <code>=</code>.</li>
+        <li><code>int a = 5;</code> — «объявляем <code>a</code> типа <code>int</code> и инициализируем значением 5».</li>
+        <li><b>Выражение</b> вычисляется в значение; в нём <b>операторы</b> и <b>операнды</b>; <b>литерал</b> — значение прямо в коде; <b>инструкция</b> — законченное действие с <code>;</code>.</li>
+        <li><code>obj.method(x)</code> — «вызываем метод <code>method</code> у объекта <code>obj</code> и передаём аргумент <code>x</code>».</li>
+        <li>Новый код читаем вслух по строкам этими словами — с этого начинается понимание.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

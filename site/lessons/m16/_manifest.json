@@ -1,0 +1,45 @@
+{
+  "id": "m16",
+  "num": "16",
+  "title": "Многопоточность: основы",
+  "summary": "Потоки, start и join, гонка данных и synchronized, AtomicInteger, пул потоков и Future, volatile, deadlock, потокобезопасные коллекции и как избежать плавающих ошибок — на уровне собеседования.",
+  "lessons": [
+    {
+      "id": "m16-01",
+      "title": "Что такое поток",
+      "url": "/lessons/m16/01-threads.html"
+    },
+    {
+      "id": "m16-02",
+      "title": "Гонка данных и synchronized",
+      "url": "/lessons/m16/02-race-condition.html"
+    },
+    {
+      "id": "m16-03",
+      "title": "ExecutorService, Callable и Future",
+      "url": "/lessons/m16/03-executor.html"
+    },
+    {
+      "id": "m16-04",
+      "title": "volatile, deadlock, коллекции",
+      "url": "/lessons/m16/04-volatile-deadlock.html"
+    },
+    {
+      "id": "m16-05",
+      "title": "Многопоточность в автотестах",
+      "url": "/lessons/m16/05-threads-in-autotests.html",
+      "hidden": true
+    },
+    {
+      "id": "m16-pz",
+      "title": "Головоломки: что выведется?",
+      "url": "/lessons/m16/06-puzzles.html"
+    },
+    {
+      "id": "m16-sum",
+      "title": "Итоги модуля и экзамен",
+      "url": "/lessons/m16/07-summary.html"
+    }
+  ],
+  "taskCount": 6
+}

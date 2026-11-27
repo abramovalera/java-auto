@@ -1,0 +1,47 @@
+## id: tr-cond-056
+## title: Через минуту
+## file: trainer/cond/NextMinuteClock.java
+## class: NextMinuteClock
+## level: 3
+## category: Даты и время
+@@ description
+<p>Напиши класс <code>NextMinuteClock</code>. Программа читает часы и минуты — два целых числа через пробел — и печатает, сколько времени будет через минуту, в формате <code>ЧЧ:ММ</code> (всегда по две цифры). После <code>23:59</code> наступает <code>00:00</code>. Если время неверное (часы не 0–23 или минуты не 0–59), напечатай <code>Неверное время</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10 59
+вывод: 11:00
+
+ввод:  23 59
+вывод: 00:00</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>прибавь минуту; если минут стало 60 — обнули их и прибавь час; если часов стало 24 — обнули</li>
+<li><code>(m < 10 ? "0" : "") + m</code> — ведущий ноль</li>
+</ul></div>
+@@ test: Обычная минута
+@@ input
+9 5
+@@ expect
+09:06
+@@ test: Смена часа
+@@ input
+10 59
+@@ expect
+11:00
+@@ test: Полночь
+@@ input
+23 59
+@@ expect
+00:00
+@@ test: Сразу после полуночи
+@@ input
+0 0
+@@ expect
+00:01
+@@ test: 24 часа — неверно
+@@ input
+24 10
+@@ expect
+Неверное время
+@@ test: 60 минут — неверно
+@@ input
+12 60
+@@ expect
+Неверное время

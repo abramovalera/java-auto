@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Зачем циклы. Цикл while · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m05-01">
+
+  <header class="lesson-head" data-mood="happy">
+    <div class="kicker">Модуль 5 · Урок 1</div>
+    <h1>Зачем циклы. Цикл while</h1>
+    <p class="lead">Компьютер обожает однообразную работу: повторить действие миллион раз ему не скучно. Учимся говорить ему «повторяй, пока…» — и рисуем ёлочку любой высоты.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔁 первый цикл</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Копипаст — не выход</h2>
+    <p>Задача: вывести числа от 1 до 5. С тем, что ты уже знаешь, получится так:</p>
+<pre data-file="Main.java"><code class="java">System.out.println(1);
+System.out.println(2);
+System.out.println(3);
+System.out.println(4);
+System.out.println(5);</code></pre>
+    <p>Работает. А если нужно до 1000? Тысяча одинаковых строк, и в каждой можно опечататься. А если число вводит пользователь и заранее оно неизвестно? Тут копипаст бессилен.</p>
+    <p>Вспомни ёлочку из модуля 1: ты рисовал её руками, строка за строкой. Ёлку высотой 50 так рисовать никто не станет.</p>
+    <div class="say" data-mood="think">
+      <p>Присмотрись: в примере выше пять раз делается <b>одно и то же</b>, меняется только число. Как только видишь «одно и то же много раз» — это работа для <b>цикла</b>.</p>
+    </div>
+    <p><b>Цикл</b> — это конструкция, которая повторяет блок кода много раз. В реальных программах циклы повсюду: посчитать сумму по всем 200 строкам банковской выписки, дать три попытки ввести PIN-код, ждать, <b>пока</b> файл не скачается.</p>
+    <div class="cheat">
+      <h3>Выпиши себе: IntelliJ IDEA, остановка программы</h3>
+      <p>С циклами программа впервые сможет «зависнуть» — работать бесконечно. Допиши в свою шпаргалку из урока 1.4:</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td>■ в панели Run или <kbd>Ctrl</kbd>+<kbd>F2</kbd></td><td>Остановить работающую программу</td><td>Вывод бежит без конца или программа «молчит» и не заканчивается</td></tr>
+      </table></div>
+      <p style="margin-top:10px">На macOS — <kbd>Cmd</kbd>+<kbd>F2</kbd>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Цикл while: «пока — повторяй»</h2>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: тарелка супа</span>
+      <p>Ты не решаешь заранее: «съем ровно 23 ложки». Ты действуешь по правилу: <b>пока</b> в тарелке есть суп — зачерпни ложку. Перед каждой ложкой смотришь в тарелку. Пусто — встаёшь из-за стола.</p>
+    </div>
+    <p>По-английски «пока» — <b>while</b> [уайл]. Так и называется первый цикл Java:</p>
+<pre data-file="Count.java"><code class="java">int i = 1;
+while (i &lt;= 5) {
+    System.out.println(i);
+    i++;
+}
+System.out.println("Готово");</code></pre>
+<pre class="terminal"><span class="out">1
+2
+3
+4
+5
+Готово</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>int i = 1;</code><div><p><b>Подготовка.</b> <b>Объявляем</b> переменную <code>i</code> типа <code>int</code> и <b>инициализируем</b> её значением 1 — кладём в коробку единицу. Это <b>счётчик</b>: переменная, которая считает повторы. Это ещё не цикл — строка выполнится один раз.</p></div></div>
+      <div class="annot-row"><code>while (i &lt;= 5)</code><div><p><b>Заголовок цикла.</b> В скобках — <b>условие</b> продолжения: логическое выражение, как в <code>if</code> из модуля 4. Пока оно <code>true</code>, тело цикла выполняется снова и снова.</p></div></div>
+      <div class="annot-row"><code>{ … }</code><div><p><b>Тело цикла</b> — то, что повторяется. Одно выполнение тела называют <b>итерацией</b> (от латинского «повторение»), в разговоре — «круг».</p></div></div>
+      <div class="annot-row"><code>i++;</code><div><p><b>Шаг.</b> <b>Инкремент</b> счётчика: оператор <code>++</code> из модуля 3 увеличивает <code>i</code> на 1. Без шага условие никогда не станет ложным.</p></div></div>
+      <div class="annot-row"><code>println("Готово")</code><div><p>Вызов <code>println</code> стоит <b>после</b> закрывающей скобки — уже вне тела цикла. Выполнится один раз, когда цикл закончится.</p></div></div>
+    </div>
+    <p>Похоже на <code>if</code>, правда? Разница в одном слове: <code>if</code> проверяет условие <b>один раз</b>, а <code>while</code> — <b>перед каждой</b> итерацией.</p>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Как цикл крутится</h2>
+    <p>Посмотри на путь, который проходит программа. Обрати внимание на стрелку, которая возвращается вверх: это и есть «петля», за которую цикл получил своё название.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 640 310" role="img" aria-label="Схема цикла while: подготовка, проверка условия, тело, шаг и возврат к условию; если условие ложно — выход из цикла">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="230" y="10" width="180" height="40" rx="10" class="d-blue"/>
+        <text x="320" y="36" text-anchor="middle" class="d-mono-ink">int i = 1;</text>
+        <path d="M320 50 V72" class="d-arrow"/>
+        <path d="M320 76 L410 116 L320 156 L230 116 Z" class="d-yellow"/>
+        <text x="320" y="121" text-anchor="middle" class="d-mono-ink">i &lt;= 5 ?</text>
+        <path d="M320 156 V180" class="d-arrow"/>
+        <text x="332" y="174" class="d-small">да (true)</text>
+        <rect x="230" y="184" width="180" height="40" rx="10" class="d-green"/>
+        <text x="320" y="209" text-anchor="middle" class="d-text">тело: печать i</text>
+        <path d="M320 224 V244" class="d-arrow"/>
+        <rect x="230" y="248" width="180" height="40" rx="10" class="d-accent"/>
+        <text x="320" y="273" text-anchor="middle" class="d-text">шаг: i++</text>
+        <path d="M230 268 H120 V116 H226" class="d-arrow"/>
+        <text x="40" y="200" class="d-small">снова к</text>
+        <text x="40" y="218" class="d-small">условию</text>
+        <path d="M410 116 H496" class="d-arrow"/>
+        <text x="424" y="106" class="d-small">нет (false)</text>
+        <rect x="500" y="96" width="130" height="40" rx="10" class="d-box"/>
+        <text x="565" y="121" text-anchor="middle" class="d-text">дальше →</text>
+      </svg>
+      <figcaption>Условие → тело → шаг → снова условие. Выход — только когда условие стало ложным.</figcaption>
+    </figure>
+    <p>Теперь пройди программу сам, строка за строкой. На некоторых шагах трассировщик спросит, какое значение будет у переменной, — впиши своё, прежде чем смотреть.</p>
+    <div data-widget="trace" id="trace-while">
+      <script type="application/json">
+      { "title": "while по шагам",
+        "intro": "Нажимай «Шаг ▶». Подсвеченная строка — та, что выполняется сейчас. Справа — переменные и консоль.",
+        "code": "int i = 1;\nwhile (i <= 3) {\n    System.out.println(i);\n    i++;\n}\nSystem.out.println(\"Готово\");",
+        "steps": [
+          { "line": 1, "vars": { "i": "1" }, "note": "Подготовка: объявляем счётчик i и инициализируем его значением 1. Эта строка выполняется один раз." },
+          { "line": 2, "vars": { "i": "1" }, "note": "Проверяем условие: 1 <= 3 — true. Начинается первая итерация: заходим в тело цикла." },
+          { "line": 3, "vars": { "i": "1" }, "out": "1\n", "note": "Вызываем println и передаём аргумент i — в консоли появилась 1." },
+          { "line": 4, "vars": { "i": "2" }, "ask": ["i"], "note": "Шаг: инкремент i++ увеличивает i на 1. Было 1, стало 2. Тело закончилось, итерация завершена — возвращаемся к условию." },
+          { "line": 2, "vars": { "i": "2" }, "note": "Снова проверка: 2 <= 3 — true. Вторая итерация." },
+          { "line": 3, "vars": { "i": "2" }, "out": "2\n", "note": "Печатаем 2." },
+          { "line": 4, "vars": { "i": "3" }, "ask": ["i"], "note": "Опять шаг i++. Было 2, стало 3." },
+          { "line": 2, "vars": { "i": "3" }, "note": "3 <= 3 — true! Оператор <= пропускает и равенство. Третья итерация." },
+          { "line": 3, "vars": { "i": "3" }, "out": "3\n", "note": "Печатаем 3." },
+          { "line": 4, "vars": { "i": "4" }, "ask": ["i"], "note": "Шаг i++ в последний раз. Было 3, стало 4." },
+          { "line": 2, "vars": { "i": "4" }, "note": "4 <= 3 — неверно (false). Цикл окончен: прыгаем за закрывающую скобку }." },
+          { "line": 6, "vars": { "i": "4" }, "out": "Готово\n", "note": "Строка после цикла выполняется один раз. Заметь: после цикла i равно 4, а не 3 — условие проверялось 4 раза, а тело выполнилось 3 раза — 3 итерации." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Три части любого цикла</h2>
+    <p>У каждого «послушного» цикла есть три части. Забыл одну — жди беды.</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🎬</span><h4>Подготовка</h4><p>До цикла: объявление и инициализация счётчика. <code>int i = 1;</code></p></div>
+      <div class="card"><span class="emoji">🚦</span><h4>Условие</h4><p>Перед каждой итерацией: продолжаем или хватит? <code>i &lt;= 5</code></p></div>
+      <div class="card"><span class="emoji">👣</span><h4>Шаг</h4><p>В теле: меняем счётчик, чтобы условие однажды стало ложным. <code>i++</code></p></div>
+    </div>
+    <p>Шаг не обязан быть <code>+1</code>. Можно шагать через одно или идти назад:</p>
+<pre data-file="Steps.java"><code class="java">int n = 10;
+while (n &gt; 0) {
+    System.out.print(n + " ");
+    n = n - 3;
+}</code></pre>
+    <details class="predict">
+      <summary>Что напечатает этот код?</summary>
+      <p><b>10 7 4 1</b>. После печати 1 переменной <code>n</code> присваивается −2, условие <code>-2 &gt; 0</code> ложно — цикл закончится. Число 0 так и не напечатается: на него мы просто «перешагнули».</p>
+    </details>
+    <details class="predict">
+      <summary>А если в первом примере начать с <code>int i = 10;</code> при условии <code>i &lt;= 5</code>? Сколько раз выполнится тело?</summary>
+      <p><b>Ни разу.</b> <code>while</code> проверяет условие <b>до</b> первой итерации. <code>10 &lt;= 5</code> — ложь, программа сразу перепрыгнет цикл. Это нормально: «пока в тарелке есть суп» — а если тарелка пустая с самого начала, ни одной ложки не будет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Бесконечный цикл и красный квадрат</h2>
+    <p>Что будет, если забыть шаг?</p>
+<pre data-file="Forever.java"><code class="java">int i = 1;
+while (i &lt;= 5) {
+    System.out.println(i);
+    // забыли i++
+}</code></pre>
+    <p><code>i</code> навсегда остаётся равным 1, условие <code>1 &lt;= 5</code> всегда верно — цикл крутится <b>бесконечно</b>. В панели Run бегут единицы, вентилятор компьютера начинает шуметь, а программа сама не остановится никогда.</p>
+    <div class="say" data-mood="oops">
+      <p>Не пугайся — с этим сталкивается каждый программист, и не раз. Компьютер не сломается. Просто останови программу.</p>
+    </div>
+    <div data-widget="ide" id="shot-forever-running">
+      <script type="application/json">
+      { "tree": false, "file": "Forever.java", "runConfig": "Forever", "gutterRun": [1, 2],
+        "code": "public class Forever {\n    public static void main(String[] args) {\n        int i = 1;\n        while (i <= 5) {\n            System.out.println(i);\n            // забыли i++\n        }\n    }\n}",
+        "warnings": [ { "line": 4, "text": "i <= 5", "msg": "Condition 'i <= 5' is always 'true'" } ],
+        "console": { "title": "Forever", "running": true, "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Forever" },
+          { "t": "out", "s": "1" }, { "t": "out", "s": "1" }, { "t": "out", "s": "1" }, { "t": "out", "s": "1" }, { "t": "out", "s": "1" }, { "t": "out", "s": "1" } ] },
+        "marks": [ { "n": 1, "target": "err-4", "side": "top", "text": "IDEA заранее намекала жёлтым: <b>Condition 'i &lt;= 5' is always 'true'</b> — «условие всегда истинно». Значит, цикл никогда не закончится" },
+                   { "n": 2, "target": "output-6", "text": "Единицы бегут без остановки, и строки <b>Process finished</b> внизу нет — программа всё ещё работает" },
+                   { "n": 3, "target": "stop", "text": "Красный квадрат <b>■ Stop</b> горит, пока программа работает. Нажми его (или <kbd>Ctrl</kbd>+<kbd>F2</kbd>) — и программа остановится. Такой же квадрат есть и сверху, рядом с ▶" } ],
+        "caption": "Бесконечный цикл в панели Run" }
+      </script>
+    </div>
+    <ol class="steps">
+      <li>Найди в панели Run (или сверху, рядом с зелёным ▶) <b>красный квадрат ■ Stop</b> и нажми его. То же самое — <kbd>Ctrl</kbd>+<kbd>F2</kbd>.</li>
+      <li>В конце вывода появится <code>Process finished with exit code …</code> с ненулевым числом (на Windows обычно <code>-1</code>, на Mac и Linux — <code>130</code>): программу остановили снаружи.</li>
+      <li>Найди в коде цикл и спроси себя: <b>что в теле приближает условие к false?</b> Если ничего — вот и ошибка.</li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">На сайте тоже есть защита</span>
+      <p>Если программа с бесконечным циклом попадёт на проверку задач, сайт остановит её через 5 секунд и напишет: «Возможно, она застряла в бесконечном цикле».</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: бывают ли бесконечные циклы нарочно?</summary>
+      <p>Да! Игра крутит цикл «нарисуй кадр → прочитай кнопки → сдвинь героя» всё время, пока ты играешь. Сервер банка крутит цикл «жди запрос → обработай» месяцами без перерыва. Пишут такое как <code>while (true) { … }</code>, а выходят из цикла инструкцией <code>break</code> — её разберём в уроке 5.3.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Лесенка любой высоты</h2>
+    <p>Соединим цикл со <code>Scanner</code> из модуля 2: пользователь вводит высоту, а программа рисует лесенку из звёздочек. Высота заранее неизвестна — значит, без цикла не обойтись.</p>
+<pre data-file="Stairs.java"><code class="java">import java.util.Scanner;
+
+public class Stairs {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Высота: ");
+        int height = scanner.nextInt();
+
+        String row = "*";
+        int line = 1;
+        while (line &lt;= height) {
+            System.out.println(row);
+            row = row + "*";
+            line++;
+        }
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-stairs-run">
+      <script type="application/json">
+      { "tree": false, "file": "Stairs.java", "runConfig": "Stairs", "gutterRun": [3, 4],
+        "code": "import java.util.Scanner;\n\npublic class Stairs {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.print(\"Высота: \");\n        int height = scanner.nextInt();\n\n        String row = \"*\";\n        int line = 1;\n        while (line <= height) {\n            System.out.println(row);\n            row = row + \"*\";\n            line++;\n        }\n    }\n}",
+        "console": { "title": "Stairs", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Stairs" },
+          { "t": "out", "s": "Высота: " },
+          { "t": "in", "s": "4", "inline": true },
+          { "t": "out", "s": "*" },
+          { "t": "out", "s": "**" },
+          { "t": "out", "s": "***" },
+          { "t": "out", "s": "****" },
+          { "t": "exit", "s": "Process finished with exit code 0" } ] },
+        "marks": [ { "n": 1, "target": "output", "side": "top", "text": "Подсказку напечатал <code>print</code>, а не <code>println</code>: перевода строки нет, поэтому ввод встаёт на ту же строку" },
+                   { "n": 2, "target": "input", "text": "<b>4</b> зелёным — это ввёл ты и нажал Enter" },
+                   { "n": 3, "target": "output-5", "text": "Цикл сделал 4 итерации, и каждая строка на звёздочку длиннее предыдущей", "box": true },
+                   { "n": 4, "target": "exit", "text": "Условие <code>5 &lt;= 4</code> стало ложным — цикл и программа закончились" } ],
+        "caption": "Лесенка: ввод высоты и вывод цикла в консоли Run" }
+      </script>
+    </div>
+    <p>Хитрость в строке <code>row = row + "*"</code>: вычисляется выражение <code>row + "*"</code> (к строке приклеивается ещё одна звёздочка), и результат присваивается переменной <code>row</code>. Так на каждой итерации строка «растёт» вместе с номером ступеньки. Переменная <code>line</code> — счётчик: считает ступеньки и останавливает цикл через условие <code>line &lt;= height</code>.</p>
+    <details class="predict">
+      <summary>Что напечатает программа, если ввести 0?</summary>
+      <p><b>Ничего</b>, кроме «Высота: ». Условие <code>1 &lt;= 0</code> ложно с самого начала, и тело не выполнится ни разу. Для лесенки высотой 0 это как раз правильно.</p>
+    </details>
+    <div class="callout try">
+      <span class="callout-title">Попробуй сам</span>
+      <p>Набери программу в <code>module-05</code>, запусти и введи 10, потом 1, потом 0. Затем поменяй <code>"*"</code> на <code>"#"</code> и сделай так, чтобы каждая ступенька росла на две звёздочки, а не на одну.</p>
+    </div>
+    <p>Настоящую ёлочку — с пробелами слева, ровную, как в модуле 1, — нарисуем в уроке 5.4, когда научимся класть цикл внутрь цикла.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m05-01">
+      <script type="application/json">
+      {
+       "title": "Быстрая проверка: цикл while",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int k = 3;\nwhile (k > 0) {\n    System.out.println(k);\n    k--;\n}\nSystem.out.println(\"Старт!\");",
+         "answer": "3\n2\n1\nСтарт!",
+         "why": "k идёт 3, 2, 1. Когда k стало 0, условие 0 > 0 ложно — цикл закончился, и выполнилась строка после него."
+        },
+        {
+         "type": "single",
+         "q": "Сколько раз выполнится тело цикла?",
+         "code": "int x = 20;\nwhile (x < 10) {\n    System.out.println(x);\n    x++;\n}",
+         "options": [
+          "Ни разу",
+          "Один раз",
+          "Бесконечно"
+         ],
+         "answer": 0,
+         "why": "while проверяет условие до первой итерации: 20 < 10 — false, тело цикла пропускается целиком."
+        },
+        {
+         "type": "bug",
+         "q": "Программа должна вывести 1, 2, 3, но крутится вечно. В какой строке ошибка?",
+         "code": "int i = 1;\nwhile (i <= 3) {\n    System.out.println(i);\n    i--;\n}",
+         "answer": [
+          4
+         ],
+         "why": "i-- уменьшает счётчик: 1, 0, −1… — он удаляется от 3, условие i <= 3 верно всегда. Нужен шаг вперёд: i++."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Тело while может не выполниться ни разу",
+           "a": true
+          },
+          {
+           "s": "Бесконечный цикл ломает компьютер — нужна перезагрузка",
+           "a": false,
+           "why": "достаточно нажать красный квадрат Stop в IDEA (Ctrl+F2)."
+          },
+          {
+           "s": "Один проход по телу цикла называют итерацией",
+           "a": true
+          },
+          {
+           "s": "Строка сразу после закрывающей } цикла выполняется на каждой итерации",
+           "a": false,
+           "why": "она уже вне цикла и выполнится один раз — после того, как цикл закончится."
+          }
+         ]
+        },
+        {
+         "type": "match",
+         "q": "Соедини часть цикла с примером",
+         "left": [
+          "Подготовка",
+          "Условие",
+          "Шаг",
+          "Тело"
+         ],
+         "right": [
+          "int i = 1;",
+          "i <= 5",
+          "i++",
+          "то, что повторяется между { и }"
+         ],
+         "why": "Подготовка — объявление и инициализация счётчика до цикла, условие — в заголовке, в скобках while, шаг меняет счётчик, тело — повторяемый код."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши в Claude Code: <em>«Дай мне 3 коротких цикла while, а я скажу, сколько раз выполнится каждый и почему. Ответ не говори сразу»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Цикл повторяет блок кода — <b>тело цикла</b>; одно выполнение тела — <b>итерация</b>. Видишь «одно и то же много раз» — нужен цикл.</li>
+        <li><code>while (условие) { тело }</code> — «пока условие верно, повторяй тело». Условие проверяется <b>перед каждой</b> итерацией.</li>
+        <li>Три части: подготовка (объявление и инициализация счётчика), условие, шаг. Тело может не выполниться ни разу.</li>
+        <li>Забыл шаг или шагаешь не туда — бесконечный цикл. Останавливается красным квадратом Stop (<kbd>Ctrl</kbd>+<kbd>F2</kbd>).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

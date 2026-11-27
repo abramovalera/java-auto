@@ -1,0 +1,45 @@
+## id: tr-strings-032
+## title: Правильные заглавные
+## file: trainer/strings/CapitalUsageCheck.java
+## class: CapitalUsageCheck
+## level: 2
+## category: Проверка формата
+@@ description
+<p>Напиши класс <code>CapitalUsageCheck</code>. Заглавные буквы в слове стоят правильно, если выполняется одно из трёх: все буквы заглавные (<code>USA</code>), все маленькие (<code>java</code>) или заглавная только первая (<code>Google</code>). Напиши метод <code>static boolean isCapitalUsedRight(String word)</code>, который возвращает, правильно ли стоят заглавные. В <code>main</code> прочитай слово (только буквы, хотя бы одна), вызови метод и напечатай результат: <code>true</code> или <code>false</code>.</p>
+<pre class="terminal"><span class="out">ввод:  USA     вывод: true
+ввод:  FlaG    вывод: false</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>word.equals(word.toUpperCase())</code> — <code>true</code>, если в слове нет маленьких букв</li>
+<li><code>word.substring(1)</code> — слово без первой буквы</li>
+</ul></div>
+@@ test: Все заглавные
+@@ input
+USA
+@@ expect
+true
+@@ test: Все маленькие
+@@ input
+leetcode
+@@ expect
+true
+@@ test: Только первая
+@@ input
+Google
+@@ expect
+true
+@@ test: Заглавная в конце
+@@ input
+FlaG
+@@ expect
+false
+@@ test: Одна буква
+@@ input
+g
+@@ expect
+true
+@@ test: Заглавная вторая
+@@ input
+mL
+@@ expect
+false
+@@ require: static\s+boolean\s+isCapitalUsedRight\s*\(\s*String | Напиши метод static boolean isCapitalUsedRight(String word)

@@ -1,0 +1,38 @@
+## id: tr-loops-017
+## title: Делим конфеты поровну
+## file: trainer/loops/CandySharingDivisors.java
+## class: CandySharingDivisors
+## level: 1
+## category: Делители и простые
+@@ description
+<p>Напиши класс <code>CandySharingDivisors</code>. Есть <code>n</code> конфет (n ≥ 1). На сколько детей их можно поделить поровну, чтобы ничего не осталось? Напечатай в одну строку через пробел все подходящие количества детей по возрастанию — от 1 до <code>n</code>.</p>
+<pre class="terminal"><span class="out">ввод:  12
+вывод: 1 2 3 4 6 12</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % kids == 0</code> — остаток 0: n делится на kids нацело</li>
+</ul></div>
+@@ test: Двенадцать конфет
+@@ input
+12
+@@ expect
+1 2 3 4 6 12
+@@ test: Одна конфета
+@@ input
+1
+@@ expect
+1
+@@ test: Простое число
+@@ input
+7
+@@ expect
+1 7
+@@ test: Тридцать шесть
+@@ input
+36
+@@ expect
+1 2 3 4 6 9 12 18 36
+@@ test: Сто
+@@ input
+100
+@@ expect
+1 2 4 5 10 20 25 50 100

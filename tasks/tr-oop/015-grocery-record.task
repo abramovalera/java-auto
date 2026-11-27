@@ -1,0 +1,51 @@
+## id: tr-oop-015
+## title: Позиция в чеке — record
+## file: trainer/oop/GroceryItemRecord.java
+## class: GroceryItemRecord
+## level: 1
+## category: enum и record
+@@ description
+<p>Создай класс <code>GroceryItemRecord</code> с методом <code>main</code>, а ниже в том же файле — запись <code>record GroceryItem(String name, int price, int qty)</code>: название товара, цена за штуку и количество.</p>
+<p>Добавь в запись метод <code>int total()</code> — возвращает стоимость позиции (цена × количество).</p>
+<p><code>main</code> читает через пробел название (одно слово), цену и количество, создаёт запись и печатает три строки: саму запись (её <code>toString()</code> Java пишет за тебя), название через метод доступа и итог:</p>
+<pre class="terminal"><span class="out">ввод:  Яблоки 89 3
+вывод: GroceryItem[name=Яблоки, price=89, qty=3]
+       Товар: Яблоки
+       Итого: 267 руб.</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>record сам создаёт закрытые поля, конструктор, <code>toString()</code>, <code>equals()</code> и методы доступа</li>
+<li><code>item.name()</code> — метод доступа называется как компонент, без <code>get</code></li>
+<li>внутри своего метода запись видит компоненты по имени: <code>price * qty</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Яблоки 89 3
+@@ expect
+GroceryItem[name=Яблоки, price=89, qty=3]
+Товар: Яблоки
+Итого: 267 руб.
+@@ test: Одна штука
+@@ input
+Хлеб 52 1
+@@ expect
+GroceryItem[name=Хлеб, price=52, qty=1]
+Товар: Хлеб
+Итого: 52 руб.
+@@ test: Ноль штук
+@@ input
+Молоко 95 0
+@@ expect
+GroceryItem[name=Молоко, price=95, qty=0]
+Товар: Молоко
+Итого: 0 руб.
+@@ test: Большая партия
+@@ input
+Гвозди 2 5000
+@@ expect
+GroceryItem[name=Гвозди, price=2, qty=5000]
+Товар: Гвозди
+Итого: 10000 руб.
+@@ require: \brecord\s+GroceryItem\s*\(\s*String\s+name\s*,\s*int\s+price\s*,\s*int\s+qty\s*\) | Объяви запись record GroceryItem(String name, int price, int qty)
+@@ require: \bint\s+total\s*\(\s*\) | Добавь в запись метод int total()
+@@ require: \.name\s*\(\s*\) | Название возьми методом доступа name()
+@@ forbid: \bclass\s+GroceryItem\b | GroceryItem должен быть записью (record), а не обычным классом

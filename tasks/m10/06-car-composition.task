@@ -1,0 +1,73 @@
+## id: m10-t06
+## title: Машина с двигателем: композиция
+## file: module-10/CarComposition.java
+## class: CarComposition
+## level: 2
+@@ description
+<p>Машина <b>не является</b> двигателем — она его <b>имеет</b>. Собери машину из детали, а не наследуй её от детали. В файле <code>CarComposition.java</code>:</p>
+<ul>
+  <li><code>class CompEngine</code> — двигатель. <code>private boolean running</code>; методы <code>start()</code> (печатает <code>Двигатель запущен</code> или, если уже работает, <code>Двигатель уже работает</code>), <code>stop()</code> (<code>Двигатель остановлен</code> / <code>Двигатель уже остановлен</code>) и <code>boolean isRunning()</code>.</li>
+  <li><code>class CompCar</code> — машина. Внутри поле <code>private final CompEngine engine = new CompEngine();</code> и пробег. Методы <code>start()</code> и <code>stop()</code> просто <b>поручают</b> работу двигателю (делегирование). Метод <code>drive(int km)</code>: если двигатель не запущен — <code>Не едем: двигатель не запущен</code>; иначе если km ≤ 0 — <code>Не едем: неверное расстояние</code>; иначе прибавляет пробег и печатает <code>Проехали 120 км, пробег 120</code>. И <code>int getMileage()</code>.</li>
+  <li><code>public class CarComposition</code> с <code>main</code>: читает N команд (<code>start</code>, <code>stop</code>, <code>drive 120</code>), выполняет их и в конце печатает <code>Итого пробег: …</code>.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:        вывод:
+4
+start        Двигатель запущен
+drive 120    Проехали 120 км, пробег 120
+stop         Двигатель остановлен
+drive 10     Не едем: двигатель не запущен
+             Итого пробег: 120</span></pre>
+<p>⚠️ Слово <code>extends</code> в этой задаче запрещено: здесь нет отношения «является».</p>
+<p>📖 <a href="/lessons/m10/07-composition.html">Композиция против наследования</a></p>
+@@ test: Пример из условия
+@@ input
+4
+start
+drive 120
+stop
+drive 10
+@@ expect
+Двигатель запущен
+Проехали 120 км, пробег 120
+Двигатель остановлен
+Не едем: двигатель не запущен
+Итого пробег: 120
+@@ test: Двойной старт и двойная остановка
+@@ input
+6
+start
+start
+drive 50
+drive 30
+stop
+stop
+@@ expect
+Двигатель запущен
+Двигатель уже работает
+Проехали 50 км, пробег 50
+Проехали 30 км, пробег 80
+Двигатель остановлен
+Двигатель уже остановлен
+Итого пробег: 80
+@@ test: Неверные расстояния
+@@ input
+4
+drive 5
+start
+drive -7
+drive 0
+@@ expect
+Не едем: двигатель не запущен
+Двигатель запущен
+Не едем: неверное расстояние
+Не едем: неверное расстояние
+Итого пробег: 0
+@@ test: Без команд
+@@ input
+0
+@@ expect
+Итого пробег: 0
+@@ require: class\s+CompEngine\b | Нужен класс CompEngine
+@@ require: class\s+CompCar\b | Нужен класс CompCar
+@@ require: private\s+final\s+CompEngine\s+\w+ | Машина должна иметь двигатель: поле private final CompEngine engine
+@@ forbid: \bextends\b | Машина не является двигателем — используй композицию (поле), а не наследование

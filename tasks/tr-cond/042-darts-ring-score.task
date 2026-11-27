@@ -1,0 +1,44 @@
+## id: tr-cond-042
+## title: Очки в дартсе
+## file: trainer/cond/DartsRingScore.java
+## class: DartsRingScore
+## level: 2
+## category: Геометрия
+@@ description
+<p>Напиши класс <code>DartsRingScore</code>. Мишень для дартса — круги с центром в точке (0, 0). Попадание на расстоянии до 10 см от центра — 10 очков, до 50 см — 5 очков, до 100 см — 1 очко, дальше — 0. Попадание ровно на линию круга засчитывается в пользу игрока. Программа читает координаты попадания в сантиметрах — два целых числа через пробел — и печатает <code>Очки: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  30 40
+вывод: Очки: 5</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>расстояние до центра — <code>Math.sqrt(x * x + y * y)</code></li>
+<li>а можно без корня: сравнивать <code>x * x + y * y</code> с квадратом радиуса</li>
+</ul></div>
+@@ test: В самый центр
+@@ input
+0 0
+@@ expect
+Очки: 10
+@@ test: Ровно на линии 10 см
+@@ input
+6 8
+@@ expect
+Очки: 10
+@@ test: Ровно на линии 50 см
+@@ input
+30 40
+@@ expect
+Очки: 5
+@@ test: Ровно на краю мишени
+@@ input
+60 80
+@@ expect
+Очки: 1
+@@ test: Чуть мимо
+@@ input
+60 81
+@@ expect
+Очки: 0
+@@ test: Отрицательные координаты
+@@ input
+-70 -20
+@@ expect
+Очки: 1

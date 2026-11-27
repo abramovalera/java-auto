@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки про методы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 7 · Головоломки</div>
+    <h1>Головоломки: методы, стек и рекурсия</h1>
+    <p class="lead">Передача аргументов, перегрузка, return и рекурсия — любимые темы вопросов «что выведет этот код?» на собеседованиях. Запускать нельзя — только думать.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — с подвохом</span></div>
+  </header>
+
+  <div class="callout tip">
+    <span class="callout-title">Как решать</span>
+    <p>Сначала <strong>скажи ответ вслух или запиши</strong> и объясни, почему так. Нарисуй на бумажке стек: какие фреймы, какие в них переменные. Только потом выбирай вариант. Не уверен — набери код в IDEA и пройди отладчиком: это тоже честный способ.</p>
+  </div>
+
+  <h2>Что выведется на экран?</h2>
+
+  <div class="quiz">
+    <p class="q">1. Что напечатает программа?</p>
+<pre><code class="java">static void inc(int x) {
+    x++;
+}
+
+// в main:
+int a = 1;
+inc(a);
+inc(a);
+System.out.println(a);</code></pre>
+    <ul>
+      <li data-why="Метод увеличивал свой параметр x — копию, а не переменную a из main.">3</li>
+      <li data-correct data-why="Java передаёт примитив копией. При каждом вызове inc параметр x инициализировался числом 1, и метод увеличивал только его. a в main не менялась.">1</li>
+      <li data-why="При каждом вызове параметр получает свежую копию значения аргумента a, а a всё время равна 1.">2</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. А с массивом?</p>
+<pre><code class="java">static void zero(int[] arr) {
+    arr[0] = 0;
+}
+
+// в main:
+int[] a = {5, 6};
+zero(a);
+System.out.println(a[0] + a[1]);</code></pre>
+    <ul>
+      <li data-why="Метод присвоил элементу массива 0 по ссылке — a[0] теперь 0.">11</li>
+      <li data-correct data-why="Параметр arr инициализирован копией ссылки на тот же массив. Присваивание arr[0] = 0 поменяло элемент в куче, и main это видит: 0 + 6 = 6.">6</li>
+      <li data-why="a[0] и a[1] — операнды типа int, оператор + между ними — сложение, а не склейка строк.">06</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. ★★ Метод присваивает параметру новый массив. Что напечатает?</p>
+<pre><code class="java">static void change(int[] arr) {
+    arr = new int[]{7, 7};
+    arr[0] = 9;
+}
+
+// в main:
+int[] a = {1, 2};
+change(a);
+System.out.println(a[0]);</code></pre>
+    <ul>
+      <li data-why="9 присвоили элементу нового массива, на который ссылается только параметр arr внутри метода.">9</li>
+      <li data-why="Массив {7, 7} достался только копии ссылки внутри метода.">7</li>
+      <li data-correct data-why="Присваивание arr = new … перенаправило копию ссылки на новый массив. Переменная a в main по-прежнему ссылается на {1, 2}.">1</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. ★★★ Перегрузка и символ. Что напечатает?</p>
+<pre><code class="java">static void show(int x) {
+    System.out.println("int: " + x);
+}
+
+static void show(String s) {
+    System.out.println("String: " + s);
+}
+
+// в main:
+show('A');</code></pre>
+    <ul>
+      <li data-why="'A' в одинарных кавычках — символьный литерал типа char, а не String. Сам по себе char в String не превращается.">String: A</li>
+      <li data-why="Метода с сигнатурой show(char) нет, но компилятор может расширить аргумент char до int — значит, ошибки не будет.">Ошибка компиляции</li>
+      <li data-correct data-why="Точной перегрузки show(char) нет. Аргумент char расширяется до int (это код символа), а в String — нет. Вызовется show(int), и параметр x = 65 — код буквы A.">int: 65</li>
+      <li data-why="Вызовется show(int), а там параметр x — число. Печатается код символа, а не сам символ.">int: A</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. ★★ Есть только метод с double. Что напечатает?</p>
+<pre><code class="java">static void print(double d) {
+    System.out.println(d);
+}
+
+// в main:
+print(7 / 2);</code></pre>
+    <ul>
+      <li data-why="Выражение-аргумент вычисляется до вызова метода — и это деление двух операндов int.">3.5</li>
+      <li data-correct data-why="Аргумент вычисляется до вызова: 7 / 2 — целочисленное деление, получается 3. Потом int 3 расширяется до double, им инициализируется параметр — 3.0.">3.0</li>
+      <li data-why="В методе параметр d — double, а println(double) всегда печатает дробную часть.">3</li>
+      <li data-why="int без потерь расширяется до double, ошибки не будет.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">6. Сколько раз напечатается «Hi»?</p>
+<pre><code class="java">static void hello(int n) {
+    if (n &lt;= 0) {
+        return;
+    }
+    System.out.print("Hi ");
+    hello(n - 2);
+}
+
+// в main:
+hello(5);</code></pre>
+    <ul>
+      <li data-why="Рекурсивный вызов передаёт аргумент n − 2, а не n − 1.">5</li>
+      <li data-correct data-why="n = 5, 3, 1 — печатаем. Потом n = −1: условие n &lt;= 0 сработает, и рекурсия остановится. Три раза.">3</li>
+      <li data-why="n пропускает ноль (5, 3, 1, −1), но базовый случай n &lt;= 0, а не n == 0 — поэтому остановится.">Бесконечно — StackOverflowError</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">7. ★★ Печать до и после рекурсивного вызова. Что напечатает p(3)?</p>
+<pre><code class="java">static void p(int n) {
+    if (n == 0) {
+        return;
+    }
+    System.out.print(n);
+    p(n - 1);
+    System.out.print(n);
+}</code></pre>
+    <ul>
+      <li data-why="Второй вызов println выполняется на обратном пути — в обратном порядке.">123321</li>
+      <li data-correct data-why="По пути вниз печатаются 3, 2, 1. На обратном пути разматываются фреймы начиная с верхнего (n = 1): 1, 2, 3. Итого 321123.">321123</li>
+      <li data-why="Каждый фрейм печатает значение своего параметра n дважды: до рекурсивного вызова и после.">321</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">8. return посреди цикла. Что напечатает?</p>
+<pre><code class="java">static String find(int n) {
+    for (int i = 0; i &lt; 10; i++) {
+        if (i == n) {
+            return "нашёл " + i;
+        }
+    }
+    return "нет";
+}
+
+// в main:
+System.out.println(find(3));
+System.out.println(find(20));</code></pre>
+    <ul>
+      <li data-correct data-why="return завершает весь метод сразу, даже из тела цикла. Вызов find(3) вернёт «нашёл 3». Для аргумента 20 цикл сделает все итерации, и выполнится return «нет».">нашёл 3 и нет</li>
+      <li data-why="return выходит не только из цикла, а из всего метода — до return «нет» дело не дойдёт.">нашёл 3, нет и нет</li>
+      <li data-why="Метод вернёт строку при первом совпадении, следующих итераций не будет.">нашёл 3 и нашёл 20</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">9. ★★★ В каком порядке вызываются методы? Что напечатает?</p>
+<pre><code class="java">static int say(int n) {
+    System.out.print(n + " ");
+    return n;
+}
+
+// в main:
+System.out.println(say(1) + say(2) * say(3));</code></pre>
+    <ul>
+      <li data-why="Приоритет умножения влияет на то, что с чем перемножается, но не на порядок вызовов. Java вычисляет операнды слева направо.">2 3 1 7</li>
+      <li data-correct data-why="Операнды вычисляются слева направо: вызовы say(1), say(2), say(3) печатают «1 2 3 » и возвращают свои аргументы. Потом вычисляется выражение 1 + 2 * 3 = 7, и println печатает 7.">1 2 3 7</li>
+      <li data-why="Приоритет умножения никто не отменял: 1 + 2 * 3 = 7, а не 9.">1 2 3 9</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется ли?</h2>
+
+  <div class="quiz">
+    <p class="q">10. Скомпилируется?</p>
+<pre><code class="java">static int one() {
+    return 1;
+    System.out.println("после return");
+}</code></pre>
+    <ul>
+      <li data-why="Java считает недостижимый код ошибкой, а не предупреждением.">Да, строка после return просто не выполнится</li>
+      <li data-correct data-why="После return выполнение метода уже закончилось — до вызова println дело не дойдёт никогда. Компилятор: unreachable statement.">Нет: unreachable statement</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">11. Скомпилируется?</p>
+<pre><code class="java">static int sign(int n) {
+    if (n &gt; 0) {
+        return 1;
+    } else if (n &lt; 0) {
+        return -1;
+    }
+}</code></pre>
+    <ul>
+      <li data-why="Для n = 0 ни одна ветка не сработает, и метод дойдёт до конца без return.">Да</li>
+      <li data-correct data-why="Если n == 0, ни один return не выполнится. Тип возвращаемого значения — int, а на этом пути методу нечего вернуть: missing return statement. Нужен return 0 в конце.">Нет: missing return statement</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">12. В одном классе два метода. Скомпилируется?</p>
+<pre><code class="java">static int getValue() {
+    return 1;
+}
+
+static double getValue() {
+    return 1.5;
+}</code></pre>
+    <ul>
+      <li data-why="Перегрузка различает методы по параметрам, а тут параметров нет у обоих.">Да, это перегрузка</li>
+      <li data-correct data-why="Сигнатура — имя + типы параметров. У обоих getValue() без параметров — сигнатуры одинаковые. Тип возвращаемого значения не считается: method getValue() is already defined.">Нет: метод уже объявлен</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">13. Скомпилируется?</p>
+<pre><code class="java">public static void main(String[] args) {
+    int coins = 10;
+    spend();
+}
+
+static void spend() {
+    coins = coins - 3;
+}</code></pre>
+    <ul>
+      <li data-why="Оба метода в одном классе, но локальные переменные у каждого свои.">Да, coins станет 7</li>
+      <li data-correct data-why="coins — локальная переменная main, её область видимости — тело main. В spend её нет: cannot find symbol. Передай значение аргументом и верни результат через return.">Нет: cannot find symbol</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">14. Скомпилируется?</p>
+<pre><code class="java">static void printLine() {
+    System.out.println("----------");
+}
+
+// в main:
+int x = printLine();</code></pre>
+    <ul>
+      <li data-why="void-метод ничего не возвращает — инициализировать переменную нечем.">Да, x станет 0</li>
+      <li data-correct data-why="printLine объявлен как void, у него нет возвращаемого значения. Инициализировать int «ничем» нельзя: incompatible types: void cannot be converted to int.">Нет: void-метод ничего не возвращает</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется, но что будет при запуске?</h2>
+
+  <div class="quiz">
+    <p class="q">15. ★★ Что будет при вызове f(5)?</p>
+<pre><code class="java">static int f(int n) {
+    if (n == 0) {
+        return 0;
+    }
+    return f(n - 2);
+}</code></pre>
+    <ul>
+      <li data-why="5 − 2 − 2 … никогда не попадёт в 0: 5, 3, 1, −1, −3…">Вернёт 0</li>
+      <li data-why="Компилятор не проверяет, дойдёт ли рекурсия до базового случая.">Ошибка компиляции</li>
+      <li data-correct data-why="Аргумент каждого вызова: 5, 3, 1, −1, −3… — проскакивает мимо нуля. Базовый случай недостижим, фреймы копятся, пока не кончится стек: StackOverflowError. Надёжнее условие n &lt;= 0.">StackOverflowError</li>
+    </ul>
+  </div>
+
+  <section class="pz-reading">
+    <h2>Читаем код</h2>
+    <p>Головоломки проверяли, <b>что</b> делает код. Теперь — как о нём сказать: прочитай каждую строку правильными терминами модуля, как на собеседовании или код-ревью. В одних заданиях выбери описание из пяти, в других собери его из квадратиков — лишние оставь на месте.</p>
+    <div data-widget="check" id="check-m07-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 7", "icon": "🗣",
+        "items": [
+          {"type":"single","q":"Что это за строка?","code":"static int square(int x) {","options":["Вызов метода <code>square</code> с аргументом <code>x</code>","Заголовок объявления метода <code>square</code>: параметр <code>x</code> типа <code>int</code>, тип возвращаемого значения <code>int</code>","Объявление переменной <code>square</code> типа <code>int</code>","Возврат значения <code>x</code> из метода","Объявление класса <code>square</code>"],"answer":1,"why":"Слово <code>static</code>, тип перед именем и параметры в скобках, а после — <code>{</code>: это заголовок объявления метода. Сигнатура — <code>square(int)</code>. Тело метода идёт дальше, в фигурных скобках."},
+          {"type":"single","q":"Что происходит в строке?","code":"int s = square(5);","options":["Объявление метода <code>square</code> с параметром 5","Присваивание числа 5 методу <code>square</code>","Объявляем <code>s</code> и передаём её в метод как параметр","Вызов метода <code>square</code> с аргументом 5; возвращённым значением инициализируется <code>s</code>","Метод <code>square</code> присваивает 5 переменной <code>s</code>"],"answer":3,"why":"Имя и скобки со значением — вызов метода, 5 — аргумент. Метод возвращает значение, и им инициализируется новая переменная <code>s</code>. Объявление метода выглядело бы как <code>static int square(int x) { … }</code>."},
+          {"type":"single","q":"Что здесь <code>\"Аня\"</code>, а что <code>name</code>?","code":"static void greet(String name) {\n    System.out.println(\"Привет, \" + name);\n}\n// в main:\ngreet(\"Аня\");","options":["Оба — параметры","Оба — аргументы","<code>\"Аня\"</code> — аргумент вызова, <code>name</code> — параметр в объявлении метода","<code>\"Аня\"</code> — параметр, <code>name</code> — аргумент","<code>name</code> — локальная переменная <code>main</code>"],"answer":2,"why":"Параметр — переменная в объявлении метода, аргумент — значение, которое передают при вызове. При вызове <code>greet(\"Аня\")</code> параметр <code>name</code> инициализируется аргументом <code>\"Аня\"</code>."},
+          {"type":"single","q":"Что делает эта строка в теле метода <code>static int sum(int a, int b)</code>?","code":"return a + b;","options":["Вычисляет выражение <code>a + b</code>, возвращает его значение и завершает метод","Печатает сумму <code>a</code> и <code>b</code>","Присваивает сумму параметру <code>a</code>","Вызывает метод <code>sum</code> ещё раз","Объявляет локальную переменную <code>return</code>"],"answer":0,"why":"<code>return</code> возвращает значение выражения туда, откуда метод вызвали, и сразу завершает метод. Тип выражения (<code>int</code>) совпадает с типом возвращаемого значения в заголовке."},
+          {"type":"build","q":"Собери описание строки","code":"double avg = average(marks);","answer":["объявляем переменную <code>avg</code> типа <code>double</code>,","вызываем метод <code>average</code>","и передаём ему аргумент <code>marks</code>;","возвращённое значение инициализирует <code>avg</code>"],"extra":["объявляем метод <code>average</code>","параметр <code>marks</code> типа <code>double</code>","метод ничего не возвращает"]},
+          {"type":"build","q":"Собери описание строки","code":"static boolean isEven(int n) {","answer":["объявляем метод <code>isEven</code>","с параметром <code>n</code> типа <code>int</code>;","тип возвращаемого значения — <code>boolean</code>"],"extra":["вызываем метод <code>isEven</code>","передаём аргумент <code>boolean</code>","метод ничего не возвращает"]},
+          {"type":"single","q":"В какой строке вызывается метод <code>twice</code>?","code":"static int twice(int n) {\n    int result = n * 2;\n    return result;\n}\n// в main:\nint x = twice(4);","options":["В строке 1","В строке 2","В строке 3","В строке 5","В строке 6"],"answer":4,"why":"Строка 1 — заголовок объявления метода, строка 2 — объявление локальной переменной <code>result</code> в теле, строка 3 — <code>return</code>, строка 5 — комментарий. Вызов — в строке 6: <code>twice</code> с аргументом 4, возвращённое значение 8 инициализирует <code>x</code>."},
+          {"type":"single","q":"Что можно сказать о переменной <code>calls</code>?","code":"static void count() {\n    int calls = 0;\n    calls++;\n}","options":["Это параметр метода <code>count</code>","Это поле класса — её видят все методы","Это аргумент, который передают при вызове","Это локальная переменная: видна только в теле <code>count</code> и при каждом вызове заново инициализируется нулём","Это возвращаемое значение метода"],"answer":3,"why":"<code>calls</code> объявлена в теле метода — значит, локальная. Её область видимости — тело <code>count</code>, а живёт она во фрейме вызова: после выхода из метода её нет, и следующий вызов снова начнёт с 0."}
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <div class="callout ai">
+    <span class="callout-title">Ещё головоломок?</span>
+    <p>Напиши наставнику: <em>«Дай мне 3 головоломки по методам из модуля 7 — про стек, передачу аргументов и рекурсию. Я сначала отвечаю и объясняю, потом ты проверяешь»</em>.</p>
+  </div>
+
+</main>
+</body>
+</html>

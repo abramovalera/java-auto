@@ -1,0 +1,38 @@
+## id: tr-cond-019
+## title: Счёт за связь
+## file: trainer/cond/MobilePlanBill.java
+## class: MobilePlanBill
+## level: 1
+## category: Деньги и тарифы
+@@ description
+<p>Напиши класс <code>MobilePlanBill</code>. Тариф: 500 ₽ в месяц, в них входит 300 минут разговоров; каждая минута сверх пакета стоит 2 ₽. Программа читает, сколько минут проговорил абонент (целое число), и печатает <code>К оплате: N ₽</code>.</p>
+<pre class="terminal"><span class="out">ввод:  120
+вывод: К оплате: 500 ₽
+
+ввод:  450
+вывод: К оплате: 800 ₽</span></pre>
+@@ test: Уложился в пакет
+@@ input
+120
+@@ expect
+К оплате: 500 ₽
+@@ test: Ровно 300 минут
+@@ input
+300
+@@ expect
+К оплате: 500 ₽
+@@ test: Одна лишняя минута
+@@ input
+301
+@@ expect
+К оплате: 502 ₽
+@@ test: Много сверх пакета
+@@ input
+450
+@@ expect
+К оплате: 800 ₽
+@@ test: Не звонил совсем
+@@ input
+0
+@@ expect
+К оплате: 500 ₽

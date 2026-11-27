@@ -1,0 +1,62 @@
+## id: tr-arrays-033
+## title: Какие цифры в номере
+## file: trainer/arrays/CardDigitFrequency.java
+## class: CardDigitFrequency
+## level: 2
+## category: Повторы и уникальность
+@@ description
+<p>Напиши класс <code>CardDigitFrequency</code>. Программа читает номер карты — одно слово из цифр (может быть длинным, поэтому читай его как строку). Посчитай, сколько раз встречается каждая цифра, и напечатай по строке <code>цифра: количество</code> для каждой встретившейся цифры — по возрастанию цифр. Цифры, которых нет, не печатай.</p>
+<pre class="terminal"><span class="out">ввод:  2200150012345678
+вывод: 0: 4
+       1: 2
+       2: 3
+       3: 1
+       4: 1
+       5: 2
+       6: 1
+       7: 1
+       8: 1</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>int[] counts = new int[10];</code> — по счётчику на каждую цифру 0…9</li>
+<li><code>c - '0'</code> — превращает символ-цифру в число: <code>'7' - '0'</code> равно 7</li>
+<li><code>s.toCharArray()</code> — массив символов строки</li>
+</ul></div>
+@@ test: Номер карты
+@@ input
+2200150012345678
+@@ expect
+0: 4
+1: 2
+2: 3
+3: 1
+4: 1
+5: 2
+6: 1
+7: 1
+8: 1
+@@ test: Одна цифра много раз
+@@ input
+7777
+@@ expect
+7: 4
+@@ test: Все цифры
+@@ input
+9876543210
+@@ expect
+0: 1
+1: 1
+2: 1
+3: 1
+4: 1
+5: 1
+6: 1
+7: 1
+8: 1
+9: 1
+@@ test: Одна цифра
+@@ input
+0
+@@ expect
+0: 1
+@@ require: new\s+int\s*\[\s*10\s*\] | Заведи массив счётчиков на 10 цифр: new int[10]
+@@ forbid: \b(ArrayList|LinkedList|HashSet|TreeSet|HashMap|TreeMap|List|Set|Map)\s*<|\.stream\s*\( | Здесь только массивы: коллекции и стримы будут позже

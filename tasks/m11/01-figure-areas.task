@@ -1,0 +1,61 @@
+## id: m11-t01
+## title: Площади фигур
+## file: module-11/FigureAreas.java
+## class: FigureAreas
+## level: 1
+@@ description
+<p>Сделай маленькую иерархию фигур на <b>абстрактном классе</b>. Всё пишется в одном файле <code>FigureAreas.java</code>: сначала <code>public class FigureAreas</code> с <code>main</code>, ниже — остальные классы <b>без</b> слова <code>public</code>.</p>
+<ul>
+  <li><code>abstract class AreaFigure</code> — общая часть: поле с названием фигуры, конструктор, <b>абстрактный</b> метод <code>double area()</code> и обычный метод <code>String describe()</code>, который возвращает <code>название + ": " + площадь</code>.</li>
+  <li>Наследники <code>AreaCircle</code> (радиус), <code>AreaRectangle</code> (ширина и высота), <code>AreaSquare</code> (сторона) — каждый сам считает свою площадь. Названия: <code>Круг</code>, <code>Прямоугольник</code>, <code>Квадрат</code>.</li>
+</ul>
+<p><b>Ввод:</b> число фигур N, потом N строк: <code>circle r</code>, <code>rect a b</code> или <code>square a</code> (все размеры — целые). Сложи фигуры в массив <code>AreaFigure[]</code>, потом пройди по нему: напечатай <code>describe()</code> каждой и в конце общую площадь.</p>
+<p>Площадь округляй до сотых так: <code>Math.round(x * 100) / 100.0</code> — тогда 3.14159… станет <code>3.14</code>, а 6 станет <code>6.0</code>. Общую площадь считай из неокруглённых площадей и округли в самом конце.</p>
+<pre class="terminal"><span class="out">ввод:            вывод:
+3                Круг: 3.14
+circle 1         Прямоугольник: 6.0
+rect 2 3         Квадрат: 16.0
+square 4         Всего фигур: 3, общая площадь: 25.14</span></pre>
+<p>Подумай: где будет <code>if</code> по типу фигуры — при <b>создании</b> или при подсчёте площади? Правильный ответ: только при создании. Дальше полиморфизм всё сделает сам.</p>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/01-abstract-classes.html">Абстрактные классы</a></p>
+@@ test: Три разные фигуры
+@@ input
+3
+circle 1
+rect 2 3
+square 4
+@@ expect
+Круг: 3.14
+Прямоугольник: 6.0
+Квадрат: 16.0
+Всего фигур: 3, общая площадь: 25.14
+@@ test: Один большой круг
+@@ input
+1
+circle 10
+@@ expect
+Круг: 314.16
+Всего фигур: 1, общая площадь: 314.16
+@@ test: Фигур нет
+@@ input
+0
+@@ expect
+Всего фигур: 0, общая площадь: 0.0
+@@ test: Плоский прямоугольник со стороной 0
+@@ input
+3
+rect 0 5
+circle 2
+square 1
+@@ expect
+Прямоугольник: 0.0
+Круг: 12.57
+Квадрат: 1.0
+Всего фигур: 3, общая площадь: 13.57
+@@ require: abstract\s+class\s+AreaFigure | Нужен абстрактный класс AreaFigure
+@@ require: abstract\s+double\s+area\s*\(\s*\) | В AreaFigure должен быть абстрактный метод double area() — без тела, с точкой с запятой
+@@ require: class\s+AreaCircle\s+extends\s+AreaFigure | AreaCircle должен наследоваться от AreaFigure
+@@ require: class\s+AreaRectangle\s+extends\s+AreaFigure | AreaRectangle должен наследоваться от AreaFigure
+@@ require: class\s+AreaSquare\s+extends\s+AreaFigure | AreaSquare должен наследоваться от AreaFigure
+@@ require: AreaFigure\s*\[\s*\] | Сложи фигуры в массив AreaFigure[] — так работает полиморфизм

@@ -1,0 +1,51 @@
+## id: tr-cond-058
+## title: Индекс массы тела
+## file: trainer/cond/BodyMassIndexCategory.java
+## class: BodyMassIndexCategory
+## level: 3
+## category: Диапазоны и границы
+@@ description
+<p>Напиши класс <code>BodyMassIndexCategory</code>. Индекс массы тела (ИМТ) — это вес в килограммах, делённый на квадрат роста в метрах. Программа читает вес и рост — два дробных числа через пробел — и печатает две строки: <code>ИМТ: X</code>, где X округлён до одного знака после точки (<code>Math.round(x * 10) / 10.0</code>), и категорию по <b>округлённому</b> значению:</p>
+<ul><li>меньше 18.5 — <code>Недостаток веса</code>;</li><li>от 18.5 до 24.9 — <code>Норма</code>;</li><li>от 25.0 до 29.9 — <code>Избыточный вес</code>;</li><li>от 30.0 — <code>Ожирение</code>.</li></ul>
+<pre class="terminal"><span class="out">ввод:  70 1.75
+вывод: ИМТ: 22.9
+       Норма</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>Math.round(x * 10) / 10.0</code> — округляет до одного знака после точки</li>
+</ul></div>
+@@ test: Норма
+@@ input
+70 1.75
+@@ expect
+ИМТ: 22.9
+Норма
+@@ test: Ровно 25.0
+@@ input
+81 1.8
+@@ expect
+ИМТ: 25.0
+Избыточный вес
+@@ test: Недостаток веса
+@@ input
+50 1.7
+@@ expect
+ИМТ: 17.3
+Недостаток веса
+@@ test: 29.98 округляется до 30.0
+@@ input
+95 1.78
+@@ expect
+ИМТ: 30.0
+Ожирение
+@@ test: Ровно 18.5 — уже норма
+@@ input
+56.7 1.75
+@@ expect
+ИМТ: 18.5
+Норма
+@@ test: Ожирение
+@@ input
+120 1.9
+@@ expect
+ИМТ: 33.2
+Ожирение

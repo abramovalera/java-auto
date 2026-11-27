@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>volatile, deadlock и потокобезопасные коллекции · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m16-04">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 16 · Урок 4</div>
+    <h1>volatile, deadlock и потокобезопасные коллекции</h1>
+    <p class="lead">Ещё три ловушки, о которых спрашивают на собеседованиях: поток не видит изменений другого, два потока вечно ждут друг друга, и обычный ArrayList ломается от нескольких потоков. По каждой — суть, пример и лекарство.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>👁 видимость</span><span>🥄 deadlock</span><span>🗃 ConcurrentHashMap</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m16-04-review">
+      <script type="application/json">
+      { "title": "Вспомним уроки 16.2–16.3", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Что делает <code>future.get()</code>?",
+            "options": ["Ставит задачу в очередь", "Ждёт, пока задача выполнится, и возвращает её результат", "Отменяет задачу"], "answer": 1,
+            "why": "Вызов get() у объекта Future ждёт завершения задачи и возвращает её результат — как ждать у стойки, пока по чеку выдадут заказ." },
+          { "type": "single", "q": "Программа с пулом потоков всё посчитала, но не завершается. Что забыли?",
+            "options": ["pool.shutdown()", "pool.submit()", "Thread.sleep()"], "answer": 0,
+            "why": "Потоки пула ждут новых задач и держат программу живой, пока пул не закрыт." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Пока один поток выполняет синхронизированный блок synchronized (lock), другой поток с тем же lock ждёт у входа", "a": true },
+              { "s": "Вызов incrementAndGet() у AtomicInteger может потерять увеличение, как count++", "a": false, "why": "это атомарная операция — разорвать её посередине нельзя." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Видимость и volatile</h2>
+    <p>Главный поток хочет остановить помощника флагом — статическим полем <code>running</code> типа <code>boolean</code>. Выглядит безобидно:</p>
+<pre data-file="StopFlag.java"><code class="java">public class StopFlag {
+    static boolean running = true;          // без volatile!
+
+    public static void main(String[] args) throws InterruptedException {
+        Thread worker = new Thread(() -&gt; {
+            long laps = 0;
+            while (running) {
+                laps++;
+            }
+            System.out.println("Остановился после " + laps + " кругов");
+        });
+        worker.start();
+        Thread.sleep(1000);
+        running = false;
+        System.out.println("Главный: стоп!");
+    }
+}</code></pre>
+    <div data-widget="ide" id="shot-stopflag">
+      <script type="application/json">
+      { "tree": false, "file": "StopFlag.java", "runConfig": "StopFlag", "statusPath": "module-16", "gutterRun": [1, 4],
+        "code": "public class StopFlag {\n    static boolean running = true;          // без volatile!\n\n    public static void main(String[] args) throws InterruptedException {\n        Thread worker = new Thread(() -> {\n            long laps = 0;\n            while (running) {\n                laps++;\n            }\n            System.out.println(\"Остановился после \" + laps + \" кругов\");\n        });\n        worker.start();\n        Thread.sleep(1000);\n        running = false;\n        System.out.println(\"Главный: стоп!\");\n    }\n}",
+        "console": { "title": "StopFlag", "running": true, "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… StopFlag" },
+          { "t": "out", "s": "Главный: стоп!" } ] },
+        "marks": [ { "n": 1, "target": "output", "text": "Через секунду главный поток присваивает полю <code>running</code> значение <code>false</code> и прощается" },
+                   { "n": 2, "target": "console", "text": "А строки «Остановился после … кругов» нет и не будет: помощник всё ещё крутит цикл" },
+                   { "n": 3, "target": "stop", "text": "Красный ■ <b>Stop</b> горит, <b>Process finished</b> нет — программа не завершилась. Останавливай кнопкой ■ или <kbd>Ctrl</kbd>+<kbd>F2</kbd>" } ],
+        "caption": "Флаг без volatile: программа не завершается (на твоём компьютере может и завершиться — тем коварнее)" }
+      </script>
+    </div>
+    <p>…и программа <b>не завершается</b>. Помощник крутится вечно, хотя флаг давно <code>false</code>. Почему?</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: доска и блокнот</span>
+      <p>Меню дня написано мелом на доске в зале. Повар переписал его в свой блокнот, чтобы не бегать, и дальше смотрит только в блокнот. Администратор стёр блюдо с доски — а повар продолжает его готовить. Ради скорости процессор и JVM разрешают потоку держать копию переменной «у себя» (в кеше процессора, в регистре) и не перечитывать её из общей памяти. Без особых указаний изменения одного потока другой может <b>не увидеть никогда</b>.</p>
+    </div>
+    <p>Модификатор <code>volatile</code> («изменчивый») в объявлении поля запрещает такие копии: каждое чтение — с доски, каждая запись — сразу на доску.</p>
+<pre data-file="StopFlag.java"><code class="java">static volatile boolean running = true;   // теперь помощник увидит false</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">volatile ≠ атомарность</span>
+      <p><code>volatile</code> решает только <b>видимость</b>. <code>count++</code> на <code>volatile int</code> по-прежнему три действия и по-прежнему теряет обновления. Флаг «стоп/работай», который пишет один поток, а читают другие, — работа для <code>volatile</code>. Счётчик — для <code>AtomicInteger</code> или <code>synchronized</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Нужен ли volatile полю, которое читают и пишут только внутри синхронизированных блоков?</summary>
+      <p>Нет. Вход в синхронизированный блок и выход из него тоже «сверяются с доской»: всё, что поток записал до выхода из замка, увидит следующий поток, вошедший в тот же замок. Атомики (<code>AtomicInteger</code>) тоже гарантируют видимость. А «голое» поле без всего — не гарантирует.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Deadlock на пальцах: два повара и две ложки</h2>
+    <p>Для супа нужны <b>ложка</b> и <b>половник</b>. Аня взяла ложку и тянется за половником. Борис в тот же момент взял половник и тянется за ложкой. Каждый держит своё и ждёт, когда другой отдаст. Не отдаст никто — суп не будет готов никогда.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Взаимная блокировка: Аня держит ложку и ждёт половник, Борис держит половник и ждёт ложку">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="40" y="110" width="170" height="80" rx="14" class="d-blue"/>
+        <text x="125" y="145" text-anchor="middle" class="d-title">👩‍🍳 Аня</text>
+        <text x="125" y="170" text-anchor="middle" class="d-small">поток 1</text>
+        <rect x="550" y="110" width="170" height="80" rx="14" class="d-violet"/>
+        <text x="635" y="145" text-anchor="middle" class="d-title">👨‍🍳 Борис</text>
+        <text x="635" y="170" text-anchor="middle" class="d-small">поток 2</text>
+        <rect x="300" y="20" width="160" height="60" rx="14" class="d-yellow"/>
+        <text x="380" y="56" text-anchor="middle" class="d-title">🥄 ложка</text>
+        <rect x="300" y="220" width="160" height="60" rx="14" class="d-yellow"/>
+        <text x="380" y="256" text-anchor="middle" class="d-title">🍲 половник</text>
+        <path d="M150 108 C170 60 240 50 296 50" class="d-line"/>
+        <text x="205" y="36" class="d-small">держит</text>
+        <path d="M150 192 C170 240 240 250 296 250" class="d-arrow" stroke-dasharray="6 5"/>
+        <text x="215" y="278" class="d-small">ждёт</text>
+        <path d="M610 192 C590 240 520 250 464 250" class="d-line"/>
+        <text x="500" y="278" class="d-small">держит</text>
+        <path d="M610 108 C590 60 520 50 464 50" class="d-arrow" stroke-dasharray="6 5"/>
+        <text x="510" y="36" class="d-small">ждёт</text>
+        <text x="380" y="150" text-anchor="middle" class="d-c-red d-title">круг ожидания</text>
+        <text x="380" y="172" text-anchor="middle" class="d-small">никто не уступит</text>
+      </svg>
+      <figcaption>Сплошная линия — «держит замок», пунктир — «ждёт замок». Получился круг — это deadlock (взаимная блокировка).</figcaption>
+    </figure>
+    <p>В коде ложка и половник — два объекта-замка, а «взял» — это вход в синхронизированный блок <code>synchronized (spoon)</code>:</p>
+<pre data-file="Deadlock.java"><code class="java">// поток Ани
+synchronized (spoon) {
+    synchronized (ladle) {
+        cookSoup();
+    }
+}
+
+// поток Бориса — порядок другой!
+synchronized (ladle) {
+    synchronized (spoon) {
+        cookSoup();
+    }
+}</code></pre>
+    <p>Что видно снаружи: программа <b>зависает</b>, процессор не загружен, ничего не печатается, ошибок нет. Тест с таким кодом просто висит, пока его не убьют по таймауту.</p>
+    <div data-widget="ide" id="shot-deadlock">
+      <script type="application/json">
+      { "tree": false, "file": "Deadlock.java", "runConfig": "Deadlock", "statusPath": "module-16", "gutterRun": [1, 5],
+        "code": "public class Deadlock {\n    static final Object spoon = new Object();\n    static final Object ladle = new Object();\n\n    public static void main(String[] args) {\n        new Thread(() -> {\n            synchronized (spoon) {\n                pause();\n                synchronized (ladle) { System.out.println(\"Аня сварила суп\"); }\n            }\n        }).start();\n        new Thread(() -> {\n            synchronized (ladle) {\n                pause();\n                synchronized (spoon) { System.out.println(\"Борис сварил суп\"); }\n            }\n        }).start();\n    }\n\n    static void pause() {\n        try { Thread.sleep(100); } catch (InterruptedException e) { }\n    }\n}",
+        "console": { "title": "Deadlock", "running": true, "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… Deadlock" } ] },
+        "marks": [ { "n": 1, "target": "line-7", "side": "top", "text": "Аня берёт ложку, потом половник…" },
+                   { "n": 2, "target": "line-13", "side": "top", "text": "…а Борис — в обратном порядке: сначала половник" },
+                   { "n": 3, "target": "console", "text": "Ни одной строки вывода, ни одной ошибки. Пауза <code>pause()</code> даёт каждому успеть схватить свой первый замок — и оба ждут вечно" },
+                   { "n": 4, "target": "stop", "text": "■ горит: программа жива, но ничего не делает. Это и есть deadlock" } ],
+        "caption": "Взаимная блокировка: программа молча висит" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Лекарство: один порядок для всех</span>
+      <p>Договорись, что замки <b>всегда</b> берут в одном порядке: сначала ложку, потом половник. Тогда круга не будет: кто первым взял ложку, тот возьмёт и половник, а второй подождёт у ложки, ничего не держа. Это и есть задача <code>m16-t06</code>.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: как найти deadlock и четыре условия</summary>
+      <p><b>Как найти.</b> Пока программа висит, сделай снимок потоков (thread dump): в панели Run в IDEA есть действие <b>Dump Threads</b> (в новом интерфейсе — в меню ⋮). Внизу снимка JVM сама пишет <code>Found one Java-level deadlock</code> и показывает, кто какой замок держит и чего ждёт.</p>
+      <p><b>Четыре условия Коффмана</b> — deadlock возможен, только если выполнены все сразу: ресурс может держать только один (взаимное исключение); держат одно и ждут другое; отобрать нельзя; есть круг ожидания. Сломай любое — и deadlock невозможен. Одинаковый порядок замков ломает круг. Ещё вариант — <code>ReentrantLock.tryLock(1, TimeUnit.SECONDS)</code>: «не дали за секунду — отпускаю своё и пробую заново».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Потокобезопасные коллекции</h2>
+    <p><code>ArrayList</code> и <code>HashMap</code> из модуля 13 рассчитаны на <b>один</b> поток. Внутри <code>list.add(x)</code> — несколько действий («положить в ячейку size, увеличить size»), и с потоками случается та же гонка: элементы теряются, в списке появляются <code>null</code>, а иногда вылетает <code>ArrayIndexOutOfBoundsException</code>.</p>
+<pre data-file="BrokenList.java"><code class="java">List&lt;Integer&gt; results = new ArrayList&lt;&gt;();
+// 4 потока по 10 000 раз делают results.add(i)
+System.out.println(results.size());   // 31877? 38205? иногда исключение</code></pre>
+    <p>Что брать вместо них:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Вместо</th><th>Бери</th><th>Когда</th></tr>
+        <tr><td><code>ArrayList</code></td><td><code>Collections.synchronizedList(new ArrayList&lt;&gt;())</code></td><td>несколько потоков добавляют в общий список</td></tr>
+        <tr><td><code>ArrayList</code></td><td><code>CopyOnWriteArrayList</code></td><td>пишут редко, читают часто (список подписчиков, настроек)</td></tr>
+        <tr><td><code>HashMap</code></td><td><code>ConcurrentHashMap</code></td><td>общий словарь: кеш, счётчики по ключам</td></tr>
+        <tr><td><code>LinkedList</code> как очередь</td><td><code>ConcurrentLinkedQueue</code></td><td>одни потоки кладут задачи, другие забирают</td></tr>
+      </table>
+    </div>
+    <p>Пример: потоки разбирают заказы интернет-магазина и считают, сколько заказов в каждом статусе. Вызываем у <code>ConcurrentHashMap</code> метод <code>merge</code> и передаём три аргумента: ключ, значение 1 и ссылку на метод <code>Integer::sum</code> — «если ключа нет, положи 1; если есть, прибавь 1» — одним неделимым действием:</p>
+<pre data-file="StatusStats.java"><code class="java">Map&lt;String, Integer&gt; stats = new ConcurrentHashMap&lt;&gt;();
+
+// в каждом потоке-воркере, для каждого заказа:
+stats.merge(status, 1, Integer::sum);
+
+// после того как все воркеры закончили:
+System.out.println(new TreeMap&lt;&gt;(stats));   // {CANCELLED=3, DELIVERED=17, NEW=2}</code></pre>
+    <div class="callout warn">
+      <span class="callout-title">Безопасная коллекция — не волшебство</span>
+      <p>Каждый метод <code>ConcurrentHashMap</code> по отдельности безопасен, а связка — нет. <code>stats.put(s, stats.get(s) + 1)</code> — это «прочитать», потом «записать», и между ними вклинится другой поток. Та же гонка, что с <code>count++</code>. Поэтому — <code>merge</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Почему в примере печатаем new TreeMap&lt;&gt;(stats), а не просто stats?</summary>
+      <p>Порядок ключей в <code>ConcurrentHashMap</code>, как и в <code>HashMap</code>, не определён. <code>TreeMap</code> сортирует ключи — вывод одинаковый при каждом запуске. Тот же приём в задачах модуля: <b>сортируй результаты перед выводом</b>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Безопасно или опасно?</h2>
+    <p>Разложи: что можно спокойно делать из нескольких потоков одновременно, а что приведёт к гонке.</p>
+    <div data-widget="buckets" id="buckets-m16-04-safe">
+      <script type="application/json">
+      { "title": "Можно ли из нескольких потоков?", "icon": "🧵",
+        "buckets": [ { "id": "safe", "label": "✅ Безопасно", "style": "green" }, { "id": "race", "label": "💥 Гонка", "style": "red" } ],
+        "items": [
+          { "emoji": "📋", "text": "list.add(x) у обычного ArrayList", "bucket": "race", "why": "ArrayList не рассчитан на потоки: элементы теряются, бывает исключение." },
+          { "emoji": "🗃", "text": "map.merge(key, 1, Integer::sum) у ConcurrentHashMap", "bucket": "safe", "why": "merge в ConcurrentHashMap — одно неделимое действие." },
+          { "emoji": "🔢", "text": "count++ у поля volatile int", "bucket": "race", "why": "volatile даёт только видимость. count++ всё равно три действия." },
+          { "emoji": "⚛️", "text": "counter.incrementAndGet() у AtomicInteger", "bucket": "safe", "why": "Атомарная операция — не разрывается." },
+          { "emoji": "📍", "text": "Локальная переменная в теле лямбды потока: int sum = 0; sum += x;", "bucket": "safe", "why": "Локальные переменные живут в стеке своего потока. У каждого потока своя копия — делить нечего." },
+          { "emoji": "🧾", "text": "map.put(k, map.get(k) + 1) у ConcurrentHashMap", "bucket": "race", "why": "Два отдельных действия: между get и put вклинится другой поток." },
+          { "emoji": "🔤", "text": "Читать общую строку String", "bucket": "safe", "why": "String неизменяемый: читать его можно из скольких угодно потоков." },
+          { "emoji": "📦", "text": "Общее static-поле orderId, которое каждый поток перезаписывает своим заказом", "bucket": "race", "why": "Потоки перезапишут значение друг другу — классическая плавающая ошибка." }
+        ] }
+      </script>
+    </div>
+    <div class="say" data-mood="cool"><p>Заметил закономерность? Безопасно то, что <b>не меняется</b> (String), то, что <b>своё у каждого потока</b> (локальные переменные), и специальные <b>потокобезопасные</b> классы. Опасно — когда несколько потоков <b>меняют общее</b> без защиты.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m16-04">
+      <script type="application/json">
+      {
+       "title": "volatile, deadlock, коллекции",
+       "items": [
+        {
+         "type": "single",
+         "q": "Какую проблему решает <code>volatile</code>?",
+         "options": [
+          "Видимость: поток увидит свежее значение, записанное другим",
+          "Атомарность: count++ станет неделимым",
+          "Deadlock: замки перестанут блокироваться"
+         ],
+         "answer": 0,
+         "why": "volatile — только про видимость. Для count++ нужен AtomicInteger или synchronized."
+        },
+        {
+         "type": "bug",
+         "q": "Программа иногда зависает навсегда. В какой строке причина?",
+         "code": "void transferA() {\n    synchronized (account1) {\n        synchronized (account2) { move(); }\n    }\n}\nvoid transferB() {\n    synchronized (account2) {\n        synchronized (account1) { move(); }\n    }\n}",
+         "answer": [
+          7
+         ],
+         "why": "transferB берёт замки в обратном порядке: сначала account2. Отсюда круг ожидания. Брать надо в одном порядке: account1, потом account2."
+        },
+        {
+         "type": "multi",
+         "q": "Какие коллекции можно безопасно пополнять из нескольких потоков?",
+         "options": [
+          "ConcurrentHashMap",
+          "HashMap",
+          "Collections.synchronizedList(new ArrayList<>())",
+          "ArrayList",
+          "CopyOnWriteArrayList"
+         ],
+         "answer": [
+          0,
+          2,
+          4
+         ],
+         "why": "HashMap и ArrayList — для одного потока. Остальные три специально сделаны для многопоточности."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "При deadlock программа обычно падает с исключением",
+           "a": false,
+           "why": "она просто висит: потоки ждут вечно, ошибок нет."
+          },
+          {
+           "s": "Если все потоки берут замки в одном и том же порядке, взаимной блокировки на этих замках не будет",
+           "a": true
+          },
+          {
+           "s": "Вывод содержимого ConcurrentHashMap всегда идёт по алфавиту ключей",
+           "a": false,
+           "why": "порядок не определён. Для сортировки — TreeMap."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок 16.4. Попроси меня нарисовать deadlock стрелками и объяснить, чем volatile отличается от AtomicInteger»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Без <code>volatile</code> (или <code>synchronized</code>, или атомиков) поток может не увидеть изменения другого потока. <code>volatile</code> — про видимость, не про атомарность.</li>
+        <li>Deadlock — круг ожидания: каждый держит один замок и ждёт другой. Признак — программа висит без ошибок. Лечение — брать замки в одном порядке.</li>
+        <li><code>ArrayList</code> и <code>HashMap</code> — только для одного потока. Для нескольких: <code>Collections.synchronizedList</code>, <code>CopyOnWriteArrayList</code>, <code>ConcurrentHashMap</code>.</li>
+        <li>Связка «прочитать и записать» небезопасна даже в потокобезопасной коллекции — используй <code>merge</code> и подобные методы.</li>
+        <li>Безопасно: неизменяемое, локальное, специальные классы. Опасно: общее изменяемое без защиты.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

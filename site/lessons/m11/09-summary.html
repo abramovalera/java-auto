@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 11 и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m11-sum">
+
+  <header class="lesson-head" data-mood="wow">
+    <div class="kicker">Модуль 11 · Итоги</div>
+    <h1>Итоги модуля и экзамен</h1>
+    <p class="lead"><span class="ai-only">Абстрактные классы, интерфейсы, обратные вызовы, enum и record — теперь в твоём ящике пять инструментов вместо одного. Соберём их на одной карте, проверим себя — и к наставнику на экзамен.</span><span class="free-only">Абстрактные классы, интерфейсы, обратные вызовы, enum и record — теперь в твоём ящике пять инструментов вместо одного. Соберём их на одной карте, проверим себя — и к <span class="ai-name">DeepSeek</span> на экзамен.</span></p>
+    <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 440" role="img" aria-label="Карта модуля 11: абстрактные классы, интерфейсы, default и static, обратный вызов, enum, record">
+        <path d="M380 220 L145 75" class="d-line"/>
+        <path d="M380 220 L615 75" class="d-line"/>
+        <path d="M380 220 L115 220" class="d-line"/>
+        <path d="M380 220 L645 220" class="d-line"/>
+        <path d="M380 220 L145 365" class="d-line"/>
+        <path d="M380 220 L615 365" class="d-line"/>
+
+        <rect x="40" y="20" width="210" height="110" rx="14" class="d-violet"/>
+        <text x="145" y="50" text-anchor="middle" class="d-title">🍕 abstract class</text>
+        <text x="56" y="80" class="d-small">new нельзя</text>
+        <text x="56" y="100" class="d-small">abstract-метод без тела</text>
+        <text x="56" y="120" class="d-small">общая часть + деталь</text>
+
+        <rect x="510" y="20" width="210" height="110" rx="14" class="d-blue"/>
+        <text x="615" y="50" text-anchor="middle" class="d-title">🔌 interface</text>
+        <text x="526" y="80" class="d-small">контракт «умеет»</text>
+        <text x="526" y="100" class="d-small">implements X, Y, Z</text>
+        <text x="526" y="120" class="d-small">методы public</text>
+
+        <rect x="10" y="175" width="210" height="90" rx="14" class="d-soft"/>
+        <text x="115" y="203" text-anchor="middle" class="d-title">⚙️ default, static</text>
+        <text x="26" y="230" class="d-small">X.super.m(), ромб</text>
+        <text x="26" y="250" class="d-small">поля = константы</text>
+
+        <rect x="540" y="175" width="210" height="90" rx="14" class="d-accent"/>
+        <text x="645" y="203" text-anchor="middle" class="d-title">📞 Обратный вызов</text>
+        <text x="556" y="230" class="d-small">Comparator, Runnable</text>
+        <text x="556" y="250" class="d-small">анонимный класс</text>
+
+        <rect x="40" y="310" width="210" height="110" rx="14" class="d-yellow"/>
+        <text x="145" y="340" text-anchor="middle" class="d-title">🚦 enum</text>
+        <text x="56" y="370" class="d-small">values, ordinal, valueOf</text>
+        <text x="56" y="390" class="d-small">== и switch</text>
+        <text x="56" y="410" class="d-small">поля и конструктор</text>
+
+        <rect x="510" y="310" width="210" height="110" rx="14" class="d-teal"/>
+        <text x="615" y="340" text-anchor="middle" class="d-title">🧾 record</text>
+        <text x="526" y="370" class="d-small">equals/toString сами</text>
+        <text x="526" y="390" class="d-small">неизменяемый, p.x()</text>
+        <text x="526" y="410" class="d-small">компактный конструктор</text>
+
+        <ellipse cx="380" cy="220" rx="122" ry="54" class="d-green"/>
+        <text x="380" y="214" text-anchor="middle" class="d-title">Модуль 11</text>
+        <text x="380" y="236" text-anchor="middle" class="d-text">Как выбрать тип</text>
+      </svg>
+      <figcaption>Про какой блок сказать нечего — вернись к уроку в меню слева.</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>Это один из самых «практичных» модулей курса. Способ оплаты — интерфейс, доставка — абстрактный класс, статусы — enum, данные пользователя — record, слушатели — обратные вызовы. Когда откроешь код настоящей программы на Java, ты узнаешь каждый кирпичик.</p></div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>объяснить, зачем нужен абстрактный класс и абстрактный метод, и написать «общую часть + свою деталь»;</li>
+        <li>назвать два правила компилятора: нельзя <code>new</code> абстрактного класса; конкретный наследник реализует все абстрактные методы;</li>
+        <li>объявить интерфейс, реализовать его в нескольких классах и пройти по массиву типа интерфейса;</li>
+        <li>объяснить, почему реализация метода интерфейса должна быть <code>public</code>;</li>
+        <li>рассказать про default и static-методы, вызвать <code>X.super.m()</code> и разобрать проблему ромба;</li>
+        <li>выбрать между интерфейсом и абстрактным классом и объяснить выбор;</li>
+        <li>передать поведение в метод аргументом (обратный вызов): объект класса, реализующего свой интерфейс-слушатель, <code>Comparator</code> отдельным классом и анонимным классом, <code>Runnable</code>;</li>
+        <li>объявить enum, пользоваться <code>values()</code>, <code>ordinal()</code>, <code>valueOf()</code>, <code>switch</code> и объяснить, почему константы можно сравнивать <code>==</code>;</li>
+        <li>добавить в enum поля, конструктор и методы;</li>
+        <li>объявить record, знать, что он генерирует, сделать компактный конструктор с проверкой и решить, когда record, а когда class.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <p>Десять заданий по всему модулю. Ошибки вернутся в конце.</p>
+    <div data-widget="check" id="check-m11-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 11: всё самое главное",
+       "icon": "🏁",
+       "items": [
+        {
+         "type": "single",
+         "q": "Чем абстрактный метод отличается от обычного?",
+         "options": [
+          "У него нет тела — только заголовок и ;",
+          "Его нельзя вызвать",
+          "Он всегда static"
+         ],
+         "answer": 0,
+         "why": "Тело пишет конкретный наследник. Вызвать — можно: через переменную, которая хранит ссылку на объект наследника."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "abstract class Drink {\n    String serve() { return name() + \" готов\"; }\n    abstract String name();\n}\nclass Tea extends Drink {\n    String name() { return \"Чай\"; }\n}\n\nDrink d = new Tea();\nSystem.out.println(d.serve());",
+         "answer": "Чай готов",
+         "why": "serve() — общая часть, унаследованная от Drink; name() внутри вызывается переопределённый — из Tea."
+        },
+        {
+         "type": "single",
+         "q": "Какое объявление правильное?",
+         "options": [
+          "class Duck implements Flyable extends Bird",
+          "class Duck extends Bird implements Flyable, Swimmable",
+          "class Duck extends Bird, Flyable"
+         ],
+         "answer": 1,
+         "why": "Сначала один extends, потом сколько угодно интерфейсов через implements."
+        },
+        {
+         "type": "bug",
+         "q": "Какая строка не скомпилируется?",
+         "code": "interface Flyable { void fly(); }\nclass Plane implements Flyable {\n    public void fly() { }\n    void land() { }\n}\nFlyable f = new Plane();\nf.fly();\nf.land();",
+         "answer": [
+          8
+         ],
+         "why": "Через переменную типа интерфейса можно вызвать только методы, объявленные в интерфейсе."
+        },
+        {
+         "type": "single",
+         "q": "Класс реализует два интерфейса с одинаковым default-методом и не переопределяет его. Что будет?",
+         "options": [
+          "Возьмётся метод первого интерфейса",
+          "Ошибка компиляции",
+          "Исключение при вызове"
+         ],
+         "answer": 1,
+         "why": "Проблема ромба: надо переопределить метод и выбрать через A.super.m() или B.super.m()."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "enum Size { S, M, L, XL }\n\nSize s = Size.valueOf(\"L\");\nSystem.out.println(s.ordinal());\nSystem.out.println(s == Size.L);",
+         "answer": "2\ntrue",
+         "why": "ordinal с нуля: S=0, M=1, L=2. Константа единственная, valueOf вернул ссылку на неё же."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "record Item(String name, int qty) {\n    Item {\n        if (qty < 1) qty = 1;\n    }\n}\n\nSystem.out.println(new Item(\"Чай\", 0));\nSystem.out.println(new Item(\"Чай\", 1).equals(new Item(\"Чай\", 0)));",
+         "answer": "Item[name=Чай, qty=1]\ntrue",
+         "why": "Компактный конструктор исправил параметр 0 на 1 до присваивания полю. После исправления данные совпадают — equals по компонентам даёт true."
+        },
+        {
+         "type": "match",
+         "q": "Соедини задачу с инструментом",
+         "left": [
+          "Результаты экзамена PASSED/FAILED/SKIPPED",
+          "Пользователь форума: логин и почта",
+          "«Какой-то способ оплаты» для кассы",
+          "Delivery: общий deliver(), свой адрес"
+         ],
+         "right": [
+          "enum",
+          "record",
+          "interface",
+          "abstract class"
+         ],
+         "why": "Фиксированный список, неизменяемые данные, контракт для разных реализаций, общая основа с деталью."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Поля интерфейса — всегда public static final",
+           "a": true
+          },
+          {
+           "s": "У record методы доступа называются getName(), getPrice()",
+           "a": false,
+           "why": "name(), price() — без get."
+          },
+          {
+           "s": "new Runnable() { public void run() { … } } создаёт объект безымянного класса",
+           "a": true
+          },
+          {
+           "s": "Конструктор enum можно вызвать через new",
+           "a": false,
+           "why": "объекты enum создаёт только Java, по одному на константу."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m11">странице практики</a> должны быть решены все восемь задач:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Площади фигур ★</td><td>абстрактный класс, полиморфизм — <a href="/lessons/m11/01-abstract-classes.html">урок 11.1</a></td></tr>
+        <tr><td>2. Хор из чего угодно ★</td><td>интерфейс и разные реализации — <a href="/lessons/m11/02-interfaces.html">урок 11.2</a></td></tr>
+        <tr><td>3. Самые длинные фильмы ★★</td><td>свой Comparator, Arrays.sort — <a href="/lessons/m11/04-callbacks.html">урок 11.4</a></td></tr>
+        <tr><td>4. Итоги сезона ★★ · 5. Тарифы доставки ★★</td><td>enum, valueOf, ordinal, поля в enum — <a href="/lessons/m11/05-enum.html">урок 11.5</a></td></tr>
+        <tr><td>6. Заказ из record-позиций ★★</td><td>record, компактный конструктор, equals — <a href="/lessons/m11/06-records.html">урок 11.6</a></td></tr>
+        <tr><td>7. Умный дом ★★★</td><td>интерфейс + default + абстрактный класс — <a href="/lessons/m11/03-default-static.html">урок 11.3</a></td></tr>
+        <tr><td>8. Очередь на починку багов ★★★ 🛠</td><td>Мастерская: enum + record + компаратор с двумя ключами</td></tr>
+      </table>
+    </div>
+    <p><span class="ai-only">Каждую зелёную задачу разбери с наставником: <code>/check m11-t01</code> … <code>/check m11-t08</code>.</span><span class="free-only">Каждую зелёную задачу разбери с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><span class="ai-only"><strong>Пройди экзамен.</strong> Будут вопросы «зачем» и «чем отличается», головоломки «скомпилируется ли?» и «что выведется?», а ещё наставник может попросить с нуля написать маленький интерфейс с двумя реализациями или enum с полем — прямо в IDEA.</span><span class="free-only"><strong>Пройди экзамен.</strong> Будут вопросы «зачем» и «чем отличается», головоломки «скомпилируется ли?» и «что выведется?», а ещё <span class="ai-name">DeepSeek</span> может попросить с нуля написать маленький интерфейс с двумя реализациями или enum с полем — прямо в IDEA.</span></li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить. Возвращайся, когда будешь готов.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить. Возвращайся, когда будешь готов.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Объясняй своими словами</span>
+      <p><span class="ai-only">«Интерфейс — это контракт» — правильная фраза, но наставник спросит дальше: «А зачем контракт, если можно наследоваться?» Готовь не определения, а примеры: розетка, способы оплаты, светофор, чек из магазина.</span><span class="free-only">«Интерфейс — это контракт» — правильная фраза, но <span class="ai-name">DeepSeek</span> спросит дальше: «А зачем контракт, если можно наследоваться?» Готовь не определения, а примеры: розетка, способы оплаты, светофор, чек из магазина.</span></p>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Хочешь размяться — напиши: <em>«Давай пробный экзамен по модулю 11, без отметок в progress.md»</em>. Готов по-настоящему — <code>/exam</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Что дальше</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">💥</span><h4>Модуль 12: исключения</h4><p>Тот самый <code>throw new IllegalArgumentException</code> из компактного конструктора — создание и выбрасывание исключения — разберём как следует. Исключения — тоже иерархия классов.</p></div>
+      <div class="card"><span class="emoji">📚</span><h4>Модуль 13: коллекции</h4><p><code>List</code> и <code>Map</code> — интерфейсы, <code>ArrayList</code> и <code>HashMap</code> — классы, которые их реализуют. Comparator вернётся для сортировки списков, а угловые скобки наконец получат объяснение.</p></div>
+      <div class="card"><span class="emoji">λ</span><h4>Модуль 14: лямбды</h4><p>Пятистрочный анонимный компаратор превратится в одну строку. Ты уже знаешь, что под ней спрятано.</p></div>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай все восемь задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все восемь задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 12!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 12!</span></li>
+      </ul>
+    </div>
+      <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси наставника в Claude Code или любой бесплатный ИИ (например, <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a>). Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span><span class="free-only">Перечитай «Коротко» выше. Если хоть один пункт ты не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси <b>разжевать</b>, привести пример из жизни, объяснить ещё раз другими словами — столько раз, сколько нужно. Решение задач за тебя не проси: спрашивай «почему» и «как это работает». Вся эта информация тебе очень пригодится — в следующих модулях и на работе.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы, которые задают на собеседовании Java junior, — с ответами: <a href="/cheatsheet.html#m11">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

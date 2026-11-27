@@ -1,0 +1,46 @@
+## id: tr-arrays-035
+## title: Второе место
+## file: trainer/arrays/SilverMedalScore.java
+## class: SilverMedalScore
+## level: 2
+## category: Максимум и минимум
+@@ description
+<p>Напиши класс <code>SilverMedalScore</code>. На соревнованиях серебро получает результат, который идёт сразу после лучшего. Если лучший результат показали несколько спортсменов, они все золотые, а серебро — у следующего по величине <b>другого</b> результата. В первой строке — <code>n</code> (n ≥ 1), во второй — <code>n</code> целых результатов. Напечатай <code>Серебро: X</code> или <code>Серебра нет</code>, если все результаты одинаковые.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       80 95 70 90 85
+вывод: Серебро: 90</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>сначала найди максимум, потом вторым проходом — наибольшее среди тех, что строго меньше максимума</li>
+<li><code>boolean found = false;</code> — флаг «нашлось хоть одно число меньше максимума»</li>
+</ul></div>
+@@ test: Обычный финал
+@@ input
+5
+80 95 70 90 85
+@@ expect
+Серебро: 90
+@@ test: Два чемпиона
+@@ input
+4
+100 100 98 70
+@@ expect
+Серебро: 98
+@@ test: Все равны
+@@ input
+3
+50 50 50
+@@ expect
+Серебра нет
+@@ test: Отрицательные
+@@ input
+3
+-10 -3 -7
+@@ expect
+Серебро: -7
+@@ test: Один спортсмен
+@@ input
+1
+42
+@@ expect
+Серебра нет
+@@ require: new\s+(int|double)\s*\[ | Сохрани числа в массив: например, int[] a = new int[n];

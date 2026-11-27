@@ -1,0 +1,43 @@
+## id: tr-streams-027
+## title: Результат второго места
+## file: trainer/streams/SecondPlaceScore.java
+## class: SecondPlaceScore
+## level: 2
+## category: Optional
+@@ description
+<p>Напиши класс <code>SecondPlaceScore</code>. В одной строке — очки участников викторины через пробел (хотя бы один участник). Все, кто набрал максимум, делят первое место. Второе место — следующий по величине <b>другой</b> результат. Напечатай <code>Второе место: X</code>, а если второго места нет (у всех одинаково) — <code>Второго места нет</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10 20 20 15
+вывод: Второе место: 15</span></pre>
+<p>Реши через Stream API — без циклов <code>for</code> и <code>while</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>.distinct()</code> — убирает одинаковые результаты</li>
+<li><code>.skip(1)</code> — пропускает первый элемент</li>
+<li><code>.findFirst()</code> вернёт <code>Optional</code>; <code>.map(…)</code> и <code>.orElse(…)</code> превратят его в строку ответа</li>
+</ul></div>
+@@ test: Ничья за первое место
+@@ input
+10 20 20 15
+@@ expect
+Второе место: 15
+@@ test: Все одинаково
+@@ input
+7 7 7
+@@ expect
+Второго места нет
+@@ test: Один участник
+@@ input
+5
+@@ expect
+Второго места нет
+@@ test: Отрицательные очки
+@@ input
+-1 -5 -3
+@@ expect
+Второе место: -3
+@@ test: Ничья за второе место
+@@ input
+3 9 3 1
+@@ expect
+Второе место: 3
+@@ require: \.stream\s*\(|Stream\s*\.\s*of\s*\(|IntStream|LongStream|\.chars\s*\( | Реши через Stream API: стрим из массива, списка или IntStream
+@@ forbid: \b(for|while)\s*\( | Без циклов — только стрим: обойдись без for и while

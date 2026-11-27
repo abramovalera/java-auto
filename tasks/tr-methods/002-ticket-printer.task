@@ -1,0 +1,47 @@
+## id: tr-methods-002
+## title: Печатаем билет
+## file: trainer/methods/TicketPrinterMethod.java
+## class: TicketPrinterMethod
+## level: 1
+## category: Строки и печать
+@@ description
+<p>Создай класс <code>TicketPrinterMethod</code> и напиши в нём метод <code>static void printTicket(String passenger, int seat)</code>. Он ничего не возвращает (<code>void</code>), а печатает билет из трёх строк:</p>
+<pre class="terminal"><span class="out">=== БИЛЕТ ===
+Пассажир: Аня
+Место: 12</span></pre>
+<p>main читает через <code>Scanner</code> имя пассажира (первая строка целиком — в имени может быть пробел) и номер места (вторая строка), затем вызывает <code>printTicket</code> и передаёт оба аргумента. Сам main ничего не печатает.</p>
+<pre class="terminal"><span class="out">ввод:  Анна Мария
+       7
+вывод: === БИЛЕТ ===
+       Пассажир: Анна Мария
+       Место: 7</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLine()</code> — читает всю строку целиком, вместе с пробелами</li>
+<li>у <code>void</code>-метода нет <code>return</code> со значением: он просто делает работу и заканчивается</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+Аня
+12
+@@ expect
+=== БИЛЕТ ===
+Пассажир: Аня
+Место: 12
+@@ test: Имя с пробелом
+@@ input
+Анна Мария
+7
+@@ expect
+=== БИЛЕТ ===
+Пассажир: Анна Мария
+Место: 7
+@@ test: Первое место
+@@ input
+Ли
+1
+@@ expect
+=== БИЛЕТ ===
+Пассажир: Ли
+Место: 1
+@@ require: static\s+void\s+printTicket\s*\(\s*String\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static void printTicket(String passenger, int seat)
+@@ require: \WprintTicket\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать printTicket(...) и передать имя и место

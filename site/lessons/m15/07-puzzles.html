@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Головоломки: файлы · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m15-pz">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 15 · Головоломки</div>
+    <h1>Файлы: что выведется? Скомпилируется ли?</h1>
+    <p class="lead">Файлы — тема, где программа «вроде бы работает», а в файле не то. Перезапись вместо дописывания, незакрытый поток, не та рабочая папка. Запускать нельзя — только думать и объяснять.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — со звёздочкой</span></div>
+  </header>
+
+  <div class="callout tip">
+    <span class="callout-title">Как решать</span>
+    <p>Сначала <strong>скажи ответ вслух и объясни почему</strong>, потом кликай. Во всех задачах, если не сказано иначе, <code>main</code> объявлен с <code>throws IOException</code>, импорты на месте, а программа запускается из IDEA (рабочая папка — корень проекта).</p>
+  </div>
+
+  <h2>Что выведется на экран?</h2>
+
+  <div class="quiz">
+    <p class="q">1. Два раза записали. Что напечатает?</p>
+<pre><code class="java">Path p = Path.of("result.txt");
+Files.writeString(p, "чайник: оплачен\n");
+Files.writeString(p, "утюг: отменён\n");
+System.out.println(Files.readAllLines(p).size());</code></pre>
+    <ul>
+      <li data-why="Так было бы с APPEND. Без опций каждая запись начинает файл заново.">2</li>
+      <li data-correct data-why="По умолчанию writeString использует CREATE + TRUNCATE_EXISTING: вторая запись стёрла первую. В файле одна строка «утюг: отменён».">1</li>
+      <li data-why="Файл не пустой — в нём осталась последняя запись.">0</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">2. Список, потом дописка. Что напечатает?</p>
+<pre><code class="java">Path p = Path.of("users.txt");
+Files.write(p, List.of("anna", "boris"));
+Files.writeString(p, "vera", StandardOpenOption.APPEND);
+System.out.println(Files.readAllLines(p));</code></pre>
+    <ul>
+      <li data-correct data-why="Files.write ставит перевод строки после каждого элемента, поэтому vera дописалась с новой строки. readAllLines даёт три элемента.">[anna, boris, vera]</li>
+      <li data-why="После boris в файле уже стоит перевод строки — Files.write его добавил.">[anna, borisvera]</li>
+      <li data-why="APPEND не стирает старое — дописывает в конец.">[vera]</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">3. ★ Порядок закрытия. Класс <code>Res</code> печатает «open X» в конструкторе и «close X» в <code>close()</code>. Что напечатает?</p>
+<pre><code class="java">try (Res a = new Res("A"); Res b = new Res("B")) {
+    System.out.println("body");
+    throw new RuntimeException("boom");
+} catch (RuntimeException e) {
+    System.out.println("catch");
+} finally {
+    System.out.println("finally");
+}</code></pre>
+    <ul>
+      <li data-why="Ресурсы закрываются до catch, а не после.">open A, open B, body, catch, close B, close A, finally</li>
+      <li data-why="Порядок закрытия обратный: последний открытый закрывается первым.">open A, open B, body, close A, close B, catch, finally</li>
+      <li data-correct data-why="Закрытие — в обратном порядке (B, потом A) и сразу при выходе из блока try, ещё до catch. Потом catch, потом finally.">open A, open B, body, close B, close A, catch, finally</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">4. Пустые ячейки CSV. Что напечатает?</p>
+<pre><code class="java">String line = "anna,qwerty,,";
+System.out.println(line.split(",").length);</code></pre>
+    <ul>
+      <li data-why="Пустые ячейки в конце split выбрасывает.">4</li>
+      <li data-correct data-why="split без второго аргумента отбрасывает пустые строки в хвосте: остаются anna и qwerty. Чтобы получить все 4 ячейки, нужен split(&quot;,&quot;, -1).">2</li>
+      <li data-why="Запятых три, но кусков считается не так — и хвостовые пустые выкидываются.">3</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">5. Ключ дважды. В <code>config.properties</code> две строки: <code>browser=chrome</code> и ниже <code>browser = edge</code>. Что напечатает?</p>
+<pre><code class="java">Properties c = new Properties();
+try (Reader r = Files.newBufferedReader(Path.of("config.properties"))) {
+    c.load(r);
+}
+System.out.println(c.getProperty("browser") + " " + c.size());</code></pre>
+    <ul>
+      <li data-why="Повторный ключ не добавляет вторую запись, а перезаписывает первую.">chrome 2</li>
+      <li data-correct data-why="Properties работает как Map: второй ключ перезаписал значение. Пробелы вокруг = отбрасываются. Ключ один — size() = 1.">edge 1</li>
+      <li data-why="Пробелы вокруг = не попадают ни в ключ, ни в начало значения.">null 2</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">6. В папке <code>data</code> лежат <code>a.csv</code> и подпапка <code>old</code>, в ней <code>b.csv</code>. Что напечатает?</p>
+<pre><code class="java">try (Stream&lt;Path&gt; s1 = Files.list(Path.of("data"));
+     Stream&lt;Path&gt; s2 = Files.walk(Path.of("data"))) {
+    System.out.println(s1.count() + " " + s2.count());
+}</code></pre>
+    <ul>
+      <li data-why="list не спускается в подпапки, а walk включает и саму папку data.">3 3</li>
+      <li data-why="walk считает и стартовую папку data.">2 3</li>
+      <li data-correct data-why="list видит первый уровень: a.csv и old — 2. walk обходит всё дерево вместе с корнем: data, a.csv, old, old/b.csv — 4.">2 4</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется ли?</h2>
+
+  <div class="quiz">
+    <p class="q">7. Здесь <code>main</code> — без <code>throws</code>. Скомпилируется?</p>
+<pre><code class="java">public static void main(String[] args) {
+    String text = Files.readString(Path.of("notes.txt"));
+    System.out.println(text);
+}</code></pre>
+    <ul>
+      <li data-why="Компилятор не знает, есть ли файл, — но проверяет не это, а обработку исключения.">Да, если файл notes.txt существует</li>
+      <li data-correct data-why="readString объявлен с throws IOException, а это checked-исключение. Ошибка: unreported exception java.io.IOException; must be caught or declared to be thrown. Нужно throws IOException у main или try-catch.">Нет: IOException не поймано и не объявлено</li>
+      <li data-why="Компиляция ломается раньше запуска — из-за необработанного checked-исключения.">Да, но упадёт при запуске</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">8. ★★ Удаляем всё в папке. Скомпилируется?</p>
+<pre><code class="java">try (Stream&lt;Path&gt; s = Files.walk(Path.of("build/tmp"))) {
+    s.sorted(Comparator.reverseOrder()).forEach(Files::delete);
+}</code></pre>
+    <ul>
+      <li data-why="throws у main не помогает: исключение должно «выйти» из тела лямбды, а её функциональный интерфейс этого не разрешает.">Да, ведь main объявлен с throws IOException</li>
+      <li data-correct data-why="Терминальная операция forEach ждёт функциональный интерфейс Consumer, его метод accept не объявляет IOException. Files.delete объявлен с throws IOException (checked) — из тела лямбды его наружу не выбросить (incompatible thrown types IOException in functional expression). Решение: собрать список и удалять обычным циклом, либо try-catch внутри лямбды.">Нет: checked IOException нельзя выбросить из лямбды</li>
+      <li data-why="Ссылка на статический метод в forEach — нормальный синтаксис. Проблема в исключении.">Нет: ссылку на метод нельзя передать в forEach</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">9. Скомпилируется?</p>
+<pre><code class="java">try (String name = "report.txt") {
+    System.out.println(name);
+}</code></pre>
+    <ul>
+      <li data-why="В скобках try можно объявить только то, что умеет закрываться.">Да, напечатает report.txt</li>
+      <li data-correct data-why="В try-с-ресурсами годится только объект AutoCloseable (с методом close). String им не является: incompatible types: try-with-resources not applicable to variable type.">Нет: String не AutoCloseable</li>
+      <li data-why="Блок catch у try-с-ресурсами не обязателен — дело не в нём.">Нет: не хватает catch</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">10. ★★ Ловим «на всякий случай». Скомпилируется?</p>
+<pre><code class="java">try {
+    System.out.println("Привет");
+} catch (IOException e) {
+    System.out.println("ошибка");
+}</code></pre>
+    <ul>
+      <li data-why="Для checked-исключений компилятор проверяет и обратное: нельзя ловить то, чего быть не может.">Да, catch просто не сработает</li>
+      <li data-correct data-why="println не объявлен с throws IOException. Компилятор считает такой catch бессмысленным: exception java.io.IOException is never thrown in body of corresponding try statement. С Exception или RuntimeException так можно — они unchecked или общие.">Нет: IOException в этом try никогда не бросается</li>
+    </ul>
+  </div>
+
+  <h2>Скомпилируется, но что будет при запуске?</h2>
+
+  <div class="quiz">
+    <p class="q">11. Файла <code>users.csv</code> нет. Что будет?</p>
+<pre><code class="java">List&lt;String&gt; users = Files.readAllLines(Path.of("users.csv"));
+System.out.println(users.size());</code></pre>
+    <ul>
+      <li data-why="readAllLines не создаёт файл — он читает существующий.">Напечатает 0</li>
+      <li data-correct data-why="Исключение java.nio.file.NoSuchFileException: users.csv — наследник IOException. Первым делом проверь Path.of(&quot;users.csv&quot;).toAbsolutePath().">NoSuchFileException</li>
+      <li data-why="Старый FileReader выбросил бы FileNotFoundException. Методы Files выбрасывают NoSuchFileException.">FileNotFoundException</li>
+      <li data-why="null из readAllLines не возвращается — либо список, либо исключение.">NullPointerException</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">12. Забыли закрыть. Что окажется в файле после завершения программы?</p>
+<pre><code class="java">BufferedWriter w = Files.newBufferedWriter(Path.of("report.txt"));
+w.write("Все заказы оплачены");
+System.out.println("Готово");</code></pre>
+    <ul>
+      <li data-why="Текст лежит в буфере-ведре, а на диск он попадает при flush() или close().">Все заказы оплачены</li>
+      <li data-correct data-why="Файл создан, но пуст: текст остался в буфере, а close() никто не вызвал. Java не сбрасывает буферы сама при выходе. Лечится try-с-ресурсами.">Пустой файл</li>
+      <li data-why="Ошибки нет — программа спокойно напечатает «Готово». Тем и опасно.">Программа упадёт с исключением</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">13. Файл <code>data.txt</code> ты положил в папку <code>module-15</code>, рядом с классом. Программу запускаешь кнопкой ▶ в IDEA. Что будет?</p>
+<pre><code class="java">System.out.println(Files.readString(Path.of("data.txt")));</code></pre>
+    <ul>
+      <li data-why="Относительный путь считается не от папки класса, а от рабочей папки.">Напечатает содержимое data.txt</li>
+      <li data-correct data-why="Рабочая папка в IDEA — корень проекта, а файл лежит в module-15. Программа ищет workspace/data.txt и падает с NoSuchFileException. Варианты: Path.of(&quot;module-15/data.txt&quot;) или перенести файл в корень.">NoSuchFileException: data.txt</li>
+      <li data-why="Пустая строка была бы, если бы файл нашёлся и был пустым.">Напечатает пустую строку</li>
+    </ul>
+  </div>
+
+  <div class="quiz">
+    <p class="q">14. Файла <code>run.log</code> ещё нет. Что будет?</p>
+<pre><code class="java">Files.writeString(Path.of("run.log"), "start\n", StandardOpenOption.APPEND);</code></pre>
+    <ul>
+      <li data-why="Если опции заданы явно, Java не добавляет CREATE сама.">Создастся файл со строкой start</li>
+      <li data-correct data-why="Опции переданы явно, и CREATE среди них нет. APPEND умеет только дописывать в существующий файл → NoSuchFileException. Правильно: CREATE, APPEND.">NoSuchFileException</li>
+      <li data-why="Комбинация допустима — компилятор не проверяет, есть ли файл.">Ошибка компиляции</li>
+    </ul>
+  </div>
+
+  <h2>Найди ошибки</h2>
+
+  <div class="quiz">
+    <p class="q">15. Код должен записать имена всех гостей в <code>logs/guests.log</code>, по одному на строке. Папки <code>logs</code> нет. Сколько в нём ошибок?</p>
+<pre><code class="java">List&lt;String&gt; guests = List.of("Аня", "Борис", "Вика");
+Path log = Path.of("logs", "guests.log");
+for (String guest : guests) {
+    Files.writeString(log, guest + "\n");
+}</code></pre>
+    <ul>
+      <li data-why="Папка — одна проблема, но есть и вторая: что останется в файле, если бы папка была?">Одна</li>
+      <li data-correct data-why="1) Папки logs нет — writeString выбросит NoSuchFileException; нужно Files.createDirectories(log.getParent()). 2) Каждый writeString перезаписывает файл — останется только Вика; нужно CREATE, APPEND (и очистить файл перед циклом) или записать весь список одним Files.write(log, guests).">Две</li>
+      <li data-why="Перевод строки \n на месте, цикл по списку правильный.">Три</li>
+    </ul>
+  </div>
+
+  <section class="pz-reading">
+    <h2>Читаем код</h2>
+    <p>Головоломки решены — теперь прочитай строки этого модуля вслух правильными словами: создание объекта <code>Path</code>, вызов статического метода <code>Files.…</code>, аргумент, возвращаемое значение, try-с-ресурсами. В одних заданиях выбери верное описание из пяти, в других собери его из квадратиков.</p>
+    <div data-widget="check" id="check-m15-reading">
+      <script type="application/json">
+      { "title": "Читаем код: модуль 15", "icon": "🗣",
+        "items": [
+          { "type": "single", "q": "Что происходит в строке?", "code": "Path p = Path.of(\"data\", \"users.csv\");",
+            "options": ["Создание файла <code>data/users.csv</code> на диске", "Объявление переменной <code>p</code> типа <code>Path</code> и её инициализация объектом, который вернул вызов статического метода <code>Path.of</code> с аргументами <code>\"data\"</code> и <code>\"users.csv\"</code>", "Чтение файла <code>users.csv</code> из папки <code>data</code>", "Вызов метода <code>of</code> у объекта <code>p</code>", "Создание объекта оператором <code>new</code> с вызовом конструктора <code>Path</code>"],
+            "answer": 1, "why": "<code>Path.of</code> — статический метод класса <code>Path</code>: он создаёт объект <code>Path</code> и возвращает его, <code>new</code> здесь не нужен. Это только адрес — на диске ничего не создаётся и не читается." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "List<String> lines = Files.readAllLines(path);",
+            "options": ["Вызов метода <code>readAllLines</code> у объекта <code>path</code>", "Создание нового пустого списка <code>lines</code>", "Объявление метода <code>readAllLines</code> с параметром <code>path</code>", "Объявление переменной <code>lines</code> типа <code>List&lt;String&gt;</code> и её инициализация списком, который вернул статический метод <code>Files.readAllLines</code> с аргументом <code>path</code>", "Присваивание переменной <code>path</code> списка строк"],
+            "answer": 3, "why": "<code>Files</code> — класс, и <code>readAllLines</code> вызывается прямо у него: это статический метод. <code>path</code> — аргумент, а возвращаемое значение — список строк файла — инициализирует <code>lines</code>." },
+          { "type": "single", "q": "Что делает эта строка?", "code": "Files.writeString(log, \"done\\n\", StandardOpenOption.CREATE, StandardOpenOption.APPEND);",
+            "options": ["Стирает файл <code>log</code> и записывает в него <code>done</code>", "Читает файл <code>log</code> с опциями <code>CREATE</code> и <code>APPEND</code>", "Вызывает статический метод <code>writeString</code> класса <code>Files</code> с аргументами: путь <code>log</code>, текст и опции <code>CREATE</code>, <code>APPEND</code> — текст дописывается в конец файла", "Объявляет переменную <code>log</code> и инициализирует её текстом", "Создаёт объект <code>StandardOpenOption</code> оператором <code>new</code>"],
+            "answer": 2, "why": "Опции — дополнительные аргументы метода. <code>APPEND</code> дописывает в конец, <code>CREATE</code> создаёт файл, если его нет. Без опций файл перезаписался бы." },
+          { "type": "single", "q": "Что происходит в строке?", "code": "try (BufferedReader br = Files.newBufferedReader(path)) {",
+            "options": ["Обычный <code>try</code>: перехватываем исключение <code>br</code>", "Создание объекта <code>BufferedReader</code> оператором <code>new</code>", "Объявление метода <code>br</code> с параметром <code>path</code>", "Цикл, который читает файл построчно", "try-с-ресурсами: объявляем переменную <code>br</code> типа <code>BufferedReader</code> и инициализируем её результатом вызова <code>Files.newBufferedReader(path)</code>; после блока <code>br</code> закроется автоматически"],
+            "answer": 4, "why": "Ресурс объявлен в круглых скобках после <code>try</code> — значит, Java сама вызовет <code>br.close()</code> при выходе из блока, даже если будет выброшено исключение." },
+          { "type": "single", "q": "Что происходит в условии цикла?", "code": "while ((line = br.readLine()) != null) {",
+            "options": ["Вызываем у объекта <code>br</code> метод <code>readLine()</code>, присваиваем возвращённую строку переменной <code>line</code> и сравниваем результат с <code>null</code>", "Объявляем переменную <code>line</code> прямо в условии", "Сравниваем метод <code>readLine</code> с <code>null</code>, ничего не присваивая", "Вызываем статический метод <code>readLine</code> у класса <code>BufferedReader</code>", "Инициализируем <code>br</code> значением <code>null</code>"],
+            "answer": 0, "why": "Сначала выполняется то, что во внутренних скобках: вызов метода и присваивание. Результат присваивания — прочитанная строка — сравнивается с <code>null</code>. Метод вызывается у объекта <code>br</code>, он не статический; <code>line</code> объявлена выше." },
+          { "type": "single", "q": "Что означает заголовок метода?", "code": "static void load() throws IOException {",
+            "options": ["Метод <code>load</code> перехватывает <code>IOException</code>", "Метод выбрасывает <code>IOException</code> при каждом вызове", "Создаётся объект исключения <code>IOException</code>", "Объявление статического метода <code>load</code>, который ничего не возвращает и объявляет, что может выбросить <code>IOException</code>", "Вызов метода <code>load</code> с аргументом <code>IOException</code>"],
+            "answer": 3, "why": "<code>throws</code> в заголовке — объявление: метод может выбросить <code>IOException</code>, а обрабатывать его будет тот, кто метод вызвал. Выбрасывает исключение <code>throw</code>, перехватывает — <code>catch</code>." },
+          { "type": "build", "q": "Собери описание строки", "code": "String text = Files.readString(Path.of(\"notes.txt\"));",
+            "answer": ["объявляем переменную <code>text</code> типа <code>String</code>", "и инициализируем её результатом вызова статического метода <code>Files.readString</code>", "которому передаём аргументом объект <code>Path</code>, созданный <code>Path.of(\"notes.txt\")</code>"],
+            "extra": ["вызываем метод <code>readString</code> у объекта <code>text</code>", "создаём файл <code>notes.txt</code> на диске", "и перехватываем исключение в <code>catch</code>"] },
+          { "type": "build", "q": "Собери описание строки", "code": "Files.createDirectories(report.getParent());",
+            "answer": ["вызываем метод <code>getParent</code> у объекта <code>report</code>", "он возвращает путь к папке", "и мы передаём его аргументом в статический метод <code>Files.createDirectories</code>"],
+            "extra": ["объявляем переменную <code>report</code>", "создаём объект оператором <code>new</code>", "и закрываем папку в try-с-ресурсами"] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <div class="callout ai">
+    <span class="callout-title">Хочешь ещё?</span>
+    <p>Напиши наставнику: <em>«Дай мне 3 головоломки по файлам: что окажется в файле после запуска. Ответ не говори, пока я не объясню»</em>.</p>
+  </div>
+
+  <section class="summary">
+    <h2>Что тренирует этот набор</h2>
+    <ul>
+      <li>Запись по умолчанию перезаписывает; дописывание — <code>CREATE, APPEND</code>.</li>
+      <li>Относительный путь — от рабочей папки; нет файла — <code>NoSuchFileException</code>.</li>
+      <li>Потоки надо закрывать; try-с-ресурсами закрывает в обратном порядке и до <code>catch</code>.</li>
+      <li><code>IOException</code> — checked: компилятор требует обработку, не даёт ловить лишнее и не выпускает из лямбды.</li>
+      <li>Мелочи CSV и properties: хвосты <code>split</code>, повторный ключ, <code>list</code> против <code>walk</code>.</li>
+    </ul>
+  </section>
+
+</main>
+</body>
+</html>

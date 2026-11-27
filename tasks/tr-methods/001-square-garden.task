@@ -1,0 +1,37 @@
+## id: tr-methods-001
+## title: Площадь квадратной клумбы
+## file: trainer/methods/SquareGardenMethod.java
+## class: SquareGardenMethod
+## level: 1
+## category: Вычисления
+@@ description
+<p>Садовник разбивает квадратные клумбы. Создай класс <code>SquareGardenMethod</code> и напиши в нём метод <code>static int square(int side)</code>: он принимает длину стороны и возвращает площадь квадрата. Метод ничего не печатает.</p>
+<p>main читает через <code>Scanner</code> одно целое число, вызывает <code>square</code> и передаёт ему это число как аргумент, а возвращённое значение печатает в строке <code>Площадь клумбы: N</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5      вывод: Площадь клумбы: 25
+ввод:  0      вывод: Площадь клумбы: 0</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>return выражение;</code> — завершает метод и возвращает значение выражения тому, кто его вызвал</li>
+<li>вызов метода можно поставить прямо в выражение: <code>"Итог: " + total(3)</code></li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+5
+@@ expect
+Площадь клумбы: 25
+@@ test: Сторона 1
+@@ input
+1
+@@ expect
+Площадь клумбы: 1
+@@ test: Сторона 0
+@@ input
+0
+@@ expect
+Площадь клумбы: 0
+@@ test: Большая клумба
+@@ input
+300
+@@ expect
+Площадь клумбы: 90000
+@@ require: static\s+int\s+square\s*\(\s*int\s+\w+\s*\) | Нужен метод static int square(int side)
+@@ require: \Wsquare\s*\((?!\s*(?:int|long|double|char|boolean|String)\b) | main должен вызвать метод square(...) и передать ему аргумент

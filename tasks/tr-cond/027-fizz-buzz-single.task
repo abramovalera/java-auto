@@ -1,0 +1,50 @@
+## id: tr-cond-027
+## title: Физз-базз для одного числа
+## file: trainer/cond/FizzBuzzSingle.java
+## class: FizzBuzzSingle
+## level: 2
+## category: Цифры и делимость
+@@ description
+<p>Напиши класс <code>FizzBuzzSingle</code>. Программа читает целое число и печатает: <code>FizzBuzz</code>, если оно делится и на 3, и на 5; <code>Fizz</code>, если делится только на 3; <code>Buzz</code>, если только на 5; иначе — само число.</p>
+<pre class="terminal"><span class="out">ввод:  15
+вывод: FizzBuzz
+
+ввод:  9
+вывод: Fizz
+
+ввод:  7
+вывод: 7</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>n % 3 == 0</code> — число делится на 3 без остатка</li>
+<li>подумай, в каком порядке ставить проверки, чтобы 15 не стало просто <code>Fizz</code></li>
+</ul></div>
+@@ test: Делится на 3 и на 5
+@@ input
+15
+@@ expect
+FizzBuzz
+@@ test: Только на 3
+@@ input
+9
+@@ expect
+Fizz
+@@ test: Только на 5
+@@ input
+10
+@@ expect
+Buzz
+@@ test: Ни на то, ни на другое
+@@ input
+7
+@@ expect
+7
+@@ test: Ноль делится на всё
+@@ input
+0
+@@ expect
+FizzBuzz
+@@ test: Отрицательное
+@@ input
+-30
+@@ expect
+FizzBuzz

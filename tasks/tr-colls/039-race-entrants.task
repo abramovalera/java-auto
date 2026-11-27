@@ -1,0 +1,77 @@
+## id: tr-colls-039
+## title: Стартовый лист забега
+## file: trainer/colls/RaceEntrantsSort.java
+## class: RaceEntrantsSort
+## level: 2
+## category: Сортировка
+@@ description
+<p>Напиши класс <code>RaceEntrantsSort</code>. На детский забег записались участники. В первой строке — их количество <code>n</code>, дальше <code>n</code> строк вида <code>имя возраст</code>. Составь стартовый лист: сначала младшие, а при одинаковом возрасте — по алфавиту. Напечатай каждого участника строкой <code>имя (возраст)</code>.</p>
+<pre class="terminal"><span class="out">ввод:  5
+       Маша 9
+       Гоша 7
+       Аня 9
+       Боря 8
+       Ваня 7
+вывод: Ваня (7)
+       Гоша (7)
+       Боря (8)
+       Аня (9)
+       Маша (9)</span></pre>
+<p>Объяви record для участника и отдельный класс-компаратор, который сравнивает двух участников. Оба — в том же файле, без <code>public</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>class X implements Comparator&lt;Тип&gt;</code> и метод <code>public int compare(Тип a, Тип b)</code></li>
+<li><code>Integer.compare(x, y)</code> — сравнивает числа; <code>s1.compareTo(s2)</code> — строки</li>
+<li>если по первому полю не 0 — верни его, иначе сравнивай по второму</li>
+<li><code>list.sort(new X())</code> — сортирует список по твоему компаратору</li>
+</ul></div>
+@@ test: Обычный забег
+@@ input
+5
+Маша 9
+Гоша 7
+Аня 9
+Боря 8
+Ваня 7
+@@ expect
+Ваня (7)
+Гоша (7)
+Боря (8)
+Аня (9)
+Маша (9)
+@@ test: Все одного возраста
+@@ input
+3
+Яна 10
+Алиса 10
+Кирилл 10
+@@ expect
+Алиса (10)
+Кирилл (10)
+Яна (10)
+@@ test: Все разного
+@@ input
+3
+Петя 12
+Оля 6
+Коля 9
+@@ expect
+Оля (6)
+Коля (9)
+Петя (12)
+@@ test: Один участник
+@@ input
+1
+Сева 11
+@@ expect
+Сева (11)
+@@ test: Тёзки разного возраста
+@@ input
+3
+Лена 9
+Лена 7
+Даша 9
+@@ expect
+Лена (7)
+Даша (9)
+Лена (9)
+@@ require: implements\s+Comparator | Напиши свой класс-компаратор: implements Comparator<...>

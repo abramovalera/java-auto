@@ -1,0 +1,47 @@
+## id: tr-loops-012
+## title: Кодовый замок
+## file: trainer/loops/LockCombinationsPower.java
+## class: LockCombinationsPower
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>LockCombinationsPower</code>. У кодового замка несколько колёсиков, на каждом — одинаковое число символов. Сколько всего разных комбинаций можно набрать? Это <code>k</code>, умноженное само на себя <code>n</code> раз, где <code>k</code> — символов на колёсике, <code>n</code> — колёсиков. В первой строке — <code>k</code> (k ≥ 1), во второй — <code>n</code> (n ≥ 0). Ответ помещается в <code>long</code>.</p>
+<pre class="terminal"><span class="out">ввод:  10
+       3
+вывод: 1000</span></pre>
+<p>Посчитай степень циклом, без <code>Math.pow</code>: он возвращает <code>double</code> и на больших числах теряет точность. Если колёсиков нет, комбинация ровно одна — пустая.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>long result = 1;</code> — накопитель произведения начинают с 1, а не с 0</li>
+<li><code>result *= k;</code> — умножить накопитель на k</li>
+</ul></div>
+@@ test: Три колёсика с цифрами
+@@ input
+10
+3
+@@ expect
+1000
+@@ test: Десять переключателей
+@@ input
+2
+10
+@@ expect
+1024
+@@ test: Колёсиков нет
+@@ input
+5
+0
+@@ expect
+1
+@@ test: 18 колёсиков — не влезет в int
+@@ input
+10
+18
+@@ expect
+1000000000000000000
+@@ test: На колёсике один символ
+@@ input
+1
+50
+@@ expect
+1
+@@ forbid: Math\.pow | Посчитай степень циклом, без Math.pow

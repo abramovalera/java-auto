@@ -1,0 +1,39 @@
+## id: tr-strings-011
+## title: Защищённая ссылка
+## file: trainer/strings/SecureLinkCheck.java
+## class: SecureLinkCheck
+## level: 1
+## category: Проверка формата
+@@ description
+<p>Напиши класс <code>SecureLinkCheck</code>. Браузер рисует замочек у ссылок, которые начинаются с <code>https://</code>. Программа читает ссылку и печатает <code>защищённая</code> или <code>небезопасная</code>. Регистр не важен: <code>HTTPS://</code> — тоже защищённая.</p>
+<pre class="terminal"><span class="out">ввод:  https://bank.ru    вывод: защищённая
+ввод:  http://shop.ru     вывод: небезопасная</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>s.startsWith("abc")</code> — <code>true</code>, если строка начинается с <code>abc</code></li>
+<li><code>s.toLowerCase()</code> — переводит буквы в нижний регистр</li>
+</ul></div>
+@@ test: https
+@@ input
+https://bank.ru
+@@ expect
+защищённая
+@@ test: http без s
+@@ input
+http://shop.ru
+@@ expect
+небезопасная
+@@ test: Заглавные буквы
+@@ input
+HTTPS://Mail.ru
+@@ expect
+защищённая
+@@ test: Опечатка: одна косая черта
+@@ input
+https:/typo.ru
+@@ expect
+небезопасная
+@@ test: https не в начале
+@@ input
+www.https://x.ru
+@@ expect
+небезопасная

@@ -1,0 +1,48 @@
+## id: tr-loops-004
+## title: Кричалка болельщиков
+## file: trainer/loops/CheerRepeatLines.java
+## class: CheerRepeatLines
+## level: 1
+## category: Счётчики и суммы
+@@ description
+<p>Напиши класс <code>CheerRepeatLines</code>. Болельщики повторяют кричалку несколько раз. В первой строке — текст кричалки (в нём могут быть пробелы), во второй — сколько раз её повторить, <code>n</code> (n ≥ 0). Напечатай <code>n</code> строк вида <code>номер. кричалка</code>.</p>
+<pre class="terminal"><span class="out">ввод:  Шайбу! Шайбу!
+       3
+вывод: 1. Шайбу! Шайбу!
+       2. Шайбу! Шайбу!
+       3. Шайбу! Шайбу!</span></pre>
+<p>Если <code>n</code> равно 0, напечатай <code>Тишина</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextLine()</code> — читает всю строку целиком, вместе с пробелами</li>
+<li><code>System.out.println(i + ". " + cheer)</code> — склеивает число и строку</li>
+</ul></div>
+@@ test: Три раза
+@@ input
+Шайбу! Шайбу!
+3
+@@ expect
+1. Шайбу! Шайбу!
+2. Шайбу! Шайбу!
+3. Шайбу! Шайбу!
+@@ test: Один раз
+@@ input
+Ура!
+1
+@@ expect
+1. Ура!
+@@ test: Ноль раз
+@@ input
+Вперёд!
+0
+@@ expect
+Тишина
+@@ test: Пять раз
+@@ input
+Мы лучшие
+5
+@@ expect
+1. Мы лучшие
+2. Мы лучшие
+3. Мы лучшие
+4. Мы лучшие
+5. Мы лучшие

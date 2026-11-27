@@ -1,0 +1,63 @@
+## id: tr-arrays-057
+## title: Латинский квадрат
+## file: trainer/arrays/LatinSquareCheck.java
+## class: LatinSquareCheck
+## level: 3
+## category: Повторы и уникальность
+@@ description
+<p>Напиши класс <code>LatinSquareCheck</code>. Головоломка «латинский квадрат» решена верно, если в таблице <code>n × n</code> в каждой строке и в каждом столбце все числа от 1 до <code>n</code> встречаются ровно по одному разу (это как судоку без квадратиков). В первой строке — <code>n</code> (n ≥ 1), дальше <code>n</code> строк по <code>n</code> чисел. Напечатай <code>Решено верно</code> или <code>Есть ошибка</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       1 2 3
+       3 1 2
+       2 3 1
+вывод: Решено верно</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>для каждой строки заведи свежий <code>boolean[] seen = new boolean[n + 1];</code>: встретил число второй раз — ошибка</li>
+<li>число вне диапазона от 1 до <code>n</code> — тоже ошибка (и проверь это до обращения к <code>seen</code>)</li>
+<li>столбцы проверяются так же, только индексы меняются местами</li>
+</ul></div>
+@@ test: Верно
+@@ input
+3
+1 2 3
+3 1 2
+2 3 1
+@@ expect
+Решено верно
+@@ test: Повтор в столбце
+@@ input
+3
+1 2 3
+1 3 2
+2 3 1
+@@ expect
+Есть ошибка
+@@ test: Повтор в строке
+@@ input
+2
+1 1
+2 2
+@@ expect
+Есть ошибка
+@@ test: Число вне диапазона
+@@ input
+2
+1 3
+3 1
+@@ expect
+Есть ошибка
+@@ test: Один на один
+@@ input
+1
+1
+@@ expect
+Решено верно
+@@ test: Ноль
+@@ input
+2
+0 1
+1 0
+@@ expect
+Есть ошибка
+@@ require: new\s+int\s*\[[^\]]*\]\s*\[ | Сохрани таблицу в двумерный массив: int[][] m = new int[r][c];
+@@ forbid: \b(ArrayList|LinkedList|HashSet|TreeSet|HashMap|TreeMap|List|Set|Map)\s*<|\.stream\s*\( | Здесь только массивы: коллекции и стримы будут позже

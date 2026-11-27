@@ -1,0 +1,41 @@
+## id: tr-vars-025
+## title: Секунды полёта
+## file: trainer/vars/SpaceFlightSeconds.java
+## class: SpaceFlightSeconds
+## level: 2
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>SpaceFlightSeconds</code>. Программа читает целое число — сколько суток длится космический полёт — и печатает <code>Полёт длится N секунд</code>. В сутках 24 часа, в часе 60 минут, в минуте 60 секунд.</p>
+<pre class="terminal"><span class="out">ввод:  1
+вывод: Полёт длится 86400 секунд</span></pre>
+<p>Подвох: дальние полёты длятся десятки тысяч суток, и <code>days * 24 * 60 * 60</code> переполнит <code>int</code> ещё до того, как результат попадёт в переменную <code>long</code>.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>24L</code> — литерал типа <code>long</code>: с ним всё выражение считается в <code>long</code></li>
+<li><code>long seconds = ...;</code> — переменная для большого результата</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+1
+@@ expect
+Полёт длится 86400 секунд
+@@ test: Полёт не состоялся
+@@ input
+0
+@@ expect
+Полёт длится 0 секунд
+@@ test: Год на станции
+@@ input
+365
+@@ expect
+Полёт длится 31536000 секунд
+@@ test: Переполнение int
+@@ input
+30000
+@@ expect
+Полёт длится 2592000000 секунд
+@@ test: Очень долгий полёт
+@@ input
+100000
+@@ expect
+Полёт длится 8640000000 секунд

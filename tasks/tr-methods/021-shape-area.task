@@ -1,0 +1,49 @@
+## id: tr-methods-021
+## title: Площади фигур: три метода area
+## file: trainer/methods/ShapeAreaOverload.java
+## class: ShapeAreaOverload
+## level: 2
+## category: Перегрузка
+@@ description
+<p>Мастер считает, сколько краски нужно на пол разной формы. Создай класс <code>ShapeAreaOverload</code> и напиши <b>три</b> перегруженных метода с именем <code>area</code>:</p>
+<ul>
+<li><code>static int area(int side)</code> — площадь квадрата;</li>
+<li><code>static int area(int width, int height)</code> — площадь прямоугольника;</li>
+<li><code>static double area(double radius)</code> — площадь круга: <code>π · r²</code>.</li>
+</ul>
+<p>main читает слово — <code>квадрат</code>, <code>прямоугольник</code> или <code>круг</code> — и после него размеры через пробел: для квадрата одно целое, для прямоугольника два целых, для круга один дробный радиус. Печатает <code>Площадь: S</code>; площадь круга округли до сотых.</p>
+<pre class="terminal"><span class="out">ввод:  прямоугольник 3 5    вывод: Площадь: 15
+ввод:  круг 2.5             вывод: Площадь: 19.63</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>Java выбирает перегрузку по количеству и типам аргументов: <code>area(4)</code> и <code>area(4.0)</code> — разные методы</li>
+<li><code>Math.PI</code> — число π; <code>Math.round(x * 100) / 100.0</code> — округление до сотых</li>
+<li><code>word.equals("круг")</code> — сравнение строк по содержимому</li>
+</ul></div>
+@@ test: Квадрат
+@@ input
+квадрат 4
+@@ expect
+Площадь: 16
+@@ test: Прямоугольник
+@@ input
+прямоугольник 3 5
+@@ expect
+Площадь: 15
+@@ test: Круг
+@@ input
+круг 2.5
+@@ expect
+Площадь: 19.63
+@@ test: Единичный круг
+@@ input
+круг 1
+@@ expect
+Площадь: 3.14
+@@ test: Квадрат нулевого размера
+@@ input
+квадрат 0
+@@ expect
+Площадь: 0
+@@ require: static\s+int\s+area\s*\(\s*int\s+\w+\s*\) | Нужен метод static int area(int side)
+@@ require: static\s+int\s+area\s*\(\s*int\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int area(int width, int height)
+@@ require: static\s+double\s+area\s*\(\s*double\s+\w+\s*\) | Нужен метод static double area(double radius)

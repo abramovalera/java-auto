@@ -1,0 +1,50 @@
+## id: tr-vars-032
+## title: Обмен без третьей переменной
+## file: trainer/vars/SwapWithoutTemp.java
+## class: SwapWithoutTemp
+## level: 3
+## category: Счёт с целыми числами
+@@ description
+<p>Напиши класс <code>SwapWithoutTemp</code>. Программа читает два целых числа, каждое с новой строки, в переменные <code>first</code> и <code>second</code>. Поменяй их значения местами <b>без третьей переменной</b> — только сложением и вычитанием — и напечатай <code>Первое: 7, второе: 3</code>.</p>
+<pre class="terminal"><span class="out">ввод:  3
+       7
+вывод: Первое: 7, второе: 3</span></pre>
+<p>Объявлять можно только две числовые переменные: <code>first</code> и <code>second</code>. Подсказка к фокусу: если в <code>first</code> положить сумму двух чисел, из неё всегда можно «достать» любое из них вычитанием.</p>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>scanner.nextInt()</code> — читает и возвращает целое число <code>int</code></li>
+<li><code>first = first + second;</code> — теперь в <code>first</code> лежит сумма</li>
+<li>трассировка табличкой «шаг | first | second» поможет проверить каждый шаг</li>
+</ul></div>
+@@ test: Пример из условия
+@@ input
+3
+7
+@@ expect
+Первое: 7, второе: 3
+@@ test: Отрицательное число
+@@ input
+-5
+10
+@@ expect
+Первое: 10, второе: -5
+@@ test: Нули
+@@ input
+0
+0
+@@ expect
+Первое: 0, второе: 0
+@@ test: Одинаковые числа
+@@ input
+4
+4
+@@ expect
+Первое: 4, второе: 4
+@@ test: Огромные числа — переполнение не мешает
+@@ input
+2147483647
+1
+@@ expect
+Первое: 1, второе: 2147483647
+@@ require: \bfirst\s*=[^=][\s\S]*\bfirst\s*=[^=] | Поменяй значения: переменной first нужно присвоить новое значение
+@@ require: \bsecond\s*=[^=][\s\S]*\bsecond\s*=[^=] | Поменяй значения: переменной second нужно присвоить новое значение
+@@ forbid: \b(int|long|short|byte|double|float|var|Integer|Long)\s+\w+[\s\S]*\b(int|long|short|byte|double|float|var|Integer|Long)\s+\w+[\s\S]*\b(int|long|short|byte|double|float|var|Integer|Long)\s+\w+ | Обойдись двумя числовыми переменными — третью объявлять нельзя

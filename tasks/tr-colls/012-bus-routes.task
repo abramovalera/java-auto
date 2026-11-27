@@ -1,0 +1,50 @@
+## id: tr-colls-012
+## title: Автобусы на остановке
+## file: trainer/colls/BusRoutesAtStop.java
+## class: BusRoutesAtStop
+## level: 1
+## category: Уникальность (Set)
+@@ description
+<p>Напиши класс <code>BusRoutesAtStop</code>. Ты час стоял на остановке и записывал номера проезжающих автобусов — некоторые маршруты проехали несколько раз. В первой строке — количество автобусов <code>n</code> (хотя бы один), во второй — <code>n</code> номеров маршрутов через пробел. Напечатай три строки: <code>Маршрутов: X</code> (сколько разных), <code>Наименьший: Y</code> и <code>Наибольший: Z</code>.</p>
+<pre class="terminal"><span class="out">ввод:  7
+       42 5 117 42 5 9 42
+вывод: Маршрутов: 4
+       Наименьший: 5
+       Наибольший: 117</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>TreeSet&lt;Integer&gt;</code> — множество чисел, отсортированное по возрастанию</li>
+<li><code>set.first()</code> и <code>set.last()</code> — возвращают первый (наименьший) и последний (наибольший) элемент <code>TreeSet</code></li>
+</ul></div>
+@@ test: Час на остановке
+@@ input
+7
+42 5 117 42 5 9 42
+@@ expect
+Маршрутов: 4
+Наименьший: 5
+Наибольший: 117
+@@ test: Один автобус
+@@ input
+1
+33
+@@ expect
+Маршрутов: 1
+Наименьший: 33
+Наибольший: 33
+@@ test: Один маршрут много раз
+@@ input
+4
+7 7 7 7
+@@ expect
+Маршрутов: 1
+Наименьший: 7
+Наибольший: 7
+@@ test: Ловушка: 9 меньше 100
+@@ input
+3
+100 9 25
+@@ expect
+Маршрутов: 3
+Наименьший: 9
+Наибольший: 100
+@@ require: TreeSet | Сложи маршруты в TreeSet

@@ -1,0 +1,52 @@
+## id: tr-arrays-041
+## title: Пустые ячейки в конец
+## file: trainer/arrays/ShelfZerosToEnd.java
+## class: ShelfZerosToEnd
+## level: 2
+## category: Изменение массива
+@@ description
+<p>Напиши класс <code>ShelfZerosToEnd</code>. На складе полка из <code>n</code> ячеек, в каждой — код товара, а <code>0</code> — пустая ячейка. Кладовщик сдвигает все товары к началу полки, <b>не меняя их порядок</b>, а пустые ячейки оказываются в конце. В первой строке — <code>n</code>, во второй — <code>n</code> кодов. Сделай это в том же массиве, без второго, и напечатай результат через <code>Arrays.toString</code>.</p>
+<pre class="terminal"><span class="out">ввод:  7
+       0 5 0 0 3 8 0
+вывод: [5, 3, 8, 0, 0, 0, 0]</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li>заведи индекс <code>pos</code> — куда положить следующий товар; каждый ненулевой элемент записывай в <code>a[pos]</code> и увеличивай <code>pos</code></li>
+<li>после этого всё от <code>pos</code> до конца заполни нулями</li>
+</ul></div>
+@@ test: Полка
+@@ input
+7
+0 5 0 0 3 8 0
+@@ expect
+[5, 3, 8, 0, 0, 0, 0]
+@@ test: Нет пустых
+@@ input
+3
+1 2 3
+@@ expect
+[1, 2, 3]
+@@ test: Вся полка пустая
+@@ input
+3
+0 0 0
+@@ expect
+[0, 0, 0]
+@@ test: Пустые уже в конце
+@@ input
+4
+4 9 0 0
+@@ expect
+[4, 9, 0, 0]
+@@ test: Пусто в начале
+@@ input
+4
+0 0 0 6
+@@ expect
+[6, 0, 0, 0]
+@@ test: Нет ячеек
+@@ input
+0
+@@ expect
+[]
+@@ require: Arrays\s*\.\s*toString\s*\( | Напечатай массив через Arrays.toString
+@@ forbid: new\s+int\s*\[[\s\S]*new\s+int\s*\[ | Второй массив не нужен — переставляй элементы в том же

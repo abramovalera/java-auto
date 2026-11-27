@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Арифметика: деление и остаток · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m03-01">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 3 · Урок 1</div>
+    <h1>Арифметика: деление и остаток</h1>
+    <p class="lead">Плюс, минус и умножение ты знаешь со школы. А вот деление в Java умеет удивлять: 7 / 2 здесь равно 3, а у деления есть брат-близнец — остаток. Разберёмся, почему так и чем это полезно.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>⌨️ открой IDEA и проверяй примеры</span><span>🔍 трассировка</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение: модуль 2</h2>
+    <p>Сначала разомнёмся: вспомним переменные и типы. Без них сегодня никуда — все операторы работают со значениями в переменных.</p>
+    <div data-widget="check" id="check-m03-01-review">
+      <script type="application/json">
+      {
+       "title": "Разминка по модулю 2",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int apples = 5;\napples = apples + 3;\nSystem.out.println(\"Яблок: \" + apples);",
+         "answer": "Яблок: 8",
+         "why": "Сначала вычисляется выражение <code>apples + 3</code> (5 + 3 = 8), потом результат присваивается той же переменной apples — новое значение кладём обратно в коробку."
+        },
+        {
+         "type": "single",
+         "q": "Какой тип подойдёт для цены <code>99.90</code>?",
+         "options": [
+          "int",
+          "double",
+          "boolean"
+         ],
+         "answer": 1,
+         "why": "У цены есть дробная часть, значит, нужен double. int хранит только целые числа."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Операторы — глаголы программы</h2>
+    <p>Переменные — это «существительные» программы: в них лежат данные. А <b>операторы</b> — «глаголы»: они выполняют действие над значениями. Сложить, сравнить, увеличить на единицу. Весь модуль 3 — про них.</p>
+    <dl class="terms">
+      <dt>Оператор</dt><dd>Значок действия: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> и другие.</dd>
+      <dt>Операнд</dt><dd>То, над чем действует оператор. В <code>price * count</code> операнды — <code>price</code> и <code>count</code>.</dd>
+      <dt>Выражение</dt><dd>Кусочек кода, у которого есть <b>значение</b>: <code>2 + 3</code>, <code>price * count + 300</code>, даже просто <code>42</code>. Java вычисляет выражение и получает одно значение определённого типа.</dd>
+    </dl>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 220" role="img" aria-label="Выражение price * count + delivery: операнды, операторы и результат">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-head"/></marker></defs>
+        <rect x="20" y="70" width="110" height="50" rx="12" class="d-blue"/>
+        <text x="75" y="101" text-anchor="middle" class="d-mono-ink">price</text>
+        <rect x="145" y="70" width="44" height="50" rx="12" class="d-accent"/>
+        <text x="167" y="102" text-anchor="middle" class="d-title">*</text>
+        <rect x="204" y="70" width="110" height="50" rx="12" class="d-blue"/>
+        <text x="259" y="101" text-anchor="middle" class="d-mono-ink">count</text>
+        <rect x="329" y="70" width="44" height="50" rx="12" class="d-accent"/>
+        <text x="351" y="102" text-anchor="middle" class="d-title">+</text>
+        <rect x="388" y="70" width="130" height="50" rx="12" class="d-blue"/>
+        <text x="453" y="101" text-anchor="middle" class="d-mono-ink">delivery</text>
+        <text x="75" y="50" text-anchor="middle" class="d-small">операнд</text>
+        <text x="259" y="50" text-anchor="middle" class="d-small">операнд</text>
+        <text x="453" y="50" text-anchor="middle" class="d-small">операнд</text>
+        <text x="259" y="160" text-anchor="middle" class="d-small">операторы — оранжевые</text>
+        <path d="M20 135 H518" class="d-dash"/>
+        <text x="269" y="190" text-anchor="middle" class="d-text">всё вместе — выражение</text>
+        <path d="M530 95 H585" class="d-arrow"/>
+        <rect x="592" y="66" width="92" height="58" rx="14" class="d-green"/>
+        <text x="638" y="92" text-anchor="middle" class="d-mono-ink">1800</text>
+        <text x="638" y="112" text-anchor="middle" class="d-small">значение</text>
+      </svg>
+      <figcaption>Если price = 500, count = 3, delivery = 300, Java вычислит выражение и получит одно число — 1800.</figcaption>
+    </figure>
+    <p>Пять арифметических операторов Java:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Оператор</th><th>Что делает</th><th>Пример</th><th>Результат</th></tr>
+        <tr><td><code>+</code></td><td>сложение</td><td><code>7 + 2</code></td><td><code>9</code></td></tr>
+        <tr><td><code>-</code></td><td>вычитание</td><td><code>7 - 2</code></td><td><code>5</code></td></tr>
+        <tr><td><code>*</code></td><td>умножение (звёздочка, не «х»)</td><td><code>7 * 2</code></td><td><code>14</code></td></tr>
+        <tr><td><code>/</code></td><td>деление</td><td><code>7 / 2</code></td><td><code>3</code> 😳</td></tr>
+        <tr><td><code>%</code></td><td>остаток от деления</td><td><code>7 % 2</code></td><td><code>1</code></td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="wow"><p>Да-да, <code>7 / 2</code> — это <b>3</b>, а не 3.5. Это не ошибка Java, а правило. Сейчас разберём, откуда оно взялось.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Целочисленное деление</h2>
+    <p>Правило простое: <b>если оба операнда целые (<code>int</code> или <code>long</code>), то и результат целый</b>. Дробная часть просто отбрасывается — не округляется, а <b>отрезается</b>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: печенье для детей</span>
+      <p>У тебя 17 печенек и 5 детей. Ломать печенье нельзя. Каждому достанется по 3 — это <code>17 / 5</code>. Две печеньки останутся в коробке — это <code>17 % 5</code>. Целочисленное деление отвечает на вопрос «сколько <b>целых</b> раз поместится».</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 200" role="img" aria-label="17 печенек на 5 детей: каждому по 3, остаётся 2">
+        <rect x="16" y="30" width="96" height="110" rx="14" class="d-soft"/>
+        <rect x="124" y="30" width="96" height="110" rx="14" class="d-soft"/>
+        <rect x="232" y="30" width="96" height="110" rx="14" class="d-soft"/>
+        <rect x="340" y="30" width="96" height="110" rx="14" class="d-soft"/>
+        <rect x="448" y="30" width="96" height="110" rx="14" class="d-soft"/>
+        <text x="64" y="22" text-anchor="middle" class="d-small">ребёнок 1</text>
+        <text x="172" y="22" text-anchor="middle" class="d-small">ребёнок 2</text>
+        <text x="280" y="22" text-anchor="middle" class="d-small">ребёнок 3</text>
+        <text x="388" y="22" text-anchor="middle" class="d-small">ребёнок 4</text>
+        <text x="496" y="22" text-anchor="middle" class="d-small">ребёнок 5</text>
+        <circle cx="64" cy="58" r="13" class="d-yellow"/><circle cx="64" cy="88" r="13" class="d-yellow"/><circle cx="64" cy="118" r="13" class="d-yellow"/>
+        <circle cx="172" cy="58" r="13" class="d-yellow"/><circle cx="172" cy="88" r="13" class="d-yellow"/><circle cx="172" cy="118" r="13" class="d-yellow"/>
+        <circle cx="280" cy="58" r="13" class="d-yellow"/><circle cx="280" cy="88" r="13" class="d-yellow"/><circle cx="280" cy="118" r="13" class="d-yellow"/>
+        <circle cx="388" cy="58" r="13" class="d-yellow"/><circle cx="388" cy="88" r="13" class="d-yellow"/><circle cx="388" cy="118" r="13" class="d-yellow"/>
+        <circle cx="496" cy="58" r="13" class="d-yellow"/><circle cx="496" cy="88" r="13" class="d-yellow"/><circle cx="496" cy="118" r="13" class="d-yellow"/>
+        <rect x="566" y="30" width="118" height="110" rx="14" class="d-red"/>
+        <text x="625" y="22" text-anchor="middle" class="d-small">осталось</text>
+        <circle cx="605" cy="85" r="13" class="d-yellow"/><circle cx="645" cy="85" r="13" class="d-yellow"/>
+        <text x="280" y="176" text-anchor="middle" class="d-mono-ink">17 / 5 = 3  (по 3 каждому)</text>
+        <text x="625" y="176" text-anchor="middle" class="d-mono-ink">17 % 5 = 2</text>
+      </svg>
+      <figcaption>Деление отвечает «по сколько досталось», остаток — «сколько не поместилось».</figcaption>
+    </figure>
+<pre data-file="Division.java"><code class="java">System.out.println(17 / 5);   // 3
+System.out.println(9 / 10);   // 0 — ноль целых раз!
+System.out.println(-7 / 2);   // -3 — отрезаем дробь, а не «вниз»</code></pre>
+    <p>А как получить честные 3.5? Нужно, чтобы <b>хотя бы один</b> операнд был дробным (<code>double</code>). Тогда Java сначала расширит второй до <code>double</code> и посчитает дробно:</p>
+    <div class="annot">
+      <div class="annot-row"><code>7 / 2.0</code><div><p><code>3.5</code> — у 2.0 есть точка, значит, это double.</p></div></div>
+      <div class="annot-row"><code>7.0 / 2</code><div><p><code>3.5</code> — неважно, какой из операндов дробный.</p></div></div>
+      <div class="annot-row"><code>(double) 7 / 2</code><div><p><code>3.5</code> — сначала литерал 7 <b>привели</b> к <code>double</code> и получили 7.0 (приведение типа из модуля 2), потом поделили.</p></div></div>
+      <div class="annot-row"><code>(double) (7 / 2)</code><div><p><code>3.0</code> — ловушка! Скобки заставили сначала поделить <b>целые</b> (получилось 3), и только потом 3 превратилось в 3.0. Дробную часть уже не вернуть.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>int a = 5; int b = 2; double result = a / b; — что окажется в result?</summary>
+      <p><b>2.0.</b> Тип переменной слева ни на что не влияет: Java сначала вычисляет выражение справа от <code>=</code>. <code>a / b</code> — деление двух int, получается 2. И только потом целое 2 инициализирует переменную <code>result</code> типа double и становится 2.0. Чтобы получить 2.5, пиши <code>(double) a / b</code>.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Правило типов</span>
+      <p>int с int → int. Если в паре есть double → результат double. Если есть long (а double нет) → long. Java всегда «поднимает» меньший тип до большего, а не наоборот.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Остаток %: маленький, да удаленький</h2>
+    <p>Оператор <code>%</code> (читается «остаток от деления», по-английски modulo) даёт в результате то, что <b>не поместилось</b> при целочисленном делении. Кажется мелочью, но программисты пользуются им постоянно:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">⚖️</span><h4>Чётность</h4><p><code>n % 2</code> равно 0 — число чётное. Равно 1 (или −1 для отрицательных) — нечётное.</p></div>
+      <div class="card"><span class="emoji">🔢</span><h4>Последняя цифра</h4><p><code>472 % 10</code> → <code>2</code>. А <code>472 / 10</code> → <code>47</code>: последнюю цифру «отрезали».</p></div>
+      <div class="card"><span class="emoji">🕐</span><h4>Часы и круги</h4><p>Сейчас 22 часа, через 5 часов будет <code>(22 + 5) % 24</code> → <code>3</code> часа ночи.</p></div>
+      <div class="card"><span class="emoji">📦</span><h4>«Каждый n-й»</h4><p>Каждый третий покупатель получает подарок: номер покупателя <code>% 3</code> равен 0.</p></div>
+    </div>
+    <figure class="fig">
+      <svg viewBox="0 0 520 240" role="img" aria-label="Циферблат: 9 часов плюс 5 часов — это 14, а 14 % 12 = 2">
+        <defs><marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="d-head-accent"/></marker></defs>
+        <circle cx="120" cy="120" r="88" class="d-box"/>
+        <circle cx="120" cy="120" r="5" class="d-c-accent"/>
+        <text x="120" y="55" text-anchor="middle" class="d-title">12</text>
+        <text x="190" y="126" text-anchor="middle" class="d-title">3</text>
+        <text x="120" y="196" text-anchor="middle" class="d-title">6</text>
+        <text x="50" y="126" text-anchor="middle" class="d-title">9</text>
+        <text x="176" y="82" text-anchor="middle" class="d-title d-c-accent">2</text>
+        <path d="M24 106 A98 98 0 0 1 192 56" class="d-arrow-accent"/>
+        <rect x="250" y="40" width="250" height="160" rx="14" class="d-code"/>
+        <text x="266" y="76" class="d-mono">int now = 9;</text>
+        <text x="266" y="102" class="d-mono">int later = now + 5;  // 14</text>
+        <text x="266" y="128" class="d-mono">later % 12            // 2</text>
+        <text x="266" y="170" class="d-mono">// круг из 12 делений:</text>
+        <text x="266" y="190" class="d-mono">// лишние круги отбрасываем</text>
+      </svg>
+      <figcaption>Остаток «сворачивает» число в круг: на 12-часовом циферблате 14 часов — это 2.</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Чему равно 25 % 24? А 24 % 24? А 3 % 24?</summary>
+      <p><b>1, 0 и 3.</b> 25 часов — это сутки и ещё 1 час. 24 % 24 = 0: ровно сутки, остатка нет. А если число меньше делителя (3 % 24), оно целиком и есть остаток: 24 в 3 не помещается ни разу.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Знак остатка</span>
+      <p>У остатка тот же знак, что у <b>левого</b> числа (делимого): <code>-7 % 2</code> → <code>-1</code>, а <code>7 % -2</code> → <code>1</code>. Поэтому проверка нечётности «остаток равен 1» сломается на отрицательных числах. Надёжнее проверять чётность: «остаток равен 0».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Трассировка: яйца по коробкам</h2>
+    <p>Птицефабрика собрала 20 яиц. В коробку помещается 6. Сколько полных коробок и сколько яиц останется? Пройди программу по шагам и сам впиши значения переменных — так программисты проверяют код «в голове».</p>
+    <div data-widget="trace" id="trace-eggs">
+      <script type="application/json">
+      { "title": "Яйца по коробкам", "intro": "Нажимай «Шаг ▶». Когда появится вопрос — посчитай сам и впиши значение.",
+        "code": "int eggs = 20;\nint perBox = 6;\nint boxes = eggs / perBox;\nint left = eggs % perBox;\nSystem.out.println(boxes + \" коробки, осталось \" + left);",
+        "steps": [
+          { "line": 1, "vars": { "eggs": "20" }, "note": "Объявили переменную eggs типа int и инициализировали её значением 20." },
+          { "line": 2, "vars": { "eggs": "20", "perBox": "6" }, "note": "Объявили perBox и инициализировали значением 6: в коробку помещается 6 яиц." },
+          { "line": 3, "vars": { "eggs": "20", "perBox": "6", "boxes": "3" }, "ask": ["boxes"], "note": "Вычисляется выражение 20 / 6 — деление двух int. 6 помещается в 20 три целых раза (18), дробь отбрасывается. Результатом инициализируем boxes." },
+          { "line": 4, "vars": { "eggs": "20", "perBox": "6", "boxes": "3", "left": "2" }, "ask": ["left"], "note": "20 % 6 — что не поместилось после трёх полных коробок. 20 − 18 = 2." },
+          { "line": 5, "vars": { "eggs": "20", "perBox": "6", "boxes": "3", "left": "2" }, "out": "3 коробки, осталось 2\n", "note": "Вычисляем выражение — склеиваем строку — и передаём её методу println как аргумент. Проверка: 3 × 6 + 2 = 20 — сходится!" }
+        ] }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Проверка, которая всегда работает</span>
+      <p>Для целых чисел верно: <code>(a / b) * b + a % b == a</code>. Деление и остаток — две половинки одного действия: «сколько раз» и «сколько осталось».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Деление на ноль</h2>
+    <p>В математике делить на ноль нельзя. А что сделает Java? Зависит от типа!</p>
+<pre data-file="ZeroDivision.java"><code class="java">int apples = 10;
+int people = 0;
+System.out.println(apples / people);</code></pre>
+    <p>Программа <b>скомпилируется</b> (компилятор не знает, что в переменной окажется ноль), но при запуске упадёт. Вот что ты увидишь в панели Run:</p>
+    <div data-widget="ide" id="shot-zero-division">
+      <script type="application/json">
+      { "tree": false, "file": "ZeroDivision.java", "runConfig": "ZeroDivision", "gutterRun": [1, 2],
+        "code": "public class ZeroDivision {\n    public static void main(String[] args) {\n        int apples = 10;\n        int people = 0;\n        System.out.println(apples / people);\n    }\n}",
+        "console": { "title": "ZeroDivision", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… ZeroDivision" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.ArithmeticException: / by zero" },
+          { "t": "err", "s": "\tat ZeroDivision.main(ZeroDivision.java:5)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "line-5", "side": "top", "text": "В редакторе всё чисто — красной волны нет. Компилятор не знает, что в <code>people</code> окажется ноль" },
+                   { "n": 2, "target": "error", "text": "Красным — <b>исключение</b>: <code>ArithmeticException</code> (арифметическая авария), после двоеточия причина — <code>/ by zero</code>, деление на ноль" },
+                   { "n": 3, "target": "link-1", "text": "Где упало: файл <b>ZeroDivision.java</b>, строка <b>5</b>. Синяя ссылка — щёлкни, и IDEA откроет эту строку" },
+                   { "n": 4, "target": "exit", "text": "<b>exit code 1</b> вместо 0 — программа завершилась аварийно" } ],
+        "caption": "Деление int на ноль: программа упала при запуске" }
+      </script>
+    </div>
+    <p><b>Exception</b> (исключение) — это аварийная остановка программы. <code>ArithmeticException</code> — «арифметическая авария», <code>/ by zero</code> — «деление на ноль», а строка с <code>at</code> подсказывает файл и номер строки. С <code>%</code> то же самое: <code>10 % 0</code> тоже падает. Подробно исключения пройдём в модуле 12.</p>
+    <p>А у <code>double</code> всё иначе — он не падает, а возвращает особые значения:</p>
+<pre data-file="ZeroDivision.java"><code class="java">System.out.println(10.0 / 0);    // Infinity  — бесконечность
+System.out.println(-10.0 / 0);   // -Infinity
+System.out.println(0.0 / 0);     // NaN — «не число» (Not a Number)</code></pre>
+    <div class="say" data-mood="oops"><p>Что опаснее? Как ни странно, <b>double</b>. Упавшую программу видно сразу. А <code>Infinity</code> или <code>NaN</code> тихо поедут дальше по программе и испортят все следующие вычисления. В интернет-магазинах такое иногда всплывает как «цена: NaN ₽» прямо на странице — и покупатели видят, что где-то поделили на ноль.</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: переполнение — когда int «заворачивается»</summary>
+      <p>У <code>int</code> есть предел: от −2 147 483 648 до 2 147 483 647 (примерно ±2.1 миллиарда). Если результат не помещается, Java <b>не</b> сообщает об ошибке — число «перескакивает» на другой край, как одометр старой машины после 999 999 км:</p>
+<pre data-file="Overflow.java"><code class="java">int max = 2147483647;
+System.out.println(max + 1);                 // -2147483648
+
+long big = 1_000_000 * 1_000_000;            // подчёркивания — для читаемости
+System.out.println(big);                     // -727379968 (!)
+System.out.println(1_000_000L * 1_000_000);  // 1000000000000</code></pre>
+      <p>Вторая ловушка — классика собеседований. Переменная <code>long</code>, а результат всё равно испорчен. Почему? Java сначала вычисляет выражение справа от <code>=</code>: <code>1_000_000 * 1_000_000</code> — это int на int, значит, результат int, и он переполняется. Только потом испорченным числом инициализируется переменная типа long. Буква <code>L</code> у одного из множителей делает этот литерал типа long — и всё умножение идёт в long.</p>
+      <p>Компилятор тут молчит, а вот IDEA замечает подвох и подсвечивает выражение <b>жёлтым</b>:</p>
+      <div data-widget="ide" id="shot-overflow">
+        <script type="application/json">
+        { "tree": false, "file": "Overflow.java", "gutterRun": [1, 2],
+          "code": "public class Overflow {\n    public static void main(String[] args) {\n        long big = 1_000_000 * 1_000_000;\n        System.out.println(big);\n    }\n}",
+          "warnings": [ { "line": 3, "text": "1_000_000 * 1_000_000", "msg": "Numeric overflow in expression", "tip": true } ],
+          "marks": [ { "n": 1, "target": "err-3", "side": "top", "text": "Жёлтая подсветка — <b>предупреждение</b>: программа запустится, но IDEA подозревает ошибку" },
+                     { "n": 2, "target": "tip", "text": "<b>Numeric overflow in expression</b> — «в выражении переполнение числа». Наведи мышку на жёлтое, чтобы прочитать" },
+                     { "n": 3, "target": "problems", "text": "Счётчик <b>⚠1</b> — одно предупреждение в файле. Жёлтое не мешает запуску, но читать его стоит всегда" } ],
+          "caption": "Предупреждение о переполнении int" }
+        </script>
+      </div>
+    </details>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m03-01">
+      <script type="application/json">
+      {
+       "title": "Арифметика — главное",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "System.out.println(17 / 5);\nSystem.out.println(17 % 5);",
+         "answer": "3\n2",
+         "why": "5 помещается в 17 три раза (15), остаётся 2."
+        },
+        {
+         "type": "single",
+         "q": "Что напечатает этот код?",
+         "code": "int a = 9;\nint b = 10;\nSystem.out.println(a / b);",
+         "options": [
+          "0.9",
+          "0",
+          "1"
+         ],
+         "answer": 1,
+         "why": "Оба операнда int, поэтому результат int. 10 в 9 помещается ноль раз, дробь отбрасывается."
+        },
+        {
+         "type": "match",
+         "q": "Соедини выражение с результатом",
+         "left": [
+          "<code>7 / 2</code>",
+          "<code>7 / 2.0</code>",
+          "<code>7 % 2</code>",
+          "<code>(double) (7 / 2)</code>"
+         ],
+         "right": [
+          "3",
+          "3.5",
+          "1",
+          "3.0"
+         ],
+         "why": "Целые → целый результат. Один double → дробный. В последнем случае скобки заставили сначала поделить целые, а потом 3 стало 3.0."
+        },
+        {
+         "type": "multi",
+         "q": "Где получится ровно 3.5?",
+         "options": [
+          "<code>7 / 2</code>",
+          "<code>7 / 2.0</code>",
+          "<code>7.0 / 2</code>",
+          "<code>(double) 7 / 2</code>",
+          "<code>(double) (7 / 2)</code>"
+         ],
+         "answer": [
+          1,
+          2,
+          3
+         ],
+         "why": "Нужно, чтобы хотя бы один операнд был double ДО деления. (double) (7 / 2) превращает в double уже готовую тройку."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "<code>5 / 0</code> с целыми числами — ошибка компиляции",
+           "a": false,
+           "why": "компилируется, но при запуске падает с ArithmeticException: / by zero."
+          },
+          {
+           "s": "<code>5.0 / 0</code> даёт Infinity",
+           "a": true
+          },
+          {
+           "s": "Для n ≥ 0 выражение <code>n % 10</code> даёт последнюю цифру числа",
+           "a": true
+          },
+          {
+           "s": "Целочисленное деление округляет 3.9 до 4",
+           "a": false,
+           "why": "оно ничего не округляет, а отрезает дробь: получится 3."
+          }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Дай мне 5 примеров на / и % с целыми и дробными числами, по одному. Я буду отвечать и объяснять, а ты проверяй»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Операторы <code>+ - * / %</code> вместе с операндами образуют выражение, а выражение вычисляется в одно значение.</li>
+        <li>int / int → int: дробная часть <b>отрезается</b>. Нужна дробь — сделай хотя бы один операнд double до деления.</li>
+        <li><code>%</code> — остаток: чётность, последняя цифра, часы и круги. Знак остатка — как у левого числа.</li>
+        <li>Целое на ноль → <code>ArithmeticException</code>. double на ноль → <code>Infinity</code> или <code>NaN</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

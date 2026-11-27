@@ -1,0 +1,38 @@
+## id: tr-strings-017
+## title: Задом наперёд
+## file: trainer/strings/WordBackwards.java
+## class: WordBackwards
+## level: 1
+## category: Переворот и палиндромы
+@@ description
+<p>Напиши класс <code>WordBackwards</code>. Программа читает одну строку и печатает её задом наперёд: последний символ — первым, первый — последним.</p>
+<pre class="terminal"><span class="out">ввод:  привет    вывод: тевирп
+ввод:  А роза    вывод: азор А</span></pre>
+<div class="callout tip"><span class="callout-title">🧰 Пригодится</span><ul>
+<li><code>new StringBuilder(s).reverse().toString()</code> — возвращает строку задом наперёд</li>
+<li>Или сам: цикл <code>for</code> от <code>s.length() - 1</code> до <code>0</code> и <code>s.charAt(i)</code></li>
+</ul></div>
+@@ test: Слово
+@@ input
+привет
+@@ expect
+тевирп
+@@ test: С пробелом
+@@ input
+А роза
+@@ expect
+азор А
+@@ test: Одна буква
+@@ input
+a
+@@ expect
+a
+@@ test: Цифры
+@@ input
+12345
+@@ expect
+54321
+@@ test: Пустая строка
+@@ input
+
+@@ expect
