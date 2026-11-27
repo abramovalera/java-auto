@@ -45,15 +45,10 @@
       "url": "/lessons/m01/10-puzzles.html"
     },
     {
-      "id": "m01-star",
-      "title": "★ МиниБанк: открываем банк",
-      "url": "/lessons/m01/95-minibank.html"
-    },
-    {
       "id": "m01-09",
       "title": "Итоги модуля и экзамен",
       "url": "/lessons/m01/09-summary.html"
     }
   ],
-  "taskCount": 9
+  "taskCount": 8
 }

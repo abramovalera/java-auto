@@ -75,18 +75,13 @@ window.COURSE = {
           "url": "/lessons/m01/10-puzzles.html"
         },
         {
-          "id": "m01-star",
-          "title": "★ МиниБанк: открываем банк",
-          "url": "/lessons/m01/95-minibank.html"
-        },
-        {
           "id": "m01-09",
           "title": "Итоги модуля и экзамен",
           "url": "/lessons/m01/09-summary.html"
         }
       ],
       "tasks": "/tasks.html?module=m01",
-      "taskCount": 9
+      "taskCount": 8
     },
     {
       "id": "m02",
@@ -136,18 +131,13 @@ window.COURSE = {
           "url": "/lessons/m02/07-puzzles.html"
         },
         {
-          "id": "m02-star",
-          "title": "★ МиниБанк: карточка клиента",
-          "url": "/lessons/m02/95-minibank.html"
-        },
-        {
           "id": "m02-sum",
           "title": "Итоги модуля и экзамен",
           "url": "/lessons/m02/08-summary.html"
         }
       ],
       "tasks": "/tasks.html?module=m02",
-      "taskCount": 11
+      "taskCount": 10
     },
     {
       "id": "m03",
@@ -192,18 +182,13 @@ window.COURSE = {
           "url": "/lessons/m03/07-puzzles.html"
         },
         {
-          "id": "m03-star",
-          "title": "★ МиниБанк: пополнение с комиссией",
-          "url": "/lessons/m03/95-minibank.html"
-        },
-        {
           "id": "m03-sum",
           "title": "Итоги модуля и экзамен",
           "url": "/lessons/m03/08-summary.html"
         }
       ],
       "tasks": "/tasks.html?module=m03",
-      "taskCount": 10
+      "taskCount": 9
     },
     {
       "id": "m04",

@@ -40,15 +40,10 @@
       "url": "/lessons/m03/07-puzzles.html"
     },
     {
-      "id": "m03-star",
-      "title": "★ МиниБанк: пополнение с комиссией",
-      "url": "/lessons/m03/95-minibank.html"
-    },
-    {
       "id": "m03-sum",
       "title": "Итоги модуля и экзамен",
       "url": "/lessons/m03/08-summary.html"
     }
   ],
-  "taskCount": 10
+  "taskCount": 9
 }

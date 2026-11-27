@@ -216,18 +216,18 @@
     </ol>
     <div data-widget="ide" id="shot-git-share">
       <script type="application/json">
-      { "project": "minibank", "status": "minibank › src",
-        "tree": [ { "name": "minibank", "type": "folder", "depth": 0, "open": true },
+      { "project": "expense-tracker", "status": "expense-tracker › src",
+        "tree": [ { "name": "expense-tracker", "type": "folder", "depth": 0, "open": true },
                   { "name": "src", "type": "src", "depth": 1, "open": true },
                   { "name": "Main", "type": "class", "depth": 2 },
                   { "name": ".gitignore", "type": "file", "depth": 1 } ],
         "dialog": { "title": "Share Project On GitHub",
-                    "rows": [ { "label": "Repository name", "value": "minibank", "hl": true },
+                    "rows": [ { "label": "Repository name", "value": "expense-tracker", "hl": true },
                               { "label": "Private", "value": "☐", "type": "text" },
                               { "label": "Remote", "value": "origin" },
                               { "label": "Description", "value": "Консольный мини-банк на Java" } ],
                     "buttons": ["Share", "Cancel"], "primary": "Share" },
-        "marks": [ { "n": 1, "target": "field-Repository name", "text": "Имя репозитория на GitHub. Адрес будет <code>github.com/твой-логин/minibank</code>" },
+        "marks": [ { "n": 1, "target": "field-Repository name", "text": "Имя репозитория на GitHub. Адрес будет <code>github.com/твой-логин/expense-tracker</code>" },
                    { "n": 2, "target": "field-Private", "text": "Галочка <b>Private</b> — видишь только ты. Для портфолио оставь репозиторий открытым" },
                    { "n": 3, "target": "field-Remote", "text": "<b>origin</b> — имя, под которым IDEA запомнит сервер. То самое origin из push и pull" },
                    { "n": 4, "target": "btn-Share", "side": "bottom", "text": "<b>Share</b> — создать репозиторий на GitHub и отправить туда проект" } ],
@@ -235,7 +235,7 @@
       </script>
     </div>
     <p>Без IDEA делают так: создают на сайте GitHub пустой репозиторий (кнопка <b>New</b>), копируют его адрес и связывают с ним свой проект:</p>
-<pre class="terminal"><span class="cmd">git remote add origin https://github.com/misha/minibank.git</span>
+<pre class="terminal"><span class="cmd">git remote add origin https://github.com/misha/expense-tracker.git</span>
 <span class="cmd">git push -u origin main</span></pre>
     <p><code>git remote add origin адрес</code> — «запомни сервер под именем origin», дальше обычный первый push ветки.</p>
   </section>

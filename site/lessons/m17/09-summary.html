@@ -319,16 +319,16 @@
     <ol class="steps">
       <li><b>Недели 1–3. SQL и базы данных.</b> Как хранят данные по-настоящему: таблицы, <code>SELECT</code>, <code>WHERE</code>, <code>ORDER BY</code>, <code>JOIN</code>, <code>GROUP BY</code>, <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code>, первичный и внешний ключ. Бери <b>PostgreSQL</b> — её чаще всего встречают в вакансиях.<br>
         Бесплатно: <a href="https://stepik.org/course/63054" target="_blank" rel="noopener">«Интерактивный тренажёр по SQL»</a> на Stepik (задачи с автопроверкой прямо в браузере) · <a href="https://metanit.com/sql/postgresql/" target="_blank" rel="noopener">руководство по PostgreSQL на metanit</a> (установка, pgAdmin, все запросы по порядку) · <a href="https://sqlbolt.com" target="_blank" rel="noopener">SQLBolt</a> (то же на английском, очень коротко).<br>
-        Практика: придумай таблицы <code>clients</code> и <code>accounts</code> для МиниБанка и напиши к ним 10 запросов: «все счета клиента», «сумма по всем счетам», «клиенты без счетов».</li>
+        Практика: придумай таблицы для своего пет-проекта (например, <code>clients</code> и <code>accounts</code> для мини-банка) и напиши к ним 10 запросов: «все счета клиента», «сумма по всем счетам», «клиенты без счетов».</li>
       <li><b>Недели 4–5. JDBC: Java разговаривает с базой.</b> Подключение к базе из своей программы: <code>Connection</code>, <code>PreparedStatement</code>, <code>ResultSet</code>. Драйвер базы подключаешь как зависимость в Gradle — урок 17.4 тебе здесь уже пригодится.<br>
         Бесплатно: <a href="https://metanit.com/java/database/" target="_blank" rel="noopener">«Работа с базами данных» на metanit</a> (там MySQL, для PostgreSQL меняется только драйвер и адрес подключения) · <a href="https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html" target="_blank" rel="noopener">JDBC Basics от Oracle</a> (английский).<br>
-        Практика: МиниБанк хранит клиентов и счета в PostgreSQL вместо файла.</li>
+        Практика: твой пет-проект хранит данные в PostgreSQL вместо файла.</li>
       <li><b>Недели 6–7. HTTP и REST.</b> Как программы общаются по сети: запрос и ответ, методы <code>GET</code>/<code>POST</code>/<code>PUT</code>/<code>DELETE</code>, коды ответа <code>200</code>, <code>404</code>, <code>500</code>, формат JSON. REST — договорённость, как по этим правилам устроить API.<br>
         Бесплатно: <a href="https://developer.mozilla.org/ru/docs/Web/HTTP/Guides/Overview" target="_blank" rel="noopener">«Обзор протокола HTTP» на MDN</a> (на русском) · встроенный в Java <code>HttpClient</code> (пакет <code>java.net.http</code>) — найди пример в документации JDK или спроси ИИ «объясни по шагам».<br>
         Практика: из Java-программы получи JSON у любого открытого API (погода, курсы валют) и выведи пару полей.</li>
       <li><b>Недели 8–12. Spring Boot.</b> Главный фреймворк Java-бэкенда. Собираешь проект на <a href="https://start.spring.io" target="_blank" rel="noopener">start.spring.io</a> (выбираешь Gradle — он тебе знаком), пишешь контроллер с <code>@RestController</code>, подключаешь базу через Spring Data JPA, тестируешь на JUnit — тех же, что в этом модуле.<br>
         Бесплатно: официальные пошаговые гайды <a href="https://spring.io/guides/gs/rest-service/" target="_blank" rel="noopener">«Building a RESTful Web Service»</a> и <a href="https://spring.io/guides/gs/accessing-data-jpa/" target="_blank" rel="noopener">«Accessing Data with JPA»</a> (английский, каждый — на вечер).<br>
-        Практика: МиниБанк как REST-сервис — <code>GET /accounts</code> отдаёт счета, <code>POST /transfers</code> делает перевод.</li>
+        Практика: пет-проект как REST-сервис — например, у мини-банка <code>GET /accounts</code> отдаёт счета, а <code>POST /transfers</code> делает перевод.</li>
     </ol>
     <div class="callout tip">
       <span class="callout-title">Git — заодно и глубже</span>
@@ -348,6 +348,7 @@
       <div class="card"><span class="emoji">💰</span><h4>Трекер расходов</h4><p>Записываешь траты с категорией и датой, смотришь итоги за месяц и «куда ушли деньги». Пригодятся <code>record</code>, коллекции, стримы (группировка по категориям), файл CSV, тесты на подсчёт сумм.</p></div>
       <div class="card"><span class="emoji">📚</span><h4>Домашняя библиотека</h4><p>Книги, авторы, отметка «прочитано», поиск по автору и названию, статистика за год. Хороший первый проект для таблиц с <code>JOIN</code>: книги ↔ авторы.</p></div>
       <div class="card"><span class="emoji">✅</span><h4>Список дел со сроками</h4><p>Задачи с приоритетом и датой (<code>LocalDate</code>), сортировка, «что горит сегодня». Позже — REST API: добавить, отметить выполненной, удалить.</p></div>
+      <div class="card"><span class="emoji">🏦</span><h4>Мини-банк</h4><p>Клиенты, счета, пополнение с комиссией, переводы с проверками, история операций. Всё, что было в курсе, ложится сюда: классы и инкапсуляция, исключения для «не хватает денег», коллекции, файлы, тесты на переводы.</p></div>
       <div class="card"><span class="emoji">🌦️</span><h4>Погодный помощник</h4><p>Программа спрашивает город, запрашивает открытый API погоды по HTTP, разбирает JSON и советует, брать ли зонт. Тренирует HTTP, Gradle-зависимости (библиотека для JSON) и обработку ошибок сети.</p></div>
     </div>
     <div class="callout tip">
@@ -358,13 +359,13 @@
 
   <!-- ШАГ 9 -->
   <section class="step">
-    <h2>МиниБанк — на GitHub, «Тренинг код» — каждый день</h2>
-    <p><b>МиниБанк</b> — твой первый настоящий проект, и он уже живёт в Git. Выложи его на GitHub — это первая строчка твоего портфолио:</p>
+    <h2>Свой проект — на GitHub, «Тренинг код» — каждый день</h2>
+    <p>Выбрал идею из списка выше? Заведи под неё проект и сразу выложи на GitHub — это первая строчка твоего портфолио:</p>
     <ol class="steps">
-      <li>Открой проект МиниБанка в IDEA и проверь <code>.gitignore</code>: <code>out/</code>, <code>.idea/workspace.xml</code> — в истории им не место (урок 17.2).</li>
-      <li>Добавь в корень файл <code>README.md</code>: пара строк о том, что умеет банк, и как его запустить. Закоммить.</li>
+      <li>Создай проект в IDEA с галочкой <b>Create Git repository</b> (урок 1.3) и проверь <code>.gitignore</code>: <code>out/</code>, <code>.idea/workspace.xml</code> — в истории им не место (урок 17.2).</li>
+      <li>Добавь в корень файл <code>README.md</code>: пара строк о том, что умеет программа и как её запустить. Закоммить.</li>
       <li>☰ → <b>Git → GitHub → Share Project on GitHub</b> (урок 17.3) — и проект на GitHub.</li>
-      <li>Дальше развивай: тесты на JUnit для комиссии и переводов, перевод на Gradle, хранение в базе по плану выше. Каждый шаг — коммит и push.</li>
+      <li>Дальше развивай: тесты на JUnit для главной логики, перевод на Gradle, хранение в базе по плану выше. Каждый шаг — коммит и push.</li>
     </ol>
     <div class="cards">
       <div class="card"><span class="emoji">🏋️</span><h4>«Тренинг код» каждый день</h4><p>Раздел <a href="/training.html">«Тренинг код»</a> никуда не делся. Решай 2–3 задачи в день, 20–30 минут. <b>Каждый день понемногу</b> работает лучше, чем три часа раз в неделю: синтаксис перестаёт быть препятствием, и голова свободна для новых тем.</p></div>
@@ -378,7 +379,7 @@
         <li><span class="ai-only">Сделай все семь задач до зелёного, разбери их через <code>/check</code> и покажи наставнику Git- и Gradle-практику.</span><span class="free-only">Сделай все семь задач до зелёного, разбери их с <span class="ai-name">DeepSeek</span> (промпт «Проверь решение» (кнопка внизу страницы)) и покажи ему вывод Git- и Gradle-практики.</span></li>
         <li><span class="ai-only">Напиши <code>/exam</code> — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span></li>
         <li>Оглянись на карту курса: все 18 модулей пройдены тобой.</li>
-        <li>Дальше по порядку: SQL и базы данных → JDBC → HTTP и REST → Spring Boot. Параллельно — пет-проект и МиниБанк на GitHub.</li>
+        <li>Дальше по порядку: SQL и базы данных → JDBC → HTTP и REST → Spring Boot. Параллельно — свой пет-проект на GitHub.</li>
         <li>Каждый день понемногу: 20–30 минут <a href="/training.html">«Тренинг код»</a>.</li>
       </ul>
     </div>

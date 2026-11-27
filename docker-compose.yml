@@ -9,7 +9,6 @@ services:
       - "7070:7070"
     environment:
       TZ: Europe/Moscow          # часовой пояс для истории проверок
-      PROJECT_DIR: /minibank     # сквозной проект ученика «МиниБанк»
       COURSE_DIR: /app/course    # папка курса целиком: по .git сервер узнаёт, вышло ли обновление на GitHub
     volumes:
       - ./site:/app/site:ro      # сайт и уроки — правки видны без пересборки
@@ -17,5 +16,4 @@ services:
       - ./workspace:/workspace   # ТВОИ данные: код, прогресс, история проверок
       - ./starter:/app/starter:ro  # заготовки задач — копируются в workspace, только если файла там нет
       - .:/app/course:ro         # вся папка курса только для чтения — проверка обновлений (значок «🔄 Обновление»)
-      - ./MiniBank:/minibank:ro  # ТВОЙ проект МиниБанк (свой Git) — сервер только читает его для проверки ★-заданий
     restart: unless-stopped

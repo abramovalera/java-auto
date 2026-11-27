@@ -45,15 +45,10 @@
       "url": "/lessons/m02/07-puzzles.html"
     },
     {
-      "id": "m02-star",
-      "title": "★ МиниБанк: карточка клиента",
-      "url": "/lessons/m02/95-minibank.html"
-    },
-    {
       "id": "m02-sum",
       "title": "Итоги модуля и экзамен",
       "url": "/lessons/m02/08-summary.html"
     }
   ],
-  "taskCount": 11
+  "taskCount": 10
 }
