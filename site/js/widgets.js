@@ -618,9 +618,15 @@
     let items;
     const changed = () => { msg.hidden = true; list.querySelectorAll(".ps-line").forEach((n) => n.classList.remove("good", "bad")); };
     function start() { items = shuffledOrder(lines); msg.hidden = true; sortable(list, items, isCode, changed); }
+    // data-accept='[[1,3,2,4]]' — другие верные порядки: номера строк исходного списка (с 1).
+    // Нужно, когда строки честно можно поменять местами (например, две независимые переменные).
+    let accept = [];
+    try { accept = JSON.parse(el.dataset.accept || "[]"); } catch (e) { accept = []; }
     body.querySelector(".check").addEventListener("click", () => {
       msg.hidden = false;
-      const wrong = markOrder(list, items, lines);
+      const cur = items.map((x) => x.t);
+      const alt = accept.find((order) => order.length === cur.length && order.every((n, i) => lines[n - 1] === cur[i]));
+      const wrong = markOrder(list, items, alt ? alt.map((n) => lines[n - 1]) : lines);
       if (!wrong) { msg.className = "w-msg ok"; msg.innerHTML = el.dataset.success || "🎉 Всё верно!"; goal(0); }
       else { msg.className = "w-msg bad"; msg.textContent = `Не на своём месте: ${wrong}. Перетащи красные строки и проверь ещё раз.`; }
     });

@@ -1425,3 +1425,15 @@ body:not(.mode-free) .free-only { display: none !important; }
 .tr-lvs > span { white-space: nowrap; }
 .sidebar a.mod.tr-side .mod-sub { display: block; }
 .tr-remind img { display: block; max-width: 100%; height: auto; margin: 10px 0 12px; border-radius: 14px; border: 2px solid var(--line); }
+
+/* ---------- значок «🔄 Обновление» в шапке ---------- */
+.upd-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 2px solid var(--primary); background: var(--primary-soft); color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; white-space: nowrap; animation: pop .3s; }
+.upd-btn:hover { background: var(--primary); color: #fff; }
+.upd-btn[hidden] { display: none; }
+.upd-card { max-width: 640px; }
+.upd-list { margin: 6px 0 12px; padding-left: 20px; max-height: 240px; overflow-y: auto; }
+.upd-list li { margin: 4px 0; }
+.upd-list small { color: var(--muted); }
+.upd-body { color: var(--muted); font-size: .9em; margin-top: 2px; }
+.upd-cmd { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0; padding: 8px 10px; border-radius: 12px; background: var(--code-bg); }
+.upd-cmd code { background: none; color: var(--code-ink); font-size: 15px; }

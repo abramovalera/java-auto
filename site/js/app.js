@@ -352,9 +352,11 @@
       </nav>` : `<a class="brand-title" href="/">${esc(COURSE.title)}</a>`}
       <div class="top-center"><div class="top-crumb">${esc(crumb)}</div><div class="top-progress"></div></div>
       <div class="stats">
+        <button class="upd-btn" hidden title="Вышла новая версия курса">🔄 <span>Обновление</span></button>
         <button class="icon-btn theme-btn" title="Светлая / тёмная тема" aria-label="Сменить тему">◐</button>
       </div>`;
     top.querySelector(".theme-btn").addEventListener("click", toggleTheme);
+    watchUpdates(top.querySelector(".upd-btn"));
     // ☰: на широком экране прячет/показывает карту курса (выбор запоминается), на узком — выдвигает её поверх
     const wideScreen = () => matchMedia("(min-width: 1101px)").matches;
     try { if (localStorage.getItem("jc.ui.sideHidden") === "1") document.body.classList.add("side-hidden"); } catch (e) {}
@@ -939,6 +941,49 @@
       }
       b.textContent = "✓ Скопировано — вставь в чат"; setTimeout(() => { b.textContent = "📋 Скопировать промпт"; }, 2500);
     });
+  }
+
+  /** Значок «🔄 Обновление»: сервер раз в 30 минут сверяет коммит папки курса с GitHub (/api/update).
+   *  Страница спрашивает сервер при открытии и потом каждые 5 минут — это дёшево, к GitHub ходит только сервер. */
+  function watchUpdates(btn) {
+    if (!btn) return;
+    let info = null;
+    const fmtDate = (iso) => { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" }); };
+    const check = async () => {
+      try { info = await (await fetch("/api/update")).json(); } catch (e) { return; } // сервер недоступен — молчим
+      const behind = info && info.status === "behind";
+      btn.hidden = !behind;
+      if (behind) btn.querySelector("span").textContent = `Обновление (${info.newCommits})`;
+    };
+    btn.addEventListener("click", () => {
+      if (!info) return;
+      const cmd = (c) => `<div class="upd-cmd"><code>${esc(c)}</code><button class="btn small ghost" data-copy="${esc(c)}">Скопировать</button></div>`;
+      const list = (info.commits || []).map((c) => `<li><b>${esc(c.title)}</b>${c.date ? ` <small>· ${fmtDate(c.date)}</small>` : ""}${c.body ? `<div class="upd-body">${esc(c.body).replace(/\n/g, "<br>")}</div>` : ""}</li>`).join("");
+      const ov = document.createElement("div");
+      ov.className = "welcome-overlay";
+      ov.innerHTML = `<div class="welcome-card upd-card" role="dialog" aria-modal="true" aria-label="Вышло обновление курса">
+        <div class="welcome-mascot">${JC.mascot ? JC.mascot("wow") : "🔄"}</div>
+        <div class="welcome-body">
+          <h2>Вышло обновление курса</h2>
+          <p>На GitHub появилось новых изменений: <b>${info.newCommits}</b>. Что нового:</p>
+          <ul class="upd-list">${list}</ul>
+          <p>Как обновить: открой PowerShell в папке курса и выполни по очереди две команды.</p>
+          ${cmd("git pull")}${cmd("docker compose up -d --build")}
+          <p class="meta">Твой код, прогресс и история проверок лежат в папке <code>workspace</code> — обновление их не трогает. Когда вторая команда закончит, обнови эту страницу.</p>
+          <div class="w-row"><button class="btn green upd-close">Понятно</button></div>
+        </div></div>`;
+      document.body.appendChild(ov);
+      const close = () => ov.remove();
+      ov.querySelector(".upd-close").addEventListener("click", close);
+      ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+      document.addEventListener("keydown", function esc1(e) { if (e.key === "Escape") { close(); document.removeEventListener("keydown", esc1); } });
+      ov.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "✓ Скопировано"; } catch (e) { b.textContent = "Выдели и скопируй"; }
+        setTimeout(() => { b.textContent = "Скопировать"; }, 2000);
+      }));
+    });
+    check();
+    setInterval(check, 5 * 60 * 1000);
   }
 
   /** В итогах модулей 2–17 — напоминание про «Тренинг код» и про практику каждый день. */

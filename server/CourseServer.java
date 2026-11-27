@@ -67,6 +67,9 @@ public class CourseServer {
         server.createContext("/api/profiles", ex -> safe(ex, CourseServer::handleProfiles));
         server.createContext("/api/code/", ex -> safe(ex, CourseServer::handleCode));
         server.createContext("/api/setup", ex -> safe(ex, CourseServer::handleSetup));
+        // «вышло обновление курса?» — сверка коммита папки курса с GitHub (UpdateCheck, кэш 30 минут)
+        server.createContext("/api/update", ex -> safe(ex, e -> sendJson(e, 200, UpdateCheck.status(
+                Path.of(env("COURSE_DIR", "/app/course")), env("COURSE_REPO", "abramovalera/java-auto")))));
         server.createContext("/", ex -> safe(ex, CourseServer::handleStatic));
         server.setExecutor(Executors.newFixedThreadPool(24));
         server.start();
