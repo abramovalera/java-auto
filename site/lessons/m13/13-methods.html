@@ -36,18 +36,14 @@
         <tr><td><code>c.clear()</code></td><td>удаляет всё</td><td>ничего (<code>void</code>)</td></tr>
       </table>
     </div>
-    <p>Три последних метода на множествах — это операции из математики: пересечение, объединение, разность.</p>
+    <p>Методы <code>addAll</code>, <code>retainAll</code> и <code>removeAll</code> на множествах — это объединение, пересечение и разность из <a href="/lessons/m13/04-set.html">урока 4</a>. Новое здесь одно: они <b>меняют саму коллекцию</b>, у которой их вызвали. Нужен результат, а исходное множество жалко — работай с копией:</p>
 <pre class="code" data-file="Playground.java · внутри main"><code>Set&lt;Integer&gt; a = new HashSet&lt;&gt;(List.of(1, 2, 3, 4));
 Set&lt;Integer&gt; b = new HashSet&lt;&gt;(List.of(3, 4, 5));
 
-Set&lt;Integer&gt; both = new TreeSet&lt;&gt;(a);
-both.retainAll(b);              // пересечение: есть и в a, и в b
-Set&lt;Integer&gt; all = new TreeSet&lt;&gt;(a);
-all.addAll(b);                  // объединение
-Set&lt;Integer&gt; onlyA = new TreeSet&lt;&gt;(a);
-onlyA.removeAll(b);             // разность: в a, но не в b
-System.out.println(both + " " + all + " " + onlyA);</code></pre>
-<pre class="terminal"><span class="out">[3, 4] [1, 2, 3, 4, 5] [1, 2]</span></pre>
+Set&lt;Integer&gt; both = new TreeSet&lt;&gt;(a);   // копия a
+both.retainAll(b);                        // пересечение
+System.out.println(both + " " + a);</code></pre>
+<pre class="terminal"><span class="out">[3, 4] [1, 2, 3, 4]</span></pre>
     <p>Читаем строку <code>Set&lt;Integer&gt; both = new TreeSet&lt;&gt;(a);</code>: объявляем переменную <code>both</code> и инициализируем её новым объектом <code>TreeSet</code>, передав конструктору <code>a</code>, — получается <b>копия</b>, поэтому исходное множество <code>a</code> не портится.</p>
     <p><code>removeIf</code> принимает условие в виде <code>n -&gt; n &lt; 0</code> — это <b>лямбда-выражение</b>, подробно — в модуле 14. Пока читай его так: «для каждого <code>n</code> — удалить, если <code>n &lt; 0</code>».</p>
 <pre class="code" data-file="Playground.java · внутри main"><code>List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(List.of(5, -2, 8, -1, 3));
@@ -84,20 +80,16 @@ System.out.println(big);</code></pre>
   <!-- ШАГ 3 -->
   <section class="step">
     <h2>Методы Map: рабочие приёмы</h2>
+    <p>Базу — <code>put</code>, <code>get</code> (и его <code>null</code>), <code>getOrDefault</code>, <code>containsKey</code>, <code>remove</code>, перебор через <code>keySet</code>/<code>values</code>/<code>entrySet</code> — ты знаешь из <a href="/lessons/m13/05-map.html">урока 5</a>. Здесь три метода, которые экономят строки в рабочем коде:</p>
     <div class="table-wrap">
       <table>
         <tr><th>Вызов</th><th>Что делает</th></tr>
-        <tr><td><code>map.put(k, v)</code></td><td>кладёт пару; если ключ уже был — заменяет значение и возвращает старое</td></tr>
-        <tr><td><code>map.get(k)</code></td><td>возвращает значение или <code>null</code>, если ключа нет (<a href="/lessons/m13/05-map.html">ловушка с null</a>)</td></tr>
-        <tr><td><code>map.getOrDefault(k, d)</code></td><td>значение или <code>d</code>, если ключа нет</td></tr>
-        <tr><td><code>map.containsKey(k)</code> / <code>containsValue(v)</code></td><td>есть ли такой ключ / такое значение</td></tr>
         <tr><td><code>map.putIfAbsent(k, v)</code></td><td>кладёт, только если ключа ещё нет</td></tr>
         <tr><td><code>map.merge(k, 1, Integer::sum)</code></td><td>счётчик: ключа не было — кладёт 1, был — прибавляет 1</td></tr>
         <tr><td><code>map.computeIfAbsent(k, x -&gt; new ArrayList&lt;&gt;())</code></td><td>достаёт значение по ключу, а если его нет — создаёт и кладёт</td></tr>
-        <tr><td><code>map.keySet()</code> / <code>values()</code> / <code>entrySet()</code></td><td>все ключи / все значения / все пары</td></tr>
       </table>
     </div>
-    <p><b>Счётчик за одну строку.</b> Вызываем метод <code>merge</code> у словаря и передаём три аргумента: ключ, значение по умолчанию и правило сложения <code>Integer::sum</code> (это <b>ссылка на метод</b>, модуль 14).</p>
+    <p><b>Счётчик за одну строку.</b> Вызываем метод <code>merge</code> у словаря и передаём три аргумента: ключ, значение по умолчанию и правило сложения <code>Integer::sum</code>. Запись <code>Integer::sum</code> — <b>ссылка на метод</b>, её разберём в модуле 14; пока просто узнавай этот вид. Делает он ровно то же, что знакомая пара <code>counts.put(w, counts.getOrDefault(w, 0) + 1)</code> — и в задачах этого модуля можно писать так, как тебе понятнее.</p>
 <pre class="code" data-file="Playground.java · внутри main"><code>Map&lt;String, Integer&gt; counts = new TreeMap&lt;&gt;();
 for (String w : List.of("да", "нет", "да", "да", "может")) {
     counts.merge(w, 1, Integer::sum);
@@ -122,13 +114,6 @@ for (String name : List.of("Аня", "Борис", "Алексей", "Вера",
 }
 System.out.println(byLetter);</code></pre>
 <pre class="terminal"><span class="out">{А=[Аня, Алексей], Б=[Борис, Белла], В=[Вера]}</span></pre>
-    <p>Перебор пар — через <code>entrySet()</code>: каждая пара — объект <code>Map.Entry</code>, у него вызываем <code>getKey()</code> и <code>getValue()</code>.</p>
-<pre class="code" data-file="Playground.java · внутри main"><code>for (Map.Entry&lt;String, Integer&gt; e : counts.entrySet()) {
-    System.out.println(e.getKey() + " -&gt; " + e.getValue());
-}</code></pre>
-<pre class="terminal"><span class="out">да -&gt; 3
-может -&gt; 1
-нет -&gt; 1</span></pre>
   </section>
 
   <!-- ШАГ 4 -->
@@ -144,7 +129,7 @@ System.out.println(byLetter);</code></pre>
         <tr><td><code>Collections.unmodifiableList(list)</code></td><td>обёртка «только для чтения» над списком</td></tr>
         <tr><td><code>List.of(…)</code> / <code>Set.of(…)</code> / <code>Map.of(k, v, …)</code></td><td>готовые <b>неизменяемые</b> коллекции</td></tr>
         <tr><td><code>List.copyOf(list)</code></td><td>неизменяемая копия: дальнейшие изменения оригинала на неё не влияют</td></tr>
-        <tr><td><code>Arrays.asList(…)</code></td><td>список <b>фиксированного размера</b> поверх массива</td></tr>
+        <tr><td><code>Arrays.asList(…)</code></td><td>список <b>фиксированного размера</b> поверх массива (подробно — в следующем шаге)</td></tr>
       </table>
     </div>
 <pre class="code" data-file="Playground.java · внутри main"><code>List&lt;Integer&gt; nums = new ArrayList&lt;&gt;(List.of(5, 8, 3));
@@ -160,6 +145,52 @@ System.out.println(Collections.frequency(List.of("a", "b", "a", "a"), "a"));</co
   </section>
 
   <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Массив ↔ список</h2>
+    <p>Массивы никуда не делись: их возвращают старые методы, <code>split</code> у строки, <code>args</code> в <code>main</code>. Поэтому часто нужно превратить массив в список и обратно.</p>
+<pre class="code" data-file="Playground.java · внутри main"><code>String[] arr = {"кот", "ёж", "бобр"};
+
+List&lt;String&gt; view = Arrays.asList(arr);                  // «окно» над массивом
+List&lt;String&gt; list = new ArrayList&lt;&gt;(Arrays.asList(arr)); // настоящий изменяемый список
+list.add("лис");
+
+view.set(0, "кит");
+System.out.println(arr[0] + " " + list);
+
+String[] back = list.toArray(new String[0]);             // список → массив
+System.out.println(back.length + " " + Arrays.toString(back));</code></pre>
+<pre class="terminal"><span class="out">кит [кот, ёж, бобр, лис]
+4 [кот, ёж, бобр, лис]</span></pre>
+    <ul>
+      <li><code>Arrays.asList(arr)</code> — не копия, а <b>окно</b> над тем же массивом (как <code>subList</code>): <code>set</code> у списка поменял и <code>arr[0]</code>. Размер окна фиксирован — <code>add</code> и <code>remove</code> бросят <code>UnsupportedOperationException</code>.</li>
+      <li>Нужен обычный список — оберни в <code>new ArrayList&lt;&gt;(…)</code>: это независимая копия, её можно и менять, и растить. Поэтому <code>list</code> «кита» не увидел.</li>
+      <li>Обратно — <code>list.toArray(new String[0])</code>: передаём пустой массив нужного типа, метод возвращает новый массив подходящей длины.</li>
+    </ul>
+    <h3>Ловушка: int[] не превращается в List&lt;Integer&gt;</h3>
+<pre class="code" data-file="Playground.java · внутри main"><code>int[] nums = {3, 1, 2};
+System.out.println(Arrays.asList(nums).size());
+// List&lt;Integer&gt; bad = Arrays.asList(nums);   // не скомпилируется</code></pre>
+    <details class="predict">
+      <summary>Что напечатает вторая строка: 3 или что-то другое?</summary>
+      <p><b>1.</b> Коллекции хранят только объекты (урок 2), а <code>int</code> — примитив. Автоупаковка работает для одного числа, но не превращает целый <code>int[]</code> в <code>Integer[]</code>. Поэтому <code>Arrays.asList</code> видит <b>один</b> объект — сам массив — и возвращает <code>List&lt;int[]&gt;</code> из одного элемента. Присвоить это в <code>List&lt;Integer&gt;</code> компилятор не даст.</p>
+    </details>
+    <p>Для массива примитивов — обычный цикл (в модуле 14 то же сделают стримы одной строкой):</p>
+<pre class="code" data-file="Playground.java · внутри main"><code>int[] nums = {3, 1, 2};
+List&lt;Integer&gt; numList = new ArrayList&lt;&gt;();
+for (int n : nums) {
+    numList.add(n);                    // автоупаковка int → Integer
+}
+
+int[] again = new int[numList.size()];
+for (int i = 0; i &lt; again.length; i++) {
+    again[i] = numList.get(i);         // распаковка Integer → int
+}
+System.out.println(numList + " " + Arrays.toString(again));</code></pre>
+<pre class="terminal"><span class="out">[3, 1, 2] [3, 1, 2]</span></pre>
+    <p>А вот массив обёрток <code>Integer[]</code> в <code>Arrays.asList</code> превращается нормально — в нём уже лежат объекты.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
   <section class="step">
     <h2>Ловушки</h2>
     <p>Новые ловушки — с примерами ниже. Те, что уже разобраны в уроках модуля, — ссылкой: если не помнишь, вернись.</p>
@@ -186,16 +217,15 @@ frozen.add("c");            // нельзя: список неизменяемы
         <tr><td>удаление внутри for-each</td><td><code>ConcurrentModificationException</code> (как правило)</td><td><code>removeIf</code> или <code>Iterator.remove</code> (<a href="/lessons/m13/03-iteration.html">урок про перебор</a>)</td></tr>
         <tr><td><code>map.get(k)</code> для отсутствующего ключа + <code>int</code></td><td><code>null</code> → <code>NullPointerException</code> при распаковке</td><td><code>getOrDefault</code> (<a href="/lessons/m13/05-map.html">урок про Map</a>)</td></tr>
         <tr><td>свои объекты в <code>HashSet</code> / ключами <code>HashMap</code> без <code>equals</code> и <code>hashCode</code></td><td>«одинаковые» объекты считаются разными</td><td>переопределить оба метода (<a href="/lessons/m13/04-set.html">урок про Set</a>)</td></tr>
+        <tr><td><code>list.contains</code> / <code>indexOf</code> / <code>remove(объект)</code> со своим классом без <code>equals</code></td><td>не находит «такой же» объект: <code>false</code>, <code>-1</code></td><td>переопределить <code>equals</code> или взять record (<a href="/lessons/m13/04-set.html">урок про Set</a>)</td></tr>
+        <tr><td><code>map.remove(k)</code> внутри for-each по словарю</td><td><code>ConcurrentModificationException</code></td><td><code>it.remove()</code> итератора <code>entrySet()</code> (<a href="/lessons/m13/05-map.html">урок про Map</a>)</td></tr>
+        <tr><td><code>Arrays.asList(intArray)</code></td><td>список из <b>одного</b> элемента — самого массива</td><td>цикл с <code>add</code> или массив <code>Integer[]</code></td></tr>
         <tr><td>сравнение <code>list1 == list2</code></td><td>сравнивает ссылки, а не содержимое</td><td><code>list1.equals(list2)</code></td></tr>
       </table>
     </div>
-    <div class="callout fact">
-      <span class="callout-title">В тестах на JUnit</span>
-      <p>Коллекции в тестах проверяют не циклом, а готовыми проверками AssertJ (модуль 17): <code>assertThat(names).containsExactly("Аня", "Борис")</code> — точно эти элементы в этом порядке, <code>containsExactlyInAnyOrder(…)</code> — в любом порядке, <code>hasSize(3)</code>, <code>contains(…)</code>, <code>doesNotContain(…)</code>.</p>
-    </div>
   </section>
 
-  <!-- ШАГ 6 -->
+  <!-- ШАГ 7 -->
   <section class="step">
     <h2>Проверь себя</h2>
     <div data-widget="check" id="check-m13-methods">
@@ -209,6 +239,8 @@ frozen.add("c");            // нельзя: список неизменяемы
             "why": "List.of возвращает неизменяемый список. Метод add у него есть, поэтому код компилируется, но при вызове бросает UnsupportedOperationException." },
           { "type": "predict", "q": "Что напечатает?", "code": "List<Integer> big = new ArrayList<>(List.of(10, 20, 30, 40));\nbig.subList(0, 2).set(1, 0);\nSystem.out.println(big);",
             "answer": "[10, 0, 30, 40]", "why": "subList — окно в тот же список: замена элемента с индексом 1 в окне меняет и big." },
+          { "type": "predict", "q": "Что напечатает?", "code": "String[] arr = {\"a\", \"b\"};\nList<String> v = Arrays.asList(arr);\nv.set(1, \"z\");\nSystem.out.println(arr[1] + \" \" + Arrays.asList(new int[]{1, 2, 3}).size());",
+            "answer": "z 1", "why": "Arrays.asList — окно над тем же массивом: set меняет и arr. А int[] не упаковывается в список Integer: получается список из одного элемента — самого массива." },
           { "type": "single", "q": "Как получить из словаря число, а при отсутствии ключа — 0?",
             "options": ["<code>map.get(k)</code>", "<code>map.getOrDefault(k, 0)</code>", "<code>map.put(k, 0)</code>", "<code>map.containsKey(k)</code>", "<code>map.putIfAbsent(k)</code>"], "answer": 1,
             "why": "getOrDefault возвращает значение или запасное значение. get вернул бы null." },
@@ -231,8 +263,9 @@ frozen.add("c");            // нельзя: список неизменяемы
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
-        <li>У любой коллекции: <code>add</code>, <code>remove</code>, <code>contains</code>, <code>size</code>, <code>addAll</code> / <code>retainAll</code> / <code>removeAll</code> (объединение, пересечение, разность), <code>removeIf</code>.</li>
-        <li>Map: <code>getOrDefault</code> вместо голого <code>get</code>, <code>merge</code> для счётчиков, <code>putIfAbsent</code>, <code>computeIfAbsent</code> для группировки, перебор через <code>entrySet()</code>.</li>
+        <li>У любой коллекции: <code>add</code>, <code>remove</code>, <code>contains</code>, <code>size</code>, <code>addAll</code> / <code>retainAll</code> / <code>removeAll</code> (объединение, пересечение, разность — меняют саму коллекцию, работай с копией), <code>removeIf</code>.</li>
+        <li>Map: <code>putIfAbsent</code>; <code>merge</code> для счётчиков (то же, что <code>getOrDefault</code> + <code>put</code>); <code>computeIfAbsent</code> для группировки.</li>
+        <li>Массив → список: <code>new ArrayList&lt;&gt;(Arrays.asList(arr))</code>; список → массив: <code>list.toArray(new String[0])</code>. <code>int[]</code> через <code>Arrays.asList</code> не превратить — только циклом.</li>
         <li><code>Collections</code> — класс-помощник со статическими методами: <code>sort</code>, <code>reverse</code>, <code>max</code>, <code>min</code>, <code>frequency</code>.</li>
         <li><code>List.of</code>, <code>Set.of</code>, <code>Map.of</code> — неизменяемые и без null; <code>Arrays.asList</code> — фиксированного размера; <code>subList</code> — окно, а не копия.</li>
         <li>Нужна изменяемая копия — <code>new ArrayList&lt;&gt;(…)</code>.</li>

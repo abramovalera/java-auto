@@ -15,14 +15,13 @@
     <div class="kicker">Модуль 1 · Урок 4</div>
     <h1>Первая программа в IntelliJ IDEA</h1>
     <p class="lead">Сейчас мы вместе напишем первую программу. Шаг за шагом: что нажать, что ты увидишь на экране и что это значит. Открой IDEA рядом и повторяй.</p>
-    <div class="meta"><span>⏱ 25 минут</span><span>⌨️ первый код</span><span>🖼 со скринами</span></div>
+    <div class="meta"><span>⏱ 25–30 минут</span><span>⌨️ первый код</span><span>🖼 со скринами</span></div>
   </header>
 
   <!-- ШАГ 1 -->
   <section class="step">
     <h2>Прежде чем начать: выпиши себе</h2>
-    <p>Опытные программисты почти не пользуются мышкой: у IDEA есть сочетания клавиш и короткие слова-шаблоны, которые экономят кучу времени. <b>Возьми листочек или заметки в телефоне и выпиши эту таблицу руками</b> — так она запомнится быстрее. Ко всем пунктам мы ещё вернёмся в уроке.</p>
-    <p><b>Не надо запоминать сразу</b> — выпиши и подглядывай, через неделю пальцы запомнят сами.</p>
+    <p>У IDEA есть сочетания клавиш и короткие слова-шаблоны, которые экономят кучу времени. Для первой программы хватит четырёх. <b>Выпиши их руками на листочек или в заметки</b> — так запомнится быстрее. Ко всем пунктам мы ещё вернёмся в уроке.</p>
     <div class="cheat">
       <h3>Выпиши себе: IntelliJ IDEA, часть 1</h3>
       <p>Шаблоны набираешь в редакторе и жмёшь <kbd>Tab</kbd> (или <kbd>Enter</kbd> в подсказке).</p>
@@ -32,14 +31,9 @@
         <tr><td><code>sout</code> + <kbd>Tab</kbd></td><td>Вставляет <code>System.out.println();</code></td><td>Внутри метода, когда нужно что-то напечатать</td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd></td><td>Запустить открытую программу</td><td>Вместо клика по ▶</td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd></td><td>Красиво выровнять весь код</td><td>Отступы «поехали»</td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td><td>Убрать лишние (серые) импорты</td><td>После правок кода</td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Удалить строку целиком</td><td>Вместо выделения мышкой и Delete</td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Дублировать строку (копия ниже)</td><td>Нужна похожая строка</td></tr>
-        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>IDEA предлагает, как исправить подчёркнутое</td><td>Видишь красное или жёлтое</td></tr>
       </table></div>
       <p style="margin-top:10px">На macOS вместо <kbd>Ctrl</kbd> обычно <kbd>Cmd</kbd>.</p>
     </div>
-    <div class="say" data-mood="think"><p>Про <kbd>Ctrl</kbd>+<kbd>Y</kbd>: в первый раз IDEA спросит, что назначить на эти клавиши — «Удалить строку» (Delete Line) или «Повторить» (Redo). Выбери <b>Delete Line</b> и подтверди — дальше строка будет удаляться одним нажатием.</p></div>
   </section>
 
   <!-- ШАГ 2 -->
@@ -158,6 +152,38 @@
     <p>Под капотом кнопка ▶ сделала весь конвейер из урока 1.2: вызвала компилятор <code>javac</code>, положила <code>HelloWorld.class</code> в папку <code>out</code> (её видно в дереве проекта слева, если раскрыть; трогать её не нужно — IDEA сама её заполняет), запустила JVM — и показала тебе вывод.</p>
   </section>
 
+  <!-- ШАГ 6б -->
+  <section class="step">
+    <h2>Один раз — руками: javac и java в терминале</h2>
+    <p>Посмотрим на конвейер без кнопки ▶. В IDEA есть <b>терминал</b> — окно, куда вводят команды текстом. Открой вкладку <b>Terminal</b> внизу окна или нажми <kbd>Alt</kbd>+<kbd>F12</kbd>. Терминал откроется в папке <code>workspace</code>.</p>
+    <p>Java, которую IDEA скачала в уроке 0.3, лежит в папке <code>.jdks</code>, и терминал про неё пока не знает. Первая команда подсказывает ему, где она. Она действует, пока открыт этот терминал. Команды можно скопировать кнопкой «копировать» и вставить в терминал (<kbd>Ctrl</kbd>+<kbd>V</kbd>), они выполнятся по очереди:</p>
+<pre class="terminal"><span class="cmd">$env:Path = (Get-Item ~\.jdks\temurin-21*\bin)[0].FullName + ";" + $env:Path</span>
+<span class="cmd">cd module-01</span>
+<span class="cmd">javac HelloWorld.java</span>
+<span class="cmd">java HelloWorld</span>
+<span class="out">Hello, World!</span></pre>
+    <ol>
+      <li><code>cd module-01</code> — перейти в папку, где лежит <code>HelloWorld.java</code>.</li>
+      <li><code>javac HelloWorld.java</code> — компилятор проверил текст и молча создал рядом <code>HelloWorld.class</code>. Тишина в ответ — значит, ошибок нет.</li>
+      <li><code>java HelloWorld</code> — запустили JVM. Имя класса пишем <b>без</b> <code>.class</code>.</li>
+    </ol>
+    <p>Загляни в дерево проекта: рядом с <code>HelloWorld.java</code> появился <code>HelloWorld.class</code>. IDEA складывает свои <code>.class</code> в папку <code>out</code>, поэтому этот файл лучше убрать за собой:</p>
+<pre class="terminal"><span class="cmd">del HelloWorld.class</span></pre>
+    <details class="predict">
+      <summary>Ты поменял текст в HelloWorld.java и сразу набрал java HelloWorld, без javac. Что выведется?</summary>
+      <p><b>Старый текст.</b> JVM запускает <code>HelloWorld.class</code>, а он остался прежним: перевести новый текст в байт-код может только <code>javac</code>. Кнопка ▶ в IDEA перекомпилирует сама, поэтому там такой ловушки нет.</p>
+    </details>
+    <p>Там же можно попробовать <b>jshell</b> — песочницу Java из того же JDK. Набери <code>jshell</code> и вводи по одной строке: ответ приходит сразу, без класса и <code>main</code>. Выход — <code>/exit</code>.</p>
+<pre class="terminal"><span class="cmd">jshell</span>
+<span class="out">jshell&gt; 2 + 2
+$1 ==&gt; 4
+jshell&gt; /exit</span></pre>
+    <div class="callout tip">
+      <span class="callout-title">Если пишет «javac не распознано»</span>
+      <p>Значит, первая команда не сработала: ты открыл новый терминал или JDK лежит в другой папке. Посмотри на серую первую строку в консоли Run после запуска ▶ — там полный путь к <code>java.exe</code>. Дальше работаем кнопкой ▶, терминал в этом модуле больше не понадобится.</p>
+    </div>
+  </section>
+
   <!-- ШАГ 7 -->
   <section class="step">
     <h2>Микроприёмы: попробуй прямо сейчас</h2>
@@ -170,21 +196,8 @@
         "caption": "До Ctrl+Alt+L: отступы «поехали». После — станет как на скрине выше, в шаге «Точка входа»" }
       </script>
     </div>
-    <h3>Ctrl+Alt+O — убрать лишние импорты</h3>
-    <p>Проведём эксперимент. Добавь в самую первую строку файла <code>import java.util.Scanner;</code> (это «подключение» класса для ввода с клавиатуры — пройдём в модуле 2). Мы его нигде не используем, поэтому IDEA покажет строку <b>серой</b>:</p>
-    <div data-widget="ide" id="shot-imports">
-      <script type="application/json">
-      { "tree": false, "file": "HelloWorld.java", "code": "import java.util.Scanner;\n\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}", "dimLines": [1], "gutterRun": [3, 4],
-        "marks": [ { "n": 1, "target": "line-1", "text": "Серый импорт = «не используется». Удалять руками не нужно: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd> уберёт все лишние импорты сразу" } ],
-        "caption": "Неиспользуемый импорт IDEA рисует серым" }
-      </script>
-    </div>
-    <h3>Ctrl+D и Ctrl+Y — копия строки и удаление строки</h3>
-    <p>Поставь курсор на строку с <code>System.out.println</code> и нажми <kbd>Ctrl</kbd>+<kbd>D</kbd> — строка задублируется. Поменяй текст в копии и запусти: напечатаются две строки. Теперь удали копию: курсор на неё и <kbd>Ctrl</kbd>+<kbd>Y</kbd> (в первый раз выбери <b>Delete Line</b>). Никакого выделения мышкой.</p>
-    <div class="callout warn">
-      <span class="callout-title">Помощники, а не волшебники</span>
-      <p><kbd>Alt</kbd>+<kbd>Enter</kbd> иногда «чинит» не то, что нужно. Прежде чем соглашаться, прочитай, что он предлагает.</p>
-    </div>
+    <h3>Бонус: Ctrl+D и Ctrl+Y — копия строки и удаление строки</h3>
+    <p>Эти два можно не выписывать — просто попробуй. Поставь курсор на строку с <code>System.out.println</code> и нажми <kbd>Ctrl</kbd>+<kbd>D</kbd> — строка задублируется. Поменяй текст в копии и запусти: напечатаются две строки. Теперь удали копию: курсор на неё и <kbd>Ctrl</kbd>+<kbd>Y</kbd>. В первый раз IDEA спросит, что назначить на эти клавиши: «Удалить строку» (<b>Delete Line</b>) или «Повторить» (Redo). Выбери <b>Delete Line</b> — дальше строка будет удаляться одним нажатием, без выделения мышкой.</p>
   </section>
 
   <!-- ШАГ 8 -->
@@ -201,9 +214,9 @@
         "items": [
           { "type": "order", "q": "Расставь шаги по порядку — перетаскивай строки", "lines": ["Правый клик по module-01 → New → Java Class", "Ввести имя класса HelloWorld", "Набрать psvm + Tab, внутри — sout + Tab", "Нажать зелёный треугольник ▶ → Run", "Посмотреть вывод в панели Run внизу"],
             "why": "Создал класс → написал код → запустил → смотришь результат." },
-          { "type": "match", "q": "Сочетание клавиш → что делает",
-            "left": ["Ctrl+Alt+L", "Ctrl+Alt+O", "Ctrl+D", "Ctrl+Y"],
-            "right": ["Выровнять код", "Убрать лишние импорты", "Дублировать строку", "Удалить строку"] },
+          { "type": "match", "q": "Что нажать → что получится",
+            "left": ["psvm + Tab", "sout + Tab", "Ctrl+Shift+F10", "Ctrl+Alt+L"],
+            "right": ["Метод main целиком", "System.out.println();", "Запуск открытой программы", "Выровненный код"] },
           { "type": "bug", "q": "В какой строке ошибка?",
             "code": "public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Привет!\")\n    }\n}",
             "answer": [3], "why": "В конце инструкции не хватает точки с запятой ; — IDEA подчеркнула бы это место красным." },
@@ -221,7 +234,8 @@
         <li>Новый класс: правый клик по <code>module-01</code> → New → Java Class.</li>
         <li>Точка входа — метод <code>main</code> (<code>psvm</code> + Tab), печать — инструкция <code>System.out.println</code> (<code>sout</code> + Tab).</li>
         <li>Запуск — зелёный ▶ или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>; вывод — в панели Run, <code>exit code 0</code> = всё хорошо.</li>
-        <li>Выписанная шпаргалка: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>, <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>, <kbd>Ctrl</kbd>+<kbd>D</kbd>, <kbd>Ctrl</kbd>+<kbd>Y</kbd> — пользуйся каждый день.</li>
+        <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> выравнивает код — нажимай перед тем, как показать решение.</li>
+        <li>Без IDEA то же самое делают две команды: <code>javac HelloWorld.java</code> (компиляция) и <code>java HelloWorld</code> (запуск). Песочница для одной строки — <code>jshell</code>.</li>
       </ul>
     </div>
   </section>

@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 13 · Урок 6</div>
     <h1>Очередь и стек</h1>
     <p class="lead">Очередь в магазине: кто первым пришёл, того первым и обслужили. Стопка тарелок: берёшь ту, что положили последней. Два простых правила — и на них держатся кнопка «Назад» в браузере, Ctrl+Z и обработка заявок.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>📊 ArrayList или LinkedList</span></div>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>🎯 PriorityQueue</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -62,7 +62,11 @@ System.out.println(queue);          // [Борис, Вера]</code></pre>
   <!-- ШАГ 3 -->
   <section class="step">
     <h2>Стек: последним пришёл — первым ушёл</h2>
-    <p><b>Стек</b> работает наоборот — <b>LIFO</b>, Last In, First Out. Как стопка тарелок: кладёшь сверху и берёшь сверху. Ты уже видел стек в модуле 7 — <b>стек вызовов</b> методов устроен именно так. Для стека в Java тоже берут <code>ArrayDeque</code>, только другими методами:</p>
+    <p><b>Стек</b> работает наоборот — <b>LIFO</b>, Last In, First Out. Как стопка тарелок: кладёшь сверху и берёшь сверху. Ты уже видел стек в модуле 7 — <b>стек вызовов</b> методов устроен именно так. Для стека в Java тоже берут <code>ArrayDeque</code>, только другими методами.</p>
+    <p>Одна тонкость: переменную стека объявляют типом не <code>Queue</code>, а <code>Deque</code> («дэк», double-ended queue — <b>двусторонняя очередь</b>). Это интерфейс, который разрешает класть и забирать элементы <b>с обоих концов</b>. У <code>Queue</code> методов <code>push</code> и <code>pop</code> нет, а у <code>Deque</code> есть. <code>ArrayDeque</code> выполняет контракт <code>Deque</code>, поэтому годится и в очередь, и в стек:</p>
+<pre data-file="DequeDemo.java"><code class="java">Queue&lt;String&gt; queue = new ArrayDeque&lt;&gt;();   // нужна очередь: offer, poll, peek
+Deque&lt;String&gt; stack = new ArrayDeque&lt;&gt;();   // нужен стек: push, pop, peek</code></pre>
+    <p>Методы стека:</p>
     <dl class="terms">
       <dt>push(x)</dt><dd>положить на верх стопки.</dd>
       <dt>pop()</dt><dd>снять верхний (удаляется). Стек пуст — <code>NoSuchElementException</code>.</dd>
@@ -161,43 +165,9 @@ System.out.println(pq.peek());   // 3</code></pre>
 
   <!-- ШАГ 5 -->
   <section class="step">
-    <h2>ArrayList или LinkedList?</h2>
-    <p>У списка есть вторая реализация — <code>LinkedList</code> (связный список). Он хранит элементы не в массиве, а «цепочкой»: каждый элемент знает соседей — как вагоны поезда, сцепленные друг с другом. Вставить вагон в середину легко — расцепил, вставил, сцепил. Но чтобы найти десятый вагон, надо пройти от локомотива девять.</p>
-    <figure class="fig">
-      <svg class="wide" viewBox="0 0 720 200" role="img" aria-label="ArrayList: ячейки подряд, доступ по номеру сразу. LinkedList: цепочка узлов, доступ по номеру — проходом от начала">
-        <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
-        </defs>
-        <text x="20" y="28" class="d-title">ArrayList</text>
-        <rect x="140" y="10" width="60" height="34" rx="4" class="d-blue"/><text x="170" y="33" text-anchor="middle" class="d-mono-ink">A</text>
-        <rect x="200" y="10" width="60" height="34" rx="4" class="d-blue"/><text x="230" y="33" text-anchor="middle" class="d-mono-ink">B</text>
-        <rect x="260" y="10" width="60" height="34" rx="4" class="d-blue"/><text x="290" y="33" text-anchor="middle" class="d-mono-ink">C</text>
-        <rect x="320" y="10" width="60" height="34" rx="4" class="d-accent"/><text x="350" y="33" text-anchor="middle" class="d-mono-ink">D</text>
-        <text x="400" y="33" class="d-small">get(3) — сразу в ячейку 3</text>
-
-        <text x="20" y="128" class="d-title">LinkedList</text>
-        <rect x="140" y="108" width="60" height="34" rx="8" class="d-violet"/><text x="170" y="131" text-anchor="middle" class="d-mono-ink">A</text>
-        <rect x="240" y="108" width="60" height="34" rx="8" class="d-violet"/><text x="270" y="131" text-anchor="middle" class="d-mono-ink">B</text>
-        <rect x="340" y="108" width="60" height="34" rx="8" class="d-violet"/><text x="370" y="131" text-anchor="middle" class="d-mono-ink">C</text>
-        <rect x="440" y="108" width="60" height="34" rx="8" class="d-accent"/><text x="470" y="131" text-anchor="middle" class="d-mono-ink">D</text>
-        <path d="M200 125 H236" class="d-arrow"/>
-        <path d="M300 125 H336" class="d-arrow"/>
-        <path d="M400 125 H436" class="d-arrow"/>
-        <text x="320" y="176" text-anchor="middle" class="d-small">get(3) — пройти A → B → C → D по цепочке</text>
-      </svg>
-      <figcaption>Массив — ряд пронумерованных шкафчиков. Связный список — поезд из вагонов.</figcaption>
-    </figure>
-    <div class="table-wrap">
-      <table>
-        <tr><th>Операция</th><th>ArrayList</th><th>LinkedList</th></tr>
-        <tr><td><code>get(i)</code> — взять по номеру</td><td>⚡ мгновенно</td><td>🐢 проход от края</td></tr>
-        <tr><td><code>add(x)</code> — в конец</td><td>⚡ быстро</td><td>⚡ быстро</td></tr>
-        <tr><td>вставка/удаление в начале</td><td>🐢 сдвиг всех элементов</td><td>⚡ быстро</td></tr>
-        <tr><td>вставка/удаление в середине</td><td>🐢 сдвиг хвоста</td><td>🐢 сначала дойти до места</td></tr>
-        <tr><td>память</td><td>компактно</td><td>у каждого элемента ещё две ссылки на соседей</td></tr>
-      </table>
-    </div>
-    <div class="say" data-mood="cool"><p>Практическое правило: <b>список — ArrayList, очередь и стек — ArrayDeque.</b> LinkedList в реальном коде нужен редко: даже там, где он «по теории» быстрее, ArrayList часто выигрывает, потому что процессор любит данные, лежащие подряд. Но на собеседовании таблицу выше спросят обязательно.</p></div>
+    <h2>А LinkedList?</h2>
+    <p>В старых статьях очередь часто делают на <code>LinkedList</code> («связный список»): он тоже выполняет контракт <code>Deque</code>. Работает, но <code>ArrayDeque</code> быстрее и экономнее. Чем LinkedList отличается от ArrayList и зачем он вообще нужен, подробно разберём в уроке <a href="/lessons/m13/12-twins.html">«Сравниваем близнецов»</a>. Пока запомни практическое правило:</p>
+    <div class="say" data-mood="cool"><p><b>Список — ArrayList, очередь и стек — ArrayDeque.</b></p></div>
   </section>
 
   <!-- ШАГ 6 -->
@@ -222,7 +192,7 @@ System.out.println(pq.peek());   // 3</code></pre>
             "why": "poll и peek на пустой очереди мягко возвращают null. Исключение бросают remove() и element() — и pop() у стека." },
           { "type": "tf", "q": "Верно или нет?",
             "statements": [
-              { "s": "LinkedList быстрее ArrayList берёт элемент по номеру get(i)", "a": false, "why": "наоборот: ArrayList прыгает в ячейку сразу, LinkedList идёт по цепочке." },
+              { "s": "Переменной типа Queue можно вызвать push и pop", "a": false, "why": "push и pop объявлены в Deque. Для стека переменную объявляют типом Deque." },
               { "s": "System.out.println(priorityQueue) печатает элементы по возрастанию", "a": false, "why": "гарантирован только минимум в голове. По порядку — только через poll() по одному." },
               { "s": "Для стека сейчас рекомендуют ArrayDeque, а не класс Stack", "a": true }
             ] }
@@ -240,7 +210,7 @@ System.out.println(pq.peek());   // 3</code></pre>
         <li>Стек — LIFO: <code>push</code>, <code>pop</code>, <code>peek</code>. <code>pop</code> на пустом — исключение.</li>
         <li>И очередь, и стек — на <code>ArrayDeque</code>. Класс <code>Stack</code> устарел, <code>null</code> в ArrayDeque класть нельзя.</li>
         <li><code>PriorityQueue</code>: <code>poll</code> отдаёт минимум, печать не отсортирована.</li>
-        <li>ArrayList — быстрый <code>get(i)</code>; LinkedList — быстрые вставки по краям. На практике почти всегда ArrayList.</li>
+        <li>Для стека переменную объявляют типом <code>Deque</code> — двусторонняя очередь, у неё есть <code>push</code>/<code>pop</code>. Правило: список — ArrayList, очередь и стек — ArrayDeque.</li>
       </ul>
     </div>
   </section>

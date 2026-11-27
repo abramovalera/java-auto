@@ -174,7 +174,7 @@
           <tr><td><code>class X is public, should be declared in a file named X.java</code></td><td>класс публичный — файл должен называться X.java</td><td>имя класса и имя файла не совпадают хотя бы одной буквой</td></tr>
           <tr><td><code>unclosed string literal</code></td><td>строковый литерал (текст в кавычках) не закрыт</td><td>забыл закрывающую кавычку <code>"</code></td></tr>
           <tr><td><code>reached end of file while parsing</code></td><td>файл кончился, а разбор ещё нет</td><td>не хватает закрывающей <code>}</code> — Java дошла до конца файла и не нашла, где кончается коробка</td></tr>
-          <tr><td><code>illegal character: '«'</code></td><td>недопустимый символ</td><td>в код попали «ёлочки», «умные» кавычки “ ” или русская буква вместо английской — обычно после копирования из Word или мессенджера</td></tr>
+          <tr><td><code>illegal character: '\u00ab'</code></td><td>недопустимый символ</td><td>в код попали «ёлочки», «умные» кавычки “ ” или другой символ, которого не бывает в коде, — обычно после копирования из Word или мессенджера. Сам символ <code>javac</code> показывает кодом: <code>\u00ab</code> — это «, <code>\u201c</code> — “. Стрелочка <code>^</code> под строкой покажет, где он стоит</td></tr>
           <tr><td><code>class, interface, enum, or record expected</code></td><td>ожидался класс (или похожее)</td><td>лишняя <code>}</code> закрыла класс раньше времени, и код оказался «снаружи коробки»</td></tr>
         </tbody>
       </table>

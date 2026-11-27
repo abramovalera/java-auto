@@ -227,13 +227,13 @@ class CinemaHall {
       </svg>
       <figcaption>Простое правило: «можно ли тут осмысленно что-то сделать?» Да — checked. Нет — unchecked.</figcaption>
     </figure>
-    <p>В современных библиотеках чаще встречается RuntimeException: checked-исключения заставляют писать catch или throws в каждом методе по пути, и код быстро обрастает ими. Например, все исключения Spring, Jackson и JUnit — unchecked. Но для учебной копилки в задаче m12-t06 мы сделаем именно checked: пусть компилятор следит, чтобы «недостаточно денег» всегда обрабатывали.</p>
+    <p>В современных библиотеках чаще встречается RuntimeException: checked-исключения заставляют писать catch или throws в каждом методе по пути, и код быстро обрастает ими. Например, исключения библиотеки Spring — unchecked. Но и checked живы: в популярной библиотеке Jackson 2 (разбор JSON) главное исключение <code>JsonProcessingException</code> — checked, потомок IOException (в Jackson 3 исключения уже сделали unchecked). Для учебной копилки в задаче m12-t06 мы сделаем именно checked: пусть компилятор следит, чтобы «недостаточно денег» всегда обрабатывали.</p>
   </section>
 
   <!-- ШАГ 6 -->
   <section class="step">
     <h2>Сообщения, которые помогают</h2>
-    <p>Сообщение исключения читает человек — часто ночью, в отчёте упавших тестов. Сравни:</p>
+    <p>Сообщение исключения читает человек — часто ночью, в логе упавшего сервера. Сравни:</p>
     <div class="table-wrap">
       <table>
         <tr><th>Плохо</th><th>Хорошо</th></tr>
@@ -243,13 +243,17 @@ class CinemaHall {
       </table>
     </div>
     <p>Хорошее сообщение отвечает на три вопроса: <b>что не так</b>, <b>какое значение пришло</b> и <b>где</b> (какая строка, какой объект). Пиши его по-русски или по-английски, но обязательно с конкретным значением.</p>
-    <p>И ещё один приём из урока 2. Если перехватил «низкоуровневое» исключение и выбрасываешь своё, <b>передай перехваченное как причину</b> вторым аргументом конструктора:</p>
-<pre data-file="SettingsLoader.java"><code class="java">try {
-    return Integer.parseInt(value);
-} catch (NumberFormatException e) {
-    throw new IllegalStateException("Не прочитать настройку: " + line, e);
+    <p>Помнишь trace с <code>Caused by</code> из урока 2? Теперь ты можешь понять, откуда он взялся. Если перехватил «низкоуровневое» исключение и выбрасываешь своё, <b>передай перехваченное как причину</b> вторым аргументом конструктора. Вот тот самый <code>readTimeout</code>, только с заворачиванием:</p>
+<pre data-file="SettingsLoader.java"><code class="java">static int readTimeout(String line) {
+    String value = line.substring(line.indexOf('=') + 1);
+    try {
+        return Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+        throw new IllegalStateException(
+                "Не прочитать настройку: " + line, e);
+    }
 }</code></pre>
-    <p>Тогда в stack trace появится <code>Caused by: java.lang.NumberFormatException…</code>, и корень проблемы не потеряется. У своих исключений для этого делают конструктор <code>(String message, Throwable cause)</code>, который вызывает <code>super(message, cause)</code>. Достать причину в коде — <code>e.getCause()</code>. Это задача <a href="/tasks.html?module=m12">m12-t08 «Исключение с причиной»</a>.</p>
+    <p>catch перехватывает NumberFormatException, а throw выбрасывает вместо него IllegalStateException с понятным сообщением и с <code>e</code> внутри. Тогда в stack trace появится <code>Caused by: java.lang.NumberFormatException…</code>, и корень проблемы не потеряется. У своих исключений для этого делают конструктор <code>(String message, Throwable cause)</code>, который вызывает <code>super(message, cause)</code>. Достать причину в коде — <code>e.getCause()</code>. Это задача <a href="/tasks.html?module=m12">m12-t08 «Исключение с причиной»</a>.</p>
   </section>
 
   <!-- ШАГ 7 -->

@@ -4,7 +4,8 @@
 ## class: CsvAmountSummer
 ## level: 2
 @@ description
-<p>Тестовые данные для проверки платежей хранятся в CSV. Программа читает число <code>N</code>, потом <code>N</code> строк вида <code>id,merchant,amount</code> и записывает файл <code>payments.csv</code>: <b>первой строкой — заголовок</b> <code>id,merchant,amount</code>, дальше — введённые строки.</p>
+<p>Платёжный сервис принимает оплату для разных магазинов и в конце дня выгружает платежи в CSV. Программа читает число <code>N</code>, потом <code>N</code> строк вида <code>id,merchant,amount</code> и записывает файл <code>payments.csv</code>: <b>первой строкой — заголовок</b> <code>id,merchant,amount</code>, дальше — введённые строки.</p>
+<p>Колонки: <code>id</code> — номер платежа; <code>merchant</code> (по-русски говорят «мерчант») — <b>продавец</b>, магазин или кафе, которому заплатили, записанный коротким именем вроде <code>shop-a</code>; <code>amount</code> — сумма в рублях.</p>
 <p>Затем она <b>читает файл</b>, пропускает заголовок и выводит: сколько платежей, их общую сумму и самый крупный платёж (его id, мерчанта и сумму):</p>
 <pre class="terminal"><span class="out">3
 1,shop-a,1000

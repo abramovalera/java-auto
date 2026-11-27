@@ -14,8 +14,8 @@
   <header class="lesson-head" data-mood="think">
     <div class="kicker">Модуль 12 · Головоломки</div>
     <h1>Исключения: что выведется? скомпилируется ли?</h1>
-    <p class="lead">Про finally и return спрашивают почти на каждом собеседовании по Java. Здесь 14 задачек: порядок выполнения, ловушки компилятора и то, что случается только при запуске.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>🧩 14 задачек</span><span>🧠 1 разбор по шагам</span></div>
+    <p class="lead">Про finally и return спрашивают почти на каждом собеседовании по Java. Здесь 16 задачек: порядок выполнения, ловушки компилятора и то, что случается только при запуске.</p>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 16 задачек</span><span>🧠 1 разбор по шагам</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -181,10 +181,18 @@
             "code": "try {\n    System.out.println(\"A\");\n}\nSystem.out.println(\"B\");",
             "options": ["Да, напечатает A и B — catch необязателен", "Нет: try без catch и без finally"], "answer": 1,
             "why": "Одинокий try не бывает: нужен catch, finally или ресурс в скобках." },
-          { "type": "single", "q": "14. С прицелом на тесты. Что будет при запуске?",
+          { "type": "single", "q": "14. Error против Exception. Что будет при запуске?",
             "code": "try {\n    throw new AssertionError(\"ожидали 5, получили 4\");\n} catch (Exception e) {\n    System.out.println(\"Поймали\");\n}\nSystem.out.println(\"Дальше\");",
             "options": ["Поймали, Дальше", "Упадёт с AssertionError", "Ошибка компиляции: AssertionError нельзя выбрасывать вручную"], "answer": 1,
-            "why": "AssertionError — потомок Error, а не Exception. catch (Exception) его не перехватывает, исключение летит дальше и роняет программу. Именно поэтому упавшая проверка в тесте долетает до JUnit." }
+            "why": "AssertionError — потомок Error, а не Exception. catch (Exception) его не перехватывает, исключение летит дальше и роняет программу. Error и Exception — соседние ветки дерева, общий у них только Throwable." },
+          { "type": "single", "q": "15. throws при переопределении. Скомпилируется?",
+            "code": "interface Saver {\n    void save() throws IOException;\n}\n\nclass CloudSaver implements Saver {\n    @Override\n    public void save() throws Exception {\n        System.out.println(\"Сохраняю\");\n    }\n}",
+            "options": ["Да", "Нет: переопределение не может объявить более общее checked-исключение", "Нет: в интерфейсе нельзя писать throws"], "answer": 1,
+            "why": "Exception шире, чем IOException. Код, который работает через Saver, готов только к IOException. Ошибка: overridden method does not throw Exception. Без throws или с throws IOException (или его потомком) — скомпилируется." },
+          { "type": "predict", "q": "16. Два ресурса в одном try. Что выведет? (Класс Door печатает «открыта X» в конструкторе и «закрыта X» в close().)",
+            "code": "try (Door a = new Door(\"A\");\n     Door b = new Door(\"B\")) {\n    System.out.println(\"внутри\");\n}",
+            "answer": "открыта A\nоткрыта B\nвнутри\nзакрыта B\nзакрыта A",
+            "why": "Ресурсы открываются слева направо, а закрываются в обратном порядке: последний открытый — первым." }
         ] }
       </script>
     </div>
@@ -200,6 +208,7 @@
         <li>catch от частного к общему; в multi-catch — не родственники; checked, который не может быть выброшен, перехватывать нельзя.</li>
         <li>Checked без catch и throws, одинокий try, неинициализированная после catch переменная — ошибки компиляции.</li>
         <li>Вызов метода у null компилируется, но падает с NPE. AssertionError — Error, catch (Exception) его не перехватывает.</li>
+        <li>Переопределение не может добавить новое или более общее checked-исключение в throws. Ресурсы в одном try закрываются в обратном порядке.</li>
       </ul>
     </div>
   </section>

@@ -58,6 +58,10 @@ barsik.describe();       // null, 5 г.</code></pre>
   <!-- ШАГ 3 -->
   <section class="step">
     <h2>Конструктор: что делать при new</h2>
+    <div class="callout tip">
+      <span class="callout-title">Куда писать</span>
+      <p>Допиши конструктор в <b>свой</b> <code>Cat.java</code> — между полями и методами. Второй класс <code>Cat</code> не создавай. Как только конструктор появится, в <code>CatDemo.java</code> покраснеют строки <code>new Cat()</code> — почему, разберём в шаге 6. Пока просто замени их на <code>new Cat("Мурзик", 3)</code>, как в примере ниже, а строки <code>murzik.name = …</code> и <code>murzik.age = …</code> удали: теперь это делает конструктор.</p>
+    </div>
 <pre data-file="Cat.java"><code class="java">public class Cat {
     String name;
     int age;
@@ -217,6 +221,29 @@ Cat(String name) {
     <p>Компилятор говорит прямо: конструктор просит <code>String,int</code>, а ты не передал ничего. Чинится двумя способами: передать аргументы или самому дописать конструктор без параметров, если «пустой» объект действительно имеет смысл.</p>
   </section>
 
+  <!-- ШАГ 6Б -->
+  <section class="step">
+    <h2>Метод, который возвращает новый объект</h2>
+    <p>Метод может не только вернуть число или строку, но и <b>создать объект и вернуть ссылку на него</b>. Тогда тип возвращаемого значения — имя класса. Пусть кошка «приносит» котёнка — допиши в свой <code>Cat.java</code>:</p>
+<pre data-file="Cat.java"><code class="java">Cat makeKitten(String kittenName) {     // возвращает объект Cat
+    return new Cat(kittenName, 0);       // создаём и сразу отдаём ссылку
+}</code></pre>
+<pre data-file="CatDemo.java"><code class="java">Cat murzik = new Cat("Мурзик", 3);
+Cat baby = murzik.makeKitten("Пушок");
+baby.describe();     // Пушок, 0 г.
+murzik.describe();   // Мурзик, 3 г. — сам Мурзик не изменился</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Cat makeKitten(…)</code><div><p>Тип возвращаемого значения — <code>Cat</code>: метод обещает вернуть ссылку на объект класса <code>Cat</code>.</p></div></div>
+      <div class="annot-row"><code>return new Cat(kittenName, 0);</code><div><p>Внутри метода оператор <code>new</code> создаёт объект в куче, конструктор заполняет поля, а <code>return</code> возвращает ссылку на него тому, кто вызвал метод.</p></div></div>
+      <div class="annot-row"><code>Cat baby = murzik.makeKitten("Пушок");</code><div><p>Вызываем метод <code>makeKitten</code> у объекта <code>murzik</code> и инициализируем переменную <code>baby</code> возвращённой ссылкой. Локальные переменные метода исчезли вместе с его фреймом, а объект в куче остался — на него теперь указывает <code>baby</code>.</p></div></div>
+    </div>
+    <p>Ты уже пользовался такими методами: <code>name.toUpperCase()</code> не меняет строку <code>name</code>, а <b>возвращает новую</b> строку. Так же работают <code>trim()</code> и <code>replace(…)</code> из модуля 8.</p>
+    <details class="predict">
+      <summary>Предскажи: сколько всего объектов <code>Cat</code> будет после этих строк? <code>Cat murzik = new Cat("Мурзик", 3); Cat a = murzik.makeKitten("A"); Cat b = a;</code></summary>
+      <p><b>Два.</b> Первый — Мурзик (<code>new</code> в main), второй — котёнок «A» (<code>new</code> внутри makeKitten). Строка <code>Cat b = a;</code> нового объекта не создаёт: копируется ссылка, и <code>a</code> с <code>b</code> указывают на одного котёнка.</p>
+    </details>
+  </section>
+
   <!-- ШАГ 7 -->
   <section class="step">
     <h2>Ловушки и хорошие привычки</h2>
@@ -354,6 +381,7 @@ Cat(String name) {
         <li><code>new</code>: память (поля 0/null) → инициализаторы полей → тело конструктора → ссылка в переменную.</li>
         <li>Конструкторы можно перегружать; <code>this(...)</code> первой строкой вызывает другой конструктор этого класса.</li>
         <li>Нет своих конструкторов — Java добавит пустой. Написал свой — пустой исчез.</li>
+        <li>Метод может создать объект и вернуть ссылку на него: <code>Cat makeKitten(…) { return new Cat(…); }</code>.</li>
         <li>Ловушки: <code>void</code> перед конструктором и <code>name = name</code> без this. Хорошая привычка — проверять данные в конструкторе.</li>
       </ul>
     </div>

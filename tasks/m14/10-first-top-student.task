@@ -10,8 +10,8 @@
 
 ввод:  95
        Аня:72 Борис:91 Вика:95     →  вывод: Не найден</span></pre>
-<p>Опиши студента record'ом внутри своего класса: <code>record GradedStudent(String name, int score) { }</code>. <code>findFirst()</code> вернёт <code>Optional&lt;GradedStudent&gt;</code>. Достань из него ответ «правильно»: через <code>map</code> + <code>orElse</code> (или <code>isPresent</code>/<code>ifPresentOrElse</code>). Вызов <code>get()</code> без проверки здесь <b>запрещён</b> — именно так в реальном коде появляется <code>NoSuchElementException</code>. Циклы тоже запрещены.</p>
-<p>📖 <a href="/lessons/m14/06-optional.html">Optional: вместо null</a></p>
+<p>Опиши студента record'ом внутри своего класса: <code>record GradedStudent(String name, int score) { }</code>. Строку со студентами разбери в поток record-ов так же, как в уроке 14.4 (шаг «Строка «имя:число» → record»). <code>findFirst()</code> вернёт <code>Optional&lt;GradedStudent&gt;</code>. Достань из него ответ «правильно»: через <code>map</code> + <code>orElse</code> (или <code>isPresent</code>/<code>ifPresentOrElse</code>). Вызов <code>get()</code> без проверки здесь <b>запрещён</b> — именно так в реальном коде появляется <code>NoSuchElementException</code>. Циклы тоже запрещены.</p>
+<p>📖 <a href="/lessons/m14/06-optional.html">Optional: вместо null</a> · <a href="/lessons/m14/04-stream-pipeline.html">Строка «имя:число» → record</a></p>
 @@ test: Нашёлся не самый сильный, а первый
 @@ input
 80

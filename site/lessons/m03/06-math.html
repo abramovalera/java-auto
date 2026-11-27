@@ -80,8 +80,14 @@ int power2 = (int) Math.pow(2, 10);   // так можно: 1024
 int r = Math.round(2.7);              // ошибка компиляции!
 long r2 = Math.round(2.7);            // так можно: 3
 int r3 = (int) Math.round(2.7);       // и так: 3</code></pre>
-<pre class="terminal"><span class="err">Traps.java:1: error: incompatible types: possible lossy conversion from double to int</span></pre>
-    <p>Это текст <code>javac</code> (его покажет проверка на сайте). А в IDEA обе ошибки видны прямо в редакторе, ещё до запуска:</p>
+<pre class="terminal"><span class="err">Traps.java:3: error: incompatible types: possible lossy conversion from double to int
+        int power = Math.pow(2, 10);
+                            ^
+Traps.java:6: error: incompatible types: possible lossy conversion from long to int
+        int r = Math.round(2.7);
+                          ^
+2 errors</span></pre>
+    <p>Это текст <code>javac</code> (его покажет проверка на сайте). Число после двоеточия — номер строки в целом файле: в полном файле ниже (с <code>class</code> и <code>main</code>) это строки 3 и 6. А в IDEA обе ошибки видны прямо в редакторе, ещё до запуска:</p>
     <div data-widget="ide" id="shot-math-types">
       <script type="application/json">
       { "tree": false, "file": "Traps.java", "gutterRun": [1, 2],
@@ -209,6 +215,20 @@ boolean close = Math.abs(0.1 + 0.2 - 0.3) &lt; 1e-9;  // true — помнишь
       <summary>А что даст int dice = (int) Math.random() * 6 + 1; — без внутренних скобок?</summary>
       <p><b>Всегда 1!</b> Приведение типа — унарный оператор, он главнее умножения (урок 3.5). Значит, сначала <code>(int) Math.random()</code> — а число от 0 до 0.999 после отрезания дроби всегда 0. Дальше 0 * 6 + 1 = 1. Кубик, который никогда не врёт 🙂</p>
     </details>
+    <h3>Общая формула: случайное целое от min до max</h3>
+    <p>У кубика min = 1, max = 6. А если нужно от 10 до 20? Или от −5 до 5? Формула одна:</p>
+<pre data-file="RandomRange.java"><code class="java">int min = 10;
+int max = 20;
+int n = (int) (Math.random() * (max - min + 1)) + min;   // от 10 до 20 включительно</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>max - min + 1</code><div><p>Сколько всего вариантов. От 10 до 20 — это <b>11</b> чисел (10, 11, …, 20), а не 10: +1 нужен, чтобы max тоже мог выпасть. У кубика: 6 − 1 + 1 = 6.</p></div></div>
+      <div class="annot-row"><code>(int) (Math.random() * 11)</code><div><p>Растянули и отрезали дробь: целое от 0 до 10.</p></div></div>
+      <div class="annot-row"><code>… + min</code><div><p>Сдвинули: от 0 + 10 = 10 до 10 + 10 = 20.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Какой диапазон даст (int) (Math.random() * (max - min)) + min для min = 1, max = 6 — без «+ 1»?</summary>
+      <p><b>От 1 до 5.</b> Вариантов получилось 6 − 1 = 5: <code>(int) (Math.random() * 5)</code> даёт 0…4, плюс 1 — это 1…5. Шестёрка не выпадет никогда. Забытая «+ 1» — самая частая ошибка в этой формуле. Проверяй формулу на крайних значениях: может ли выпасть min? А max?</p>
+    </details>
     <div class="callout fact">
       <span class="callout-title">Случайность и повторяемость</span>
       <p>Случайные числа помогают делать уникальные данные: например, промокод <code>"SALE" + (int) (Math.random() * 100000)</code> для покупателя. Но случайность мешает искать ошибки: если программа сломалась на одном случайном числе, при следующем запуске выпадет другое. Поэтому случайное значение обязательно печатают в лог — чтобы ошибку можно было повторить.</p>
@@ -218,7 +238,7 @@ boolean close = Math.abs(0.1 + 0.2 - 0.3) &lt; 1e-9;  // true — помнишь
       <ul>
         <li><code>Math.round(-2.5)</code> → <code>-2</code>, а не −3: round округляет «половинку» всегда в сторону большего числа (вправо по прямой).</li>
         <li><code>Math.sqrt(-1)</code> → <code>NaN</code>: корня из отрицательного числа нет, но программа не падает (как и с делением double на ноль).</li>
-        <li><code>Math.abs(-2147483648)</code> → <code>-2147483648</code>: у самого маленького int нет «положительной пары» — она не помещается в int, и происходит переполнение.</li>
+        <li><code>Math.abs(Integer.MIN_VALUE)</code> → <code>-2147483648</code>: <code>Integer.MIN_VALUE</code> — самое маленькое int (пара к <code>Integer.MAX_VALUE</code> из модуля 2). У него нет «положительной пары» — 2147483648 не помещается в int, и происходит переполнение.</li>
         <li><code>Math.floorMod(-7, 3)</code> → <code>2</code>, хотя <code>-7 % 3</code> → <code>-1</code>. floorMod всегда даёт неотрицательный остаток (для положительного делителя) — удобно для «часов», которые крутятся назад.</li>
       </ul>
     </details>
@@ -278,6 +298,17 @@ boolean close = Math.abs(0.1 + 0.2 - 0.3) &lt; 1e-9;  // true — помнишь
          "why": "Сначала растянуть (* 6), потом отрезать дробь (int), потом +1. Без скобок (int) срабатывает первым и всегда даёт 0."
         },
         {
+         "type": "single",
+         "q": "Нужно случайное целое от 5 до 15 включительно. Какая формула верна?",
+         "options": [
+          "<code>(int) (Math.random() * 10) + 5</code>",
+          "<code>(int) (Math.random() * 11) + 5</code>",
+          "<code>(int) (Math.random() * 15) + 5</code>"
+         ],
+         "answer": 1,
+         "why": "Вариантов max - min + 1 = 15 - 5 + 1 = 11. С * 10 выйдет 5…14 (15 не выпадет), с * 15 — 5…19."
+        },
+        {
          "type": "tf",
          "q": "Верно или нет?",
          "statements": [
@@ -311,7 +342,7 @@ boolean close = Math.abs(0.1 + 0.2 - 0.3) &lt; 1e-9;  // true — помнишь
         <li><code>Math.имя(аргументы)</code> — вызов готового метода: передаём аргументы, метод возвращает результат. Импорт не нужен.</li>
         <li><code>pow, sqrt, floor, ceil</code> → double; <code>round</code> → long; <code>abs, max, min</code> → тот же тип.</li>
         <li>До сотых: <code>Math.round(x * 100) / 100.0</code>. Вверх: <code>ceil</code>, вниз: <code>floor</code>, к нулю: <code>(int)</code>.</li>
-        <li>Кубик: <code>(int) (Math.random() * 6) + 1</code> — скобки обязательны.</li>
+        <li>Кубик: <code>(int) (Math.random() * 6) + 1</code> — скобки обязательны. В общем виде, от min до max включительно: <code>(int) (Math.random() * (max - min + 1)) + min</code>.</li>
       </ul>
     </div>
   </section>

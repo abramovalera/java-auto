@@ -8,7 +8,7 @@
 <p>Сделай в файле <code>OrderLineLoader.java</code>:</p>
 <ul>
   <li><code>class OrderLineRejectedException extends RuntimeException</code> с двумя конструкторами: <code>(String message)</code> и <code>(String message, Throwable cause)</code> — оба передают всё в <code>super</code>.</li>
-  <li>Метод <code>static int parseQuantity(String line, int lineNumber)</code>. Строка имеет вид <code>товар;количество</code>, количество — всё после <code>;</code> без пробелов по краям. Не число → поймай <code>NumberFormatException e</code> и выброси <code>new OrderLineRejectedException("строка 2: плохое количество", e)</code>. Число ≤ 0 → <code>OrderLineRejectedException("строка 3: количество должно быть больше нуля")</code> без причины.</li>
+  <li>Метод <code>static int parseQuantity(String line, int lineNumber)</code>. Строка имеет вид <code>товар;количество</code>, количество — всё после <code>;</code> без пробелов по краям. Не число → поймай <code>NumberFormatException e</code> и выброси <code>new OrderLineRejectedException("строка " + lineNumber + ": плохое количество", e)</code>. Число ≤ 0 → <code>new OrderLineRejectedException("строка " + lineNumber + ": количество должно быть больше нуля")</code> без причины. Номер строки не пиши числом — бери из параметра <code>lineNumber</code>: в примере ниже это «строка 2», но в тестах будут и другие.</li>
   <li><code>main</code>: N, потом N строк. Суммируй количество хороших строк. На плохую печатай <code>Ошибка: </code> + сообщение, а если у исключения есть причина (<code>e.getCause() != null</code>) — ещё строку из двух пробелов, слова <code>причина: </code>, короткого имени класса причины и её сообщения.</li>
 </ul>
 <pre class="terminal"><span class="out">ввод: 3          вывод: Ошибка: строка 2: плохое количество
@@ -16,7 +16,7 @@
 молоко;пять             Всего товаров: 3, отклонено строк: 1
 сыр;1</span></pre>
 <p>Короткое имя класса любого объекта: <code>cause.getClass().getSimpleName()</code>. Сообщение <code>For input string: "пять"</code> придумала не ты — его пишет сам <code>Integer.parseInt</code>.</p>
-<p>📖 <a href="/lessons/m12/02-stack-trace.html">Caused by в stack trace</a> · <a href="/lessons/m12/07-good-practices.html">Хорошие практики: сохраняй причину</a></p>
+<p>📖 <a href="/lessons/m12/02-stack-trace.html">Caused by в stack trace</a> · <a href="/lessons/m12/06-throw-custom.html">Заворачиваем исключение с причиной</a> · <a href="/lessons/m12/07-good-practices.html">Хорошие практики: сохраняй причину</a></p>
 @@ test: Пример из условия
 @@ input
 3

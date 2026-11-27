@@ -119,6 +119,7 @@ Kitchen.cookAll(new String[]{"margherita", "burnt-pepperoni"}, new ConsoleListen
     <p>Массив чисел или строк отсортировать просто — <code>Arrays.sort(arr)</code> из модуля 6. А как отсортировать массив игроков? По очкам? По имени? По убыванию или по возрастанию? Java угадать не может. Метод сортировки говорит: «Сортировать я умею. Ты только скажи, <b>как сравнить двоих</b>».</p>
     <p>Для этого в JDK есть интерфейс <code>java.util.Comparator</code> с одним главным методом:</p>
 <pre data-file="Comparator.java"><code class="java">int compare(T a, T b);</code></pre>
+    <p>Что за <code>T</code>? Это <b>место для типа</b>. Авторы JDK не знали, что ты будешь сравнивать — игроков, заказы или книги, — поэтому оставили пустое место. Ты заполняешь его сам, когда пишешь <code>Comparator&lt;Player&gt;</code>: вместо <code>T</code> подставится <code>Player</code>, и метод станет <code>int compare(Player a, Player b)</code>.</p>
     <figure class="fig">
       <svg class="wide" viewBox="0 0 720 170" role="img" aria-label="Правило compare: минус значит a раньше, ноль — равны, плюс — b раньше">
         <rect x="20" y="20" width="210" height="130" rx="14" class="d-green"/>
@@ -172,7 +173,7 @@ public class Ranking {
     }
 }</code></pre>
     <div class="annot">
-      <div class="annot-row"><code>Comparator&lt;Player&gt;</code><div><p>В угловых скобках — <b>параметр типа</b>: тип объектов, которые этот компаратор сравнивает. Благодаря этому параметры <code>compare</code> сразу имеют тип <code>Player</code>. Угловые скобки называются <b>generics</b>, подробно — в модуле 13.</p></div></div>
+      <div class="annot-row"><code>Comparator&lt;Player&gt;</code><div><p>Читается «компаратор игроков». В угловых скобках — <b>параметр типа</b>: тип объектов, которые этот компаратор сравнивает. Как надпись на коробке «только игроки»: благодаря ей параметры <code>compare</code> сразу имеют тип <code>Player</code>, и внутри можно писать <code>a.score</code>. Такие угловые скобки называются <b>generics</b> (обобщения). Подробно — в модуле 13, а пока правило одно: в скобках пиши класс, объекты которого сортируешь.</p></div></div>
       <div class="annot-row"><code>Integer.compare(x, y)</code><div><p>Готовый судья для чисел: минус, если <code>x &lt; y</code>, ноль, если равны, плюс, если больше. Для строк — <code>s1.compareTo(s2)</code> (по алфавиту).</p></div></div>
       <div class="annot-row"><code>Arrays.sort(players, new ByScoreDesc())</code><div><p>Создаём объект <code>ByScoreDesc</code> и передаём его аргументом. Метод <code>sort</code> сам много раз вызывает у него <code>compare</code> — это и есть обратный вызов.</p></div></div>
     </div>
@@ -193,26 +194,69 @@ public class Ranking {
     <details class="curious">
       <summary>🔎 Для любопытных: почему не <code>return a.score - b.score</code>?</summary>
       <p>Так пишут часто, и для маленьких чисел это работает. Но при больших значениях вычитание может <b>переполнить int</b> (модуль 2): разница огромного положительного и огромного отрицательного числа «перевалит» через максимум и станет отрицательной. Сортировка молча сломается. <code>Integer.compare</code> такой ошибки не делает.</p>
-      <p>А если вызвать <code>Arrays.sort(players)</code> без компаратора, программа скомпилируется, но упадёт при запуске: <code>ClassCastException: Player cannot be cast to class java.lang.Comparable</code>. Сортировка без судьи ищет у объектов «встроенный» порядок — интерфейс <code>Comparable</code>, — а у Player его нет.</p>
     </details>
+    <div class="callout tip">
+      <span class="callout-title">Comparator или Comparable — не перепутай</span>
+      <p>Слова похожи, роли разные. <code>Comparable</code> («сравнимый») — объект <b>сам</b> знает свой порядок: у строк и чисел он встроен, поэтому <code>Arrays.sort(words)</code> работает без судьи. <code>Comparator</code> («сравниватель») — <b>судья со стороны</b>: его передают в <code>sort</code> вторым аргументом, и для одного класса судей можно сделать сколько угодно — по очкам, по имени. У нашего <code>Player</code> встроенного порядка нет, поэтому <code>Arrays.sort(players)</code> без судьи упадёт при запуске с <code>ClassCastException</code>. Свой <code>Comparable</code> научимся писать в уроке 13.7.</p>
+    </div>
   </section>
 
   <!-- ШАГ 4 -->
   <section class="step">
-    <h2>Анонимный класс: судья «на месте»</h2>
-    <p>Заводить отдельный класс ради одного сравнения — многовато. Java позволяет создать объект класса <b>без имени</b> — <b>анонимного класса</b> — прямо там, где он нужен:</p>
+    <h2>Runnable: «вот что сделать»</h2>
+    <p>Ещё один знаменитый интерфейс JDK — <code>java.lang.Runnable</code>. В нём один абстрактный метод без параметров и без возвращаемого значения: <code>void run()</code>. Это просто «кусок работы, который можно выполнить позже». Импортировать его не нужно — он из <code>java.lang</code>, как <code>String</code>. И угловых скобок у него нет: <code>run()</code> ничего не принимает и не возвращает, подставлять тип некуда.</p>
+<pre data-file="Retry.java"><code class="java">class CallPizzeria implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("Звоню в пиццерию");
+    }
+}
+
+public class Retry {
+    static void repeat(int times, Runnable action) {
+        for (int i = 1; i &lt;= times; i++) {
+            System.out.print(i + ": ");
+            action.run();  // выполняем то, что передали
+        }
+    }
+
+    public static void main(String[] args) {
+        repeat(3, new CallPizzeria());
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">1: Звоню в пиццерию
+2: Звоню в пиццерию
+3: Звоню в пиццерию</span></pre>
+    <p>Метод <code>repeat</code> умеет повторять <b>что угодно</b>: звонить, отправлять сообщение, мигать лампочкой. Что именно — передают снаружи аргументом: объект класса, который реализует <code>Runnable</code>. Так делают «повтори действие, пока не получится» (например, переподключиться к интернету) и «выполни через минуту», а в модуле 16 <code>Runnable</code> станет работой для отдельного потока.</p>
+    <details class="predict">
+      <summary>Предскажи: что напечатает <code>repeat(0, new CallPizzeria())</code>?</summary>
+      <p>Ничего. Цикл не выполнится ни разу, и <code>run()</code> никто не вызовет. Передать поведение ≠ выполнить его: выполняет тот, кому передали, и тогда, когда сам решит.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Анонимный класс: объект «на месте»</h2>
+    <p>Заводить отдельный класс ради одной строки — многовато: <code>CallPizzeria</code>, <code>ByScoreDesc</code>… Java позволяет создать объект класса <b>без имени</b> — <b>анонимного класса</b> — прямо там, где он нужен. Сначала на простом <code>Runnable</code>: тот же звонок, но без <code>CallPizzeria</code>:</p>
+<pre data-file="Retry.java"><code class="java">repeat(3, new Runnable() {
+    @Override
+    public void run() {
+        System.out.println("Звоню в пиццерию");
+    }
+});</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>new Runnable() {</code><div><p>«Создай объект безымянного класса, который реализует <code>Runnable</code>». Сразу после скобок <code>()</code> открывается тело этого класса.</p></div></div>
+      <div class="annot-row"><code>public void run() { … }</code><div><p>Внутри — реализация метода интерфейса, как в обычном классе.</p></div></div>
+      <div class="annot-row"><code>});</code><div><p><code>}</code> закрывает тело класса, <code>)</code> — вызов <code>repeat</code>, <code>;</code> — инструкцию. Эта тройка часто путает новичков.</p></div></div>
+    </div>
+    <div class="say" data-mood="think"><p>Обрати внимание: <code>new Runnable()</code> — это не создание объекта интерфейса (так нельзя!). Это создание объекта <b>нового безымянного класса</b>, который интерфейс реализует. Компилятор даже сделает для него файл вроде <code>Retry$1.class</code>.</p></div>
+    <p>С компаратором — точно так же, только после имени интерфейса, как и раньше, угловые скобки с типом:</p>
 <pre data-file="Ranking.java"><code class="java">Arrays.sort(players, new Comparator&lt;Player&gt;() {
     @Override
     public int compare(Player a, Player b) {
         return a.name.compareTo(b.name);            // по алфавиту
     }
 });</code></pre>
-    <div class="annot">
-      <div class="annot-row"><code>new Comparator&lt;Player&gt;() {</code><div><p>«Создай объект безымянного класса, который реализует <code>Comparator&lt;Player&gt;</code>». Сразу после скобок открывается тело этого класса.</p></div></div>
-      <div class="annot-row"><code>public int compare(…) { … }</code><div><p>Внутри — реализация метода интерфейса, как в обычном классе.</p></div></div>
-      <div class="annot-row"><code>});</code><div><p><code>}</code> закрывает тело класса, <code>)</code> — вызов <code>sort</code>, <code>;</code> — инструкцию. Эта тройка часто путает новичков.</p></div></div>
-    </div>
-    <div class="say" data-mood="think"><p>Обрати внимание: <code>new Comparator</code> — это не создание объекта интерфейса (так нельзя!). Это создание объекта <b>нового безымянного класса</b>, который интерфейс реализует. Компилятор даже сделает для него файл вроде <code>Ranking$1.class</code>.</p></div>
     <p>Собери анонимный компаратор «по очкам по возрастанию»:</p>
     <div data-widget="parsons" id="anon-parsons" data-code data-title="Анонимный компаратор" data-icon="🧩"
          data-hint="Снаружи вызов sort, внутри — безымянный класс, в нём — метод compare."
@@ -228,38 +272,10 @@ Arrays.sort(players, new Comparator<Player>() {
     </div>
   </section>
 
-  <!-- ШАГ 5 -->
-  <section class="step">
-    <h2>Runnable: «вот что сделать»</h2>
-    <p>Ещё один знаменитый интерфейс JDK — <code>java.lang.Runnable</code>. В нём один абстрактный метод без параметров и без возвращаемого значения: <code>void run()</code>. Это просто «кусок работы, который можно выполнить позже». Импортировать его не нужно — он из <code>java.lang</code>, как <code>String</code>.</p>
-<pre data-file="Retry.java"><code class="java">static void repeat(int times, Runnable action) {
-    for (int i = 1; i &lt;= times; i++) {
-        System.out.print(i + ": ");
-        action.run();  // выполняем то, что передали
-    }
-}
-
-// в main:
-repeat(3, new Runnable() {
-    @Override
-    public void run() {
-        System.out.println("Звоню в пиццерию");
-    }
-});</code></pre>
-<pre class="terminal"><span class="out">1: Звоню в пиццерию
-2: Звоню в пиццерию
-3: Звоню в пиццерию</span></pre>
-    <p>Метод <code>repeat</code> умеет повторять <b>что угодно</b>: звонить, отправлять сообщение, мигать лампочкой. Что именно — передают снаружи аргументом: объект класса, который реализует <code>Runnable</code>. Так делают «повтори действие, пока не получится» (например, переподключиться к интернету) и «выполни через минуту», а в модуле 16 <code>Runnable</code> станет работой для отдельного потока.</p>
-    <details class="predict">
-      <summary>Предскажи: что напечатает <code>repeat(0, …)</code>?</summary>
-      <p>Ничего. Цикл не выполнится ни разу, и <code>run()</code> никто не вызовет. Передать поведение ≠ выполнить его: выполняет тот, кому передали, и тогда, когда сам решит.</p>
-    </details>
-  </section>
-
   <!-- ШАГ 6 -->
   <section class="step">
     <h2>Мостик к лямбдам</h2>
-    <p>Заметил общее у <code>TestListener</code>, <code>Comparator</code> и <code>Runnable</code>? В каждом <b>один</b> абстрактный метод. Такие интерфейсы называют <b>функциональными</b>: объект класса, который реализует такой интерфейс, — по сути «одна функция, завёрнутая в объект».</p>
+    <p>Заметил общее у <code>OrderListener</code>, <code>Comparator</code> и <code>Runnable</code>? В каждом <b>один</b> абстрактный метод. Такие интерфейсы называют <b>функциональными</b>: объект класса, который реализует такой интерфейс, — по сути «одна функция, завёрнутая в объект».</p>
     <p>Анонимный класс для одной функции — это 5 строк, из которых важна одна. В модуле 14 ты узнаешь короткую запись — <b>лямбду</b>. Просто посмотри, писать так пока не нужно:</p>
 <pre data-file="Preview.java"><code class="java">// сейчас:
 Arrays.sort(players, new Comparator&lt;Player&gt;() {
@@ -345,6 +361,11 @@ Arrays.sort(players, (a, b) -&gt; Integer.compare(b.score, a.score));</code></pr
            "a": true
           },
           {
+           "s": "Comparator — это встроенный порядок самого объекта, как у строк",
+           "a": false,
+           "why": "встроенный порядок — это Comparable. Comparator — отдельный судья, которого передают в sort."
+          },
+          {
            "s": "Передать Runnable в метод — значит сразу выполнить его",
            "a": false,
            "why": "выполнит тот, кому передали, — когда вызовет run(). Может и ни разу."
@@ -365,8 +386,9 @@ Arrays.sort(players, (a, b) -&gt; Integer.compare(b.score, a.score));</code></pr
         <li>Обратный вызов: передаёшь в метод аргументом объект класса, реализующего интерфейс, а метод в нужный момент вызывает у него метод интерфейса.</li>
         <li><code>Comparator&lt;T&gt;</code>: <code>int compare(a, b)</code> — минус, ноль или плюс. <code>Arrays.sort(arr, компаратор)</code>.</li>
         <li><code>Integer.compare(x, y)</code> для чисел, <code>s1.compareTo(s2)</code> для строк; переставь аргументы — получишь обратный порядок.</li>
-        <li>Анонимный класс <code>new Интерфейс() { … }</code> — объект безымянного класса прямо на месте.</li>
-        <li><code>Runnable</code> — «работа на потом»: <code>void run()</code>. Интерфейсы с одним методом — функциональные, в модуле 14 их заменят лямбды.</li>
+        <li><code>Comparable</code> — встроенный порядок самого объекта, <code>Comparator</code> — судья со стороны, его передают в <code>sort</code>.</li>
+        <li><code>Runnable</code> — «работа на потом»: <code>void run()</code>.</li>
+        <li>Анонимный класс <code>new Интерфейс() { … }</code> — объект безымянного класса прямо на месте. Интерфейсы с одним методом — функциональные, в модуле 14 анонимные классы для них заменят лямбды.</li>
       </ul>
     </div>
   </section>

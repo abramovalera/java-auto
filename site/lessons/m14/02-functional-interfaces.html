@@ -171,6 +171,37 @@ System.out.println(trim.andThen(length).apply("  OK  "));  // 2</code></pre>
     </details>
   </section>
 
+  <!-- ШАГ 4б -->
+  <section class="step">
+    <h2>Метод, который возвращает лямбду</h2>
+    <p><code>and</code> и <code>negate</code> возвращают новое правило. Так умеет и твой собственный метод: тип возвращаемого значения — функциональный интерфейс, а после <code>return</code> — лямбда-выражение. Получается «фабрика правил»: передаёшь настройку, получаешь готовое правило.</p>
+<pre data-file="RuleFactory.java"><code class="java">import java.util.function.Predicate;
+
+public class RuleFactory {
+    // метод возвращает правило «цена меньше limit»
+    static Predicate&lt;Integer&gt; cheaperThan(int limit) {
+        return price -&gt; price &lt; limit;
+    }
+
+    public static void main(String[] args) {
+        Predicate&lt;Integer&gt; under500 = cheaperThan(500);
+        Predicate&lt;Integer&gt; under100 = cheaperThan(100);
+
+        System.out.println(under500.test(300));  // true
+        System.out.println(under100.test(300));  // false
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>static Predicate&lt;Integer&gt; cheaperThan(int limit)</code><div><p>Объявление метода: тип возвращаемого значения — <code>Predicate&lt;Integer&gt;</code>, то есть метод возвращает не число и не строку, а <b>правило</b>.</p></div></div>
+      <div class="annot-row"><code>return price -&gt; price &lt; limit;</code><div><p>Метод возвращает лямбда-выражение. Оно «захватило» параметр <code>limit</code> (он effectively final — его никто не меняет), поэтому каждое правило помнит своё число.</p></div></div>
+      <div class="annot-row"><code>cheaperThan(500)</code><div><p>Вызов метода с аргументом 500 возвращает правило — им инициализируем переменную <code>under500</code>. Проверка цены случится позже, при вызове <code>test</code>.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Что выведет <code>System.out.println(cheaperThan(10).negate().test(10));</code>?</summary>
+      <p><code>true</code>. <code>cheaperThan(10)</code> — правило «меньше 10», для 10 оно даёт <code>false</code>. <code>negate()</code> переворачивает ответ: <code>true</code>.</p>
+    </details>
+  </section>
+
   <!-- ШАГ 5 -->
   <section class="step">
     <h2>Коллекции уже умеют принимать лямбды</h2>
@@ -208,35 +239,23 @@ List&lt;Student&gt; students = new ArrayList&lt;&gt;(List.of(
 
 students.sort(Comparator.comparing(s -&gt; s.name()));     // по имени
 System.out.println(students.get(0).name());              // Аня</code></pre>
-    <p>А если нужно по двум полям — «по баллу от большего, при равенстве по имени»? Тут лямбды в длинной цепочке вызовов начинают мешать компилятору (подробности — ниже), поэтому пишут <b>ссылки на методы</b> <code>Student::score</code> — это та же лямбда <code>s -&gt; s.score()</code>, только короче. Подробно разберём их в следующем уроке, а пока просто прочитай:</p>
-<pre data-file="SortStudents.java"><code class="java">students.sort(Comparator.comparing(Student::score).reversed()
-        .thenComparing(Student::name));
+    <p>А если нужно «по баллу <b>от большего</b>, при равенстве — по имени»? Собираем компаратор по кусочкам. Каждый кусочек — вызов метода, который возвращает <b>новый</b> компаратор (как <code>and</code> и <code>negate</code> выше):</p>
+<pre data-file="SortStudents.java"><code class="java">Comparator&lt;Student&gt; byScore = Comparator.comparing(s -&gt; s.score());
+
+students.sort(byScore.reversed()
+        .thenComparing(s -&gt; s.name()));
 
 students.forEach(s -&gt; System.out.println(s.name() + " " + s.score()));</code></pre>
 <pre class="terminal"><span class="out">Борис 90
 Вика 90
 Аня 75</span></pre>
     <div class="annot">
-      <div class="annot-row"><code>Comparator.comparing(Student::score)</code><div><p>Вызов статического метода <code>comparing</code> с аргументом — ссылкой на метод <code>Student::score</code>. Возвращает компаратор «по баллу, по возрастанию».</p></div></div>
-      <div class="annot-row"><code>.reversed()</code><div><p>Вызов <code>reversed()</code> у этого компаратора возвращает новый — по убыванию.</p></div></div>
-      <div class="annot-row"><code>.thenComparing(Student::name)</code><div><p>Вызов <code>thenComparing</code> добавляет второе правило: если баллы равны — сравнить по имени. Работает только как «второй судья».</p></div></div>
+      <div class="annot-row"><code>Comparator.comparing(s -&gt; s.score())</code><div><p>Вызов статического метода <code>comparing</code>: возвращает компаратор «по баллу, по возрастанию». Им инициализируем переменную <code>byScore</code> — тип <code>Comparator&lt;Student&gt;</code> подсказывает компилятору, что <code>s</code> — студент.</p></div></div>
+      <div class="annot-row"><code>byScore.reversed()</code><div><p>Вызов <code>reversed()</code> у этого компаратора возвращает новый — по убыванию. Сам <code>byScore</code> не меняется.</p></div></div>
+      <div class="annot-row"><code>.thenComparing(s -&gt; s.name())</code><div><p>Вызов <code>thenComparing</code> добавляет второе правило: если баллы равны — сравнить по имени. Работает только как «второй судья». Без него Вика и Борис (оба 90) остались бы в том порядке, в каком были в списке.</p></div></div>
     </div>
-    <div class="callout warn">
-      <span class="callout-title">Ловушка: comparing(лямбда).reversed()</span>
-      <p><code>Comparator.comparing(s -&gt; s.score()).reversed()</code> <b>не скомпилируется</b>: <em>cannot find symbol: method score()</em>. Из-за <code>.reversed()</code> в конце компилятор не может понять тип параметра <code>s</code> лямбды и считает его просто <code>Object</code>. Лечится ссылкой на метод <code>Student::score</code> или явным типом <code>(Student s) -&gt; s.score()</code>.</p>
-    </div>
-    <div data-widget="ide" id="shot-comparing-reversed">
-      <script type="application/json">
-      { "tree": false, "file": "SortStudents.java", "gutterRun": [7, 8], "statusPath": "module-14",
-        "code": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\nrecord Student(String name, int group, int score) { }\n\npublic class SortStudents {\n    public static void main(String[] args) {\n        List<Student> students = new ArrayList<>();\n        students.sort(Comparator.comparing(s -> s.score()).reversed());\n    }\n}",
-        "errors": [ { "line": 10, "text": "score", "msg": "Cannot resolve method 'score' in 'Object'", "tip": true } ],
-        "marks": [ { "n": 1, "target": "err-10", "side": "top", "text": "Красным — <code>score</code>, хотя в record <code>Student</code> такой метод точно есть" },
-                   { "n": 2, "target": "tip", "text": "Разгадка в конце сообщения: <b>in 'Object'</b>. Компилятор решил, что параметр <code>s</code> — просто <code>Object</code>, а у Object метода <code>score()</code> нет. <code>javac</code> скажет <code>cannot find symbol … location: variable s of type Object</code>" },
-                   { "n": 3, "target": "problems", "text": "<b>❗1</b>. Замени лямбду на <code>Student::score</code> — и красное исчезнет" } ],
-        "caption": "comparing(лямбда).reversed(): компилятор потерял тип" }
-      </script>
-    </div>
-    <p>Для чисел есть варианты без лишней упаковки: <code>Comparator.comparingInt(Student::score)</code>, <code>comparingDouble</code>. А для «естественного» порядка — <code>Comparator.naturalOrder()</code> и <code>Comparator.reverseOrder()</code>.</p>
+    <p>В уроке 14.3 эту же сортировку запишем одной строкой, без переменной <code>byScore</code>, — с помощью ссылок на методы. Там же разберём одну ловушку компилятора.</p>
+    <p>Для чисел есть варианты без лишней упаковки: <code>Comparator.comparingInt(s -&gt; s.score())</code>, <code>comparingDouble</code>. А для «естественного» порядка — <code>Comparator.naturalOrder()</code> и <code>Comparator.reverseOrder()</code>.</p>
   </section>
 
   <!-- ШАГ 7 -->
@@ -300,13 +319,13 @@ students.forEach(s -&gt; System.out.println(s.name() + " " + s.score()));</code>
          "type": "order",
          "q": "Собери сортировку: по группе, при равенстве — по имени",
          "lines": [
+          "Comparator<Student> byGroup =",
+          "        Comparator.comparing(s -> s.group());",
           "students.sort(",
-          "    Comparator.comparing(Student::group)",
-          "        .thenComparing(Student::name)",
-          ");"
+          "        byGroup.thenComparing(s -> s.name()));"
          ],
          "code": true,
-         "why": "Первый судья — comparing, второй — thenComparing."
+         "why": "Сначала объявляем компаратор byGroup — первый судья, потом передаём в sort его вместе со вторым судьёй thenComparing."
         }
        ]
       }
@@ -320,9 +339,9 @@ students.forEach(s -&gt; System.out.println(s.name() + " " + s.score()));</code>
       <h2>Коротко</h2>
       <ul>
         <li><code>Predicate</code> — проверить (<code>test</code>), <code>Function</code> — превратить (<code>apply</code>), <code>Consumer</code> — сделать (<code>accept</code>), <code>Supplier</code> — выдать (<code>get</code>), <code>BiFunction</code> — из двух в одно.</li>
-        <li>Правила склеиваются: <code>and</code>, <code>or</code>, <code>negate</code>, <code>andThen</code>.</li>
+        <li>Правила склеиваются: <code>and</code>, <code>or</code>, <code>negate</code>, <code>andThen</code>. Свой метод тоже может вернуть лямбду: тип возвращаемого значения — функциональный интерфейс.</li>
         <li>Методы коллекций принимают аргументом лямбда-выражения: <code>forEach</code>, <code>removeIf</code> (только изменяемый список!), <code>map.forEach((k, v) -&gt; …)</code>.</li>
-        <li>Сортировка: <code>Comparator.comparing(…)</code>, <code>.reversed()</code>, <code>.thenComparing(…)</code>.</li>
+        <li>Сортировка: <code>Comparator.comparing(…)</code>, <code>.reversed()</code>, <code>.thenComparing(…)</code> — каждый вызов возвращает новый компаратор.</li>
       </ul>
     </div>
   </section>

@@ -185,15 +185,15 @@ System.out.println(big);</code></pre>
   <h2>Найди ошибки</h2>
 
   <div class="quiz">
-    <p class="q">15. Программа делит 17 конфет на 5 человек и проверяет, поровну ли вышло. Сколько здесь ошибок?</p>
-<pre><code class="java">int total = 17;
-int people = 5;
-double each = total / people;
-boolean fair = total % people = 0;
-System.out.println(each + " " + fair);</code></pre>
+    <p class="q">15. Ученик набрал 17 баллов за 5 контрольных. Программа считает его средний балл (ожидаем 3.4) и проверяет, вышел ли средний балл целым. Сколько здесь ошибок?</p>
+<pre><code class="java">int points = 17;
+int tests = 5;
+double average = points / tests;
+boolean whole = points % tests = 0;
+System.out.println(average + " " + whole);</code></pre>
     <ul>
       <li data-why="Это главная ошибка — компиляции. Но есть и вторая, тихая: посмотри на строку 3.">Одна: в строке 4 = вместо ==</li>
-      <li data-correct data-why="1) Строка 4: = вместо == — не скомпилируется. 2) Строка 3: total / people — деление int, получится 3.0 вместо 3.4. Нужно (double) total / people. Вторая ошибка логическая: компилятор её не заметит.">Две: = вместо == в строке 4 и целочисленное деление в строке 3</li>
+      <li data-correct data-why="1) Строка 4: = вместо == — не скомпилируется. 2) Строка 3: points / tests — деление int, получится 3.0 вместо 3.4. Нужно (double) points / tests. Вторая ошибка логическая: компилятор её не заметит.">Две: = вместо == в строке 4 и целочисленное деление в строке 3</li>
       <li data-why="Перечитай строку 4: там присваивание, а не сравнение.">Ошибок нет</li>
     </ul>
   </div>

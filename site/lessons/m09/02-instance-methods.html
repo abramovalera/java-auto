@@ -48,7 +48,11 @@
 <pre data-file="CatDemo.java"><code class="java">System.out.println(murzik.name + ", " + murzik.age + " г.");
 System.out.println(barsik.name + ", " + barsik.age + " г.");
 murzik.age = murzik.age + 1;   // день рождения</code></pre>
-    <p>Логичнее, чтобы кот <b>сам</b> умел рассказать о себе и сам отмечал день рождения. Для этого методы пишут <b>прямо в классе</b> — и без слова <code>static</code>:</p>
+    <p>Логичнее, чтобы кот <b>сам</b> умел рассказать о себе и сам отмечал день рождения. Для этого методы пишут <b>прямо в классе</b> — и без слова <code>static</code>.</p>
+    <div class="callout tip">
+      <span class="callout-title">Куда писать</span>
+      <p>Открой <b>свой</b> <code>Cat.java</code> из урока 9.1 и допиши в него два метода — поля оставь как были (<code>weight</code> тоже). Новый файл с классом <code>Cat</code> не создавай. А в <code>CatDemo.java</code> замени строки внутри <code>main</code> на новые.</p>
+    </div>
 <pre data-file="Cat.java"><code class="java">public class Cat {
     String name;
     int age;
@@ -108,13 +112,13 @@ murzik.describe();   // Мурзик, 4 г.</code></pre>
         ] }
       </script>
     </div>
-    <div class="say" data-mood="cool"><p>Заметил? Класс <code>Cat</code> в этом примере написан в том же файле, что и <code>CatDemo</code>, и без слова <code>public</code>. Так можно — подробности в уроке 9.5. В задачах модуля будем писать именно так: один файл, несколько классов. Только не объявляй один класс дважды: если у тебя уже есть <code>Cat.java</code>, второй <code>class Cat</code> в другом файле IDEA назовёт <em>duplicate class</em>.</p></div>
+    <div class="say" data-mood="cool"><p>Заметил? В тренажёре класс <code>Cat</code> написан в том же файле, что и <code>CatDemo</code>, и без слова <code>public</code>. Так можно — подробности в уроке 9.5, и в задачах модуля мы будем писать именно так: один файл, несколько классов. Но <b>этот пример в IDEA не набирай</b>: у тебя уже есть <code>Cat.java</code>, и второй <code>class Cat</code> в любом файле проекта IDEA назовёт <em>duplicate class</em>. Свой кот у тебя один — в <code>Cat.java</code>.</p></div>
   </section>
 
   <!-- ШАГ 4 -->
   <section class="step">
     <h2>Методы с параметрами и результатом</h2>
-    <p>Методы объекта бывают какими угодно — с параметрами, с <code>return</code>, как в модуле 7. Разница одна: у них под рукой поля объекта.</p>
+    <p>Методы объекта бывают какими угодно — с параметрами, с <code>return</code>, как в модуле 7. Разница одна: у них под рукой поля объекта. Ниже показан класс целиком, но набирать его заново не нужно: допиши четыре новых метода в свой <code>Cat.java</code> (поле <code>weight</code> у тебя уже есть с урока 9.1).</p>
 <pre data-file="Cat.java"><code class="java">class Cat {
     String name;
     int age;
@@ -232,18 +236,19 @@ void rename2(String name) {
       <li><code>nobody.describe();</code> — синтаксически верно, но в переменной null. При запуске: <em>NullPointerException: Cannot invoke "Cat.describe()" because "nobody" is null</em>.</li>
     </ol>
     <p>Чтобы было ещё нагляднее, собери программу из строк: объявление класса с методом и вызов этого метода у объекта.</p>
-    <div data-widget="parsons" id="parsons-m09-02" data-code data-title="Собери кота, который умеет мяукать" data-icon="🐱"
-         data-hint="Сначала класс с main, внутри — создание объекта Cat через new и вызов его метода. Потом объявление класса Cat с полем и методом."
+    <div data-widget="parsons" id="parsons-m09-02" data-code data-title="Собери котёнка, который умеет мяукать" data-icon="🐱"
+         data-accept='[[8,9,10,11,12,13,1,2,3,4,5,6,7]]'
+         data-hint="Класс MeowDemo с main: внутри — создание объекта Kitten через new и вызов его метода. И объявление класса Kitten с полем и методом. Какой из двух классов стоит первым — неважно."
          data-success="🎉 Верно! main создаёт объект и вызывает у него метод, а метод сам читает поле name своего объекта (this).">
       <script type="text/plain">
 public class MeowDemo {
     public static void main(String[] args) {
-        Cat cat = new Cat();
+        Kitten cat = new Kitten();
         cat.name = "Рыжик";
         cat.meow();
     }
 }
-class Cat {
+class Kitten {
     String name;
     void meow() {
         System.out.println(name + ": мяу!");

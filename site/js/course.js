@@ -259,7 +259,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m04",
-      "taskCount": 11
+      "taskCount": 12
     },
     {
       "id": "m05",
@@ -315,14 +315,14 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m05",
-      "taskCount": 10
+      "taskCount": 11
     },
     {
       "id": "m06",
       "num": "6",
       "title": "Массивы",
       "status": "open",
-      "summary": "Много значений в одной переменной: создание, обход, массив в памяти и ссылки, класс Arrays, алгоритмы (поиск, максимум, разворот, сдвиг), двумерные массивы.",
+      "summary": "Много значений в одной переменной: создание, обход, массив в памяти и ссылки, класс Arrays, алгоритмы (поиск, максимум, массив-счётчик, разворот, сдвиг, удаление и вставка), двумерные массивы.",
       "lessons": [
         {
           "id": "m06-01",
@@ -371,7 +371,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m06",
-      "taskCount": 10
+      "taskCount": 11
     },
     {
       "id": "m07",
@@ -488,7 +488,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m08",
-      "taskCount": 10
+      "taskCount": 13
     },
     {
       "id": "m09",
@@ -668,7 +668,7 @@ window.COURSE = {
       "num": "12",
       "title": "Исключения",
       "status": "open",
-      "summary": "Как исключение всплывает по стеку, чтение stack trace, try/catch/finally, try-с-ресурсами, checked и unchecked, throw и свои исключения, хорошие практики и исключения в тестах на JUnit.",
+      "summary": "Как исключение всплывает по стеку, чтение stack trace, try/catch/finally, try-с-ресурсами, checked и unchecked, throw и свои исключения, хорошие практики и остановка отладчика на исключении.",
       "lessons": [
         {
           "id": "m12-01",
@@ -702,7 +702,7 @@ window.COURSE = {
         },
         {
           "id": "m12-07",
-          "title": "Хорошие практики и тесты",
+          "title": "Хорошие практики и отладка",
           "url": "/lessons/m12/07-good-practices.html"
         },
         {
@@ -793,7 +793,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m13",
-      "taskCount": 14
+      "taskCount": 15
     },
     {
       "id": "m14",
@@ -854,7 +854,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m14",
-      "taskCount": 10
+      "taskCount": 12
     },
     {
       "id": "m15",
@@ -905,14 +905,14 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m15",
-      "taskCount": 8
+      "taskCount": 9
     },
     {
       "id": "m16",
       "num": "16",
       "title": "Многопоточность: основы",
       "status": "open",
-      "summary": "Потоки, start и join, гонка данных и synchronized, AtomicInteger, пул потоков и Future, volatile, deadlock, потокобезопасные коллекции и как избежать плавающих ошибок — на уровне собеседования.",
+      "summary": "Потоки, start и join, гонка потоков и synchronized, AtomicInteger, пул потоков и Future, volatile, deadlock, потокобезопасные коллекции и как избежать плавающих ошибок — на уровне собеседования.",
       "lessons": [
         {
           "id": "m16-01",
@@ -921,7 +921,7 @@ window.COURSE = {
         },
         {
           "id": "m16-02",
-          "title": "Гонка данных и synchronized",
+          "title": "Гонка потоков и synchronized",
           "url": "/lessons/m16/02-race-condition.html"
         },
         {
@@ -997,7 +997,7 @@ window.COURSE = {
         },
         {
           "id": "m17-sum",
-          "title": "Итоги модуля и экзамен",
+          "title": "Итоги и финал курса",
           "url": "/lessons/m17/09-summary.html"
         }
       ],

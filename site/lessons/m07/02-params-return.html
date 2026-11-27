@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 7 · Урок 2</div>
     <h1>Параметры и return</h1>
     <p class="lead">Кнопка, которая всегда делает одно и то же, — скучно. Научим методы принимать данные через параметры и возвращать результат.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>🔍 трассировка</span><span>⚡ 2 проверки</span></div>
+    <div class="meta"><span>⏱ 25 минут</span><span>🔍 трассировка</span><span>⚡ 2 проверки</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -274,8 +274,72 @@ System.out.println(square(square(2)));    // square(4) = 16</code></pre>
     <p>Правило: метод, который <b>считает</b>, должен <b>возвращать</b>. Печатать пусть будет main или отдельный метод «показать». Так методы можно собирать, как кубики.</p>
     <div class="callout fact">
       <span class="callout-title">Где это пригодится</span>
-      <p>В любом интернет-магазине это основа основ. Метод корзины <code>getCartTotal()</code> <b>возвращает</b> сумму, а программа использует возвращённое значение дальше: сравнивает с балансом карты, считает скидку, печатает чек — <code>if (balance &gt;= cart.getCartTotal()) { … }</code>. Если бы метод только печатал сумму, сделать с ней было бы нечего.</p>
+      <p>В любом интернет-магазине это основа основ. Метод <code>getCartTotal(prices)</code> получает массив цен из корзины и <b>возвращает</b> сумму, а программа использует возвращённое значение дальше: сравнивает с балансом карты, считает скидку, печатает чек — <code>if (balance &gt;= getCartTotal(prices)) { … }</code>. Если бы метод только печатал сумму, сделать с ней было бы нечего.</p>
     </div>
+    <p>Частая ошибка — попытаться <b>использовать результат</b> метода <code>void</code>. Он ничего не возвращает, значит, подставить на место вызова нечего:</p>
+<pre data-file="VoidMistake.java"><code class="java">public class VoidMistake {
+    public static void main(String[] args) {
+        System.out.println(printSquare(3));   // ошибка
+        int x = printSquare(4);               // ошибка
+    }
+
+    static void printSquare(int n) {
+        System.out.println(n * n);
+    }
+}</code></pre>
+    <p>IDEA подчеркнёт оба вызова красным, а компилятор скажет так:</p>
+<pre class="terminal"><span class="err">VoidMistake.java:3: error: 'void' type not allowed here
+        System.out.println(printSquare(3));   // ошибка
+                                      ^
+VoidMistake.java:4: error: incompatible types: void cannot be converted to int
+        int x = printSquare(4);               // ошибка
+                           ^
+2 errors</span></pre>
+    <p><b>'void' type not allowed here</b> — «тип void здесь не разрешён»: println ждёт значение, а вызов <code>printSquare(3)</code> ничего не даёт. <b>void cannot be converted to int</b> — «пустоту нельзя превратить в int». Лечение одно: если результат нужен — метод должен его <b>возвращать</b> (<code>static int square(int n) { return n * n; }</code>), а если метод только печатает — вызывай его отдельной строкой: <code>printSquare(3);</code>.</p>
+  </section>
+
+  <!-- ШАГ 7б -->
+  <section class="step">
+    <h2>Метод может вернуть массив и получить Scanner</h2>
+    <p>Тип возвращаемого значения может быть любым — в том числе массивом. Тогда в заголовке пишут <code>int[]</code>, а в теле — <code>return</code> с массивом. А параметром можно передать что угодно, даже <code>Scanner</code>. Вот метод, который читает с клавиатуры n чисел и возвращает их массивом:</p>
+<pre data-file="ReadScores.java"><code class="java">import java.util.Scanner;
+
+public class ReadScores {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int[] scores = readArray(sc, 3);
+        System.out.println("Сумма: " + sum(scores));
+    }
+
+    static int[] readArray(Scanner sc, int n) {
+        int[] arr = new int[n];
+        for (int i = 0; i &lt; n; i++) {
+            arr[i] = sc.nextInt();
+        }
+        return arr;
+    }
+
+    static int sum(int[] arr) {
+        int total = 0;
+        for (int i = 0; i &lt; arr.length; i++) {
+            total += arr[i];
+        }
+        return total;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>static int[] readArray(Scanner sc, int n)</code><div><p>Тип возвращаемого значения — <code>int[]</code>, «массив целых». Параметров два: <code>Scanner</code>, из которого читать, и сколько чисел прочитать.</p></div></div>
+      <div class="annot-row"><code>        return arr;</code><div><p>Метод возвращает массив, который сам создал и заполнил. В main им инициализируется переменная <code>scores</code>. Почему массив при этом не копируется, разберём в уроке 7.4.</p></div></div>
+      <div class="annot-row"><code>int[] scores = readArray(sc, 3);</code><div><p>Вызываем метод <code>readArray</code> и передаём аргументы: наш <code>sc</code> и число 3.</p></div></div>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Один Scanner на всю программу</span>
+      <p>Создавай <code>Scanner</code> <b>один раз</b> в main и передавай его в методы параметром. Не надо писать <code>new Scanner(System.in)</code> в каждом методе: Scanner читает ввод «с запасом», и первый может забрать себе числа, которые предназначались второму. Особенно это заметно, когда ввод приходит сразу целиком — как при автопроверке задач.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что выведет программа, если ввести <code>4 7 1</code>?</summary>
+      <p><b>Сумма: 12.</b> <code>readArray</code> прочитает три числа 4, 7, 1 в новый массив и вернёт его. Им инициализируется <code>scores</code>, потом вызываем <code>sum(scores)</code>, и он возвращает 4 + 7 + 1 = 12.</p>
+    </details>
   </section>
 
   <!-- ШАГ 8 -->
@@ -347,8 +411,24 @@ System.out.println(square(square(2)));    // square(4) = 16</code></pre>
           {
            "s": "return; без значения можно писать в void-методе",
            "a": true
+          },
+          {
+           "s": "Метод может вернуть массив: static int[] makeArray(int n)",
+           "a": true
           }
          ]
+        },
+        {
+         "type": "single",
+         "q": "Метод объявлен как static void printSquare(int n). Что будет со строкой System.out.println(printSquare(3)); ?",
+         "options": [
+          "Напечатается 9",
+          "Напечатается 9 и пустая строка",
+          "Ошибка компиляции: 'void' type not allowed here",
+          "Напечатается null"
+         ],
+         "answer": 2,
+         "why": "void-метод ничего не возвращает, и передать println нечего. Компилятор не пропустит такую строку: 'void' type not allowed here."
         }
        ]
       }
@@ -366,7 +446,8 @@ System.out.println(square(square(2)));    // square(4) = 16</code></pre>
         <li>Тип перед именем — <b>тип возвращаемого значения</b>. <code>return значение;</code> возвращает результат и сразу завершает метод.</li>
         <li>Вызов метода, который что-то возвращает, — выражение: его значением можно инициализировать переменную, складывать, передавать аргументом дальше.</li>
         <li>Ошибки: <code>missing return statement</code> — не на всех путях есть return; <code>unreachable statement</code> — код после return.</li>
-        <li>Метод, который считает, должен возвращать, а не печатать.</li>
+        <li>Метод, который считает, должен возвращать, а не печатать. Результат void-метода использовать нельзя: <code>'void' type not allowed here</code>.</li>
+        <li>Метод может вернуть массив (<code>static int[] readArray(Scanner sc, int n)</code>). Scanner создаём один раз в main и передаём в методы параметром.</li>
       </ul>
     </div>
   </section>

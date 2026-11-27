@@ -224,7 +224,7 @@ System.out.println(sb.toString());
          "q": "Строка vs черновик: что выведет?",
          "code": "String s = \"ab\";\ns.concat(\"c\");\nStringBuilder sb = new StringBuilder(\"ab\");\nsb.append(\"c\");\nSystem.out.println(s + \" \" + sb);",
          "answer": "ab abc",
-         "why": "Вызов <code>concat</code> у String вернул новую строку, а возвращаемое значение потеряли. Вызов <code>append</code> у StringBuilder изменил сам объект."
+         "why": "Вызов <code>concat</code> (склейка, как <code>+</code>, урок 8.3) у String вернул новую строку «abc», а возвращаемое значение потеряли. Вызов <code>append</code> у StringBuilder изменил сам объект."
         },
         {
          "type": "single",

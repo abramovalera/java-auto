@@ -173,6 +173,23 @@ Files.move(Path.of("draft.txt"), Path.of("final.txt"));  // переименов
         "caption": "Второй запуск копирования: FileAlreadyExistsException" }
       </script>
     </div>
+    <h3>Совпадает ли копия с оригиналом?</h3>
+    <p>После копирования хочется убедиться, что файлы одинаковые. Для этого есть статический метод <code>Files.mismatch(a, b)</code>: передаём ему два пути, он сравнивает файлы байт за байтом и возвращает число типа <code>long</code>:</p>
+<pre data-file="CompareCopy.java"><code class="java">long diff = Files.mismatch(report, copy);
+if (diff == -1) {
+    System.out.println("Копия совпадает с оригиналом");
+} else {
+    System.out.println("Отличаются, начиная с байта " + diff);
+}</code></pre>
+    <ul>
+      <li><code>-1</code> — файлы полностью одинаковые;</li>
+      <li>любое другое число — <b>номер первого отличающегося байта</b>, считая с 0. Это именно байт, а <b>не номер строки</b>: в UTF-8 русская буква занимает 2 байта, перевод строки — 1 или 2.</li>
+    </ul>
+    <p>Нужен номер строки, где начинаются отличия, — прочитай оба файла через <code>readAllLines</code> и сравни списки по элементам в цикле (<code>equals</code> для каждой пары строк).</p>
+    <details class="predict">
+      <summary>Предскажи: в <code>a.txt</code> текст <code>кот</code>, в <code>b.txt</code> — <code>кит</code> (оба в UTF-8). Что вернёт <code>Files.mismatch(a, b)</code>?</summary>
+      <p><code>3</code>, а не 1. Буква <code>к</code> занимает байты 0 и 1. Буквы <code>о</code> и <code>и</code> — байты 2 и 3, причём первый байт у них одинаковый (<code>D0</code>), а различаются они только во втором: <code>BE</code> и <code>B8</code>. Поэтому для «номера строки» или «номера буквы» mismatch не годится — только для ответа «одинаковые или нет».</p>
+    </details>
   </section>
 
   <!-- ШАГ 5 -->
@@ -318,7 +335,7 @@ C:\Users\Misha\AppData\Local\Temp\import-4417932013577349002</span></pre>
       <ul>
         <li><code>exists</code>, <code>isRegularFile</code>, <code>isDirectory</code> — проверки без исключений; <code>size</code> — размер в байтах.</li>
         <li><code>Files.list</code> — один уровень, <code>Files.walk</code> — всё дерево вместе с самой папкой. Оба — стримы: закрывать и сортировать.</li>
-        <li><code>copy</code>/<code>move</code>: второй аргумент — полный путь нового файла; затереть — <code>REPLACE_EXISTING</code>.</li>
+        <li><code>copy</code>/<code>move</code>: второй аргумент — полный путь нового файла; затереть — <code>REPLACE_EXISTING</code>. <code>Files.mismatch</code> — <code>-1</code>, если файлы одинаковые, иначе номер первого отличающегося <b>байта</b> (не строки).</li>
         <li><code>delete</code> — насовсем; непустую папку — через <code>walk</code> в обратном порядке и цикл.</li>
         <li>Checked-исключение нельзя выбросить из тела лямбды наружу — поэтому файловые операции часто пишут обычным циклом.</li>
         <li><code>createTempFile</code>/<code>createTempDirectory</code> — уникальные временные файлы «на минутку».</li>

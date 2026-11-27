@@ -111,10 +111,7 @@
       <summary>Предскажи: перехватит ли <code>catch (Exception e)</code> ошибку StackOverflowError?</summary>
       <p><b>Нет.</b> StackOverflowError — потомок <code>Error</code>, а не <code>Exception</code>. Это соседние ветки, у них общий только Throwable. Так что catch (Exception) перехватывает «почти всё» — кроме Error.</p>
     </details>
-    <div class="callout fact">
-      <span class="callout-title">Важно для тестов на JUnit</span>
-      <p>В модуле 17 ты будешь писать тесты на JUnit. Упавшая проверка в тесте — это <code>AssertionError</code>, а он потомок <b>Error</b>. Поэтому <code>catch (Exception e)</code> в тесте не перехватит провал проверки — и это хорошо: тест честно покраснеет. Создатели Java специально вынесли его в Error: проверку не должны «случайно» проглотить.</p>
-    </div>
+    <p>То же касается <code>AssertionError</code> со схемы — «проверка не прошла». Он потомок <b>Error</b>, поэтому <code>catch (Exception e)</code> его не перехватит: проваленную проверку нельзя «случайно» проглотить (в модуле 17 так честно краснеют упавшие тесты).</p>
   </section>
 
   <!-- ШАГ 4 -->
@@ -141,7 +138,7 @@
   <!-- ШАГ 5 -->
   <section class="step">
     <h2>checked и unchecked</h2>
-    <p>Теперь главное деление. Попробуй сделать паузу в программе — метод <code>Thread.sleep</code> «усыпляет» её на заданное число миллисекунд:</p>
+    <p>Теперь главное деление. Попробуй сделать паузу в программе — метод <code>Thread.sleep</code> «усыпляет» её на заданное число миллисекунд. (<code>Thread</code> — класс для потоков выполнения, им посвящён модуль 16; сейчас нам нужен только его метод <code>sleep</code>.)</p>
 <pre data-file="Pause.java"><code class="java">public class Pause {
     public static void main(String[] args) {
         System.out.println("Ждём секунду…");
@@ -164,19 +161,23 @@
         "caption": "Checked-исключение без обработки: Unhandled exception" }
       </script>
     </div>
-    <p>Код даже не компилируется! <code>Thread.sleep</code> может выбросить <code>InterruptedException</code> (сон прервали извне), а это исключение — <b>checked</b> («проверяемое»). Компилятор проверяет: «ты подумал, что делать, если это случится?» — и не пропустит код, пока ты не ответишь.</p>
+    <p>Код даже не компилируется! <code>Thread.sleep</code> может выбросить <code>InterruptedException</code> («сон прервали» — другая часть программы попросила проснуться раньше; как это бывает, увидишь в модуле 16), а это исключение — <b>checked</b> («проверяемое»). Компилятор проверяет: «ты подумал, что делать, если это случится?» — и не пропустит код, пока ты не ответишь.</p>
     <div class="table-wrap">
       <table>
         <tr><th></th><th>checked (проверяемые)</th><th>unchecked (непроверяемые)</th></tr>
         <tr><td>Кто</td><td>Exception и потомки, <b>кроме</b> ветки RuntimeException: IOException, InterruptedException…</td><td>RuntimeException и потомки + все Error</td></tr>
         <tr><td>Компилятор</td><td>заставляет перехватить или объявить в <code>throws</code></td><td>молчит</td></tr>
-        <tr><td>Смысл</td><td>внешние обстоятельства, которые не зависят от программиста: нет файла, упала сеть, прервали поток</td><td>ошибки в самом коде: null, деление на ноль, неверный индекс</td></tr>
-        <tr><td>Что делать</td><td>подготовить план Б</td><td>не перехватывать, а исправить код</td></tr>
+        <tr><td>Смысл</td><td>внешние обстоятельства, которые не зависят от программиста: нет файла, упала сеть, прервали ожидание</td><td>чаще всего ошибки в самом коде: null, деление на ноль, неверный индекс</td></tr>
+        <tr><td>Что делать</td><td>подготовить план Б</td><td>ошибку в коде — не перехватывать, а исправить код. Плохие данные снаружи (например, <code>NumberFormatException</code> на вводе пользователя) — перехватывать и переспрашивать</td></tr>
       </table>
     </div>
     <div class="callout analogy">
       <span class="callout-title">Аналогия: прогноз погоды</span>
       <p>Checked — это прогноз «возможен дождь». Дождь от тебя не зависит, но выходя из дома, ты обязан решить: беру зонт (catch) или пусть решает тот, кто меня послал (throws). Unchecked — это «наступил в лужу, потому что смотрел в телефон». Такое не планируют — от такого отучаются.</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Но в уроке 3 мы перехватывали NumberFormatException! Это не противоречие?</span>
+      <p>Нет. «Unchecked — исправляй код» относится к ошибкам <b>программиста</b>: NPE, выход за массив, деление на переменную, которую забыли проверить. А <code>NumberFormatException</code> на вводе — это не ошибка в коде, а плохие данные от <b>пользователя</b>: заранее их не исправишь. Поэтому такое unchecked-исключение перехватывают и переспрашивают — как в задачах t01–t05. Вопрос всегда один: <b>кто виноват — мой код или данные снаружи?</b> Код — чиню. Данные — перехватываю и делаю план Б.</p>
     </div>
   </section>
 
@@ -245,6 +246,36 @@
       </svg>
       <figcaption>throws — как горячая картошка: кто не хочет держать, обязан громко сказать «лови!» тому, кто его вызвал.</figcaption>
     </figure>
+    <h3>throws при переопределении метода</h3>
+    <p>В модулях 10 и 11 ты переопределял методы родителя и реализовывал методы интерфейса. Если у исходного метода есть <code>throws</code>, для переопределения действует правило: <b>новых или более общих checked-исключений добавлять нельзя</b>. Меньше — можно:</p>
+<pre data-file="ReportSource.java"><code class="java">import java.io.IOException;
+
+interface ReportSource {
+    String load() throws IOException;
+}
+
+class MemoryReport implements ReportSource {
+    @Override
+    public String load() {                     // можно: без throws вообще
+        return "Отчёт из памяти";
+    }
+}
+
+class GreedyReport implements ReportSource {
+    @Override
+    public String load() throws Exception {    // нельзя: Exception шире IOException
+        return "Отчёт";
+    }
+}</code></pre>
+<pre class="terminal"><span class="err">ReportSource.java:16: error: load() in GreedyReport cannot implement load() in ReportSource
+    public String load() throws Exception {
+                  ^
+  overridden method does not throw Exception</span></pre>
+    <p>Почему так? Вспомни полиморфизм. Кто-то пишет <code>ReportSource source = …;</code> и оборачивает <code>source.load()</code> в <code>catch (IOException e)</code> — он готов только к тому, что обещано в интерфейсе. Если бы наследник мог выбросить что-то шире, это исключение проскочило бы мимо проверки компилятора. Можно: не писать throws, написать тот же тип или его потомка, добавить любые unchecked. Нельзя: новый checked-тип или более общий.</p>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли в <code>MemoryReport</code> заголовок <code>public String load() throws FileNotFoundException</code>? (FileNotFoundException — потомок IOException.)</summary>
+      <p><b>Да.</b> Потомок — это более узкое обещание: «могу выбросить только вот эту разновидность IOException». Код, который ловит IOException, перехватит и его.</p>
+    </details>
     <div class="callout warn">
       <span class="callout-title">throw и throws — разные слова</span>
       <p><code>throws</code> (с «s») пишется в <b>сигнатуре</b> метода и <b>предупреждает</b>: «могу выбросить». <code>throw</code> (без «s») пишется в <b>теле</b> метода и <b>выбрасывает</b> исключение прямо сейчас. Его разберём в следующем уроке. Путают их постоянно — на собеседовании это любимый вопрос.</p>
@@ -269,7 +300,7 @@
           { "emoji": "📁", "text": "IOException", "bucket": "checked", "why": "Ошибка ввода-вывода: файл не открылся, сеть упала. Внешнее обстоятельство — checked." },
           { "emoji": "🕳️", "text": "NullPointerException", "bucket": "unchecked", "why": "Ошибка в коде: обратились к null. RuntimeException." },
           { "emoji": "♾️", "text": "StackOverflowError", "bucket": "error", "why": "Переполнение стека — проблема JVM. Ветка Error." },
-          { "emoji": "❌", "text": "AssertionError", "bucket": "error", "why": "Провал проверки в тесте — потомок Error. Поэтому catch (Exception) его не перехватит." },
+          { "emoji": "❌", "text": "AssertionError", "bucket": "error", "why": "«Проверка не прошла» — потомок Error. Поэтому catch (Exception) его не перехватит." },
           { "emoji": "🏦", "text": "class MyException extends Exception", "bucket": "checked", "why": "Наследник Exception, но не RuntimeException — значит, checked." },
           { "emoji": "🚦", "text": "class MyException extends RuntimeException", "bucket": "unchecked", "why": "Наследник RuntimeException — unchecked." }
         ] }
@@ -366,7 +397,9 @@
         <li>catch перехватывает свой тип и всех потомков. Поэтому частные catch — выше общих.</li>
         <li>Checked (Exception, но не RuntimeException) компилятор заставляет перехватить или объявить в <code>throws</code>. Unchecked — нет.</li>
         <li><code>throws</code> в сигнатуре — «объявляю и пробрасываю дальше»; <code>throw</code> в теле — «выбрасываю сейчас».</li>
-        <li>AssertionError — это Error, поэтому catch (Exception) не спрячет упавшую проверку теста.</li>
+        <li>Unchecked из-за ошибки в коде — чиним код; плохие данные снаружи (NumberFormatException на вводе) — перехватываем и переспрашиваем.</li>
+        <li>Переопределяя метод, нельзя добавить в <code>throws</code> новое или более общее checked-исключение; меньше или уже — можно.</li>
+        <li>Error (StackOverflowError, AssertionError) — не Exception, catch (Exception) его не перехватит.</li>
       </ul>
     </div>
   </section>

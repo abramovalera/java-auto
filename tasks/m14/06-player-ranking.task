@@ -12,8 +12,8 @@
 Вика 90
 Аня 75</span></pre>
 <p>Опиши игрока record'ом <b>внутри</b> своего класса: <code>record RankedPlayer(String name, int score) { }</code>. Сравнение собери из готовых кусочков: <code>Comparator.comparingInt(...)</code>, <code>.reversed()</code> и <code>.thenComparing(...)</code>. Печатай через <code>forEach</code>. Циклы запрещены.</p>
-<p>Подсказка: строку <code>"Аня:75"</code> разбивает <code>split(":")</code> — получится массив из имени и очков.</p>
-<p>📖 <a href="/lessons/m14/02-functional-interfaces.html">Comparator.comparing и thenComparing</a> · <a href="/lessons/m14/04-stream-pipeline.html">sorted в стриме</a></p>
+<p>Как превратить строку в поток игроков — разобрано в уроке 14.4, шаг «Строка «имя:число» → record»: сначала <code>split("\\s+")</code> по пробелам, потом <code>map(s -&gt; s.split(":"))</code> и <code>map(p -&gt; new RankedPlayer(p[0], Integer.parseInt(p[1])))</code>. Дальше — <code>sorted</code> с твоим компаратором. Лямбда внутри <code>comparingInt(...).reversed()</code> не скомпилируется — бери ссылку на метод <code>RankedPlayer::score</code> (урок 14.3).</p>
+<p>📖 <a href="/lessons/m14/04-stream-pipeline.html">Строка «имя:число» → record</a> · <a href="/lessons/m14/02-functional-interfaces.html">comparing и thenComparing</a> · <a href="/lessons/m14/03-method-references.html">сортировка по двум полям ссылками на методы</a></p>
 @@ test: Пример из условия
 @@ input
 Вика:90 Аня:75 Борис:90 Гоша:100

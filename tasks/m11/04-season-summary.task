@@ -1,0 +1,85 @@
+## id: m11-t04
+## title: Итоги сезона
+## file: module-11/SeasonSummary.java
+## class: SeasonSummary
+## level: 2
+@@ description
+<p>Футбольная команда твоего двора доиграла сезон. Посчитай итоги с помощью <b>enum</b>: сколько побед, ничьих и поражений и сколько набрано очков.</p>
+<p>В файле <code>SeasonSummary.java</code> объяви (без <code>public</code>) <code>enum MatchResult</code> с константами <code>WIN</code>, <code>DRAW</code>, <code>LOSS</code> — именно в таком порядке.</p>
+<p><b>Ввод:</b> число N, потом N строк <code>соперник РЕЗУЛЬТАТ</code> (соперник — одно слово). Результат может прийти в любом регистре: <code>win</code>, <code>Draw</code>, <code>LOSS</code>. Преврати текст в константу enum через <code>MatchResult.valueOf(...)</code> (подумай, что нужно сделать со строкой перед этим).</p>
+<p><b>Вывод:</b></p>
+<ul>
+  <li>для каждого результата <b>по порядку объявления</b> строку <code>РЕЗУЛЬТАТ: количество</code> — пройди циклом по <code>MatchResult.values()</code>;</li>
+  <li>строку <code>Очки: число</code> — за победу 3 очка, за ничью 1, за поражение 0;</li>
+  <li>последняя строка — вердикт: матчей не было → <code>Сезон не начался</code>; иначе, если побед больше, чем поражений, → <code>Удачный сезон</code>; иначе → <code>Есть над чем поработать</code>.</li>
+</ul>
+<pre class="terminal"><span class="out">ввод:                вывод:
+4                    WIN: 2
+Lions win            DRAW: 1
+Tigers Draw          LOSS: 1
+Bears LOSS           Очки: 7
+Wolves WIN           Удачный сезон</span></pre>
+<p>Подсказки. Для счётчиков удобен номер константы <code>ordinal()</code> (0, 1, 2) — им можно пользоваться как индексом массива <code>int[]</code>. Очки за один матч удобно получить <b>switch-выражением по enum</b> (урок 11.5) или полем внутри enum — выбирай сам.</p>
+<p>⚠️ Не пиши названия результатов в кавычках: имя константы enum Java напечатает сама.</p>
+<p>📖 <a href="/lessons/m11/05-enum.html">Перечисления enum</a></p>
+@@ test: Обычный сезон
+@@ input
+4
+Lions win
+Tigers Draw
+Bears LOSS
+Wolves WIN
+@@ expect
+WIN: 2
+DRAW: 1
+LOSS: 1
+Очки: 7
+Удачный сезон
+@@ test: Побед столько же, сколько поражений
+@@ input
+3
+a win
+b Draw
+c loss
+@@ expect
+WIN: 1
+DRAW: 1
+LOSS: 1
+Очки: 4
+Есть над чем поработать
+@@ test: Сезон не начался
+@@ input
+0
+@@ expect
+WIN: 0
+DRAW: 0
+LOSS: 0
+Очки: 0
+Сезон не начался
+@@ test: Одни ничьи
+@@ input
+2
+x draw
+y DRAW
+@@ expect
+WIN: 0
+DRAW: 2
+LOSS: 0
+Очки: 2
+Есть над чем поработать
+@@ test: Поражений больше
+@@ input
+3
+p Win
+q loss
+r Loss
+@@ expect
+WIN: 1
+DRAW: 0
+LOSS: 2
+Очки: 3
+Есть над чем поработать
+@@ require: enum\s+MatchResult | Нужен enum MatchResult
+@@ require: MatchResult\.values\s*\(\s*\) | Выводи счётчики циклом по MatchResult.values()
+@@ require: MatchResult\.valueOf\s*\( | Превращай текст в константу через MatchResult.valueOf(...)
+@@ forbid: "(WIN|DRAW|LOSS)\b | Не пиши результаты строками в кавычках — работай с константами enum

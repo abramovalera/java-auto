@@ -2,7 +2,7 @@
   "id": "m16",
   "num": "16",
   "title": "Многопоточность: основы",
-  "summary": "Потоки, start и join, гонка данных и synchronized, AtomicInteger, пул потоков и Future, volatile, deadlock, потокобезопасные коллекции и как избежать плавающих ошибок — на уровне собеседования.",
+  "summary": "Потоки, start и join, гонка потоков и synchronized, AtomicInteger, пул потоков и Future, volatile, deadlock, потокобезопасные коллекции и как избежать плавающих ошибок — на уровне собеседования.",
   "lessons": [
     {
       "id": "m16-01",
@@ -11,7 +11,7 @@
     },
     {
       "id": "m16-02",
-      "title": "Гонка данных и synchronized",
+      "title": "Гонка потоков и synchronized",
       "url": "/lessons/m16/02-race-condition.html"
     },
     {

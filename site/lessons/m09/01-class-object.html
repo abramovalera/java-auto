@@ -79,6 +79,14 @@ double[] weights = {4.2, 5.8, 2.1};
       <span class="callout-title">Имена классов</span>
       <p>Имя класса — существительное с большой буквы: <code>Cat</code>, <code>BankAccount</code>, <code>ShoppingCart</code>. Поля — с маленькой: <code>name</code>, <code>age</code>. Это не прихоть, а договорённость всех Java-программистов: по регистру сразу видно, где класс, а где переменная.</p>
     </div>
+    <div class="callout tip">
+      <span class="callout-title">Приём: существительные → классы</span>
+      <p>Как понять, какие классы нужны программе? Запиши задачу одной-двумя фразами и подчеркни <b>существительные</b>. «<u>Приют</u> принимает <u>котов</u>; у каждого кота есть <u>имя</u>, <u>возраст</u> и <u>вес</u>». Крупные существительные, у которых много своих данных, становятся <b>классами</b> (<code>Shelter</code>, <code>Cat</code>). Мелкие, которые описывают что-то одно, — <b>полями</b> (<code>name</code>, <code>age</code>, <code>weight</code>). А <b>глаголы</b> («принимает», «кормит») станут методами — о них следующий урок.</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Cat.java — один на весь модуль</span>
+      <p>Этот файл <code>Cat.java</code> пригодится в уроках 9.1–9.5 и 9.8: мы будем <b>дописывать в него</b> новое — методы, конструктор, <code>private</code>, toString. Новый класс <code>Cat</code> в другом файле не создавай: второй <code>class Cat</code> в проекте IDEA назовёт <em>duplicate class</em>.</p>
+    </div>
   </section>
 
   <!-- ШАГ 3 -->
@@ -123,6 +131,20 @@ double[] weights = {4.2, 5.8, 2.1};
     <details class="predict">
       <summary>Предскажи: что напечатает <code>System.out.println(murzik.weight);</code>, если вес мы так и не записали?</summary>
       <p><b>0.0.</b> Поля нового объекта Java сама заполняет значениями по умолчанию — как элементы нового массива из модуля 6: числа — <code>0</code> и <code>0.0</code>, <code>boolean</code> — <code>false</code>, ссылки (в том числе <code>String</code>) — <code>null</code>. Поэтому <code>new Cat()</code> сразу даёт кота с именем <code>null</code> и возрастом <code>0</code>.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Поля — с нулями, локальные переменные — нет</span>
+      <p>Значения по умолчанию есть только у <b>полей</b> объекта (и у элементов массива). <b>Локальная переменная</b> — та, что объявлена внутри метода, например в <code>main</code>, — сама ничем не заполняется. Пока ты не присвоил ей значение, читать её нельзя, и компилятор за этим следит:</p>
+<pre data-file="CatDemo.java"><code class="java">Cat murzik = new Cat();
+System.out.println(murzik.age);   // ✅ 0 — поле, Java обнулила сама
+
+int lives;                        // локальная переменная без значения
+System.out.println(lives);        // ❌ ошибка компиляции</code></pre>
+      <p>javac напишет <em>variable lives might not have been initialized</em> — «переменная lives, возможно, не инициализирована». IDEA подчеркнёт <code>lives</code> красным с тем же смыслом. Лечится просто: присвой значение при объявлении, например <code>int lives = 9;</code>.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли <code>Cat c = new Cat(); int bonus; System.out.println(c.age + bonus);</code>?</summary>
+      <p><b>Нет.</b> С <code>c.age</code> всё в порядке — это поле, оно равно 0. А <code>bonus</code> — локальная переменная без значения: <em>variable bonus might not have been initialized</em>. Напиши <code>int bonus = 0;</code> — и программа напечатает 0.</p>
     </details>
     <div class="callout warn">
       <span class="callout-title">Если IDEA пишет «Duplicate class»</span>
@@ -373,7 +395,7 @@ System.out.println(a == c);   // true: одна и та же ссылка</code>
       <h2>Коротко</h2>
       <ul>
         <li>Класс — чертёж нового типа: <code>class Cat { String name; int age; }</code>. Переменные внутри класса — поля.</li>
-        <li><code>new Cat()</code> создаёт объект (экземпляр) в куче, вызывая конструктор, и возвращает ссылку. Поля нового объекта: 0, 0.0, false, null.</li>
+        <li><code>new Cat()</code> создаёт объект (экземпляр) в куче, вызывая конструктор, и возвращает ссылку. Поля нового объекта: 0, 0.0, false, null. А локальную переменную без значения читать нельзя — ошибка компиляции.</li>
         <li>Точка — обращение к полю объекта по ссылке («пройти по ссылке к объекту»): <code>murzik.name</code>.</li>
         <li><code>Cat b = a;</code> копирует ссылку, а не объект: дальше a и b — один и тот же кот. <code>==</code> сравнивает ссылки.</li>
         <li>По ссылке <code>null</code> нельзя читать поля и вызывать методы — будет NullPointerException.</li>

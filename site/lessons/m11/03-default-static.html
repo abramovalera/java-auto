@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 11 · Урок 3</div>
     <h1>default и static в интерфейсах. Интерфейс или абстрактный класс?</h1>
     <p class="lead">Интерфейсы умеют больше, чем просто перечислять заголовки: в них бывают методы с телом и константы. Разберёмся, зачем это придумали, где ловушка «ромба» — и как выбирать между интерфейсом и абстрактным классом.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>💎 проблема ромба</span><span>🎮 1 мини-игра</span></div>
+    <div class="meta"><span>⏱ 25 минут</span><span>💎 проблема ромба</span><span>🎮 1 мини-игра</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -122,24 +122,29 @@ class Android implements Robot, Human { }      // ✗ какой hello() взя�
       </script>
     </div>
     <figure class="fig">
-      <svg viewBox="0 0 640 270" role="img" aria-label="Ромб: класс Android получает два разных hello() от Robot и Human и должен выбрать сам">
+      <svg viewBox="0 0 640 380" role="img" aria-label="Ромб: сверху общий предок с hello(), под ним Robot и Human со своими hello(), внизу Android, который получает оба и должен выбрать сам">
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
         </defs>
-        <rect x="30" y="20" width="230" height="80" rx="14" class="d-blue"/>
-        <text x="145" y="50" text-anchor="middle" class="d-title">🤖 Robot</text>
-        <text x="145" y="78" text-anchor="middle" class="d-mono-ink">hello() → "Бип-буп"</text>
-        <rect x="380" y="20" width="230" height="80" rx="14" class="d-violet"/>
-        <text x="495" y="50" text-anchor="middle" class="d-title">🙂 Human</text>
-        <text x="495" y="78" text-anchor="middle" class="d-mono-ink">hello() → "Привет"</text>
-        <rect x="200" y="170" width="240" height="84" rx="14" class="d-red"/>
-        <text x="320" y="202" text-anchor="middle" class="d-title">Android</text>
-        <text x="320" y="230" text-anchor="middle" class="d-small">чей hello()? ✗ не решу сам</text>
-        <path d="M280 168 L170 104" class="d-arrow"/>
-        <path d="M360 168 L470 104" class="d-arrow"/>
-        <text x="320" y="120" text-anchor="middle" font-size="30">💎</text>
+        <rect x="190" y="10" width="260" height="76" rx="14" class="d-dash"/>
+        <text x="320" y="40" text-anchor="middle" class="d-small">общий предок (в классическом ромбе)</text>
+        <text x="320" y="68" text-anchor="middle" class="d-mono-ink">hello()</text>
+        <path d="M145 128 L270 90" class="d-dash"/>
+        <path d="M495 128 L370 90" class="d-dash"/>
+        <rect x="30" y="130" width="230" height="80" rx="14" class="d-blue"/>
+        <text x="145" y="160" text-anchor="middle" class="d-title">🤖 Robot</text>
+        <text x="145" y="188" text-anchor="middle" class="d-mono-ink">hello() → "Бип-буп"</text>
+        <rect x="380" y="130" width="230" height="80" rx="14" class="d-violet"/>
+        <text x="495" y="160" text-anchor="middle" class="d-title">🙂 Human</text>
+        <text x="495" y="188" text-anchor="middle" class="d-mono-ink">hello() → "Привет"</text>
+        <rect x="200" y="285" width="240" height="84" rx="14" class="d-red"/>
+        <text x="320" y="317" text-anchor="middle" class="d-title">Android</text>
+        <text x="320" y="345" text-anchor="middle" class="d-small">чей hello()? ✗ не решу сам</text>
+        <path d="M280 283 L170 214" class="d-arrow"/>
+        <path d="M360 283 L470 214" class="d-arrow"/>
+        <text x="320" y="225" text-anchor="middle" font-size="30">💎</text>
       </svg>
-      <figcaption>Два пути наверх — два разных ответа. Java не угадывает: выбирать должен программист.</figcaption>
+      <figcaption>Четыре угла: наверху общий предок, по бокам два интерфейса со своими hello(), внизу Android. В нашем примере верхнего угла нет (он пунктиром), но конфликт тот же: два разных hello() приходят по двум путям, и Java не угадывает — выбирать должен программист.</figcaption>
     </figure>
     <p>Починка — переопределить метод в классе и решить самому. Можно вызвать один из вариантов или оба через <code>Интерфейс.super.hello()</code>:</p>
 <pre data-file="Android.java"><code class="java">class Android implements Robot, Human {
@@ -149,7 +154,7 @@ class Android implements Robot, Human { }      // ✗ какой hello() взя�
     }
 }</code></pre>
 <pre class="terminal"><span class="out">Привет / Бип-буп</span></pre>
-    <div class="say" data-mood="wow"><p>Ромбом (diamond) это называют из-за формы схемы: сверху два «родителя», снизу один класс. С классами Java эту проблему отрезала на корню — родитель только один. А с интерфейсами она возможна, но компилятор не даст её проглядеть.</p></div>
+    <div class="say" data-mood="wow"><p>Почему «ромб» (diamond)? Название пришло из классической схемы: <b>наверху</b> общий предок с методом <code>hello()</code>, <b>под ним</b> два наследника, каждый переделал <code>hello()</code> по-своему, а <b>внизу</b> класс, который унаследовал обоих. Если соединить стрелками — получится ромб с четырьмя углами. В нашем примере общего предка нет, и схема похожа на треугольник, но суть та же: два разных варианта одного метода, и непонятно, какой взять. С классами Java эту проблему отрезала на корню — родитель только один. А с интерфейсами она возможна, но компилятор не даст её проглядеть.</p></div>
   </section>
 
   <!-- ШАГ 4 -->
@@ -179,7 +184,7 @@ System.out.println(Limits.MAX_RETRIES);  // 3
 Limits.MAX_RETRIES = 5;</code></pre>
     <div class="callout tip">
       <span class="callout-title">Интерфейс — не склад констант</span>
-      <p>Раньше программисты заводили интерфейсы, в которых были только константы. Сейчас так не делают: константы объявляют в классе, а <b>набор вариантов</b> вроде статусов PASSED/FAILED — в <code>enum</code>, его разберём через урок.</p>
+      <p>Раньше программисты заводили интерфейсы, в которых были только константы. Сейчас так не делают: константы объявляют в классе, а <b>набор вариантов</b> вроде статусов заказа NEW/PAID/DELIVERED — в <code>enum</code>, его разберём через урок.</p>
     </div>
     <details class="curious">
       <summary>🔎 Для любопытных: private-методы в интерфейсе</summary>
@@ -208,7 +213,7 @@ Limits.MAX_RETRIES = 5;</code></pre>
       <li><b>Нужно общее состояние</b> (поля) и конструктор для родственных классов → абстрактный класс.</li>
       <li><b>Нужно умение</b>, которое может появиться у совсем разных классов → интерфейс.</li>
       <li><b>Сомневаешься</b> → начни с интерфейса: он не занимает единственное место «родителя».</li>
-      <li>Часто используют <b>оба</b>: интерфейс как контракт + абстрактный класс, который реализует его общую часть. Так устроена задача «Умный дом».</li>
+      <li>Часто используют <b>оба</b>: интерфейс как контракт + абстрактный класс, который реализует его общую часть. Как это выглядит в коде — в следующем шаге.</li>
     </ol>
     <p>Потренируйся: куда бы ты отнёс каждую ситуацию?</p>
     <div data-widget="buckets" id="iface-or-abstract">
@@ -229,6 +234,69 @@ Limits.MAX_RETRIES = 5;</code></pre>
   </section>
 
   <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Оба сразу: интерфейс → абстрактный класс → наследники</h2>
+    <p>Самая частая связка в настоящих программах — три этажа. Наверху <b>интерфейс</b>: что умеет каждый. Посередине <b>абстрактный класс</b>: он реализует интерфейс, но пишет только <b>общую часть</b> — то, что у всех одинаково. Внизу <b>конкретные наследники</b> дописывают остальное. Пример — игрушки на батарейках:</p>
+<pre data-file="Toys.java"><code class="java">interface Toy {
+    String name();
+    String sound();
+    void charge(int minutes);
+    int battery();                 // заряд в процентах
+}
+
+// реализует Toy, но не целиком — поэтому abstract
+abstract class BatteryToy implements Toy {
+    private int battery;           // общее состояние — поле
+
+    public void charge(int minutes) {
+        battery = Math.min(100, battery + minutes);
+    }
+
+    public int battery() {
+        return battery;
+    }
+    // name() и sound() не пишем: их допишут наследники
+}
+
+class ToyCar extends BatteryToy {
+    public String name() { return "Машинка"; }
+    public String sound() { return "Вжж"; }
+}
+
+class ToyDuck extends BatteryToy {
+    public String name() { return "Утка"; }
+    public String sound() { return "Кря"; }
+}
+
+public class Toys {
+    public static void main(String[] args) {
+        Toy[] toys = { new ToyCar(), new ToyDuck() };
+        toys[0].charge(30);
+        for (Toy t : toys) {
+            System.out.println(t.name() + ": " + t.battery() + "%, " + t.sound());
+        }
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Машинка: 30%, Вжж
+Утка: 0%, Кря</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>abstract class BatteryToy implements Toy</code><div><p>Абстрактный класс <b>реализует</b> интерфейс, но имеет право написать не все его методы. Недописанные (<code>name()</code>, <code>sound()</code>) остаются абстрактными — обязанность переходит к наследникам.</p></div></div>
+      <div class="annot-row"><code>private int battery;</code><div><p>Поле можно держать только здесь: в интерфейсе полей объекта не бывает. Ради общего состояния абстрактный класс и нужен.</p></div></div>
+      <div class="annot-row"><code>public void charge(…)</code><div><p>Методы, пришедшие из интерфейса, пишем с <code>public</code> — и в абстрактном классе, и в наследниках.</p></div></div>
+      <div class="annot-row"><code>class ToyCar extends BatteryToy</code><div><p>Наследник получает готовые <code>charge()</code> и <code>battery()</code> и дописывает недостающие <code>name()</code> и <code>sound()</code>. Теперь все пять методов <code>Toy</code> на месте — объект создать можно.</p></div></div>
+      <div class="annot-row"><code>Toy[] toys</code><div><p>В <code>main</code> работаем через интерфейс: циклу всё равно, машинка это или утка.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: что будет, если у <code>BatteryToy</code> стереть слово <code>abstract</code>?</summary>
+      <p>Ошибка компиляции: <code>BatteryToy is not abstract and does not override abstract method sound() in Toy</code> — «BatteryToy не абстрактный и не реализует метод sound() из Toy». Обычный (конкретный) класс обязан написать <b>все</b> методы интерфейса. Слово <code>abstract</code> как раз и разрешает оставить часть недописанной.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Где пригодится</span>
+      <p>Ровно так устроена задача практики «Умный дом»: интерфейс устройства, абстрактный класс с общим полем «включено» и три конкретных устройства.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
   <section class="step">
     <h2>Проверь себя</h2>
     <div data-widget="check" id="check-m11-03">
@@ -270,6 +338,7 @@ Limits.MAX_RETRIES = 5;</code></pre>
         <li>Ромб: два интерфейса с одинаковым default → ошибка компиляции, пока класс не переопределит метод сам.</li>
         <li><code>static</code>-методы интерфейса вызываются только через его имя; поля интерфейса — всегда <code>public static final</code>.</li>
         <li>Абстрактный класс — «кто ты» + общее состояние; интерфейс — «что умеешь», можно много. Сомневаешься — интерфейс.</li>
+        <li>Связка «интерфейс → абстрактный класс → наследники»: абстрактный класс реализует интерфейс частично (общее поле и общие методы), остальное дописывают наследники.</li>
       </ul>
     </div>
   </section>

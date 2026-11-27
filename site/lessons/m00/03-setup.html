@@ -15,7 +15,7 @@
     <div class="kicker">Вводная · Урок 3</div>
     <h1>Подготовка: ставим всё с нуля</h1>
     <p class="lead">Прежде чем писать код, готовим рабочее место: ставим IntelliJ IDEA, открываем в ней папку курса и скачиваем Java. В конце — чек-лист: сайт сам проверит, что всё готово.</p>
-    <div class="meta"><span>⏱ 30 минут</span><span>🛠 установка</span><span>✅ чек-лист с автопроверкой</span><span>🖼 со скринами</span></div>
+    <div class="meta"><span>⏱ 30–40 минут</span><span>🛠 установка</span><span>✅ чек-лист с автопроверкой</span><span>🖼 со скринами</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -59,11 +59,34 @@
   <!-- ШАГ 3 -->
 <section class="step">
     <h2>Скачиваем и ставим IntelliJ IDEA</h2>
+    <div class="callout fact">
+      <span class="callout-title">Потянет ли компьютер</span>
+      <p>Нужны: <b>Windows 10 или 11</b>, <b>8 ГБ</b> оперативной памяти и <b>10 ГБ</b> свободного места на диске. Посмотреть: <b>Пуск → Параметры → Система → О системе</b> — там строка «Установленная ОЗУ». Свободное место — в Проводнике, раздел «Этот компьютер», под диском <code>C:</code>. С 4 ГБ памяти IDEA тоже запустится, но будет заметно тормозить.</p>
+    </div>
+    <p>Ставим на Windows по шагам (на macOS — в конце списка):</p>
     <ol class="steps">
-      <li>Открой <a href="https://www.jetbrains.com/idea/download/" target="_blank" rel="noopener">jetbrains.com/idea/download</a> и скачай IntelliJ IDEA для своей системы (Windows или macOS). <b>Платить ничего не нужно</b>: бесплатных возможностей хватит на весь курс. Если предложат пробный период платных функций — можно отказаться.</li>
-      <li><b>Windows:</b> запусти скачанный установщик, жми «Next». На экране настроек полезно отметить ярлык на рабочем столе и связь с файлами <code>.java</code>. <b>macOS:</b> открой файл <code>.dmg</code> и перетащи IDEA в папку «Программы».</li>
-      <li>Запусти IDEA. При первом запуске она может спросить про тему оформления и импорт настроек — выбирай, что нравится.</li>
+      <li>Открой страницу <a href="https://www.jetbrains.com/idea/download/" target="_blank" rel="noopener">jetbrains.com/idea/download</a>. Вверху должна быть выбрана вкладка <b>Windows</b>. Нажми большую кнопку <b>Download</b>. Рядом с ней есть список формата — оставь <b>.exe</b> (это установщик). <code>.zip</code> не бери: его надо распаковывать и настраивать вручную. Вариант <b>.exe (ARM64)</b> — только для редких ноутбуков на процессорах Snapdragon; если не знаешь, какой у тебя процессор, — тебе нужен обычный <b>.exe</b>.</li>
+      <li><b>Платить ничего не нужно.</b> Сайт может открыть страницу «спасибо за загрузку» или предложить подписку — просто закрой её: файл уже качается. Он большой, загрузка займёт несколько минут.</li>
+      <li>Браузер сохранит файл в папку <b>«Загрузки»</b>: открой Проводник (<kbd>Win</kbd>+<kbd>E</kbd>) → слева <b>«Загрузки»</b>. Файл называется примерно <code>idea-2026.3.exe</code> (цифры — номер версии, у тебя могут быть другие). Ещё проще — в браузере нажми <kbd>Ctrl</kbd>+<kbd>J</kbd>, там список скачанного. Запусти файл двойным щелчком.</li>
+      <li>Windows спросит: <b>«Разрешить этому приложению вносить изменения на вашем устройстве?»</b>, издатель — <b>JetBrains s.r.o.</b> Это обычный вопрос при установке любой программы. Нажми <b>«Да»</b>.</li>
+      <li>Откроется мастер установки на английском. На первом экране — <b>Next</b>. На экране <b>Choose Install Location</b> (куда ставить) оставь папку как есть — <b>Next</b>.</li>
+      <li>Экран <b>Installation Options</b> (что ещё сделать):
+        <ul>
+          <li><b>Create Desktop Shortcut</b> — ярлык на рабочем столе. Отметь: так проще запускать.</li>
+          <li><b>Add "Open Folder as Project"</b> — пункт в меню правого клика по папке. По желанию.</li>
+          <li><b>Create Associations</b> → <code>.java</code> — файлы <code>.java</code> будут открываться в IDEA двойным щелчком. По желанию.</li>
+          <li><b>Update PATH Variable (restart needed)</b> → <b>Add "bin" folder to the PATH</b> — <b>не отмечай</b>. Это нужно, чтобы запускать IDEA командой из чёрного окна командной строки, а в курсе её нет.</li>
+        </ul>
+        Нажми <b>Next</b>, на следующем экране — <b>Install</b>. Установка идёт пару минут.</li>
+      <li>На последнем экране может быть вопрос про перезагрузку: <b>Reboot now</b> («перезагрузить сейчас») или <b>I want to manually reboot later</b> («перезагружу сам позже»). Это нормально, ничего не сломалось: обычно так бывает, если отмечен пункт про PATH (рядом с ним так и написано: <i>restart needed</i> — «нужна перезагрузка»). Сохрани открытые документы и выбери <b>Reboot now</b> — или «позже», если сейчас неудобно. Если вопроса нет — отметь <b>Run IntelliJ IDEA</b> и нажми <b>Finish</b>.</li>
+      <li>Запусти IDEA (ярлык на рабочем столе или <b>Пуск → IntelliJ IDEA</b>). При первом запуске она может попросить принять пользовательское соглашение (<b>User Agreement</b>: отметь галочку и нажми <b>Continue</b>), спросить, можно ли отправлять анонимную статистику (<b>Don't Send</b> — не отправлять, можно смело), и предложить импорт настроек из другой программы — выбери <b>Skip</b> (пропустить): импортировать нечего.</li>
+      <li><b>macOS:</b> на странице загрузки выбери вкладку <b>macOS</b> и формат под свой процессор (Apple Silicon — для M1/M2/M3/M4, Intel — для старых). Открой скачанный файл <code>.dmg</code> и перетащи значок IDEA в папку «Программы» (Applications), запусти оттуда.</li>
     </ol>
+    <div class="callout tip">
+      <span class="callout-title">Пробный период Ultimate: что это и что будет потом</span>
+      <p>IntelliJ IDEA — одна программа с бесплатной частью и платной подпиской <b>Ultimate</b>. При первом запуске IDEA <b>сама</b> включает пробный период Ultimate на <b>30 дней</b> — бесплатно, без карты и без регистрации. Справа вверху окна будет надпись <b>Trial</b>: по ней видно, сколько дней осталось.</p>
+      <p>Через 30 дней пробный период закончится сам. <b>IDEA продолжит работать бесплатно</b>, твои проекты и настройки останутся. Пропадут только платные функции для веб-разработки и больших фреймворков — в курсе они не нужны. Если IDEA предложит купить подписку, закрой окно: ничего покупать не надо, бесплатной части хватит на весь курс.</p>
+    </div>
     <div class="callout tip">
       <span class="callout-title">Язык интерфейса</span>
       <p>Оставь интерфейс на английском. Во всех статьях и видео пункты меню называются по-английски — и в этом курсе тоже. Так проще находить нужное.</p>
@@ -173,7 +196,7 @@
     <h2>Скачиваем Java прямо из IDEA</h2>
     <p>Чтобы писать программы на Java, нужен <b>JDK</b> (Java Development Kit) — набор инструментов программиста. Что у него внутри, разберём в уроке 1.2, а сейчас просто скачаем: IDEA сделает это сама.</p>
     <p>Иногда IDEA уже сама подставила Java, если она есть на компьютере. Тогда в поле <b>SDK</b> будет не <code>&lt;No SDK&gt;</code>, а номер версии. 21 или больше — ничего качать не нужно, переходи к проверке.</p>
-    <p>Открой окно <b>Project Structure</b>: меню <b>File → Project Structure…</b> (или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Слева выбери пункт <b>Project</b>. Окно выглядит так:</p>
+    <p>Открой окно <b>Project Structure</b>: нажми <b>☰</b> слева вверху (главное меню, как в шаге 5) → <b>File</b> → <b>Project Structure…</b> Или сразу сочетанием <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>. Слева выбери пункт <b>Project</b>. Окно выглядит так:</p>
     <div data-widget="ide" id="shot-project-structure">
       <script type="application/json">
       { "project": "workspace",
@@ -186,16 +209,16 @@
                     "rows": [ { "label": "Name:", "value": "workspace" },
                               { "label": "SDK:", "value": "<No SDK>", "type": "select", "hl": true },
                               { "label": "Language level:", "value": "SDK default", "type": "select" },
-                              { "label": "Compiler output:", "value": "C:\\Users\\Misha\\java-course\\workspace\\out" } ],
+                              { "label": "Compiler output:", "value": "C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace\\out" } ],
                     "buttons": ["OK", "Cancel", "Apply"], "primary": "OK" },
-        "marks": [ { "n": 1, "target": "dialog", "side": "top", "text": "Окно <b>Project Structure</b> («устройство проекта»): <b>File → Project Structure…</b> или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>. Слева должен быть выбран пункт <b>Project</b>" },
-                   { "n": 2, "target": "field-SDK:", "text": "<b>&lt;No SDK&gt;</b> — Java для проекта ещё не выбрана. Щёлкни по списку → <b>Add SDK</b> → <b>Download JDK…</b>" },
+        "marks": [ { "n": 1, "target": "dialog", "side": "top", "text": "Окно <b>Project Structure</b> («устройство проекта»): <b>☰ → File → Project Structure…</b> или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>. Слева должен быть выбран пункт <b>Project</b>" },
+                   { "n": 2, "target": "field-SDK:", "text": "<b>&lt;No SDK&gt;</b> — Java для проекта ещё не выбрана. Щёлкни по списку → <b>Download JDK…</b> (в некоторых версиях IDEA этот пункт спрятан внутри <b>Add SDK</b>)" },
                    { "n": 3, "target": "field-Language level:", "text": "<b>Language level</b> — какой версии Java пишем код. Подходят оба варианта: <b>SDK default</b> («как у выбранного JDK» — после скачивания это и будет 21) или прямо <b>21</b>. Менять не обязательно" },
                    { "n": 4, "target": "btn-OK", "side": "top", "text": "В самом конце — <b>OK</b>, чтобы сохранить настройки" } ],
         "caption": "Project Structure до настройки: SDK не выбран" }
       </script>
     </div>
-    <p>Щёлкни по выпадающему списку <b>SDK</b> в этом окне (там, где написано <code>&lt;No SDK&gt;</code>, выноска 2) и выбери <b>Add SDK → Download JDK…</b> — откроется маленькое окно загрузки:</p>
+    <p>Щёлкни по выпадающему списку <b>SDK</b> в этом окне (там, где написано <code>&lt;No SDK&gt;</code>, выноска 2) и выбери <b>Download JDK…</b> (если такого пункта сразу не видно — наведи на <b>Add SDK</b>, он там). Откроется маленькое окно загрузки:</p>
     <div data-widget="ide" id="shot-download-jdk">
       <script type="application/json">
       { "project": "workspace",
@@ -208,7 +231,7 @@
                               { "label": "Vendor:", "value": "Eclipse Temurin", "type": "select", "hl": true },
                               { "label": "Location:", "value": "C:\\Users\\Misha\\.jdks\\temurin-21" } ],
                     "buttons": ["Download", "Cancel"], "primary": "Download" },
-        "marks": [ { "n": 1, "target": "field-Version:", "text": "<b>Version</b> — версия Java. Выбери <b>21</b>" },
+        "marks": [ { "n": 1, "target": "field-Version:", "text": "<b>Version</b> — версия Java. Выбери <b>21</b>. IDEA может сама подставить самую свежую (например, <b>25</b>) — раскрой список и поменяй на 21: весь курс проверен на 21-й версии" },
                    { "n": 2, "target": "field-Vendor:", "text": "<b>Vendor</b> — кто собрал JDK. Выбери <b>Eclipse Temurin</b>: бесплатный и самый популярный" },
                    { "n": 3, "target": "field-Location:", "text": "<b>Location</b> — куда положить JDK. Оставь как предлагает IDEA (папка <code>.jdks</code> в твоей папке пользователя)" },
                    { "n": 4, "target": "btn-Download", "side": "top", "text": "<b>Download</b> — скачать. Ход загрузки виден внизу окна IDEA, это пара минут" } ],
@@ -217,12 +240,43 @@
     </div>
     <p>Ещё раз всё по шагам:</p>
     <ol class="steps">
-      <li>Открой <b>File → Project Structure…</b> (или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Слева выбери <b>Project</b>.</li>
-      <li>В поле <b>SDK</b> раскрой список → <b>Add SDK</b> → <b>Download JDK…</b></li>
-      <li>В окне выбери <b>Version: 21</b> и <b>Vendor: Eclipse Temurin</b>. Нажми <b>Download</b> — IDEA скачает Java (пару минут).</li>
+      <li>Открой <b>☰ → File → Project Structure…</b> (или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Слева выбери <b>Project</b>.</li>
+      <li>В поле <b>SDK</b> раскрой список → <b>Download JDK…</b> (или <b>Add SDK → Download JDK…</b>).</li>
+      <li>В окне выбери <b>Version: 21</b> (не 25 и не другую, даже если IDEA подставила её сама) и <b>Vendor: Eclipse Temurin</b>. Нажми <b>Download</b> — IDEA скачает Java (пару минут).</li>
       <li>Взгляни на <b>Language level</b>: там <b>SDK default</b> или <b>21</b> — оба варианта верные. Нажми <b>OK</b>.</li>
+      <li>Подожди, пока IDEA закончит <b>индексацию</b>: внизу окна бежит полоска с надписью вроде <i>Indexing JDK…</i> или <i>Scanning files to index…</i> IDEA читает скачанную Java и составляет себе «оглавление», чтобы потом быстро подсказывать. Это 1–5 минут, в это время IDEA может подтормаживать. <b>Она не зависла</b> — ничего не нажимай и не закрывай, просто дождись, пока полоска исчезнет.</li>
     </ol>
     <div class="say" data-mood="happy"><p>Готово: на твоём компьютере теперь есть настоящий JDK. Просто ставила его IDEA, а не ты руками.</p></div>
+  </section>
+
+  <!-- ШАГ 6½ -->
+  <section class="step" id="no-full-line">
+    <h2>Выключаем ИИ-дописывание целых строк</h2>
+    <p>Пока идёт пробный период Ultimate, в IDEA работает <b>Full Line completion</b> — встроенный искусственный интеллект, который дописывает за тебя целые строки кода. Ты начинаешь печатать, а дальше появляется серый текст: нажал <kbd>Tab</kbd> — строка готова. Для работы удобно, а для учёбы вредно: это то же самое, что копировать код, — руки и голова ничего не запоминают. Выключим.</p>
+    <ol class="steps">
+      <li>Открой настройки: <b>☰ → File → Settings…</b> или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>.</li>
+      <li>Слева раскрой <b>Editor</b> → <b>General</b> → <b>Code Completion</b> → <b>Inline</b>.</li>
+      <li>Сними галочку <b>Enable inline completion using language models</b> («дописывать строки с помощью языковых моделей»).</li>
+      <li>Нажми <b>OK</b>.</li>
+    </ol>
+    <div data-widget="ide" id="shot-full-line-off">
+      <script type="application/json">
+      { "tree": false, "project": "workspace",
+        "dialog": { "title": "Settings",
+                    "side": ["Appearance & Behavior", "Keymap", "Editor", "  General", "    Code Completion", "      Inline", "Plugins", "Version Control"], "sideHl": "      Inline",
+                    "rows": [ { "label": "", "value": "☐ Enable inline completion using language models", "type": "text", "hl": true } ],
+                    "buttons": ["OK", "Cancel", "Apply"], "primary": "OK" },
+        "marks": [ { "n": 1, "target": "dialog", "side": "top", "text": "Окно <b>Settings</b> (настройки): <b>☰ → File → Settings…</b> или <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>. Слева: <b>Editor → General → Code Completion → Inline</b>" },
+                   { "n": 2, "target": "field-", "text": "Эта галочка должна быть <b>снята</b>. Тогда IDEA перестанет дописывать за тебя целые строки" },
+                   { "n": 3, "target": "btn-OK", "side": "top", "text": "<b>OK</b> — сохранить" } ],
+        "caption": "Settings → Editor → General → Code Completion → Inline: ИИ-дописывание выключено" }
+      </script>
+    </div>
+    <p>Обычные подсказки IDEA (список слов, который всплывает, пока печатаешь) остаются — это не ИИ, а словарь: он подсказывает названия, но думать за тебя не будет. Ими пользоваться можно.</p>
+    <div class="callout tip">
+      <span class="callout-title">Нет пункта Inline?</span>
+      <p>Значит, пробный период уже закончился или ИИ-дописывание у тебя не включено: эта функция есть только в Ultimate. Делать ничего не нужно. А если IDEA предложит включить <b>AI Assistant</b> или <b>JetBrains AI</b> — откажись: с вопросами у нас есть <span class="ai-only">наставник</span><span class="free-only">ИИ-помощник из уроков</span>, и он не пишет код за тебя.</p>
+    </div>
   </section>
 
   <!-- ШАГ 7 -->
@@ -249,21 +303,29 @@
       <table>
         <tr><th>Что видишь</th><th>Что делать</th></tr>
         <tr><td>Проверка: «IDEA ещё не открывала workspace»</td><td>Открой папку по шагу 5. Открыл, а проверка всё равно красная — закрой IDEA и открой снова: IDEA записывает свои настройки при открытии проекта.</td></tr>
-        <tr><td>Проверка: «Java не выбрана»</td><td>Шаг 6: Project Structure → SDK → Download JDK.</td></tr>
+        <tr><td>Проверка: «Java не выбрана»</td><td>Шаг 6: ☰ → File → Project Structure → SDK → Download JDK.</td></tr>
         <tr><td>Жёлтая полоска «Project JDK is not defined» или «Setup SDK»</td><td>JDK не выбран. Нажми на ссылку в полоске или повтори шаг 6.</td></tr>
         <tr><td>Слева в дереве не <code>workspace</code>, а другое название</td><td>Открыт другой проект. Шаг 5, вариант Б.</td></tr>
         <tr><td>На странице задачи «Файл не найден», хотя файл создан</td><td>Файл создан не в том проекте. Проверь, что слева в IDEA <code>workspace</code>, а файл лежит в папке модуля из условия.</td></tr>
         <tr><td>Download JDK не скачивается</td><td>Проверь интернет и попробуй ещё раз через пару минут.</td></tr>
+        <tr><td>После скачивания Java внизу долго бежит полоска <i>Indexing…</i>, IDEA подтормаживает</td><td>Это индексация, IDEA не зависла. Подожди, пока полоска исчезнет (обычно 1–5 минут), и ничего не закрывай.</td></tr>
+        <tr><td>Проверка: «сервер курса не ответил — проверь, что Docker запущен» или сайт курса перестал открываться</td><td>Сайт курса работает внутри программы <b>Docker Desktop</b> — её ставили вместе с курсом, до этого урока. Если она закрыта, сайт «спит». Открой <b>Пуск → Docker Desktop</b>, подожди, пока внизу слева появится зелёная надпись <b>Engine running</b>, и обнови страницу (<kbd>F5</kbd>).</td></tr>
+        <tr><td>Установщик IDEA предлагает перезагрузить компьютер</td><td>Это нормально. Сохрани открытые документы и перезагрузись — или выбери «позже», если сейчас неудобно.</td></tr>
       </table>
     </div>
     <div class="callout ai">
       <span class="callout-title">Застрял на подготовке</span>
       <p>Напиши: <em>«Готовлю IntelliJ IDEA по уроку 0.3 курса «Java с нуля», на шаге … вижу вот это: …»</em> — и приложи скриншот экрана.</p>
     </div>
+    <div class="callout tip">
+      <span class="callout-title">Как сделать скриншот</span>
+      <p>Нажми <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (<kbd>Win</kbd> — клавиша с логотипом Windows). Экран потемнеет — обведи мышкой нужный кусок. Картинка попадёт в буфер обмена: щёлкни в поле сообщения в чате и нажми <kbd>Ctrl</kbd>+<kbd>V</kbd> — скриншот вставится. На macOS — <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>, картинка сохранится на рабочий стол, перетащи её в чат.</p>
+    </div>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
-        <li>Нужны две вещи: IntelliJ IDEA и Java (JDK 21), Java качаем прямо из IDEA.</li>
+        <li>Нужны две вещи: IntelliJ IDEA и Java (JDK 21), Java качаем прямо из IDEA. Пробный Ultimate через 30 дней закончится сам — IDEA останется бесплатной.</li>
+        <li>ИИ-дописывание строк выключаем: Settings → Editor → General → Code Completion → Inline.</li>
         <li>Учебный проект — папка <code>workspace</code> в папке курса. Открываем: Open (или ☰ → File → Open…) → путь → OK → Trust Project.</li>
         <li>Свой проект для уроков не создаём: сайт проверяет только <code>workspace</code>.</li>
         <li>Всё ли готово — показывает кнопка «Проверить подготовку».</li>
@@ -305,7 +367,7 @@
       li.classList.toggle("bad", ok !== true);
       const n = li.querySelector(".sc-note"); if (n) n.textContent = note || "";
     };
-    if (!s) { ["path", "idea", "jdk", "folders"].forEach((k) => set(k, null, "сервер курса не ответил — проверь, что Docker запущен")); return false; }
+    if (!s) { ["path", "idea", "jdk", "folders"].forEach((k) => set(k, null, "сервер курса не ответил — проверь, что Docker Desktop запущен (как — в «Если что-то пошло не так» ниже)")); return false; }
     set("path", !!s.hostPath, s.hostPath || "путь не определился, но папка есть — найди её по подсказке в шаге 4");
     set("idea", s.ideaOpened, s.ideaOpened ? "" : "IDEA ещё не открывала workspace — шаг 5");
     const v = jdkVersion(s.jdk);

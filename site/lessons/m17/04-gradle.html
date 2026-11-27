@@ -39,7 +39,7 @@
   <!-- ШПАРГАЛКА -->
   <section class="step">
     <h2>Выпиши себе: Gradle в IDEA</h2>
-    <p>Сначала таблица, потом объяснения. <b>Выпиши её руками</b> — к концу урока каждая строка станет понятной, а в модуле 18 ты будешь пользоваться ими каждый день.</p>
+    <p>Сначала таблица, потом объяснения. <b>Выпиши её руками</b> — к концу урока каждая строка станет понятной, а в любом своём Gradle-проекте ты будешь пользоваться ими постоянно.</p>
     <div class="cheat">
       <h3>Выпиши себе: Gradle</h3>
       <div class="table-wrap"><table>
@@ -52,8 +52,7 @@
         <tr><td>Собрать с нуля и прогнать тесты</td><td><kbd>Ctrl</kbd>, <kbd>Ctrl</kbd> (дважды Ctrl — Run Anything) → набрать <code>gradle clean test</code> → <kbd>Enter</kbd></td><td><code>./gradlew clean test</code></td></tr>
         <tr><td>Удалить результаты сборки</td><td>Tasks → build → <b>clean</b></td><td><code>./gradlew clean</code></td></tr>
         <tr><td>Собрать всё: jar + тесты</td><td>Tasks → build → <b>build</b></td><td><code>./gradlew build</code></td></tr>
-        <tr><td>Посмотреть дерево зависимостей</td><td>Окно Gradle → <b>Dependencies</b></td><td><code>./gradlew dependencies</code></td></tr>
-        <tr><td>Узнать, почему выбрана версия</td><td>Run Anything → <code>gradle dependencyInsight --dependency имя</code></td><td><code>./gradlew dependencyInsight …</code></td></tr>
+        <tr><td>Посмотреть дерево зависимостей (для любопытных)</td><td>Окно Gradle → <b>Dependencies</b></td><td><code>./gradlew dependencies</code></td></tr>
         <tr><td>Отчёт о тестах</td><td>Файл <code>build/reports/tests/test/index.html</code> → открыть в браузере</td><td>—</td></tr>
         <tr><td>Посмотреть скачанные библиотеки</td><td>Дерево проекта → <b>External Libraries</b></td><td>—</td></tr>
       </table></div>
@@ -86,7 +85,7 @@
     <figure class="fig">
       <svg class="wide" viewBox="0 0 740 430" role="img" aria-label="Дерево Gradle-проекта: build.gradle.kts, settings.gradle.kts, gradlew и gradlew.bat, папка gradle/wrapper, src/main/java для кода, src/main/resources, src/test/java для тестов, build для результатов сборки">
         <rect x="20" y="16" width="380" height="400" rx="14" class="d-code"/>
-        <text x="40" y="48" class="d-mono">📁 shop-autotests/</text>
+        <text x="40" y="48" class="d-mono">📁 shop-app/</text>
         <text x="64" y="78" class="d-mono">📄 build.gradle.kts</text>
         <text x="64" y="108" class="d-mono">📄 settings.gradle.kts</text>
         <text x="64" y="138" class="d-mono">📄 gradlew, gradlew.bat</text>
@@ -125,7 +124,7 @@
     </figure>
     <dl class="terms">
       <dt>build.gradle.kts</dt><dd>Главный файл: какие библиотеки нужны, под какую Java собирать, как запускать тесты. Разберём его по строчкам в следующем шаге.</dd>
-      <dt>settings.gradle.kts</dt><dd>Настройки всего проекта. Главная строка там — <code>rootProject.name = "shop-autotests"</code>, имя проекта. IDEA может добавить туда и служебный плагин — трогать его не нужно.</dd>
+      <dt>settings.gradle.kts</dt><dd>Настройки всего проекта. Главная строка там — <code>rootProject.name = "shop-app"</code>, имя проекта. IDEA может добавить туда и служебный плагин — трогать его не нужно.</dd>
       <dt>build/</dt><dd>Сюда Gradle складывает скомпилированные классы, jar и отчёты о тестах. Папку можно удалить в любой момент (<code>./gradlew clean</code>), Gradle соберёт её заново. Поэтому она — в <code>.gitignore</code>, как и служебная папка <code>.gradle/</code> в корне проекта.</dd>
     </dl>
 
@@ -239,8 +238,8 @@ tasks.test {
     <p>Как это выглядит в IDEA — и структура проекта, и скачанные библиотеки:</p>
     <div data-widget="ide" id="shot-gradle-tree">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts",
-        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+      { "project": "shop-app", "status": "shop-app › build.gradle.kts",
+        "tree": [ { "name": "shop-app", "type": "folder", "depth": 0, "open": true },
                   { "name": ".gradle", "type": "out", "depth": 1 },
                   { "name": "build", "type": "out", "depth": 1, "note": "сборка" },
                   { "name": "gradle", "type": "folder", "depth": 1, "open": true },
@@ -285,13 +284,13 @@ tasks.test {
       <script type="application/json">
       { "tree": false, "project": "workspace",
         "dialog": { "title": "New Project", "side": ["Java", "Kotlin", "Groovy", "Empty Project", "Maven Archetype", "JavaFX"], "sideHl": "Java",
-                    "rows": [ { "label": "Name", "value": "shop-autotests" },
+                    "rows": [ { "label": "Name", "value": "shop-app" },
                               { "label": "Location", "value": "~\\IdeaProjects" },
                               { "label": "Build system", "value": "IntelliJ    Maven    [ Gradle ]", "type": "text", "hl": true },
                               { "label": "JDK", "value": "21  Eclipse Temurin", "type": "select" },
                               { "label": "Gradle DSL", "value": "[ Kotlin ]    Groovy", "type": "text" },
                               { "label": "GroupId", "value": "ru.shop" },
-                              { "label": "ArtifactId", "value": "shop-autotests" } ],
+                              { "label": "ArtifactId", "value": "shop-app" } ],
                     "buttons": ["Create", "Cancel"], "primary": "Create" },
         "marks": [ { "n": 1, "target": "field-Build system", "text": "Главное: <b>Build system — Gradle</b>. С вариантом IntelliJ получится обычный проект без build-файла, как папка нашего курса" },
                    { "n": 2, "target": "field-Gradle DSL", "text": "<b>Kotlin</b> — файл будет называться <code>build.gradle.kts</code>. Groovy — старый вариант, файл <code>build.gradle</code> без <code>.kts</code>; смысл тот же, синтаксис чуть другой" },
@@ -303,7 +302,7 @@ tasks.test {
     <p>А так выглядит тест, когда библиотеку в <code>build.gradle.kts</code> уже вписали, но изменения ещё не загрузили:</p>
     <div data-widget="ide" id="shot-gradle-not-loaded">
       <script type="application/json">
-      { "tree": false, "project": "shop-autotests", "status": "shop-autotests › src › test › java › ru.shop › DeliveryFeeTest",
+      { "tree": false, "project": "shop-app", "status": "shop-app › src › test › java › ru.shop › DeliveryFeeTest",
         "file": "DeliveryFeeTest.java", "tabs": ["DeliveryFeeTest.java", "build.gradle.kts"],
         "code": "package ru.shop;\n\nimport org.assertj.core.api.Assertions;\nimport org.junit.jupiter.api.Test;\n\nclass DeliveryFeeTest {\n    @Test\n    void bigOrderIsFree() {\n        Assertions.assertThat(DeliveryFee.feeFor(2500)).isEqualTo(0);\n    }\n}",
         "errors": [ { "line": 3, "text": "assertj", "msg": "Cannot resolve symbol 'assertj'", "tip": true, "fix": false },
@@ -337,8 +336,8 @@ tasks.test {
     <p>В IDEA задачи — это строчки в окне <b>Gradle</b>. Двойной щелчок по <b>test</b> — запустить тесты. А чтобы собрать с нуля, удобнее Run Anything: <kbd>Ctrl</kbd>, <kbd>Ctrl</kbd> → <code>gradle clean test</code> → <kbd>Enter</kbd>. Внизу откроется панель Run с выводом Gradle:</p>
     <div data-widget="ide" id="shot-gradle-tasks">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [clean test]",
-        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+      { "project": "shop-app", "status": "shop-app › build.gradle.kts", "runConfig": "shop-app [clean test]",
+        "tree": [ { "name": "shop-app", "type": "folder", "depth": 0, "open": true },
                   { "name": "Tasks", "type": "folder", "depth": 1, "open": true },
                   { "name": "build", "type": "folder", "depth": 2, "open": true },
                   { "name": "assemble", "type": "file", "depth": 3 },
@@ -352,7 +351,7 @@ tasks.test {
                   { "name": "Dependencies", "type": "folder", "depth": 1 } ],
         "file": "build.gradle.kts",
         "code": "tasks.test {\n    useJUnitPlatform()\n}",
-        "console": { "title": "shop-autotests [clean test]", "lines": [
+        "console": { "title": "shop-app [clean test]", "lines": [
           { "t": "cmd", "s": "10:15:32: Executing 'clean test'…" },
           { "t": "out", "s": "> Task :clean" },
           { "t": "out", "s": "> Task :compileJava" },
@@ -370,17 +369,17 @@ tasks.test {
     <p>А вот что будет, если один тест красный:</p>
     <div data-widget="ide" id="shot-gradle-test-failed">
       <script type="application/json">
-      { "tree": false, "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [test]",
+      { "tree": false, "project": "shop-app", "status": "shop-app › build.gradle.kts", "runConfig": "shop-app [test]",
         "file": "DeliveryFeeTest.java",
         "code": "    @Test\n    void bigOrderIsFree() {\n        Assertions.assertThat(DeliveryFee.feeFor(2500)).isEqualTo(0);\n    }",
         "firstLine": 7,
-        "console": { "title": "shop-autotests [test]", "lines": [
+        "console": { "title": "shop-app [test]", "lines": [
           { "t": "out", "s": "> Task :test FAILED" },
           { "t": "err", "s": "DeliveryFeeTest > bigOrderIsFree() FAILED" },
           { "t": "err", "s": "    org.opentest4j.AssertionFailedError at DeliveryFeeTest.java:9" },
           { "t": "out", "s": "1 test completed, 1 failed" },
           { "t": "err", "s": "Execution failed for task ':test'." },
-          { "t": "err", "s": "> There were failing tests. See the report at: file:///C:/Users/Misha/IdeaProjects/shop-autotests/build/reports/tests/test/index.html" },
+          { "t": "err", "s": "> There were failing tests. See the report at: file:///C:/Users/Misha/IdeaProjects/shop-app/build/reports/tests/test/index.html" },
           { "t": "out", "s": "BUILD FAILED in 3s" } ] },
         "marks": [ { "n": 1, "target": "error", "text": "Какой класс и какой тест упал: <code>Класс &gt; метод() FAILED</code>" },
                    { "n": 2, "target": "error-2", "text": "Почему и где: исключение проверки и строка теста" },
@@ -397,8 +396,8 @@ tasks.test {
 
   <!-- ШАГ 8 -->
   <section class="step">
-    <h2>Убрать, обновить, разобраться: уход за зависимостями</h2>
-    <p>Добавлять библиотеки научились. Но в живом проекте их ещё <b>убирают</b> (больше не нужна), <b>обновляют</b> (вышла версия с исправлениями) и <b>распутывают</b> (две библиотеки хотят разные версии третьей). Тестировщик сталкивается с этим постоянно: «у меня тесты падают, а у коллеги нет» очень часто означает разные версии зависимостей.</p>
+    <h2>Убрать и обновить зависимость</h2>
+    <p>Добавлять библиотеки научились. Но в живом проекте их ещё <b>убирают</b> (больше не нужна) и <b>обновляют</b> (вышла версия с исправлениями). Оба действия — правка одной строки build-файла.</p>
 
     <h3>Как убрать зависимость</h3>
     <ol class="steps">
@@ -409,7 +408,7 @@ tasks.test {
     </ol>
     <div data-widget="ide" id="shot-gradle-remove">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "tree": false,
+      { "project": "shop-app", "status": "shop-app › build.gradle.kts", "tree": false,
         "file": "build.gradle.kts", "tabs": ["build.gradle.kts", "DeliveryFeeTest.java"],
         "code": "plugins {\n    java\n}\n\ngroup = \"ru.shop\"\nversion = \"1.0-SNAPSHOT\"\n\njava {\n    toolchain {\n        languageVersion = JavaLanguageVersion.of(21)\n    }\n}\n\nrepositories {\n    mavenCentral()\n}\n\ndependencies {\n    testImplementation(\"org.junit.jupiter:junit-jupiter:5.11.4\")\n    testImplementation(\"org.assertj:assertj-core:3.27.3\")\n    testRuntimeOnly(\"org.junit.platform:junit-platform-launcher\")\n}\n\ntasks.test {\n    useJUnitPlatform()\n}",
         "selLines": [20], "caretLine": 20,
@@ -425,7 +424,16 @@ tasks.test {
     </div>
 
     <h3>Как обновить версию</h3>
-    <p>Поменяй число версии в координатах зависимости и снова <b>Load Gradle Changes</b>. Свежую версию смотри на <b>mvnrepository.com</b>. Когда одна версия встречается в нескольких строках, её выносят в одно место. Самый простой способ — переменная прямо в build-файле:</p>
+    <p>Поменяй число версии в координатах зависимости и снова <b>Load Gradle Changes</b>. Свежую версию смотри на <b>mvnrepository.com</b>.</p>
+    <div class="callout tip">
+      <span class="callout-title">Правила безопасного обновления</span>
+      <p>Обновляй <b>по одной</b> библиотеке и после каждой прогоняй <code>gradle clean test</code> — тогда понятно, кто что сломал. Смотри на первую цифру версии: <code>5.11 → 5.12</code> — обычно безопасно, <code>5 → 6</code> — «большая» версия, может менять методы и ломать код. Перед таким обновлением читают <b>release notes</b> — список изменений на сайте библиотеки.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: версия в одном месте, дерево зависимостей и конфликт версий</summary>
+      <p>Это пригодится, когда библиотек в проекте станет много. Для учебных проектов хватает того, что выше.</p>
+      <h3>Версия в одном месте</h3>
+    <p>Когда одна версия встречается в нескольких строках, её выносят в одно место. Самый простой способ — переменная прямо в build-файле:</p>
 <pre data-file="build.gradle.kts"><code>val junitVersion = "5.11.4"
 
 dependencies {
@@ -444,17 +452,12 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
     testImplementation(libs.assertj)
 }</code></pre>
     <p>В <code>[versions]</code> — номера версий, в <code>[libraries]</code> — библиотеки со ссылкой на версию, а в build-файле к ним обращаются коротко: <code>libs.имя</code>. Встретишь такой файл в проекте — обновляй версию в нём, а не в <code>build.gradle.kts</code>.</p>
-    <div class="callout tip">
-      <span class="callout-title">Правила безопасного обновления</span>
-      <p>Обновляй <b>по одной</b> библиотеке и после каждой прогоняй <code>gradle clean test</code> — тогда понятно, кто что сломал. Смотри на первую цифру версии: <code>5.11 → 5.12</code> — обычно безопасно, <code>5 → 6</code> — «большая» версия, может менять методы и ломать код. Перед таким обновлением читают <b>release notes</b> — список изменений на сайте библиотеки.</p>
-    </div>
-
     <h3>Дерево зависимостей: кто кого притащил</h3>
     <p>Помнишь транзитивные зависимости? Их бывают десятки. Посмотреть, откуда взялась каждая, можно двумя способами: в окне <b>Gradle</b> раскрыть узел <b>Dependencies</b> — или запустить задачу <code>gradle dependencies --configuration testRuntimeClasspath</code> (в IDEA: <kbd>Ctrl</kbd>, <kbd>Ctrl</kbd> → набери её → <kbd>Enter</kbd>). <code>testRuntimeClasspath</code> — «всё, что окажется рядом с тестами при запуске»; без этого уточнения Gradle напечатает деревья для всех конфигураций подряд.</p>
     <div data-widget="ide" id="shot-gradle-deptree">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [dependencies]",
-        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+      { "project": "shop-app", "status": "shop-app › build.gradle.kts", "runConfig": "shop-app [dependencies]",
+        "tree": [ { "name": "shop-app", "type": "folder", "depth": 0, "open": true },
                   { "name": "Tasks", "type": "folder", "depth": 1 },
                   { "name": "Dependencies", "type": "folder", "depth": 1, "open": true },
                   { "name": "compileClasspath", "type": "folder", "depth": 2 },
@@ -469,7 +472,7 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
                   { "name": "junit-platform-launcher:1.11.4", "type": "lib", "depth": 3 } ],
         "file": "build.gradle.kts",
         "code": "dependencies {\n    testImplementation(\"org.junit.jupiter:junit-jupiter:5.11.4\")\n    testImplementation(\"org.assertj:assertj-core:3.27.3\")\n    testRuntimeOnly(\"org.junit.platform:junit-platform-launcher\")\n}",
-        "console": { "title": "shop-autotests [dependencies]", "lines": [
+        "console": { "title": "shop-app [dependencies]", "lines": [
           { "t": "out", "s": "testRuntimeClasspath - Runtime classpath of source set 'test'." },
           { "t": "out", "s": "+--- org.junit.jupiter:junit-jupiter:5.11.4" },
           { "t": "out", "s": "|    +--- org.junit.jupiter:junit-jupiter-api:5.11.4" },
@@ -494,9 +497,9 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
     <p>Опасность в том, что компиляция проходит, а падает уже <b>во время запуска</b>: библиотеке A досталась версия новее, чем она ждала, а в новой версии какой-то старый метод убрали или переименовали. В консоли тогда <code>NoSuchMethodError</code> или <code>ClassNotFoundException</code> — это почти всегда конфликт версий. Найти его помогает то же дерево:</p>
     <div data-widget="ide" id="shot-gradle-conflict">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [dependencies]", "tree": false,
+      { "project": "shop-app", "status": "shop-app › build.gradle.kts", "runConfig": "shop-app [dependencies]", "tree": false,
         "file": "build.gradle.kts", "code": "dependencies {\n    implementation(\"ru.example:library-a:1.0\")\n    implementation(\"ru.example:library-b:3.2\")\n}",
-        "console": { "title": "shop-autotests [dependencies]", "lines": [
+        "console": { "title": "shop-app [dependencies]", "lines": [
           { "t": "out", "s": "runtimeClasspath - Runtime classpath of source set 'main'." },
           { "t": "out", "s": "+--- ru.example:library-a:1.0" },
           { "t": "out", "s": "|    \\--- commons-io:commons-io:2.11.0 -> 2.16.1" },
@@ -512,9 +515,9 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
     <p>Чтобы спросить Gradle прямо «почему у этой библиотеки такая версия?», есть задача <code>dependencyInsight</code>:</p>
     <div data-widget="ide" id="shot-gradle-insight">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › build.gradle.kts", "runConfig": "shop-autotests [dependencyInsight]", "tree": false,
+      { "project": "shop-app", "status": "shop-app › build.gradle.kts", "runConfig": "shop-app [dependencyInsight]", "tree": false,
         "file": "build.gradle.kts", "code": "dependencies {\n    implementation(\"ru.example:library-a:1.0\")\n    implementation(\"ru.example:library-b:3.2\")\n}",
-        "console": { "title": "shop-autotests [dependencyInsight]", "lines": [
+        "console": { "title": "shop-app [dependencyInsight]", "lines": [
           { "t": "cmd", "s": "10:20:05: Executing 'dependencyInsight --dependency commons-io --configuration runtimeClasspath'…" },
           { "t": "out", "s": "commons-io:commons-io:2.16.1" },
           { "t": "out", "s": "   Selection reasons:" },
@@ -548,6 +551,7 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
     }
 }</code></pre>
     <p>Это два разных способа — в проекте выбирают один. Исключение подходит, когда «лишняя» версия просто не нужна; <code>strictly</code> — когда точно знаешь, какая версия правильная.</p>
+    </details>
     <div data-widget="check" id="check-m17-04-deps">
       <script type="application/json">
       { "title": "Уход за зависимостями",
@@ -555,17 +559,10 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
           { "type": "tf", "q": "Верно или нет?", "statements": [
             { "s": "Чтобы убрать библиотеку из проекта, достаточно удалить её import из Java-файла", "a": false, "why": "import — только сокращение имени. Библиотеку подключает и убирает build.gradle.kts." },
             { "s": "После правки build.gradle.kts нужно нажать Load Gradle Changes (Ctrl+Shift+O)", "a": true },
-            { "s": "Если сборка прошла (BUILD SUCCESSFUL), конфликта версий точно нет", "a": false, "why": "Конфликт обычно проявляется только при запуске — NoSuchMethodError или ClassNotFoundException." },
-            { "s": "При конфликте Gradle по умолчанию берёт самую новую из запрошенных версий", "a": true } ] },
-          { "type": "single", "q": "В дереве зависимостей строка <code>commons-io:commons-io:2.11.0 -&gt; 2.16.1</code>. Что она значит?",
-            "options": ["Библиотеку обновили с 2.11.0 до 2.16.1 в build-файле", "Кто-то просил 2.11.0, но в проект попала 2.16.1", "В проекте будут обе версии"], "answer": 1,
-            "why": "Стрелка — «просили одно, получили другое». Обе версии одного класса в проекте жить не могут, Gradle выбрал более новую." },
-          { "type": "single", "q": "Тесты падают с <code>NoSuchMethodError</code> в чужой библиотеке, хотя код компилируется. С чего начать?",
-            "options": ["Переустановить IDEA", "Посмотреть дерево: gradle dependencies, а потом dependencyInsight", "Удалить все import"], "answer": 1,
-            "why": "NoSuchMethodError при успешной компиляции — классический признак конфликта версий. Дерево покажет стрелки ->, а dependencyInsight — почему выбрана версия." },
+            { "s": "Обновлять лучше все библиотеки разом — так быстрее", "a": false, "why": "по одной и с gradle clean test после каждой: иначе непонятно, какая сломала сборку." } ] },
           { "type": "match", "q": "Задача → что сделать",
-            "left": ["Библиотека больше не нужна", "Вышла версия с исправлениями", "Узнать, кто притащил byte-buddy", "B тащит неподходящую commons-io"],
-            "right": ["Удалить строку → Load Gradle Changes", "Поменять версию → Load Gradle Changes → gradle clean test", "Окно Gradle → Dependencies или gradle dependencies", "exclude в B или strictly-версия в своём build-файле"] }
+            "left": ["Библиотека больше не нужна", "Вышла версия с исправлениями", "Импорт красный после правки build-файла"],
+            "right": ["Удалить строку → Load Gradle Changes → убрать красное", "Поменять версию → Load Gradle Changes → gradle clean test", "Нажать Load Gradle Changes (Ctrl+Shift+O)"] }
         ] }
       </script>
     </div>
@@ -593,13 +590,12 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
         <tr><td>Запустить тесты</td><td><code>gradle test</code> (<code>./gradlew test</code>)</td><td><code>mvn test</code></td></tr>
         <tr><td>Загрузить изменения в IDEA</td><td>Load Gradle Changes</td><td>Load Maven Changes</td></tr>
         <tr><td>Локальный «холодильник»</td><td><code>~/.gradle/caches</code></td><td><code>~/.m2/repository</code></td></tr>
-        <tr><td>При конфликте версий побеждает</td><td>самая новая</td><td>ближайшая к проекту в дереве</td></tr>
-        <tr><td>Какие классы считаются тестами</td><td>все, где есть <code>@Test</code></td><td>по умолчанию только с именами <code>*Test</code>, <code>*Tests</code>, <code>Test*</code></td></tr>
       </table>
     </div>
     <details class="curious">
-      <summary>🔎 Для любопытных: «ближайшая» версия у Maven</summary>
-      <p>Maven при конфликте берёт не самую новую, а ту, что <b>ближе</b> к твоему проекту в дереве зависимостей: чем короче путь от <code>pom.xml</code> до библиотеки, тем она главнее; при равной длине — та, что объявлена в pom раньше. Поэтому один и тот же набор библиотек в Maven и Gradle может дать <b>разные</b> версии. Дерево в Maven смотрят командой <code>mvn dependency:tree</code>, а лечат так же: исключением (<code>&lt;exclusions&gt;</code>) или явной версией в своём pom.</p>
+      <summary>🔎 Для любопытных: ещё два отличия Maven</summary>
+      <p><b>Какие классы считаются тестами.</b> Gradle с JUnit 5 запускает все классы, где есть <code>@Test</code>. Maven по умолчанию — только классы с именами <code>*Test</code>, <code>*Tests</code>, <code>Test*</code>: назовёшь класс <code>LoginChecks</code> — <code>mvn test</code> его не заметит.</p>
+      <p><b>Конфликт версий.</b> Gradle при конфликте берёт самую новую версию (подробнее — в блоке «для любопытных» выше). Maven берёт не самую новую, а ту, что <b>ближе</b> к твоему проекту в дереве зависимостей: чем короче путь от <code>pom.xml</code> до библиотеки, тем она главнее; при равной длине — та, что объявлена в pom раньше. Поэтому один и тот же набор библиотек в Maven и Gradle может дать <b>разные</b> версии. Дерево в Maven смотрят командой <code>mvn dependency:tree</code>, а лечат так же: исключением (<code>&lt;exclusions&gt;</code>) или явной версией в своём pom.</p>
     </details>
     <p>Зная один сборщик, второй читаешь за вечер: координаты библиотек, структура папок и смысл «тестовой» зависимости одинаковые.</p>
   </section>
@@ -652,7 +648,7 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
         <li>Библиотека = координаты <code>группа:имя:версия</code>; берётся из Maven Central и кешируется в <code>~/.gradle/caches</code>.</li>
         <li><code>testImplementation</code> — библиотека только для тестов; <code>useJUnitPlatform()</code> обязателен для JUnit 5.</li>
         <li><code>gradle test</code> = компиляция + все тесты; красный тест → BUILD FAILED, отчёт — <code>build/reports/tests/test/index.html</code>.</li>
-        <li>Дерево — <code>gradle dependencies</code>; при конфликте Gradle берёт самую новую версию (<code>-&gt;</code> в дереве), лечат <code>exclude</code> или <code>strictly</code>.</li>
+        <li>Убрать или обновить библиотеку — поправить строку в <code>dependencies</code> → Load Gradle Changes → <code>gradle clean test</code>. Обновлять по одной.</li>
         <li>Maven — то же самое в <code>pom.xml</code>: <code>scope test</code>, <code>target/</code>, <code>mvn test</code>.</li>
       </ul>
     </div>

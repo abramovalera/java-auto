@@ -24,13 +24,19 @@ final class UpdateCheck {
     private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8)).build();
 
     private static Map<String, Object> cached;
+    private static String cachedLocal; // коммит папки курса, для которого посчитан cached
     private static long cachedUntil;
 
     private UpdateCheck() {}
 
     static synchronized Map<String, Object> status(Path courseDir, String repo) {
         long now = System.currentTimeMillis();
-        if (cached != null && now < cachedUntil) return cached;
+        // после git pull локальный коммит меняется — тогда кэш не годится, проверяем сразу
+        String localNow = null;
+        try { localNow = localHead(courseDir.resolve(".git"))[0]; } catch (Exception e) { /* нет .git — режим архива */ }
+        boolean sameLocal = cached != null && java.util.Objects.equals(cachedLocal, localNow);
+        if (cached != null && sameLocal && now < cachedUntil) return cached;
+        cachedLocal = localNow;
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("repo", repo);
         r.put("checkedAt", now);

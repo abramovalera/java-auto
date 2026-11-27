@@ -13,7 +13,7 @@ public class TwoCooksDeadlockFix {
     static void cookAnya(int[] myDishes) {
         for (int d = 0; d < 5; d++) {
             synchronized (spoon) {
-                sleepQuietly(10);           // пока Аня держит ложку, повар Борис тоже не спит
+                sleepQuietly(10);           // пауза: за это время Борис успевает схватить свой первый инструмент
                 synchronized (ladle) {
                     myDishes[0]++;
                     totalDishes++;
@@ -34,11 +34,12 @@ public class TwoCooksDeadlockFix {
         }
     }
 
+    // Пауза на ms миллисекунд. try-catch спрятан здесь, чтобы не писать его в каждом поваре.
     static void sleepQuietly(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            return;                         // разбудили раньше времени — просто заканчиваем паузу
         }
     }
 

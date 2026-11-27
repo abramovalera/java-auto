@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 14 · Головоломки</div>
     <h1>Лямбды и стримы: что будет?</h1>
     <p class="lead">Про стримы на собеседованиях спрашивают почти всегда — и почти всегда про одно и то же: ленивость, порядок операций, одноразовость, Optional и effectively final. Запускать нельзя — только думать.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>🧩 15 задачек</span><span>★★★ — для любопытных</span></div>
+    <div class="meta"><span>⏱ 20 минут</span><span>🧩 17 задачек</span><span>★★★ — для любопытных</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -85,7 +85,11 @@
           { "type": "predict", "q": "7. Метод <code>make()</code> печатает «make» и возвращает «B». Что выведет программа?",
             "code": "System.out.println(Optional.of(\"A\").orElse(make()));",
             "answer": "make\nA",
-            "why": "Аргумент метода вычисляется до вызова — всегда. make() отработает, его «B» выбросится, а напечатается «A». С orElseGet(() -&gt; make()) было бы только «A»." }
+            "why": "Аргумент метода вычисляется до вызова — всегда. make() отработает, его «B» выбросится, а напечатается «A». С orElseGet(() -&gt; make()) было бы только «A»." },
+          { "type": "predict", "q": "8. map или flatMap? Что выведет программа?",
+            "code": "List<String> lines = List.of(\"чай сок\", \"кофе\");\nSystem.out.println(lines.stream().map(l -> l.split(\" \")).count());\nSystem.out.println(lines.stream().flatMap(l -> Arrays.stream(l.split(\" \"))).count());",
+            "answer": "2\n3",
+            "why": "map превращает каждую строку в один элемент — массив слов, элементов остаётся два. flatMap сливает слова всех строк в один поток: чай, сок, кофе — три." }
         ] }
       </script>
     </div>
@@ -120,23 +124,23 @@
       <script type="application/json">
       { "title": "Скомпилируется?", "icon": "🕵️",
         "items": [
-          { "type": "single", "q": "8. Скомпилируется?",
+          { "type": "single", "q": "9. Скомпилируется?",
             "code": "int count = 0;\nList.of(\"a\", \"b\").forEach(s -> count++);",
             "options": ["Да, count станет 2", "Да, но count останется 0", "Нет: локальную переменную нельзя менять внутри лямбды"], "answer": 2,
             "why": "<em>local variables referenced from a lambda expression must be final or effectively final</em>. Лямбда получает копию значения, менять её запрещено. Посчитать правильно: <code>long count = list.stream().count();</code>" },
-          { "type": "single", "q": "9. А так? Внутри лямбды prefix не меняется.",
+          { "type": "single", "q": "10. А так? Внутри лямбды prefix не меняется.",
             "code": "String prefix = \"Hi \";\nprefix = \"Hello \";\nList.of(\"Аня\").forEach(s -> System.out.println(prefix + s));",
             "options": ["Да, выведет «Hello Аня»", "Нет: prefix не effectively final", "Да, выведет «Hi Аня»"], "answer": 1,
             "why": "Effectively final — значит, переменной присвоили значение ровно один раз. Здесь два присваивания — уже не важно, где именно, лямбде такую переменную использовать нельзя. Выход: объявить новую переменную и инициализировать её значением prefix — <code>String greeting = prefix;</code> — и использовать в лямбде её." },
-          { "type": "single", "q": "10. Скомпилируется? <code>record Player(String name, int score)</code>",
+          { "type": "single", "q": "11. Скомпилируется? <code>record Player(String name, int score)</code>",
             "code": "players.sort(Comparator.comparing(p -> p.score()).reversed());",
             "options": ["Да", "Нет: cannot find symbol — method score()"], "answer": 1,
             "why": "Из-за .reversed() в конце компилятор не выводит тип параметра p и считает его Object, а у Object нет score(). Лечится: <code>Comparator.comparing(Player::score).reversed()</code> или <code>(Player p) -&gt; p.score()</code>." },
-          { "type": "single", "q": "11. Скомпилируется?",
+          { "type": "single", "q": "12. Скомпилируется?",
             "code": "interface Calc {\n    int apply(int a, int b);\n    int reset();\n}\nCalc plus = (a, b) -> a + b;",
             "options": ["Да", "Нет: Calc — не функциональный интерфейс"], "answer": 1,
             "why": "В Calc два абстрактных метода. Лямбда не знает, какой из них реализует: <em>Calc is not a functional interface</em>. Будь reset() default-методом — всё бы скомпилировалось." },
-          { "type": "bug", "q": "12. Какая строка не скомпилируется?",
+          { "type": "bug", "q": "13. Какая строка не скомпилируется?",
             "code": "List<String> names = List.of(\"Аня\", \"Борис\");\nlong a = names.stream().count();\nint b = names.stream().count();\nint c = names.size();",
             "answer": [3],
             "why": "count() возвращает long, а long в int без явного приведения не кладётся: <em>possible lossy conversion from long to int</em>. А size() у списка — int." }
@@ -152,19 +156,19 @@
       <script type="application/json">
       { "title": "Что будет при запуске?", "icon": "💥",
         "items": [
-          { "type": "single", "q": "13. Что будет?",
+          { "type": "single", "q": "14. Что будет?",
             "code": "Stream<String> s = List.of(\"a\", \"b\").stream();\nSystem.out.println(s.count());\nSystem.out.println(s.count());",
             "options": ["2 и 2", "2 и 0", "2, потом IllegalStateException"], "answer": 2,
             "why": "Поток одноразовый: после терминальной операции он закрыт. Второй вызов — <em>stream has already been operated upon or closed</em>. Нужен новый: снова list.stream()." },
-          { "type": "single", "q": "14. Что будет?",
+          { "type": "single", "q": "15. Что будет?",
             "code": "String name = List.of(\"Аня\", \"Борис\").stream()\n        .filter(n -> n.startsWith(\"Я\"))\n        .findFirst()\n        .get();\nSystem.out.println(name);",
             "options": ["null", "Пустая строка", "NoSuchElementException: No value present"], "answer": 2,
             "why": "Никто не начинается на «Я» — findFirst вернул пустой Optional, а get() на пустом выбрасывает исключение. Безопасно: <code>.orElse(\"не найден\")</code> или <code>.orElseThrow(() -&gt; new …)</code> с понятным сообщением." },
-          { "type": "single", "q": "15. Что будет?",
+          { "type": "single", "q": "16. Что будет?",
             "code": "List<Integer> evens = Stream.of(1, 2, 3, 4)\n        .filter(x -> x % 2 == 0)\n        .toList();\nevens.add(6);\nSystem.out.println(evens);",
             "options": ["[2, 4, 6]", "[2, 4]", "UnsupportedOperationException"], "answer": 2,
             "why": "toList() возвращает неизменяемый список. Нужен изменяемый — <code>collect(Collectors.toList())</code> или <code>new ArrayList&lt;&gt;(…)</code>." },
-          { "type": "bug", "q": "16. Найди строку, которая упадёт при запуске.",
+          { "type": "bug", "q": "17. Найди строку, которая упадёт при запуске.",
             "code": "List<String> list = new ArrayList<>(List.of(\"a\", \"\"));\nlist.removeIf(String::isEmpty);\nMap<String, Integer> stock = Stream.of(\"чай\", \"кофе\", \"чай\")\n        .collect(Collectors.toMap(s -> s, s -> 1));\nSystem.out.println(list + \" \" + stock);",
             "answer": [4],
             "why": "Ключ «чай» встретился дважды, а функции слияния нет — <em>IllegalStateException: Duplicate key чай</em>. Строки 1–2 в порядке: removeIf работает на изменяемом ArrayList. Исправить toMap: третий аргумент <code>Integer::sum</code> — получится {чай=2, кофе=1} (порядок в HashMap может быть другим)." }
@@ -176,17 +180,6 @@
   <!-- ШАГ 6 -->
   <section class="step">
     <h2>★★★ Для любопытных</h2>
-    <details class="curious">
-      <summary>🔎 map и flatMap: «список списков» в один поток</summary>
-      <p><code>map</code> превращает каждый элемент ровно в один. А если каждый элемент сам содержит несколько — например, у каждого заказа список товаров? Тогда <code>map</code> даст «поток списков», а нужен поток товаров. Для этого есть промежуточная операция <code>flatMap</code>: её лямбда возвращает для каждого элемента <b>стрим</b>, а <code>flatMap</code> «расплющивает» все стримы в один.</p>
-<pre data-file="FlatMap.java"><code class="java">List&lt;List&lt;Integer&gt;&gt; orders = List.of(List.of(1, 2), List.of(3));
-
-// [2, 1]
-System.out.println(orders.stream().map(List::size).toList());
-// [1, 2, 3]
-System.out.println(orders.stream().flatMap(List::stream).toList());</code></pre>
-      <p>Классический пример — все слова из нескольких строк: <code>lines.stream().flatMap(l -&gt; Arrays.stream(l.split(" ")))</code>. На собеседовании любят спросить: «чем map отличается от flatMap?» Ответ: map — один в один, flatMap — один во много (0, 1, 2…), и всё сливается в общий поток.</p>
-    </details>
     <details class="curious">
       <summary>🔎 Подвох: Stream.of(new int[]{1, 2, 3}).count()</summary>
       <p>Ответ — <b>1</b>, а не 3. <code>Stream.of</code> принимает аргументами объекты, а массив <code>int[]</code> — это <b>один</b> объект. Получается стрим из одного элемента-массива. Для примитивного массива нужен <code>Arrays.stream(arr)</code> или <code>IntStream.of(1, 2, 3)</code>. С <code>Integer[]</code> такой проблемы нет: <code>Stream.of(new Integer[]{1, 2, 3})</code> даст три элемента.</p>
@@ -250,7 +243,7 @@ System.out.println(orders.stream().flatMap(List::stream).toList());</code></pre>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
-        <li>Без терминальной операции конвейер ничего не делает.</li>
+        <li>Без терминальной операции конвейер ничего не делает. <code>map</code> — один в один, <code>flatMap</code> — один во много.</li>
         <li>Элементы идут по одному через всю цепочку; <code>limit</code>/<code>findFirst</code>/<code>anyMatch</code> обрывают конвейер, <code>sorted</code> ждёт все элементы.</li>
         <li>Поток одноразовый; <code>toList()</code> неизменяемый; <code>toMap</code> выбрасывает исключение на одинаковых ключах.</li>
         <li><code>Optional.get()</code> на пустом — <code>NoSuchElementException</code>; аргумент <code>orElse</code> вычисляется всегда.</li>

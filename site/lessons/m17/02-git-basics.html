@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 17 · Урок 2</div>
     <h1>Git: машина времени для кода</h1>
     <p class="lead">Сохранения в игре, только для программы: можно вернуться в любой момент прошлого, попробовать что-то рискованное в параллельной вселенной и спокойно работать вдесятером над одним проектом.</p>
-    <div class="meta"><span>⏱ 25 минут</span><span>🕰️ коммиты и ветки</span><span>⌨️ немного терминала</span></div>
+    <div class="meta"><span>⏱ 30 минут</span><span>🕰️ коммиты и ветки</span><span>⌨️ немного терминала</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -46,6 +46,7 @@
       <h3>Выпиши себе: Git на своём компьютере</h3>
       <div class="table-wrap"><table>
         <tr><th>Команда</th><th>Что делает и зачем</th><th>Где в IDEA</th></tr>
+        <tr><td><code>git config --global user.name "Имя"</code><br><code>git config --global user.email "почта"</code></td><td>Один раз на компьютере: кто автор коммитов</td><td>IDEA спросит сама при первом коммите</td></tr>
         <tr><td><code>git init</code></td><td>Сделать папку репозиторием: Git начинает следить за файлами</td><td>☰ → <b>VCS → Create Git Repository…</b></td></tr>
         <tr><td><code>git status</code></td><td>Что изменено, что новое, что Git ещё не знает</td><td>Окно <b>Commit</b> (<kbd>Alt</kbd>+<kbd>0</kbd>), цвета файлов в дереве</td></tr>
         <tr><td><code>git add</code></td><td>Положить изменения в индекс — «это пойдёт в коммит»</td><td>Галочки у файлов в окне Commit</td></tr>
@@ -53,6 +54,9 @@
         <tr><td><code>git diff</code></td><td>Построчно: что поменялось с прошлого коммита</td><td>Файл в окне Commit → <kbd>Ctrl</kbd>+<kbd>D</kbd></td></tr>
         <tr><td><code>git log</code></td><td>История коммитов</td><td><kbd>Alt</kbd>+<kbd>9</kbd> → вкладка <b>Log</b></td></tr>
         <tr><td><code>git restore файл</code></td><td>Выбросить незакоммиченные правки файла</td><td>Правый клик → <b>Git → Rollback</b> (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd>)</td></tr>
+        <tr><td><code>git commit --amend</code></td><td>Исправить <b>последний</b> коммит (сообщение, забытый файл), пока он не отправлен на сервер</td><td>Окно Commit → галочка <b>Amend</b></td></tr>
+        <tr><td><code>git reset --soft HEAD~1</code></td><td>Отменить последний <b>неотправленный</b> коммит, правки остаются в файлах</td><td>Git → Log → правый клик по коммиту → <b>Undo Commit…</b></td></tr>
+        <tr><td><code>git revert хеш</code></td><td>Отменить любой коммит <b>новым</b> коммитом — безопасно и после push</td><td>Git → Log → правый клик → <b>Revert Commit</b></td></tr>
         <tr><td><code>git branch</code></td><td>Список веток (и создание новой)</td><td>Имя ветки вверху слева или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>`</kbd></td></tr>
         <tr><td><code>git switch -c имя</code></td><td>Создать ветку под задачу и перейти в неё</td><td>Список веток → <b>+ New Branch…</b></td></tr>
         <tr><td><code>git switch имя</code></td><td>Перейти в другую ветку</td><td>Список веток → ветка → <b>Checkout</b></td></tr>
@@ -152,12 +156,45 @@
 
   <!-- ШАГ 5 -->
   <section class="step">
-    <h2>Git в IntelliJ IDEA</h2>
-    <p>Основной путь — через интерфейс IDEA. Git обычно уже установлен вместе с IDEA или ставится одной кнопкой: IDEA сама предложит скачать его, если не найдёт.</p>
+    <h2>Git: установка и первые шаги в IDEA</h2>
+    <p>Основной путь — через интерфейс IDEA. Но сам Git — <b>отдельная программа</b>, IDEA лишь нажимает его кнопки. На Windows Git вместе с IDEA <b>не ставится</b>, его устанавливают отдельно, одним из двух способов:</p>
+    <ul>
+      <li>скачать установщик с <a href="https://git-scm.com/downloads" target="_blank" rel="noopener">git-scm.com/downloads</a> и пройти его, оставив все галочки как есть;</li>
+      <li>или прямо из IDEA: при первом действии с Git она напишет, что Git не найден (<em>Git is not installed</em>), и покажет кнопку <b>Download and Install</b>.</li>
+    </ul>
+    <p>Если ты уже ставил Git для МиниБанка в модуле 1 — он есть, второй раз не нужно. Проверить: вкладка <b>Terminal</b> внизу IDEA (<kbd>Alt</kbd>+<kbd>F12</kbd>) → <code>git --version</code>. Ответ вроде <code>git version 2.47.1.windows.1</code> — всё в порядке. Если терминал был открыт до установки — закрой вкладку и открой заново.</p>
+    <h3>Представься Git: имя и почта</h3>
+    <p>В каждый коммит Git записывает <b>автора</b>. Поэтому один раз на компьютере надо сказать ему, кто ты. Это две команды в терминале (флаг <code>--global</code> — «для всех проектов на этом компьютере»):</p>
+<pre class="terminal"><span class="cmd">git config --global user.name "Misha"</span>
+<span class="cmd">git config --global user.email "misha@example.com"</span>
+<span class="cmd">git config --global user.name</span>
+<span class="out">Misha</span></pre>
+    <p>Последняя команда без значения просто показывает, что записано. Почта нужна для подписи, письма на неё Git не шлёт. Но если потом выложишь проект на GitHub (урок 17.3), почта из коммитов будет видна всем — можно указать ту же, что в аккаунте GitHub, или его скрытый адрес вида <code>…@users.noreply.github.com</code> (GitHub → Settings → Emails).</p>
+    <p>Забыл настроить — IDEA сама спросит при первом коммите:</p>
+    <div data-widget="ide" id="shot-git-user">
+      <script type="application/json">
+      { "tree": false, "project": "shop-app", "status": "shop-app › src",
+        "dialog": { "title": "Git User Name Is Not Defined",
+                    "rows": [ { "label": "Name", "value": "Misha", "hl": true },
+                              { "label": "E-mail", "value": "misha@example.com" },
+                              { "label": "  ", "value": "☑ Set properties globally", "type": "text" } ],
+                    "buttons": ["Set and Commit", "Cancel"], "primary": "Set and Commit" },
+        "marks": [ { "n": 1, "target": "field-Name", "text": "Имя автора — его увидят в истории коммитов (это <code>user.name</code>)" },
+                   { "n": 2, "target": "field-E-mail", "text": "Почта автора (<code>user.email</code>)" },
+                   { "n": 3, "target": "field-  ", "text": "Галочка <b>Set properties globally</b> — запомнить для всех проектов, как флаг <code>--global</code>" },
+                   { "n": 4, "target": "btn-Set and Commit", "side": "bottom", "text": "Сохранить имя и почту и сразу сделать коммит" } ],
+        "caption": "Окно появляется при первом коммите, если имя и почта ещё не заданы" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Ты ни разу не настраивал имя и почту и делаешь коммит в терминале: <code>git commit -m "Первый коммит"</code>. Что будет?</summary>
+      <p>Коммит <b>не создастся</b>. Git ответит <em>Author identity unknown … Please tell me who you are</em> и подскажет те самые две команды <code>git config --global …</code>. Без автора коммит не делается.</p>
+    </details>
+    <h3>Создаём репозиторий</h3>
     <div data-widget="ide" id="shot-git-create-repo">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › src",
-        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+      { "project": "shop-app", "status": "shop-app › src",
+        "tree": [ { "name": "shop-app", "type": "folder", "depth": 0, "open": true },
                   { "name": "src", "type": "src", "depth": 1, "open": true },
                   { "name": "DeliveryFee", "type": "class", "depth": 2 },
                   { "name": "DeliveryFeeTest", "type": "class", "depth": 2 } ],
@@ -179,8 +216,8 @@
     <p>Так выглядит коммит. Мы починили расчёт в <code>DeliveryFee</code>, добавили тест, а ещё в папке завалялся черновик <code>notes.txt</code>, который в историю не нужен:</p>
     <div data-widget="ide" id="shot-git-commit">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › src › DeliveryFee.java",
-        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+      { "project": "shop-app", "status": "shop-app › src › DeliveryFee.java",
+        "tree": [ { "name": "shop-app", "type": "folder", "depth": 0, "open": true },
                   { "name": "src", "type": "src", "depth": 1, "open": true },
                   { "name": "DeliveryFee", "type": "class", "depth": 2, "note": "изменён" },
                   { "name": "DeliveryFeeTest", "type": "class", "depth": 2, "note": "новый" },
@@ -203,7 +240,7 @@
     <p>А это история проекта — вкладка <b>Log</b> в окне Git (<kbd>Alt</kbd>+<kbd>9</kbd>):</p>
     <div data-widget="ide" id="shot-git-log">
       <script type="application/json">
-      { "tree": false, "project": "shop-autotests", "status": "shop-autotests › src › DeliveryFee.java",
+      { "tree": false, "project": "shop-app", "status": "shop-app › src › DeliveryFee.java",
         "file": "DeliveryFee.java",
         "code": "public class DeliveryFee {\n    static int feeFor(int orderSum) {\n        if (orderSum >= 2000) {\n            return 0;\n        }\n        return 199;\n    }\n}",
         "console": { "tool": "Git", "title": "Log: all", "lines": [
@@ -263,6 +300,45 @@ e2d84f1 Перепиши расчёт через стримы
     </details>
   </section>
 
+  <!-- ШАГ 6½ -->
+  <section class="step">
+    <h2>Ошибся в коммите? Три способа отменить</h2>
+    <p>Rollback из шага выше выбрасывает <b>незакоммиченные</b> правки. А если коммит уже сделан? Способ зависит от одного вопроса: <b>отправлял ли ты этот коммит на сервер</b> (push — в следующем уроке). Пока коммит только у тебя, историю можно переписать. Когда его уже забрали коллеги — только добавлять новые коммиты.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что случилось</th><th>Что сделать</th><th>В IDEA</th><th>Команда</th></tr>
+        <tr><td>Опечатка в сообщении последнего коммита или забыл добавить в него файл</td><td><b>amend</b> — «поправить»: последний коммит заменяется исправленным</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd> → галочка <b>Amend</b> над сообщением → Commit</td><td><code>git commit --amend -m "…"</code></td></tr>
+        <tr><td>Последний коммит вообще лишний, на сервер ещё не ушёл</td><td><b>reset</b> — «откатить ветку назад»: коммит исчезает, а его правки остаются в файлах</td><td>Git → Log → правый клик по коммиту → <b>Undo Commit…</b></td><td><code>git reset --soft HEAD~1</code></td></tr>
+        <tr><td>Плохой коммит уже на сервере или он давний</td><td><b>revert</b> — новый коммит, который делает «наоборот»; история не меняется</td><td>Git → Log → правый клик по коммиту → <b>Revert Commit</b></td><td><code>git revert хеш</code></td></tr>
+      </table>
+    </div>
+    <p><code>HEAD~1</code> — «на один коммит назад от текущего». Флаг <code>--soft</code> оставляет правки в индексе: поправишь и закоммитишь заново. В истории проекта из шага «История проекта» как раз есть revert: коммит <code>77aa0b3</code> отменил неудачный рефакторинг.</p>
+    <div data-widget="ide" id="shot-git-undo">
+      <script type="application/json">
+      { "project": "shop-app", "status": "shop-app › src › DeliveryFee.java",
+        "tree": [ { "name": "Git → Log", "type": "folder", "depth": 0, "open": true },
+                  { "name": "Почини доставку для суммы 2000", "type": "file", "depth": 1, "selected": true, "note": "main" },
+                  { "name": "Revert «Перепиши через стримы»", "type": "file", "depth": 1 },
+                  { "name": "Перепиши расчёт через стримы", "type": "file", "depth": 1 },
+                  { "name": "Добавь тесты на доставку", "type": "file", "depth": 1 } ],
+        "file": "DeliveryFee.java",
+        "code": "public class DeliveryFee {\n    static int feeFor(int orderSum) {\n        if (orderSum >= 2000) {\n            return 0;\n        }\n        return 199;\n    }\n}",
+        "menu": { "at": "tree-Почини доставку для суммы 2000", "items": ["Copy Revision Number", "-", "Undo Commit…", "Edit Commit Message…", "Revert Commit", "Reset Current Branch to Here…", "-", "New Branch…", "New Tag…"], "hl": "Undo Commit…" },
+        "marks": [ { "n": 1, "target": "tree-Почини доставку для суммы 2000", "text": "Правый клик по коммиту в окне Git → Log. Здесь список коммитов нарисован на месте дерева проекта, в IDEA он внизу" },
+                   { "n": 2, "target": "menu", "side": "left", "text": "<b>Undo Commit…</b> — отменить последний неотправленный коммит, правки вернутся в окно Commit. <b>Edit Commit Message…</b> — поправить сообщение. <b>Revert Commit</b> — отменить новым коммитом, можно и после push" } ],
+        "caption": "Отмена коммита из истории (упрощённо)" }
+      </script>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Два правила отмены</span>
+      <p>1) <b>amend</b> и <b>reset</b> переписывают историю — только для коммитов, которые <b>ещё не ушли на сервер</b>. Ушедший коммит отменяй через <b>revert</b>. 2) Встретишь в интернете <code>git reset --hard</code> — осторожно: он выбрасывает и коммит, и все незакоммиченные правки, вернуть их уже нельзя.</p>
+    </div>
+    <details class="predict">
+      <summary>Ты запушил коммит с багом, коллеги уже сделали pull. Чем его отменить: amend, reset или revert?</summary>
+      <p><b>Revert.</b> Он добавит новый коммит «наоборот», коллеги просто заберут его следующим pull. Amend и reset переписали бы историю, которая уже есть у коллег, — у них всё разъедется.</p>
+    </details>
+  </section>
+
   <!-- ШАГ 7 -->
   <section class="step">
     <h2>Ветки — параллельные вселенные</h2>
@@ -294,8 +370,8 @@ e2d84f1 Перепиши расчёт через стримы
     <p><b>В IDEA:</b> внизу справа (или вверху слева в новом интерфейсе) написано имя текущей ветки. Щёлкни по нему: <b>New Branch</b> — создать ветку и перейти в неё; щелчок по ветке → <b>Checkout</b> — перейти; <b>Merge into Current</b> — влить выбранную ветку в текущую.</p>
     <div data-widget="ide" id="shot-git-branches">
       <script type="application/json">
-      { "project": "shop-autotests", "status": "shop-autotests › src",
-        "tree": [ { "name": "shop-autotests", "type": "folder", "depth": 0, "open": true },
+      { "project": "shop-app", "status": "shop-app › src",
+        "tree": [ { "name": "shop-app", "type": "folder", "depth": 0, "open": true },
                   { "name": "src", "type": "src", "depth": 1, "open": true },
                   { "name": "DeliveryFee", "type": "class", "depth": 2 },
                   { "name": "DeliveryFeeTest", "type": "class", "depth": 2 },
@@ -409,6 +485,11 @@ build/
           {
            "s": "Удалив папку .git, ты удалишь историю, но не сами файлы проекта",
            "a": true
+          },
+          {
+           "s": "Коммит уже на сервере — отменять его лучше через reset, чтобы следа не осталось",
+           "a": false,
+           "why": "отправленный коммит отменяют revert'ом: новый коммит «наоборот». Reset и amend — только для коммитов, которых ещё нет на сервере."
           }
          ]
         }
@@ -423,9 +504,11 @@ build/
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
+        <li>Git ставится отдельно от IDEA; один раз задай имя и почту: <code>git config --global user.name / user.email</code>.</li>
         <li>Git хранит историю проекта: коммит = снимок + сообщение + автор + хеш.</li>
         <li>Путь изменения: рабочая папка → <code>add</code> (индекс) → <code>commit</code> (история).</li>
-        <li>В IDEA: <kbd>Ctrl</kbd>+<kbd>K</kbd> — коммит, Git → Log — история, <kbd>Ctrl</kbd>+<kbd>D</kbd> — Diff, Rollback — откат.</li>
+        <li>В IDEA: <kbd>Ctrl</kbd>+<kbd>K</kbd> — коммит, Git → Log — история, <kbd>Ctrl</kbd>+<kbd>D</kbd> — Diff, Rollback — откат незакоммиченного.</li>
+        <li>Отмена коммита: <b>amend</b> — поправить последний, <b>reset</b> (Undo Commit) — убрать неотправленный, <b>revert</b> — отменить новым коммитом, в том числе после push.</li>
         <li>Ветка — параллельная линия истории; задачу делают в ветке и сливают в <code>main</code> через merge.</li>
         <li><code>.gitignore</code> — что не хранить: сборку, личные настройки и особенно пароли.</li>
       </ul>

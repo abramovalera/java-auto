@@ -58,6 +58,21 @@
       <tr><td><code>radar.isLow()</code></td><td><code>true</code> — это жук на земле (прыгай), <code>false</code> — летучая ошибка (пригнись).</td></tr>
       <tr><td><code>radar.speed()</code></td><td>Сколько клеток Джавик пробегает за ход: 1 или 2 (понадобится на уровне 3).</td></tr>
     </table></div>
+    <div class="callout fact">
+      <span class="callout-title">Новые слова: метод, вызов метода, return</span>
+      <p>Методы подробно будут в модуле 7, а для игры хватит трёх вещей. Вот метод с одним правилом «жук близко — прыгай» (в редакторе ниже он такой же, только пока без if — сразу <code>return "RUN";</code>):</p>
+<pre data-file="Javik.java"><code class="java">public String decide(Radar radar) {
+    if (radar.distance() &lt;= 2) {
+        return "JUMP";
+    }
+    return "RUN";
+}</code><span class="type-hint">✍️ код пишется в редакторе ниже</span></pre>
+      <div class="annot">
+        <div class="annot-row"><code>decide(Radar radar)</code><div><p><b>Метод</b> — кусок кода с именем, как <code>main</code>. Запускаешь его не ты: его <b>вызывает</b> игра на каждом ходу и передаёт ему <b>аргумент</b> — радар. Внутри метода он доступен под именем <code>radar</code>. <code>String</code> перед именем значит: метод обязан вернуть строку.</p></div></div>
+        <div class="annot-row"><code>radar.distance()</code><div><p><b>Вызов метода у объекта</b> <code>radar</code> — ты уже так делал: <code>scanner.nextInt()</code>, <code>"Да".equals(answer)</code>. Радар отвечает числом, и это число можно сразу сравнивать в условии, как обычное значение.</p></div></div>
+        <div class="annot-row"><code>return "JUMP";</code><div><p><code>return</code> — «<b>верни</b>»: метод отдаёт игре значение <code>"JUMP"</code> и <b>сразу заканчивается</b>. Строки ниже на этом ходу уже не выполнятся. Поэтому после <code>if</code> с return не нужен <code>else</code>: до последнего <code>return "RUN";</code> доходим, только если условие было ложным.</p></div></div>
+      </div>
+    </div>
     <p>Прыжок длится <b>4 хода</b>, присед — <b>3</b>. Прыгнешь поздно — врежешься в жука. Прыгнешь рано — <b>приземлишься прямо на него</b>. А за сколько клеток надо? Мы специально не говорим: пробуй разные числа и смотри забег — так работают настоящие программисты.</p>
     <div data-widget="check" id="check-m04-runner">
       <script type="application/json">

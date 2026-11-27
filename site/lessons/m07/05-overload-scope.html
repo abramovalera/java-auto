@@ -131,9 +131,58 @@
       <summary>Предскажи: в классе есть только <code>static void show(double x)</code>. Скомпилируется ли <code>show(5)</code>? Что напечатается, если метод печатает x?</summary>
       <p><b>Да, напечатается 5.0.</b> Аргумент — литерал 5 типа int; он без потерь помещается в double, и компилятор сам расширит его — как при <code>double d = 5;</code> из модуля 2. А вот наоборот (метод с <code>int</code>, вызов с <code>5.5</code>) — ошибка: из double в int сам по себе компилятор не переводит, можно потерять дробную часть.</p>
     </details>
+    <p>Так же расширяется и <code>char</code>. Помнишь из модуля 2: внутри символа лежит <b>число</b> — его код (<code>'A'</code> — это 65, <code>'B'</code> — 66). Поэтому <code>char</code> без потерь помещается в <code>int</code>, и компилятор расширит его сам: <code>int code = 'A';</code> — законно, в <code>code</code> окажется 65. А вот <code>char</code> в <code>String</code> сам не превращается: это объект совсем другого вида.</p>
+<pre data-file="Codes.java"><code class="java">public class Codes {
+    public static void main(String[] args) {
+        show('B');
+    }
+
+    static void show(int x) {
+        System.out.println("int: " + x);
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: метода <code>show(char)</code> нет. Скомпилируется ли <code>show('B')</code> и что напечатается?</summary>
+      <p><b>Да: <code>int: 66</code>.</b> Аргумент <code>'B'</code> типа char расширяется до int — до своего кода 66. Им и инициализируется параметр <code>x</code>, поэтому печатается число, а не буква. Если бы рядом был ещё <code>show(char c)</code>, компилятор выбрал бы его: точное совпадение всегда лучше расширения.</p>
+    </details>
     <details class="curious">
       <summary>🔎 Для любопытных: когда компилятор не может выбрать</summary>
       <p>Есть два метода: <code>f(int a, double b)</code> и <code>f(double a, int b)</code>. Вызов <code>f(1, 2)</code> подходит к обоим: в первом расширим второй аргумент, во втором — первый. Ни один не лучше другого, и компилятор честно скажет: <code>reference to f is ambiguous</code> — «вызов неоднозначен». Вывод: не делай перегрузки, которые отличаются только порядком похожих типов.</p>
+    </details>
+    <p>Вопрос с собеседований: <b>можно ли перегрузить <code>main</code>?</b> Попробуй ответить, прежде чем открыть.</p>
+<pre data-file="TwoMains.java"><code class="java">public class TwoMains {
+    public static void main(String[] args) {
+        System.out.println("Настоящий main");
+        main(5);
+    }
+
+    static void main(int n) {
+        System.out.println("Перегруженный main: " + n);
+    }
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли? Если да — что напечатается?</summary>
+      <p><b>Да, напечатается две строки:</b> «Настоящий main», потом «Перегруженный main: 5». <code>main</code> — обычный метод, его можно перегрузить, как любой другой: сигнатуры <code>main(String[])</code> и <code>main(int)</code> разные. Но <b>JVM при запуске ищет только</b> <code>public static void main(String[] args)</code>. Второй <code>main</code> сам не запустится — только если его вызвать, как здесь.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: метод с любым числом аргументов (varargs)</summary>
+      <p>Чтобы не писать <code>sum(int a, int b)</code>, <code>sum(int a, int b, int c)</code> и так далее, можно объявить <b>один</b> метод с тремя точками после типа:</p>
+<pre data-file="VarSum.java"><code class="java">public class VarSum {
+    public static void main(String[] args) {
+        System.out.println(sum(1, 2, 3));   // 6
+        System.out.println(sum(5));         // 5
+        System.out.println(sum());          // 0
+    }
+
+    static int sum(int... nums) {
+        int total = 0;
+        for (int n : nums) {
+            total += n;
+        }
+        return total;
+    }
+}</code></pre>
+      <p><code>int... nums</code> — это <b>varargs</b> («переменное число аргументов»). Внутри метода <code>nums</code> — обычный массив <code>int[]</code>: Java сама складывает переданные аргументы в массив. Можно передать и ноль аргументов — тогда массив пустой. Правило: такой параметр бывает только один и только <b>последним</b> в списке. В модуле 8 встретишь <code>printf</code> — он устроен именно так и принимает сколько угодно значений.</p>
     </details>
   </section>
 
@@ -275,7 +324,8 @@ static int addBonus(int points) {
       <ul>
         <li>Перегрузка — методы с одним именем и разными параметрами (количество, типы, порядок типов). <code>println</code> — пример перегрузки.</li>
         <li><b>Сигнатура</b> = имя + типы параметров. Имена параметров и тип возвращаемого значения в неё не входят.</li>
-        <li>Компилятор выбирает перегрузку по типам аргументов: сначала точное совпадение, потом расширение (int → double).</li>
+        <li>Компилятор выбирает перегрузку по типам аргументов: сначала точное совпадение, потом расширение (int → double, char → int: символ превращается в свой код).</li>
+        <li><code>main</code> тоже можно перегрузить, но JVM запускает только <code>main(String[] args)</code>.</li>
         <li><b>Область видимости</b> локальной переменной — от объявления до конца своего блока <code>{ }</code>. Чужие переменные из другого метода не видны: <code>cannot find symbol</code>.</li>
         <li>Данные между методами передаём через параметры (аргументы вызова) и return (возвращаемое значение).</li>
       </ul>

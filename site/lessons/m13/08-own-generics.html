@@ -123,7 +123,7 @@ Pair&lt;String, Integer&gt; p = new Pair&lt;&gt;("хлеб", 45);
 System.out.println(p.key() + " = " + p.value());   // хлеб = 45</code></pre>
     <div class="callout try">
       <span class="callout-title">Где ты это встретишь</span>
-      <p>Ответ сервера часто описывают как <code>Response&lt;User&gt;</code>, хранилище заказов — как <code>Repository&lt;Order&gt;</code>, кэш товаров — как <code>Cache&lt;String, Product&gt;</code>. А в тестах (модуль 17) <code>assertThat(list)</code> из AssertJ возвращает объект «проверки списка строк» — внутри него generics, поэтому IDEA подсказывает подходящие проверки. Писать такое с нуля джуну приходится редко, а читать — каждый день.</p>
+      <p>Ответ сервера часто описывают как <code>Response&lt;User&gt;</code>, хранилище заказов — как <code>Repository&lt;Order&gt;</code>, кэш товаров — как <code>Cache&lt;String, Product&gt;</code>. Писать такое с нуля джуну приходится редко, а читать — каждый день.</p>
     </div>
   </section>
 
@@ -254,7 +254,7 @@ sum(List.of(1.5, 2.5));       // List&lt;Double&gt; — тоже</code></pre>
     </div>
     <div class="callout ai">
       <span class="callout-title">Поговори с наставником</span>
-      <p>Напиши: <em>«Покажи мне 3 строки из настоящей библиотеки с generics (например, из ArrayList или AssertJ), а я объясню, что там значит каждая буква в угловых скобках»</em>.</p>
+      <p>Напиши: <em>«Покажи мне 3 строки из настоящей библиотеки с generics (например, из ArrayList или HashMap), а я объясню, что там значит каждая буква в угловых скобках»</em>.</p>
     </div>
     <div class="summary">
       <h2>Коротко</h2>

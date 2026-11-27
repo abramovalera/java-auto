@@ -168,10 +168,10 @@ System.out.println(Arrays.toString(names));    // [Аня, Борис, Оля]</
   <!-- ШАГ 5 -->
   <section class="step">
     <h2>fill, copyOfRange и equals в деле</h2>
-    <p><b>fill</b> нужен, когда элементы нужно инициализировать не нулём. Например, кинотеатр: <code>-1</code> значит «место свободно».</p>
+    <p><b>fill</b> нужен, когда элементы нужно инициализировать не нулём. Например, кинотеатр: в ячейке — номер проданного билета, а <code>-1</code> значит «место свободно». Не путай: <b>индекс</b> ячейки — это её положение в ряду (с нуля), а <b>значение</b> в ней — номер билета.</p>
 <pre data-file="Cinema.java"><code class="java">int[] seats = new int[6];
 Arrays.fill(seats, -1);                        // все места свободны
-seats[2] = 1042;                               // место 2 купил билет №1042
+seats[2] = 1042;                               // индекс 2 = третье место: продано, билет 1042
 System.out.println(Arrays.toString(seats));    // [-1, -1, 1042, -1, -1, -1]
 
 int[] firstRow = Arrays.copyOfRange(seats, 0, 3);

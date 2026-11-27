@@ -73,9 +73,9 @@ switch (day) {
 <pre class="terminal"><span class="out">Среда</span></pre>
     <div class="annot">
       <div class="annot-row"><code>switch (day)</code><div><p>Что проверяем — в скобках: выражение, по значению которого выбирается ветка. Это <b>значение</b>, а не условие: не <code>day == 3</code>, а просто <code>day</code>.</p></div></div>
-      <div class="annot-row"><code>case 3:</code><div><p><b>Метка</b>: «если day равно 3 — начинай отсюда». После case — конкретное значение (литерал или константа) и двоеточие. Двух одинаковых меток быть не может.</p></div></div>
+      <div class="annot-row"><code>case 3:</code><div><p><b>Метка</b>: «если day равно 3 — начинай отсюда». После case — конкретное значение и двоеточие: <b>литерал</b> (<code>3</code>, <code>'A'</code>, <code>"start"</code>) или <b>константа</b> — переменная с <code>final</code>, которую сразу инициализировали литералом (урок 2.3: <code>final int SUNDAY = 7;</code> → <code>case SUNDAY:</code>). Обычную переменную после case поставить нельзя — значение метки должно быть известно ещё до запуска программы. Двух одинаковых меток быть не может.</p></div></div>
       <div class="annot-row"><code>break;</code><div><p>Инструкция <code>break</code> — <b>выход</b> из switch. Без неё начнётся самое интересное — см. следующий шаг.</p></div></div>
-      <div class="annot-row"><code>default:</code><div><p>Ветка <b><code>default</code></b> — «во всех остальных случаях», как последний <code>else</code>. Необязательна, но почти всегда полезна.</p></div></div>
+      <div class="annot-row"><code>default:</code><div><p>Ветка <b><code>default</code></b> — «во всех остальных случаях», как последний <code>else</code>. Необязательна, но почти всегда полезна. Заметь: после неё <code>break</code> нет. В <b>последней</b> ветке он не нужен — ниже switch и так заканчивается. Многие всё равно ставят его и там, по привычке: если позже кто-то допишет снизу новый case, провала в него не будет.</p></div></div>
     </div>
   </section>
 
@@ -194,6 +194,19 @@ switch (command) {
         "caption": "switch по строкам: регистр букв важен" }
       </script>
     </div>
+    <p>Как принять и «start», и «Start», и «START»? Перед switch переведём ввод в маленькие буквы: вызовем у строки метод <b><code>toLowerCase()</code></b>. Он <b>возвращает новую строку</b> — ту же, но из маленьких букв (сама <code>command</code> не меняется; подробнее о методах строк — в модуле 8). switch сравнивает уже её:</p>
+<pre data-file="Menu.java"><code class="java">Scanner scanner = new Scanner(System.in);
+String command = scanner.nextLine();
+switch (command.toLowerCase()) {          // "Start", "START" → "start"
+    case "start" -&gt; System.out.println("Запускаю игру");
+    case "stop" -&gt; System.out.println("Останавливаю");
+    case "help" -&gt; System.out.println("Команды: start, stop, help");
+    default -&gt; System.out.println("Неизвестная команда: " + command);
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает эта программа, если ввести <code>STOP</code>? А если <code>Jump</code>?</summary>
+      <p>Для <code>STOP</code>: «Останавливаю» — <code>toLowerCase()</code> вернул <code>"stop"</code>, и он совпал с меткой. Для <code>Jump</code>: «Неизвестная команда: Jump» — <code>"jump"</code> ни с чем не совпал. Заметь: в default печатается сама <code>command</code>, то есть ввод как есть, с большой буквы. Метки при этом пиши маленькими буквами: <code>case "Start"</code> теперь не совпадёт никогда.</p>
+    </details>
 <pre data-file="Grade.java"><code class="java">char mark = 'B';
 switch (mark) {
     case 'A' -&gt; System.out.println("Отлично");
@@ -229,6 +242,10 @@ System.out.println(name);</code></pre>
       <div class="annot-row"><code>default -&gt; "???";</code><div><p>Здесь default <b>обязателен</b>: switch-выражение должно вернуть что-то для <i>любого</i> int. Без него ошибка: <code>the switch expression does not cover all possible input values</code>.</p></div></div>
       <div class="annot-row"><code>};</code><div><p>Точка с запятой после закрывающей скобки — это конец всей инструкции <code>String name = …;</code> (объявления с инициализацией). Её часто забывают.</p></div></div>
     </div>
+    <details class="predict">
+      <summary>Предскажи: что вернёт это switch-выражение для <code>day = 0</code>?</summary>
+      <p><code>"???"</code> — значение из default. Ноль не совпал ни с одним case.</p>
+    </details>
     <p>Вот как IDEA встретит switch-выражение, у которого нет <code>default</code>:</p>
     <div data-widget="ide" id="shot-switch-no-default">
       <script type="application/json">
@@ -253,11 +270,7 @@ System.out.println(name);</code></pre>
     }
     default -&gt; 0;
 };</code></pre>
-      <p>Обычный <code>return</code> здесь не подойдёт: он завершил бы весь метод, а не только switch.</p>
-    </details>
-    <details class="predict">
-      <summary>Предскажи: что вернёт switch-выражение выше для <code>day = 0</code>?</summary>
-      <p><code>"???"</code> — значение из default. Ноль не совпал ни с одним case.</p>
+      <p>Почему не <code>return</code>, раз ветка «возвращает» значение? Слово <code>return</code> (модуль 7) завершает весь метод, а switch-выражение обязано выдать значение для переменной. Поэтому <code>return</code> внутри switch-выражения просто не скомпилируется: <code>attempt to return out of a switch expression</code> — «попытка выйти return из switch-выражения». Значение ветки-блока отдают только через <code>yield</code>.</p>
     </details>
   </section>
 
@@ -348,7 +361,8 @@ System.out.println(name);</code></pre>
         <li><code>switch</code> сравнивает одно значение со списком конкретных вариантов. Диапазоны — через if.</li>
         <li>Классический (<code>case 1:</code>): метка — только вход; без <code>break</code> выполнение проваливается вниз.</li>
         <li>Новый (<code>case 1 -&gt;</code>, Java 14+): без провала, несколько значений через запятую.</li>
-        <li>Работает с <code>int</code>, <code>char</code>, <code>String</code> (строки сравнивает по тексту). Не работает с <code>long</code>, <code>double</code>, <code>boolean</code>.</li>
+        <li>Работает с <code>int</code>, <code>char</code>, <code>String</code> (строки сравнивает по тексту, регистр важен — выручает <code>switch (cmd.toLowerCase())</code>). Не работает с <code>long</code>, <code>double</code>, <code>boolean</code>.</li>
+        <li>После case — литерал или константа (<code>final</code>). В последней ветке break не обязателен.</li>
         <li>switch-выражение возвращает значение: <code>String s = switch (x) { … default -&gt; …; };</code> — default обязателен.</li>
       </ul>
     </div>

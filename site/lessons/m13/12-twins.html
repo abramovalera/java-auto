@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 13 · Урок 9</div>
     <h1>Сравниваем близнецов: какой класс выбрать</h1>
     <p class="lead">ArrayList и LinkedList, HashSet и TreeSet, HashMap и LinkedHashMap — снаружи одинаковые методы, внутри совсем разное устройство. Разбираемся, чем они отличаются, почему это важно и как ответить на самый частый вопрос собеседования про коллекции.</p>
-    <div class="meta"><span>⏱ 35 минут</span><span>⚖️ сравнение реализаций</span><span>⏱ скорость O(…)</span><span>🎤 вопросы собеседований</span></div>
+    <div class="meta"><span>⏱ 30 минут</span><span>⚖️ сравнение реализаций</span><span>⏱ скорость O(…)</span><span>🎤 вопросы собеседований</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -128,65 +128,38 @@ get(i): ArrayList 0 мс, LinkedList 876 мс</span></pre>
 
   <!-- ШАГ 4 -->
   <section class="step">
-    <h2>Три Set на одних данных</h2>
-    <p>Объявим три множества и инициализируем каждое одним и тем же списком — с повтором числа 7:</p>
-<pre class="code" data-file="Playground.java · внутри main"><code>List&lt;Integer&gt; nums = List.of(42, 7, 19, 7, 3, 25);
-System.out.println(new HashSet&lt;&gt;(nums));
-System.out.println(new LinkedHashSet&lt;&gt;(nums));
-System.out.println(new TreeSet&lt;&gt;(nums));</code></pre>
-    <p>Читаем вторую строку: <b>создаём объект</b> <code>HashSet</code>, <b>передавая конструктору</b> список <code>nums</code>, — и сразу передаём этот объект как аргумент в <code>println</code>.</p>
-<pre class="terminal"><span class="out">[19, 3, 7, 25, 42]
-[42, 7, 19, 3, 25]
-[3, 7, 19, 25, 42]</span></pre>
-    <ul>
-      <li>Во всех трёх повтор <code>7</code> исчез — это же множества.</li>
-      <li><b>HashSet</b> — порядок «случайный»: он зависит от <code>hashCode</code> и размера внутренней таблицы. Полагаться на него нельзя.</li>
-      <li><b>LinkedHashSet</b> — ровно как добавляли.</li>
-      <li><b>TreeSet</b> — по возрастанию. Для строк — по алфавиту.</li>
-    </ul>
-    <p>Со строками то же самое: <code>List.of("груша", "яблоко", "банан", "яблоко", "вишня")</code> даст</p>
-<pre class="terminal"><span class="out">[банан, груша, яблоко, вишня]
-[груша, яблоко, банан, вишня]
-[банан, вишня, груша, яблоко]</span></pre>
-  </section>
-
-  <!-- ШАГ 5 -->
-  <section class="step">
-    <h2>Три Map на одних данных</h2>
+    <h2>Hash, LinkedHash, Tree — коротко</h2>
+    <p>Set и Map ты подробно разобрал в уроках <a href="/lessons/m13/04-set.html">4</a> и <a href="/lessons/m13/05-map.html">5</a>. Для сравнения близнецов хватит одного примера — один и тот же словарь в трёх реализациях:</p>
 <pre class="code" data-file="Playground.java · внутри main"><code>Map&lt;String, Integer&gt; ages = new HashMap&lt;&gt;(); // потом — Linked, Tree
 ages.put("Оля", 25);
 ages.put("Артём", 19);
 ages.put("Ваня", 31);
 ages.put("Белла", 22);
 System.out.println(ages);</code></pre>
-    <p>Читаем: объявляем переменную <code>ages</code> типа <code>Map&lt;String, Integer&gt;</code> и инициализируем новым объектом <code>HashMap</code>; потом четыре раза вызываем метод <code>put</code> и передаём ключ и значение. Замени <code>HashMap</code> на <code>LinkedHashMap</code> и на <code>TreeMap</code> — получишь:</p>
+    <p>Замени <code>HashMap</code> на <code>LinkedHashMap</code> и на <code>TreeMap</code> — получишь:</p>
 <pre class="terminal"><span class="out">HashMap:       {Артём=19, Ваня=31, Белла=22, Оля=25}
 LinkedHashMap: {Оля=25, Артём=19, Ваня=31, Белла=22}
 TreeMap:       {Артём=19, Белла=22, Ваня=31, Оля=25}</span></pre>
-    <p>Правило то же, что у Set, только про <b>ключи</b>: HashMap — без порядка, LinkedHashMap — как добавляли, TreeMap — ключи по алфавиту.</p>
+    <p>С множествами (<code>HashSet</code>, <code>LinkedHashSet</code>, <code>TreeSet</code>) — то же самое, только про сами элементы. Разница не только в порядке, но и в скорости: у Hash-версий поиск O(1), у Tree-версий — O(log n), зато они всегда отсортированы.</p>
   </section>
 
-  <!-- ШАГ 6 -->
+  <!-- ШАГ 5 -->
   <section class="step">
-    <h2>Очередь и стек: ArrayDeque, PriorityQueue и старый Stack</h2>
+    <h2>Стек: ArrayDeque против старого Stack</h2>
+    <p>Очередь, стек и <code>PriorityQueue</code> разобраны в <a href="/lessons/m13/06-queue-stack.html">уроке 6</a>. Здесь — только про выбор класса для стека. Оба умеют <code>push</code>/<code>pop</code>:</p>
 <pre class="code" data-file="Playground.java · внутри main"><code>Deque&lt;String&gt; stack = new ArrayDeque&lt;&gt;();
 stack.push("a");
 stack.push("b");
 stack.push("c");
-System.out.println(stack + " pop=" + stack.pop());
-
-Queue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(List.of(5, 1, 4, 2, 3));
-System.out.println(pq + " poll=" + pq.poll() + " " + pq);</code></pre>
-<pre class="terminal"><span class="out">[c, b, a] pop=c
-[1, 2, 4, 5, 3] poll=1 [2, 3, 4, 5]</span></pre>
-    <ul>
-      <li><code>ArrayDeque</code> как стек: <code>push</code> кладёт наверх, <code>pop</code> снимает верхний — последним пришёл, первым ушёл.</li>
-      <li><code>PriorityQueue</code>: <code>poll()</code> всегда возвращает минимум. Но <b>печать всей очереди не отсортирована</b> — <code>[1, 2, 4, 5, 3]</code>. По порядку элементы выходят только через <code>poll()</code>. Любимая ловушка собеседований.</li>
-      <li>Класс <code>Stack</code> тоже умеет <code>push</code>/<code>pop</code>, но он устарел — об этом в следующем шаге.</li>
-    </ul>
+System.out.println(stack);
+String top = stack.pop();
+System.out.println("сняли " + top + ", осталось " + stack);</code></pre>
+<pre class="terminal"><span class="out">[c, b, a]
+сняли c, осталось [b, a]</span></pre>
+    <p>Печать и снятие — отдельными строками: так сразу видно, что было до <code>pop</code> и что стало после. Класс <code>Stack</code> даст тот же результат, но он устарел — почему, в следующем шаге.</p>
   </section>
 
-  <!-- ШАГ 7 -->
+  <!-- ШАГ 6 -->
   <section class="step">
     <h2>Устаревшие: Vector, Stack, Hashtable</h2>
     <p>Эти классы появились в самой первой Java (1996), ещё до Collection Framework. Их не удалили, чтобы старые программы продолжали работать. Ты встретишь их в старом коде и на собеседовании — но в новом коде не бери.</p>
@@ -200,7 +173,7 @@ System.out.println(pq + " poll=" + pq.poll() + " " + pq);</code></pre>
     </div>
   </section>
 
-  <!-- ШАГ 8 -->
+  <!-- ШАГ 7 -->
   <section class="step">
     <h2>Сводная таблица</h2>
     <div class="table-wrap">
@@ -221,7 +194,7 @@ System.out.println(pq + " poll=" + pq.poll() + " " + pq);</code></pre>
     <p class="muted">🔥 — используют постоянно.</p>
   </section>
 
-  <!-- ШАГ 9 -->
+  <!-- ШАГ 8 -->
   <section class="step">
     <h2>Как ответить на собеседовании</h2>
     <p>Сначала ответь вслух сам, потом открой.</p>
@@ -230,10 +203,9 @@ System.out.println(pq + " poll=" + pq.poll() + " " + pq);</code></pre>
     <details class="cheat-qa"><summary>HashMap или TreeMap? А LinkedHashMap?</summary><p>HashMap — словарь по умолчанию, get и put за O(1), порядок ключей не гарантирован. LinkedHashMap — то же, но с порядком добавления. TreeMap — ключи всегда отсортированы, операции за O(log n), null-ключ нельзя.</p></details>
     <details class="cheat-qa"><summary>Чем HashMap отличается от Hashtable?</summary><p>Hashtable — устаревший класс из Java 1.0: все методы синхронизированы (медленнее) и <code>null</code> нельзя ни в ключ, ни в значение. HashMap не синхронизирован, допускает один null-ключ. Для работы из нескольких потоков вместо Hashtable берут ConcurrentHashMap.</p></details>
     <details class="cheat-qa"><summary>Почему не Stack, а ArrayDeque?</summary><p>Stack наследует устаревший Vector: синхронизирован без нужды и позволяет лишние операции. ArrayDeque через интерфейс Deque даёт те же push, pop, peek быстрее.</p></details>
-    <details class="cheat-qa"><summary>Почему печать PriorityQueue не отсортирована?</summary><p>PriorityQueue гарантирует только одно: в голове — минимальный элемент. Остальные лежат в куче (особой структуре) не по порядку. Отсортированно элементы выходят только по одному через <code>poll()</code>.</p></details>
   </section>
 
-  <!-- ШАГ 10 -->
+  <!-- ШАГ 9 -->
   <section class="step">
     <h2>Проверь себя</h2>
     <div data-widget="check" id="check-m13-twins">
@@ -250,9 +222,9 @@ System.out.println(pq + " poll=" + pq.poll() + " " + pq);</code></pre>
           { "type": "single", "q": "Нужен список, из которого постоянно читают элементы по индексу. Что выбрать?",
             "options": ["LinkedList", "ArrayList", "HashSet", "PriorityQueue", "Vector"], "answer": 1,
             "why": "get(i) у ArrayList мгновенный. У LinkedList — идёт по цепочке. Vector устарел." },
-          { "type": "single", "q": "Что напечатает <code>System.out.println(pq)</code> после <code>new PriorityQueue&lt;&gt;(List.of(5, 1, 4, 2, 3))</code>?",
-            "options": ["Обязательно [1, 2, 3, 4, 5]", "Обязательно [5, 4, 3, 2, 1]", "Первым будет 1, остальные — не обязательно по порядку", "[5, 1, 4, 2, 3] — как добавляли", "Ошибку компиляции"], "answer": 2,
-            "why": "PriorityQueue гарантирует только минимум в голове. Здесь печать даёт [1, 2, 4, 5, 3]." },
+          { "type": "single", "q": "Нужен словарь «товар → цена», который печатается в порядке добавления товаров. Что выбрать?",
+            "options": ["HashMap", "TreeMap", "LinkedHashMap", "Hashtable", "ArrayList"], "answer": 2,
+            "why": "LinkedHash-версии помнят порядок добавления. HashMap порядок не гарантирует, TreeMap сортирует ключи, Hashtable устарел." },
           { "type": "match", "q": "Соедини класс с тем, чем его заменить",
             "left": ["Vector", "Stack", "Hashtable"], "right": ["ArrayList", "ArrayDeque", "HashMap"],
             "why": "Все три — наследие Java 1.0 с лишней синхронизацией." },

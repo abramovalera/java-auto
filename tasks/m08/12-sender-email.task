@@ -1,0 +1,52 @@
+## id: m08-t12
+## title: Имя и почта отправителя
+## file: module-08/SenderNameAndEmail.java
+## class: SenderNameAndEmail
+## level: 2
+@@ description
+<p>Почтовые программы хранят отправителя одной строкой: сначала имя, потом адрес в угловых скобках. Программа читает такую строку и печатает имя и адрес по отдельности.</p>
+<pre class="terminal"><span class="out">ввод: Иван Петров &lt;ivan@mail.ru&gt;
+вывод:
+Имя: Иван Петров
+Почта: ivan@mail.ru</span></pre>
+<p>Правила:</p>
+<ul>
+<li>имя — всё, что стоит до <code>&lt;</code>, без пробелов по краям; почта — всё, что между <code>&lt;</code> и первой <code>&gt;</code> после неё. Текст после <code>&gt;</code> не нужен;</li>
+<li>если угловых скобок в строке нет — вся строка (без пробелов по краям) считается именем, а вместо почты печатается <code>нет</code>;</li>
+<li>если имя пустое — вместо него печатается <code>нет</code>;</li>
+<li>если скобки есть, то обе, и <code>&lt;</code> стоит раньше <code>&gt;</code>.</li>
+</ul>
+<p>Подсказки: найди позиции скобок вызовом <code>indexOf</code> (у него есть вариант «искать, начиная с позиции»), а куски вырежи через <code>substring</code>. Помни про граничный случай «не нашли → −1»: передавать −1 в <code>substring</code> нельзя.</p>
+<p>📖 <a href="/lessons/m08/03-methods.html">Методы строк: indexOf и substring</a></p>
+@@ require: indexOf | Найди позиции скобок вызовом indexOf
+@@ require: substring | Вырежи имя и почту вызовом substring
+@@ test: Пример из условия
+@@ input
+Иван Петров <ivan@mail.ru>
+@@ expect
+Имя: Иван Петров
+Почта: ivan@mail.ru
+@@ test: Лишние пробелы
+@@ input
+   Анна    <anna@ya.ru>  
+@@ expect
+Имя: Анна
+Почта: anna@ya.ru
+@@ test: Без адреса
+@@ input
+Пётр Иванов
+@@ expect
+Имя: Пётр Иванов
+Почта: нет
+@@ test: Без имени
+@@ input
+<boss@corp.ru>
+@@ expect
+Имя: нет
+Почта: boss@corp.ru
+@@ test: Текст после скобки
+@@ input
+Ольга <olga@mail.ru> (работа)
+@@ expect
+Имя: Ольга
+Почта: olga@mail.ru

@@ -42,6 +42,10 @@
   <section class="step">
     <h2>«Является» и «имеет»</h2>
     <p>В уроке 2 был тест: «A является B?» Если ответ «нет, A <b>имеет</b> B» — наследование не подходит. Для «имеет» (по-английски <i>has-a</i>) используют <b>композицию</b>: один объект хранит в поле ссылку на другой объект и поручает ему работу — вызывает его методы.</p>
+    <div class="callout tip">
+      <span class="callout-title">Где набирать</span>
+      <p>Пакет <code>lesson10.l7</code>; проверять машину — в <code>main</code> класса <code>Main</code> рядом (как — в <a href="/lessons/m10/01-encapsulation.html">уроке 10.1</a>). Например: <code>Car car = new Car(); car.start(); car.drive();</code></p>
+    </div>
 <pre data-file="Garage.java"><code class="java">class Engine {
     private boolean running;
 

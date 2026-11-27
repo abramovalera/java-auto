@@ -49,8 +49,8 @@
 
         <rect x="540" y="175" width="210" height="90" rx="14" class="d-violet"/>
         <text x="645" y="203" text-anchor="middle" class="d-title">🏭 Конвейер</text>
-        <text x="556" y="230" class="d-small">filter, map, sorted</text>
-        <text x="556" y="250" class="d-small">ленивый, одноразовый</text>
+        <text x="556" y="230" class="d-small">filter, map, flatMap</text>
+        <text x="556" y="250" class="d-small">sorted · ленивый, одноразовый</text>
 
         <rect x="40" y="310" width="210" height="110" rx="14" class="d-green"/>
         <text x="145" y="340" text-anchor="middle" class="d-title">📦 Терминал</text>
@@ -82,10 +82,12 @@
         <li>переписать анонимный класс в лямбда-выражение, назвать его параметры и тело и объяснить, что компилятор додумывает сам;</li>
         <li>объяснить, что такое функциональный интерфейс и зачем <code>@FunctionalInterface</code>;</li>
         <li>назвать вход и выход у <code>Predicate</code>, <code>Function</code>, <code>Consumer</code>, <code>Supplier</code>, <code>BiFunction</code> и их методы;</li>
-        <li>отсортировать список record-ов по двум полям через <code>comparing</code>, <code>reversed</code>, <code>thenComparing</code>;</li>
+        <li>написать метод, который возвращает лямбду, и решить задачу лямбдами без стримов: <code>removeIf</code>, <code>list.sort</code>, свой функциональный интерфейс;</li>
+        <li>отсортировать список record-ов по двум полям через <code>comparing</code>, <code>reversed</code>, <code>thenComparing</code> — и объяснить, почему <code>comparing(лямбда).reversed()</code> не компилируется;</li>
         <li>заменить лямбду ссылкой на метод — и сказать, когда это невозможно;</li>
         <li>нарисовать конвейер стрима: источник → промежуточные операции → терминальная операция, объяснить ленивость и «вертикальный» порядок;</li>
-        <li>выбрать терминальную операцию: <code>toList</code>, <code>count</code>, <code>anyMatch/allMatch/noneMatch</code>, <code>findFirst</code>, <code>min/max</code>, <code>sum/average</code>, <code>reduce</code>;</li>
+        <li>разобрать строку «имя:число» в список record-ов, развернуть «список списков» через <code>flatMap</code>, превратить <code>IntStream</code> в список через <code>boxed()</code>;</li>
+        <li>выбрать терминальную операцию: <code>toList</code>, <code>count</code>, <code>anyMatch/allMatch/noneMatch</code>, <code>findFirst</code>, <code>min/max</code>, <code>sum/average</code>, <code>reduce</code> — и объяснить, почему собирать результат через <code>forEach(x -&gt; list.add(x))</code> плохо;</li>
         <li>безопасно достать значение из <code>Optional</code> без <code>get()</code>;</li>
         <li>сгруппировать и посчитать через <code>groupingBy</code>, <code>counting</code>, <code>partitioningBy</code>, склеить через <code>joining</code>;</li>
         <li>решить задачу и циклом, и стримом — и объяснить, что понятнее; отладить стрим через <code>peek</code> или разбиение на шаги.</li>
@@ -142,9 +144,9 @@
         {
          "type": "predict",
          "q": "Что выведет?",
-         "code": "List<String> r = List.of(\"junit\", \"assertj\", \"gradle\", \"git\").stream()\n        .filter(s -> s.length() > 4)\n        .map(String::toUpperCase)\n        .sorted()\n        .toList();\nSystem.out.println(r);",
-         "answer": "[ASSERTJ, GRADLE, JUNIT]",
-         "why": "git (3 буквы) отсеян. Остальные — в верхний регистр и по алфавиту."
+         "code": "List<String> r = List.of(\"kotlin\", \"python\", \"swift\", \"go\").stream()\n        .filter(s -> s.length() > 4)\n        .map(String::toUpperCase)\n        .sorted()\n        .toList();\nSystem.out.println(r);",
+         "answer": "[KOTLIN, PYTHON, SWIFT]",
+         "why": "go (2 буквы) отсеян. Остальные — в верхний регистр и по алфавиту."
         },
         {
          "type": "single",
@@ -178,8 +180,15 @@
         {
          "type": "predict",
          "q": "Что выведет?",
-         "code": "Map<Integer, List<String>> m = Stream.of(\"ui\", \"api\", \"db\", \"e2e\")\n        .collect(Collectors.groupingBy(String::length,\n                TreeMap::new, Collectors.toList()));\nSystem.out.println(m);",
-         "answer": "{2=[ui, db], 3=[api, e2e]}",
+         "code": "List<List<String>> orders = List.of(List.of(\"чай\", \"сок\"), List.of(), List.of(\"чай\"));\nSystem.out.println(orders.stream()\n        .flatMap(List::stream)\n        .distinct()\n        .toList());",
+         "answer": "[чай, сок]",
+         "why": "flatMap сливает все заказы в один поток: чай, сок, чай (пустой заказ не даёт ничего). distinct убирает повтор."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "Map<Integer, List<String>> m = Stream.of(\"чай\", \"кофе\", \"сок\", \"морс\")\n        .collect(Collectors.groupingBy(String::length,\n                TreeMap::new, Collectors.toList()));\nSystem.out.println(m);",
+         "answer": "{3=[чай, сок], 4=[кофе, морс]}",
          "why": "Ключ — длина. TreeMap печатает ключи по возрастанию, внутри групп — порядок входа."
         },
         {
@@ -229,7 +238,7 @@
   <!-- ШАГ 4 -->
   <section class="step">
     <h2>Все задачи — зелёные</h2>
-    <p>Перед экзаменом на <a href="/tasks.html?module=m14">странице практики</a> должны быть решены все десять задач. Почти во всех циклы запрещены — решаем стримами:</p>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m14">странице практики</a> должны быть решены все двенадцать задач. Почти во всех циклы запрещены — решаем стримами и лямбдами:</p>
     <div class="table-wrap">
       <table>
         <tr><th>Задача</th><th>Что тренирует</th></tr>
@@ -237,9 +246,11 @@
         <tr><td>2. Проверка цен · 3. Сумма и произведение через reduce</td><td><code>anyMatch/allMatch/noneMatch</code>, <code>reduce</code> — <a href="/lessons/m14/05-terminal-ops.html">урок 14.5</a></td></tr>
         <tr><td>4. Длинные слова через запятую</td><td><code>joining</code>, ссылки на методы — <a href="/lessons/m14/07-collectors.html">урок 14.7</a></td></tr>
         <tr><td>5. Средний балл</td><td><code>mapToInt</code>, <code>average</code>, OptionalDouble — уроки 14.5–14.6</td></tr>
-        <tr><td>6. Таблица рекордов · 7. Топ-3 товара</td><td>сортировка по двум полям, <code>limit</code> — уроки 14.2 и 14.4</td></tr>
+        <tr><td>6. Таблица рекордов · 7. Топ-3 товара</td><td>строка «имя:число» → record (урок 14.4), сортировка по двум полям (уроки 14.2–14.3), <code>limit</code></td></tr>
         <tr><td>8. Группировка по длине · 9. Частота символов 🛠</td><td><code>groupingBy</code>, <code>counting</code>, <code>TreeMap</code> — уроки 14.7–14.8</td></tr>
         <tr><td>10. Первый отличник ★★★</td><td><code>findFirst</code> и Optional без <code>get()</code> — <a href="/lessons/m14/06-optional.html">урок 14.6</a></td></tr>
+        <tr><td>11. Все товары из всех корзин</td><td><code>flatMap</code>, <code>distinct</code> — <a href="/lessons/m14/04-stream-pipeline.html">урок 14.4</a></td></tr>
+        <tr><td>12. Бейджи для гостей</td><td>лямбды без стримов: свой функциональный интерфейс, <code>removeIf</code>, <code>list.sort</code> — уроки 14.1–14.2</td></tr>
       </table>
     </div>
     <p><span class="ai-only">Каждую зелёную задачу разбери с наставником: <code>/check m14-t01</code>, <code>/check m14-t02</code> и так далее.</span><span class="free-only">Каждую зелёную задачу разбери с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
@@ -269,14 +280,14 @@
     <h2>Что дальше</h2>
     <div class="cards">
       <div class="card"><span class="emoji">📄</span><h4>Модуль 15: файлы</h4><p>Чтение файла построчно отдаёт… стрим строк. Отфильтровать строки лога с ERROR — одна цепочка, которую ты уже умеешь писать.</p></div>
-      <div class="card"><span class="emoji">🧪</span><h4>JUnit и AssertJ</h4><p>Проверки вида «все цены больше нуля», «в корзине есть товар со скидкой» — это <code>allMatch</code> и <code>anyMatch</code>, только в тестах своего кода (модуль 17).</p></div>
+      <div class="card"><span class="emoji">🧪</span><h4>Модуль 17: тесты своего кода</h4><p>Проверки вида «все цены больше нуля», «в корзине есть товар со скидкой» — это <code>allMatch</code> и <code>anyMatch</code>. В модуле 17 они пригодятся в тестах.</p></div>
       <div class="card"><span class="emoji">🧵</span><h4>Модуль 16: потоки</h4><p>Помнишь <code>parallelStream()</code>? Там ты научишься сам делить работу между потоками — и узнаешь, почему общие данные при этом ломаются.</p></div>
     </div>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
         <li>Пройди чек-лист «я умею…» честно.</li>
-        <li><span class="ai-only">Сделай все десять задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все десять задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Сделай все двенадцать задач до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай все двенадцать задач до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
         <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 15!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 15!</span></li>
       </ul>
     </div>

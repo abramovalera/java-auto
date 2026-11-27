@@ -40,6 +40,10 @@
   <section class="step">
     <h2>Животное в переменной — кот в объекте</h2>
     <p>До сих пор тип переменной и тип объекта совпадали: <code>Cat c = new Cat();</code>. Но раз класс <code>Cat</code> наследует <code>Animal</code> (кот <b>является</b> животным), Java разрешает и так:</p>
+    <div class="callout tip">
+      <span class="callout-title">Где набирать</span>
+      <p>В этом уроке нужны <code>Animal</code>, <code>Cat</code> и <code>Dog</code> из урока 3 — они уже лежат в пакете <code>lesson10.l3</code> (файл <code>Voices.java</code>). Поэтому примеры урока набирай <b>там же</b>: кусочки — в <code>main</code> класса <code>Voices</code> (старые строки можно стереть), целые программы <code>Choir</code> и <code>Vet</code> — новыми классами в <code>lesson10.l3</code>.</p>
+    </div>
 <pre data-file="Poly.java"><code class="java">Animal a = new Cat();    // переменная типа Animal, объект — Cat
 a.speak();</code></pre>
     <p>Тут легко запутаться, поэтому разделим два понятия:</p>
@@ -147,17 +151,31 @@ a.meow();       // ✗ cannot find symbol: method meow() — у Animal тако�
   <section class="step">
     <h2>Зачем это нужно: код, который не надо переписывать</h2>
     <p>Метод с параметром родительского типа принимает в качестве аргумента объект <b>любого</b> наследника:</p>
-<pre data-file="Vet.java"><code class="java">static void examine(Animal a) {
-    System.out.println("Осмотр:");
-    a.speak();
+<pre data-file="Vet.java"><code class="java">public class Vet {
+    public static void main(String[] args) {
+        examine(new Cat());
+        examine(new Dog());
+        examine(new Parrot());   // Parrot написали через год, а examine не менялся
+    }
+
+    static void examine(Animal a) {
+        System.out.println("Осмотр:");
+        a.speak();
+    }
 }
 
-// вызовы:
-examine(new Cat());     // Осмотр: Мяу
-examine(new Dog());     // Осмотр: Гав
-// Parrot написали через год, а examine не менялся:
-examine(new Parrot());  // Осмотр: Привет!</code></pre>
-    <p>Завтра появится попугай — достаточно объявить класс <code>Parrot extends Animal</code> и переопределить в нём <code>speak()</code>. Ни <code>examine</code>, ни цикл с хором менять не придётся. Без полиморфизма пришлось бы писать цепочку <code>if</code>: «если кот — мяукай, если собака — лай…» и дописывать её с каждым новым зверем.</p>
+class Parrot extends Animal {
+    @Override
+    void speak() { System.out.println("Привет!"); }
+}</code></pre>
+    <p>Каждый вызов <code>examine</code> печатает <b>две</b> строки: сначала «Осмотр:», потом голос — ведь внутри два вызова <code>println</code>:</p>
+<pre class="terminal"><span class="out">Осмотр:
+Мяу
+Осмотр:
+Гав
+Осмотр:
+Привет!</span></pre>
+    <p>Появился попугай — мы только объявили класс <code>Parrot extends Animal</code> и переопределили в нём <code>speak()</code>. Ни <code>examine</code>, ни цикл с хором менять не пришлось. Без полиморфизма пришлось бы писать цепочку <code>if</code>: «если кот — мяукай, если собака — лай…» и дописывать её с каждым новым зверем.</p>
     <h3>В магазине и в играх — на каждом шагу</h3>
     <p>Касса магазина принимает оплату методом <code>checkout(Payment p)</code> — значит, подходит любой способ: <code>CardPayment</code>, <code>CashPayment</code>, <code>QrPayment</code>. Каждый способ по-своему считает комиссию, а касса написана один раз. А игра держит все уровни как «просто уровни» и вызывает у каждого один и тот же метод — выполняется код конкретного уровня. В задаче m10-t08 ты соберёшь такую мини-игру сам.</p>
     <figure class="fig">

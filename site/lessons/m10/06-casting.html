@@ -39,6 +39,35 @@
   <!-- ШАГ 2 -->
   <section class="step">
     <h2>Вверх — само, вниз — явно</h2>
+    <div class="callout tip">
+      <span class="callout-title">Где набирать: классы для этого урока</span>
+      <p>Создай пакет <code>lesson10.l6</code> (как — в <a href="/lessons/m10/01-encapsulation.html">уроке 10.1</a>) и набери в нём файл <code>Animals.java</code> с классами ниже — на них работают все примеры урока. Кусочки кода набирай в <code>main</code> класса <code>Main</code> этого же пакета.</p>
+    </div>
+<pre data-file="Animals.java"><code class="java">class Animal {
+    void speak() { System.out.println("..."); }
+}
+
+class Cat extends Animal {
+    @Override
+    void speak() { System.out.println("Мяу"); }
+    void meow()  { System.out.println("Мур-мяу!"); }
+}
+
+class Kitten extends Cat { }
+
+class Dog extends Animal {
+    private boolean guard;
+    Dog() { }
+    Dog(boolean guard) { this.guard = guard; }
+    @Override
+    void speak() { System.out.println("Гав"); }
+    boolean isGuard() { return guard; }
+}
+
+class Parrot extends Animal {
+    @Override
+    void speak() { System.out.println("Привет!"); }
+}</code></pre>
     <p>В модуле 3 ты приводил числа: <code>int</code> → <code>long</code> само (безопасно), <code>double</code> → <code>int</code> только явно, со скобками (можно потерять данные). С объектами похожая история, только двигаемся по <b>иерархии наследования</b>:</p>
 <pre data-file="Casting.java"><code class="java">Cat cat = new Cat();
 Animal a = cat;          // восходящее (upcasting): кот → животное, само
@@ -131,13 +160,14 @@ String s = (String) cat;</code></pre>
   <section class="step">
     <h2>instanceof: сначала посмотри, потом бери</h2>
     <p>Чтобы не падать, перед приведением спрашивают: «этот объект — кот?». Оператор <b><code>instanceof</code></b> («является экземпляром» класса) возвращает <code>true</code> или <code>false</code>:</p>
-<pre data-file="Check.java"><code class="java">Animal a = getSomeAnimal();     // не знаем, кто там
+<pre data-file="Check.java"><code class="java">Animal a = new Dog();           // поменяй на new Cat() и запусти ещё раз
 if (a instanceof Cat) {
     Cat c = (Cat) a;            // теперь приведение безопасно
     c.meow();
 } else {
     System.out.println("Это не кот");
 }</code></pre>
+    <p>В настоящей программе объект приходит «откуда-то»: из массива, из параметра метода, из файла — и заранее не знаешь, кто там. Тут-то проверка и нужна.</p>
     <p>Три правила instanceof, которые спрашивают на собеседованиях:</p>
     <ul>
       <li><b>Наследники тоже подходят.</b> Если <code>Kitten extends Cat</code>, то для котёнка <code>a instanceof Cat</code> — <code>true</code>. Котёнок является котом. И <code>a instanceof Animal</code> — тоже true.</li>
@@ -147,6 +177,7 @@ if (a instanceof Cat) {
     <details class="predict">
       <summary>Предскажи: <code>Animal a = new Kitten();</code> Что даст <code>a instanceof Dog</code>, <code>a instanceof Cat</code>, <code>a instanceof Kitten</code>?</summary>
       <p><b>false, true, true.</b> Котёнок — не собака; котёнок является котом (через наследование); и, конечно, котёнком. instanceof проверяет «является», а не «в точности этот класс». Для точного совпадения есть <code>a.getClass() == Cat.class</code> — для котёнка это false.</p>
+      <p>Что за <code>Cat.class</code>? Так в коде записывают <b>сам класс</b> <code>Cat</code> — его «паспорт», тот же объект-описание, который <code>getClass()</code> (урок 5) возвращает у любого кота. <code>a.getClass()</code> у котёнка вернёт паспорт <code>Kitten</code>, а он не равен паспорту <code>Cat</code>.</p>
     </details>
   </section>
 
@@ -164,7 +195,7 @@ if (a instanceof Cat c) {
     </div>
     <p>Её можно сразу использовать дальше в условии через <code>&amp;&amp;</code> — ленивое «и» из модуля 3 гарантирует, что правая часть выполнится только для собаки:</p>
 <pre data-file="Guard.java"><code class="java">if (a instanceof Dog d &amp;&amp; d.isGuard()) {
-    System.out.println(d.getName() + " охраняет двор");
+    System.out.println("Пёс охраняет двор");
 }</code></pre>
     <details class="predict">
       <summary>Предскажи: скомпилируется ли <code>if (a instanceof Dog d || d.isGuard())</code>?</summary>

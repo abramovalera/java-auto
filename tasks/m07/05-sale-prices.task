@@ -1,0 +1,62 @@
+## id: m07-t05
+## title: Цены со скидкой: метод возвращает массив
+## file: module-07/SalePrices.java
+## class: SalePrices
+## level: 2
+@@ description
+<p>Магазин устраивает распродажу. Напиши два метода:</p>
+<ul>
+  <li><code>static int[] readPrices(Scanner sc)</code> — читает количество товаров n, затем n цен и <b>возвращает</b> массив цен. Scanner метод получает параметром.</li>
+  <li><code>static int[] applyDiscount(int[] prices, int percent)</code> — возвращает <b>новый</b> массив, где каждая цена уменьшена на percent процентов: <code>price - price * percent / 100</code> (деление целочисленное). Исходный массив метод не меняет.</li>
+</ul>
+<p>main создаёт <b>один</b> Scanner, вызывает <code>readPrices</code>, потом читает процент скидки, вызывает <code>applyDiscount</code> и только после этого печатает обе строки — старые цены и новые, через пробел:</p>
+<pre class="terminal"><span class="cmd">3
+100 250 80
+10</span>
+<span class="out">Было: 100 250 80
+Стало: 90 225 72</span></pre>
+<p>Печатай обе строки после вызова <code>applyDiscount</code> — так проверка увидит, что исходный массив остался прежним. Если товаров нет (n = 0), после «Было:» и «Стало:» ничего не печатается. Пробел в конце строки не важен.</p>
+<p>Подсказка: печать массива с подписью тоже можно вынести в метод, например <code>static void printPrices(String title, int[] prices)</code>.</p>
+<p>📖 <a href="/lessons/m07/02-params-return.html">Параметры и return → метод возвращает массив</a></p>
+@@ test: Пример из условия
+@@ input
+3
+100 250 80
+10
+@@ expect
+Было: 100 250 80
+Стало: 90 225 72
+@@ test: Деление целочисленное
+@@ input
+2
+99 15
+15
+@@ expect
+Было: 99 15
+Стало: 85 13
+@@ test: Один товар, скидки нет
+@@ input
+1
+500
+0
+@@ expect
+Было: 500
+Стало: 500
+@@ test: Скидка 100%
+@@ input
+2
+70 30
+100
+@@ expect
+Было: 70 30
+Стало: 0 0
+@@ test: Пустая корзина
+@@ input
+0
+25
+@@ expect
+Было:
+Стало:
+@@ require: static\s+int\s*\[\s*\]\s+readPrices\s*\(\s*Scanner\s+\w+\s*\) | Нужен метод static int[] readPrices(Scanner sc): он получает Scanner параметром и возвращает массив
+@@ require: static\s+int\s*\[\s*\]\s+applyDiscount\s*\(\s*int\s*\[\s*\]\s*\w+\s*,\s*int\s+\w+\s*\) | Нужен метод static int[] applyDiscount(int[] prices, int percent), который возвращает новый массив
+@@ forbid: new\s+Scanner[\s\S]*new\s+Scanner | Scanner создаётся один раз — в main, а в методы передаётся параметром

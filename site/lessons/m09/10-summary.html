@@ -14,7 +14,7 @@
   <header class="lesson-head" data-mood="wow">
     <div class="kicker">Модуль 9 · Итоги</div>
     <h1>Итоги модуля и экзамен</h1>
-    <p class="lead">Ты научился придумывать свои типы данных, строить объекты, прятать поля, отличать static от объекта — и разобрал <code>System.out.println</code> до операционной системы. Соберём всё в одну картинку и проверим себя.</p>
+    <p class="lead">Ты научился придумывать свои типы данных, строить объекты, прятать поля, отличать static от объекта — и разобрал <code>System.out.println</code> по кусочкам. Соберём всё в одну картинку и проверим себя.</p>
     <div class="meta"><span>⏱ 15 минут + экзамен</span><span>🏁 финиш модуля</span></div>
   </header>
 
@@ -60,7 +60,7 @@
         <rect x="20" y="340" width="220" height="96" rx="14" class="d-red"/>
         <text x="130" y="366" text-anchor="middle" class="d-title">🔬 println внутри</text>
         <text x="34" y="392" class="d-small">System → out → PrintStream</text>
-        <text x="34" y="412" class="d-small">→ … → ОС; Ctrl+B, F7</text>
+        <text x="34" y="412" class="d-small">→ println; Ctrl+B, F7</text>
 
         <rect x="270" y="340" width="220" height="96" rx="14" class="d-blue"/>
         <text x="380" y="366" text-anchor="middle" class="d-title">🔗 Цепочка вызовов</text>
@@ -94,22 +94,24 @@
         <li>объяснить разницу между static и полем/методом объекта, почему <code>main</code> — static, и сделать счётчик объектов;</li>
         <li>объяснить, зачем <code>import</code> и почему <code>String</code> его не требует; разложить файл на public-класс и вспомогательные;</li>
         <li>закрыть поле <code>private</code> и дать к нему геттер и сеттер с проверкой;</li>
-        <li>разобрать <code>System.out.println("Hi")</code> по кусочкам и рассказать путь строки до операционной системы;</li>
-        <li>провалиться в код JDK через <kbd>Ctrl</kbd>+<kbd>B</kbd> и пройти вызовы отладчиком (<kbd>F7</kbd>, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd>, <kbd>Shift</kbd>+<kbd>F8</kbd>);</li>
+        <li>разобрать <code>System.out.println("Hi")</code> по кусочкам: класс, static-поле, объект, метод объекта, аргумент;</li>
+        <li>заглянуть в код JDK через <kbd>Ctrl</kbd>+<kbd>B</kbd> и пройти вызовы отладчиком (<kbd>F7</kbd>, <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F7</kbd>, <kbd>Shift</kbd>+<kbd>F8</kbd>);</li>
         <li>построить цепочку из 10 классов и прочитать её stack trace снизу вверх, отличая свой код от JDK;</li>
-        <li>написать свой toString и record для данных.</li>
+        <li>написать метод, который создаёт и возвращает новый объект, и объяснить, почему поле без значения равно 0, а локальную переменную без значения читать нельзя;</li>
+        <li>собрать объект из других объектов в полях (композиция) и прикинуть классы задачи по существительным;</li>
+        <li>написать свой toString (с <code>public</code>!) и record для данных.</li>
       </ul>
     </div>
     <div class="callout tip">
       <span class="callout-title">Честная самопроверка</span>
-      <p><span class="ai-only">Особенно важен пункт про println. Попробуй прямо сейчас вслух, без подсказок, рассказать: что такое System, что такое out, чей это метод println и что происходит после него. Наставник на экзамене попросит именно это.</span><span class="free-only">Особенно важен пункт про println. Попробуй прямо сейчас вслух, без подсказок, рассказать: что такое System, что такое out, чей это метод println и что происходит после него. <span class="ai-name">DeepSeek</span> на экзамене попросит именно это.</span></p>
+      <p><span class="ai-only">Особенно важен пункт про println. Попробуй прямо сейчас вслух, без подсказок, рассказать: что такое System, что такое out, что за объект в нём лежит и чей это метод println. Наставник на экзамене попросит именно это.</span><span class="free-only">Особенно важен пункт про println. Попробуй прямо сейчас вслух, без подсказок, рассказать: что такое System, что такое out, что за объект в нём лежит и чей это метод println. <span class="ai-name">DeepSeek</span> на экзамене попросит именно это.</span></p>
     </div>
   </section>
 
   <!-- ШАГ 3 -->
   <section class="step">
     <h2>Большая быстрая проверка</h2>
-    <p>Десять заданий по всему модулю. Ошибки вернутся в конце.</p>
+    <p>Девять заданий по всему модулю. Ошибки вернутся в конце.</p>
     <div data-widget="check" id="check-m09-sum">
       <script type="application/json">
       {
@@ -170,17 +172,11 @@
          "why": "Класс → static-поле → метод объекта из этого поля → аргумент."
         },
         {
-         "type": "order",
-         "q": "Расставь путь строки от твоего кода до экрана",
-         "lines": [
-          "main вызывает System.out.println",
-          "PrintStream передаёт текст дальше",
-          "символы кодируются в байты UTF-8",
-          "байты копятся в буфере",
-          "FileOutputStream через native-метод обращается к ОС",
-          "IDEA рисует буквы в панели Run"
-         ],
-         "why": "Удобство → кодировка → буфер → файл/ОС → консоль."
+         "type": "predict",
+         "q": "Что выведет? В классе Cat есть конструктор Cat(String name, int age), метод <code>Cat makeKitten(String n) { return new Cat(n, 0); }</code> и toString <code>name + \" \" + age</code>",
+         "code": "Cat mom = new Cat(\"Мурка\", 4);\nCat baby = mom.makeKitten(\"Пушок\");\nCat same = baby;\nSystem.out.println(baby);\nSystem.out.println(mom);\nSystem.out.println(same == baby);",
+         "answer": "Пушок 0\nМурка 4\ntrue",
+         "why": "makeKitten создаёт новый объект и возвращает ссылку на него — мама при этом не меняется. same = baby копирует ссылку, поэтому == даёт true. println печатает объекты через наш toString."
         },
         {
          "type": "single",
@@ -264,7 +260,7 @@
     <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
     <ol class="steps">
       <li><span class="ai-only"><strong>Открой наставника</strong> в папке курса и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
-      <li><strong>Что будет:</strong> вопросы «объясни своими словами» (this, static, конструктор по умолчанию, зачем private), головоломки «что выведется» с рисованием стека и кучи, «найди ошибку». Обязательная часть — рассказ про <code>System.out.println</code> до операционной системы и показ в IDEA: Ctrl+B на println и Force Step Into.</li>
+      <li><strong>Что будет:</strong> вопросы «объясни своими словами» (this, static, конструктор по умолчанию, зачем private), головоломки «что выведется» с рисованием стека и кучи, «найди ошибку». Обязательная часть — разбор <code>System.out.println</code> по кусочкам (класс, поле, объект, метод) и показ в IDEA: Ctrl+B на println и Force Step Into. Путь строки до операционной системы на экзамене не требуется.</li>
       <li><strong>Может попросить написать класс с нуля</strong> — например, «Термометр» с private-полем, конструктором и геттером.</li>
       <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить. Модуль засчитан, когда он отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить. Модуль засчитан, когда все задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
     </ol>

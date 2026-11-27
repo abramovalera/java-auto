@@ -49,39 +49,43 @@
     <h2>Путь — адрес файла</h2>
     <p>Файлы на диске разложены по <b>папкам</b> (их ещё называют <b>каталогами</b>, directory), папки лежат в папках — получается дерево. <b>Путь</b> — это список папок, через которые надо пройти, чтобы добраться до файла.</p>
     <figure class="fig">
-      <svg class="wide" viewBox="0 0 760 330" role="img" aria-label="Дерево папок: от диска C до файла notes.txt. Абсолютный путь начинается от диска, относительный — от рабочей папки workspace">
+      <svg class="wide" viewBox="0 0 760 340" role="img" aria-label="Дерево папок: от диска C до папки workspace, где лежат notes.txt и папка module-15 с WhereAmI.java. Абсолютный путь начинается от диска, относительный — от рабочей папки workspace">
         <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
-        <rect x="20" y="20" width="110" height="40" rx="10" class="d-violet"/>
-        <text x="75" y="46" text-anchor="middle" class="d-title">💽 C:\</text>
-        <rect x="60" y="80" width="130" height="36" rx="10" class="d-box"/>
-        <text x="125" y="104" text-anchor="middle" class="d-text">📁 Users</text>
-        <rect x="100" y="134" width="130" height="36" rx="10" class="d-box"/>
-        <text x="165" y="158" text-anchor="middle" class="d-text">📁 V</text>
-        <rect x="140" y="188" width="160" height="36" rx="10" class="d-box"/>
-        <text x="220" y="212" text-anchor="middle" class="d-text">📁 IdeaProjects</text>
-        <rect x="180" y="242" width="170" height="40" rx="10" class="d-accent"/>
-        <text x="265" y="267" text-anchor="middle" class="d-title">📁 workspace</text>
-        <path d="M40 60 V98 H60" class="d-line"/>
-        <path d="M80 116 V152 H100" class="d-line"/>
-        <path d="M120 170 V206 H140" class="d-line"/>
-        <path d="M160 224 V262 H180" class="d-line"/>
-        <rect x="420" y="200" width="170" height="36" rx="10" class="d-box"/>
-        <text x="505" y="224" text-anchor="middle" class="d-text">📁 module-15</text>
-        <rect x="420" y="250" width="170" height="36" rx="10" class="d-teal"/>
-        <text x="505" y="274" text-anchor="middle" class="d-text">📄 notes.txt</text>
-        <rect x="610" y="200" width="140" height="36" rx="10" class="d-box"/>
-        <text x="680" y="224" text-anchor="middle" class="d-small">FileDemo.java</text>
-        <path d="M350 262 H385 V218 H420" class="d-line"/>
-        <path d="M385 262 V268 H420" class="d-line"/>
-        <path d="M590 218 H610" class="d-line"/>
-        <text x="395" y="40" class="d-small">Абсолютный путь — от самого корня:</text>
-        <rect x="395" y="50" width="360" height="34" rx="8" class="d-code"/>
-        <text x="404" y="72" class="d-mono">C:\Users\Misha\IdeaProjects\workspace\notes.txt</text>
-        <text x="395" y="118" class="d-small">Относительный — от рабочей папки:</text>
-        <rect x="395" y="128" width="150" height="34" rx="8" class="d-code"/>
-        <text x="404" y="150" class="d-mono">notes.txt</text>
-        <path d="M300 300 C380 316 470 312 500 290" class="d-arrow"/>
-        <text x="300" y="322" class="d-small">«я стою здесь» → шаг к файлу</text>
+        <rect x="20" y="14" width="110" height="36" rx="10" class="d-violet"/>
+        <text x="75" y="38" text-anchor="middle" class="d-title">💽 C:\</text>
+        <rect x="60" y="62" width="130" height="34" rx="10" class="d-box"/>
+        <text x="125" y="84" text-anchor="middle" class="d-text">📁 Users</text>
+        <rect x="100" y="108" width="130" height="34" rx="10" class="d-box"/>
+        <text x="165" y="130" text-anchor="middle" class="d-text">📁 Misha</text>
+        <rect x="140" y="154" width="160" height="34" rx="10" class="d-box"/>
+        <text x="220" y="176" text-anchor="middle" class="d-text">📁 IdeaProjects</text>
+        <rect x="180" y="200" width="160" height="34" rx="10" class="d-box"/>
+        <text x="260" y="222" text-anchor="middle" class="d-text">📁 java-course</text>
+        <rect x="220" y="246" width="170" height="40" rx="10" class="d-accent"/>
+        <text x="305" y="271" text-anchor="middle" class="d-title">📁 workspace</text>
+        <path d="M40 50 V79 H60" class="d-line"/>
+        <path d="M80 96 V125 H100" class="d-line"/>
+        <path d="M120 142 V171 H140" class="d-line"/>
+        <path d="M160 188 V217 H180" class="d-line"/>
+        <path d="M200 234 V266 H220" class="d-line"/>
+        <rect x="430" y="210" width="170" height="34" rx="10" class="d-box"/>
+        <text x="515" y="232" text-anchor="middle" class="d-text">📁 module-15</text>
+        <rect x="430" y="256" width="170" height="34" rx="10" class="d-teal"/>
+        <text x="515" y="278" text-anchor="middle" class="d-text">📄 notes.txt</text>
+        <rect x="616" y="210" width="136" height="34" rx="10" class="d-box"/>
+        <text x="684" y="232" text-anchor="middle" class="d-small">WhereAmI.java</text>
+        <path d="M390 266 H410 V227 H430" class="d-line"/>
+        <path d="M410 266 V273 H430" class="d-line"/>
+        <path d="M600 227 H616" class="d-line"/>
+        <text x="395" y="30" class="d-small">Абсолютный путь — от самого корня:</text>
+        <rect x="395" y="40" width="360" height="56" rx="8" class="d-code"/>
+        <text x="404" y="63" class="d-mono">C:\Users\Misha\IdeaProjects\</text>
+        <text x="404" y="85" class="d-mono">java-course\workspace\notes.txt</text>
+        <text x="395" y="128" class="d-small">Относительный — от рабочей папки:</text>
+        <rect x="395" y="138" width="150" height="34" rx="8" class="d-code"/>
+        <text x="404" y="160" class="d-mono">notes.txt</text>
+        <path d="M330 300 C400 320 480 318 510 294" class="d-arrow"/>
+        <text x="300" y="334" class="d-small">«я стою здесь» → шаг к файлу</text>
       </svg>
       <figcaption>Абсолютный путь идёт от корня диска, относительный — от папки, в которой «стоит» программа.</figcaption>
     </figure>
@@ -119,7 +123,7 @@ public class WhereAmI {
     <div data-widget="ide" id="shot-where-am-i">
       <script type="application/json">
       { "project": "workspace", "statusPath": "module-15", "file": "WhereAmI.java", "runConfig": "WhereAmI", "gutterRun": [3, 4],
-        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true, "note": "C:\\Users\\Misha\\IdeaProjects\\workspace" },
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true, "note": "C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace" },
                   { "name": "module-01", "type": "src", "depth": 1 },
                   { "name": "module-14", "type": "src", "depth": 1 },
                   { "name": "module-15", "type": "src", "depth": 1, "open": true },
@@ -127,8 +131,8 @@ public class WhereAmI {
         "code": "import java.nio.file.Path;\n\npublic class WhereAmI {\n    public static void main(String[] args) {\n        Path here = Path.of(\"\").toAbsolutePath();\n        System.out.println(\"Рабочая папка: \" + here);\n        System.out.println(\"Файл будет тут: \" + Path.of(\"notes.txt\").toAbsolutePath());\n    }\n}",
         "console": { "title": "WhereAmI", "lines": [
           { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… WhereAmI" },
-          { "t": "out", "s": "Рабочая папка: C:\\Users\\Misha\\IdeaProjects\\workspace" },
-          { "t": "out", "s": "Файл будет тут: C:\\Users\\Misha\\IdeaProjects\\workspace\\notes.txt" },
+          { "t": "out", "s": "Рабочая папка: C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace" },
+          { "t": "out", "s": "Файл будет тут: C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace\\notes.txt" },
           { "t": "exit", "s": "Process finished with exit code 0" } ] },
         "marks": [ { "n": 1, "target": "tree-WhereAmI", "text": "Класс лежит в папке <b>module-15</b>…" },
                    { "n": 2, "target": "output", "text": "…а рабочая папка — <b>workspace</b>, корень проекта. Модуля в пути нет!" },
@@ -155,7 +159,7 @@ public class WhereAmI {
                     { "label": "Build and run", "value": "java 21   -cp module-15", "type": "select" },
                     { "label": "Main class", "value": "WhereAmI" },
                     { "label": "Program arguments", "value": "" },
-                    { "label": "Working directory", "value": "C:\\Users\\Misha\\IdeaProjects\\workspace", "hl": true },
+                    { "label": "Working directory", "value": "C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace", "hl": true },
                     { "label": "Environment variables", "value": "" } ],
           "buttons": ["OK", "Cancel", "Apply"], "primary": "OK" },
         "marks": [ { "n": 1, "target": "config", "text": "Открыть окно: щёлкни по имени конфигурации сверху → <b>Edit Configurations…</b> (или меню <b>Run → Edit Configurations…</b>)" },

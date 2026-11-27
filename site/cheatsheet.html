@@ -359,7 +359,7 @@
     <details class="cheat-qa"><summary>Чем абсолютный путь отличается от относительного?</summary><p>Абсолютный — от корня диска (<code>C:\data\a.txt</code>). Относительный — от рабочей папки программы (<code>data/a.txt</code>); в IDEA это обычно корень проекта.</p></details>
     <details class="cheat-qa"><summary>Зачем try-with-resources?</summary><p>Сам закрывает файл или поток в конце блока, даже при исключении. Незакрытые файлы — утечка ресурсов и «занятые» файлы.</p></details>
     <details class="cheat-qa"><summary>Байтовые и символьные потоки — в чём разница?</summary><p>Байтовые (<code>InputStream</code>) читают сырые байты: картинки, архивы. Символьные (<code>Reader</code>) — текст, с учётом кодировки.</p></details>
-    <details class="cheat-qa"><summary>Где в тестах хранить тестовые данные и настройки?</summary><p>В <code>src/test/resources</code>: файлы <code>.properties</code>, <code>.json</code>, <code>.csv</code>. Адрес стенда и логины — в настройках, не в коде.</p></details>
+    <details class="cheat-qa"><summary>Где хранить настройки программы?</summary><p>В файле рядом с программой, а не в коде: <code>.properties</code> (ключ=значение), <code>.json</code> или <code>.csv</code>. Адрес сервера, пароли и лимиты меняются без перекомпиляции; файлы-ресурсы проекта лежат в <code>src/main/resources</code>.</p></details>
     </div>
     <p class="cheat-more"><a href="/lessons/m15/08-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
   </section>
@@ -371,13 +371,13 @@
     <h3>Главное</h3>
     <ul>
       <li>Поток — отдельная линия выполнения. Запуск — <code>start()</code>, не <code>run()</code>.</li>
-      <li>Гонка данных — потоки одновременно меняют общее поле. Лечится <code>synchronized</code> или атомиками.</li>
+      <li>Состояние гонки (race condition) — потоки одновременно меняют общее поле. Лечится <code>synchronized</code> или атомиками.</li>
       <li>Пул потоков — <code>ExecutorService</code>; результат — <code>Future</code>.</li>
     </ul>
     <h3>Могут спросить на собеседовании</h3>
     <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
     <details class="cheat-qa"><summary>Чем start() отличается от run()?</summary><p><code>start()</code> создаёт новый поток, и <code>run()</code> выполняется в нём. Прямой вызов <code>run()</code> — обычный метод в текущем потоке, без параллельности.</p></details>
-    <details class="cheat-qa"><summary>Что такое гонка данных и как её избежать?</summary><p>Два потока читают и пишут одно поле, результат зависит от случайности. Решения: <code>synchronized</code>, <code>AtomicInteger</code>, потокобезопасные коллекции, а лучше — не делить данные между потоками.</p></details>
+    <details class="cheat-qa"><summary>Что такое состояние гонки (race condition) и как его избежать?</summary><p>Два потока читают и пишут одно поле, результат зависит от случайности. Решения: <code>synchronized</code>, <code>AtomicInteger</code>, потокобезопасные коллекции, а лучше — не делить данные между потоками.</p></details>
     <details class="cheat-qa"><summary>Что такое deadlock?</summary><p>Взаимная блокировка: поток A держит замок 1 и ждёт 2, поток B держит 2 и ждёт 1. Оба ждут вечно.</p></details>
     <details class="cheat-qa"><summary>Что делает volatile?</summary><p>Гарантирует, что все потоки видят свежее значение переменной. Атомарность <code>count++</code> он не даёт.</p></details>
     <details class="cheat-qa"><summary>Почему многопоточная программа иногда даёт разный результат?</summary><p>Потоки делят общие данные: общие <code>static</code>-поля, одна коллекция на всех. Порядок их работы каждый раз разный — отсюда «случайные» ошибки. Лечится так: каждому потоку свои данные, а общее — через <code>synchronized</code>, атомики или потокобезопасные коллекции.</p></details>
@@ -426,7 +426,7 @@
       <h3>Править код</h3>
       <div class="table-wrap"><table>
         <tr><th>Клавиши</th><th>Что делает</th><th>Урок</th></tr>
-        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>быстрое исправление: импорт, создать метод, починить ошибку</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>быстрое исправление: импорт, создать метод, починить ошибку</td><td><a href="/lessons/m01/08-errors.html" title="Ошибки — твои друзья">1.7</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Space</kbd></td><td>подсказка: чем можно закончить слово</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>какие параметры ждёт метод (курсор внутри скобок)</td><td><a href="/lessons/m08/01-string-object.html" title="String — это объект, и он не меняется">8.1</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>/</kbd></td><td>закомментировать / раскомментировать строку</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
@@ -435,7 +435,7 @@
         <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>отменить</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>вернуть отменённое</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd></td><td>выровнять код (форматирование)</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td><td>убрать лишние import</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td><td>убрать лишние import</td><td><a href="/lessons/m09/05-packages-access.html" title="Пакеты, import и доступ">9.5</a></td></tr>
         <tr><td><kbd>Shift</kbd>+<kbd>F6</kbd></td><td>переименовать везде сразу</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd></td><td>вынести выражение в переменную</td><td><a href="/lessons/m08/01-string-object.html" title="String — это объект, и он не меняется">8.1</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd></td><td>обернуть выделенное в try/catch, if, цикл</td><td><a href="/lessons/m12/03-try-catch.html" title="try/catch: поймать и обработать">12.3</a></td></tr>
@@ -480,7 +480,7 @@
         <tr><td><kbd>F9</kbd></td><td>бежать до следующей точки останова (Resume)</td><td><a href="/lessons/m05/07-loop-mistakes.html" title="Типичные ошибки в циклах">5.7</a></td></tr>
         <tr><td><kbd>Alt</kbd>+<kbd>F9</kbd></td><td>бежать до строки с курсором (Run to Cursor)</td><td><a href="/lessons/m17/01-debugger.html" title="Отладчик IntelliJ IDEA">17.1</a></td></tr>
         <tr><td><kbd>Alt</kbd>+<kbd>F8</kbd></td><td>вычислить выражение во время паузы</td><td><a href="/lessons/m17/01-debugger.html" title="Отладчик IntelliJ IDEA">17.1</a></td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F8</kbd></td><td>все точки останова, остановка на исключении</td><td><a href="/lessons/m17/01-debugger.html" title="Отладчик IntelliJ IDEA">17.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F8</kbd></td><td>все точки останова, остановка на исключении</td><td><a href="/lessons/m12/07-good-practices.html" title="Хорошие практики и отладка">12.7</a></td></tr>
       </table></div>
       <h3>Git, терминал, сборка</h3>
       <div class="table-wrap"><table>
@@ -493,7 +493,7 @@
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd></td><td>откатить несохранённые правки (Rollback)</td><td><a href="/lessons/m01/95-minibank.html" title="★ МиниБанк: открываем банк">1.9</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>`</kbd></td><td>ветки: список и новая ветка</td><td><a href="/lessons/m17/02-git-basics.html" title="Git: машина времени для кода">17.2</a></td></tr>
         <tr><td><kbd>Alt</kbd>+<kbd>`</kbd></td><td>все действия Git в одном меню (VCS Operations)</td><td><a href="/lessons/m17/02-git-basics.html" title="Git: машина времени для кода">17.2</a></td></tr>
-        <tr><td><kbd>Alt</kbd>+<kbd>F12</kbd></td><td>терминал внутри IDEA</td><td><a href="/lessons/m17/02-git-basics.html" title="Git: машина времени для кода">17.2</a></td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>F12</kbd></td><td>терминал внутри IDEA</td><td><a href="/lessons/m01/04-first-program-idea.html" title="Первая программа в IntelliJ IDEA">1.4</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></td><td>подтянуть изменения build.gradle.kts (Load Gradle Changes)</td><td><a href="/lessons/m17/04-gradle.html" title="Сборка проекта: Gradle">17.4</a></td></tr>
       </table></div>
     <p class="cheat-more"><a href="#toc">↑ к оглавлению</a></p>

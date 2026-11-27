@@ -1,5 +1,5 @@
 { "id": "m12", "num": "12", "title": "Исключения",
-  "summary": "Как исключение всплывает по стеку, чтение stack trace, try/catch/finally, try-с-ресурсами, checked и unchecked, throw и свои исключения, хорошие практики и исключения в тестах на JUnit.",
+  "summary": "Как исключение всплывает по стеку, чтение stack trace, try/catch/finally, try-с-ресурсами, checked и unchecked, throw и свои исключения, хорошие практики и остановка отладчика на исключении.",
   "lessons": [
     { "id": "m12-01", "title": "Что такое исключение", "url": "/lessons/m12/01-what-is-exception.html" },
     { "id": "m12-02", "title": "Как читать stack trace", "url": "/lessons/m12/02-stack-trace.html" },
@@ -7,7 +7,7 @@
     { "id": "m12-04", "title": "finally и try-с-ресурсами", "url": "/lessons/m12/04-finally.html" },
     { "id": "m12-05", "title": "Иерархия, checked и throws", "url": "/lessons/m12/05-hierarchy-checked.html" },
     { "id": "m12-06", "title": "throw и свои исключения", "url": "/lessons/m12/06-throw-custom.html" },
-    { "id": "m12-07", "title": "Хорошие практики и тесты", "url": "/lessons/m12/07-good-practices.html" },
+    { "id": "m12-07", "title": "Хорошие практики и отладка", "url": "/lessons/m12/07-good-practices.html" },
     { "id": "m12-pz", "title": "Головоломки: исключения", "url": "/lessons/m12/08-puzzles.html" },
     { "id": "m12-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m12/09-summary.html" }
   ],

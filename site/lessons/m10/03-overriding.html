@@ -66,6 +66,10 @@
   <section class="step">
     <h2>Одинаковое имя — своё поведение</h2>
     <p>Пусть все животные умеют подавать голос. В классе <code>Animal</code> объявим общий метод, а классы <code>Cat</code> и <code>Dog</code> <b>переопределят</b> его — объявят метод с той же <b>сигнатурой</b> (то же имя и те же параметры), но со своим телом:</p>
+    <div class="callout tip">
+      <span class="callout-title">Где набирать</span>
+      <p>Примеры урока — в новом пакете <code>lesson10.l3</code> (как — в <a href="/lessons/m10/01-encapsulation.html">уроке 10.1</a>). <code>Voices.java</code> с классами <code>Animal</code>, <code>Cat</code>, <code>Dog</code> пригодится и в следующем уроке.</p>
+    </div>
 <pre data-file="Voices.java"><code class="java">public class Voices {
     public static void main(String[] args) {
         Animal a = new Animal();
@@ -103,7 +107,7 @@ class Dog extends Animal {
   <!-- ШАГ 3 -->
   <section class="step">
     <h2>@Override: попроси компилятор проверить</h2>
-    <p><code>@Override</code> — это <b>аннотация</b>, пометка для компилятора: «я хочу переопределить метод родителя — проверь, что такой метод там действительно есть». Без неё код тоже работает. Зачем же она? Смотри:</p>
+    <p><code>@Override</code> — это <b>аннотация</b>, пометка для компилятора: «я хочу переопределить метод родителя — проверь, что такой метод там действительно есть». Без неё код тоже работает. Зачем же она? Смотри — хочешь повторить, <b>поправь</b> класс <code>Dog</code> в <code>Voices.java</code>, а не объявляй второй:</p>
 <pre data-file="Typo.java"><code class="java">class Dog extends Animal {
     void speek() { System.out.println("Гав"); }   // опечатка: speek, а не speak
 }</code></pre>
@@ -300,6 +304,38 @@ class Omelet extends Recipe {
       <div class="card"><span class="emoji">🧮</span><h4>Ещё final-классы</h4><p><code>Math</code>, <code>Integer</code>, <code>Double</code> и другие обёртки. Твои классы — тоже можно: <code>final class Money</code>, если наследники ему не нужны.</p></div>
       <div class="card"><span class="emoji">📌</span><h4>Три значения final</h4><p>У переменной/поля — нельзя присвоить новое значение (модуль 2 и 9). У метода — нельзя переопределить. У класса — нельзя наследовать.</p></div>
     </div>
+    <h3>Рецепт неизменяемого класса</h3>
+    <p>Строки неизменяемы — и это удобно: строку можно отдать кому угодно, испортить её нельзя. Такие же классы можно писать самому. <b>Неизменяемый</b> (immutable) класс — тот, у объекта которого после создания ничего не меняется. Рецепт из пяти шагов — в нём собраны все значения <code>final</code> и инкапсуляция из урока 1:</p>
+<pre data-file="Money.java"><code class="java">public final class Money {                       // 1. final-класс
+    private final long kopecks;                  // 2. поля private final
+    private final String currency;
+
+    public Money(long kopecks, String currency) { // 3. всё задаём в конструкторе
+        this.kopecks = kopecks;
+        this.currency = currency;
+    }
+
+    public long getKopecks() { return kopecks; }  // 4. только геттеры
+    public String getCurrency() { return currency; }
+
+    public Money plus(Money other) {              // 5. «изменить» = вернуть новый объект
+        return new Money(kopecks + other.kopecks, currency);
+    }
+}</code></pre>
+    <ol class="steps">
+      <li><b><code>final class</code></b> — наследник не сможет добавить изменяемые поля или переопределить методы «по-хитрому».</li>
+      <li><b>Поля <code>private final</code></b> — снаружи не достать, а внутри после конструктора не переприсвоить.</li>
+      <li><b>Все значения — через конструктор.</b></li>
+      <li><b>Сеттеров нет</b>, только геттеры.</li>
+      <li><b>Метод, который «меняет», возвращает новый объект</b> — как <code>toUpperCase()</code> у строки (модуль 8). Если поле — массив или другой изменяемый объект, в конструкторе и геттере делают его копию (защитная копия из урока 1).</li>
+    </ol>
+    <details class="predict">
+      <summary>Предскажи: что выведет этот код?</summary>
+<pre><code class="java">Money a = new Money(500, "RUB");
+Money b = a.plus(new Money(250, "RUB"));
+System.out.println(a.getKopecks() + " " + b.getKopecks());</code></pre>
+      <p><b>500 750.</b> <code>plus</code> не трогает <code>a</code> — он создаёт и возвращает новый объект. Объект <code>a</code> как был 500 копеек, так и остался. Поэтому неизменяемые объекты можно спокойно передавать в любые методы и хранить в нескольких местах: никто не поменяет их «за спиной». Короткий путь к такому классу — <code>record</code> из модуля 9: его поля тоже <code>private final</code>.</p>
+    </details>
   </section>
 
   <!-- ШАГ 7 -->
@@ -343,6 +379,7 @@ class Omelet extends Recipe {
         <li>Правила: та же сигнатура, тот же тип возвращаемого значения, доступ не строже; private, static и final не переопределяются.</li>
         <li><code>super.method()</code> — вызвать версию родителя и дописать своё.</li>
         <li><code>final</code> у метода — нельзя переопределить; у класса — нельзя наследовать (<code>String</code>).</li>
+        <li>Неизменяемый класс: <code>final class</code>, поля <code>private final</code>, всё в конструкторе, без сеттеров, «изменение» возвращает новый объект.</li>
       </ul>
     </div>
   </section>

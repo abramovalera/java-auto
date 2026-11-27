@@ -130,6 +130,31 @@ System.out.println(age &gt;= 18 ? "Можно" : "Нельзя");</code></pre>
       <div class="card"><span class="emoji">👍</span><h4>Бери тернарный</h4><p>Выбор одного значения из двух, и всё помещается в короткую понятную строку.</p></div>
       <div class="card"><span class="emoji">👎</span><h4>Бери if-else</h4><p>Вариантов больше двух; в ветках нужно что-то <b>сделать</b>, а не выбрать; условие длинное.</p></div>
     </div>
+    <p>И отдельный случай — когда ветки выбирают между <code>true</code> и <code>false</code>. Здесь не нужен ни if, ни тернарный:</p>
+<pre data-file="Adult.java"><code class="java">// длинно: if, который переписывает true в true
+boolean isAdult;
+if (age &gt;= 18) {
+    isAdult = true;
+} else {
+    isAdult = false;
+}
+
+// то же самое, но тернарным — всё равно лишнее
+boolean isAdult = age &gt;= 18 ? true : false;
+
+// правильно: сравнение и так даёт boolean
+boolean isAdult = age &gt;= 18;</code></pre>
+    <p>Сравнение <code>age &gt;= 18</code> — уже выражение типа <code>boolean</code> (модуль 3): его значение и есть ответ. Им сразу инициализируем переменную. Если ветки наоборот (<code>false</code> при «да»), пиши отрицание: <code>boolean isChild = !(age &gt;= 18);</code> или проще <code>age &lt; 18</code>.</p>
+    <details class="predict">
+      <summary>Предскажи: как записать короче, одной строкой?</summary>
+<pre data-file="Stock.java"><code class="java">boolean inStock;
+if (count &gt; 0) {
+    inStock = true;
+} else {
+    inStock = false;
+}</code></pre>
+      <p><code>boolean inStock = count &gt; 0;</code> — значение сравнения сразу инициализирует переменную. Если <code>count</code> больше нуля, получится <code>true</code>, иначе <code>false</code> — ровно то, что делал if.</p>
+    </details>
     <div class="say" data-mood="think"><p>Код читают в десять раз чаще, чем пишут. Короче — не значит лучше. Лучше — значит понятнее.</p></div>
   </section>
 
@@ -202,6 +227,7 @@ System.out.println(age &gt;= 18 ? "Можно" : "Нельзя");</code></pre>
         <li>Это выражение: его результат присваивают переменной или передают аргументом в println. Делать «действия» им нельзя.</li>
         <li>Внутри склейки строк — всегда в скобках: у тернарного оператора приоритет ниже, чем у <code>+</code> и сравнений.</li>
         <li>Хорош для выбора одного из двух коротких значений. Больше вариантов — бери else if.</li>
+        <li>Выбор между <code>true</code> и <code>false</code> не нужен вовсе: вместо if или <code>x &gt; 0 ? true : false</code> пиши <code>boolean ok = x &gt; 0;</code></li>
       </ul>
     </div>
   </section>

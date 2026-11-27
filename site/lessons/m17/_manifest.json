@@ -9,6 +9,6 @@
     { "id": "m17-06", "title": "JUnit 5 глубже и AssertJ", "url": "/lessons/m17/06-junit-deeper.html" },
     { "id": "m17-07", "title": "Мастерская: какие тесты написать", "url": "/lessons/m17/07-workshop-tests.html" },
     { "id": "m17-pz", "title": "Головоломки: тесты, Git и отладчик", "url": "/lessons/m17/08-puzzles.html" },
-    { "id": "m17-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m17/09-summary.html" }
+    { "id": "m17-sum", "title": "Итоги и финал курса", "url": "/lessons/m17/09-summary.html" }
   ],
   "taskCount": 7 }

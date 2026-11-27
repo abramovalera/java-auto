@@ -1,0 +1,79 @@
+## id: m11-t03
+## title: Самые длинные фильмы
+## file: module-11/LongestMovies.java
+## class: LongestMovies
+## level: 2
+@@ description
+<p>Вечером с друзьями решаете, что посмотреть, и хотите сначала увидеть самые длинные фильмы из списка — чтобы понять, на что хватит времени. Отсортируй фильмы по длительности своим <b>компаратором</b>.</p>
+<p>В одном файле <code>LongestMovies.java</code> (вспомогательные классы — без <code>public</code>):</p>
+<ul>
+  <li><code>class Movie</code> — поля «название» (<code>String</code>) и «длительность в минутах» (<code>int</code>), конструктор;</li>
+  <li>компаратор <code>Comparator&lt;Movie&gt;</code>: <b>отдельный класс</b> (например, <code>MovieComparator implements Comparator&lt;Movie&gt;</code>) или <b>анонимный класс</b> прямо в вызове сортировки.</li>
+</ul>
+<p><b>Ввод:</b> число N (N ≥ 1), потом N строк <code>название минуты</code> (название — одно слово). Отсортируй массив вызовом <code>Arrays.sort(массив, компаратор)</code>: сначала самые <b>длинные</b>, при одинаковой длительности — по названию по алфавиту. Выведи места:</p>
+<pre class="terminal"><span class="out">ввод:                вывод:
+4                    1. Titanic - 194 мин
+Shrek 90             2. Avatar - 162 мин
+Avatar 162           3. Inception - 148 мин
+Inception 148        4. Shrek - 90 мин
+Titanic 194</span></pre>
+<p>Вспомни правило <code>compare(a, b)</code>: минус — <code>a</code> встаёт раньше, плюс — <code>b</code> раньше, ноль — равны. Для чисел есть готовое <code>Integer.compare(x, y)</code>, для строк — <code>s1.compareTo(s2)</code>. Как одним движением развернуть порядок на «по убыванию»?</p>
+<p>Лямбды (<code>-&gt;</code>) мы пройдём в модуле 14 — здесь потренируй «длинную» запись.</p>
+<p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
+<p>📖 <a href="/lessons/m11/04-callbacks.html">Интерфейс как обратный вызов: Comparator</a></p>
+@@ test: Обычный список
+@@ input
+4
+Shrek 90
+Avatar 162
+Inception 148
+Titanic 194
+@@ expect
+1. Titanic - 194 мин
+2. Avatar - 162 мин
+3. Inception - 148 мин
+4. Shrek - 90 мин
+@@ test: Один фильм
+@@ input
+1
+Up 96
+@@ expect
+1. Up - 96 мин
+@@ test: Одинаковая длительность — решает алфавит
+@@ input
+3
+Matrix 136
+Gladiator 155
+Amelie 155
+@@ expect
+1. Amelie - 155 мин
+2. Gladiator - 155 мин
+3. Matrix - 136 мин
+@@ test: Все одной длины
+@@ input
+3
+c 100
+a 100
+b 100
+@@ expect
+1. a - 100 мин
+2. b - 100 мин
+3. c - 100 мин
+@@ test: Ввод по возрастанию — надо развернуть
+@@ input
+5
+m1 1
+m2 2
+m3 3
+m4 4
+m5 5
+@@ expect
+1. m5 - 5 мин
+2. m4 - 4 мин
+3. m3 - 3 мин
+4. m2 - 2 мин
+5. m1 - 1 мин
+@@ require: class\s+Movie\b | Нужен класс Movie
+@@ require: Comparator\s*<\s*Movie\s*> | Нужен компаратор Comparator<Movie> — отдельный класс или анонимный
+@@ require: Arrays\.sort\s*\( | Сортируй готовым Arrays.sort(массив, компаратор), а не вручную
+@@ forbid: -> | Пока без лямбд: сделай отдельный класс-компаратор или анонимный класс (лямбды — модуль 14)

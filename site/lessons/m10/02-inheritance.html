@@ -57,6 +57,10 @@ class Dog {
     void sleep() { System.out.println(name + " спит"); }
     void bark()  { System.out.println(name + ": Гав!"); }
 }</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Где набирать</span>
+      <p>Этот пример — «как не надо», набирать его не обязательно. Остальные примеры урока набирай в пакете <code>lesson10.l2</code> (как — в <a href="/lessons/m10/01-encapsulation.html">уроке 10.1</a>, шаг «Где набирать примеры этого модуля»).</p>
+    </div>
     <p>Четыре строки из шести — одинаковые. Добавим попугая, хомяка, черепаху — и каждую правку («пусть <code>eat</code> печатает ещё и время») придётся вносить в пять мест. Забудешь одно — получишь баг. В модуле 7 мы избавлялись от копипаста <b>методами</b>. Для классов есть свой инструмент — <b>наследование</b>: новый класс получает поля и методы готового класса-родителя.</p>
     <div class="say" data-mood="think"><p>В играх та же история. У каждого персонажа есть имя, здоровье, умение ходить. Писать это в <code>Warrior</code>, <code>Mage</code>, <code>Archer</code> по отдельности? Нет — делают общий класс <code>Hero</code>, а персонажи от него наследуют. Так же и в магазине: у любого товара есть название и цена, а книга, телефон и футболка добавляют каждый своё.</p></div>
   </section>
@@ -149,17 +153,51 @@ class Dog extends Animal {
         ] }
       </script>
     </div>
-    <div class="callout fact">
-      <span class="callout-title">Только один родитель</span>
-      <p>В Java у класса может быть <b>только один</b> прямой родитель: <code>class Cat extends Animal, Pet</code> не скомпилируется. Зато цепочка может быть длинной: <code>Kitten extends Cat</code>, <code>Cat extends Animal</code> — котёнок получит всё и от кота, и от животного.</p>
-    </div>
+    <h3>Только один родитель. Почему?</h3>
+    <p>В Java у класса может быть <b>только один</b> прямой родитель: <code>class Cat extends Pet, WildAnimal</code> не скомпилируется. Зато цепочка может быть длинной: <code>Kitten extends Cat</code>, <code>Cat extends Animal</code> — котёнок получит всё и от кота, и от животного.</p>
+    <p>Почему так строго? Представь, что двух родителей разрешили. «Домашний питомец» <code>Pet</code> и «дикий зверь» <code>WildAnimal</code> оба наследуют <code>Animal</code>, и у обоих свой метод <code>voice()</code>. Кот наследует от обоих:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 270" role="img" aria-label="Ромб наследования: Animal сверху, под ним Pet с voice «Мур» и WildAnimal с voice «Р-р-р», снизу Cat, который наследует от обоих. Вопрос: чей voice у кота?">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="285" y="12" width="150" height="48" rx="12" class="d-violet"/>
+        <text x="360" y="42" text-anchor="middle" class="d-title">Animal</text>
+        <rect x="90" y="104" width="210" height="62" rx="12" class="d-blue"/>
+        <text x="195" y="130" text-anchor="middle" class="d-title">Pet</text>
+        <text x="195" y="154" text-anchor="middle" class="d-mono-ink">voice() → "Мур"</text>
+        <rect x="420" y="104" width="210" height="62" rx="12" class="d-teal"/>
+        <text x="525" y="130" text-anchor="middle" class="d-title">WildAnimal</text>
+        <text x="525" y="154" text-anchor="middle" class="d-mono-ink">voice() → "Р-р-р"</text>
+        <rect x="285" y="206" width="150" height="48" rx="12" class="d-red"/>
+        <text x="360" y="236" text-anchor="middle" class="d-title">Cat ✘</text>
+        <path d="M195 102 L330 62" class="d-arrow"/>
+        <path d="M525 102 L390 62" class="d-arrow"/>
+        <path d="M330 204 L215 168" class="d-arrow"/>
+        <path d="M390 204 L505 168" class="d-arrow"/>
+        <text x="580" y="236" text-anchor="middle" class="d-c-red d-small">cat.voice() — «Мур» или «Р-р-р»?</text>
+      </svg>
+      <figcaption>Схема похожа на ромб, поэтому ловушку так и называют — <b>проблема ромба</b> (diamond problem).</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: что напечатал бы <code>cat.voice()</code>, если бы два родителя были разрешены?</summary>
+      <p><b>Непонятно — в этом и беда.</b> Обе версии одинаково «родные». А ещё поле <code>name</code> из <code>Animal</code> пришло бы к коту двумя путями: одно оно или их два? В языке C++ двух родителей разрешили — и придумали для таких случаев сложные правила. Авторы Java решили проще: <b>у класса один родитель</b>, и ромба не бывает. А когда классу нужно несколько «умений» сразу (утка и летает, и плавает), в Java есть <b>интерфейсы</b> — модуль 11; там для похожего конфликта есть явное правило.</p>
+    </details>
   </section>
 
   <!-- ШАГ 5 -->
   <section class="step">
     <h2>Конструкторы и super(...)</h2>
     <p>Хорошо бы, чтобы имя задавалось в конструкторе (и поле было <code>private</code> — урок 1 не забываем). Объявим конструктор в классе-родителе:</p>
-<pre data-file="Zoo2.java"><code class="java">class Animal {
+    <div class="callout tip">
+      <span class="callout-title">Где набирать</span>
+      <p>Здесь <b>новые версии</b> <code>Animal</code> и <code>Cat</code>. В пакете <code>lesson10.l2</code> они уже есть (в <code>Zoo.java</code>), поэтому создай соседний пакет <code>lesson10.l2b</code> и набери этот пример там — иначе IDEA скажет <em>duplicate class</em>. Примеры до конца урока (<code>Dog</code> без <code>super</code>, <code>Cat</code> с <code>meow</code>) — тоже в <code>lesson10.l2b</code>: дописывай их в этот же файл, а <code>Cat</code> не объявляй второй раз — просто добавь в него метод.</p>
+    </div>
+<pre data-file="Zoo2.java"><code class="java">public class Zoo2 {
+    public static void main(String[] args) {
+        Cat cat = new Cat("Мурка", 3, true);
+    }
+}
+
+class Animal {
     private String name;
     private int age;
 
@@ -227,7 +265,7 @@ class Cat extends Animal {
         "code": "class Animal {\n    private String name;\n    private int age;\n\n    Animal(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n}\n\nclass Dog extends Animal {\n    Dog(String name) {\n        // super(...) забыли — Java вставит super();\n        System.out.println(\"Гав\");\n    }\n}",
         "errors": [ { "line": 12, "text": "Dog(String name)", "msg": "There is no parameterless constructor available in 'Animal'", "tip": true } ],
         "build": { "file": "Zoo.java", "path": "module-10", "errors": [ { "msg": "constructor Animal in class Animal cannot be applied to given types;", "line": 12, "col": 22 } ],
-                   "out": [ "C:\\Users\\Misha\\java-course\\workspace\\module-10\\Zoo.java:12:22", "java: constructor Animal in class Animal cannot be applied to given types;", "  required: String,int", "  found:    no arguments", "  reason: actual and formal argument lists differ in length" ] },
+                   "out": [ "C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace\\module-10\\Zoo.java:12:22", "java: constructor Animal in class Animal cannot be applied to given types;", "  required: String,int", "  found:    no arguments", "  reason: actual and formal argument lists differ in length" ] },
         "marks": [ { "n": 1, "target": "line-5", "text": "У Animal единственный конструктор — с двумя параметрами" },
                    { "n": 2, "target": "err-12", "side": "top", "text": "Красным подчёркнут заголовок конструктора Dog: в нём нет <code>super(...)</code>, и Java пытается вставить невидимый <code>super()</code>" },
                    { "n": 3, "target": "tip", "text": "IDEA говорит по-своему: <b>There is no parameterless constructor available in 'Animal'</b> — «у Animal нет конструктора без параметров»" },
@@ -245,7 +283,9 @@ class Cat extends Animal {
   <section class="step">
     <h2>Что видит наследник: private и protected</h2>
     <p>Вот неожиданность: у кота <b>есть</b> поле <code>name</code> (оно в объекте), но обратиться к полю <code>name</code> напрямую в методе класса <code>Cat</code> нельзя, если поле в Animal <code>private</code>. <code>private</code> — это «только для самого класса», даже дети не исключение.</p>
-<pre data-file="Cat.java"><code class="java">class Cat extends Animal {
+<pre data-file="Zoo2.java"><code class="java">class Cat extends Animal {
+    // ... поле indoor и конструктор — как выше, дописываем только метод
+
     void meow() {
         // ✗ name has private access in Animal
         System.out.println(name + ": Мяу!");
@@ -311,7 +351,7 @@ class Cat extends Animal {
       <ul>
         <li><code>class Cat extends Animal</code> — класс <code>Cat</code> наследует класс <code>Animal</code>: получает все его поля и методы и добавляет свои.</li>
         <li>Наследуй только при отношении «является» (is-a). «Имеет» — это не наследование.</li>
-        <li>У класса один прямой родитель; цепочки любой длины разрешены.</li>
+        <li>У класса один прямой родитель — так Java избегает «проблемы ромба»; цепочки любой длины разрешены.</li>
         <li>Конструктор наследника первой строкой вызывает <code>super(...)</code>. Не написал — Java вставит <code>super()</code> без аргументов.</li>
         <li>Объект строится от родителя к наследнику.</li>
         <li><code>private</code> родителя наследнику не виден напрямую; <code>protected</code> — виден (и всему пакету).</li>

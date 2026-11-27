@@ -50,8 +50,8 @@ Collections.sort(names);                                // [Аня, Борис, 
 Collections.reverse(names);                             // [Вера, Борис, Аня]</code></pre>
     <p>Сортировка <b>меняет сам список</b>. Поэтому <code>List.of(…)</code> напрямую отсортировать нельзя — он неизменяемый (<code>UnsupportedOperationException</code>), сначала копия в ArrayList.</p>
     <div class="callout try">
-      <span class="callout-title">В тестах на JUnit</span>
-      <p>Классическая проверка в тесте (их ты будешь писать в модуле 17) «каталог отсортирован по цене»: собрать цены, которые вернул каталог, в список, сделать <b>копию</b>, отсортировать копию и сравнить с оригиналом: <code>actual.equals(sortedCopy)</code>. Списки сравниваются через <code>equals</code> поэлементно и по порядку.</p>
+      <span class="callout-title">Как проверить, что список уже отсортирован</span>
+      <p>Сделай <b>копию</b> (<code>new ArrayList&lt;&gt;(prices)</code>), отсортируй копию и сравни с оригиналом: <code>prices.equals(sortedCopy)</code>. Списки сравниваются через <code>equals</code> поэлементно и по порядку — совпали, значит оригинал уже был по порядку.</p>
     </div>
     <details class="predict">
       <summary>Почему Collections.sort знает, как сравнивать числа и строки, но не знает, как сравнить два товара?</summary>
@@ -191,6 +191,51 @@ Collections.sort(cart, new ByNameComparator());</code></pre>
 
   <!-- ШАГ 6 -->
   <section class="step">
+    <h2>Рецепт: словарь по значению и топ-N</h2>
+    <p>Посчитали частоту слов (урок 5) — и сразу вопрос: «какие три слова встречаются <b>чаще всего</b>?» TreeMap тут не поможет: он сортирует только по <b>ключам</b>. Сам словарь по значениям не отсортировать — зато можно отсортировать <b>список его пар</b>:</p>
+    <ol class="steps">
+      <li>Сложить пары словаря в список: <code>new ArrayList&lt;&gt;(counts.entrySet())</code>.</li>
+      <li>Отсортировать список компаратором по <code>getValue()</code> — по убыванию, а при равенстве по ключу (два поля, как в шаге выше).</li>
+      <li>Взять первые N элементов — осторожно, если пар меньше N.</li>
+    </ol>
+<pre data-file="TopWordsDemo.java"><code class="java">Map&lt;String, Integer&gt; counts = new TreeMap&lt;&gt;();
+for (String w : List.of("да", "нет", "да", "может", "нет", "да", "ок")) {
+    counts.put(w, counts.getOrDefault(w, 0) + 1);
+}
+
+List&lt;Map.Entry&lt;String, Integer&gt;&gt; entries = new ArrayList&lt;&gt;(counts.entrySet());
+entries.sort(new Comparator&lt;Map.Entry&lt;String, Integer&gt;&gt;() {
+    @Override
+    public int compare(Map.Entry&lt;String, Integer&gt; a, Map.Entry&lt;String, Integer&gt; b) {
+        int byCount = Integer.compare(b.getValue(), a.getValue()); // b и a — по убыванию
+        if (byCount != 0) {
+            return byCount;
+        }
+        return a.getKey().compareTo(b.getKey());                 // поровну — по алфавиту
+    }
+});
+
+int n = 3;
+for (int i = 0; i &lt; Math.min(n, entries.size()); i++) {
+    Map.Entry&lt;String, Integer&gt; e = entries.get(i);
+    System.out.println(e.getKey() + ": " + e.getValue());
+}</code></pre>
+<pre class="terminal"><span class="out">да: 3
+нет: 2
+может: 1</span></pre>
+    <p>Читаем объявление списка: объявляем переменную <code>entries</code> типа «список пар <code>Map.Entry&lt;String, Integer&gt;</code>» и инициализируем её <b>новым</b> <code>ArrayList</code> — копией всех пар словаря. Угловые скобки внутри угловых пугают только с непривычки: это просто «список, в котором лежат пары».</p>
+    <details class="predict">
+      <summary>«может» и «ок» встретились по одному разу. Почему в топ-3 попало «может», а не «ок»? И что будет при n = 10?</summary>
+      <p>Количество у них равно, поэтому решает второе поле — ключ: «может» по алфавиту раньше «ок». Без этого второго правила порядок равных зависел бы от исходного порядка пар. При <code>n = 10</code> программа напечатает все 4 слова и не упадёт: <code>Math.min(n, entries.size())</code> не даёт выйти за конец списка — без него <code>entries.get(4)</code> бросил бы <code>IndexOutOfBoundsException</code>.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Нужен сам словарь в порядке значений?</span>
+      <p>Переложи отсортированные пары в <code>LinkedHashMap</code> — он запомнит порядок добавления: <code>for (Map.Entry&lt;String, Integer&gt; e : entries) sorted.put(e.getKey(), e.getValue());</code>. В модуле 14 весь этот рецепт уместится в короткую цепочку стримов — но устроена она внутри так же.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
     <h2>Проверь себя</h2>
     <div data-widget="check" id="check-m13-07">
       <script type="application/json">
@@ -242,6 +287,17 @@ Collections.sort(cart, new ByNameComparator());</code></pre>
          "why": "Результат сравнения по баллу никуда не сохраняется и не возвращается. Нужно: int r = Integer.compare(…); if (r != 0) return r;"
         },
         {
+         "type": "order",
+         "q": "Расставь шаги рецепта «топ-3 самых частых слов»",
+         "lines": [
+          "Посчитать частоту: Map<String, Integer> counts",
+          "Сложить пары в список: new ArrayList<>(counts.entrySet())",
+          "Отсортировать список по getValue() по убыванию",
+          "Напечатать первые min(3, size) пар"
+         ],
+         "why": "Словарь сам по значениям не сортируется — сортируют список его пар, потом берут начало списка."
+        },
+        {
          "type": "tf",
          "q": "Верно или нет?",
          "statements": [
@@ -276,6 +332,7 @@ Collections.sort(cart, new ByNameComparator());</code></pre>
         <li><code>Comparator&lt;T&gt;</code> + <code>compare(a, b)</code> — отдельный судья: классом или анонимным классом. Передаётся в <code>sort</code>, TreeSet, TreeMap, PriorityQueue.</li>
         <li>Знак ответа: минус — a раньше, ноль — равны, плюс — a позже. Для чисел — <code>Integer.compare</code>.</li>
         <li>Несколько полей: сравни по первому; если не 0 — верни, иначе сравнивай по второму.</li>
+        <li>Словарь по значению / топ-N: пары в список <code>new ArrayList&lt;&gt;(map.entrySet())</code> → сортировка по <code>getValue()</code> → первые <code>min(n, size)</code>.</li>
       </ul>
     </div>
   </section>

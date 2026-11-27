@@ -14,8 +14,8 @@
   <header class="lesson-head" data-mood="think">
     <div class="kicker">Модуль 16 · Урок 4</div>
     <h1>volatile, deadlock и потокобезопасные коллекции</h1>
-    <p class="lead">Ещё три ловушки, о которых спрашивают на собеседованиях: поток не видит изменений другого, два потока вечно ждут друг друга, и обычный ArrayList ломается от нескольких потоков. По каждой — суть, пример и лекарство.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>👁 видимость</span><span>🥄 deadlock</span><span>🗃 ConcurrentHashMap</span></div>
+    <p class="lead">Ещё три ловушки, о которых спрашивают на собеседованиях: поток не видит изменений другого, два потока вечно ждут друг друга, и обычный ArrayList ломается от нескольких потоков. По каждой — суть, пример и лекарство. А в конце — как потоки передают друг другу работу через очередь.</p>
+    <div class="meta"><span>⏱ 30 минут</span><span>👁 видимость</span><span>🥄 deadlock</span><span>🗃 ConcurrentHashMap</span><span>📬 BlockingQueue</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -138,7 +138,7 @@ synchronized (ladle) {
         cookSoup();
     }
 }</code></pre>
-    <p>Что видно снаружи: программа <b>зависает</b>, процессор не загружен, ничего не печатается, ошибок нет. Тест с таким кодом просто висит, пока его не убьют по таймауту.</p>
+    <p>Что видно снаружи: программа <b>зависает</b>, процессор не загружен, ничего не печатается, ошибок нет. Сервер с таким кодом просто перестаёт отвечать, пока его не перезапустят.</p>
     <div data-widget="ide" id="shot-deadlock">
       <script type="application/json">
       { "tree": false, "file": "Deadlock.java", "runConfig": "Deadlock", "statusPath": "module-16", "gutterRun": [1, 5],
@@ -156,6 +156,39 @@ synchronized (ladle) {
       <span class="callout-title">Лекарство: один порядок для всех</span>
       <p>Договорись, что замки <b>всегда</b> берут в одном порядке: сначала ложку, потом половник. Тогда круга не будет: кто первым взял ложку, тот возьмёт и половник, а второй подождёт у ложки, ничего не держа. Это и есть задача <code>m16-t06</code>.</p>
     </div>
+    <div class="callout fact">
+      <span class="callout-title">Два родственника deadlock (спрашивают на собеседовании)</span>
+      <p><b>Livelock</b> (активная блокировка) — потоки не стоят, а всё время вежливо уступают друг другу и поэтому не продвигаются: как двое в узком коридоре, которые одновременно шагают то влево, то вправо. <b>Starvation</b> (голодание) — один поток почти никогда не получает замок или процессор, потому что другие всё время успевают раньше: программа работает, а его работа стоит.</p>
+    </div>
+
+    <h3>synchronized или ReentrantLock</h3>
+    <p>Кроме <code>synchronized</code>, в Java есть замок-объект <code>ReentrantLock</code> из пакета <code>java.util.concurrent.locks</code>. Его запирают и отпирают вызовами методов, руками:</p>
+<pre data-file="LockedCounter.java"><code class="java">import java.util.concurrent.locks.ReentrantLock;
+
+public class LockedCounter {
+    static int count = 0;
+    static final ReentrantLock lock = new ReentrantLock();
+
+    static void click() {
+        lock.lock();            // запереть (или ждать, пока отопрут)
+        try {
+            count++;
+        } finally {
+            lock.unlock();      // отпереть — обязательно в finally
+        }
+    }
+}</code></pre>
+    <p>Почему <code>unlock()</code> в <code>finally</code> (модуль 12)? Если внутри вылетит исключение, а отпереть забудем, замок останется закрытым навсегда, и все остальные потоки повиснут. <code>synchronized</code> отпирает замок сам — поэтому он проще и безопаснее.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th><code>synchronized</code></th><th><code>ReentrantLock</code></th></tr>
+        <tr><td>Как выглядит</td><td>блок или модификатор метода</td><td>объект: <code>lock()</code> и <code>unlock()</code></td></tr>
+        <tr><td>Отпирается</td><td>сам, при выходе из блока (даже при исключении)</td><td>только вызовом <code>unlock()</code> — пиши его в <code>finally</code></td></tr>
+        <tr><td>«Попробовать» взять</td><td>нельзя: поток ждёт, сколько придётся</td><td><code>tryLock()</code> — взять, если свободно; <code>tryLock(1, TimeUnit.SECONDS)</code> — ждать не дольше секунды</td></tr>
+        <tr><td>Когда брать</td><td>по умолчанию</td><td>когда нужен <code>tryLock</code> или ожидание с таймаутом (например, чтобы не попасть в deadlock)</td></tr>
+      </table>
+    </div>
+    <p>Reentrant — «повторно входимый»: поток, который уже держит замок, может взять его ещё раз, не заблокировав сам себя. Это верно и для <code>synchronized</code>.</p>
     <details class="curious">
       <summary>🔎 Для любопытных: как найти deadlock и четыре условия</summary>
       <p><b>Как найти.</b> Пока программа висит, сделай снимок потоков (thread dump): в панели Run в IDEA есть действие <b>Dump Threads</b> (в новом интерфейсе — в меню ⋮). Внизу снимка JVM сама пишет <code>Found one Java-level deadlock</code> и показывает, кто какой замок держит и чего ждёт.</p>
@@ -177,7 +210,7 @@ System.out.println(results.size());   // 31877? 38205? иногда исключ
         <tr><td><code>ArrayList</code></td><td><code>Collections.synchronizedList(new ArrayList&lt;&gt;())</code></td><td>несколько потоков добавляют в общий список</td></tr>
         <tr><td><code>ArrayList</code></td><td><code>CopyOnWriteArrayList</code></td><td>пишут редко, читают часто (список подписчиков, настроек)</td></tr>
         <tr><td><code>HashMap</code></td><td><code>ConcurrentHashMap</code></td><td>общий словарь: кеш, счётчики по ключам</td></tr>
-        <tr><td><code>LinkedList</code> как очередь</td><td><code>ConcurrentLinkedQueue</code></td><td>одни потоки кладут задачи, другие забирают</td></tr>
+        <tr><td><code>LinkedList</code> как очередь</td><td><code>ConcurrentLinkedQueue</code>, <code>BlockingQueue</code></td><td>одни потоки кладут задачи, другие забирают (<code>BlockingQueue</code> ещё и умеет ждать — следующий шаг)</td></tr>
       </table>
     </div>
     <p>Пример: потоки разбирают заказы интернет-магазина и считают, сколько заказов в каждом статусе. Вызываем у <code>ConcurrentHashMap</code> метод <code>merge</code> и передаём три аргумента: ключ, значение 1 и ссылку на метод <code>Integer::sum</code> — «если ключа нет, положи 1; если есть, прибавь 1» — одним неделимым действием:</p>
@@ -195,6 +228,79 @@ System.out.println(new TreeMap&lt;&gt;(stats));   // {CANCELLED=3, DELIVERED=17,
     <details class="predict">
       <summary>Почему в примере печатаем new TreeMap&lt;&gt;(stats), а не просто stats?</summary>
       <p>Порядок ключей в <code>ConcurrentHashMap</code>, как и в <code>HashMap</code>, не определён. <code>TreeMap</code> сортирует ключи — вывод одинаковый при каждом запуске. Тот же приём в задачах модуля: <b>сортируй результаты перед выводом</b>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4а -->
+  <section class="step">
+    <h2>Производитель и потребитель: BlockingQueue</h2>
+    <p>Частая схема в программах: одни потоки <b>производят</b> работу, другие её <b>потребляют</b>. Пекарь печёт булочки и ставит на полку, продавец берёт с полки и продаёт. Полка маленькая, на две булочки. Если полка полна, пекарь должен <b>подождать</b>; если пуста — ждёт продавец. Это называют «производитель — потребитель» (producer — consumer).</p>
+    <p>Готовая полка для этого — <b>блокирующая очередь</b> <code>BlockingQueue</code> (пакет <code>java.util.concurrent</code>). Она потокобезопасна и умеет ждать сама:</p>
+    <dl class="terms">
+      <dt>queue.put(x)</dt><dd>Положить в очередь. Если она полна — текущий поток ждёт, пока освободится место.</dd>
+      <dt>queue.take()</dt><dd>Взять и вернуть первый элемент. Если очередь пуста — текущий поток ждёт, пока кто-то положит.</dd>
+    </dl>
+<pre data-file="BakeryShelf.java"><code class="java">import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+public class BakeryShelf {
+    public static void main(String[] args) throws InterruptedException {
+        BlockingQueue&lt;String&gt; shelf = new ArrayBlockingQueue&lt;&gt;(2);   // полка на 2 места
+
+        Thread baker = new Thread(() -&gt; {
+            try {
+                for (int i = 1; i &lt;= 5; i++) {
+                    shelf.put("булочка " + i);   // полка полна — пекарь ждёт
+                }
+                shelf.put("КОНЕЦ");              // знак: больше булочек не будет
+            } catch (InterruptedException e) {
+                return;
+            }
+        });
+        baker.start();
+
+        while (true) {                           // продавец — главный поток
+            String bun = shelf.take();           // полка пуста — продавец ждёт
+            if (bun.equals("КОНЕЦ")) {
+                break;
+            }
+            System.out.println("Продал: " + bun);
+        }
+        baker.join();
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>new ArrayBlockingQueue&lt;&gt;(2)</code><div><p>Создаём объект блокирующей очереди на массиве и передаём конструктору аргументом вместимость 2 — больше двух элементов в ней не поместится.</p></div></div>
+      <div class="annot-row"><code>shelf.put(…)</code><div><p>Пекарь кладёт булочку. Третью он положить не сможет, пока продавец не заберёт хотя бы одну, — <code>put</code> сам подождёт. <code>put</code> и <code>take</code> бросают <code>InterruptedException</code>, поэтому в лямбде — try-catch.</p></div></div>
+      <div class="annot-row"><code>shelf.take()</code><div><p>Продавец забирает булочку. Пустая полка — <code>take</code> ждёт. Никаких <code>sleep</code> и проверок «а не появилось ли?» не нужно.</p></div></div>
+      <div class="annot-row"><code>"КОНЕЦ"</code><div><p>Условный знак, что работа закончена (его называют «ядовитая пилюля», poison pill). Без него продавец не узнал бы, когда остановиться.</p></div></div>
+    </div>
+    <p>Вывод всегда одинаковый: «Продал: булочка 1» … «Продал: булочка 5». Очередь хранит порядок, а пекарь здесь один.</p>
+    <details class="predict">
+      <summary>Что будет, если пекарь забудет положить «КОНЕЦ»?</summary>
+      <p>Пять булочек продадутся, а потом продавец навсегда застрянет в <code>take()</code>: полка пуста, и никто ничего не положит. Программа повиснет без ошибок, как при deadlock. Поэтому потребителю всегда нужен понятный сигнал «работа закончена».</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: как ждать без BlockingQueue — wait и notify</summary>
+      <p>До появления <code>BlockingQueue</code> такое ожидание писали руками. У каждого объекта есть методы <code>wait()</code> и <code>notifyAll()</code> (и <code>notify()</code>). Их можно вызывать только внутри <code>synchronized</code> на <b>этом же</b> объекте, иначе — <code>IllegalMonitorStateException</code>.</p>
+<pre data-file="WaitNotifyShelf.java"><code class="java">// продавец
+synchronized (shelf) {
+    while (shelf.isEmpty()) {
+        shelf.wait();            // отпускает замок и спит, пока не разбудят
+    }
+    bun = shelf.remove(0);
+    shelf.notifyAll();           // будим пекаря: место освободилось
+}
+
+// пекарь
+synchronized (shelf) {
+    while (shelf.size() == 2) {
+        shelf.wait();
+    }
+    shelf.add(newBun);
+    shelf.notifyAll();           // будим всех, кто ждёт у этого замка
+}</code></pre>
+      <p>Главное: <code>wait()</code> <b>отпускает замок</b>, пока спит (иначе пекарь не смог бы войти и положить булочку), и вызывают его в цикле <code>while</code>, а не в <code>if</code>: проснувшись, поток обязан заново проверить условие — его могли разбудить «зря». В новом коде вместо этого берут <code>BlockingQueue</code>: внутри неё сделано то же самое, но без шанса ошибиться.</p>
     </details>
   </section>
 
@@ -280,6 +386,15 @@ System.out.println(new TreeMap&lt;&gt;(stats));   // {CANCELLED=3, DELIVERED=17,
            "a": true
           },
           {
+           "s": "Если очередь BlockingQueue пуста, вызов take() ждёт, пока в неё что-нибудь положат",
+           "a": true
+          },
+          {
+           "s": "ReentrantLock отпирается сам при выходе из метода, как synchronized",
+           "a": false,
+           "why": "его отпирают вызовом unlock(), и писать этот вызов нужно в finally — иначе при исключении замок останется закрытым."
+          },
+          {
            "s": "Вывод содержимого ConcurrentHashMap всегда идёт по алфавиту ключей",
            "a": false,
            "why": "порядок не определён. Для сортировки — TreeMap."
@@ -301,6 +416,9 @@ System.out.println(new TreeMap&lt;&gt;(stats));   // {CANCELLED=3, DELIVERED=17,
         <li>Deadlock — круг ожидания: каждый держит один замок и ждёт другой. Признак — программа висит без ошибок. Лечение — брать замки в одном порядке.</li>
         <li><code>ArrayList</code> и <code>HashMap</code> — только для одного потока. Для нескольких: <code>Collections.synchronizedList</code>, <code>CopyOnWriteArrayList</code>, <code>ConcurrentHashMap</code>.</li>
         <li>Связка «прочитать и записать» небезопасна даже в потокобезопасной коллекции — используй <code>merge</code> и подобные методы.</li>
+        <li><code>ReentrantLock</code> — замок-объект: <code>lock()</code>, <code>unlock()</code> в <code>finally</code>, умеет <code>tryLock</code> с таймаутом. По умолчанию хватает <code>synchronized</code>.</li>
+        <li>Livelock — потоки всё время уступают друг другу и не продвигаются; starvation — одному потоку никогда не достаётся замок.</li>
+        <li>Производитель — потребитель: <code>BlockingQueue</code>, <code>put</code> ждёт места, <code>take</code> ждёт элемента. Вручную то же делают <code>wait</code>/<code>notifyAll</code> внутри <code>synchronized</code>.</li>
         <li>Безопасно: неизменяемое, локальное, специальные классы. Опасно: общее изменяемое без защиты.</li>
       </ul>
     </div>

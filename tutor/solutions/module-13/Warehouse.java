@@ -14,7 +14,8 @@ public class Warehouse {
             String item = scanner.next();
             if (command.equals("ADD")) {
                 int amount = scanner.nextInt();
-                stock.merge(item, amount, Integer::sum);
+                stock.put(item, stock.getOrDefault(item, 0) + amount);
+                // короче то же самое: stock.merge(item, amount, Integer::sum);
             } else if (command.equals("GET")) {
                 System.out.println(item + ": " + stock.getOrDefault(item, 0));
             }

@@ -177,7 +177,7 @@ public class ReadUsers {
         "errors": [ { "line": 10, "text": "readString", "msg": "Unhandled exception: java.io.IOException", "tip": true },
                     { "line": 13, "text": "readAllLines", "msg": "Unhandled exception: java.io.IOException" } ],
         "unused": [ { "line": 1, "text": "import java.io.IOException;" } ],
-        "build": { "file": "ReadUsers.java", "path": "src/module-15", "fullPath": "C:\\Users\\Misha\\IdeaProjects\\workspace\\module-15\\ReadUsers.java",
+        "build": { "file": "ReadUsers.java", "path": "src/module-15", "fullPath": "C:\\Users\\Misha\\IdeaProjects\\java-course\\workspace\\module-15\\ReadUsers.java",
                    "errors": [ { "msg": "unreported exception java.io.IOException; must be caught or declared to be thrown", "line": 10, "col": 38 },
                                { "msg": "unreported exception java.io.IOException; must be caught or declared to be thrown", "line": 13, "col": 48 } ] },
         "marks": [ { "n": 1, "target": "tip", "text": "IDEA: <b>Unhandled exception: java.io.IOException</b> — «необработанное исключение». Красным оба места, где читаем файл" },
@@ -194,7 +194,7 @@ public class ReadUsers {
       <p>С файлом так же: его могли удалить, у программы может не быть прав, флешку выдернули. Это не ошибка в твоём коде (как <code>NullPointerException</code>), а ситуация, к которой надо быть готовым. Поэтому исключение checked.</p>
     </div>
     <p>Два способа ответить компилятору:</p>
-<pre data-file="ReadSafely.java"><code class="java">// Способ 1: передать наверх — подходит для учебных программ и тестов
+<pre data-file="ReadSafely.java"><code class="java">// Способ 1: передать наверх — подходит для учебных программ
 public static void main(String[] args) throws IOException {
     List&lt;String&gt; users = Files.readAllLines(Path.of("users.txt"));
     System.out.println(users);
@@ -253,8 +253,8 @@ public static void main(String[] args) {
     </div>
     <div class="say" data-mood="oops"><p>Сообщение <code>NoSuchFileException: users.txt</code> почти всегда значит одно: файл лежит <b>не там, где его ищет программа</b>. Не спорь с ней — напечатай <code>Path.of("users.txt").toAbsolutePath()</code> и сравни с тем, где файл на самом деле.</p></div>
     <details class="curious">
-      <summary>🔎 Для любопытных: в тестах обычно пишут throws</summary>
-      <p>В JUnit-тесте (модуль 17) метод с файлами обычно объявляют так: <code>void readsUsers() throws IOException</code>. Если файл не прочитался, тест просто упадёт красным с понятным stack trace — это и нужно. Ловить исключение и печатать «ой» в тесте — плохая идея: тест станет зелёным, хотя проверка не прошла.</p>
+      <summary>🔎 Для любопытных: когда throws честнее, чем catch</summary>
+      <p>Если без файла программа всё равно бессмысленна (нечего считать, нечего показывать), честнее объявить <code>throws IOException</code>: программа остановится с понятным stack trace, и сразу видно, что сломалось. Плохой вариант — поймать исключение, напечатать «ой» и работать дальше как ни в чём не бывало: ошибка спрячется, а программа выдаст неверный результат. <code>catch</code> нужен там, где ты знаешь, <b>что делать</b> без файла: сказать пользователю понятными словами, взять настройки по умолчанию, попросить другой путь.</p>
     </details>
   </section>
 
@@ -286,6 +286,7 @@ public static void main(String[] args) {
   <section class="step">
     <h2>Files.lines — файл как стрим</h2>
     <p><code>readAllLines</code> загружает <b>весь</b> файл в память. Для лога на пару гигабайт это плохо: памяти не хватит. <code>Files.lines</code> возвращает стрим: строки идут по одной, как по конвейеру, — и к нему сразу добавляются промежуточные операции <code>filter</code>, <code>map</code> и терминальные <code>count</code>, <code>toList</code> из модуля 14.</p>
+    <p>Это тот самый <code>Stream</code> из модуля 14, просто его источник — строки файла. Не путай его с <b>потоками ввода-вывода</b> (<code>InputStream</code>) из урока 15.4: по-английски оба называются stream, но это разные вещи — там же разберём, какие ещё бывают «потоки».</p>
 <pre data-file="LogErrors.java"><code class="java">Path log = Path.of("run.log");
 
 try (Stream&lt;String&gt; lines = Files.lines(log)) {
@@ -367,12 +368,13 @@ try (Stream&lt;String&gt; lines = Files.lines(log)) {
         },
         {
          "type": "bug",
-         "q": "Программа не компилируется. В какой строке причина?",
+         "q": "Программа не компилируется (импорты опущены — считай, что они на месте). Отметь обе строки, которые связаны с ошибкой: где IDEA подчеркнёт красным и где можно её исправить.",
          "code": "public class Count {\n    public static void main(String[] args) {\n        List<String> lines = Files.readAllLines(Path.of(\"a.txt\"));\n        System.out.println(lines.size());\n    }\n}",
          "answer": [
-          2
+          2,
+          3
          ],
-         "why": "Метод readAllLines объявлен с throws IOException, а это checked-исключение. В заголовке main нужно throws IOException (или обернуть чтение в try-catch)."
+         "why": "Строка 3: IDEA подчеркнёт красным readAllLines — метод объявлен с throws IOException, а это checked-исключение, и его никто не обработал. Строка 2: исправить можно в заголовке main — дописать throws IOException. Второй способ — обернуть строку 3 в try-catch."
         },
         {
          "type": "single",

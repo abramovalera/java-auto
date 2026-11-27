@@ -158,6 +158,28 @@ for (Map.Entry&lt;String, Integer&gt; entry : prices.entrySet()) {
       <span class="callout-title">keySet + get или entrySet?</span>
       <p>Можно перебирать ключи и для каждого вызывать <code>get</code>. Работает, но это лишний поиск на каждом шаге. <code>entrySet</code> отдаёт ключ и значение сразу — так и пиши, когда нужны оба.</p>
     </div>
+    <h3>Удалить пары во время перебора</h3>
+    <p>Правило из урока 3 действует и для словаря: вызвать <code>prices.remove(…)</code> внутри for-each по <code>keySet()</code> или <code>entrySet()</code> — значит получить <b>ConcurrentModificationException</b>. Удаляют так же, как из списка, — через <b>итератор</b>. Его можно взять у любого из трёх видов:</p>
+<pre data-file="PricesCleanup.java"><code class="java">Map&lt;String, Integer&gt; stock = new TreeMap&lt;&gt;();
+stock.put("хлеб", 12);
+stock.put("кефир", 0);
+stock.put("сыр", 0);
+stock.put("молоко", 5);
+
+// убираем товары, которых не осталось
+Iterator&lt;Map.Entry&lt;String, Integer&gt;&gt; it = stock.entrySet().iterator();
+while (it.hasNext()) {
+    Map.Entry&lt;String, Integer&gt; entry = it.next();
+    if (entry.getValue() == 0) {
+        it.remove();          // удаляет пару из самого словаря
+    }
+}
+System.out.println(stock);    // {молоко=5, хлеб=12}</code></pre>
+    <p>Читаем: у множества пар <code>entrySet()</code> вызываем метод <code>iterator()</code>; <code>it.next()</code> возвращает очередную пару, а <code>it.remove()</code> удаляет её — и из вида, и из самого словаря, ведь вид — это «окно» в словарь, а не копия.</p>
+    <details class="predict">
+      <summary>Что будет, если в том же цикле написать stock.remove(entry.getKey()) вместо it.remove()?</summary>
+      <p><b>ConcurrentModificationException</b> на следующем <code>it.next()</code>: словарь изменили «в обход» итератора, и он это заметил — ровно как со списком в уроке 3. (В модуле 14 то же самое уместится в одну строку: <code>stock.values().removeIf(v -&gt; v == 0)</code>.)</p>
+    </details>
   </section>
 
   <!-- ШАГ 5 -->
@@ -194,7 +216,7 @@ System.out.println(tree.firstKey());   // кефир — самый «мален
       </script>
     </div>
     <p>Словарь печатается в фигурных скобках: <code>{ключ=значение, …}</code>. TreeMap отсортировал пары по <b>ключам</b> (по алфавиту), а не по значениям. Нужен отсортированный результат — просто скопируй любой словарь в TreeMap: <code>new TreeMap&lt;&gt;(hashMap)</code>.</p>
-    <div class="say" data-mood="oops"><p>Классическая ошибка в тестах: напечатали HashMap, скопировали вывод в ожидаемый результат — а на другом компьютере порядок другой, и тест «моргает». Печатать и сравнивать с текстом — только LinkedHashMap или TreeMap.</p></div>
+    <div class="say" data-mood="oops"><p>Классическая ошибка: напечатали HashMap, запомнили вывод как «правильный ответ» — а на другом компьютере или в другой версии Java порядок другой. Если вывод сравнивают с образцом (как в задачах практики), печатай LinkedHashMap или TreeMap.</p></div>
   </section>
 
   <!-- ШАГ 6 -->
@@ -205,7 +227,7 @@ System.out.println(tree.firstKey());   // кефир — самый «мален
     <div class="table-wrap">
       <table>
         <tr><th>Вход</th><th>Выход</th><th>Зачем пример</th></tr>
-        <tr><td><code>[да, нет, да, может, да]</code></td><td>да — 3, может — 1, нет — 2</td><td>обычный</td></tr>
+        <tr><td><code>[да, нет, да, может, да]</code></td><td>да — 3, может — 1, нет — 1</td><td>обычный</td></tr>
         <tr><td><code>[ок, ок, ок]</code></td><td>ок — 3</td><td>все одинаковые</td></tr>
         <tr><td><code>[раз]</code></td><td>раз — 1</td><td>одно слово</td></tr>
         <tr><td><code>[]</code></td><td>ничего</td><td>пусто, не упасть</td></tr>
@@ -281,7 +303,7 @@ System.out.println(counts);</code></pre>
     </div>
     <details class="predict">
       <summary>А если вместо getOrDefault написать int old = counts.get(word); ?</summary>
-      <p>На первом же новом слове <code>get</code> вернёт <code>null</code>, и распаковка в <code>int</code> бросит <b>NullPointerException</b>. Ровно та ловушка, о которой был шаг 3. Альтернатива без getOrDefault — <code>if (counts.containsKey(word)) … else …</code>.</p>
+      <p>На первом же новом слове <code>get</code> вернёт <code>null</code>, и распаковка в <code>int</code> бросит <b>NullPointerException</b>. Ровно та ловушка из раздела «Методы и главная ловушка: null» выше. Альтернатива без getOrDefault — <code>if (counts.containsKey(word)) … else …</code>.</p>
     </details>
     <details class="curious">
       <summary>🔎 Для любопытных: подсчёт одной строкой</summary>
@@ -365,7 +387,7 @@ System.out.println(counts);</code></pre>
       <ul>
         <li><code>Map&lt;K, V&gt;</code> — пары «ключ → значение». Ключи уникальны, значения — любые.</li>
         <li><code>put</code> заменяет значение у существующего ключа. <code>get</code> по отсутствующему ключу — <code>null</code> (опасно при распаковке в int), <code>getOrDefault</code> — безопасно.</li>
-        <li>Перебор: <code>keySet()</code>, <code>values()</code>, <code>entrySet()</code> с <code>getKey()</code>/<code>getValue()</code>.</li>
+        <li>Перебор: <code>keySet()</code>, <code>values()</code>, <code>entrySet()</code> с <code>getKey()</code>/<code>getValue()</code>. Удалять пары во время перебора — только через <code>it.remove()</code> итератора.</li>
         <li><code>HashMap</code> — без порядка, <code>LinkedHashMap</code> — порядок добавления, <code>TreeMap</code> — по ключам.</li>
         <li>Частота: <code>counts.put(w, counts.getOrDefault(w, 0) + 1)</code>.</li>
       </ul>

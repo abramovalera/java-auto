@@ -183,7 +183,7 @@ t.start();</code></pre>
   </div>
 
   <div class="quiz">
-    <p class="q">12. ★★★ Daemon — для любопытных. Что будет при запуске?</p>
+    <p class="q">12. ★★ Фоновый (daemon) поток. Что будет при запуске?</p>
 <pre><code class="java">public static void main(String[] args) {
     Thread t = new Thread(() -&gt; {
         while (true) { }
@@ -296,7 +296,7 @@ static void click() {
     <h2>Что тренирует этот набор</h2>
     <ul>
       <li><code>start</code> против <code>run</code>, одноразовость потока, имя текущего потока.</li>
-      <li>Кто кого ждёт: <code>join</code>, <code>Future.get</code>, программа живёт, пока жив хоть один обычный поток.</li>
+      <li>Кто кого ждёт: <code>join</code>, <code>Future.get</code>, программа живёт, пока жив хоть один обычный (не daemon) поток.</li>
       <li>Гонки: <code>count++</code>, <code>volatile</code> — не лекарство, замок должен быть общим.</li>
       <li>Deadlock: разный порядок замков.</li>
       <li>Правила компилятора: «фактически final» в лямбдах, <code>InterruptedException</code>, <code>Runnable</code> не возвращает значение.</li>

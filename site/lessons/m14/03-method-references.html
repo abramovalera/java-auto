@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 14 · Урок 3</div>
     <h1>Ссылки на методы: <code>::</code></h1>
     <p class="lead">Иногда лямбда ничего не придумывает сама, а просто вызывает готовый метод. Тогда её можно сжать ещё сильнее — до имени этого метода через два двоеточия.</p>
-    <div class="meta"><span>⏱ 15 минут</span><span>🔗 4 вида ссылок</span><span>🧩 2 проверки</span></div>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔗 4 вида ссылок</span><span>🧩 2 проверки</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -141,6 +141,43 @@ CartItem[title=Монитор, price=20000]</span></pre>
     </details>
   </section>
 
+  <!-- ШАГ 4б -->
+  <section class="step">
+    <h2>Сортировка по двум полям — одной строкой</h2>
+    <p>Вернёмся к студентам из урока 14.2 — дописывай в тот же файл <code>SortStudents.java</code>, новый record <code>Student</code> не объявляй. Там мы сортировали «по баллу от большего, при равенстве — по имени» через переменную <code>byScore</code>. Со ссылками на методы это одна цепочка вызовов:</p>
+<pre data-file="SortStudents.java"><code class="java">students.sort(Comparator.comparing(Student::score).reversed()
+        .thenComparing(Student::name));
+
+students.forEach(s -&gt; System.out.println(s.name() + " " + s.score()));</code></pre>
+<pre class="terminal"><span class="out">Борис 90
+Вика 90
+Аня 75</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Comparator.comparing(Student::score)</code><div><p>Вызов статического метода <code>comparing</code> с аргументом — ссылкой на метод <code>Student::score</code> (вид ③: «у каждого студента спроси балл»). Возвращает компаратор «по баллу, по возрастанию».</p></div></div>
+      <div class="annot-row"><code>.reversed()</code><div><p>Возвращает новый компаратор — по убыванию.</p></div></div>
+      <div class="annot-row"><code>.thenComparing(Student::name)</code><div><p>Второй судья: при равных баллах — по имени.</p></div></div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Ловушка: comparing(лямбда).reversed()</span>
+      <p>Почему не написать то же самое лямбдой, без переменной? <code>Comparator.comparing(s -&gt; s.score()).reversed()</code> <b>не скомпилируется</b>: <em>cannot find symbol: method score()</em>. Компилятор выводит тип параметра лямбды из того, что от неё ждут. Но здесь результат <code>comparing</code> сразу уходит в <code>.reversed()</code>, и подсказки «это студенты» у компилятора нет — он считает <code>s</code> просто <code>Object</code>. В уроке 14.2 подсказкой был тип переменной <code>Comparator&lt;Student&gt; byScore</code>. Лечится ссылкой на метод <code>Student::score</code> (в ней класс назван явно) или явным типом параметра <code>(Student s) -&gt; s.score()</code>.</p>
+    </div>
+    <div data-widget="ide" id="shot-comparing-reversed">
+      <script type="application/json">
+      { "tree": false, "file": "SortStudents.java", "gutterRun": [7, 8], "statusPath": "module-14",
+        "code": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\nrecord Student(String name, int group, int score) { }\n\npublic class SortStudents {\n    public static void main(String[] args) {\n        List<Student> students = new ArrayList<>();\n        students.sort(Comparator.comparing(s -> s.score()).reversed());\n    }\n}",
+        "errors": [ { "line": 10, "text": "score", "msg": "Cannot resolve method 'score' in 'Object'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-10", "side": "top", "text": "Красным — <code>score</code>, хотя в record <code>Student</code> такой метод точно есть" },
+                   { "n": 2, "target": "tip", "text": "Разгадка в конце сообщения: <b>in 'Object'</b>. Компилятор решил, что параметр <code>s</code> — просто <code>Object</code>, а у Object метода <code>score()</code> нет. <code>javac</code> скажет <code>cannot find symbol … location: variable s of type Object</code>" },
+                   { "n": 3, "target": "problems", "text": "<b>❗1</b>. Замени лямбду на <code>Student::score</code> — и красное исчезнет" } ],
+        "caption": "comparing(лямбда).reversed(): компилятор потерял тип" }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Скомпилируется ли <code>students.sort(Comparator.comparing((Student s) -&gt; s.score()).reversed());</code>?</summary>
+      <p><b>Да.</b> Тип параметра указан явно — компилятору больше нечего выводить, <code>s</code> точно студент.</p>
+    </details>
+  </section>
+
   <!-- ШАГ 5 -->
   <section class="step">
     <h2>Когда ссылку не сделать</h2>
@@ -237,6 +274,17 @@ CartItem[title=Монитор, price=20000]</span></pre>
          ],
          "answer": 1,
          "why": "Вид ③: параметр сам становится объектом. Это то же, что <code>s -&gt; s.name()</code>."
+        },
+        {
+         "type": "single",
+         "q": "Какая строка <b>не</b> скомпилируется?",
+         "options": [
+          "<code>list.sort(Comparator.comparing(Student::score).reversed());</code>",
+          "<code>list.sort(Comparator.comparing(s -&gt; s.score()).reversed());</code>",
+          "<code>list.sort(Comparator.comparing((Student s) -&gt; s.score()).reversed());</code>"
+         ],
+         "answer": 1,
+         "why": "Из-за <code>.reversed()</code> компилятору не на что опереться, и параметр <code>s</code> становится <code>Object</code> — у него нет <code>score()</code>. Ссылка на метод и явный тип <code>(Student s)</code> эту проблему снимают."
         }
        ]
       }
@@ -253,6 +301,7 @@ CartItem[title=Монитор, price=20000]</span></pre>
         <li>Четыре вида: статический (<code>Integer::parseInt</code>), метод объекта (<code>System.out::println</code>), метод параметра (<code>String::length</code>, <code>Student::name</code>), конструктор (<code>ArrayList::new</code>).</li>
         <li>Скобок после имени нет: ссылка указывает на метод, а не вызывает его.</li>
         <li>Лямбда что-то добавляет сама (число, склейку, оператор) — ссылкой её не заменить.</li>
+        <li>Сортировка по двум полям: <code>Comparator.comparing(Student::score).reversed().thenComparing(Student::name)</code>. С лямбдой <code>comparing(s -&gt; s.score()).reversed()</code> не скомпилируется — компилятор не узнает тип <code>s</code>.</li>
         <li><kbd>Alt</kbd>+<kbd>Enter</kbd> в IDEA переводит лямбду в ссылку и обратно.</li>
       </ul>
     </div>

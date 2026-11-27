@@ -1,0 +1,77 @@
+## id: m16-t05
+## title: Воркеры ищут недостачу на складе
+## file: module-16/MissingItemsCollector.java
+## class: MissingItemsCollector
+## level: 3
+@@ description
+<p>На складе интернет-магазина прошла инвентаризация: кладовщики сверили полки со списком товаров, и отчёт разбирают несколько потоков-воркеров. В первой строке ввода — число <code>n</code>, дальше <code>n</code> строк вида <code>Товар СТАТУС</code>, где статус — <code>OK</code> (товар на месте) или <code>MISSING</code> (товара не нашли).</p>
+<p>Создай пул из 3 потоков и отправь в него <b>по задаче на каждую строку</b>: задача разбирает строку и, если товара нет, добавляет его название в <b>общий</b> список. Дождись, пока пул закончит (<code>shutdown()</code> + <code>awaitTermination(...)</code>, урок 16.3), отсортируй названия по алфавиту и выведи. Ввод:</p>
+<pre class="terminal"><span class="out">5
+Kettle OK
+Lamp MISSING
+Mixer OK
+Toaster MISSING
+Blender MISSING</span></pre>
+<p>Вывод:</p>
+<pre class="terminal"><span class="out">Не хватает товаров:
+Blender
+Lamp
+Toaster
+Всего не хватает: 3 из 5</span></pre>
+<p>Если всё на месте — вместо списка строка <code>Недостачи нет</code>. Подвох: обычный <code>ArrayList</code> нельзя пополнять из нескольких потоков — возьми потокобезопасный список (например, <code>Collections.synchronizedList</code>) или собирай результаты через <code>Future</code>. И подумай, почему без сортировки вывод был бы каждый раз разным.</p>
+<p>📖 <a href="/lessons/m16/04-volatile-deadlock.html">Потокобезопасные коллекции</a> · <a href="/lessons/m16/03-executor.html">ExecutorService и awaitTermination</a></p>
+@@ test: Пример из условия
+@@ input
+5
+Kettle OK
+Lamp MISSING
+Mixer OK
+Toaster MISSING
+Blender MISSING
+@@ expect
+Не хватает товаров:
+Blender
+Lamp
+Toaster
+Всего не хватает: 3 из 5
+@@ test: Всё на месте
+@@ input
+2
+Kettle OK
+Lamp OK
+@@ expect
+Недостачи нет
+Всего не хватает: 0 из 2
+@@ test: Пустой отчёт
+@@ input
+0
+@@ expect
+Недостачи нет
+Всего не хватает: 0 из 0
+@@ test: Длинный отчёт
+@@ input
+12
+Pillow MISSING
+Blanket OK
+Teapot MISSING
+Armchair MISSING
+Mirror OK
+Mug OK
+Vase MISSING
+Fork OK
+Bench MISSING
+Spoon OK
+TeapotLid MISSING
+Clock OK
+@@ expect
+Не хватает товаров:
+Armchair
+Bench
+Pillow
+Teapot
+TeapotLid
+Vase
+Всего не хватает: 6 из 12
+@@ require: Executors? | Воркеры — это пул потоков: ExecutorService / Executors
+@@ require: synchronizedList|CopyOnWriteArrayList|ConcurrentLinkedQueue|Future | Общий список должен быть потокобезопасным (или собирай результаты через Future)
+@@ require: sort | Перед выводом отсортируй названия — иначе порядок будет случайным

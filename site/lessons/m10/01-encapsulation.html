@@ -87,9 +87,40 @@
       </svg>
       <figcaption>Иногда добавляют четвёртого кита — абстракцию. Её мы встретим в модуле 11.</figcaption>
     </figure>
-    <div class="callout tip">
-      <span class="callout-title">Где набирать примеры из уроков</span>
-      <p>Создай внутри <code>module-10</code> пакет для экспериментов: правый клик по папке → <b>New → Package</b> → <code>lesson10</code>. Классы из уроков (<code>Cat</code>, <code>Animal</code>…) клади туда — тогда они не столкнутся с одноимёнными классами из других модулей. А вот файлы <b>задач</b> клади прямо в <code>module-10</code>, без пакета, иначе проверка их не найдёт.</p>
+  </section>
+
+  <!-- ШАГ 2б -->
+  <section class="step">
+    <h2>Где набирать примеры этого модуля</h2>
+    <p>В модуле 10 классы <code>Animal</code>, <code>Cat</code>, <code>Dog</code> появляются почти в каждом уроке, и каждый раз немного другие. Если сложить их в одно место, IDEA скажет <em>duplicate class</em> («класс объявлен дважды») — и не запустит вообще ничего. Поэтому правило такое: <b>у каждого урока свой пакет</b> (пакеты — урок 9.5).</p>
+    <ol class="steps">
+      <li><b>Пакет урока.</b> Правый клик по папке <code>module-10</code> → <b>New → Package</b> → <code>lesson10.l1</code> для этого урока, <code>lesson10.l2</code> для урока 10.2 и так далее. Точка в имени — это вложенная папка: IDEA создаст <code>lesson10</code>, а в ней <code>l1</code>.</li>
+      <li><b>Классы урока</b> создавай правым кликом <b>по пакету урока</b> → <b>New → Java Class</b>. Первой строкой IDEA сама напишет <code>package lesson10.l1;</code> — эту строку не стирай, код урока набирай под ней.</li>
+      <li><b>Кусочки без класса</b> (одна-две строки, без <code>class</code>) набирай в <code>main</code> программы этого же урока — например, <code>Bank</code>. Если такой программы нет, создай в пакете урока класс <code>Main</code> с методом <code>main</code>. Песочница <code>Playground</code> в этом модуле не подойдёт: классы урока объявлены без <code>public</code>, и из другого пакета их не видно.</li>
+      <li><b>Тот же класс второй раз в одном уроке</b> (например, новая версия <code>Animal</code>) — не создавай второй файл. Над таким кодом мы прямо пишем, куда его деть: заменить старый или набрать в соседнем пакете.</li>
+    </ol>
+    <div class="callout warn">
+      <span class="callout-title">Кнопка «Куда набирать?» в этом модуле</span>
+      <p>Над кодом есть кнопка «✍️ Куда набирать?», и она по привычке зовёт в папку <code>training</code> и в <code>Playground</code>. В модуле 10 вместо этого — <b>пакет урока</b>, как в шагах выше. А файлы <b>задач</b> клади прямо в <code>module-10</code>, без пакета, иначе проверка их не найдёт.</p>
+    </div>
+    <div data-widget="ide" id="shot-m10-packages">
+      <script type="application/json">
+      { "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-10", "type": "src", "depth": 1, "open": true },
+                  { "name": "lesson10", "type": "folder", "depth": 2, "open": true },
+                  { "name": "l1", "type": "folder", "depth": 3, "open": true },
+                  { "name": "Bank", "type": "class", "depth": 4, "selected": true },
+                  { "name": "OpenBank", "type": "class", "depth": 4 },
+                  { "name": "l2", "type": "folder", "depth": 3, "open": true },
+                  { "name": "Zoo", "type": "class", "depth": 4 },
+                  { "name": "GuardedAccountDemo", "type": "class", "depth": 2 } ],
+        "file": "Bank.java", "statusPath": "module-10\\lesson10\\l1",
+        "code": "package lesson10.l1;\n\npublic class Bank {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount();\n        acc.deposit(100);\n    }\n}",
+        "marks": [ { "n": 1, "target": "tree-l1", "text": "Пакет урока 10.1 — папка <code>lesson10/l1</code>. У урока 10.2 — свой пакет <code>l2</code>, и его <code>Cat</code> не мешает кошкам из других уроков" },
+                   { "n": 2, "target": "line-1", "text": "Эту строку IDEA пишет сама, когда создаёшь класс в пакете. Не стирай её" },
+                   { "n": 3, "target": "tree-GuardedAccountDemo", "text": "А решение задачи лежит прямо в <code>module-10</code>, без пакета" } ],
+        "caption": "Каждому уроку — свой пакет, задачам — корень module-10" }
+      </script>
     </div>
   </section>
 
@@ -139,7 +170,7 @@ class OpenAccount {
 class BankAccount {
     private int balance;                      // сейф: снаружи не достать
 
-    boolean deposit(int amount) {             // окошко «положить»
+    public boolean deposit(int amount) {      // окошко «положить»
         if (amount &lt;= 0) {
             return false;
         }
@@ -147,7 +178,7 @@ class BankAccount {
         return true;
     }
 
-    boolean withdraw(int amount) {            // окошко «снять»
+    public boolean withdraw(int amount) {     // окошко «снять»
         if (amount &lt;= 0 || amount &gt; balance) {
             return false;                     // отказ: баланс не трогаем
         }
@@ -155,7 +186,7 @@ class BankAccount {
         return true;
     }
 
-    int getBalance() {                        // окошко «посмотреть»
+    public int getBalance() {                 // окошко «посмотреть»
         return balance;
     }
 }</code></pre>
@@ -163,7 +194,8 @@ class BankAccount {
       <div class="annot-row"><code>private int balance;</code><div><p>Объявляем поле <code>balance</code> с модификатором <code>private</code> — оно спрятано. Присваивание <code>acc.balance = -999999;</code> в <code>main</code> теперь <b>не скомпилируется</b>: <code>balance has private access</code>.</p></div></div>
       <div class="annot-row"><code>if (amount &lt;= 0 || amount &gt; balance)</code><div><p>Правило «нельзя снять больше, чем есть» записано <b>в одном месте</b> — внутри класса. Обойти его снаружи невозможно.</p></div></div>
       <div class="annot-row"><code>return false;</code><div><p>Метод не молчит: он <b>возвращает</b> <code>false</code> или <code>true</code> — сообщает, получилось или нет. Вызывающий код решает, что делать с отказом. (Позже, в модуле 12, научимся сообщать об ошибке исключением.)</p></div></div>
-      <div class="annot-row"><code>int getBalance()</code><div><p><b>Геттер</b> — метод, который возвращает значение поля; <b>сеттер</b> — метод, который присваивает полю новое значение. Геттер есть, а <b>сеттера нет</b>. Баланс можно прочитать, но поменять — только через <code>deposit</code> и <code>withdraw</code>.</p></div></div>
+      <div class="annot-row"><code>public int getBalance()</code><div><p><b>Геттер</b> — метод, который возвращает значение поля; <b>сеттер</b> — метод, который присваивает полю новое значение. Геттер есть, а <b>сеттера нет</b>. Баланс можно прочитать, но поменять — только через <code>deposit</code> и <code>withdraw</code>.</p></div></div>
+      <div class="annot-row"><code>public</code> у методов<div><p>Поле закрыто (<code>private</code>), а методы-окошки открыты всем (<code>public</code>) — как геттеры в модуле 9. Дальше в примерах модуля мы ради краткости часто не пишем <code>public</code> у методов: все классы примера лежат в одном пакете, и доступ «без модификатора» им не мешает. В настоящих классах окошки делают <code>public</code>.</p></div></div>
     </div>
     <p>Попробуй всё-таки залезть в сейф из <code>main</code> — IDEA остановит тебя ещё до запуска:</p>
     <div data-widget="ide" id="shot-private-access">
@@ -171,7 +203,7 @@ class BankAccount {
       { "tree": false, "file": "Bank.java", "statusPath": "module-10", "gutterRun": [1, 2],
         "code": "public class Bank {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount();\n        acc.deposit(100);\n        acc.balance = -999999;\n    }\n}",
         "errors": [ { "line": 5, "text": "balance", "msg": "'balance' has private access in 'BankAccount'", "tip": true } ],
-        "marks": [ { "n": 1, "target": "line-4", "text": "Через «окошко» <code>deposit</code> — можно: метод не private" },
+        "marks": [ { "n": 1, "target": "line-4", "text": "Через «окошко» <code>deposit</code> — можно: метод <code>public</code>" },
                    { "n": 2, "target": "err-5", "side": "top", "text": "Красным стало имя поля: к <code>balance</code> снаружи не подобраться" },
                    { "n": 3, "target": "tip", "text": "<b>has private access in 'BankAccount'</b> — «доступ только внутри класса BankAccount». <code>javac</code> скажет почти так же: <code>balance has private access in BankAccount</code>" } ],
         "caption": "Обращение к private-полю снаружи — ошибка компиляции" }
@@ -252,7 +284,7 @@ class BankAccount {
     private int coffeeGrams = 18;
     private int milkMl = 150;
 
-    void makeLatte(String guest) { // что умеет машина — открыто
+    public void makeLatte(String guest) { // что умеет машина — открыто
         System.out.println("Грею воду до " + waterTemperature + "°");
         System.out.println("Мелю " + coffeeGrams + " г зёрен");
         System.out.println("Добавляю " + milkMl + " мл молока — латте для " + guest);
@@ -285,8 +317,8 @@ class BankAccount {
 <pre data-file="FakeAccount.java"><code class="java">class FakeAccount {
     private int balance;
 
-    int getBalance() { return balance; }
-    void setBalance(int balance) { this.balance = balance; }   // любое число!
+    public int getBalance() { return balance; }
+    public void setBalance(int balance) { this.balance = balance; }   // любое число!
 }</code></pre>
     <details class="predict">
       <summary>Предскажи: чем такой счёт лучше счёта с открытым полем?</summary>
@@ -380,6 +412,7 @@ history.getOperations()[0] = 1_000_000;      // поменяли «чужую» 
         <li>Публичное поле может испортить кто угодно; правило объекта (инвариант) должен охранять сам объект.</li>
         <li>Геттер без сеттера — поле только для чтения. Сеттер без проверки — почти то же, что открытое поле.</li>
         <li>Хороший класс как кофемашина: детали спрятаны, наружу — действия.</li>
+        <li>Примеры модуля набирай в пакете урока: <code>lesson10.l1</code>, <code>lesson10.l2</code>… — тогда одноимённые классы из разных уроков не столкнутся.</li>
       </ul>
     </div>
   </section>

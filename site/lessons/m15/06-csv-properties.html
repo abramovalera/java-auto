@@ -128,7 +128,7 @@ public class LoadUsers {
       <span class="callout-title">Подводные камни CSV</span>
       <p><b>Пустые ячейки в конце.</b> <code>"anna,,".split(",")</code> вернёт массив длины <b>1</b>: пустые хвосты <code>split</code> выбрасывает. Нужны все ячейки — <code>split(",", -1)</code>.</p>
       <p><b>Точка с запятой.</b> Русский Excel сохраняет CSV с разделителем <code>;</code>, потому что запятая у нас — в дробных числах. Посмотри на файл, прежде чем писать <code>split</code>.</p>
-      <p><b>Запятая внутри значения</b> — <code>"Иванов, Иван",admin</code> — простым <code>split</code> не разобрать. Для таких файлов берут библиотеку (OpenCSV) или готовую поддержку в JUnit: <code>@CsvFileSource</code>.</p>
+      <p><b>Запятая внутри значения</b> — <code>"Иванов, Иван",admin</code> — простым <code>split</code> не разобрать. Для таких файлов берут готовую библиотеку для CSV (например, OpenCSV).</p>
     </div>
     <details class="predict">
       <summary>Предскажи: что выведет <code>System.out.println("a,b,,".split(",").length + " " + "a,b,,".split(",", -1).length);</code>?</summary>

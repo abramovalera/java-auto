@@ -29,11 +29,12 @@ public class TwoCooksDeadlockFix {
         }
     }
 
+    // Пауза на ms миллисекунд. try-catch спрятан здесь, чтобы не писать его в каждом поваре.
     static void sleepQuietly(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            return;                         // разбудили раньше времени — просто заканчиваем паузу
         }
     }
 

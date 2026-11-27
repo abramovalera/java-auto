@@ -61,7 +61,7 @@ System.out.println(murzik);</code></pre>
     <ul>
       <li><code>Cat</code> — имя класса;</li>
       <li><code>@</code> — разделитель;</li>
-      <li><code>1b6d3586</code> — шестнадцатеричный «номер» объекта (хеш-код). У тебя будет другой, и меняется от запуска к запуску.</li>
+      <li><code>1b6d3586</code> — шестнадцатеричный «номер» объекта (хеш-код). У тебя он может быть другим и может отличаться от запуска к запуску — полагаться на него нельзя.</li>
     </ul>
     <p>Для человека это бесполезно. Но toString можно написать свой — и тогда println, склейка строк и отладчик начнут показывать объект по-человечески.</p>
   </section>
@@ -69,6 +69,7 @@ System.out.println(murzik);</code></pre>
   <!-- ШАГ 3 -->
   <section class="step">
     <h2>Свой toString</h2>
+    <p>Допиши метод <code>toString</code> в <b>свой</b> <code>Cat.java</code> — рядом с остальными методами. Новый класс <code>Cat</code> не создавай: ниже показаны только поля, конструктор и новый метод.</p>
 <pre data-file="Cat.java"><code class="java">class Cat {
     private String name;
     private int age;
@@ -88,13 +89,22 @@ System.out.println(murzik);                 // Кот Мурзик, 3 г.
 String line = "Сегодня у врача: " + murzik; // склейка тоже зовёт toString
 System.out.println(line);                   // Сегодня у врача: Кот Мурзик, 3 г.</code></pre>
     <div class="annot">
-      <div class="annot-row"><code>public String toString()</code><div><p>Заголовок метода должен быть <b>ровно таким</b>: <code>public</code>, тип возвращаемого значения <code>String</code>, имя <code>toString</code>, без параметров. Ошибёшься (например, <code>tostring</code> или без public) — получится другой метод, и println его не вызовет.</p></div></div>
-      <div class="annot-row"><code>@Override</code><div><p>Аннотация: «этот метод <b>переопределяет</b> метод, который уже есть» — заменяет готовый toString своим. Необязательна, но полезна: если ошибёшься в имени, компилятор скажет об этом. Подробно — модуль 10.</p></div></div>
+      <div class="annot-row"><code>public String toString()</code><div><p>Заголовок метода должен быть <b>ровно таким</b>: <code>public</code>, тип возвращаемого значения <code>String</code>, имя <code>toString</code>, без параметров. Ошибёшься в имени (например, <code>tostring</code>) — получится другой метод, и println его не вызовет. А забудешь <code>public</code> — программа вообще не скомпилируется (подробнее — чуть ниже).</p></div></div>
+      <div class="annot-row"><code>@Override</code><div><p><b>Аннотация</b> — пометка со значком <code>@</code> перед методом (или классом, полем). Сама она ничего не выполняет, это записка для компилятора. <code>@Override</code> значит: «этот метод <b>заменяет</b> (переопределяет) метод, который у объекта уже есть», — то есть готовый toString. Пометка необязательна, но полезна: ошибёшься в имени, например напишешь <code>tostring</code>, — компилятор сразу скажет, что заменять нечего. Подробно — модуль 10.</p></div></div>
       <div class="annot-row"><code>"…" + murzik</code><div><p>Склейка строки с объектом тоже вызывает toString. И отладчик IDEA показывает объекты в Variables через toString.</p></div></div>
     </div>
     <div class="callout fact">
       <span class="callout-title">Где это пригодится</span>
-      <p>Когда программа пишет объект в журнал ошибок или тест JUnit сообщает «ожидали <i>такой-то</i> объект, а получили <i>такой-то</i>», объекты печатаются через toString. С <code>User@4e25154f</code> ничего не понять, а с <code>User[login=admin, role=ADMIN]</code> ошибка видна сразу. Хороший toString экономит часы поиска ошибок.</p>
+      <p>Когда программа записывает объект в журнал (лог — файл, куда программа пишет, что с ней происходит) или сообщение об ошибке, объект превращается в текст через toString. С <code>User@4e25154f</code> ничего не понять, а с <code>User[login=admin, role=ADMIN]</code> ошибка видна сразу. Хороший toString экономит часы поиска ошибок.</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">toString без public — ошибка компиляции</span>
+      <p>У любого объекта уже есть готовый <code>public String toString()</code>. Если написать свой без <code>public</code>, Java не разрешит: заменять метод можно только так, чтобы он был виден не хуже прежнего. javac скажет:</p>
+<pre class="terminal"><span class="err">Cat.java:11: error: toString() in Cat cannot override toString() in Object
+    String toString() {
+           ^
+  attempting to assign weaker access privileges; was public</span></pre>
+      <p>Перевод: «toString в Cat не может заменить toString из Object — ты пытаешься сделать доступ слабее, а был public». Почему Object — узнаешь в модуле 10. Лекарство одно: пиши заголовок полностью — <code>public String toString()</code>.</p>
     </div>
     <div class="callout tip">
       <span class="callout-title">Alt+Insert → toString()</span>
@@ -195,7 +205,7 @@ record Product(String title, int price) { }</code></pre>
         "caption": "У record методы доступа — без get" }
       </script>
     </div>
-    <p><b>record неизменяемый.</b> Поля <code>final</code>, сеттеров нет. Цена хлеба после создания не меняется: <code>bread.price = 50;</code> — ошибка компиляции. Нужна другая цена — создай новый объект: <code>new Product("Хлеб", 50)</code>.</p>
+    <p><b>record неизменяемый.</b> Поля <code>final</code>, сеттеров нет. Цена хлеба после создания не меняется: <code>bread.price = 50;</code> не скомпилируется. Из другого класса javac первым делом скажет <em>price has private access in Product</em> — поле закрыто. А изнутри record присвоить его тоже нельзя: поле <code>final</code>. Нужна другая цена — создай новый объект: <code>new Product("Хлеб", 50)</code>.</p>
     <p>В record можно добавлять свои методы и static-методы, а проверку данных — в «компактный» конструктор, без списка параметров:</p>
 <pre data-file="Shop.java"><code class="java">record Product(String title, int price) {
     Product {                                       // компактный конструктор
@@ -305,6 +315,11 @@ record Product(String title, int price) { }</code></pre>
            "a": true
           },
           {
+           "s": "String toString() { … } без слова public скомпилируется и будет работать",
+           "a": false,
+           "why": "ошибка компиляции: attempting to assign weaker access privileges; was public. Готовый toString — public, и заменить его можно только public-методом."
+          },
+          {
            "s": "record появился в Java 16",
            "a": true
           }
@@ -322,7 +337,7 @@ record Product(String title, int price) { }</code></pre>
       <h2>Коротко</h2>
       <ul>
         <li><code>println(obj)</code> и <code>"…" + obj</code> вызывают <code>toString()</code>. Без своего — <code>Cat@1b6d3586</code>.</li>
-        <li>Свой: <code>@Override public String toString() { return …; }</code> — заголовок строго такой.</li>
+        <li>Свой: <code>@Override public String toString() { return …; }</code> — заголовок строго такой; без <code>public</code> — ошибка компиляции.</li>
         <li><code>record Product(String title, int price) { }</code> — класс для данных: final-поля, конструктор, методы <code>title()</code>/<code>price()</code>, toString, equals/hashCode.</li>
         <li>record неизменяемый; можно добавлять методы и проверки в компактный конструктор.</li>
         <li>Данные — record, поведение и изменяемое состояние — class.</li>

@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 10 · Урок 5</div>
     <h1>Класс Object: toString, equals, hashCode</h1>
     <p class="lead">У всех классов Java есть общий прародитель — Object. От него каждый класс наследует несколько методов. Три из них ты будешь переопределять постоянно: чтобы объект красиво печатался, честно сравнивался и правильно работал в коллекциях.</p>
-    <div class="meta"><span>⏱ 30 минут</span><span>🧬 Object</span><span>⚖️ контракт equals/hashCode</span></div>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧬 Object</span><span>⚖️ контракт equals/hashCode</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -77,12 +77,16 @@
         <tr><td><code>Class getClass()</code></td><td>сведения о реальном классе объекта</td><td>нельзя: он <code>final</code></td></tr>
       </table>
     </div>
-    <p>Ещё есть <code>clone</code>, <code>wait</code>, <code>notify</code> и пара служебных — к некоторым вернёмся в модуле про многопоточность.</p>
+    <p>Есть и другие (<code>clone</code>, <code>wait</code>, <code>notify</code>…), но в этом уроке они не нужны. Главная линия урока — <b>toString, equals и hashCode</b>.</p>
   </section>
 
   <!-- ШАГ 3 -->
   <section class="step">
     <h2>toString: как объект выглядит в тексте</h2>
+    <div class="callout tip">
+      <span class="callout-title">Где набирать</span>
+      <p>Примеры урока — в новом пакете <code>lesson10.l5</code>, кусочки без класса — в <code>main</code> класса <code>Main</code> этого пакета (как — в <a href="/lessons/m10/01-encapsulation.html">уроке 10.1</a>). <code>Cat</code> здесь свой, не наследник <code>Animal</code>: с именем и возрастом. Второй пример с <code>Point</code> ниже — не новый класс, а продолжение первого: дописывай <code>hashCode</code> в тот же файл.</p>
+    </div>
 <pre data-file="Print.java"><code class="java">Cat cat = new Cat("Мурка", 3);
 System.out.println(cat);</code></pre>
     <details class="predict">
@@ -172,7 +176,9 @@ System.out.println(a.equals(b));</code></pre>
     </ul>
 
     <h3>Кому переопределять, а кому нет</h3>
-    <p>Частый вопрос: «А для <code>String</code> тоже надо писать <code>equals</code>?» Нет. Авторы JDK уже переопределили его во всех классах-«значениях». Писать <code>equals</code> нужно <b>только в своих классах</b>, если их объекты надо сравнивать по содержимому.</p>
+    <p>Частый вопрос: «А для <code>String</code> тоже надо писать <code>equals</code>?» Нет. Авторы JDK уже переопределили его в <code>String</code>, <code>Integer</code> и других классах-«значениях». Писать <code>equals</code> нужно <b>только в своих классах</b>, если их объекты надо сравнивать по содержимому. Две ловушки запомни сразу: у <b>массивов</b> и у <code>StringBuilder</code> <code>equals</code> не переопределён и сравнивает ссылки.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: таблица «у кого equals уже готов» и где его вызывают за тебя</summary>
     <div class="table-wrap"><table>
       <tr><th>Класс</th><th>equals сравнивает…</th><th>Что делать тебе</th></tr>
       <tr><td><code>String</code>, <code>Integer</code>, <code>Double</code>, <code>Boolean</code>…</td><td>содержимое — уже переопределён в JDK</td><td>ничего, просто вызывай <code>equals</code> (не <code>==</code>!)</td></tr>
@@ -183,14 +189,9 @@ System.out.println(a.equals(b));</code></pre>
       <tr><td>Массивы <code>int[]</code>, <code>String[]</code>…</td><td><b>ссылки</b> — не переопределён!</td><td>сравнивай через <code>Arrays.equals(a, b)</code></td></tr>
       <tr><td><code>StringBuilder</code></td><td><b>ссылки</b> — не переопределён!</td><td><code>sb1.toString().equals(sb2.toString())</code></td></tr>
     </table></div>
-    <details class="predict">
-      <summary>Что выведет <code>new StringBuilder("ок").equals(new StringBuilder("ок"))</code>? А <code>Arrays.equals(new int[]{1}, new int[]{1})</code>?</summary>
-      <p><b>false</b> и <b>true</b>. У <code>StringBuilder</code> и у массивов <code>equals</code> остался от <code>Object</code> — сравнивает ссылки, а объектов два. Для массивов есть готовый помощник <code>Arrays.equals</code>. Обе ловушки любят на собеседованиях.</p>
+      <p><code>new StringBuilder("ок").equals(new StringBuilder("ок"))</code> — <b>false</b>, а <code>Arrays.equals(new int[]{1}, new int[]{1})</code> — <b>true</b>. Обе ловушки любят на собеседованиях.</p>
+      <p><b>Где equals вызывают за тебя.</b> Списки (модуль 13) внутри вызывают <code>equals</code>: <code>list.contains(x)</code>, <code>list.indexOf(x)</code>, <code>list.remove(x)</code>. Ищешь в корзине свой объект <code>new Product("Хлеб", 50)</code>, а у <code>Product</code> нет переопределённого <code>equals</code> — <code>contains</code> вернёт <code>false</code>, даже если такой товар в корзине лежит. Решения: переопределить <code>equals</code> или сделать класс <code>record</code>.</p>
     </details>
-    <div class="callout tip">
-      <span class="callout-title">Где equals вызывают за тебя</span>
-      <p>Списки (модуль 13) внутри вызывают <b>equals</b>: <code>list.contains(x)</code>, <code>list.indexOf(x)</code>, <code>list.remove(x)</code>. Ищешь в корзине свой объект <code>new Product("Хлеб", 50)</code>, а у <code>Product</code> нет переопределённого <code>equals</code> — <code>contains</code> вернёт <code>false</code>, даже если такой товар в корзине лежит. Решения: переопределить <code>equals</code> или сделать класс <code>record</code>.</p>
-    </div>
   </section>
 
   <!-- ШАГ 5 -->
@@ -296,11 +297,14 @@ class Point {
 
   <!-- ШАГ 6 -->
   <section class="step">
-    <h2>getClass: кто ты на самом деле?</h2>
-    <p><code>getClass()</code> возвращает сведения о <b>реальном</b> классе объекта — не о типе переменной. Его имя без пакета даёт <code>getClass().getSimpleName()</code>:</p>
-<pre data-file="WhoAmI.java"><code class="java">Animal a = new Cat("Мурка", 3);
-System.out.println(a.getClass().getSimpleName());   // Cat, а не Animal</code></pre>
-    <p>Это удобно в родительском <code>toString</code>: один метод на всю иерархию печатает правильное имя каждого наследника.</p>
+    <h2>Коротко: getClass и record</h2>
+    <p><code>getClass()</code> возвращает сведения о <b>реальном</b> классе объекта — не о типе переменной. Имя класса без пакета даёт <code>getClass().getSimpleName()</code>. Проверим на нашем <code>Cat</code>: он без <code>extends</code>, а значит, наследует <code>Object</code> — и ссылку на кота можно положить в переменную типа <code>Object</code>:</p>
+<pre data-file="WhoAmI.java"><code class="java">Object o = new Cat("Мурка", 3);   // ярлык Object, объект — кот
+System.out.println(o.getClass().getSimpleName());   // Cat, а не Object</code></pre>
+    <p>Мы уже встречали <code>getClass()</code> в рецепте <code>equals</code>: <code>getClass() != o.getClass()</code> — «объекты одного и того же класса?».</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: getClass в toString родителя и getClass против instanceof в equals</summary>
+      <p><b>Один toString на всю иерархию.</b> Если дописать в <code>Shop</code> из урока 3 такой метод, он напечатает правильное имя каждого наследника:</p>
 <pre data-file="Shop.java"><code class="java">class Shop {
     @Override
     public String toString() {
@@ -308,21 +312,15 @@ System.out.println(a.getClass().getSimpleName());   // Cat, а не Animal</code
         return getClass().getSimpleName() + " открыт";
     }
 }</code></pre>
-    <details class="curious">
-      <summary>🔎 Для любопытных: getClass() или instanceof в equals?</summary>
-      <p>В рецепте мы проверяли <code>getClass() != o.getClass()</code>. Иногда пишут <code>if (!(o instanceof Point)) return false;</code>. Разница — в наследниках. Если есть <code>ColorPoint extends Point</code> со своим полем цвета, то с <code>instanceof</code> легко нарушить симметричность: <code>point.equals(colorPoint)</code> — true (цветная точка является точкой), а <code>colorPoint.equals(point)</code> — false. С <code>getClass()</code> объекты разных классов просто не равны. Для начала используй вариант с <code>getClass()</code> — его же генерирует IDEA по умолчанию.</p>
+      <p><b>getClass() или instanceof в equals?</b> Иногда в equals вместо <code>getClass() != o.getClass()</code> пишут <code>if (!(o instanceof Point)) return false;</code> (<code>instanceof</code> — проверка «является ли объект точкой», урок 6). Разница — в наследниках. Если есть <code>ColorPoint extends Point</code> со своим полем цвета, то с <code>instanceof</code> легко нарушить симметричность: <code>point.equals(colorPoint)</code> — true (цветная точка является точкой), а <code>colorPoint.equals(point)</code> — false. С <code>getClass()</code> объекты разных классов просто не равны. Для начала используй вариант с <code>getClass()</code> — его же генерирует IDEA по умолчанию.</p>
     </details>
-  </section>
+    <h3>record делает всё сам</h3>
+    <p>Помнишь <code>record</code> из модуля 9? Для него компилятор сам генерирует <code>equals</code>, <code>hashCode</code> и <code>toString</code> по всем полям. Для «классов-значений» (точка, деньги, пара логин–пароль) это самый короткий и безопасный путь. Назовём запись <code>PointRec</code>, чтобы она не столкнулась с классом <code>Point</code> выше:</p>
+<pre data-file="RecordDemo.java"><code class="java">record PointRec(int x, int y) {}   // запись можно объявить прямо внутри main
 
-  <!-- ШАГ 7 -->
-  <section class="step">
-    <h2>record делает всё сам. И пара слов о копиях</h2>
-    <p>Помнишь <code>record</code> из модуля 9? <code>record Point(int x, int y) {}</code> — компилятор сам генерирует для него <code>equals</code>, <code>hashCode</code> и <code>toString</code> по всем полям. Для «классов-значений» (точка, деньги, пара логин–пароль) это самый короткий и безопасный путь.</p>
-<pre data-file="RecordDemo.java"><code class="java">record Point(int x, int y) {}
-
-Point a = new Point(1, 2);
-Point b = new Point(1, 2);
-System.out.println(a);                              // Point[x=1, y=2]
+PointRec a = new PointRec(1, 2);
+PointRec b = new PointRec(1, 2);
+System.out.println(a);                              // PointRec[x=1, y=2]
 System.out.println(a.equals(b));                    // true
 System.out.println(a.hashCode() == b.hashCode());   // true</code></pre>
     <details class="curious">

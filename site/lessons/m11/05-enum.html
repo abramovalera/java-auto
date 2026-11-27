@@ -14,7 +14,7 @@
   <header class="lesson-head" data-mood="happy">
     <div class="kicker">Модуль 11 · Урок 5</div>
     <h1>Перечисления enum</h1>
-    <p class="lead">PASSED, FAILED, SKIPPED. Понедельник… воскресенье. Лёгкий, средний, сложный. Когда вариантов ровно столько и не больше, Java даёт особый тип — перечисление.</p>
+    <p class="lead">Сдал, не сдал, пропустил. Понедельник… воскресенье. Лёгкий, средний, сложный. Когда вариантов ровно столько и не больше, Java даёт особый тип — перечисление.</p>
     <div class="meta"><span>⏱ 20 минут</span><span>🚦 светофор</span><span>⚡ 2 проверки</span></div>
   </header>
 
@@ -67,7 +67,7 @@ ExamStatus s = ExamStatus.FAILED;
 System.out.println(s);                   // FAILED
 
 if (s == ExamStatus.FAILED) {
-    System.out.println("Делаем скриншот");
+    System.out.println("Назначаем пересдачу");
 }</code></pre>
     <div class="annot">
       <div class="annot-row"><code>enum ExamStatus</code><div><p>Объявление <b>перечисления</b> (enum, enumeration). Новый тип, как класс, только значения у него перечислены заранее.</p></div></div>
@@ -178,6 +178,21 @@ Exception in thread "main" java.lang.IllegalArgumentException: No enum constant 
         "caption": "Alt+Enter на switch по enum" }
       </script>
     </div>
+    <h3>switch-выражение по enum</h3>
+    <p>В модуле 4 ты видел <b>switch-выражение</b>: оно стоит справа от <code>=</code> или после <code>return</code> и <b>возвращает значение</b>. Там для <code>int</code> ветка <code>default</code> была обязательна. С enum приятнее: если перечислены <b>все</b> константы, <code>default</code> не нужен — компилятор сам знает, что других вариантов не бывает.</p>
+<pre data-file="Icons.java"><code class="java">static int points(ExamStatus s) {
+    return switch (s) {
+        case PASSED -&gt; 5;
+        case FAILED -&gt; 2;
+        case SKIPPED -&gt; 0;
+    };   // default не нужен: все три константы на месте
+}
+
+System.out.println(points(ExamStatus.PASSED) + points(ExamStatus.SKIPPED));</code></pre>
+    <details class="predict">
+      <summary>Предскажи: что напечатает последняя строка? А что будет, если стереть ветку <code>case SKIPPED</code>?</summary>
+      <p><code>5</code>: 5 + 0. Без ветки <code>SKIPPED</code> программа не скомпилируется: <code>the switch expression does not cover all possible input values</code> — «switch-выражение покрывает не все возможные значения». Это полезная защита: добавишь в enum новую константу — компилятор сам покажет каждое switch-выражение, которое надо дописать.</p>
+    </details>
     <div class="say" data-mood="think"><p>Но не спеши писать <code>switch</code> по каждому поводу. Если для каждой константы нужно какое-то <b>число или текст</b> — цена, название, коэффициент — лучше положить его прямо в константу — в её поле. Смотри следующий шаг.</p></div>
   </section>
 
@@ -251,7 +266,6 @@ System.out.println(lang.getGreeting() + ", Аня!");</code></pre>
         <li>Любой enum неявно наследует <code>java.lang.Enum</code>, поэтому <code>extends</code> у него писать нельзя. И сам он <code>final</code>: наследоваться от enum нельзя.</li>
         <li>А вот <code>implements</code> — можно: <code>enum Step implements Runnable</code> — и каждая константа станет «работой», которую можно передать в метод.</li>
         <li>У каждой константы может быть своё тело с переопределёнными методами: <code>PLUS { int apply(int a, int b) { return a + b; } }</code>.</li>
-        <li>Для словарей «константа → значение» в модуле 13 будет быстрый <code>EnumMap</code>.</li>
       </ul>
     </details>
   </section>
@@ -305,6 +319,11 @@ System.out.println(lang.getGreeting() + ", Аня!");</code></pre>
            "a": true
           },
           {
+           "s": "switch-выражение по enum без default не скомпилируется, даже если перечислены все константы",
+           "a": false,
+           "why": "для enum default не нужен, если есть ветки для всех констант: других значений не бывает."
+          },
+          {
            "s": "ordinal() удобно сохранять в файл как постоянный код статуса",
            "a": false,
            "why": "номера сдвинутся, если кто-то вставит константу в середину."
@@ -329,7 +348,7 @@ System.out.println(lang.getGreeting() + ", Аня!");</code></pre>
         <li><code>enum</code> — тип с заранее известным списком значений; опечатки и «левые» значения ловит компилятор.</li>
         <li>Каждая константа — единственный объект, поэтому сравнение <code>==</code> — правильное.</li>
         <li><code>values()</code>, <code>ordinal()</code> (с нуля), <code>name()</code>, <code>valueOf("ИМЯ")</code> — строгий к регистру, иначе <code>IllegalArgumentException</code>.</li>
-        <li><code>switch</code> по enum: в <code>case</code> только имя константы.</li>
+        <li><code>switch</code> по enum: в <code>case</code> только имя константы; switch-выражение по enum обходится без <code>default</code>, если перечислены все константы.</li>
         <li>У enum бывают поля, конструктор (всегда приватный) и методы — данные лучше хранить в полях константы, а не в <code>switch</code>.</li>
       </ul>
     </div>

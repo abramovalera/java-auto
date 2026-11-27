@@ -18,7 +18,13 @@ hello                      Строка 3: пустой ключ
 =5                         Строка 4: значение «abc» не число
 port=abc                   Строка 5: значение «» не число
 wait=                      Итого: верных 1, с ошибками 4</span></pre>
-<p><b>План по шаблону Мастерской:</b> сначала реши руками строку <code>a=b=c</code> — какой тут ключ и какое значение? Потом напиши метод <code>parseLine(String line)</code>, который на любую проблему делает <code>throw new IllegalArgumentException("текст ошибки")</code>, а в <code>main</code> один <code>catch</code> печатает <code>e.getMessage()</code>. Пригодятся <code>indexOf</code>, <code>substring</code>, <code>trim</code>, <code>isEmpty</code> из модуля 8.</p>
+<p><b>План по шаблону Мастерской:</b> сначала реши руками строку <code>a=b=c</code> — какой тут ключ и какое значение? Потом напиши метод <code>static void parseLine(String line)</code>:</p>
+<ul>
+  <li>строка хорошая — метод сам печатает <code>ключ -&gt; значение</code> и ничего не возвращает (<code>void</code>);</li>
+  <li>строка плохая — метод ничего не печатает, а делает <code>throw new IllegalArgumentException("текст ошибки")</code> с текстом из списка выше.</li>
+</ul>
+<p>Значение превращай в число через <code>Integer.parseInt</code>. Он на «abc» выбросит своё <code>NumberFormatException</code> с сообщением <code>For input string: "abc"</code>, а нам нужно <code>значение «abc» не число</code>. Поэтому <b>внутри</b> <code>parseLine</code> оберни <code>parseInt</code> в try, перехвати <code>NumberFormatException</code> и в catch выброси новое <code>IllegalArgumentException</code> с нашим текстом. (Не перехватишь — NumberFormatException, наследник IllegalArgumentException, долетит до main и напечатается со своим английским сообщением.)</p>
+<p>В <code>main</code> — цикл по строкам: вызов <code>parseLine</code> в try и один <code>catch (IllegalArgumentException e)</code>, который печатает <code>Строка N: </code> + <code>e.getMessage()</code> и считает ошибки. Пригодятся <code>indexOf</code>, <code>substring</code>, <code>trim</code>, <code>isEmpty</code> из модуля 8.</p>
 <p>📖 <a href="/lessons/m12/06-throw-custom.html">throw и сообщения, которые помогают</a></p>
 @@ test: Все строки верные, пробелы вокруг =
 @@ input
@@ -64,6 +70,8 @@ x -> -7
 @@ expect
 Строка 1: нет знака =
 Итого: верных 0, с ошибками 1
+@@ require: static\s+void\s+parseLine\s*\(\s*String | Нужен метод static void parseLine(String line)
 @@ require: throw\s+new\s+IllegalArgumentException | Сообщай о плохой строке через throw new IllegalArgumentException("…")
+@@ require: catch\s*\(\s*NumberFormatException | Внутри parseLine перехвати NumberFormatException от parseInt и выброси IllegalArgumentException со своим текстом
 @@ require: catch\s*\( | Поймай исключение в main, чтобы программа не упала
 @@ require: getMessage\s*\( | Текст ошибки бери из исключения: e.getMessage()

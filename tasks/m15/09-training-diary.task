@@ -1,0 +1,72 @@
+## id: m15-t09
+## title: Дневник тренировок одним писателем
+## file: module-15/TrainingDiaryWriter.java
+## class: TrainingDiaryWriter
+## level: 2
+@@ description
+<p>Фитнес-браслет за каждый день знает, сколько минут ты тренировался. Программа читает число дней <code>N</code>, потом <code>N</code> строк — минуты за каждый день. Она записывает дневник в файл <code>diary.txt</code>: по строке на день и в конце строку с итогом. Затем <b>читает файл</b> и печатает, сколько в нём строк, и всё его содержимое:</p>
+<pre class="terminal"><span class="out">3
+30
+45
+20</span></pre>
+<pre class="terminal"><span class="out">Строк в diary.txt: 4
+День 1: 30 мин
+День 2: 45 мин
+День 3: 20 мин
+Итого: 95 мин</span></pre>
+<p>Главное условие: пиши файл <b>одним писателем на весь цикл</b> — открой <code>Files.newBufferedWriter</code> (или <code>PrintWriter</code> поверх него) в try-с-ресурсами и в цикле вызывай <code>write</code> + <code>newLine()</code> (или <code>println</code>). Дописывать по строке через <code>APPEND</code> и собирать всё в <code>Files.write</code> здесь нельзя — тренируем именно писатель.</p>
+<ul>
+  <li>Вокруг чисел могут быть пробелы — убери их перед <code>Integer.parseInt</code>.</li>
+  <li>Дней нет (<code>N = 0</code>) — в файле одна строка <code>Итого: 0 мин</code>.</li>
+  <li>Читать файл обратно можно чем угодно: <code>Files.readAllLines</code> подойдёт.</li>
+  <li>Не забудь: строки попадут на диск, только когда писатель закроется, — поэтому читай файл <b>после</b> блока <code>try</code>.</li>
+</ul>
+<p>📖 <a href="/lessons/m15/03-writing.html">Запись в файл: один писатель на весь цикл</a></p>
+@@ test: Три дня
+@@ input
+3
+30
+45
+20
+@@ expect
+Строк в diary.txt: 4
+День 1: 30 мин
+День 2: 45 мин
+День 3: 20 мин
+Итого: 95 мин
+@@ test: Один день
+@@ input
+1
+60
+@@ expect
+Строк в diary.txt: 2
+День 1: 60 мин
+Итого: 60 мин
+@@ test: Дни без тренировок и пробелы
+@@ input
+5
+ 15
+0
+40
+0
+25
+@@ expect
+Строк в diary.txt: 6
+День 1: 15 мин
+День 2: 0 мин
+День 3: 40 мин
+День 4: 0 мин
+День 5: 25 мин
+Итого: 80 мин
+@@ test: Дней нет
+@@ input
+0
+@@ expect
+Строк в diary.txt: 1
+Итого: 0 мин
+@@ require: (BufferedWriter|PrintWriter) | Пиши файл через один BufferedWriter (Files.newBufferedWriter) или PrintWriter
+@@ require: try\s*\( | Открой писатель в try-с-ресурсами: try (BufferedWriter out = ...) - тогда он закроется сам и текст попадёт в файл
+@@ require: diary\.txt | Файл должен называться diary.txt
+@@ require: Files\.(readAllLines|readString|lines|newBufferedReader)\s*\( | Прочитай файл обратно - например, Files.readAllLines
+@@ forbid: APPEND | Не дописывай по строке с APPEND: открой файл один раз - один писатель на весь цикл
+@@ forbid: Files\.write(String)?\s*\( | В этой задаче пиши через писатель (BufferedWriter или PrintWriter), а не Files.write / Files.writeString

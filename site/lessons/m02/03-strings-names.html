@@ -73,27 +73,6 @@ System.out.println("Привет, " + name + " из города " + city + "!")
       <figcaption>Число и строка с теми же цифрами — разные вещи. Кавычки превращают что угодно в текст.</figcaption>
     </figure>
 
-    <h3>Как превратить число в строку — и обратно</h3>
-    <p>Постоянная задача: из числа сделать текст (чтобы напечатать или склеить с другим текстом) или наоборот — из текста, который ввёл человек, достать число, чтобы считать.</p>
-<pre data-file="Convert.java"><code class="java">int age = 21;
-
-// число → строка: три способа, результат одинаковый — "21"
-String a = String.valueOf(age);
-String b = Integer.toString(age);
-String c = "" + age;            // склейка с пустой строкой
-
-// строка → число: только если внутри правда число
-int back = Integer.parseInt("21");
-double price = Double.parseDouble("99.5");</code></pre>
-    <ul>
-      <li><code>String.valueOf(...)</code> — самый понятный способ: метод возвращает строку из значения любого типа: числа, <code>boolean</code>, символа.</li>
-      <li><code>"" + age</code> — короткий трюк: строка в начале склейки превращает в строку всё, что дальше.</li>
-      <li><code>Integer.parseInt("abc")</code> упадёт с ошибкой <code>NumberFormatException</code> — подробно про это в <a href="/lessons/m02/06-type-casting.html">уроке 2.6</a>.</li>
-    </ul>
-    <details class="predict">
-      <summary>Что выведет программа?<br><code>int age = 20;</code><br><code>String text = "" + age;</code><br><code>System.out.println(text + 1);</code><br><code>System.out.println(age + 1);</code></summary>
-      <p><b>201</b> и <b>21</b>. Переменная <code>text</code> инициализирована строкой «20», к ней приклеилась «1». А в <code>age</code> — число, к нему прибавилась единица. Одни и те же цифры, но разные типы — и совсем разный результат.</p>
-    </details>
   </section>
 
   <!-- ШАГ 3 -->
@@ -159,6 +138,29 @@ System.out.println(word.toUpperCase());  // JAVA — большими буква
           "caption": "Программа упала во время работы: stack trace в панели Run" }
         </script>
       </div>
+    </details>
+    <h3>Как превратить число в строку — и обратно</h3>
+    <p>Постоянная задача: из числа сделать текст (чтобы напечатать или склеить с другим текстом) или наоборот — из текста, который ввёл человек, достать число, чтобы считать.</p>
+    <p>Для этого тоже вызывают методы через точку, но слева от точки стоит не переменная, а <b>имя класса</b>: <code>String.valueOf(age)</code> — «класс String, сделай строку из age». Такие методы принадлежат самому классу-чертежу, объект для них не нужен (подробно — в модулях 7 и 9). В скобках — <b>аргумент</b>: значение, которое мы передаём методу.</p>
+    <p>Ещё два новых имени — <code>Integer</code> и <code>Double</code>. Это <b>классы-обёртки</b>: у каждого примитива есть свой класс-помощник (<code>int</code> → <code>Integer</code>, <code>double</code> → <code>Double</code>, <code>long</code> → <code>Long</code>…) с полезными методами и константами, вроде <code>Integer.MAX_VALUE</code> из прошлого урока. Пока для нас это просто «ящики с инструментами» для чисел, подробнее про обёртки — в модуле 13.</p>
+<pre data-file="Convert.java"><code class="java">int age = 21;
+
+// число → строка: три способа, результат одинаковый — "21"
+String a = String.valueOf(age);
+String b = Integer.toString(age);
+String c = "" + age;            // склейка с пустой строкой
+
+// строка → число: только если внутри правда число
+int back = Integer.parseInt("21");
+double price = Double.parseDouble("99.5");</code></pre>
+    <ul>
+      <li><code>String.valueOf(...)</code> — самый понятный способ: метод возвращает строку из значения любого типа: числа, <code>boolean</code>, символа.</li>
+      <li><code>"" + age</code> — короткий трюк: строка в начале склейки превращает в строку всё, что дальше.</li>
+      <li><code>Integer.parseInt("abc")</code> упадёт с ошибкой <code>NumberFormatException</code> — подробно про это в <a href="/lessons/m02/06-type-casting.html">уроке 2.6</a>.</li>
+    </ul>
+    <details class="predict">
+      <summary>Что выведет программа?<br><code>int age = 20;</code><br><code>String text = "" + age;</code><br><code>System.out.println(text + 1);</code><br><code>System.out.println(age + 1);</code></summary>
+      <p><b>201</b> и <b>21</b>. Переменная <code>text</code> инициализирована строкой «20», к ней приклеилась «1». А в <code>age</code> — число, к нему прибавилась единица. Одни и те же цифры, но разные типы — и совсем разный результат.</p>
     </details>
   </section>
 
@@ -293,6 +295,7 @@ System.out.println("Итого: " + total);
       <ul>
         <li><code>String</code> — тип для текста в двойных кавычках. Это класс, а не примитив, поэтому с большой буквы.</li>
         <li>Вызовы методов строки: <code>s.length()</code> возвращает длину, <code>s.charAt(i)</code> — символ по номеру (с нуля), <code>s.toUpperCase()</code> — большими буквами.</li>
+        <li>Число → строка: <code>String.valueOf(n)</code> или <code>"" + n</code>; строка → число: <code>Integer.parseInt(s)</code>, <code>Double.parseDouble(s)</code>. Методы вызываются у имени класса; <code>Integer</code> и <code>Double</code> — классы-обёртки для <code>int</code> и <code>double</code>.</li>
         <li><code>var</code> — вывод типа: компилятор определяет тип по инициализатору справа; без инициализации нельзя, сменить тип потом нельзя.</li>
         <li><code>final</code> — константа: значение присваивается один раз, при инициализации. Имена констант — <code>UPPER_SNAKE_CASE</code>.</li>
         <li>Переменные — <code>camelCase</code>, классы — <code>PascalCase</code>. Имена по-английски и «говорящие».</li>

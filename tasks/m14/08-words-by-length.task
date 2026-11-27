@@ -22,9 +22,9 @@
 8: [крокодил]
 @@ test: Одно слово
 @@ input
-assert
+stream
 @@ expect
-6: [assert]
+6: [stream]
 @@ test: Все одной длины и повторы
 @@ input
 ab AB cd ab ef

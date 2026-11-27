@@ -21,7 +21,7 @@
   <section class="step">
     <h2>Перед заданием — освежи</h2>
     <ul>
-      <li><a href="/lessons/m03/01-arithmetic.html">3.1 Арифметика</a> — целочисленное деление: почему <code>800 / 100 * 2</code> и <code>800 * 2 / 100</code> — не всегда одно и то же;</li>
+      <li><a href="/lessons/m03/01-arithmetic.html">3.1 Арифметика</a> — целочисленное деление и шаг «Порядок умножения и деления меняет ответ»: почему 2% от 50 через <code>50 / 100 * 2</code> дают 0, а через <code>50 * 2 / 100</code> — 1;</li>
       <li><a href="/lessons/m03/03-comparison.html">3.3 Сравнения и boolean</a> — <code>&gt;=</code> и что значит <code>true</code>/<code>false</code>;</li>
       <li><a href="/lessons/m03/06-math.html">3.6 Класс Math</a> — <code>Math.round</code> и почему он возвращает <code>long</code>;</li>
       <li><a href="/lessons/m02/06-type-casting.html">2.6 Преобразования типов</a> — <code>(int)</code>, когда из <code>long</code> или <code>double</code> нужен <code>int</code>.</li>
@@ -30,14 +30,14 @@
 
   <section class="step">
     <h2>Git на этот раз</h2>
-    <p>Всё как в прошлый раз: новая ветка <code>module-03-deposit</code>, работа, коммит, merge в основную. Если запутался в расчётах и хочешь начать шаг заново — <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd> (Rollback): все несохранённые правки откатятся к последнему коммиту.</p>
+    <p>Всё как в прошлый раз: новая ветка <code>module-03-deposit</code>, работа, коммит, merge в основную. Если запутался в расчётах и хочешь начать шаг заново — <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd> (Rollback): все изменения, сделанные <b>после последнего коммита</b>, отменятся, и файл вернётся к состоянию из коммита. Именно «после коммита», а не «несохранённые»: IDEA сохраняет файлы сама, а Rollback откатывает всё, что ещё не попало в коммит.</p>
     <div class="cheat">
       <h3>Шпаргалка: Git на каждый шаг проекта</h3>
       <div class="table-wrap"><table>
         <tr><th>Шаг</th><th>В IDEA</th><th>В терминале</th></tr>
         <tr><td>1. Новая ветка</td><td>Имя ветки → New Branch… → <code>module-03-deposit</code></td><td><code>git switch -c module-03-deposit</code></td></tr>
         <tr><td>2. Сохраняться по ходу</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd> → Commit</td><td><code>git add .</code> + <code>git commit -m "…"</code></td></tr>
-        <tr><td>Откатить несохранённое</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd></td><td><code>git restore .</code></td></tr>
+        <tr><td>Откатить всё после последнего коммита</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd></td><td><code>git restore .</code></td></tr>
         <tr><td>3. В основную ветку</td><td>Имя ветки → main → Checkout</td><td><code>git switch main</code></td></tr>
         <tr><td>4. Влить работу</td><td>Имя ветки → module-03-deposit → Merge into Current</td><td><code>git merge module-03-deposit</code></td></tr>
       </table></div>

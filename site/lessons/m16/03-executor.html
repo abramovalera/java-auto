@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 16 · Урок 3</div>
     <h1>ExecutorService: пул потоков</h1>
     <p class="lead">Создавать поток на каждую задачу — как нанимать нового официанта на каждого гостя. В настоящих программах работает смена из нескольких официантов. Знакомимся с пулом потоков, Callable и Future.</p>
-    <div class="meta"><span>⏱ 25 минут</span><span>🏊 пул потоков</span><span>🎟 Future</span><span>🛠 Мастерская</span></div>
+    <div class="meta"><span>⏱ 30 минут</span><span>🏊 пул потоков</span><span>🎟 Future</span><span>🛠 Мастерская</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -138,9 +138,44 @@ public class Waiters {
         </script>
       </div>
     </details>
+
+    <h3>Дождаться всех задач: awaitTermination</h3>
+    <p>Заметил в выводе выше: «Приём заказов закрыт» оказалось посреди заказов. <code>shutdown()</code> только закрывает приём и <b>не ждёт</b>. А если главному потоку нужно что-то сделать <b>после</b> всех задач — например, напечатать итог? Для этого после <code>shutdown()</code> вызывают <code>awaitTermination</code>:</p>
+<pre data-file="AllOrdersDone.java"><code class="java">import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+public class AllOrdersDone {
+    public static void main(String[] args) throws InterruptedException {
+        ExecutorService pool = Executors.newFixedThreadPool(3);
+        for (int i = 1; i &lt;= 5; i++) {
+            int order = i;
+            pool.submit(() -&gt; System.out.println("Заказ " + order + " разнесён"));
+        }
+        pool.shutdown();
+        boolean done = pool.awaitTermination(10, TimeUnit.SECONDS);
+        System.out.println("Все заказы разнесены: " + done);
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>import java.util.concurrent.TimeUnit;</code><div><p><code>TimeUnit</code> — перечисление (enum, модуль 11) единиц времени: <code>TimeUnit.MILLISECONDS</code>, <code>TimeUnit.SECONDS</code>, <code>TimeUnit.MINUTES</code>. Оно лежит в пакете <code>java.util.concurrent</code>, поэтому его нужно импортировать — иначе IDEA подчеркнёт <code>TimeUnit</code> красным (<kbd>Alt</kbd>+<kbd>Enter</kbd> → Import class).</p></div></div>
+      <div class="annot-row"><code>pool.shutdown();</code><div><p>Сначала закрываем приём задач. Без этого пул никогда не «закончится», и ждать будет нечего.</p></div></div>
+      <div class="annot-row"><code>pool.awaitTermination(10, TimeUnit.SECONDS)</code><div><p>Вызываем у пула метод <code>awaitTermination</code> и передаём два аргумента: число <code>10</code> и единицу <code>TimeUnit.SECONDS</code> — «жду, пока пул доделает все принятые задачи, но не дольше 10 секунд». Главный поток стоит на этой строке, как на <code>join()</code>. Метод возвращает <code>true</code>, если всё успели, и <code>false</code>, если время вышло.</p></div></div>
+      <div class="annot-row"><code>throws InterruptedException</code><div><p>Как <code>join()</code> и <code>sleep()</code>, этот метод может выбросить проверяемое <code>InterruptedException</code> — «тебя разбудили раньше времени». Поэтому <code>main</code> объявляет <code>throws</code>.</p></div></div>
+    </div>
+    <p>Порядок пяти строк про заказы по-прежнему случайный, но строка <code>Все заказы разнесены: true</code> теперь <b>всегда последняя</b>.</p>
+    <details class="predict">
+      <summary>Что будет, если вызвать awaitTermination, но забыть shutdown()?</summary>
+      <p>Задачи выполнятся быстро, но пул не закрыт — он ждёт новых задач и «не заканчивается». Главный поток простоит на <code>awaitTermination</code> все 10 секунд, напечатает <code>Все заказы разнесены: false</code>, а потом программа ещё и не завершится. Правильная пара: <code>shutdown()</code>, затем <code>awaitTermination(...)</code>.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Когда что</span>
+      <p>Нужен <b>результат</b> каждой задачи — забирай его через <code>Future.get()</code> (следующий шаг). Задачи сами складывают результат куда-то (например, в общий потокобезопасный список, урок 4), и надо просто дождаться, пока все закончат, — <code>shutdown()</code> + <code>awaitTermination(...)</code>.</p>
+    </div>
+
     <details class="curious">
-      <summary>🔎 Для любопытных: подождать окончания и try-with-resources</summary>
-      <p><code>shutdown()</code> не ждёт. Чтобы главный поток дождался всех задач, после него вызывают <code>pool.awaitTermination(10, TimeUnit.SECONDS)</code> — «жду не дольше 10 секунд». <code>shutdownNow()</code> — «бросайте всё»: потокам пула отправляется <code>interrupt()</code>.</p>
+      <summary>🔎 Для любопытных: shutdownNow и try-with-resources</summary>
+      <p><code>shutdownNow()</code> — «бросайте всё»: пул перестаёт брать задачи из очереди, а потокам пула отправляется <code>interrupt()</code>.</p>
       <p>С Java 19 пул можно закрывать как файл из модуля 15 — через try-with-resources. Метод <code>close()</code> сам вызовет <code>shutdown()</code> и дождётся всех задач:</p>
 <pre data-file="AutoClosePool.java"><code class="java">try (ExecutorService pool = Executors.newFixedThreadPool(3)) {
     pool.submit(() -&gt; System.out.println("Работаю"));
@@ -380,6 +415,15 @@ System.out.println("Медленных запросов: " + total);</code></pre
            "why": "submit только ставит задачу в очередь и сразу возвращает Future."
           },
           {
+           "s": "Чтобы дождаться всех задач пула, после shutdown() вызывают awaitTermination(10, TimeUnit.SECONDS)",
+           "a": true
+          },
+          {
+           "s": "awaitTermination можно вызывать вместо shutdown(): он сам закроет пул",
+           "a": false,
+           "why": "awaitTermination только ждёт. Без shutdown() пул не закончится, и метод прождёт весь срок и вернёт false."
+          },
+          {
            "s": "Исключение внутри задачи главный поток увидит при вызове get() — как ExecutionException",
            "a": true
           }
@@ -402,6 +446,7 @@ System.out.println("Медленных запросов: " + total);</code></pre
       <ul>
         <li>Пул потоков — смена официантов: несколько потоков разбирают очередь задач. В Java — <code>ExecutorService</code>, создаётся через <code>Executors.newFixedThreadPool(n)</code>.</li>
         <li><code>submit</code> ставит задачу в очередь и сразу возвращает <code>Future</code>. <code>shutdown</code> закрывает приём задач — без него программа не завершится.</li>
+        <li>Дождаться всех задач: <code>shutdown()</code>, затем <code>awaitTermination(10, TimeUnit.SECONDS)</code> — ждёт не дольше срока, возвращает <code>true</code>/<code>false</code>, бросает <code>InterruptedException</code>. <code>TimeUnit</code> нужно импортировать из <code>java.util.concurrent</code>.</li>
         <li>Задача <code>Callable</code> возвращает результат (метод <code>call()</code>) и может бросать проверяемые исключения; задача <code>Runnable</code> — нет.</li>
         <li>Вызов <code>future.get()</code> ждёт и возвращает результат задачи; ошибку задачи приносит как <code>ExecutionException</code>.</li>
         <li>Лучший многопоточный код — без общих изменяемых данных: каждая задача считает своё, главный поток собирает.</li>

@@ -45,7 +45,7 @@
         <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на красном <i>Unhandled exception</i> → <b>Surround with try/catch</b></td><td>IDEA сама напишет try/catch вокруг строки с нужным типом исключения</td><td>Урок 5: checked-исключение, которое хочешь перехватить здесь</td></tr>
         <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на красном <i>Unhandled exception</i> → <b>Add exception to method signature</b></td><td>Допишет <code>throws ТипИсключения</code> в заголовок метода</td><td>Урок 5: перехватывать будешь не здесь, а выше по стеку</td></tr>
         <tr><td>Клик по синей ссылке <code>(Файл.java:N)</code> в консоли</td><td>Открывает файл на строке N</td><td>Читаешь stack trace — прыгай сразу к своей строке</td></tr>
-              <tr><td><code>serr</code> + <kbd>Tab</kbd></td><td><code>System.err.println();</code> — печать в <b>поток ошибок</b>: в консоли IDEA такие строки красные. Сообщения об ошибках в <code>catch</code> принято печатать именно так</td><td>—</td></tr>
+        <tr><td><code>sout</code> + <kbd>Tab</kbd> (не <code>serr</code>)</td><td><code>System.out.println();</code> — сообщение об ошибке в <code>catch</code> в задачах курса печатай <b>только так</b>. Есть ещё <code>serr</code> → <code>System.err.println();</code> — отдельный «поток ошибок», красные строки в консоли. Проверка задач смотрит только <code>System.out</code>, строку из <code>System.err</code> она не увидит, и задача не пройдёт</td><td>Пишешь план Б в catch</td></tr>
       </table></div>
     </div>
   </section>
@@ -101,6 +101,10 @@ public class AgeInput {
       </svg>
       <figcaption>Выполнится ровно один из двух путей: либо весь try, либо начало try + catch. Дальше программа идёт как обычно.</figcaption>
     </figure>
+    <div class="callout warn">
+      <span class="callout-title">В задачах курса ошибки печатаем через System.out</span>
+      <p>В Java есть два «канала» вывода: обычный <code>System.out</code> и канал ошибок <code>System.err</code> (в IDEA его строки красные). В больших программах сообщения об ошибках часто пишут в <code>System.err</code>. Но <b>в задачах курса печатай всё через <code>System.out.println</code></b>, и в catch тоже: автопроверка сравнивает только обычный вывод, а <code>System.err</code> не видит вовсе.</p>
+    </div>
     <div class="callout analogy">
       <span class="callout-title">Аналогия: страховочная сетка</span>
       <p>Акробат (код в try) работает как обычно. Сорвался (исключение) — падает не на арену, а в сетку (catch). Представление продолжается. Нет сетки — падение заканчивает шоу.</p>
@@ -159,7 +163,7 @@ System.out.println("4");</code></pre>
         <tr><th>Код</th><th>Что даст для <code>parseInt("сорок")</code></th></tr>
         <tr><td><code>e.getMessage()</code></td><td>метод возвращает сообщение: <code>For input string: "сорок"</code></td></tr>
         <tr><td><code>System.out.println(e)</code></td><td>тип + сообщение: <code>java.lang.NumberFormatException: For input string: "сорок"</code></td></tr>
-        <tr><td><code>e.printStackTrace()</code></td><td>полный stack trace, как при падении, но программа не падает</td></tr>
+        <tr><td><code>e.printStackTrace()</code></td><td>полный stack trace, как при падении, но программа не падает. Печатает в <code>System.err</code> — для отладки, не для ответа в задаче</td></tr>
       </table>
     </div>
     <div class="callout warn">
@@ -210,6 +214,10 @@ System.out.println("4");</code></pre>
       <summary>🔎 Для любопытных: почему не scanner.nextInt()?</summary>
       <p>Можно и так: на «abc» <code>nextInt()</code> выбросит <code>InputMismatchException</code>. Но есть ловушка: «abc» <b>остаётся на ленте ввода</b>. Следующий круг цикла снова вызовет <code>nextInt()</code>, снова наткнётся на «abc» — и программа бесконечно будет печатать «не число». Чтобы этого не было, в catch нужно «доесть» плохое слово: <code>scanner.next();</code>. Вариант с <code>nextLine()</code> + <code>parseInt</code> от этой ловушки свободен: строка уже прочитана целиком, что бы в ней ни было.</p>
     </details>
+    <div class="callout fact">
+      <span class="callout-title">Какие исключения перехватывать?</span>
+      <p>Смотри, <b>откуда пришла беда</b>. Плохие данные снаружи — пользователь ввёл «abc», в файле настроек опечатка — от программиста не зависят: такое исключение перехватывают и делают план Б (переспросить, пропустить строку). Поэтому <code>NumberFormatException</code> от <code>parseInt</code> на вводе мы ловим во всех задачах модуля. А если исключение — следствие ошибки <b>в нашем коде</b> (вызвали метод у <code>null</code>, вышли за границу массива, забыли проверить делитель), его не прячут в catch, а исправляют код. Подробнее — в уроках 5 и 7.</p>
+    </div>
     <div class="callout try">
       <span class="callout-title">Твоя задача</span>
       <p>Это задача <a href="/tasks.html?module=m12">m12-t03 «Ввод числа с повтором»</a>. Набери метод сам, добавь main и запусти: вводи в панели Run всякий мусор и смотри, как программа переспрашивает.</p>
@@ -351,6 +359,8 @@ try {
         <li><code>try { опасный код } catch (Тип e) { план Б }</code> — перехватить исключение и продолжить работу.</li>
         <li>После исключения остаток try пропускается; catch выполняется, только если исключение было и подошло по типу.</li>
         <li>У перехваченного <code>e</code> можно вызвать <code>getMessage()</code>, <code>printStackTrace()</code>.</li>
+        <li>В задачах курса сообщения об ошибках печатаем через <code>System.out</code>: проверка не видит <code>System.err</code>.</li>
+        <li>Плохой ввод снаружи (буквы вместо числа) — перехватываем и переспрашиваем; ошибку в своём коде — исправляем.</li>
         <li>Несколько catch проверяются сверху вниз: от частного к общему, иначе ошибка компиляции «has already been caught».</li>
         <li>Multi-catch <code>catch (A | B e)</code> — один план Б для нескольких типов (не родственных).</li>
         <li>Ввод с повтором: <code>while (true)</code> + <code>nextLine().trim()</code> + <code>return Integer.parseInt(...)</code> в try.</li>

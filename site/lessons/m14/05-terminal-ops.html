@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 14 · Урок 5</div>
     <h1>Терминальные операции: чем закончить конвейер</h1>
     <p class="lead">Конвейер запускается только тогда, когда в конце стоит «упаковщик». Упаковщики бывают разные: один собирает список, другой считает, третий отвечает «да/нет», четвёртый сворачивает всё в одно число.</p>
-    <div class="meta"><span>⏱ 25 минут</span><span>📦 12 операций</span><span>🔍 трассировка reduce</span></div>
+    <div class="meta"><span>⏱ 30 минут</span><span>📦 12 операций</span><span>🔍 трассировка reduce</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -102,12 +102,39 @@ titles.stream()
     </div>
     <div class="callout warn">
       <span class="callout-title">toList() или collect(Collectors.toList())?</span>
-      <p>В старом коде (до Java 16) встретишь <code>.collect(Collectors.toList())</code>. Разница: он возвращает обычный изменяемый список (на практике <code>ArrayList</code>), а <code>toList()</code> — неизменяемый. Попробуешь вызвать <code>add</code> у списка, который вернул <code>toList()</code>, — метод выбросит <code>UnsupportedOperationException</code>. Если список нужно менять дальше — бери <code>collect(Collectors.toList())</code> или <code>new ArrayList&lt;&gt;(…)</code>.</p>
+      <p>В старом коде (до Java 16) встретишь <code>.collect(Collectors.toList())</code>. Это тоже терминальная операция: <code>collect</code> значит «собери всё, что доехало», а <b>как</b> собрать — подсказывает аргумент. Готовые способы сборки возвращают статические методы класса <code>Collectors</code> (<code>import java.util.stream.Collectors;</code>); им целиком посвящён урок 14.7, а сейчас хватит одного — <code>Collectors.toList()</code>, «собери в список». Разница с <code>toList()</code>: он возвращает обычный изменяемый список (на практике <code>ArrayList</code>), а <code>toList()</code> — неизменяемый. Попробуешь вызвать <code>add</code> у списка, который вернул <code>toList()</code>, — метод выбросит <code>UnsupportedOperationException</code>. Если список нужно менять дальше — бери <code>collect(Collectors.toList())</code> или <code>new ArrayList&lt;&gt;(…)</code>.</p>
     </div>
     <details class="predict">
       <summary>Можно ли написать <code>int n = list.stream().count();</code>?</summary>
       <p><b>Нет</b>, ошибка компиляции: <code>count()</code> возвращает <code>long</code>, а <code>long</code> в <code>int</code> автоматически не влезает — возможна потеря данных (модуль 2). Объявляй переменную типа <code>long</code>: <code>long n = …</code>.</p>
     </details>
+  </section>
+
+  <!-- ШАГ 3б -->
+  <section class="step">
+    <h2>forEach — не для сбора результата</h2>
+    <p>Новички часто собирают результат стрима «по-старому» — в заранее созданный список:</p>
+<pre data-file="SideEffect.java"><code class="java">List&lt;String&gt; titles = List.of("Чай", "Кофе", "Торт", "Сок");
+
+List&lt;String&gt; longOnes = new ArrayList&lt;&gt;();
+titles.stream()
+        .filter(t -&gt; t.length() &gt; 3)
+        .forEach(t -&gt; longOnes.add(t));   // компилируется, но так не пишут
+System.out.println(longOnes);             // [Кофе, Торт]</code></pre>
+    <p>Стоп, а как же правило из урока 14.1 — «внешние переменные в лямбде менять нельзя»? Оно не нарушено: переменной <code>longOnes</code> ничего не <b>присваивают</b> — она всё время ссылается на один и тот же список. Меняется не переменная, а <b>объект</b>, на который она указывает. Поэтому компилятор молчит.</p>
+    <p>Когда лямбда меняет что-то снаружи себя (добавляет в чужой список, увеличивает чужой счётчик, пишет в поле), это называют <b>побочным эффектом</b> (side effect). В стримах побочных эффектов избегают:</p>
+    <ul>
+      <li>результат «размазан»: чтобы понять, что лежит в <code>longOnes</code>, надо читать и создание списка, и весь стрим;</li>
+      <li>в параллельном стриме (<code>parallelStream()</code>) несколько потоков одновременно вызовут <code>add</code> у одного <code>ArrayList</code> — элементы потеряются или вылетит исключение (это модуль 16);</li>
+      <li>для сбора уже есть готовая терминальная операция — она короче и безопаснее.</li>
+    </ul>
+<pre data-file="SideEffect.java"><code class="java">List&lt;String&gt; longOnes = titles.stream()
+        .filter(t -&gt; t.length() &gt; 3)
+        .toList();                        // так правильно</code></pre>
+    <div class="callout tip">
+      <span class="callout-title">Правило</span>
+      <p><code>forEach</code> — для <b>последнего действия</b> с каждым элементом: напечатать, отправить, сохранить. Нужен результат — список, число, строка — бери терминальную операцию, которая его возвращает: <code>toList()</code>, <code>count()</code>, <code>collect(…)</code>.</p>
+    </div>
   </section>
 
   <!-- ШАГ 4 -->
@@ -161,13 +188,14 @@ System.out.println(prices.stream().min(Comparator.naturalOrder()));
 // Optional[1200]
 System.out.println(prices.stream().max(Integer::compare));</code></pre>
     <p><code>min</code> и <code>max</code> принимают аргументом <code>Comparator</code> — тот же, что и <code>sort</code>. Например, самый дорогой товар: <code>products.stream().max(Comparator.comparing(Product::price))</code>.</p>
+    <p>В чужом коде встретишь ещё <code>findAny()</code>. Разница одной строкой: <code>findFirst</code> обещает вернуть <b>первый</b> по порядку элемент, а <code>findAny</code> — <b>любой</b> подходящий; в обычном стриме это обычно тоже первый, но в параллельном — какой найдётся быстрее. Нужен именно первый — пиши <code>findFirst</code>.</p>
     <p>Как достать значение из коробки правильно — тема следующего урока. Пока запомни: <b>Optional печатается как <code>Optional[…]</code> или <code>Optional.empty</code></b>.</p>
   </section>
 
   <!-- ШАГ 6 -->
   <section class="step">
     <h2>Числовые стримы: sum, average, max</h2>
-    <p>Посчитать сумму цен хочется так: <code>prices.stream().sum()</code>. Но такого метода у <code>Stream&lt;Integer&gt;</code> <b>нет</b>: Stream не знает, что внутри числа (там мог бы быть и <code>Stream&lt;String&gt;</code>). Для чисел есть специальные стримы: <code>IntStream</code>, <code>LongStream</code>, <code>DoubleStream</code>. Перейти к ним — через промежуточную операцию <code>mapToInt</code>:</p>
+    <p>Посчитать сумму цен хочется так: <code>prices.stream().sum()</code>. Но такого метода у <code>Stream&lt;Integer&gt;</code> <b>нет</b>: Stream не знает, что внутри числа (там мог бы быть и <code>Stream&lt;String&gt;</code>). Для чисел есть специальные стримы: <code>IntStream</code> (ты встречал его в уроке 14.4 — его возвращают <code>Arrays.stream(int[])</code> и <code>IntStream.range</code>), <code>LongStream</code>, <code>DoubleStream</code>. Из обычного стрима перейти к ним — через промежуточную операцию <code>mapToInt</code>:</p>
 <pre data-file="Numbers.java"><code class="java">record Product(String title, int price) { }
 
 List&lt;Product&gt; cart = List.of(
@@ -192,7 +220,7 @@ System.out.println(IntStream.rangeClosed(1, 100).sum());  // 5050</code></pre>
     </div>
     <details class="curious">
       <summary>🔎 Для любопытных: всё сразу — summaryStatistics() (можно пропустить)</summary>
-      <p><code>IntSummaryStatistics st = cart.stream().mapToInt(Product::price).summaryStatistics();</code> за один проход считает и количество, и сумму, и минимум, и максимум, и среднее: <code>st.getMax()</code>, <code>st.getAverage()</code>… Удобно, когда нужно всё и сразу. А обратно из <code>IntStream</code> в <code>Stream&lt;Integer&gt;</code> переходят через <code>boxed()</code>.</p>
+      <p><code>IntSummaryStatistics st = cart.stream().mapToInt(Product::price).summaryStatistics();</code> за один проход считает и количество, и сумму, и минимум, и максимум, и среднее: <code>st.getMax()</code>, <code>st.getAverage()</code>… Удобно, когда нужно всё и сразу.</p>
     </details>
   </section>
 
@@ -234,6 +262,7 @@ System.out.println(IntStream.rangeClosed(1, 100).sum());  // 5050</code></pre>
     <div class="callout tip">
       <span class="callout-title">Когда брать reduce</span>
       <p>Для суммы, среднего, максимума есть готовые <code>sum()</code>, <code>average()</code>, <code>max()</code> — они понятнее. <code>reduce</code> бери, когда готового нет: перемножить, склеить по особому правилу, найти «лучший» элемент по хитрому условию. И знай его для собеседований.</p>
+      <p><b>reduce или collect?</b> Одной строкой: <code>reduce</code> сворачивает элементы в <b>одно значение</b> (число, строку, «лучший» элемент), а <code>collect</code> складывает их в <b>контейнер</b> — список, Map, строку через запятую; собирать список через <code>reduce</code> не принято.</p>
     </div>
   </section>
 
@@ -303,6 +332,11 @@ System.out.println(IntStream.rangeClosed(1, 100).sum());  // 5050</code></pre>
           {
            "s": "<code>anyMatch</code> может закончить работу, не просмотрев все элементы",
            "a": true
+          },
+          {
+           "s": "<code>stream.forEach(x -&gt; result.add(x))</code> не скомпилируется: внешнюю переменную в лямбде менять нельзя",
+           "a": false,
+           "why": "скомпилируется: переменной result ничего не присваивают, меняется только список, на который она ссылается. Но это побочный эффект — правильно собрать результат через toList()."
           }
          ]
         },
@@ -324,11 +358,11 @@ System.out.println(IntStream.rangeClosed(1, 100).sum());  // 5050</code></pre>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
-        <li>Собрать: <code>toList()</code> (неизменяемый) или <code>collect(Collectors.toList())</code>. Посчитать: <code>count()</code> → <code>long</code>. Сделать с каждым: <code>forEach</code>.</li>
+        <li>Собрать: <code>toList()</code> (неизменяемый) или <code>collect(Collectors.toList())</code>. Посчитать: <code>count()</code> → <code>long</code>. Сделать с каждым: <code>forEach</code> — только для последнего действия, не для сбора в чужой список (побочный эффект).</li>
         <li>Проверить: <code>anyMatch</code>, <code>allMatch</code>, <code>noneMatch</code>. На пустом стриме <code>allMatch</code> = <code>true</code>!</li>
-        <li>Найти один: <code>findFirst</code>, <code>min</code>, <code>max</code> → <code>Optional</code>.</li>
+        <li>Найти один: <code>findFirst</code> (первый), <code>findAny</code> (любой), <code>min</code>, <code>max</code> → <code>Optional</code>.</li>
         <li>Числа: <code>mapToInt</code> → <code>sum()</code>, <code>average()</code> (OptionalDouble), <code>max()</code>.</li>
-        <li><code>reduce(identity, (acc, x) -&gt; …)</code> — накопитель в одну строку; identity — значение, которое ничего не меняет.</li>
+        <li><code>reduce(identity, (acc, x) -&gt; …)</code> — накопитель в одну строку; identity — значение, которое ничего не меняет. reduce — в одно значение, collect — в контейнер.</li>
       </ul>
     </div>
   </section>

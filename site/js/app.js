@@ -955,8 +955,17 @@
       btn.hidden = !behind;
       if (behind) btn.querySelector("span").textContent = `Обновление (${info.newCommits})`;
     };
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       if (!info) return;
+      // Полный путь к папке курса: сервер знает, где на диске лежит workspace (/api/setup) — курс на уровень выше.
+      // Одна команда: перейти в папку, скачать обновление и, только если скачалось без ошибок, пересобрать сайт.
+      // «; if ($?) {…}» работает и в Windows PowerShell 5, и в PowerShell 7 (а «&&» в старом не работает).
+      let dir = "$HOME\\IdeaProjects\\java-course";
+      try {
+        const s = await (await fetch("/api/setup")).json();
+        if (s && s.hostPath) dir = s.hostPath.replace(/[\\/]workspace[\\/]?$/, "");
+      } catch (e) { /* оставим путь по умолчанию */ }
+      const oneLine = `cd "${dir}"; git pull; if ($?) { docker compose up -d --build }`;
       const cmd = (c) => `<div class="upd-cmd"><code>${esc(c)}</code><button class="btn small ghost" data-copy="${esc(c)}">Скопировать</button></div>`;
       const list = (info.commits || []).map((c) => `<li><b>${esc(c.title)}</b>${c.date ? ` <small>· ${fmtDate(c.date)}</small>` : ""}${c.body ? `<div class="upd-body">${esc(c.body).replace(/\n/g, "<br>")}</div>` : ""}</li>`).join("");
       const ov = document.createElement("div");
@@ -967,9 +976,9 @@
           <h2>Вышло обновление курса</h2>
           <p>На GitHub появилось новых изменений: <b>${info.newCommits}</b>. Что нового:</p>
           <ul class="upd-list">${list}</ul>
-          <p>Как обновить: открой PowerShell в папке курса и выполни по очереди две команды.</p>
-          ${cmd("git pull")}${cmd("docker compose up -d --build")}
-          <p class="meta">Твой код, прогресс и история проверок лежат в папке <code>workspace</code> — обновление их не трогает. Когда вторая команда закончит, обнови эту страницу.</p>
+          <p><b>Как обновить:</b> открой PowerShell (Пуск → набери <code>PowerShell</code> → Enter), вставь эту команду и нажми Enter. Она сама перейдёт в папку курса, скачает обновление и перезапустит сайт.</p>
+          ${cmd(oneLine)}
+          <p class="meta">Займёт 1–3 минуты. Когда в конце появится строчка со словом «Started», обнови эту страницу (F5). Если вместо этого появится красная ошибка — сайт не трогаем, просто покажи её наставнику или ИИ-помощнику. Твой код, прогресс и история проверок лежат в папке <code>workspace</code> — обновление их не трогает.</p>
           <div class="w-row"><button class="btn green upd-close">Понятно</button></div>
         </div></div>`;
       document.body.appendChild(ov);

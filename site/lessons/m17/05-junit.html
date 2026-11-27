@@ -14,7 +14,7 @@
   <header class="lesson-head" data-mood="wow">
     <div class="kicker">Модуль 17 · Урок 5</div>
     <h1>Тестирование и JUnit 5</h1>
-    <p class="lead">Ради этого урока и затевался весь курс: код, который проверяет другой код. Нажал кнопку — и через секунду знаешь, работает программа или нет. Зелёная полоса — можно спать спокойно.</p>
+    <p class="lead">Тест — это код, который проверяет другой код. Нажал кнопку — и через секунду знаешь, работает программа или нет. Зелёная полоса — можно спать спокойно.</p>
     <div class="meta"><span>⏱ 30 минут</span><span>🧪 первый тест</span><span>🟢🔴 зелёный и красный</span></div>
   </header>
 
@@ -48,6 +48,7 @@
         <tr><td><kbd>Shift</kbd>+<kbd>F10</kbd></td><td>Повторить последний запуск</td><td>Поправил код — гоняешь те же тесты</td></tr>
         <tr><td>Кнопка <b>Rerun Failed Tests</b> в окне результатов</td><td>Перезапустить только упавшие</td><td>Чинишь красные, зелёные не трогаешь</td></tr>
         <tr><td>🐞 на полях или <kbd>Shift</kbd>+<kbd>F9</kbd></td><td>Запустить тест под отладчиком</td><td>Тест красный, непонятно почему</td></tr>
+        <tr><td>▶ на полях у класса → <b>Run '…' with Coverage</b></td><td>Запустить и показать, какие строки кода тесты выполнили, а какие нет</td><td>Ищешь, что ещё не проверено (урок 17.7)</td></tr>
         <tr><td>Правый клик по папке → <b>Run 'Tests in …'</b></td><td>Все тесты в папке или пакете</td><td>Перед коммитом</td></tr>
         <tr><td>Двойной щелчок по тесту в результатах</td><td>Перейти к коду теста</td><td>Разбираешь падение</td></tr>
         <tr><td><b>&lt;Click to see difference&gt;</b></td><td>Окно сравнения: ожидаемое и фактическое рядом</td><td>Длинные строки и списки не совпали</td></tr>
@@ -62,7 +63,7 @@
   <section class="step">
     <h2>Что такое тест</h2>
     <p>Как ты проверял свои программы до сих пор? Запускал <code>main</code>, смотрел вывод глазами, сравнивал с ожидаемым в голове. Поменял код — повторил. А если проверок сто? Если код поменял коллега, а ты даже не знаешь, что проверять?</p>
-    <p><b>Автотест</b> — маленький метод (<b>тестовый метод</b>), который вызывает твой код, передаёт ему известные аргументы и <b>сам</b> сравнивает возвращаемое значение с ожидаемым. Человек нужен только чтобы написать тест один раз. Дальше его гоняют тысячи раз: после каждой правки, на каждом merge request, каждую ночь.</p>
+    <p><b>Тест</b> (автоматический тест) — маленький метод (<b>тестовый метод</b>), который вызывает твой код, передаёт ему известные аргументы и <b>сам</b> сравнивает возвращаемое значение с ожидаемым. Человек нужен только чтобы написать тест один раз. Дальше его гоняют тысячи раз: после каждой правки, на каждом merge request, каждую ночь.</p>
     <div class="callout analogy">
       <span class="callout-title">Аналогия: краш-тест</span>
       <p>Автозавод не ждёт, пока машина попадёт в аварию у покупателя. Он заранее разбивает её о стену с датчиками и сравнивает показания с нормой. Тест — это стена с датчиками для кода: ошибка обнаруживается у тебя, а не у пользователя.</p>
@@ -186,18 +187,17 @@ public class DeliveryFeeTest {
   <!-- ШАГ 5 -->
   <section class="step">
     <h2>Запуск: зелёная и красная полоса</h2>
-    <p>Слева от объявления класса <code>public class DeliveryFeeTest</code> и от каждого тестового метода появились зелёные ▶. У класса — запустить все тесты, у метода — только этот. Или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>, стоя в файле. Внизу откроется окно с результатами:</p>
+    <p>Слева от объявления класса <code>public class DeliveryFeeTest</code> и от каждого тестового метода появились зелёные ▶. У класса — запустить все тесты, у метода — только этот. Или <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd>, стоя в файле. Внизу откроется окно с результатами. Вот его схема для наших двух тестов — представим, что в <code>DeliveryFee</code> закралась ошибка и <code>smallOrderPaysFee</code> упал:</p>
     <figure class="fig">
       <svg class="wide" viewBox="0 0 740 260" role="img" aria-label="Окно результатов тестов в IDEA: дерево тестов с зелёными и красными значками, справа сообщение об ошибке expected but was">
         <rect x="10" y="10" width="720" height="240" rx="14" class="d-box"/>
         <rect x="22" y="22" width="696" height="34" rx="8" class="d-red"/>
-        <text x="36" y="44" class="d-text">✕ Tests failed: 1, passed: 2 of 3 tests – 48 ms</text>
+        <text x="36" y="44" class="d-text">✕ Tests failed: 1, passed: 1 of 2 tests – 48 ms</text>
         <rect x="22" y="66" width="290" height="174" rx="8" class="d-soft"/>
         <text x="36" y="92" class="d-text">✕ DeliveryFeeTest</text>
         <text x="56" y="122" class="d-mono-ink">✓ bigOrderIsFree</text>
         <rect x="50" y="134" width="254" height="26" rx="5" class="d-red"/>
         <text x="56" y="152" class="d-mono-ink">✕ smallOrderPaysFee</text>
-        <text x="56" y="182" class="d-mono-ink">✓ zeroSumIsRejected</text>
         <text x="36" y="222" class="d-small">щелчок по тесту — его вывод справа</text>
         <rect x="324" y="66" width="394" height="174" rx="8" class="d-code"/>
         <text x="338" y="94" class="d-mono">org.opentest4j.AssertionFailedError:</text>
@@ -206,9 +206,9 @@ public class DeliveryFeeTest {
         <text x="338" y="180" class="d-mono">at DeliveryFeeTest.smallOrder…</text>
         <text x="338" y="200" class="d-mono">   (DeliveryFeeTest.java:26)</text>
       </svg>
-      <figcaption>Один тест упал: ждали 199, а метод вернул 0. Ссылка на строку теста кликабельна.</figcaption>
+      <figcaption>Схема окна: слева дерево тестов, справа вывод выбранного. Один тест упал — ждали 199, а метод вернул 0. Ссылка на строку теста кликабельна.</figcaption>
     </figure>
-    <p>А вот то же в настоящей IDEA. Допустим, в <code>DeliveryFee</code> опечатка: в строке 10 написано <code>200</code> вместо <code>2000</code>:</p>
+    <p>А вот то же в настоящей IDEA. Ошибка — опечатка в <code>DeliveryFee</code>: в строке 10 написано <code>200</code> вместо <code>2000</code>, поэтому заказ на 500 ₽ тоже стал «бесплатным»:</p>
     <div data-widget="ide" id="shot-junit-red">
       <script type="application/json">
       { "tree": false, "file": "DeliveryFeeTest.java", "runConfig": "DeliveryFeeTest", "statusPath": "module-17", "gutterRun": [17, 20, 30],
@@ -253,6 +253,7 @@ public class DeliveryFeeTest {
         <tr><td><code>assertNull(x)</code> / <code>assertNotNull(x)</code></td><td><code>x</code> равен / не равен <code>null</code></td></tr>
         <tr><td><code>assertThrows(Тип.class, () -&gt; …)</code></td><td>код в лямбде бросил исключение этого типа</td></tr>
         <tr><td><code>assertArrayEquals(ожид, факт)</code></td><td>массивы равны поэлементно</td></tr>
+        <tr><td><code>assertAll(() -&gt; …, () -&gt; …)</code></td><td>прошли все проверки внутри; упавшие показываются все сразу (пример ниже)</td></tr>
       </table>
     </div>
     <p>Проверка исключения — частый гость в тестах. Код, который должен бросить исключение, передаём вторым аргументом — <b>лямбда-выражением</b> без параметров <code>() -&gt; …</code> (модуль 14): JUnit сам вызовет её и перехватит исключение. А ещё <code>assertThrows</code> возвращает пойманный объект исключения — им инициализируем переменную <code>e</code> и проверяем сообщение:</p>
@@ -270,6 +271,30 @@ void zeroSumIsRejected() {
       <span class="callout-title">Ловушка с дробными числами</span>
       <p><code>assertEquals(0.3, 0.1 + 0.2)</code> <b>упадёт</b>: <code>0.1 + 0.2</code> в double — это <code>0.30000000000000004</code>. Для дробных чисел есть третий аргумент — допустимая погрешность: <code>assertEquals(0.3, 0.1 + 0.2, 0.0001)</code>.</p>
     </div>
+    <h3>Несколько проверок сразу: assertAll</h3>
+    <p>Проверка, которая не прошла, <b>бросает исключение</b> — и тест на ней заканчивается. Проверки ниже уже не выполняются, и ты узнаёшь только о первом расхождении. Когда у одного результата несколько частей, удобнее увидеть все ошибки разом. Для этого есть <code>assertAll</code>: ему передают несколько лямбда-выражений с проверками, он выполняет <b>все</b> и сообщает обо всех упавших вместе.</p>
+<pre data-file="FullNameTest.java"><code class="java">import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class FullNameTest {
+    @Test
+    void fullNameSplitsIntoThreeParts() {
+        String[] parts = "Иванова Анна Сергеевна".split(" ");
+        assertAll(
+                () -&gt; assertEquals(3, parts.length),
+                () -&gt; assertEquals("Иванова", parts[0]),
+                () -&gt; assertEquals("Анна", parts[1]),
+                () -&gt; assertEquals("Сергеевна", parts[2])
+        );
+    }
+}</code></pre>
+    <p>Если упадут две проверки, JUnit напишет <code>Multiple Failures (2 failures)</code> и ниже — оба сообщения <code>expected … but was …</code>. Это всё ещё <b>один тест про одно поведение</b> («ФИО делится на три части»), просто с подробным отчётом.</p>
+    <details class="predict">
+      <summary>Тот же тест без <code>assertAll</code>: четыре <code>assertEquals</code> подряд. В строке две опечатки — <code>"Иванова Ана Сергевна"</code>. Сколько расхождений покажет JUnit?</summary>
+      <p><b>Одно</b> — про «Анна». Проверка длины пройдёт (частей всё равно три), проверка <code>parts[1]</code> упадёт и бросит исключение, до <code>parts[2]</code> дело не дойдёт. Исправишь первое, запустишь — и только тогда узнаешь про «Сергеевна». С <code>assertAll</code> оба расхождения видны сразу.</p>
+    </details>
   </section>
 
   <!-- ШАГ 7 -->
@@ -392,6 +417,7 @@ void orderOfExactlyTwoThousandIsFree() {
         <li>Тест — тестовый метод с аннотацией <code>@Test</code>: вызывает код и проверяет возвращаемое значение; запускает его JUnit, <code>main</code> не нужен.</li>
         <li>JUnit и AssertJ в проект курса — через Project Structure → Libraries → From Maven.</li>
         <li>Проверка <code>assertEquals(ожидаемое, фактическое, "сообщение")</code> — порядок аргументов важен; ещё <code>assertTrue/False</code>, <code>assertNull</code>, <code>assertThrows</code>.</li>
+        <li><code>assertAll(() -&gt; …, () -&gt; …)</code> выполняет все проверки внутри и показывает все расхождения сразу.</li>
         <li>Зелёный — прошёл, красный — читай <code>expected … but was …</code>; под отладчиком тест тоже можно запустить.</li>
         <li>AAA, одно поведение на тест, имя = что проверяем. Тест без assert всегда зелёный — и бесполезен.</li>
       </ul>

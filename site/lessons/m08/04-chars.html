@@ -124,7 +124,7 @@ System.out.println('a' &lt; 'z');      // true — символы сравнив
     </details>
     <div class="callout warn">
       <span class="callout-title">'a' и "a" — разные вещи</span>
-      <p><code>'a'</code> — символьный литерал, примитив <code>char</code>, сравнивается через <code>==</code> — и это правильно. <code>"a"</code> — строковый литерал, объект, сравнивается по содержимому через <code>equals</code>. А <code>"a" == 'a'</code> даже не скомпилируется: <em>incomparable types: String and char</em>. Частая ошибка: <code>if (s.charAt(0) == "a")</code> — справа должна быть одинарная кавычка.</p>
+      <p><code>'a'</code> — символьный литерал, примитив <code>char</code>, сравнивается через <code>==</code> — и это правильно. <code>"a"</code> — строковый литерал, объект, сравнивается по содержимому через <code>equals</code>. А <code>"a" == 'a'</code> даже не скомпилируется: <em>bad operand types for binary operator '=='</em> — «неподходящие типы операндов для оператора ==», а строчкой ниже javac уточнит: <em>first type: String, second type: char</em>. Частая ошибка: <code>if (s.charAt(0) == "a")</code> — справа должна быть одинарная кавычка.</p>
     </div>
   </section>
 
@@ -257,7 +257,7 @@ System.out.println(result);
          "answer": [
           6
          ],
-         "why": "Сравнивать char со String нельзя: <em>incomparable types</em>. Символьный литерал пишется в одинарных кавычках: <code>'a'</code>."
+         "why": "Сравнивать char со String нельзя, компилятор напишет: <em>bad operand types for binary operator '=='</em> (first type: char, second type: String). Символьный литерал пишется в одинарных кавычках: <code>'a'</code>."
         },
         {
          "type": "single",

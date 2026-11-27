@@ -79,8 +79,10 @@
         <li>отличить <code>remove(1)</code> от <code>remove(Integer.valueOf(1))</code> в списке чисел;</li>
         <li>удалить элементы во время обхода через Iterator и объяснить, откуда берётся ConcurrentModificationException;</li>
         <li>выбрать между HashSet, LinkedHashSet и TreeSet и нарисовать корзины HashSet;</li>
-        <li>объяснить, что будет со своим классом в HashSet без <code>equals</code> и <code>hashCode</code>;</li>
-        <li>посчитать частоту слов через Map и перебрать словарь через <code>entrySet</code>;</li>
+        <li>объяснить, что будет со своим классом в HashSet без <code>equals</code> и <code>hashCode</code> — и почему без <code>equals</code> его не найдут <code>contains</code> и <code>indexOf</code> списка;</li>
+        <li>посчитать частоту слов через Map, перебрать словарь через <code>entrySet</code> и удалить пары во время перебора через итератор;</li>
+        <li>отсортировать словарь по значению и взять топ-N;</li>
+        <li>превратить массив в список и обратно — и объяснить, почему <code>Arrays.asList(int[])</code> не даёт <code>List&lt;Integer&gt;</code>;</li>
         <li>использовать ArrayDeque как очередь и как стек;</li>
         <li>написать Comparator классом или анонимным классом — и по двум полям;</li>
         <li>написать свой класс <code>Box&lt;T&gt;</code> и обобщённый метод;</li>
@@ -184,6 +186,17 @@
          ],
          "answer": 1,
          "why": "Обобщённый метод. Тип T Java выводит из аргумента."
+        },
+        {
+         "type": "single",
+         "q": "Есть словарь <code>Map&lt;String, Integer&gt; counts</code> «слово → сколько раз». Как получить три самых частых слова?",
+         "options": [
+          "Переложить в TreeMap — он отсортирует по количеству",
+          "Сложить пары в список new ArrayList&lt;&gt;(counts.entrySet()), отсортировать по getValue() по убыванию и взять первые три",
+          "Вызвать Collections.sort(counts)"
+         ],
+         "answer": 1,
+         "why": "TreeMap сортирует только по ключам, а Collections.sort принимает список, не словарь. Сортируют список пар компаратором по значению."
         }
        ]
       }
@@ -195,7 +208,7 @@
   <section class="step">
     <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
     <ol class="steps">
-      <li><strong>Сделай все задачи.</strong> На <a href="/tasks.html?module=m13">странице практики</a> все десять задач должны быть зелёными — от уникальных слов до сортировки студентов.</li>
+      <li><strong>Сделай все задачи.</strong> На <a href="/tasks.html?module=m13">странице практики</a> все 15 задач должны быть зелёными — от уникальных слов до топа самых частых слов.</li>
       <li><strong>Пройди головоломки</strong> модуля, если ещё не прошёл, — на экзамене будут похожие.</li>
       <li><span class="ai-only"><strong>Открой Claude Code в папке курса</strong> и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
       <li><span class="ai-only"><strong>Будь готов рисовать и рассуждать.</strong> Наставник попросит нарисовать корзины HashSet и стек/кучу для кэша Integer, выбрать коллекцию для задачи и объяснить выбор, расписать план подсчёта частоты по шаблону Мастерской.</span><span class="free-only"><strong>Будь готов рисовать и рассуждать.</strong> <span class="ai-name">DeepSeek</span> попросит нарисовать корзины HashSet и стек/кучу для кэша Integer, выбрать коллекцию для задачи и объяснить выбор, расписать план подсчёта частоты по шаблону Мастерской.</span></li>
@@ -228,7 +241,7 @@
       <div class="card">
         <span class="emoji">🧪</span>
         <h4>Тесты на JUnit</h4>
-        <p>Проверки коллекций одной строкой: <code>containsExactly</code>, <code>hasSize</code>, <code>doesNotContain</code> из AssertJ — всё это ждёт тебя в модуле 17.</p>
+        <p>В модуле 17 научишься проверять свой код автоматически — в том числе одной строкой проверять содержимое коллекций.</p>
       </div>
     </div>
     <section class="summary">
@@ -236,7 +249,7 @@
       <p>Коллекции — рабочий инструмент на каждый день: ни одна реальная программа без них не обходится. А главное, ты знаешь не только «как вызвать», но и что происходит внутри: массив с запасом, корзины, итератор, кэш.</p>
       <ul>
         <li>Пройди чек-лист «я умею…» честно.</li>
-        <li>Сделай все десять задач до зелёного.</li>
+        <li>Сделай все 15 задач до зелёного.</li>
         <li><span class="ai-only">Напиши наставнику <code>/exam</code> — и до встречи в модуле 14!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — и до встречи в модуле 14!</span></li>
       </ul>
     </section>

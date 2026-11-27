@@ -42,7 +42,7 @@
       </svg>
       <figcaption>Распечатай в голове эту табличку — и половина вопросов с собеседования решится сама.</figcaption>
     </figure>
-    <div class="say" data-mood="think"><p>Не жми «Проверить» сразу. Сначала скажи ответ вслух и объясни <b>почему</b>. Не уверен — набери код в IDEA в пакете <code>lesson10</code> и запусти: это честный способ проверить догадку.</p></div>
+    <div class="say" data-mood="think"><p>Не жми «Проверить» сразу. Сначала скажи ответ вслух и объясни <b>почему</b>. Не уверен — набери код в IDEA и запусти: это честный способ проверить догадку. Только в головоломках снова и снова встречаются классы <code>A</code>, <code>B</code>, <code>Animal</code>, поэтому <b>каждую головоломку — в свой пакет</b>: <code>lesson10.pz1</code>, <code>lesson10.pz2</code>… (как создать пакет — урок 10.1). Строки без класса — в <code>main</code> класса <code>Main</code> того же пакета.</p></div>
   </section>
 
   <!-- ШАГ 2 -->
@@ -156,7 +156,7 @@ new Child();</code></pre>
           { "type": "bug", "q": "14. Найди обе строки с ошибками компиляции",
             "code": "class Book {\n    private String title;\n    Book(String title) { this.title = title; }\n}\nclass Comic extends Book {\n    Comic() {\n        System.out.println(\"Создаю комикс\");\n        super(\"Супергерой\");\n    }\n    @Override\n    public String toString() { return title; }\n}",
             "answer": [8, 11],
-            "why": "Строка 8: super(...) обязан быть первой строкой конструктора (в Java 21). Строка 11: title — private в Book, наследник его не видит; нужен геттер или protected." }
+            "why": "Строка 8: super(...) обязан быть первой строкой конструктора (в Java 21). Строка 11: title — private в Book, наследник его не видит; нужен геттер или protected. Заголовок конструктора (строка 6) javac не трогает: вызов super(...) в конструкторе есть, просто стоит не на своём месте." }
         ] }
       </script>
     </div>

@@ -76,7 +76,7 @@ System.out.println("Взрослый: " + isAdult);   // Взрослый: true<
     </figure>
     <div class="callout fact">
       <span class="callout-title">Это сердце любой проверки</span>
-      <p>«Пароль совпал с сохранённым?», «баланс не меньше суммы перевода?» — за каждой такой проверкой стоит сравнение. Даже тесты на JUnit из модуля 17 в конце задают вопрос «то, что получилось, равно тому, что ожидали?»: <code>assertEquals(391, result)</code> внутри сравнивает два значения. Тест зелёный — ответ <code>true</code>, красный — <code>false</code>. Сравнения ты будешь писать каждый день.</p>
+      <p>«Пароль совпал с сохранённым?», «баланс не меньше суммы перевода?» — за каждой такой проверкой стоит сравнение. В модуле 4 такие ответы <code>true</code>/<code>false</code> станут условиями: «если баланс не меньше суммы — переводим». Сравнения ты будешь писать каждый день.</p>
     </div>
   </section>
 
@@ -102,8 +102,8 @@ boolean isFive = x = 5;    // ошибка компиляции!</code></pre>
         "caption": "= вместо == — ошибка компиляции" }
       </script>
     </div>
-    <p>А <code>javac</code> (и проверка на сайте) напишет так:</p>
-<pre class="terminal"><span class="err">Oops.java:2: error: incompatible types: int cannot be converted to boolean
+    <p>А <code>javac</code> (и проверка на сайте) напишет так — <code>Oops.java:4</code> значит «файл Oops.java, строка 4», та же строка, что подчёркнута в IDEA:</p>
+<pre class="terminal"><span class="err">Oops.java:4: error: incompatible types: int cannot be converted to boolean
         boolean isFive = x = 5;
                            ^</span></pre>
     <p>Компилятор спасает: <code>x = 5</code> — это присваивание, и его значение — число 5, а переменную boolean числом не инициализируешь. Правильно: <code>boolean isFive = x == 5;</code></p>
@@ -162,7 +162,7 @@ System.out.println(0.1 + 0.2 == 0.3);    // false (!)</code></pre>
     <p>Правило: <b>дробные числа не сравнивают через <code>==</code></b>. Вместо этого проверяют, что они «достаточно близки» — разница меньше крошечного допуска:</p>
 <pre data-file="Doubles.java"><code class="java">double sum = 0.1 + 0.2;
 boolean almostEqual = Math.abs(sum - 0.3) &lt; 0.000001;   // true</code></pre>
-    <p><code>Math.abs</code> — метод, который возвращает модуль числа (отбрасывает минус); класс <code>Math</code> разберём в уроке 3.6. Кстати, в JUnit для дробей так и пишут: <code>assertEquals(0.3, sum, 0.000001)</code> — третий аргумент и есть допуск.</p>
+    <p><code>Math.abs</code> — метод, который возвращает модуль числа (отбрасывает минус); класс <code>Math</code> разберём в уроке 3.6. Число <code>0.000001</code> — это <b>допуск</b>: насколько близко числа должны быть, чтобы считать их равными.</p>
     <div class="callout warn">
       <span class="callout-title">А деньги?</span>
       <p>Из-за таких погрешностей деньги в настоящих программах не хранят в double: используют копейки в <code>long</code> или специальный класс <code>BigDecimal</code>. В учебных задачах double для цен — нормально.</p>

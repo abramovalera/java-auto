@@ -5,9 +5,9 @@
 
 ## Критерии зачёта модуля
 
-1. Все 10 задач `m14-t01…m14-t10` зелёные на сайте (`/api/status`) **и** по каждой ученик ответил на вопрос о своём коде (почему такая операция, что вернёт, что будет на пустом вводе).
+1. Все 12 задач `m14-t01…m14-t12` зелёные на сайте (`/api/status`) **и** по каждой ученик ответил на вопрос о своём коде (почему такая операция, что вернёт, что будет на пустом вводе).
 2. Закрыты цели О1–О9 ниже: по каждой — ответ своими словами хотя бы на один вопрос.
-3. Головоломки: из 8–10 заданных решено правильно **с объяснением** не меньше 80%. Обязательно хотя бы по одной на: ленивость, вертикальный порядок/limit, одноразовость потока, Optional.get, effectively final.
+3. Головоломки (на сайте их 17): из 8–10 заданных решено правильно **с объяснением** не меньше 80%. Обязательно хотя бы по одной на: ленивость, вертикальный порядок/limit, одноразовость потока, Optional.get, effectively final.
 4. Практика в IDEA **с нуля, без подглядывания**:
    - написать стрим «отфильтровать → преобразовать → собрать» по списку record-ов (например, названия товаров в наличии дешевле X, по алфавиту);
    - ту же задачу — циклом, и объяснить, какой вариант читается лучше;
@@ -42,8 +42,11 @@
 - «Что сделает `p1.and(p2)`, `p.negate()`, `f.andThen(g)`?»
 - «Почему `Function<String, int>` нельзя?» → **в generics только ссылочные типы — Integer.**
 - «Почему `List.of(...).removeIf(...)` падает?» → **List.of неизменяемый → UnsupportedOperationException.**
+- «Напиши метод, который возвращает правило „цена меньше limit“» → **`static Predicate<Integer> cheaperThan(int limit) { return p -> p < limit; }`; тип возвращаемого значения — функциональный интерфейс, лямбда захватила параметр `limit` (он effectively final).** (урок 14.2)
+- Лямбды без стримов — задача `m14-t12`: свой интерфейс, `removeIf`, `list.sort`, `forEach`.
 
 ### О4. Comparator через comparing / thenComparing
+- В уроке 14.2 сортировка по двум полям — только лямбдами, через переменную `Comparator<Student> byScore = Comparator.comparing(s -> s.score())`; ссылки на методы и ловушка `comparing(лямбда).reversed()` — в уроке 14.3.
 - «Отсортируй игроков: по очкам по убыванию, при равенстве — по имени» → **`Comparator.comparing(Player::score).reversed().thenComparing(Player::name)`** (или `comparingInt`).
 - «Почему `Comparator.comparing(p -> p.score()).reversed()` не компилируется?» → **из-за `.reversed()` компилятор не выводит тип `p`, считает Object; лечится ссылкой на метод или `(Player p) -> …`.**
 - Заблуждение: «`reversed()` в конце цепочки переворачивает только последнее поле». Нет — `reversed()` переворачивает **весь** компаратор, построенный до него. `comparing(A).thenComparing(B).reversed()` перевернёт и A, и B.
@@ -62,6 +65,9 @@
 - «Меняет ли `list.stream().map(...)` сам список?» → **нет, источник не трогается.**
 - «Можно ли использовать поток дважды?» → **нет: IllegalStateException; нужен новый `list.stream()`.**
 - «Как получить стрим из массива, из строки со словами, из диапазона?» → **`Arrays.stream`, `Arrays.stream(line.trim().split("\\s+"))`, `IntStream.range/rangeClosed`.**
+- «Почему `Arrays.stream(new int[]{1, 2}).toList()` не компилируется?» → **для `int[]` получается `IntStream`, у него нет `toList()`; нужен `.boxed()` → `Stream<Integer>`.**
+- «Разбери строку `Вика:90 Аня:75` в список record-ов» → **`split("\\s+")` → `map(s -> s.split(":"))` → `map(p -> new Player(p[0], Integer.parseInt(p[1])))` → `toList()`. Что будет на записи без двоеточия? `ArrayIndexOutOfBoundsException`.** (урок 14.4; нужно для задач t06, t07, t10)
+- «Чем `map` отличается от `flatMap`?» → **map — один в один; flatMap — лямбда возвращает стрим, и все стримы сливаются в один (один во много: 0, 1, 2…). Пример: `carts.stream().flatMap(List::stream)`, слова из строк `flatMap(l -> Arrays.stream(l.split(" ")))`.** (урок 14.4, задача `m14-t11`)
 - Заблуждение: «filter сначала обходит весь список, потом map». Нет.
 - Заблуждение: «`"".split("\\s+")` даёт пустой массив». Даёт `[""]`.
 
@@ -72,6 +78,9 @@
 - «Что вернёт `average()` и почему не double?» → **OptionalDouble: у пустого стрима среднего нет.**
 - «`allMatch` на пустом стриме?» → **true (нарушителей нет). В проверках сначала убедиться, что список не пуст.**
 - «Объясни `reduce(0, (acc, x) -> acc + x)`. Какое identity для произведения? Что будет с `reduce(10, Integer::sum)` на 1,2,3?» → **накопитель; 1; 16.**
+- «reduce или collect?» → **reduce сворачивает в одно значение; collect складывает в контейнер (список, Map, строку). Список через reduce не собирают.**
+- «findFirst или findAny?» → **findFirst — первый по порядку; findAny — любой подходящий (в параллельном стриме — какой найдётся быстрее).**
+- «Почему `stream.forEach(x -> list.add(x))` компилируется, а `count++` — нет? Чем он плох?» → **переменной `list` ничего не присваивают, меняется объект; это побочный эффект: результат размазан, в parallelStream ломается; правильно — `toList()`/`collect`. forEach — только для последнего действия.** (урок 14.5)
 
 ### О8. Optional
 - «Зачем Optional, если есть null?» → **тип явно говорит «может не быть», заставляет обработать пустоту; NPE не прилетает издалека.**
@@ -123,7 +132,8 @@
 ### Скомпилируется ли?
 15. `int count = 0; list.forEach(s -> count++);` → **нет**: effectively final.
 16. `String p = "Hi "; p = "Hello "; list.forEach(s -> System.out.println(p + s));` → **нет**: p присвоена дважды.
-17. `int[] count = {0}; list.forEach(x -> count[0]++);` → **да** (ссылка на массив не меняется, меняется его содержимое). Обсудить, почему это «хак», а правильно — `count()`.
+17. `int[] count = {0}; list.forEach(x -> count[0]++);` → **да** (ссылка на массив не меняется, меняется его содержимое). Обсудить, почему это «хак» (побочный эффект, как `forEach(x -> list.add(x))` из урока 14.5), а правильно — `count()`.
+17а. `List<Integer> r = IntStream.range(0, 3).toList();` → **нет**: у IntStream нет toList, нужен `.boxed()`.
 18. `players.sort(Comparator.comparing(p -> p.score()).reversed());` → **нет**: cannot find symbol score() — p выведен как Object.
 19. `interface Calc { int apply(int a, int b); int reset(); }  Calc c = (a, b) -> a + b;` → **нет**: not a functional interface. Если `reset` сделать `default` — да.
 20. `int n = list.stream().count();` → **нет**: long → int, possible lossy conversion.
@@ -140,6 +150,7 @@
 29. `List.of(1, 2).removeIf(x -> x == 1)` → `UnsupportedOperationException`.
 30. `Optional.of(null)` → `NullPointerException`.
 31. ★★★ `Stream.of(new int[]{1, 2, 3}).count()` → `1` (массив примитивов — один объект). Правильно: `Arrays.stream(arr)` / `IntStream.of(...)`.
+32а. `Stream.of("a b", "c").map(s -> s.split(" ")).count()` → `2`; с `flatMap(s -> Arrays.stream(s.split(" ")))` → `3`.
 32. `Arrays.stream("".split("\\s+")).map(Integer::parseInt).toList()` → `NumberFormatException: For input string: ""` — массив `[""]`, а не пустой. Починка: `.filter(s -> !s.isEmpty())`.
 
 ### Найди ошибку (логическую)
@@ -179,4 +190,4 @@
 - «Корзина»: record `CartLine(String title, int price, int qty)` — общая сумма (`mapToInt(l -> l.price() * l.qty()).sum()`), самый дорогой товар (`max` + `orElseThrow`), есть ли товар с количеством 0 (`anyMatch`).
 - «Свой функциональный интерфейс»: `@FunctionalInterface interface Check<T> { boolean ok(T value); }` + метод `static <T> List<T> keep(List<T> list, Check<T> rule)` — написать сначала циклом, потом понять, что это `filter`.
 - «Студенты по группам»: `Map<String, Double>` — средний балл в каждой группе (`groupingBy(Student::group, TreeMap::new, averagingInt(Student::score))`) — ★ averagingInt не проходили, дать подсказку.
-- «flatMap» ★★★: список заказов, у каждого список товаров → все уникальные товары по алфавиту.
+- «Слова из абзацев»: несколько строк текста → все слова в нижнем регистре без повторов, по алфавиту (`flatMap` + `map(String::toLowerCase)` + `distinct` + `sorted`).

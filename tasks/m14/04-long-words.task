@@ -33,9 +33,9 @@ Java Stream lambda
 @@ test: N = 0 — подходят все
 @@ input
 0
-assert that is OK
+keep calm and code
 @@ expect
-ASSERT, THAT, IS, OK
+KEEP, CALM, AND, CODE
 @@ require: Collectors\.joining\s*\( | Склей слова коллектором Collectors.joining
 @@ require: \.filter\s*\( | Отбери длинные слова методом filter
 @@ forbid: \b(for|while)\s*\( | Здесь цель — стрим: обойдись без циклов for и while

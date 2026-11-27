@@ -16,6 +16,6 @@ public class TopThreeProducts {
                 .sorted(Comparator.comparingInt(TopProduct::price).reversed()
                         .thenComparing(TopProduct::title))
                 .limit(3)
-                .forEach(p -> System.out.println(p.title() + " — " + p.price()));
+                .forEach(p -> System.out.println(p.title() + " - " + p.price()));
     }
 }

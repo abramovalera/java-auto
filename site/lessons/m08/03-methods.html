@@ -197,7 +197,8 @@ raw.isEmpty()            // false — длина не 0
 "Java".toLowerCase()     // "java"
 "мама".replace('м', 'п') // "папа" — все вхождения, не только первое
 "1 000 000".replace(" ", "")  // "1000000" — заменить кусок на пустоту = удалить
-"-".repeat(10)           // "----------"</code></pre>
+"-".repeat(10)           // "----------"
+"Java".concat("!")       // "Java!" — склейка, то же, что "Java" + "!"</code></pre>
     <div class="table-wrap">
       <table>
         <tr><th>Метод</th><th>Когда нужен</th></tr>
@@ -206,6 +207,7 @@ raw.isEmpty()            // false — длина не 0
         <tr><td><code>toLowerCase()</code></td><td>Сравнить без учёта регистра или привести всё к одному виду перед поиском.</td></tr>
         <tr><td><code>replace(a, b)</code></td><td>Заменить <b>все</b> вхождения символа или куска. Удалить — заменить на <code>""</code>.</td></tr>
         <tr><td><code>repeat(n)</code></td><td>Повторить строку n раз — рамки, линии, отступы (Java 11).</td></tr>
+        <tr><td><code>concat(s)</code></td><td>Приклеить строку <code>s</code> в конец и вернуть результат. Делает то же, что <code>+</code>, только это вызов метода. В коде обычно пишут <code>+</code>, а <code>concat</code> встречается в чужом коде и головоломках — и, как все методы String, исходную строку не меняет.</td></tr>
       </table>
     </div>
     <details class="predict">
@@ -237,7 +239,8 @@ String path = String.join("/", "home", "user", "docs");  // "home/user/docs"</co
     <div class="callout warn">
       <span class="callout-title">Ловушки split</span>
       <p><b>1. Лишние пробелы.</b> <code>"  кот   пёс ".split(" ")</code> даст <code>["", "", "кот", "", "", "пёс"]</code> — пустые строки там, где пробелы шли подряд или стояли в начале. Пустые <b>в конце</b> Java отбрасывает сама, а в начале и в середине — нет.</p>
-      <p><b>Рецепт для слов:</b> <code>s.trim().split("\\s+")</code> — сначала убрать пробелы по краям, потом резать по «одному или нескольким пробелам подряд». Почему пишется так странно — расскажет урок 8.8 про регулярные выражения. Пока бери как готовую формулу.</p>
+      <p><b>Рецепт для слов:</b> <code>s.trim().split("\\s+")</code> — сначала убрать пробелы по краям, потом резать по «одному или нескольким пробелам подряд». Пока бери как готовую формулу, подробности про такие шаблоны — в уроке 8.8.</p>
+      <p><b>Почему слэша два?</b> Шаблон «пробелы подряд» сам по себе пишется <code>\s+</code> — с одним обратным слэшем. Но внутри кавычек Java обратный слэш — спецсимвол: помнишь <code>\n</code> (перевод строки) из модуля 1? Чтобы в строку попал <b>сам символ</b> <code>\</code>, в кавычках его пишут дважды. Поэтому в коде пишем <code>"\\s+"</code>, а в строке окажется <code>\s+</code> — ровно то, что нужно методу <code>split</code>. Забудешь второй слэш — <code>"\d"</code> вообще не скомпилируется (<em>illegal escape character</em>), а <code>"\s+"</code> скомпилируется, но коварно: <code>\s</code> в кавычках Java понимает как обычный пробел, и табуляция разделителем уже не будет. Правило: в шаблонах для <code>split</code> слэш всегда двойной.</p>
       <p><b>2. Пустая строка.</b> <code>"".split(" ")</code> — это массив из <b>одного</b> элемента <code>""</code>, а не пустой массив. Подсчёт слов через длину массива <code>split(...).length</code> для пустого ввода скажет «1 слово». Проверяй <code>isBlank()</code> заранее.</p>
       <p><b>3. Точка и некоторые другие символы.</b> <code>"a.b.c".split(".")</code> вернёт <b>пустой</b> массив! Точка в <code>split</code> — особый символ «любой символ». Правильно: <code>split("\\.")</code>. Тоже подробности в уроке 8.8.</p>
     </div>
@@ -283,6 +286,7 @@ int bad = Integer.parseInt("42 руб."); // 💥 NumberFormatException — не
         <tr><td><code>split(разделитель)</code></td><td>String[]</td><td><code>"a b".split(" ")</code> → ["a", "b"]</td></tr>
         <tr><td><code>String.join(сцепка, части…)</code></td><td>String</td><td><code>String.join("+", "a", "b")</code> → "a+b"</td></tr>
         <tr><td><code>repeat(n)</code></td><td>String</td><td><code>"ab".repeat(3)</code> → "ababab"</td></tr>
+        <tr><td><code>concat(s)</code></td><td>String</td><td><code>"ab".concat("c")</code> → "abc" (как <code>"ab" + "c"</code>)</td></tr>
         <tr><td><code>String.valueOf(x)</code></td><td>String</td><td><code>String.valueOf(3.5)</code> → "3.5"</td></tr>
         <tr><td><code>equals / equalsIgnoreCase</code></td><td>boolean</td><td><code>"A".equalsIgnoreCase("a")</code> → true</td></tr>
       </table>

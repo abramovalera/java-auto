@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 12 · Урок 2</div>
     <h1>Как читать stack trace</h1>
     <p class="lead">Двадцать красных строк выглядят страшно, но устроены всегда одинаково. Разберём настоящий stack trace по частям и научимся за минуту находить в нём главное: что случилось и в какой строке твоего кода.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>🔎 разбор по частям</span><span>🛒 trace сервера магазина</span></div>
+    <div class="meta"><span>⏱ 20 минут</span><span>🔎 разбор по частям</span><span>🔗 Caused by</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -42,7 +42,7 @@
   <!-- ШАГ 2 -->
   <section class="step">
     <h2>Stack trace — снимок стека в момент аварии</h2>
-    <p><b>Stack trace</b> (по-русски «трассировка стека», в разговоре — «стектрейс») — это текст, который Java печатает о неперехваченном (непойманном) исключении. Ты видел короткие в модуле 7. Сегодня — настоящий, со всеми частями. Программа читает настройку подключения к серверу <code>timeout=10s</code>, но ждёт там число:</p>
+    <p><b>Stack trace</b> (по-русски «трассировка стека», в разговоре — «стектрейс») — это текст, который Java печатает о неперехваченном (непойманном) исключении. Ты видел короткие в уроке 1 и в модуле 7. Сегодня — настоящий, со строками из кода самой Java. Программа читает настройку подключения к серверу <code>timeout=10s</code>, но ждёт там число:</p>
 <pre data-file="SettingsLoader.java"><code class="java">public class SettingsLoader {
     public static void main(String[] args) {
         startApp();
@@ -55,38 +55,29 @@
 
     static int readTimeout(String line) {
         String value = line.substring(line.indexOf('=') + 1);
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException(
-                    "Не прочитать настройку: " + line, e);
-        }
+        return Integer.parseInt(value);
     }
 }</code></pre>
-    <p>Слова <code>try</code>, <code>catch</code> и <code>throw</code> ещё впереди (уроки 3 и 6). Пока достаточно знать: на строке 14 <code>parseInt</code> споткнулся о «10s» и выбросил <code>NumberFormatException</code>, а строка 16 создала и выбросила новое исключение с понятным сообщением, «завернув» в него старое как причину. Вот что получилось:</p>
-    <div data-widget="ide" id="shot-trace-caused">
+    <p>Метод <code>readTimeout</code> отрезает всё после знака <code>=</code> (методы <code>indexOf</code> и <code>substring</code> из модуля 8) и превращает остаток в число. Остаток — «10s», а это не число. Запускаем:</p>
+    <div data-widget="ide" id="shot-trace-settings">
       <script type="application/json">
-      { "tree": false, "file": "SettingsLoader.java", "runConfig": "SettingsLoader", "statusPath": "module-12", "gutterRun": [1, 2], "caretLine": 14,
-        "code": "public class SettingsLoader {\n    public static void main(String[] args) {\n        startApp();\n    }\n\n    static void startApp() {\n        int timeout = readTimeout(\"timeout=10s\");\n        System.out.println(\"Таймаут: \" + timeout);\n    }\n\n    static int readTimeout(String line) {\n        String value = line.substring(line.indexOf('=') + 1);\n        try {\n            return Integer.parseInt(value);\n        } catch (NumberFormatException e) {\n            throw new IllegalStateException(\"Не прочитать настройку: \" + line, e);\n        }\n    }\n}",
+      { "tree": false, "file": "SettingsLoader.java", "runConfig": "SettingsLoader", "statusPath": "module-12", "gutterRun": [1, 2], "caretLine": 13,
+        "code": "public class SettingsLoader {\n    public static void main(String[] args) {\n        startApp();\n    }\n\n    static void startApp() {\n        int timeout = readTimeout(\"timeout=10s\");\n        System.out.println(\"Таймаут: \" + timeout);\n    }\n\n    static int readTimeout(String line) {\n        String value = line.substring(line.indexOf('=') + 1);\n        return Integer.parseInt(value);\n    }\n}",
         "console": { "title": "SettingsLoader", "lines": [
           { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… SettingsLoader" },
-          { "t": "err", "s": "Exception in thread \"main\" java.lang.IllegalStateException: Не прочитать настройку: timeout=10s" },
-          { "t": "err", "s": "\tat SettingsLoader.readTimeout(SettingsLoader.java:16)" },
-          { "t": "err", "s": "\tat SettingsLoader.startApp(SettingsLoader.java:7)" },
-          { "t": "err", "s": "\tat SettingsLoader.main(SettingsLoader.java:3)" },
-          { "t": "err", "s": "Caused by: java.lang.NumberFormatException: For input string: \"10s\"" },
+          { "t": "err", "s": "Exception in thread \"main\" java.lang.NumberFormatException: For input string: \"10s\"" },
           { "t": "err", "s": "\tat java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)" },
           { "t": "err", "s": "\tat java.base/java.lang.Integer.parseInt(Integer.java:662)" },
           { "t": "err", "s": "\tat java.base/java.lang.Integer.parseInt(Integer.java:778)" },
-          { "t": "err", "s": "\tat SettingsLoader.readTimeout(SettingsLoader.java:14)" },
-          { "t": "err", "s": "\t... 2 more" },
+          { "t": "err", "s": "\tat SettingsLoader.readTimeout(SettingsLoader.java:13)" },
+          { "t": "err", "s": "\tat SettingsLoader.startApp(SettingsLoader.java:7)" },
+          { "t": "err", "s": "\tat SettingsLoader.main(SettingsLoader.java:3)" },
           { "t": "exit", "s": "Process finished with exit code 1" } ] },
-        "marks": [ { "n": 1, "target": "error", "text": "Заголовок: тип исключения и сообщение. Читай первым и целиком" },
-                   { "n": 2, "target": "link-1", "text": "Первая строка <code>at</code> — где выбросили это исключение: строка 16, наш <code>throw</code>" },
-                   { "n": 3, "target": "error-5", "text": "<b>Caused by</b> — «вызвано тем, что». Здесь настоящий корень: <code>\"10s\"</code> — не число" },
-                   { "n": 4, "target": "link-7", "text": "Строки с <code>java.base/</code> — код самой Java, их пропускаем. Первая <b>наша</b> строка под Caused by — <b>SettingsLoader.java:14</b>. Щёлкнул по ней — и курсор в редакторе встал на строку 14 (подсвечена)" },
-                   { "n": 5, "target": "error-10", "text": "<b>... 2 more</b> — «ещё 2 строки, как выше» (startApp и main). Java не повторяет одно и то же дважды" } ],
-        "caption": "Stack trace с цепочкой Caused by в консоли Run" }
+        "marks": [ { "n": 1, "target": "error", "text": "Заголовок: тип исключения и сообщение. Читай первым и целиком: строку <code>\"10s\"</code> не удалось превратить в число" },
+                   { "n": 2, "target": "error-2", "text": "Три строки с <code>java.base/</code> — код самой Java, внутренности <code>parseInt</code>. Их пропускаем" },
+                   { "n": 3, "target": "link-4", "text": "Первая <b>наша</b> строка — <b>SettingsLoader.java:13</b>. Щёлкнул по ней — и курсор в редакторе встал на строку 13 (подсвечена)" },
+                   { "n": 4, "target": "link-6", "text": "Нижняя строка — дно стека, <code>main</code>. Отсюда всё началось" } ],
+        "caption": "Stack trace со строками JDK и нашего кода в консоли Run" }
       </script>
     </div>
   </section>
@@ -96,53 +87,65 @@
     <h2>Разбор по частям</h2>
     <p>Тот же trace, раскрашенный по смыслу. Номера в кружках — ниже в разборе.</p>
     <figure class="fig">
-      <svg class="wide" viewBox="0 0 760 380" role="img" aria-label="Stack trace по частям: заголовок с типом и сообщением, строки at с нашим кодом, Caused by, строки JDK, ... 2 more">
+      <svg class="wide" viewBox="0 0 760 270" role="img" aria-label="Stack trace по частям: заголовок с типом и сообщением, строки JDK, первая строка нашего кода, дно стека main">
         <rect x="14" y="20" width="672" height="26" rx="6" class="d-yellow"/>
-        <text x="24" y="38" class="d-mono-ink" style="font-size:11px">Exception in thread "main" java.lang.IllegalStateException: Не прочитать настройку: timeout=10s</text>
-        <rect x="14" y="50" width="672" height="26" rx="6" class="d-accent"/>
-        <text x="48" y="68" class="d-mono-ink" style="font-size:11px">at SettingsLoader.readTimeout(SettingsLoader.java:16)</text>
-        <rect x="14" y="80" width="672" height="26" rx="6" class="d-accent"/>
-        <text x="48" y="98" class="d-mono-ink" style="font-size:11px">at SettingsLoader.startApp(SettingsLoader.java:7)</text>
-        <rect x="14" y="110" width="672" height="26" rx="6" class="d-accent"/>
-        <text x="48" y="128" class="d-mono-ink" style="font-size:11px">at SettingsLoader.main(SettingsLoader.java:3)</text>
-        <rect x="14" y="146" width="672" height="26" rx="6" class="d-red"/>
-        <text x="24" y="164" class="d-mono-ink" style="font-size:11px">Caused by: java.lang.NumberFormatException: For input string: "10s"</text>
-        <rect x="14" y="176" width="672" height="26" rx="6" class="d-blue"/>
-        <text x="48" y="194" class="d-mono-ink" style="font-size:11px">at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)</text>
-        <rect x="14" y="206" width="672" height="26" rx="6" class="d-blue"/>
-        <text x="48" y="224" class="d-mono-ink" style="font-size:11px">at java.base/java.lang.Integer.parseInt(Integer.java:662)</text>
-        <rect x="14" y="236" width="672" height="26" rx="6" class="d-blue"/>
-        <text x="48" y="254" class="d-mono-ink" style="font-size:11px">at java.base/java.lang.Integer.parseInt(Integer.java:778)</text>
-        <rect x="14" y="266" width="672" height="26" rx="6" class="d-accent"/>
-        <text x="48" y="284" class="d-mono-ink" style="font-size:11px">at SettingsLoader.readTimeout(SettingsLoader.java:14)</text>
-        <rect x="14" y="296" width="672" height="26" rx="6" class="d-soft"/>
-        <text x="48" y="314" class="d-mono-ink" style="font-size:11px">... 2 more</text>
+        <text x="24" y="38" class="d-mono-ink" style="font-size:11px">Exception in thread "main" java.lang.NumberFormatException: For input string: "10s"</text>
+        <rect x="14" y="56" width="672" height="26" rx="6" class="d-blue"/>
+        <text x="48" y="74" class="d-mono-ink" style="font-size:11px">at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)</text>
+        <rect x="14" y="86" width="672" height="26" rx="6" class="d-blue"/>
+        <text x="48" y="104" class="d-mono-ink" style="font-size:11px">at java.base/java.lang.Integer.parseInt(Integer.java:662)</text>
+        <rect x="14" y="116" width="672" height="26" rx="6" class="d-blue"/>
+        <text x="48" y="134" class="d-mono-ink" style="font-size:11px">at java.base/java.lang.Integer.parseInt(Integer.java:778)</text>
+        <rect x="14" y="146" width="672" height="26" rx="6" class="d-accent"/>
+        <text x="48" y="164" class="d-mono-ink" style="font-size:11px">at SettingsLoader.readTimeout(SettingsLoader.java:13)</text>
+        <rect x="14" y="176" width="672" height="26" rx="6" class="d-accent"/>
+        <text x="48" y="194" class="d-mono-ink" style="font-size:11px">at SettingsLoader.startApp(SettingsLoader.java:7)</text>
+        <rect x="14" y="206" width="672" height="26" rx="6" class="d-accent"/>
+        <text x="48" y="224" class="d-mono-ink" style="font-size:11px">at SettingsLoader.main(SettingsLoader.java:3)</text>
 
         <circle cx="722" cy="33" r="13" class="d-box"/><text x="722" y="38" text-anchor="middle" class="d-title">1</text>
-        <circle cx="722" cy="63" r="13" class="d-box"/><text x="722" y="68" text-anchor="middle" class="d-title">2</text>
-        <circle cx="722" cy="123" r="13" class="d-box"/><text x="722" y="128" text-anchor="middle" class="d-title">3</text>
-        <circle cx="722" cy="159" r="13" class="d-box"/><text x="722" y="164" text-anchor="middle" class="d-title">4</text>
-        <circle cx="722" cy="219" r="13" class="d-box"/><text x="722" y="224" text-anchor="middle" class="d-title">5</text>
-        <circle cx="722" cy="279" r="13" class="d-box"/><text x="722" y="284" text-anchor="middle" class="d-title">6</text>
-        <circle cx="722" cy="309" r="13" class="d-box"/><text x="722" y="314" text-anchor="middle" class="d-title">7</text>
+        <circle cx="722" cy="99" r="13" class="d-box"/><text x="722" y="104" text-anchor="middle" class="d-title">2</text>
+        <circle cx="722" cy="159" r="13" class="d-box"/><text x="722" y="164" text-anchor="middle" class="d-title">3</text>
+        <circle cx="722" cy="219" r="13" class="d-box"/><text x="722" y="224" text-anchor="middle" class="d-title">4</text>
 
-        <rect x="14" y="342" width="22" height="18" rx="4" class="d-yellow"/><text x="44" y="356" class="d-small">что случилось</text>
-        <rect x="160" y="342" width="22" height="18" rx="4" class="d-accent"/><text x="190" y="356" class="d-small">наш код</text>
-        <rect x="280" y="342" width="22" height="18" rx="4" class="d-red"/><text x="310" y="356" class="d-small">причина</text>
-        <rect x="400" y="342" width="22" height="18" rx="4" class="d-blue"/><text x="430" y="356" class="d-small">код JDK</text>
-        <rect x="520" y="342" width="22" height="18" rx="4" class="d-soft"/><text x="550" y="356" class="d-small">сокращение</text>
+        <rect x="14" y="246" width="22" height="18" rx="4" class="d-yellow"/><text x="44" y="260" class="d-small">что случилось</text>
+        <rect x="200" y="246" width="22" height="18" rx="4" class="d-blue"/><text x="230" y="260" class="d-small">код JDK</text>
+        <rect x="380" y="246" width="22" height="18" rx="4" class="d-accent"/><text x="410" y="260" class="d-small">наш код</text>
       </svg>
       <figcaption>Любой stack trace собран из одних и тех же деталей. Научись их узнавать — и длина перестанет пугать.</figcaption>
     </figure>
     <div class="annot">
-      <div class="annot-row"><code>① Exception in thread "main" …</code><div><p><b>Заголовок: что случилось.</b> В каком потоке (<code>main</code> — главный, других у нас пока нет), полное имя класса исключения (<code>java.lang.</code> — пакет, где он живёт) и после двоеточия — <b>сообщение</b>. Это самая полезная строка, читай её первой и целиком.</p></div></div>
-      <div class="annot-row"><code>② at SettingsLoader.readTimeout(SettingsLoader.java:16)</code><div><p><b>Где упало.</b> Каждая строка <code>at</code> — один фрейм: <code>Класс.метод(Файл.java:строка)</code>. Верхняя строка — верхний фрейм, место, где исключение выбросили.</p></div></div>
-      <div class="annot-row"><code>③ at SettingsLoader.main(SettingsLoader.java:3)</code><div><p><b>Откуда всё началось.</b> Нижняя строка — дно стека. Читая снизу вверх, видишь историю: main на строке 3 вызвал startApp, тот на строке 7 вызвал readTimeout.</p></div></div>
-      <div class="annot-row"><code>④ Caused by: …NumberFormatException…</code><div><p><b>Причина.</b> Исключение ① выбросили не на пустом месте: при создании ему передали другое исключение как причину — «завернули» вокруг него. «Caused by» — «вызвано тем, что». Здесь настоящий корень проблемы: строка "10s" — не число.</p></div></div>
-      <div class="annot-row"><code>⑤ at java.base/java.lang.Integer.parseInt(…)</code><div><p><b>Код JDK.</b> Префикс <code>java.base/</code> — это стандартная библиотека Java. Ошибки в ней почти никогда нет: она просто честно сообщает, что ей дали плохие данные. Эти строки пропускай.</p></div></div>
-      <div class="annot-row"><code>⑥ at SettingsLoader.readTimeout(SettingsLoader.java:14)</code><div><p><b>Наш код в причине.</b> Первая строка с нашим классом под Caused by — место, где мы вызвали метод JDK и передали ему плохие данные. Строка 14: <code>Integer.parseInt(value)</code>.</p></div></div>
-      <div class="annot-row"><code>⑦ ... 2 more</code><div><p><b>Сокращение.</b> «Ещё 2 строки, такие же, как в конце trace выше» — это startApp и main. Java не повторяет одно и то же дважды.</p></div></div>
+      <div class="annot-row"><code>① Exception in thread "main" …</code><div><p><b>Заголовок: что случилось.</b> В каком потоке выполнения (<code>main</code> — главный; другие потоки появятся только в модуле 16, пока просто пропускай это слово), полное имя класса исключения (<code>java.lang.</code> — пакет, где он живёт) и после двоеточия — <b>сообщение</b>. Это самая полезная строка, читай её первой и целиком.</p></div></div>
+      <div class="annot-row"><code>② at java.base/java.lang.Integer.parseInt(…)</code><div><p><b>Код JDK.</b> Каждая строка <code>at</code> — один фрейм стека: <code>Класс.метод(Файл.java:строка)</code>. Префикс <code>java.base/</code> — это стандартная библиотека Java. Верхние строки — самые глубокие вызовы: исключение выбросили внутри <code>parseInt</code>. Ошибки в JDK почти никогда нет: она просто честно сообщает, что ей дали плохие данные. Эти строки пропускай.</p></div></div>
+      <div class="annot-row"><code>③ at SettingsLoader.readTimeout(SettingsLoader.java:13)</code><div><p><b>Первая строка нашего кода.</b> Место, где наша программа вызвала метод JDK и передала ему плохие данные: строка 13, <code>Integer.parseInt(value)</code>. С неё и начинают поиск.</p></div></div>
+      <div class="annot-row"><code>④ at SettingsLoader.main(SettingsLoader.java:3)</code><div><p><b>Откуда всё началось.</b> Нижняя строка — дно стека. Читая снизу вверх, видишь историю: main на строке 3 вызвал startApp, тот на строке 7 вызвал readTimeout, тот на строке 13 — parseInt.</p></div></div>
     </div>
+    <details class="predict">
+      <summary>Предскажи: если в <code>main</code> вызвать <code>readTimeout("timeout=")</code> напрямую, без startApp, — что изменится в trace?</summary>
+      <p>Заголовок станет <code>For input string: ""</code> — после <code>=</code> пустая строка. Строки JDK останутся те же. А наших строк будет две: <code>readTimeout</code> (строка 13) и сразу под ней <code>main</code> — фрейма startApp в стеке уже нет.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 3б -->
+  <section class="step">
+    <h2>Caused by: исключение с причиной</h2>
+    <p>Иногда в trace несколько «этажей». Так бывает, когда программа перехватила одно исключение и выбросила вместо него другое, с более понятным сообщением, а старое приложила к нему как <b>причину</b>. Как это делается в коде, разберём в уроке 6, а читать такой trace нужно уметь уже сейчас:</p>
+<pre class="terminal"><span class="err">Exception in thread "main" java.lang.IllegalStateException: Не прочитать настройку: timeout=10s
+	at SettingsLoader.readTimeout(SettingsLoader.java:16)
+	at SettingsLoader.startApp(SettingsLoader.java:7)
+	at SettingsLoader.main(SettingsLoader.java:3)
+Caused by: java.lang.NumberFormatException: For input string: "10s"
+	at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)
+	at java.base/java.lang.Integer.parseInt(Integer.java:662)
+	at java.base/java.lang.Integer.parseInt(Integer.java:778)
+	at SettingsLoader.readTimeout(SettingsLoader.java:14)
+	... 2 more</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>IllegalStateException: Не прочитать настройку…</code><div><p><b>Верхний этаж</b> — новое исключение с понятным человеку сообщением. Под ним, как обычно, строки <code>at</code>: где его выбросили (строка 16) и кто кого вызвал.</p></div></div>
+      <div class="annot-row"><code>Caused by: …NumberFormatException…</code><div><p><b>Причина.</b> «Caused by» — «вызвано тем, что». Это исходное исключение, с которого всё началось: строка "10s" — не число. Под ним — его собственные строки <code>at</code>: снова JDK, а первая наша — <b>строка 14</b>, где вызван <code>parseInt</code>.</p></div></div>
+      <div class="annot-row"><code>... 2 more</code><div><p><b>Сокращение.</b> «Ещё 2 строки, такие же, как в конце trace выше» — это startApp и main. Java не повторяет одно и то же дважды.</p></div></div>
+    </div>
+    <p>Этажей с <code>Caused by</code> может быть несколько. Правило простое: <b>корень проблемы — в последнем Caused by</b>. Всё, что выше, — её последствия.</p>
   </section>
 
   <!-- ШАГ 4 -->
@@ -150,15 +153,15 @@
     <h2>Сверху вниз или снизу вверх?</h2>
     <p>И так, и так — смотря что ищешь.</p>
     <div class="cards">
-      <div class="card"><span class="emoji">⬇️</span><h4>Сверху вниз: где сломалось</h4><p>Первая строка — что случилось. Первая <code>at</code> — где именно. Дальше вниз — кто кого вызвал, вплоть до main.</p></div>
+      <div class="card"><span class="emoji">⬇️</span><h4>Сверху вниз: где сломалось</h4><p>Первая строка — что случилось. Первая своя строка <code>at</code> — где именно. Дальше вниз — кто кого вызвал, вплоть до main.</p></div>
       <div class="card"><span class="emoji">⬆️</span><h4>Снизу вверх: как мы туда попали</h4><p>Читаешь историю по порядку: main вызвал startApp, тот — readTimeout… Помогает понять, откуда пришли плохие данные.</p></div>
     </div>
     <p>На практике работает такой алгоритм — запомни его, он пригодится каждый день:</p>
     <ol class="steps">
       <li><b>Прочитай первую строку целиком.</b> Тип исключения и сообщение. Часто ответ уже здесь: «For input string: "10s"».</li>
       <li><b>Есть «Caused by»?</b> Спустись к <b>последнему</b> Caused by — это корень цепочки, первая беда. Всё, что выше, — её последствия.</li>
-      <li><b>Найди первую строку <code>at</code> со своим классом.</b> Пропускай <code>java.base/</code>, <code>jdk.internal</code>, <code>org.junit</code>, <code>com.fasterxml</code> — это чужой код. Первая своя строка — то место, где твоя программа попала в беду.</li>
-      <li><b>Щёлкни по ней в IDEA.</b> <code>SettingsLoader.java:14</code> в панели Run — синяя ссылка, она открывает файл прямо на этой строке.</li>
+      <li><b>Найди первую строку <code>at</code> со своим классом.</b> Пропускай строки <code>java.base/</code> и <code>jdk.internal</code> — это код JDK, чужой. Первая своя строка — то место, где твоя программа попала в беду.</li>
+      <li><b>Щёлкни по ней в IDEA.</b> <code>SettingsLoader.java:13</code> в панели Run — синяя ссылка, она открывает файл прямо на этой строке.</li>
       <li><b>Подумай, откуда пришли данные.</b> Строка, где упало, часто не виновата. Виноват тот, кто передал туда "10s". Иди по trace вниз.</li>
     </ol>
     <div class="say" data-mood="cool"><p>Главное правило: <b>не ищи ошибку в JDK</b>. Если trace начинается с <code>java.base/</code> — это не Java сломалась. Это твой код дал ей что-то не то. Ищи свою строку.</p></div>
@@ -213,34 +216,35 @@
 
   <!-- ШАГ 6 -->
   <section class="step">
-    <h2>Stack trace настоящего проекта</h2>
-    <p>Вот так примерно выглядит trace на сервере интернет-магазина (упрощено: настоящий длиннее раза в три, номера строк библиотек условные). Мобильное приложение прислало заказ в формате JSON, а в поле «количество» вместо числа оказалось <code>"2 шт"</code>. Разбирает JSON библиотека Jackson — она превращает текст в объекты Java, и на этом поле она споткнулась:</p>
-<pre class="terminal"><span class="err">com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `int` from String "2 шт": not a valid `int` value
-	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
-	at com.fasterxml.jackson.databind.DeserializationContext.weirdStringException(DeserializationContext.java:1991)
-	at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3604)
-	at shop.OrderReader.parse(OrderReader.java:25)
-	at shop.OrderController.createOrder(OrderController.java:18)
-	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
-	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)
-	... 70 more</span></pre>
-    <p>Применяем алгоритм. Первая строка: поле типа <code>int</code> не удалось заполнить строкой <code>"2 шт"</code>. Caused by здесь нет — корень виден сразу. Первая своя строка: <code>OrderReader.java:25</code> — метод, который разбирает заказ, а под ней <code>OrderController.java:18</code> — место, где сервер принял заказ. Дальше думаем: приложение шлёт не тот формат? Наш класс ждёт не то поле? Где лучше проверять такие данные?</p>
-    <p>Строки выше нашего кода — внутренности Jackson, ниже — Spring (фреймворк, который принимает запросы к серверу) и рефлексия JDK. Их 70+, и все их можно смело пропустить. Потренируйся отличать:</p>
+    <h2>Мой код или JDK?</h2>
+    <p>Главный навык этого урока — с первого взгляда отличать строки своего кода от чужих. Потренируйся: разложи строки из trace этого урока по корзинам.</p>
     <div data-widget="buckets" id="buckets-m12-02-whose">
       <script type="application/json">
       { "title": "Чья это строка stack trace?", "icon": "🕵️",
-        "buckets": [ { "id": "mine", "label": "🙋 Мой код", "style": "green" }, { "id": "jdk", "label": "☕ JDK", "style": "indigo" }, { "id": "lib", "label": "📚 Библиотека", "style": "red" } ],
+        "buckets": [ { "id": "mine", "label": "🙋 Мой код", "style": "green" }, { "id": "jdk", "label": "☕ JDK", "style": "indigo" } ],
         "items": [
-          { "emoji": "🛒", "text": "at shop.OrderController.createOrder(OrderController.java:18)", "bucket": "mine", "why": "Пакет shop и класс OrderController — код твоего магазина. Сюда и смотреть." },
-          { "emoji": "📄", "text": "at shop.OrderReader.parse(OrderReader.java:25)", "bucket": "mine", "why": "Класс, который разбирает заказ, пишешь ты сам — это твой код." },
+          { "emoji": "🧾", "text": "at Prices.sum(Prices.java:10)", "bucket": "mine", "why": "Класс Prices написал ты — сюда и смотреть." },
           { "emoji": "☕", "text": "at java.base/java.lang.Integer.parseInt(Integer.java:662)", "bucket": "jdk", "why": "Префикс java.base/ — стандартная библиотека Java." },
-          { "emoji": "⚙️", "text": "at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke", "bucket": "jdk", "why": "jdk.internal — внутренности JDK, через них Spring и JUnit вызывают твои методы." },
-          { "emoji": "🌐", "text": "at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3604)", "bucket": "lib", "why": "com.fasterxml.jackson — библиотека Jackson, она разбирает JSON." },
-          { "emoji": "🏃", "text": "at org.junit.platform.commons.util.ReflectionUtils.invokeMethod", "bucket": "lib", "why": "org.junit — JUnit, программа, которая запускает тесты (их ты научишься писать в модуле 17)." },
-          { "emoji": "🔧", "text": "at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke", "bucket": "lib", "why": "org.springframework — фреймворк Spring, он принимает запросы к серверу и вызывает твой код." }
+          { "emoji": "⚙️", "text": "at SettingsLoader.readTimeout(SettingsLoader.java:13)", "bucket": "mine", "why": "Свой класс, свой файл, номер строки твоего кода." },
+          { "emoji": "🔢", "text": "at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)", "bucket": "jdk", "why": "java.base/ — JDK. Это место, где Java создаёт объект исключения, ошибки тут нет." },
+          { "emoji": "🎮", "text": "at Game.main(Game.java:5)", "bucket": "mine", "why": "main твоей программы — дно стека." },
+          { "emoji": "🍕", "text": "at Pizza.share(Pizza.java:14)", "bucket": "mine", "why": "Программа про пиццу из урока 1 — твой код." },
+          { "emoji": "📚", "text": "at java.base/java.lang.Integer.parseInt(Integer.java:778)", "bucket": "jdk", "why": "Снова parseInt, только другой его вариант. java.base/ — JDK, пропускаем." }
         ] }
       </script>
     </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: trace настоящего сервера</summary>
+      <p>На работе trace бывает длиннее раз в десять: кроме JDK в нём строки <b>библиотек</b> — чужого готового кода, который подключают к проекту. Вот упрощённый trace сервера интернет-магазина. Приложение прислало заказ в формате JSON, а в поле «количество» вместо числа оказалось <code>"2 шт"</code>. JSON разбирает библиотека Jackson:</p>
+<pre class="terminal"><span class="err">com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `int` from String "2 шт": not a valid `int` value
+	at com.fasterxml.jackson.databind.exc.InvalidFormatException.from(InvalidFormatException.java:67)
+	at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3604)
+	at shop.OrderReader.parse(OrderReader.java:25)
+	at shop.OrderController.createOrder(OrderController.java:18)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)
+	... 70 more</span></pre>
+      <p>Алгоритм тот же. Первая строка: поле типа <code>int</code> не удалось заполнить строкой <code>"2 шт"</code>. Строки <code>com.fasterxml…</code> (Jackson) и <code>org.springframework…</code> (Spring — библиотека для серверов) — чужие, пропускаем. Первая своя строка — <code>shop.OrderReader.java:25</code>. Всё остальное — тот же навык, что ты тренируешь сейчас.</p>
+    </details>
   </section>
 
   <!-- ШАГ 7 -->
@@ -318,11 +322,11 @@
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
-        <li>Stack trace = заголовок (тип + сообщение) + строки <code>at Класс.метод(Файл:строка)</code> от вершины стека к дну + цепочка <code>Caused by</code>.</li>
+        <li>Stack trace = заголовок (тип + сообщение) + строки <code>at Класс.метод(Файл:строка)</code> от вершины стека к дну (+ иногда цепочка <code>Caused by</code>).</li>
         <li>Сверху вниз — где сломалось; снизу вверх — как мы туда попали.</li>
         <li>Алгоритм: прочитай первую строку → спустись к последнему Caused by → найди первую строку своего кода → щёлкни по ней в IDEA → подумай, откуда пришли данные.</li>
-        <li>Строки <code>java.base/</code>, <code>org.junit</code>, <code>com.fasterxml</code>, <code>org.springframework</code> — чужой код, их пропускаем.</li>
-        <li>Trace настоящего проекта с библиотеками читается так же: ищи свои классы среди чужих строк.</li>
+        <li>Строки <code>java.base/</code> — код JDK, их пропускаем. Ищи свои классы среди чужих строк.</li>
+        <li><code>Caused by</code> — причина исключения над ним; корень — в последнем Caused by; <code>... N more</code> — «ещё N строк, как выше».</li>
       </ul>
     </div>
   </section>

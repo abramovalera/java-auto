@@ -1,0 +1,63 @@
+## id: m14-t12
+## title: Бейджи для гостей: лямбды без стримов
+## file: module-14/GuestBadges.java
+## class: GuestBadges
+## level: 2
+@@ description
+<p>Лямбды нужны не только стримам. В этой задаче стримы <b>запрещены</b> — только методы списка и свой функциональный интерфейс.</p>
+<p>Вводится список гостей через пробел. Кто отказался прийти, отмечен минусом в начале имени: <code>-Ян</code>. Напечатай бейджи для тех, кто придёт: сначала <b>короткие имена</b>, при равной длине — <b>по алфавиту</b>:</p>
+<pre class="terminal"><span class="out">ввод:  Вика -Ян Борис Аня -Гоша Ева
+
+Гость: Аня
+Гость: Ева
+Гость: Вика
+Гость: Борис</span></pre>
+<p>Если не придёт никто — выведи <code>Гостей нет</code>.</p>
+<p>Что нужно сделать:</p>
+<ol>
+<li>Сделай изменяемый список: <code>new ArrayList&lt;&gt;(List.of(line.trim().split("\\s+")))</code>.</li>
+<li>Убери отказавшихся одним вызовом <code>removeIf</code> с лямбдой. Пустая строка (если ввод пустой) тоже не гость — убери её в том же <code>removeIf</code>.</li>
+<li>Отсортируй вызовом <code>list.sort(...)</code> — компаратор собери из лямбд (урок 14.2).</li>
+<li>Объяви <b>внутри</b> своего класса свой функциональный интерфейс <code>BadgeFormat</code> с методом <code>String format(String name)</code> и метод <code>static void printAll(List&lt;String&gt; names, BadgeFormat format)</code>, который печатает каждое имя через <code>names.forEach(...)</code>, оформив его вызовом <code>format.format(...)</code>. В <code>main</code> передай в <code>printAll</code> лямбду, которая делает из имени строку <code>Гость: имя</code>.</li>
+</ol>
+<p>Циклы и стримы запрещены.</p>
+<p>📖 <a href="/lessons/m14/01-lambdas.html">Свой функциональный интерфейс</a> · <a href="/lessons/m14/02-functional-interfaces.html">removeIf, forEach и Comparator.comparing</a></p>
+@@ test: Пример из условия
+@@ input
+Вика -Ян Борис Аня -Гоша Ева
+@@ expect
+Гость: Аня
+Гость: Ева
+Гость: Вика
+Гость: Борис
+@@ test: Никто не отказался
+@@ input
+Маргарита Ян Олег
+@@ expect
+Гость: Ян
+Гость: Олег
+Гость: Маргарита
+@@ test: Все отказались
+@@ input
+-Аня -Борис
+@@ expect
+Гостей нет
+@@ test: Пустой ввод
+@@ input
+
+@@ expect
+Гостей нет
+@@ test: Одинаковая длина — по алфавиту
+@@ input
+Юля Оля -Аня Ира
+@@ expect
+Гость: Ира
+Гость: Оля
+Гость: Юля
+@@ require: interface\s+BadgeFormat | Объяви свой функциональный интерфейс BadgeFormat
+@@ require: \.removeIf\s*\( | Убери отказавшихся методом removeIf
+@@ require: \.sort\s*\( | Отсортируй список методом sort
+@@ require: printAll\s*\( | Напечатай бейджи своим методом printAll
+@@ forbid: \.stream\s*\(|Stream\. | В этой задаче стримы не нужны — только методы списка и лямбды
+@@ forbid: new\s+(BadgeFormat|Comparator)\s*(<[^>]*>)?\s*\(\s*\)\s*\{ | Вместо анонимного класса передай лямбду
+@@ forbid: \b(for|while)\s*\( | Циклы здесь не нужны: removeIf, sort и forEach обойдут список сами

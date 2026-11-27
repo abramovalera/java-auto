@@ -43,7 +43,7 @@
         <tr><td><kbd>F9</kbd></td><td>Resume — бежать до следующей точки останова</td><td>Перейти к следующей итерации цикла</td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>F2</kbd></td><td>Остановить программу (и отладку тоже)</td><td>Всё понял или программа зависла</td></tr>
       </table></div>
-      <p style="margin-top:10px">На macOS вместо <kbd>Ctrl</kbd> обычно <kbd>Cmd</kbd>; если F-клавиши не срабатывают, зажми <kbd>Fn</kbd>.</p>
+      <p style="margin-top:10px">На macOS клавиши другие, простой замены <kbd>Ctrl</kbd> на <kbd>Cmd</kbd> нет: точка останова — <kbd>Cmd</kbd>+<kbd>F8</kbd>, Debug — <kbd>Ctrl</kbd>+<kbd>D</kbd>, Step Over — <kbd>F8</kbd>, Resume — <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>R</kbd>, остановить — <kbd>Cmd</kbd>+<kbd>F2</kbd>. Если F-клавиши не срабатывают, зажми <kbd>Fn</kbd>. Кнопки 🐞, ▶ и ■ на экране работают везде одинаково.</p>
     </div>
   </section>
 
@@ -102,10 +102,11 @@ for (int i = 1; i &lt;= 10; i++) {    // ✅ ровно 1…10
 
   <!-- ШАГ 3 -->
   <section class="step">
-    <h2>Бесконечный цикл: четыре лица</h2>
+    <h2>Бесконечный цикл: пять лиц</h2>
     <p>В уроке 5.1 ты видел самую простую причину — забыли шаг. Но у вечного цикла есть и другие маски:</p>
 <pre data-file="Forever1.java"><code class="java">// 1. Шаг уводит от границы
 for (int i = 10; i &gt; 0; i++) { … }      // i растёт, а условие ждёт убывания</code></pre>
+    <p style="margin-top:-6px"><small>Строго говоря, первый цикл «почти» вечный: через ~2 миллиарда итераций <code>int</code> переполнится (модуль 3), <code>i</code> станет отрицательным и цикл закончится. Остальные три — по-настоящему бесконечные.</small></p>
 <pre data-file="Forever2.java"><code class="java">// 2. continue перепрыгнул шаг (урок 5.3)
 int i = 0;
 while (i &lt; 10) {
@@ -146,6 +147,20 @@ while (i &lt; 5); {
       <span class="callout-title">Правило безопасности</span>
       <p>Для счётчиков цикла пиши условие через <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, а не через <code>!=</code>: «перешагнуть» границу неравенства невозможно. И помни, как останавливать зависшую программу: красный квадрат Stop или <kbd>Ctrl</kbd>+<kbd>F2</kbd>.</p>
     </div>
+    <h3>Пятое лицо: дробный счётчик</h3>
+    <p>Хочется пройти 0.0, 0.1, 0.2 … 1.0 и написать счётчик типа <code>double</code>:</p>
+<pre data-file="DoubleStep.java"><code class="java">for (double x = 0; x != 1.0; x += 0.1) {
+    System.out.println(x);
+}</code></pre>
+    <details class="predict">
+      <summary>Сколько строк напечатает этот цикл?</summary>
+      <p><b>Бесконечно много.</b> Помнишь из модулей 2 и 3: 0.1 хранится в <code>double</code> неточно, и 0.1 + 0.2 даёт 0.30000000000000004. Ошибки копятся: после десяти шагов <code>x</code> равен не 1.0, а <code>0.9999999999999999</code>, следующий — <code>1.0999999999999999</code>. Ровно 1.0 цикл перешагнул, и <code>!=</code> верно всегда.</p>
+    </details>
+    <p>Даже <code>x &lt; 1.0</code> не спасает: из-за той же неточности цикл сделает 11 итераций вместо 10 — последней напечатается 0.9999999999999999. Надёжный приём: <b>счётчик цикла — всегда целый</b>, а дробное значение вычисляй из него:</p>
+<pre data-file="DoubleStepFixed.java"><code class="java">for (int k = 0; k &lt;= 10; k++) {
+    double x = k / 10.0;        // 0.0, 0.1, 0.2 … 1.0 — ровно 11 значений
+    System.out.println(x);
+}</code></pre>
   </section>
 
   <!-- ШАГ 4 -->
@@ -157,11 +172,11 @@ while (i &lt; 5); {
     sum += i;
 }
 System.out.println(sum);</code></pre>
-<pre class="terminal"><span class="err">ScopeBug.java:5: error: cannot find symbol
+<pre class="terminal"><span class="err">ScopeBug.java:7: error: cannot find symbol
         System.out.println(sum);
                            ^
   symbol:   variable sum</span></pre>
-    <p>Это текст <code>javac</code> — его покажет проверка на сайте. А IDEA подчеркнёт проблему ещё до запуска:</p>
+    <p>Это текст <code>javac</code> — его покажет проверка на сайте. Число после двоеточия — номер строки в <b>полном</b> файле: выше мы показали только тело <code>main</code>, а в файле перед ним ещё строки с <code>class</code> и <code>main</code>, поэтому <code>println</code> — седьмая строка. А IDEA подчеркнёт проблему ещё до запуска:</p>
     <div data-widget="ide" id="shot-loop-scope">
       <script type="application/json">
       { "tree": false, "file": "ScopeBug.java", "gutterRun": [1, 2],
@@ -279,8 +294,8 @@ System.out.println(sum);   // 6</code></pre>
           { "type": "single", "q": "Сколько раз выполнится тело?", "code": "for (int i = 3; i <= 9; i += 3) { … }",
             "options": ["2", "3", "4"], "answer": 1, "why": "i = 3, 6, 9 — три итерации. 12 <= 9 — false." },
           { "type": "single", "q": "Что сделает этот код?", "code": "for (int i = 0; i != 7; i += 2) {\n    System.out.print(i);\n}",
-            "options": ["Напечатает 0246", "Будет крутиться (почти) бесконечно", "Не скомпилируется"], "answer": 1,
-            "why": "i = 0, 2, 4, 6, 8… — 7 перешагнули, условие != 7 верно всегда. Отсюда правило: границы — через < и >." },
+            "options": ["Напечатает 0246", "Будет крутиться бесконечно", "Не скомпилируется"], "answer": 1,
+            "why": "i = 0, 2, 4, 6, 8… — только чётные, и 7 среди них не будет никогда (даже после переполнения int), условие != 7 верно всегда. Отсюда правило: границы — через < и >." },
           { "type": "tf", "q": "Верно или нет?",
             "statements": [
               { "s": "Переменная живёт до закрывающей } блока, в котором объявлена", "a": true },
@@ -298,7 +313,7 @@ System.out.println(sum);   // 6</code></pre>
       <h2>Коротко</h2>
       <ul>
         <li><b>Off-by-one</b>: лишняя или недостающая итерация. Проверяй первое и последнее значение счётчика; от a до b включительно — b − a + 1 итераций.</li>
-        <li><b>Вечный цикл</b>: нет шага, шаг не туда, <code>continue</code> перед шагом, <code>!=</code> вместо <code>&lt;</code>, <code>;</code> после заголовка <code>while (…)</code>.</li>
+        <li><b>Вечный цикл</b>: нет шага, шаг не туда, <code>continue</code> перед шагом, <code>!=</code> вместо <code>&lt;</code>, <code>;</code> после заголовка <code>while (…)</code>, дробный счётчик <code>double</code>. Счётчик цикла делай целым.</li>
         <li><b>Область видимости</b>: переменная живёт до <code>}</code> своего блока. То, что копится между итерациями, объявляй до цикла.</li>
         <li><b>Отладчик</b>: точка останова, Debug 🐞, <kbd>F8</kbd> — шаг, <kbd>F9</kbd> — дальше, окно Variables — значения.</li>
       </ul>

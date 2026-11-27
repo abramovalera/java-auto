@@ -4,25 +4,25 @@
 ## class: TagsTwoOrders
 ## level: 1
 @@ description
-<p>Автотесты помечают тегами: <code>smoke</code>, <code>login</code>, <code>api</code>… В отчёт нужно вывести все <b>разные</b> теги дважды: в порядке первого появления и по алфавиту.</p>
+<p>Блогер помечает посты тегами: <code>travel</code>, <code>food</code>, <code>cats</code>… Для облака тегов нужно вывести все <b>разные</b> теги дважды: в порядке первого появления и по алфавиту.</p>
 <p>Создай класс <code>TagsTwoOrders</code>. Программа читает слова (через пробел или с новой строки) до слова <code>END</code> и печатает две строки:</p>
-<pre class="terminal"><span class="out">ввод:  smoke login api smoke ui login END
-вывод: По порядку: [smoke, login, api, ui]
-       По алфавиту: [api, login, smoke, ui]</span></pre>
+<pre class="terminal"><span class="out">ввод:  travel food cats travel music food END
+вывод: По порядку: [travel, food, cats, music]
+       По алфавиту: [cats, food, music, travel]</span></pre>
 <p>Вспомни близнецов: какой Set помнит порядок добавления, а какой держит элементы отсортированными? Печатай множество целиком через <code>println</code> — квадратные скобки и запятые Java поставит сама.</p>
 <p>📖 <a href="/lessons/m13/12-twins.html">Сравниваем близнецов</a></p>
 @@ test: Пример из условия
 @@ input
-smoke login api smoke ui login END
+travel food cats travel music food END
 @@ expect
-По порядку: [smoke, login, api, ui]
-По алфавиту: [api, login, smoke, ui]
+По порядку: [travel, food, cats, music]
+По алфавиту: [cats, food, music, travel]
 @@ test: Все одинаковые
 @@ input
-api api api END
+food food food END
 @@ expect
-По порядку: [api]
-По алфавиту: [api]
+По порядку: [food]
+По алфавиту: [food]
 @@ test: Слова с новой строки
 @@ input
 zeta

@@ -142,7 +142,7 @@
           { "type": "bug", "q": "13. Найди все строки, которые не скомпилируются",
             "code": "record Book(String title, int pages) { }\n\n// в main:\nBook b = new Book(\"Java\", 500);\nSystem.out.println(b.title());\nSystem.out.println(b.getPages());\nb.pages = 600;",
             "answer": [6, 7],
-            "why": "У record методы доступа без get: pages(), а не getPages(). И поля record — final: присвоить новое значение нельзя." }
+            "why": "Строка 6: у record методы доступа без get — pages(), а не getPages(). Строка 7: javac первым делом скажет pages has private access in Book — поля record закрыты (private). А даже изнутри record присвоить их нельзя: они ещё и final." }
         ] }
       </script>
     </div>

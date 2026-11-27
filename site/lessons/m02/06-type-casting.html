@@ -122,6 +122,43 @@ int c = (int) 3_000_000_000L;  // -1294967296 — не влезло в int</code
       <summary>🔎 Для любопытных: что выведет <code>(byte) 200</code>?</summary>
       <p><b>−56.</b> В byte помещаются числа от −128 до 127. 200 туда не влезает, и счёт уходит по кругу: 200 − 256 = −56. Тот же «счётчик пробега», что у int, только круг маленький — на 256 значений.</p>
     </details>
+
+    <h3>Приведение и деление: где стоят скобки</h3>
+    <p>Приведение работает и в обратную сторону — из int в double. Пригождается, когда делим две целые переменные, а нужен дробный ответ, например средний балл. Но важно, <b>к чему</b> относится <code>(double)</code>: оно действует только на то, что стоит сразу справа от него.</p>
+<pre data-file="Average.java"><code class="java">int sum = 10;
+int count = 4;
+double good = (double) sum / count;    // 2.5
+double bad = (double) (sum / count);   // 2.0</code></pre>
+    <ul>
+      <li><code>(double) sum / count</code> — сначала <code>sum</code> становится 10.0, потом 10.0 / 4. Одно число дробное — значит, и деление дробное: <b>2.5</b>.</li>
+      <li><code>(double) (sum / count)</code> — сначала выполняется то, что в скобках: 10 / 4 = 2 (int / int, дробь уже отброшена). Потом 2 превращается в 2.0. Поздно — половинка потерялась: <b>2.0</b>.</li>
+    </ul>
+    <details class="predict">
+      <summary>Что выведет программа?<br><code>int a = 7;</code><br><code>int b = 2;</code><br><code>System.out.println((double) a / b);</code><br><code>System.out.println((double) (a / b));</code></summary>
+      <p><b>3.5</b> и <b>3.0</b>. В первой строке к double приводится <code>a</code> до деления — деление дробное. Во второй сначала целое деление 7 / 2 = 3, и только готовая тройка становится 3.0.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4б -->
+  <section class="step">
+    <h2>Аккуратный вывод дробных: Math.round</h2>
+    <p>Дробные числа компьютер хранит в двоичном виде, и многие «круглые» для нас числа (0.1, 1.8) записываются в нём лишь приблизительно — как 1/3 в десятичной записи: 0.3333… Обычно этого не видно, но иногда вылезает «хвост»:</p>
+<pre data-file="Tails.java"><code class="java">System.out.println(0.1 + 0.2);              // 0.30000000000000004
+double fahrenheit = 37 * (9.0 / 5) + 32;
+System.out.println(fahrenheit);             // 98.60000000000001</code></pre>
+    <p>Это не ошибка в твоём коде, так устроены все дробные числа в компьютере. Чтобы напечатать красиво, число <b>округляют до нужного знака</b> методом <code>Math.round</code> (класс <code>Math</code> — набор математических методов, лежит в <code>java.lang</code>, import не нужен):</p>
+<pre data-file="Tails.java"><code class="java">double rounded = Math.round(fahrenheit * 10) / 10.0;   // 98.6 — один знак после точки
+double tidy = Math.round((0.1 + 0.2) * 100) / 100.0;   // 0.3  — два знака после точки</code></pre>
+    <ol class="steps">
+      <li><b>Сдвигаем точку:</b> умножаем на 10 (один знак) или на 100 (два знака): 98.60000000000001 × 10 = 986.0000000000001.</li>
+      <li><b>Округляем до целого:</b> <code>Math.round(...)</code> возвращает целое число (типа <code>long</code>) — 986. В отличие от <code>(int)</code>, он округляет по правилам математики: <code>Math.round(3.7)</code> = 4.</li>
+      <li><b>Возвращаем точку:</b> делим на <code>10.0</code> — именно с точкой! <code>986 / 10</code> — это целое деление, получится 98.</li>
+    </ol>
+    <details class="predict">
+      <summary>Что выведет <code>System.out.println(Math.round(2.0 / 3 * 100) / 100.0);</code>?</summary>
+      <p><b>0.67.</b> 2.0 / 3 = 0.6666…, ×100 = 66.66…, округление даёт 67, а 67 / 100.0 = 0.67.</p>
+    </details>
+    <div class="say" data-mood="think"><p>Поэтому в задачах курса дробный ответ либо подобран так, что «хвоста» нет, либо в условии прямо сказано округлить через <code>Math.round</code>.</p></div>
   </section>
 
   <!-- ШАГ 5 -->
@@ -247,6 +284,17 @@ System.out.println(n + 1);                 // 43  — сложение</code></p
          "why": "(int) отрезает дробь; int / int = int; если хоть одно число double — результат double."
         },
         {
+         "type": "single",
+         "q": "<code>int total = 9; int people = 2;</code> Какое выражение даст 4.5?",
+         "options": [
+          "(double) (total / people)",
+          "(double) total / people",
+          "total / people"
+         ],
+         "answer": 1,
+         "why": "(double) действует на то, что сразу справа: total становится 9.0 до деления, и деление дробное. В первом варианте сначала 9 / 2 = 4, и только потом 4.0."
+        },
+        {
          "type": "bug",
          "q": "Какая строка не скомпилируется?",
          "code": "double price = 19.5;\nlong total = 100;\nint rounded = price;\ndouble avg = total / 3.0;",
@@ -321,6 +369,8 @@ System.out.println(n + 1);                 // 43  — сложение</code></p
         <li>Расширение (byte → short → int → long → float → double, char → int) Java делает сама.</li>
         <li>В выражении меньший тип подтягивается к большему. int / int = int, дробь отбрасывается: <code>7 / 2</code> = 3.</li>
         <li>Сужение — только явно: <code>(int) 3.99</code> = 3. Не округляет! Не влезло — значение испортится.</li>
+        <li><code>(double) a / b</code> — дробное деление; <code>(double) (a / b)</code> — сначала целое деление, дробь уже потеряна.</li>
+        <li>У дробных бывает «хвост» (<code>0.1 + 0.2</code> = 0.30000000000000004). Округлить до одного знака: <code>Math.round(x * 10) / 10.0</code>.</li>
         <li>char ↔ int: <code>'A' + 1</code> = 66, <code>(char) 66</code> = 'B'. Цифра '0' — это код 48.</li>
         <li>Строка → число: <code>Integer.parseInt</code>, <code>Double.parseDouble</code>, <code>Long.parseLong</code>. Число → строка: <code>String.valueOf(x)</code> или <code>"" + x</code>.</li>
         <li>Не похоже на число — <code>NumberFormatException</code>.</li>

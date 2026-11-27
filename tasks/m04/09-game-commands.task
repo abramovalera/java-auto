@@ -1,0 +1,44 @@
+## id: m04-t09
+## title: Команды игры в любом регистре
+## file: module-04/GameCommandSwitch.java
+## class: GameCommandSwitch
+## level: 1
+@@ description
+<p>Игра ждёт команду с клавиатуры — одну строку. Игрок может набрать её как угодно: <code>start</code>, <code>Start</code> или <code>START</code> — программа должна понять все три. Прочитай строку методом <code>nextLine()</code> и выбери ответ через <code>switch</code>:</p>
+<ul>
+<li><code>start</code> → <code>Игра началась</code></li>
+<li><code>pause</code> → <code>Пауза</code></li>
+<li><code>exit</code> → <code>До встречи!</code></li>
+<li>любая другая строка → <code>Неизвестная команда: Jump</code> (вместо <code>Jump</code> — то, что ввёл игрок, <b>как есть</b>, с теми же большими и маленькими буквами).</li>
+</ul>
+<pre class="terminal"><span class="cmd">PAUSE</span>
+<span class="out">Пауза</span></pre>
+<p>Подсказка: перед сравнением переведи ввод в маленькие буквы методом <code>toLowerCase()</code>. А что напечатать в default — исходную строку или переведённую?</p>
+<p>📖 <a href="/lessons/m04/05-switch.html">switch по строкам и регистр букв</a></p>
+@@ test: Маленькими буквами
+@@ input
+start
+@@ expect
+Игра началась
+@@ test: Большими буквами
+@@ input
+PAUSE
+@@ expect
+Пауза
+@@ test: С большой буквы
+@@ input
+Exit
+@@ expect
+До встречи!
+@@ test: Вперемешку
+@@ input
+sTaRt
+@@ expect
+Игра началась
+@@ test: Незнакомая команда - ввод как есть
+@@ input
+Jump
+@@ expect
+Неизвестная команда: Jump
+@@ require: \bswitch\b | Команду выбираем через switch
+@@ require: toLowerCase\s*\(|toUpperCase\s*\( | Переведи ввод в один регистр: toLowerCase()

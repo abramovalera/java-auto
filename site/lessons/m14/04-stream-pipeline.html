@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 14 · Урок 4</div>
     <h1>Stream API: конвейер для данных</h1>
     <p class="lead">Отфильтровать, преобразовать, отсортировать, взять первые три — раньше на это уходил цикл с кучей переменных. Стрим делает то же самое цепочкой из понятных шагов, которая читается как рецепт.</p>
-    <div class="meta"><span>⏱ 25 минут</span><span>🏭 конвейер</span><span>🔍 трассировка</span></div>
+    <div class="meta"><span>⏱ 35 минут</span><span>🏭 конвейер</span><span>🔍 трассировка</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -172,9 +172,10 @@ System.out.println(result);</code></pre>
         <tr><th>Источник</th><th>Как получить стрим</th><th>Пример</th></tr>
         <tr><td>коллекция</td><td><code>list.stream()</code>, <code>set.stream()</code></td><td><code>names.stream()</code></td></tr>
         <tr><td>Map</td><td>через его «виды»</td><td><code>map.keySet().stream()</code>, <code>map.values().stream()</code>, <code>map.entrySet().stream()</code></td></tr>
-        <tr><td>массив</td><td><code>Arrays.stream(массив)</code></td><td><code>Arrays.stream(new int[]{3, 1, 2})</code></td></tr>
+        <tr><td>массив</td><td><code>Arrays.stream(массив)</code></td><td><code>Arrays.stream(new String[]{"a", "b"})</code>; для <code>int[]</code> — особый случай, см. ниже</td></tr>
         <tr><td>несколько значений</td><td><code>Stream.of(…)</code></td><td><code>Stream.of("a", "b", "c")</code></td></tr>
         <tr><td>диапазон чисел</td><td><code>IntStream.range(от, до)</code></td><td><code>IntStream.range(0, 5)</code> → 0 1 2 3 4 (без 5!)</td></tr>
+        <tr><td>диапазон с концом</td><td><code>IntStream.rangeClosed(от, до)</code></td><td><code>IntStream.rangeClosed(1, 5)</code> → 1 2 3 4 5 (обе границы включены)</td></tr>
         <tr><td>строка со словами</td><td>разрезать и в стрим</td><td><code>Arrays.stream(line.trim().split("\\s+"))</code></td></tr>
       </table>
     </div>
@@ -195,6 +196,57 @@ System.out.println(numbers);               // [3, 10, 7]</code></pre>
       <span class="callout-title">Пустая строка</span>
       <p><code>"".split("\\s+")</code> возвращает <b>не пустой массив</b>, а массив из одной пустой строки <code>[""]</code>. Если ввод может быть пустым, добавь перед <code>map</code> промежуточную операцию <code>filter</code> с лямбда-выражением: <code>.filter(s -&gt; !s.isEmpty())</code>.</p>
     </div>
+    <h3>Массив int и диапазоны: IntStream</h3>
+    <p>У <code>Arrays.stream</code> есть особенность. Для массива строк он возвращает обычный <code>Stream&lt;String&gt;</code>. А для массива <b>примитивов</b> <code>int[]</code> — особый поток чисел <code>IntStream</code>. Такой же поток возвращают <code>IntStream.range</code> и <code>rangeClosed</code>. Внутри у него простые <code>int</code>, а не объекты <code>Integer</code>, и набор методов немного другой: <code>filter</code> и <code>map</code> есть, а вот <b><code>toList()</code> нет</b>.</p>
+<pre data-file="IntArray.java"><code class="java">int[] prices = {300, 150, 50};
+
+List&lt;Integer&gt; list = Arrays.stream(prices)   // IntStream
+        .boxed()                              // Stream&lt;Integer&gt;
+        .toList();
+System.out.println(list);                     // [300, 150, 50]</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Arrays.stream(prices)</code><div><p>Массив <code>int[]</code> — значит, на выходе <code>IntStream</code>. Вызов <code>.toList()</code> прямо здесь — ошибка компиляции: <em>cannot find symbol: method toList()</em>.</p></div></div>
+      <div class="annot-row"><code>.boxed()</code><div><p>Промежуточная операция: «упаковывает» каждый <code>int</code> в объект <code>Integer</code> (как автоупаковка из модуля 13) и возвращает обычный <code>Stream&lt;Integer&gt;</code>. После неё <code>toList()</code> работает.</p></div></div>
+    </div>
+    <p>Зато у <code>IntStream</code> есть свои числовые методы — <code>sum()</code>, <code>average()</code>, <code>max()</code>. Ими займёмся в уроке 14.5.</p>
+    <details class="predict">
+      <summary>Скомпилируется ли <code>List&lt;Integer&gt; r = IntStream.range(0, 3).toList();</code>?</summary>
+      <p><b>Нет.</b> <code>IntStream.range</code> возвращает <code>IntStream</code>, а у него нет метода <code>toList()</code>. Нужен <code>.boxed()</code> перед <code>toList()</code>: <code>IntStream.range(0, 3).boxed().toList()</code> → <code>[0, 1, 2]</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4б -->
+  <section class="step">
+    <h2>Строка «имя:число» → record</h2>
+    <p>Частая задача: данные приходят одной строкой, например таблица игроков <code>Вика:90 Аня:75 Борис:90</code>. Удобнее работать не с кусками текста, а с объектами — record <code>Player</code> с полями <code>name</code> и <code>score</code>. Разбираем строку в два разреза: сначала по пробелам на записи, потом каждую запись по двоеточию.</p>
+<pre data-file="ParsePlayers.java"><code class="java">record Player(String name, int score) { }
+
+String line = "Вика:90 Аня:75 Борис:90";
+
+List&lt;Player&gt; players = Arrays.stream(line.trim().split("\\s+"))
+        .map(s -&gt; s.split(":"))
+        .map(parts -&gt; new Player(parts[0], Integer.parseInt(parts[1])))
+        .toList();
+
+System.out.println(players);</code></pre>
+<pre class="terminal"><span class="out">[Player[name=Вика, score=90], Player[name=Аня, score=75], Player[name=Борис, score=90]]</span></pre>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Шаг</th><th>Что едет по конвейеру</th><th>Пример одного элемента</th></tr>
+        <tr><td><code>Arrays.stream(…split("\\s+"))</code></td><td><code>Stream&lt;String&gt;</code> — записи</td><td><code>"Вика:90"</code></td></tr>
+        <tr><td><code>.map(s -&gt; s.split(":"))</code></td><td><code>Stream&lt;String[]&gt;</code> — массивы из двух кусков</td><td><code>["Вика", "90"]</code></td></tr>
+        <tr><td><code>.map(parts -&gt; new Player(…))</code></td><td><code>Stream&lt;Player&gt;</code> — объекты</td><td><code>Player[name=Вика, score=90]</code></td></tr>
+      </table>
+    </div>
+    <div class="annot">
+      <div class="annot-row"><code>.map(s -&gt; s.split(":"))</code><div><p>Лямбда вызывает у строки-записи метод <code>split(":")</code> и возвращает массив: <code>parts[0]</code> — имя, <code>parts[1]</code> — число, но пока ещё текстом.</p></div></div>
+      <div class="annot-row"><code>new Player(parts[0], Integer.parseInt(parts[1]))</code><div><p>Лямбда создаёт объект: вызывает конструктор record и передаёт ему имя и число, которое вернул <code>Integer.parseInt</code>. Это тот же <code>map</code>, просто «превращает» массив в объект.</p></div></div>
+    </div>
+    <p>Дальше со списком <code>players</code> можно делать что угодно: сортировать, фильтровать по <code>score()</code>, искать первого подходящего. Два <code>map</code> подряд можно слить в один с блочной лямбдой — <code>s -&gt; { String[] p = s.split(":"); return new Player(p[0], Integer.parseInt(p[1])); }</code>, — но два коротких шага читаются легче.</p>
+    <details class="predict">
+      <summary>Что будет, если во вводе попадётся запись без двоеточия — <code>"Вика90"</code>?</summary>
+      <p>Исключение при запуске: <code>"Вика90".split(":")</code> вернёт массив из <b>одного</b> элемента, и обращение <code>parts[1]</code> выбросит <code>ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 1</code>. В учебных задачах ввод правильный, но в настоящей программе такие записи сначала отсеивают фильтром.</p>
+    </details>
   </section>
 
   <!-- ШАГ 5 -->
@@ -233,8 +285,62 @@ nums.stream().skip(5).toList();</code></pre>
       <p><code>[1, 2, 3]</code>. distinct оставит 3, 1, 2 (первые появления), sorted расставит по возрастанию.</p>
     </details>
     <details class="predict">
-      <summary>А что даст <code>IntStream.rangeClosed(1, 10).skip(2).limit(3)</code>, если собрать в список?</summary>
-      <p><code>[3, 4, 5]</code>. <code>rangeClosed</code> включает обе границы: 1…10. Пропускаем 1 и 2, берём три следующих.</p>
+      <summary>А что даст <code>IntStream.rangeClosed(1, 10).skip(2).limit(3).boxed().toList()</code>?</summary>
+      <p><code>[3, 4, 5]</code>. <code>rangeClosed</code> включает обе границы: 1…10. Пропускаем 1 и 2, берём три следующих. <code>boxed()</code> нужен, потому что у <code>IntStream</code> нет <code>toList()</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5б -->
+  <section class="step">
+    <h2>flatMap: один элемент → много</h2>
+    <p><code>map</code> превращает каждый элемент ровно в <b>один</b>. А если внутри каждого элемента — несколько значений? Например, у каждого покупателя корзина-список, а нужен общий список всех покупок. <code>map</code> тут даст «поток списков», а нам нужен поток товаров.</p>
+    <p>Для этого есть промежуточная операция <b><code>flatMap</code></b> («расплющить»). Её лямбда для каждого элемента возвращает не одно значение, а <b>стрим</b> — и <code>flatMap</code> сливает все эти маленькие стримы в один общий.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 200" role="img" aria-label="map даёт поток из трёх списков, flatMap сливает три корзины в один поток из пяти товаров">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="10" y="20" width="200" height="160" rx="14" class="d-blue"/>
+        <text x="110" y="46" text-anchor="middle" class="d-title">3 корзины</text>
+        <text x="30" y="82" class="d-mono-ink">[чай, кофе]</text>
+        <text x="30" y="116" class="d-mono-ink">[сок]</text>
+        <text x="30" y="150" class="d-mono-ink">[чай, торт]</text>
+        <path d="M216 70 H286" class="d-arrow"/>
+        <text x="250" y="60" text-anchor="middle" class="d-small">map</text>
+        <rect x="292" y="34" width="458" height="60" rx="12" class="d-soft"/>
+        <text x="308" y="60" class="d-small">3 элемента — 3 списка (размеры):</text>
+        <text x="308" y="82" class="d-mono-ink">[2, 1, 2]</text>
+        <path d="M216 140 H286" class="d-arrow"/>
+        <text x="250" y="130" text-anchor="middle" class="d-small">flatMap</text>
+        <rect x="292" y="110" width="458" height="60" rx="12" class="d-green"/>
+        <text x="308" y="136" class="d-small">5 элементов — один общий поток товаров:</text>
+        <text x="308" y="158" class="d-mono-ink">[чай, кофе, сок, чай, торт]</text>
+      </svg>
+      <figcaption>map — «один в один». flatMap — «один во много» (0, 1, 2…), и всё сливается в общий поток.</figcaption>
+    </figure>
+<pre data-file="FlatMapCarts.java"><code class="java">List&lt;List&lt;String&gt;&gt; carts = List.of(
+        List.of("чай", "кофе"),
+        List.of("сок"),
+        List.of("чай", "торт"));
+
+// map: у каждой корзины — её размер
+System.out.println(carts.stream().map(List::size).toList());       // [2, 1, 2]
+// flatMap: каждая корзина отдаёт свой стрим, все сливаются в один
+System.out.println(carts.stream().flatMap(List::stream).toList()); // [чай, кофе, сок, чай, торт]</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>flatMap(List::stream)</code><div><p>Ссылка на метод — то же, что лямбда <code>cart -&gt; cart.stream()</code>: для каждой корзины вызываем <code>stream()</code> и возвращаем её стрим. <code>flatMap</code> по очереди выпускает на общую ленту все элементы этих стримов.</p></div></div>
+    </div>
+    <p>Второй частый случай — слова из нескольких строк. Каждая строка режется на массив слов, а <code>Arrays.stream</code> делает из массива стрим:</p>
+<pre data-file="FlatMapWords.java"><code class="java">List&lt;String&gt; lines = List.of("чай кофе", "сок", "чай торт");
+
+List&lt;String&gt; words = lines.stream()
+        .flatMap(line -&gt; Arrays.stream(line.split(" ")))
+        .distinct()
+        .toList();
+System.out.println(words);   // [чай, кофе, сок, торт]</code></pre>
+    <details class="predict">
+      <summary>Что даст <code>Stream.of("a b", "c").flatMap(s -&gt; Arrays.stream(s.split(" "))).count()</code>?</summary>
+      <p><b>3</b>. «a b» разрезается на два слова, «c» — на одно. <code>flatMap</code> сливает их в поток a, b, c. С <code>map</code> вместо <code>flatMap</code> было бы 2 — два элемента-массива.</p>
     </details>
   </section>
 
@@ -378,6 +484,24 @@ System.out.println(s.count());   // 💥 IllegalStateException</code></pre>
          "why": "Источник → отбор → превращение → без повторов → первые 5 → терминальная. distinct перед limit, иначе в пятёрку попадут повторы."
         },
         {
+         "type": "predict",
+         "q": "Что выведет?",
+         "code": "List<List<Integer>> boxes = List.of(List.of(1, 2), List.of(3, 4));\nSystem.out.println(boxes.stream()\n        .flatMap(List::stream)\n        .map(x -> x * 10)\n        .toList());",
+         "answer": "[10, 20, 30, 40]",
+         "why": "flatMap слил две коробки в один поток 1, 2, 3, 4, а map умножил каждое число на 10."
+        },
+        {
+         "type": "single",
+         "q": "Почему не компилируется <code>List&lt;Integer&gt; r = Arrays.stream(new int[]{1, 2}).toList();</code>?",
+         "options": [
+          "Массив слишком короткий",
+          "Arrays.stream(int[]) возвращает IntStream, а у него нет toList() — нужен boxed()",
+          "toList() есть только у списков"
+         ],
+         "answer": 1,
+         "why": "Для массива примитивов получается IntStream. Сначала <code>.boxed()</code> — он превращает поток в Stream&lt;Integer&gt;, потом <code>toList()</code>."
+        },
+        {
          "type": "single",
          "q": "Что выведет этот код?",
          "code": "Stream.of(\"a\", \"b\").map(s -> {\n    System.out.println(s);\n    return s.toUpperCase();\n});",
@@ -425,8 +549,9 @@ System.out.println(s.count());   // 💥 IllegalStateException</code></pre>
       <h2>Коротко</h2>
       <ul>
         <li><b>Конвейер</b> стрима = источник → промежуточные операции → одна терминальная операция.</li>
-        <li>Источники: <code>list.stream()</code>, <code>Arrays.stream(arr)</code>, <code>Stream.of(…)</code>, <code>IntStream.range</code>.</li>
-        <li>Промежуточные: <code>filter</code>, <code>map</code>, <code>sorted</code>, <code>distinct</code>, <code>limit</code>, <code>skip</code> — возвращают новый Stream.</li>
+        <li>Источники: <code>list.stream()</code>, <code>Arrays.stream(arr)</code>, <code>Stream.of(…)</code>, <code>IntStream.range</code> / <code>rangeClosed</code>. Массив <code>int[]</code> и диапазоны дают <code>IntStream</code> — у него нет <code>toList()</code>, сначала <code>boxed()</code>.</li>
+        <li>Строка «имя:число» → record: <code>split</code> по пробелам, <code>map(s -&gt; s.split(":"))</code>, <code>map(p -&gt; new Player(p[0], Integer.parseInt(p[1])))</code>.</li>
+        <li>Промежуточные: <code>filter</code>, <code>map</code>, <code>flatMap</code> (один во много), <code>sorted</code>, <code>distinct</code>, <code>limit</code>, <code>skip</code> — возвращают новый Stream.</li>
         <li>Ленивость: без терминальной операции ничего не выполняется. Элементы едут по одному; <code>limit</code> может остановить конвейер раньше, <code>sorted</code> ждёт все элементы.</li>
         <li>Поток одноразовый и не меняет источник.</li>
       </ul>

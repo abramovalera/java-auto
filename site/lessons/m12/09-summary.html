@@ -78,11 +78,14 @@
         <li>перехватить исключение через try/catch, написать несколько catch в правильном порядке и multi-catch;</li>
         <li>написать ввод числа с повтором, который не падает от мусора;</li>
         <li>объяснить, когда выполняется finally, и решить головоломку «finally и return»;</li>
-        <li>закрыть ресурс через finally или try-с-ресурсами;</li>
+        <li>закрыть ресурс через finally или try-с-ресурсами, в том числе несколько ресурсов сразу, и назвать порядок закрытия;</li>
+        <li>объяснить разницу между <code>final</code>, <code>finally</code> и <code>finalize()</code>;</li>
         <li>нарисовать дерево Throwable → Error / Exception → RuntimeException и объяснить checked vs unchecked;</li>
-        <li>объяснить разницу <code>throw</code> (выбросить исключение) и <code>throws</code> (объявить его в сигнатуре метода);</li>
+        <li>объяснить разницу <code>throw</code> (выбросить исключение) и <code>throws</code> (объявить его в сигнатуре метода) и что можно писать в throws при переопределении;</li>
+        <li>решить, перехватывать ли исключение: плохие данные снаружи — перехватываю, ошибку в своём коде — исправляю;</li>
         <li>объявить свой класс исключения с сообщением (<code>super(message)</code>), полями и причиной;</li>
-        <li>назвать вредные привычки: пустой catch, catch (Exception) везде, потеря причины, try/catch в тесте.</li>
+        <li>назвать вредные привычки: пустой catch, catch (Exception) везде, потеря причины;</li>
+        <li>остановить отладчик в момент исключения через Exception Breakpoint и посмотреть переменные.</li>
       </ul>
     </div>
   </section>
@@ -181,7 +184,7 @@
          "options": [
           "Пустой catch",
           "throw new X(\"контекст\", e)",
-          "catch (Exception e) вокруг проверок в тесте",
+          "catch (Exception e) вокруг всего подряд «на всякий случай»",
           "Проверка аргументов в начале метода",
           "throw new X(\"Ошибка\") без подробностей и без причины"
          ],
@@ -190,7 +193,7 @@
           2,
           4
          ],
-         "why": "Пустой catch и catch в тесте прячут ошибки, а сообщение «Ошибка» без причины ничего не говорит."
+         "why": "Пустой catch и catch (Exception) везде прячут ошибки (в том числе баги вроде NPE), а сообщение «Ошибка» без причины ничего не говорит."
         },
         {
          "type": "tf",
@@ -215,6 +218,17 @@
            "a": true
           }
          ]
+        },
+        {
+         "type": "single",
+         "q": "В интерфейсе: <code>String load() throws IOException;</code> Какой заголовок в классе-реализации НЕ скомпилируется?",
+         "options": [
+          "public String load()",
+          "public String load() throws IOException",
+          "public String load() throws Exception"
+         ],
+         "answer": 2,
+         "why": "Переопределение может убрать throws или сузить его, но не может добавить более общее checked-исключение: Exception шире IOException."
         }
        ]
       }
@@ -233,10 +247,10 @@
         <tr><td>2. Кто за кем: try, catch, finally ★</td><td>порядок выполнения, finally после return — <a href="/lessons/m12/04-finally.html">урок 12.4</a></td></tr>
         <tr><td>3. Ввод числа с повтором ★★</td><td>Мастерская: цикл + NumberFormatException — <a href="/lessons/m12/03-try-catch.html">урок 12.3</a></td></tr>
         <tr><td>4. Охранник возраста ★★</td><td>throw IllegalArgumentException, порядок catch — <a href="/lessons/m12/06-throw-custom.html">урок 12.6</a></td></tr>
-        <tr><td>5. Разбор настроек «ключ=значение» ★★</td><td>Мастерская: разбор строки, throw с понятным сообщением</td></tr>
+        <tr><td>5. Разбор настроек «ключ=значение» ★★</td><td>Мастерская: разбор строки, throw с понятным сообщением — <a href="/lessons/m12/06-throw-custom.html">урок 12.6</a></td></tr>
         <tr><td>6. Копилка со своим исключением ★★</td><td>свой checked-класс, throws — <a href="/lessons/m12/06-throw-custom.html">урок 12.6</a></td></tr>
         <tr><td>7. Почини обработку ошибок датчиков ★★★</td><td>порядок catch, пустой catch — <a href="/lessons/m12/07-good-practices.html">урок 12.7</a></td></tr>
-        <tr><td>8. Исключение с причиной ★★★</td><td>cause, getCause(), Caused by — <a href="/lessons/m12/02-stack-trace.html">урок 12.2</a></td></tr>
+        <tr><td>8. Исключение с причиной ★★★</td><td>cause, getCause(), Caused by — <a href="/lessons/m12/06-throw-custom.html">урок 12.6</a></td></tr>
       </table>
     </div>
     <p><span class="ai-only">И каждую зелёную задачу — разобрать с наставником: <code>/check m12-t01</code>, <code>/check m12-t02</code> и так далее.</span><span class="free-only">И каждую зелёную задачу — разобрать с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
@@ -264,7 +278,7 @@
     <div class="cards">
       <div class="card"><span class="emoji">📚</span><h4>Модуль 13: коллекции</h4><p>ArrayList, HashMap и новые знакомые: NoSuchElementException, ConcurrentModificationException. Ты уже знаешь, как их читать.</p></div>
       <div class="card"><span class="emoji">📁</span><h4>Модуль 15: файлы</h4><p>Там checked-исключения (IOException) и try-с-ресурсами пригодятся на каждом шагу.</p></div>
-      <div class="card"><span class="emoji">🧪</span><h4>Модуль 17: JUnit</h4><p>assertThrows, @AfterEach и красные тесты со stack trace — уже по-настоящему.</p></div>
+      <div class="card"><span class="emoji">🧪</span><h4>Модуль 17: тесты</h4><p>Упавший тест — тоже исключение со stack trace, так что читать его ты уже умеешь.</p></div>
     </div>
     <div class="summary">
       <h2>Коротко</h2>

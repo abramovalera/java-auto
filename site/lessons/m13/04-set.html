@@ -202,6 +202,16 @@ System.out.println(points.size());   // ?</code></pre>
         <tr><td><code>equals</code> и <code>hashCode</code></td><td><b>1</b></td><td>одна корзина, equals → true → дубликат</td></tr>
       </table>
     </div>
+    <h3>А в обычном списке?</h3>
+    <p>Список ищет по-другому. Методы <code>contains</code>, <code>indexOf</code> и <code>remove(объект)</code> у <code>ArrayList</code> перебирают элементы по очереди и сравнивают каждый с искомым через <code>equals</code>. Корзин нет, <code>hashCode</code> списку не нужен — а вот без <code>equals</code> он сравнивает <b>ссылки</b>, как <code>==</code>:</p>
+<pre data-file="ListOfPoints.java"><code class="java">List&lt;Point&gt; route = new ArrayList&lt;&gt;();
+route.add(new Point(1, 2));
+System.out.println(route.contains(new Point(1, 2)));
+System.out.println(route.indexOf(new Point(1, 2)));</code></pre>
+    <details class="predict">
+      <summary>Point всё тот же — без equals. Что напечатается?</summary>
+      <p><b>false</b> и <b>-1</b>. В списке лежит одна точка (1, 2), а ищем мы <b>другой</b> объект с теми же координатами. Без своего <code>equals</code> это «чужой» объект, и список его не находит — так же не сработает и <code>route.remove(new Point(1, 2))</code>. Переопредели <code>equals</code> (или возьми record) — получишь <b>true</b> и <b>0</b>.</p>
+    </details>
     <div class="callout warn">
       <span class="callout-title">Контракт equals/hashCode — не формальность</span>
       <p>Равные по <code>equals</code> объекты обязаны иметь <b>равные</b> <code>hashCode</code>. Нарушишь — HashSet и HashMap начнут вести себя «странно»: хранить дубликаты, не находить то, что лежит внутри. Переопределяешь одно — переопределяй и другое. IDEA сгенерирует оба: <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>equals() and hashCode()</b>.</p>
@@ -300,6 +310,7 @@ System.out.println(scores.last());   // 95 — максимум</code></pre>
         <li><code>HashSet</code> — без порядка, <code>LinkedHashSet</code> — порядок добавления, <code>TreeSet</code> — отсортировано (<code>first</code>, <code>last</code>).</li>
         <li>HashSet: <code>hashCode</code> выбирает корзину, <code>equals</code> сравнивает внутри неё.</li>
         <li>Свои объекты в HashSet — только с <code>equals</code> <b>и</b> <code>hashCode</code> (или record).</li>
+        <li>У списка <code>contains</code>, <code>indexOf</code>, <code>remove(объект)</code> ищут через <code>equals</code>: без него свой объект «не находится».</li>
         <li><code>addAll</code>, <code>retainAll</code>, <code>removeAll</code> — объединение, пересечение, разность.</li>
       </ul>
     </div>

@@ -87,7 +87,8 @@
         <li>называть переменные, классы и константы по правилам Java;</li>
         <li>нарисовать стек и кучу для кода с примитивами и строками, объяснить, что такое ссылка и null;</li>
         <li>прочитать с клавиатуры строку, слово и число через Scanner и обойти ловушку nextInt + nextLine;</li>
-        <li>превратить double в int, char в код и обратно, строку в число и число в строку — и сказать, где возможна потеря.</li>
+        <li>превратить double в int, char в код и обратно, строку в число и число в строку — и сказать, где возможна потеря;</li>
+        <li>поставить <code>(double)</code> так, чтобы деление целых стало дробным, и аккуратно напечатать дробь через <code>Math.round</code>.</li>
       </ul>
     </div>
     <div class="callout tip">
@@ -203,6 +204,13 @@
          "why": "Код K — 75. char + int = int: 76; (char) приводит обратно к букве L; со строкой в начале — склейка «K1»."
         },
         {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "int apples = 7;\nint kids = 2;\nSystem.out.println((double) apples / kids);\nSystem.out.println((double) (apples / kids));\nSystem.out.println(Math.round(3.5 * 10) / 10.0);",
+         "answer": "3.5\n3.0\n3.5",
+         "why": "(double) действует на то, что сразу справа: в первой строке делится уже 7.0 — получается 3.5. Во второй сначала целое деление 7 / 2 = 3, потом 3.0. В третьей Math.round(35.0) = 35, а 35 / 10.0 = 3.5."
+        },
+        {
          "type": "single",
          "q": "Как назвать константу с адресом сайта магазина?",
          "options": [
@@ -256,7 +264,7 @@
         <li>Пять главных примитивов: int, long, double, boolean, char. String — класс, строки — объекты.</li>
         <li>Примитив — значение прямо на стеке, объект — в куче, в переменной ссылка.</li>
         <li>Scanner читает с клавиатуры; помни про ловушку nextInt + nextLine.</li>
-        <li>Расширение — автоматически, сужение — явно <code>(тип)</code>; строки в числа — <code>parseInt</code>/<code>parseDouble</code>.</li>
+        <li>Расширение — автоматически, сужение — явно <code>(тип)</code>; <code>(double) a / b</code> — дробное деление, <code>(double) (a / b)</code> — уже поздно; строки в числа — <code>Integer.parseInt</code>/<code>Double.parseDouble</code> (Integer, Double — классы-обёртки); дробь с «хвостом» — <code>Math.round(x * 10) / 10.0</code>.</li>
       </ul>
     </div>
       <div class="callout fact ask-ai-advice">

@@ -198,7 +198,7 @@ class Triangle extends Shape {
   <section class="step">
     <h2>Шаблон «общая часть + своя деталь»</h2>
     <p>В абстрактном классе можно держать не только абстрактные методы. В нём бывают <b>поля, конструктор и обычные методы</b> — всё общее, что не хочется копировать в каждого наследника. И самое интересное: обычный метод может <b>вызывать абстрактный</b>.</p>
-<pre data-file="Shapes.java"><code class="java">abstract class Shape {
+<pre data-file="Shape.java"><code class="java">abstract class Shape {
     private final String name;
 
     // да, у абстрактного класса есть конструктор
@@ -228,7 +228,26 @@ class Rect extends Shape {
     double area() {
         return a * b;
     }
+}
+
+class Circle extends Shape {
+    private final double r;
+
+    Circle(double r) {
+        super("Круг");     // без этой строки — ошибка компиляции
+        this.r = r;
+    }
+
+    @Override
+    double area() {
+        return Math.PI * r * r;
+    }
 }</code></pre>
+    <p>Обрати внимание на <code>super("Круг")</code> в <code>Circle</code>. Теперь у <code>Shape</code> есть только конструктор с параметром <code>Shape(String name)</code>, поэтому каждый наследник <b>обязан</b> вызвать его первой строкой своего конструктора. Забудешь — IDEA подчеркнёт конструктор: <code>There is no parameterless constructor available in 'Shape'</code> («у Shape нет конструктора без параметров»). Это правило ты уже видел в модуле 10.</p>
+    <div class="callout tip">
+      <span class="callout-title">Набираешь примеры в IDEA?</span>
+      <p>Это новая версия <code>Shape</code> и <code>Circle</code>: <b>замени</b> ею код из шага 3 в том же файле <code>Shape.java</code>, а не создавай второй файл. Два класса <code>Shape</code> в одной папке дадут ошибку <code>duplicate class</code>.</p>
+    </div>
     <p>Метод <code>describe()</code> объявлен <b>один раз</b>, но у объекта-круга он вызовет <code>area()</code> из <code>Circle</code>, а у прямоугольника — из <code>Rect</code>. Пройди по шагам и посмотри, чья <code>area()</code> вызывается:</p>
     <div data-widget="trace" id="trace-describe">
       <script type="application/json">

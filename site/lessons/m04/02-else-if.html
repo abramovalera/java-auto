@@ -161,7 +161,7 @@ if (score &gt;= 60) {
     </details>
     <div class="callout tip">
       <span class="callout-title">Правило порядка</span>
-      <p>Когда условия «вложены» друг в друга (каждое следующее шире предыдущего), проверяй от самого <b>узкого</b> к самому <b>широкому</b>: «&gt;= 90» → «&gt;= 75» → «&gt;= 60» → всё остальное. Или наоборот, снизу: «&lt; 60» → «&lt; 75» → «&lt; 90». Главное — чтобы каждая ветка могла хоть когда-нибудь сработать.</p>
+      <p>Когда одно условие <b>включает</b> другое (любое число ≥ 90 заодно и ≥ 75, и ≥ 60 — каждое следующее условие шире предыдущего), проверяй от самого <b>узкого</b> к самому <b>широкому</b>: «&gt;= 90» → «&gt;= 75» → «&gt;= 60» → всё остальное. Или наоборот, снизу: «&lt; 60» → «&lt; 75» → «&lt; 90». Главное — чтобы каждая ветка могла хоть когда-нибудь сработать.</p>
     </div>
     <p>Пройди правильную цепочку сам — с баллом на самой границе:</p>
     <div data-widget="trace" id="trace-grade">
@@ -208,6 +208,51 @@ if (score &gt;= 90) { System.out.println("Отлично"); }
 if (score &gt;= 75) { System.out.println("Хорошо"); }
 if (score &gt;= 60) { System.out.println("Удовлетворительно"); }</code></pre>
       <p>Три строки: «Отлично», «Хорошо», «Удовлетворительно». Без <code>else</code> это три <b>независимых</b> вопроса, и каждый задаётся заново. Слово <code>else</code> как раз и связывает проверки в цепочку «только одна».</p>
+    </details>
+    <p>А вот где без последнего else не обойтись: когда переменная получает значение <b>только внутри веток</b>. Объявим переменную без значения и присвоим его в цепочке:</p>
+<pre data-file="Pass.java"><code class="java">int score = 45;
+String result;                    // объявили, но не инициализировали
+if (score &gt;= 90) {
+    result = "Отлично";
+} else if (score &gt;= 60) {
+    result = "Зачёт";
+}
+System.out.println(result);       // error: variable result might not have been initialized</code></pre>
+    <div data-widget="ide" id="shot-not-initialized">
+      <script type="application/json">
+      { "tree": false, "file": "Pass.java", "gutterRun": [1, 2],
+        "code": "public class Pass {\n    public static void main(String[] args) {\n        int score = 45;\n        String result;\n        if (score >= 90) {\n            result = \"Отлично\";\n        } else if (score >= 60) {\n            result = \"Зачёт\";\n        }\n        System.out.println(result);\n    }\n}",
+        "errors": [ { "line": 10, "text": "result", "msg": "Variable 'result' might not have been initialized", "tip": true, "fix": false } ],
+        "marks": [ { "n": 1, "target": "err-10", "side": "top", "text": "Красным подчёркнута переменная там, где её <b>читают</b>, а не там, где объявили" },
+                   { "n": 2, "target": "tip", "text": "<b>Variable 'result' might not have been initialized</b> — «переменная, возможно, не инициализирована». А что печатать при 45 баллах? Ни одна ветка не сработала — значения нет" } ],
+        "caption": "Значение присваивается только в ветках, а последнего else нет — ошибка компиляции" }
+      </script>
+    </div>
+    <p>Компилятор проверяет: <b>на каждой ли дороге</b> переменная получит значение, прежде чем её прочитают? Здесь есть дорога «ни одна ветка не подошла» — на ней <code>result</code> пустая. Читать переменную без значения Java не даёт. Два способа починить:</p>
+<pre data-file="Pass.java"><code class="java">// способ 1: последний else — теперь ровно одна ветка сработает всегда
+if (score &gt;= 90) {
+    result = "Отлично";
+} else if (score &gt;= 60) {
+    result = "Зачёт";
+} else {
+    result = "Пересдача";
+}
+
+// способ 2: инициализировать сразу, а ветки только меняют значение
+String result = "Пересдача";
+if (score &gt;= 90) {
+    result = "Отлично";
+} else if (score &gt;= 60) {
+    result = "Зачёт";
+}</code></pre>
+    <details class="predict">
+      <summary>Предскажи: скомпилируется ли? Ведь одно из условий точно верно.</summary>
+<pre data-file="Sign.java"><code class="java">int x = 5;
+String sign;
+if (x &gt; 0) { sign = "плюс"; }
+if (x &lt;= 0) { sign = "не плюс"; }
+System.out.println(sign);</code></pre>
+      <p><b>Нет</b>: та же ошибка <code>variable sign might not have been initialized</code>. Нам очевидно, что одно из двух условий обязательно верно, но компилятор смысл условий не разбирает. Он видит два <b>отдельных</b> if, у каждого есть дорога «не выполнился», — значит, по его мнению, значения может не быть. Лекарство то же: <code>if … else</code>.</p>
     </details>
   </section>
 
@@ -282,6 +327,7 @@ if (age &gt;= 12 &amp;&amp; height &gt;= 140) {
         <li><code>else if</code> строит цепочку: проверки сверху вниз, выполняется <b>первая подходящая</b> ветка, остальные пропускаются.</li>
         <li>Порядок важен: широкое условие сверху «съест» все узкие под ним.</li>
         <li>Несколько отдельных if — независимые вопросы, могут сработать все.</li>
+        <li>Переменная получает значение только в ветках? Нужен последний <code>else</code> (или начальное значение), иначе ошибка <code>might not have been initialized</code>.</li>
         <li>Вложенный if — вопрос внутри ответа «да». Иногда его заменяет <code>&amp;&amp;</code>.</li>
       </ul>
     </div>

@@ -86,7 +86,7 @@
 public class Cart {
     …
 }</code></pre>
-    <p>Имена пакетов пишут маленькими буквами, часто начиная с перевёрнутого домена компании: <code>org.junit.jupiter.api</code> — пакет библиотеки JUnit (модуль 17), <code>com.google.gson</code> — библиотека Google для работы с JSON.</p>
+    <p>Имена пакетов пишут маленькими буквами, часто начиная с перевёрнутого адреса сайта компании: у магазина с сайтом <code>shop.ru</code> пакеты будут называться <code>ru.shop.cart</code>, <code>ru.shop.payment</code> и так далее. Так классы разных компаний никогда не путаются, даже если называются одинаково.</p>
   </section>
 
   <!-- ШАГ 3 -->
@@ -204,6 +204,10 @@ acc.balance = -1_000_000;     // и никто не помешал</code></pre>
   <section class="step">
     <h2>Геттеры и сеттеры</h2>
     <p>Для закрытых (<code>private</code>) полей принято объявлять методы со стандартными именами:</p>
+    <div class="callout tip">
+      <span class="callout-title">Куда писать</span>
+      <p>Переделай <b>свой</b> <code>Cat.java</code>: добавь <code>private</code> к полям, поле <code>vaccinated</code> и методы ниже (конструктор и остальные методы, которые у тебя уже есть, оставь). Сразу покраснеют места в <code>CatDemo.java</code>, где ты обращался к полям напрямую, например <code>murzik.name</code>: <em>'name' has private access in 'Cat'</em>. Это защита в действии — замени их на геттеры: <code>murzik.getName()</code>. Строки, которые присваивают значения полям (<code>murzik.age = 3;</code>), удали: значения теперь задаёт конструктор.</p>
+    </div>
 <pre data-file="Cat.java"><code class="java">public class Cat {
     private String name;
     private int age;
@@ -241,7 +245,7 @@ acc.balance = -1_000_000;     // и никто не помешал</code></pre>
     </ul>
     <div class="callout tip">
       <span class="callout-title">Alt+Insert</span>
-      <p>IDEA генерирует геттеры и сеттеры сама: <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>Getter and Setter</b>. Популярные библиотеки тоже понимают эти имена: например, Jackson, превращая объект в JSON, достаёт поле <code>name</code> через <code>getName()</code>. Поэтому соглашение об именах — не мелочь.</p>
+      <p>IDEA генерирует геттеры и сеттеры сама: <kbd>Alt</kbd>+<kbd>Insert</kbd> → <b>Getter and Setter</b>. Имена <code>getX</code>, <code>setX</code>, <code>isX</code> — договорённость всех Java-программистов: по ним и люди, и многие готовые инструменты сразу понимают, что метод читает или меняет поле. Поэтому соглашение об именах — не мелочь.</p>
     </div>
     <div data-widget="ide" id="shot-getters-setters">
       <script type="application/json">

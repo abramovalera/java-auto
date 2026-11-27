@@ -15,7 +15,7 @@
     <div class="kicker">Модуль 15 · Урок 3</div>
     <h1>Запись в файл</h1>
     <p class="lead">Программа научилась читать. Теперь пусть оставляет следы: отчёт за день, журнал, результат расчёта. Главное — не стереть случайно то, что уже было в файле.</p>
-    <div class="meta"><span>⏱ 20 минут</span><span>✍️ writeString / write / APPEND</span><span>🧩 сборка кода</span></div>
+    <div class="meta"><span>⏱ 20 минут</span><span>✍️ writeString / write / APPEND / BufferedWriter</span><span>🧩 сборка кода</span></div>
   </header>
 
   <!-- ШАГ 1 -->
@@ -230,21 +230,63 @@ System.out.println("Записано: " + report.toAbsolutePath());</code></pre>
 
   <!-- ШАГ 6 -->
   <section class="step">
-    <h2>Переводы строк и PrintWriter</h2>
-    <p>Мелочь, о которой спотыкаются: на Windows конец строки в файле — два символа <code>\r\n</code>, на Linux и macOS — один <code>\n</code>.</p>
-    <ul>
-      <li><code>Files.write(путь, список)</code> ставит после каждой строки <code>System.lineSeparator()</code> — перевод строки той системы, где запущена программа.</li>
-      <li><code>Files.writeString</code> пишет ровно то, что дали. Написал <code>\n</code> — будет <code>\n</code>.</li>
-      <li>При чтении разницы нет: <code>readAllLines</code> и <code>lines</code> понимают оба варианта.</li>
-    </ul>
-    <p>Если строк много и их удобно печатать как в консоль — есть старый знакомый <code>println</code>, только в файл. Это класс <code>PrintWriter</code>:</p>
+    <h2>Много строк: один писатель на весь цикл</h2>
+    <p>Сначала мелочь, о которую спотыкаются: на Windows конец строки в файле — два символа <code>\r\n</code>, на Linux и macOS — один <code>\n</code>. <code>Files.write(путь, список)</code> ставит после каждой строки перевод строки той системы, где запущена программа (<code>System.lineSeparator()</code>), а <code>writeString</code> пишет ровно то, что дали. При чтении разницы нет: <code>readAllLines</code> и <code>lines</code> понимают оба варианта.</p>
+    <p>Теперь задача: программа в цикле записывает в журнал тысячи строк. Первое, что приходит в голову, — <code>APPEND</code> на каждой строке:</p>
+<pre data-file="SlowLog.java"><code class="java">for (String order : orders) {            // 10 000 заказов
+    Files.writeString(log, order + "\n",
+            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+}</code></pre>
+    <p>Работает, но каждый вызов <code>writeString</code> заново <b>открывает</b> файл, пишет одну строчку и <b>закрывает</b> его. 10 000 строк — 10 000 открытий. Это как ходить на почту отдельно с каждым письмом. Правильно — открыть файл <b>один раз</b>, записать всё и закрыть один раз. Для этого есть объект-«писатель» <code>BufferedWriter</code>:</p>
+<pre data-file="OrdersJournal.java"><code class="java">import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+public class OrdersJournal {
+    public static void main(String[] args) throws IOException {
+        List&lt;String&gt; orders = List.of("чайник: оплачен", "утюг: отменён", "лампа: оплачен");
+        Path log = Path.of("orders.log");
+
+        try (BufferedWriter out = Files.newBufferedWriter(log)) {
+            for (String order : orders) {
+                out.write(order);
+                out.newLine();
+            }
+        }
+
+        System.out.println("Строк в журнале: " + Files.readAllLines(log).size());
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Строк в журнале: 3</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>Files.newBufferedWriter(log)</code><div><p>Вызываем статический метод <code>newBufferedWriter</code> и передаём аргументом путь. Метод открывает файл для записи и возвращает объект <code>BufferedWriter</code> — им инициализируется переменная <code>out</code>. Правила те же, что у <code>writeString</code>: файла нет — создаст, есть — <b>сотрёт</b>. Нужно дописывать — передай опции: <code>Files.newBufferedWriter(log, StandardOpenOption.CREATE, StandardOpenOption.APPEND)</code>.</p></div></div>
+      <div class="annot-row"><code>try (BufferedWriter out = …)</code><div><p>Знакомый по уроку 15.2 try-с-ресурсами: писатель объявлен в скобках после <code>try</code>, и после закрывающей фигурной скобки Java сама его закроет — один раз, после всего цикла.</p></div></div>
+      <div class="annot-row"><code>out.write(order)</code><div><p>Вызываем у писателя метод <code>write</code> и передаём строку. Метод пишет её как есть — <b>без</b> перевода строки, как <code>print</code>, а не <code>println</code>.</p></div></div>
+      <div class="annot-row"><code>out.newLine()</code><div><p>Метод <code>newLine</code> ставит перевод строки той системы, где запущена программа. Забудешь его — все заказы слипнутся в одну длинную строку.</p></div></div>
+    </div>
+    <p>Слово <b>Buffered</b> значит «с буфером»: писатель копит текст в памяти и отправляет на диск крупными кусками, а остаток — при закрытии. Поэтому закрывать его обязательно, иначе часть текста не дойдёт до файла. Как устроен буфер — в уроке 15.4.</p>
+    <details class="predict">
+      <summary>Предскажи: что окажется в файле? <code>out.write("a"); out.write("b"); out.newLine(); out.write("c");</code></summary>
+      <p>Две строки: <code>ab</code> и <code>c</code>. Метод <code>write</code> перевод строки не ставит — <code>a</code> и <code>b</code> слиплись. Перевод строки появился только там, где вызвали <code>newLine()</code>. <code>Files.readAllLines</code> вернёт <code>[ab, c]</code>.</p>
+    </details>
+    <p>Если удобнее печатать «как в консоль» — оберни писатель в <code>PrintWriter</code>. У него те же <code>println</code> и <code>printf</code>, что у <code>System.out</code>, только текст уходит в файл:</p>
 <pre data-file="PrintToFile.java"><code class="java">try (PrintWriter out = new PrintWriter(
         Files.newBufferedWriter(Path.of("table.txt")))) {
     out.println("Товар           | Цена");
     out.printf("%-15s | %d руб.%n", "чайник", 340);
     out.printf("%-15s | %d руб.%n", "кофемашина", 1250);
 }</code></pre>
-    <p>Те же <code>println</code> и <code>printf</code>, что у <code>System.out</code>, только текст уходит в файл. Объект <code>PrintWriter</code> создаётся в скобках <code>try (…)</code> — это уже знакомый try-с-ресурсами: после блока файл закроется автоматически. Подробнее про это и про <code>BufferedWriter</code> — в следующем уроке про потоки.</p>
+    <p>Создаём объект <code>PrintWriter</code> и передаём его конструктору аргументом писатель из <code>Files.newBufferedWriter</code>. Здесь <code>println</code> сам ставит перевод строки, <code>newLine()</code> не нужен.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что нужно</th><th>Чем писать</th></tr>
+        <tr><td>Одна строка или готовый текст</td><td><code>Files.writeString</code></td></tr>
+        <tr><td>Готовый список строк</td><td><code>Files.write(путь, список)</code> — одной строчкой</td></tr>
+        <tr><td>Строки появляются по ходу цикла, их много</td><td>один <code>BufferedWriter</code> (<code>write</code> + <code>newLine</code>) или <code>PrintWriter</code> (<code>println</code>) в try-с-ресурсами</td></tr>
+      </table>
+    </div>
     <div class="say" data-mood="wow"><p>Кстати, <code>System.out</code> — это объект <code>PrintStream</code>, близкий родственник <code>PrintWriter</code>. Ты с первого урока пишешь в «файл», который называется консоль!</p></div>
   </section>
 
@@ -308,6 +350,16 @@ System.out.println("Записано: " + report.toAbsolutePath());</code></pre>
            "s": "<code>writeString</code> сам добавляет перевод строки в конце текста",
            "a": false,
            "why": "пишет ровно то, что передали."
+          },
+          {
+           "s": "Чтобы записать в цикле 10 000 строк, лучше один раз открыть <code>BufferedWriter</code> в try-с-ресурсами и вызывать <code>write</code> + <code>newLine</code>, чем 10 000 раз вызывать <code>writeString</code> с <code>APPEND</code>",
+           "a": true,
+           "why": "каждый writeString открывает и закрывает файл заново. Один писатель открывает файл один раз."
+          },
+          {
+           "s": "<code>BufferedWriter.write(\"текст\")</code> сам переходит на новую строку",
+           "a": false,
+           "why": "write пишет как print — без перевода строки. Нужен newLine()."
           }
          ]
         }
@@ -326,7 +378,7 @@ System.out.println("Записано: " + report.toAbsolutePath());</code></pre>
         <li>Дописать в конец — <code>StandardOpenOption.CREATE, StandardOpenOption.APPEND</code>. Без <code>CREATE</code> на несуществующем файле — ошибка.</li>
         <li>Папки сами не появляются: <code>Files.createDirectories(file.getParent())</code> перед записью.</li>
         <li><code>Files.write</code> ставит системный перевод строки, <code>writeString</code> пишет ровно то, что дали.</li>
-        <li><code>PrintWriter</code> — <code>println</code>/<code>printf</code> в файл.</li>
+        <li>Много строк в цикле — один писатель на весь цикл: <code>Files.newBufferedWriter</code> в try-с-ресурсами, <code>write</code> + <code>newLine()</code>. Или <code>PrintWriter</code> с привычными <code>println</code>/<code>printf</code>. Не <code>APPEND</code> на каждой строке.</li>
       </ul>
     </div>
   </section>

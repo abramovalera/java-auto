@@ -34,7 +34,7 @@
           { "type": "tf", "q": "Верно или нет?",
             "statements": [
               { "s": "<code>Files.createDirectories</code> создаёт и все недостающие папки-родители", "a": true },
-              { "s": "Интерфейс можно реализовать в своём классе через <code>implements</code>", "a": true }
+              { "s": "<code>BufferedWriter.write(\"текст\")</code> сам ставит перевод строки в конце", "a": false, "why": "write пишет как print. Перевод строки — отдельный вызов newLine() (урок 15.3)." }
             ] }
         ] }
       </script>
@@ -43,8 +43,41 @@
 
   <!-- ШАГ 2 -->
   <section class="step">
-    <h2>Поток — это труба</h2>
-    <p>Слово <b>поток</b> (stream) в вводе-выводе значит <b>последовательность байтов, которая течёт по одному</b>, как вода по трубе. С одной стороны — <b>источник</b> (файл, сеть, клавиатура), с другой — программа. Или наоборот: программа → <b>приёмник</b> (файл, экран).</p>
+    <h2>Не путай: три разных «потока»</h2>
+    <p>Слово «поток» в Java означает три совсем разные вещи. По-английски у двух из них одно и то же слово <i>stream</i>, а третье — <i>thread</i>, но по-русски все три часто зовут «потоком». Разведём их сразу, иначе дальше будет каша:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что</th><th>Как выглядит в коде</th><th>Где в курсе</th><th>Что это</th></tr>
+        <tr><td><b>Стрим</b> (Stream API)</td><td><code>list.stream()</code>, <code>Stream&lt;String&gt;</code>, <code>Files.lines(p)</code></td><td>модуль 14, урок 15.2</td><td><b>конвейер обработки</b> элементов: <code>filter</code>, <code>map</code>, <code>count</code></td></tr>
+        <tr><td><b>Поток ввода-вывода</b> (I/O stream)</td><td><code>InputStream</code>, <code>OutputStream</code>, <code>Reader</code>, <code>Writer</code></td><td><b>этот урок</b></td><td><b>труба</b>, по которой байты или символы текут между программой и файлом, сетью, клавиатурой</td></tr>
+        <tr><td><b>Поток выполнения</b> (thread)</td><td><code>Thread</code></td><td>модуль 16</td><td><b>исполнитель</b>: отдельная «линия работы» внутри программы; несколько потоков выполнения работают одновременно</td></tr>
+      </table>
+    </div>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кухня ресторана</span>
+      <p><b>Поток ввода-вывода</b> — труба, по которой на кухню поступают продукты. <b>Стрим</b> — конвейер, на котором продукты моют, режут и сортируют. <b>Поток выполнения</b> — повар; когда поваров несколько, они готовят одновременно.</p>
+    </div>
+    <p>В этом уроке «поток» — всегда <b>труба ввода-вывода</b>. Подсказка — имя класса: <code>…InputStream</code>, <code>…OutputStream</code>, <code>…Reader</code>, <code>…Writer</code> из пакета <code>java.io</code>.</p>
+    <div data-widget="buckets" id="three-streams">
+      <script type="application/json">
+      { "title": "Какой это «поток»?", "icon": "🚰",
+        "buckets": [ { "id": "api", "label": "🏭 Стрим (конвейер)", "style": "indigo" }, { "id": "io", "label": "🚰 Ввод-вывод (труба)", "style": "green" }, { "id": "thread", "label": "👨‍🍳 Поток выполнения", "style": "red" } ],
+        "items": [
+          { "emoji": "📋", "text": "names.stream().filter(n -> n.length() > 3)", "bucket": "api", "why": "stream() у коллекции — конвейер из модуля 14." },
+          { "emoji": "📄", "text": "Files.lines(Path.of(\"run.log\"))", "bucket": "api", "why": "Возвращает Stream<String> — тот же конвейер, просто строки идут из файла." },
+          { "emoji": "⌨️", "text": "System.in", "bucket": "io", "why": "Это InputStream — байты с клавиатуры." },
+          { "emoji": "💾", "text": "Files.newInputStream(Path.of(\"photo.png\"))", "bucket": "io", "why": "InputStream — труба с байтами из файла." },
+          { "emoji": "✍️", "text": "Files.newBufferedWriter(Path.of(\"orders.log\"))", "bucket": "io", "why": "Writer — труба для символов в файл." },
+          { "emoji": "🧵", "text": "new Thread(() -> System.out.println(\"hi\"))", "bucket": "thread", "why": "Thread — поток выполнения, модуль 16." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Поток ввода-вывода — это труба</h2>
+    <p><b>Поток ввода-вывода</b> (I/O stream) — это <b>последовательность байтов, которая течёт по одному</b>, как вода по трубе. С одной стороны — <b>источник</b> (файл, сеть, клавиатура), с другой — программа. Или наоборот: программа → <b>приёмник</b> (файл, экран).</p>
     <figure class="fig">
       <svg class="wide" viewBox="0 0 760 250" role="img" aria-label="Слева источник — файл, по трубе InputStream байты текут в программу. Справа программа по трубе OutputStream отдаёт байты в приёмник — файл">
         <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
@@ -77,7 +110,7 @@
       </svg>
       <figcaption>InputStream — труба «к программе», OutputStream — «от программы». По ним текут байты.</figcaption>
     </figure>
-    <p>Ты уже пользовался потоками, не зная этого:</p>
+    <p>Ты уже пользовался потоками ввода-вывода, не зная этого:</p>
     <ul>
       <li><code>System.in</code> — это <code>InputStream</code>: байты с клавиатуры. <code>new Scanner(System.in)</code> — создание объекта <code>Scanner</code>: конструктору передаём аргументом <code>System.in</code>, и сканер подключается к трубе как удобный «кран».</li>
       <li><code>System.out</code> — <code>PrintStream</code>, наследник <code>OutputStream</code>: байты в консоль.</li>
@@ -97,12 +130,12 @@
     </details>
   </section>
 
-  <!-- ШАГ 3 -->
+  <!-- ШАГ 4 -->
   <section class="step">
-    <h2>Четыре семьи: байты и символы</h2>
-    <p>Байты — это хорошо для картинок, фото, архивов. Но текст удобнее читать <b>символами</b>, а кириллическая буква занимает 2 байта. Поэтому в <code>java.io</code> две пары семейств:</p>
+    <h2>Байты и символы</h2>
+    <p>Байты — это хорошо для картинок, фото, архивов. Но текст удобнее читать <b>символами</b>: кириллическая буква в UTF-8 занимает 2 байта, и собирать её из байтов вручную никто не хочет. Поэтому в пакете <code>java.io</code> две пары классов:</p>
     <figure class="fig">
-      <svg viewBox="0 0 640 260" role="img" aria-label="Таблица два на два: байтовые потоки InputStream и OutputStream, символьные Reader и Writer; мост InputStreamReader">
+      <svg viewBox="0 0 640 260" role="img" aria-label="Таблица два на два: байтовые потоки InputStream и OutputStream, символьные Reader и Writer">
         <rect x="160" y="16" width="230" height="40" rx="10" class="d-soft"/>
         <text x="275" y="42" text-anchor="middle" class="d-title">Чтение (in)</text>
         <rect x="400" y="16" width="230" height="40" rx="10" class="d-soft"/>
@@ -124,21 +157,24 @@
         <text x="275" y="214" text-anchor="middle" class="d-small">FileReader, BufferedReader</text>
         <rect x="400" y="156" width="230" height="80" rx="10" class="d-yellow"/>
         <text x="515" y="190" text-anchor="middle" class="d-mono-ink">Writer</text>
-        <text x="515" y="214" text-anchor="middle" class="d-small">FileWriter, PrintWriter</text>
+        <text x="515" y="214" text-anchor="middle" class="d-small">FileWriter, BufferedWriter, PrintWriter</text>
       </svg>
       <figcaption>Имя класса подсказывает семью: …Stream — байты, …Reader/…Writer — символы.</figcaption>
     </figure>
-    <p>Между семьями есть <b>мост</b>: <code>InputStreamReader</code> берёт трубу с байтами и по таблице кодировки собирает из них символы. Например, так Scanner превращает байты клавиатуры в буквы.</p>
-    <div class="callout analogy">
-      <span class="callout-title">Аналогия: переходники для труб</span>
-      <p>Потоки в Java собирают как сантехнику: берут основную трубу и навинчивают на неё насадки. <code>new BufferedReader(new InputStreamReader(new FileInputStream("a.txt"), UTF_8))</code> — создаём объекты изнутри наружу, и каждый передаём аргументом в конструктор следующего: труба из файла → переходник байты→символы → накопительный бак. Такой приём называется <b>обёртка</b> (декоратор): каждая насадка добавляет одну способность.</p>
-    </div>
+    <p>Запомни одно правило: <b>…Stream — байты, …Reader и …Writer — символы</b>. Для текста почти всегда нужны Reader и Writer — например, <code>BufferedWriter</code> из урока 15.3 и <code>BufferedReader</code> из следующего шага.</p>
+    <details class="curious">
+      <summary>🔎 Для любопытных: трубы с насадками (декоратор)</summary>
+      <p>Между семьями есть <b>мост</b>: класс <code>InputStreamReader</code> берёт трубу с байтами и по таблице кодировки собирает из них символы. Например, так <code>Scanner</code> превращает байты клавиатуры в буквы.</p>
+      <p>В старом коде потоки собирают как сантехнику: берут основную трубу и навинчивают на неё насадки:</p>
+<pre><code class="java">new BufferedReader(new InputStreamReader(new FileInputStream("a.txt"), StandardCharsets.UTF_8))</code></pre>
+      <p>Объекты создаются изнутри наружу, и каждый передаётся аргументом в конструктор следующего: труба из файла → переходник «байты → символы» → накопительный бак с <code>readLine()</code>. Такой приём называется <b>обёртка</b>, или паттерн <b>декоратор</b>: каждая насадка добавляет одну способность. Тебе писать так не нужно — <code>Files.newBufferedReader(путь)</code> собирает ту же цепочку за тебя.</p>
+    </details>
   </section>
 
-  <!-- ШАГ 4 -->
+  <!-- ШАГ 5 -->
   <section class="step">
     <h2>BufferedReader: ведром, а не каплями</h2>
-    <p>Каждое обращение к диску — дорогое: это как сходить к колодцу. Если брать воду по капле, будешь ходить вечность. <b>Буфер</b> — ведро: поток зачерпывает сразу кусок (обычно 8 КБ), а программа берёт из ведра сколько нужно. Ведро кончилось — новый поход к колодцу.</p>
+    <p>Каждое обращение к диску — дорогое: это как сходить к колодцу. Если брать воду по капле, будешь ходить вечность. <b>Буфер</b> — ведро: поток зачерпывает сразу кусок (обычно 8 КБ), а программа берёт из ведра сколько нужно. Ведро кончилось — новый поход к колодцу. <code>BufferedWriter</code> из урока 15.3 работает так же, только в обратную сторону: копит текст в ведре и выливает на диск целиком.</p>
     <p><code>BufferedReader</code> вдобавок умеет читать <b>строку целиком</b> — метод <code>readLine()</code>. Когда строки кончились, он возвращает <code>null</code>.</p>
 <pre data-file="ReadLines.java"><code class="java">try (BufferedReader br = Files.newBufferedReader(Path.of("users.csv"))) {
     String line;
@@ -149,7 +185,7 @@
     }
 }</code></pre>
     <div class="annot">
-      <div class="annot-row"><code>Files.newBufferedReader(путь)</code><div><p>Современный способ: вызов статического метода <code>newBufferedReader</code> открывает файл и возвращает объект <code>BufferedReader</code>, сразу в UTF-8. Им инициализируется переменная <code>br</code>, объявленная в скобках после <code>try</code>. Раньше объект создавали вручную: <code>new BufferedReader(new FileReader("users.csv"))</code> — результат тот же.</p></div></div>
+      <div class="annot-row"><code>Files.newBufferedReader(путь)</code><div><p>Современный способ: вызов статического метода <code>newBufferedReader</code> открывает файл и возвращает объект <code>BufferedReader</code>, сразу в UTF-8. Им инициализируется переменная <code>br</code>, объявленная в скобках после <code>try</code>. В старом коде объект создают вручную: <code>new BufferedReader(new FileReader("users.csv"))</code> — результат тот же.</p></div></div>
       <div class="annot-row"><code>(line = br.readLine()) != null</code><div><p>Два дела в одном условии: вызываем <code>br.readLine()</code>, присваиваем возвращённую строку переменной <code>line</code> и сравниваем результат присваивания с <code>null</code>. Скобки обязательны. Идиома, которую встретишь в любом старом коде.</p></div></div>
     </div>
     <div data-widget="trace" id="trace-readline">
@@ -173,7 +209,7 @@
     </div>
   </section>
 
-  <!-- ШАГ 5 -->
+  <!-- ШАГ 6 -->
   <section class="step">
     <h2>Закрывай кран</h2>
     <p>Открытый поток держит файл: операционная система выделила под него ресурс. Пока поток не закрыт:</p>
@@ -213,7 +249,14 @@ w.write("Все заказы оплачены");
     // на выходе из блока Java сама вызовет w.close():
     // буфер сбросится на диск, файл закроется
 }</code></pre>
-    <p>В скобках после <code>try</code> можно объявить несколько ресурсов через <code>;</code>. Подойдёт любой объект, класс которого реализует интерфейс <code>AutoCloseable</code> (у него один метод <code>close()</code>). Сделаем свой «кран» и посмотрим порядок закрытия:</p>
+    <p>В скобках после <code>try</code> можно объявить любой объект, класс которого реализует интерфейс <code>AutoCloseable</code> — то есть у него есть метод <code>close()</code>. Все потоки, читатели, писатели и <code>Scanner</code> такие, а, например, <code>String</code> — нет. Ресурсов можно объявить несколько через <code>;</code> — тогда запомни два правила, их любят спрашивать на собеседованиях:</p>
+    <ol>
+      <li>закрываются они <b>в обратном порядке</b>: последний открытый — первым;</li>
+      <li>закрытие происходит <b>до</b> блока <code>catch</code>: когда исключение перехвачено, краны уже закрыты.</li>
+    </ol>
+    <details class="curious">
+      <summary>🔎 Для любопытных: свой «кран» с AutoCloseable — проверим порядок закрытия</summary>
+      <p>Сделаем класс, который реализует <code>AutoCloseable</code> и печатает, когда его открыли и закрыли:</p>
 <pre data-file="TapDemo.java"><code class="java">class Tap implements AutoCloseable {
     private final String name;
     Tap(String name) { this.name = name; System.out.println("открыт " + name); }
@@ -231,21 +274,77 @@ public class TapDemo {
         }
     }
 }</code></pre>
-    <details class="predict">
-      <summary>Предскажи вывод — прежде чем открыть</summary>
 <pre class="terminal"><span class="out">открыт A
 открыт B
 работаем
 закрыт B
 закрыт A
 поймали: авария</span></pre>
-      <p>Две вещи, которые спрашивают на собеседованиях: 1) ресурсы закрываются <b>в обратном порядке</b> — последний открытый первым (как матрёшку собирают: сначала закрываешь внутреннюю); 2) закрытие происходит <b>до</b> блока <code>catch</code> — к моменту, когда исключение перехвачено в <code>catch</code>, краны уже закрыты.</p>
+      <p>Видно оба правила: B закрыт раньше A (как матрёшку: сначала закрываешь внутреннюю), и оба закрыты ещё до <code>catch</code>.</p>
     </details>
   </section>
 
-  <!-- ШАГ 6 -->
+  <!-- ШАГ 7 -->
   <section class="step">
-    <h2>Scanner для файла</h2>
+    <h2>Старые классы: FileReader, FileWriter и FileNotFoundException</h2>
+    <p>В старом коде и в статьях файлы открывают не через <code>Files</code>, а создают объекты классов из <code>java.io</code> оператором <code>new</code>. Узнать их стоит — встретишь обязательно:</p>
+<pre data-file="OldStyle.java"><code class="java">// чтение построчно — как Files.newBufferedReader
+try (BufferedReader br = new BufferedReader(new FileReader("users.txt"))) {
+    System.out.println(br.readLine());
+}
+
+// запись — старое содержимое стирается
+try (FileWriter w = new FileWriter("log.txt")) {
+    w.write("новый журнал\n");
+}
+
+// дописывание: второй аргумент true — «пиши в конец»
+try (FileWriter w = new FileWriter("log.txt", true)) {
+    w.write("заказ 1: оплачен\n");
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>new FileWriter("log.txt")</code><div><p>Создаём объект <code>FileWriter</code>, конструктору передаём имя файла. Как <code>writeString</code> без опций: файла нет — создаст, есть — <b>сотрёт</b> старое.</p></div></div>
+      <div class="annot-row"><code>new FileWriter("log.txt", true)</code><div><p>Второй аргумент конструктора — <code>append</code> («дописывать»). <code>true</code> — то же самое, что пара <code>CREATE, APPEND</code> из урока 15.3: файла нет — создаст, есть — допишет в конец. С <code>false</code> — перезапишет.</p></div></div>
+      <div class="annot-row"><code>w.write("…\n")</code><div><p>Метод <code>write</code> у <code>FileWriter</code>, как и у <code>BufferedWriter</code>, пишет текст как есть — перевод строки ставим сами.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: программу с <code>new FileWriter("log.txt", true)</code>, которая пишет одну строку, запустили три раза. А если без <code>true</code>?</summary>
+      <p>С <code>true</code> в файле три строки — по одной от каждого запуска. Без второго аргумента — одна: каждый запуск стирает файл и пишет заново.</p>
+    </details>
+    <p>Если файла нет, старые классы бросают не <code>NoSuchFileException</code>, а своё исключение — <code>FileNotFoundException</code>:</p>
+    <div data-widget="ide" id="shot-file-not-found">
+      <script type="application/json">
+      { "project": "workspace", "statusPath": "module-15", "file": "OldReader.java", "runConfig": "OldReader", "gutterRun": [5, 6],
+        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
+                  { "name": "module-15", "type": "src", "depth": 1, "open": true },
+                  { "name": "OldReader", "type": "class", "depth": 2, "selected": true } ],
+        "code": "import java.io.BufferedReader;\nimport java.io.FileReader;\nimport java.io.IOException;\n\npublic class OldReader {\n    public static void main(String[] args) throws IOException {\n        try (BufferedReader br = new BufferedReader(new FileReader(\"nope.txt\"))) {\n            System.out.println(br.readLine());\n        }\n    }\n}",
+        "console": { "title": "OldReader", "lines": [
+          { "t": "cmd", "s": "C:\\Users\\Misha\\.jdks\\temurin-21\\bin\\java.exe -javaagent:… OldReader" },
+          { "t": "err", "s": "Exception in thread \"main\" java.io.FileNotFoundException: nope.txt (Не удается найти указанный файл)" },
+          { "t": "err", "s": "\tat java.base/java.io.FileInputStream.open0(Native Method)" },
+          { "t": "err", "s": "\tat java.base/java.io.FileInputStream.open(FileInputStream.java:213)" },
+          { "t": "err", "s": "\tat java.base/java.io.FileInputStream.<init>(FileInputStream.java:152)" },
+          { "t": "err", "s": "\tat java.base/java.io.FileInputStream.<init>(FileInputStream.java:106)" },
+          { "t": "err", "s": "\tat java.base/java.io.FileReader.<init>(FileReader.java:60)" },
+          { "t": "err", "s": "\tat OldReader.main(OldReader.java:7)" },
+          { "t": "exit", "s": "Process finished with exit code 1" } ] },
+        "marks": [ { "n": 1, "target": "error", "side": "bottom", "text": "<b>FileNotFoundException: nope.txt</b> — «файл не найден». В скобках — объяснение от самой Windows" },
+                   { "n": 2, "target": "link-4", "text": "<code>&lt;init&gt;</code> в stack trace — это <b>конструктор</b>. Упало при создании объекта <code>FileReader</code>, то есть при открытии файла" },
+                   { "n": 3, "target": "link-5", "text": "Твоя строка — <b>7</b>, где создаётся <code>new FileReader(\"nope.txt\")</code>" } ],
+        "caption": "Старый FileReader: файла нет — FileNotFoundException" }
+      </script>
+    </div>
+    <ul>
+      <li><code>FileNotFoundException</code> (старые классы) и <code>NoSuchFileException</code> (класс <code>Files</code>) — оба наследники <code>IOException</code>. Поэтому <code>catch (IOException e)</code> поймает любое из них.</li>
+      <li><code>FileWriter</code> тоже бросает <code>FileNotFoundException</code> — когда нет <b>папки</b> для файла (лечится тем же <code>Files.createDirectories</code>) или файл нельзя открыть на запись.</li>
+      <li>Лечение то же, что в уроке 15.2: напечатай <code>toAbsolutePath()</code> и проверь, где на самом деле лежит файл.</li>
+    </ul>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Scanner для файла — и чем он отличается от BufferedReader</h2>
     <p>Знакомый <code>Scanner</code> умеет читать не только клавиатуру, но и файл: при создании объекта передаём конструктору аргументом объект <code>Path</code>. Удобно, когда в файле числа: <code>nextInt</code> сам разберёт их.</p>
 <pre data-file="SumFromFile.java"><code class="java">// в файле steps.txt: 340 1250 87 410
 // (шаги за четыре прогулки, через пробелы или по строкам)
@@ -257,13 +356,28 @@ try (Scanner sc = new Scanner(Path.of("steps.txt"))) {
     System.out.println("Всего: " + total + " шагов");
 }</code></pre>
 <pre class="terminal"><span class="out">Всего: 2087 шагов</span></pre>
+    <p>Так что же брать для чтения файла — <code>Scanner</code> или <code>BufferedReader</code>?</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th><code>Scanner</code></th><th><code>BufferedReader</code></th></tr>
+        <tr><td>Что умеет</td><td>разбирает текст на слова и числа: <code>next()</code>, <code>nextInt()</code>, <code>nextLine()</code></td><td>читает только строки целиком: <code>readLine()</code></td></tr>
+        <tr><td>Числа</td><td><code>nextInt()</code> сам превращает текст в число</td><td>получаешь строку и разбираешь сам: <code>Integer.parseInt(line)</code></td></tr>
+        <tr><td>Конец данных</td><td><code>hasNextInt()</code> / <code>hasNextLine()</code> вернут <code>false</code></td><td><code>readLine()</code> вернёт <code>null</code></td></tr>
+        <tr><td>Скорость</td><td>медленнее: разбирает текст по ходу чтения</td><td>быстрее: просто отдаёт строки из буфера</td></tr>
+        <tr><td>Когда брать</td><td>ввод с клавиатуры, небольшой файл с числами и словами</td><td>большие файлы, логи, обработка строка за строкой</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: в файле <code>steps.txt</code> одна строка <code>340 1250</code>. Что вернёт <code>br.readLine()</code>, а что — <code>sc.nextInt()</code>?</summary>
+      <p><code>readLine()</code> вернёт всю строку <code>"340 1250"</code> — это <code>String</code>, сложить его с числом не выйдет: придётся сделать <code>split(" ")</code> и <code>Integer.parseInt</code>. А <code>nextInt()</code> вернёт <code>int</code> <code>340</code>, следующий вызов — <code>1250</code>.</p>
+    </details>
     <div class="callout warn">
       <span class="callout-title">А Scanner(System.in) закрывать не надо</span>
       <p>Вызов <code>close()</code> у Scanner закрывает и трубу под ним. Для файла — то, что нужно. А закроешь <code>Scanner(System.in)</code> — закроется сама клавиатура для программы, и новый Scanner уже ничего не прочитает. Правило: <b>закрывай то, что сам открыл</b>. <code>System.in</code> открывал не ты.</p>
     </div>
   </section>
 
-  <!-- ШАГ 7 -->
+  <!-- ШАГ 9 -->
   <section class="step">
     <h2>Старое и новое</h2>
     <p>Когда что брать, если ты пишешь код сам:</p>
@@ -272,12 +386,17 @@ try (Scanner sc = new Scanner(Path.of("steps.txt"))) {
         <tr><th>Задача</th><th>Современно (пиши так)</th><th>Встретишь в старом коде</th></tr>
         <tr><td>Прочитать небольшой текст</td><td><code>Files.readString</code>, <code>readAllLines</code></td><td><code>BufferedReader</code> + <code>FileReader</code> в цикле</td></tr>
         <tr><td>Большой файл построчно</td><td><code>Files.lines</code> или <code>Files.newBufferedReader</code></td><td><code>new BufferedReader(new FileReader(…))</code></td></tr>
-        <tr><td>Записать текст</td><td><code>Files.writeString</code>, <code>Files.write</code></td><td><code>FileWriter</code>, <code>PrintWriter</code></td></tr>
+        <tr><td>Записать текст или готовый список</td><td><code>Files.writeString</code>, <code>Files.write</code></td><td><code>new FileWriter(…)</code></td></tr>
+        <tr><td>Много строк в цикле</td><td><code>Files.newBufferedWriter</code> + <code>newLine()</code> или <code>PrintWriter</code> поверх него (урок 15.3)</td><td><code>new BufferedWriter(new FileWriter(…))</code></td></tr>
+        <tr><td>Дописать в конец</td><td>опции <code>CREATE, APPEND</code></td><td><code>new FileWriter(файл, true)</code></td></tr>
         <tr><td>Картинка, фото, любые байты</td><td><code>Files.readAllBytes</code>, <code>Files.write(путь, байты)</code></td><td><code>FileInputStream</code>, <code>FileOutputStream</code></td></tr>
-        <tr><td>Данные пришли как поток (сеть, ресурс)</td><td><code>Files.copy(inputStream, путь)</code></td><td>цикл <code>read</code>/<code>write</code> с массивом-буфером</td></tr>
       </table>
     </div>
-    <div class="say" data-mood="cool"><p>Поток встретится, например, когда файл-ресурс лежит внутри проекта: <code>getClass().getResourceAsStream("/users.csv")</code> возвращает именно <code>InputStream</code>. Теперь ты знаешь, что с ним делать: обернуть в <code>BufferedReader</code> и закрыть.</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: ресурсы — файлы внутри программы</summary>
+      <p><b>Ресурс</b> — это файл с данными (настройки, картинка, список городов), который лежит не где-то на диске, а <b>внутри самого проекта, рядом с кодом</b>, и при сборке упаковывается вместе с программой. В проекте со сборщиком Gradle (модуль 17) для них есть папка <code>src/main/resources</code>.</p>
+      <p>По обычному пути <code>Path.of(…)</code> ресурс не найти: программу могут запустить из любой папки, а файл лежит внутри собранного архива. Поэтому его просят у самой программы: <code>getClass().getResourceAsStream("/users.csv")</code>. Метод возвращает <code>InputStream</code> — трубу с байтами (или <code>null</code>, если ресурса нет). Дальше как обычно: обернуть в <code>BufferedReader</code> через <code>InputStreamReader</code> с UTF-8 и закрыть в try-с-ресурсами.</p>
+    </details>
     <details class="curious">
       <summary>🔎 Для любопытных: сериализация — объект в байты</summary>
       <p>Есть потоки, которые пишут в файл <b>целый объект</b>: <code>ObjectOutputStream.writeObject(obj)</code> и обратно <code>ObjectInputStream.readObject()</code>. Класс должен реализовать пустой интерфейс-метку <code>Serializable</code>, а поля, которые сохранять не надо (пароль, кеш), помечают словом <code>transient</code>.</p>
@@ -285,27 +404,31 @@ try (Scanner sc = new Scanner(Path.of("steps.txt"))) {
     </details>
   </section>
 
-  <!-- ШАГ 8 -->
+  <!-- ШАГ 10 -->
   <section class="step">
     <h2>Проверь себя</h2>
     <div data-widget="check" id="check-m15-04">
       <script type="application/json">
       { "title": "Потоки ввода-вывода — главное",
         "items": [
-          { "type": "match", "q": "Соедини класс с тем, что по нему течёт",
-            "left": ["InputStream", "Writer", "BufferedReader", "InputStreamReader"],
-            "right": ["Байты — в программу", "Символы — из программы", "Символы с буфером, есть readLine()", "Мост: байты → символы по кодировке"],
-            "why": "…Stream — байты, …Reader/…Writer — символы, Buffered — с ведром, InputStreamReader — переходник." },
-          { "type": "predict", "q": "Что выведет программа? (класс Tap из урока печатает «закрыт имя»)",
-            "code": "try (Tap x = new Tap(\"X\"); Tap y = new Tap(\"Y\"); Tap z = new Tap(\"Z\")) {\n    System.out.println(\"ok\");\n}",
-            "answer": "открыт X\nоткрыт Y\nоткрыт Z\nok\nзакрыт Z\nзакрыт Y\nзакрыт X", "why": "Открываются по порядку, закрываются в обратном." },
+          { "type": "match", "q": "Соедини, что есть что",
+            "left": ["InputStream", "Writer", "BufferedReader", "Stream&lt;String&gt; из Files.lines", "Thread"],
+            "right": ["Труба с байтами — в программу", "Труба с символами — из программы", "Символы с буфером, есть readLine()", "Конвейер обработки строк (модуль 14)", "Поток выполнения (модуль 16)"],
+            "why": "…Stream из java.io — байты, …Reader/…Writer — символы, Buffered — с ведром. Stream из Stream API — конвейер, Thread — исполнитель." },
+          { "type": "predict", "q": "Файла <code>log.txt</code> сначала нет. Что выведет программа?",
+            "code": "for (int run = 1; run <= 2; run++) {\n    try (FileWriter w = new FileWriter(\"log.txt\", true)) {\n        w.write(\"запуск \" + run + \"\\n\");\n    }\n}\nSystem.out.println(Files.readAllLines(Path.of(\"log.txt\")));",
+            "answer": "[запуск 1, запуск 2]", "why": "Второй аргумент true — дописывать: вторая запись легла после первой." },
           { "type": "single", "q": "Что вернёт <code>br.readLine()</code>, когда строки в файле закончились?",
             "options": ["Пустую строку \"\"", "null", "-1"], "answer": 1,
             "why": "readLine возвращает null. А -1 — это конец у read() в InputStream." },
+          { "type": "single", "q": "В небольшом файле числа через пробел, нужно их сложить. Что удобнее всего?",
+            "options": ["Scanner: hasNextInt() и nextInt() в цикле", "InputStream.read() по одному байту", "BufferedReader.readLine() без split"], "answer": 0,
+            "why": "Scanner сам разбирает текст на числа. BufferedReader отдаст строку целиком — её пришлось бы резать split и разбирать parseInt." },
           { "type": "tf", "q": "Верно или нет?",
             "statements": [
               { "s": "Если не закрыть BufferedWriter, записанный текст может не попасть в файл", "a": true },
               { "s": "В try-with-resources ресурс закрывается после блока catch", "a": false, "why": "до него: к catch ресурсы уже закрыты." },
+              { "s": "<code>new FileReader(\"nope.txt\")</code> для несуществующего файла выбросит <code>FileNotFoundException</code> — наследника <code>IOException</code>", "a": true },
               { "s": "<code>Scanner(System.in)</code> стоит закрывать в конце каждого метода", "a": false, "why": "закроется сама клавиатура — следующий Scanner ничего не прочитает." }
             ] },
           { "type": "order", "q": "Собери чтение файла построчно",
@@ -316,16 +439,18 @@ try (Scanner sc = new Scanner(Path.of("steps.txt"))) {
     </div>
     <div class="callout ai">
       <span class="callout-title">Поговори с наставником</span>
-      <p>Напиши: <em>«Я прошёл урок 15.4. Спроси меня, зачем закрывать потоки и в каком порядке закрывает try-with-resources»</em>.</p>
+      <p>Напиши: <em>«Я прошёл урок 15.4. Спроси меня, чем стрим, поток ввода-вывода и поток выполнения отличаются друг от друга, зачем закрывать потоки и в каком порядке закрывает try-with-resources»</em>.</p>
     </div>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
-        <li>Поток — труба с байтами: <code>InputStream</code> в программу, <code>OutputStream</code> из неё. Для текста — <code>Reader</code>/<code>Writer</code>.</li>
+        <li>«Поток» в Java — три разные вещи: стрим (конвейер из модуля 14), поток ввода-вывода (труба к файлу — этот урок) и поток выполнения (<code>Thread</code>, модуль 16).</li>
+        <li>Поток ввода-вывода — труба с байтами: <code>InputStream</code> в программу, <code>OutputStream</code> из неё. Для текста — <code>Reader</code>/<code>Writer</code>.</li>
         <li><code>read()</code> возвращает −1 в конце, <code>readLine()</code> — <code>null</code>.</li>
         <li>Буфер — ведро: меньше походов к диску. <code>BufferedReader.readLine()</code> читает строку целиком.</li>
         <li>Потоки надо закрывать: try-с-ресурсами закрывает сам, в обратном порядке и до <code>catch</code>. Не закрыл буферизованную запись — файл может остаться пустым.</li>
-        <li>Scanner читает и файлы: создаём объект <code>new Scanner(Path.of(…))</code>. <code>System.in</code> не закрывай.</li>
+        <li>Старые классы: <code>new FileWriter(файл, true)</code> дописывает в конец; нет файла — <code>FileNotFoundException</code>.</li>
+        <li><code>Scanner</code> разбирает числа и слова (удобно для клавиатуры и маленьких файлов), <code>BufferedReader</code> быстро читает строки (для больших файлов). <code>System.in</code> не закрывай.</li>
       </ul>
     </div>
   </section>
