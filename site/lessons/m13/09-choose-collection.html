@@ -118,6 +118,65 @@
     </div>
   </section>
 
+  <!-- ШАГ 5б -->
+  <section class="step">
+    <h2>Что под капотом: структуры данных</h2>
+    <p>Коллекции — это готовые Java-классы. А внутри у каждой лежит <b>структура данных</b> — способ разложить элементы в памяти так, чтобы нужные операции работали быстро. Названия структур одинаковые во всех языках, и про них спрашивают на собеседованиях. Их делят на группы:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 250" role="img" aria-label="Три вида структур: линейная цепочка, дерево с корнем 50 и граф из четырёх городов">
+        <text x="110" y="24" text-anchor="middle" class="d-title">Линейная</text>
+        <rect x="20" y="60" width="50" height="40" rx="6" class="d-box"/><text x="45" y="85" text-anchor="middle" class="d-mono-ink">7</text>
+        <rect x="85" y="60" width="50" height="40" rx="6" class="d-box"/><text x="110" y="85" text-anchor="middle" class="d-mono-ink">2</text>
+        <rect x="150" y="60" width="50" height="40" rx="6" class="d-box"/><text x="175" y="85" text-anchor="middle" class="d-mono-ink">9</text>
+        <path d="M70 80 H82" class="d-arrow"/><path d="M135 80 H147" class="d-arrow"/>
+        <text x="110" y="135" text-anchor="middle" class="d-small">один за другим:</text>
+        <text x="110" y="153" text-anchor="middle" class="d-small">массив, связный список,</text>
+        <text x="110" y="171" text-anchor="middle" class="d-small">стек, очередь, дек</text>
+
+        <text x="370" y="24" text-anchor="middle" class="d-title">Дерево</text>
+        <path d="M370 66 L320 116" class="d-line"/><path d="M370 66 L420 116" class="d-line"/>
+        <path d="M320 136 L290 186" class="d-line"/><path d="M320 136 L350 186" class="d-line"/><path d="M420 136 L450 186" class="d-line"/>
+        <circle cx="370" cy="56" r="20" class="d-accent"/><text x="370" y="62" text-anchor="middle" class="d-mono-ink">50</text>
+        <circle cx="320" cy="126" r="20" class="d-box"/><text x="320" y="132" text-anchor="middle" class="d-mono-ink">30</text>
+        <circle cx="420" cy="126" r="20" class="d-box"/><text x="420" y="132" text-anchor="middle" class="d-mono-ink">70</text>
+        <circle cx="290" cy="196" r="20" class="d-green"/><text x="290" y="202" text-anchor="middle" class="d-mono-ink">20</text>
+        <circle cx="350" cy="196" r="20" class="d-green"/><text x="350" y="202" text-anchor="middle" class="d-mono-ink">40</text>
+        <circle cx="450" cy="196" r="20" class="d-green"/><text x="450" y="202" text-anchor="middle" class="d-mono-ink">80</text>
+        <text x="370" y="240" text-anchor="middle" class="d-small">слева меньше, справа больше</text>
+
+        <text x="620" y="24" text-anchor="middle" class="d-title">Граф</text>
+        <path d="M560 70 L680 70" class="d-line"/><path d="M560 70 L590 180" class="d-line"/><path d="M680 70 L590 180" class="d-line"/><path d="M680 70 L700 180" class="d-line"/>
+        <circle cx="560" cy="70" r="20" class="d-blue"/><text x="560" y="75" text-anchor="middle" class="d-small">А</text>
+        <circle cx="680" cy="70" r="20" class="d-blue"/><text x="680" y="75" text-anchor="middle" class="d-small">Б</text>
+        <circle cx="590" cy="180" r="20" class="d-blue"/><text x="590" y="185" text-anchor="middle" class="d-small">В</text>
+        <circle cx="700" cy="180" r="20" class="d-blue"/><text x="700" y="185" text-anchor="middle" class="d-small">Г</text>
+        <text x="625" y="230" text-anchor="middle" class="d-small">вершины и рёбра</text>
+      </svg>
+      <figcaption>Линейная структура — цепочка. Дерево — иерархия от одного корня. Граф — сеть, где связи идут как угодно.</figcaption>
+    </figure>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Группа</th><th>Структура</th><th>Как устроена</th><th>Где в Java</th></tr>
+        <tr><td rowspan="4">Линейные</td><td>Массив</td><td>ячейки подряд в памяти, доступ по номеру мгновенный, размер фиксирован</td><td><code>int[]</code>, внутри <code>ArrayList</code></td></tr>
+        <tr><td>Связный список</td><td>каждый узел хранит значение и ссылку на соседа</td><td><code>LinkedList</code></td></tr>
+        <tr><td>Стек и очередь</td><td>LIFO и FIFO, урок 13.6</td><td><code>ArrayDeque</code></td></tr>
+        <tr><td>Дек</td><td>двусторонняя очередь: добавлять и забирать с обоих концов</td><td><code>ArrayDeque</code></td></tr>
+        <tr><td rowspan="3">Нелинейные</td><td>Дерево</td><td>у каждого узла есть потомки. В <b>дереве поиска</b> слева меньшие значения, справа большие, поэтому нужное находится за несколько шагов</td><td><code>TreeSet</code>, <code>TreeMap</code> (красно-чёрное дерево — оно само себя выравнивает)</td></tr>
+        <tr><td>Куча (heap)</td><td>дерево, где родитель всегда меньше потомков, поэтому минимум всегда наверху</td><td><code>PriorityQueue</code></td></tr>
+        <tr><td>Граф</td><td>вершины и рёбра между ними: карта дорог, друзья в соцсети</td><td>готового класса нет, обычно <code>Map&lt;String, List&lt;String&gt;&gt;</code>: вершина → соседи</td></tr>
+        <tr><td>Ассоциативные</td><td>Хеш-таблица</td><td>пары «ключ — значение» в корзинах по hashCode, урок 13.4</td><td><code>HashMap</code>, <code>HashSet</code></td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Две разные «кучи»</span>
+      <p>В модуле 2 «кучей» (heap) называлась область памяти, где живут объекты. Здесь куча — структура данных внутри <code>PriorityQueue</code>. Слово одно, а вещи разные, и на собеседовании это любят уточнить.</p>
+    </div>
+    <details class="predict">
+      <summary>В дереве поиска со схемы выше ищем число 40. Сколько узлов придётся посмотреть?</summary>
+      <p><b>Три.</b> 40 меньше 50 — идём влево, к 30. 40 больше 30 — идём вправо и находим 40. Каждый шаг отбрасывает половину оставшегося дерева, поэтому даже среди миллиона элементов поиск занимает около 20 шагов. Так TreeSet и TreeMap находят элемент быстро и при этом хранят всё по порядку.</p>
+    </details>
+  </section>
+
   <!-- ШАГ 6 -->
   <section class="step">
     <h2>Проверь себя</h2>

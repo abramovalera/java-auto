@@ -592,6 +592,27 @@ assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }</code
         <tr><td>Локальный «холодильник»</td><td><code>~/.gradle/caches</code></td><td><code>~/.m2/repository</code></td></tr>
       </table>
     </div>
+    <h3>Жизненный цикл Maven</h3>
+    <p>Maven собирает проект по <b>жизненному циклу</b> — цепочке <b>фаз</b>, которые всегда идут в одном порядке. Когда ты просишь фазу, Maven выполняет и все предыдущие: <code>mvn package</code> сначала проверит проект, скомпилирует код и прогонит тесты, а потом упакует.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Фаза</th><th>Что делает</th></tr>
+        <tr><td><code>validate</code></td><td>проверяет, что проект описан правильно и всё нужное есть</td></tr>
+        <tr><td><code>compile</code></td><td>компилирует <code>src/main/java</code>: <code>.java</code> → <code>.class</code></td></tr>
+        <tr><td><code>test</code></td><td>компилирует и запускает тесты из <code>src/test/java</code></td></tr>
+        <tr><td><code>package</code></td><td>упаковывает скомпилированные классы в <code>.jar</code> (для веб-приложений бывает <code>.war</code>) в папку <code>target/</code></td></tr>
+        <tr><td><code>verify</code></td><td>дополнительные проверки готовой сборки</td></tr>
+        <tr><td><code>install</code></td><td>кладёт jar в твой локальный склад <code>~/.m2/repository</code>, чтобы его могли подключить другие твои проекты</td></tr>
+        <tr><td><code>deploy</code></td><td>отправляет jar в удалённое хранилище компании, чтобы им пользовались коллеги</td></tr>
+      </table>
+    </div>
+    <p>Отдельно от этой цепочки есть <code>clean</code> — удалить папку <code>target/</code> со старыми результатами. Самая частая команда на практике:</p>
+    <pre class="terminal"><span class="cmd">mvn clean package</span></pre>
+    <p>Она означает «удали старое и собери заново, прогнав тесты». У Gradle похожая команда — <code>./gradlew clean build</code>.</p>
+    <div class="callout fact">
+      <span class="callout-title">Что внутри .jar</span>
+      <p>jar — это обычный zip-архив (можно открыть архиватором). Внутри — скомпилированные <code>.class</code>-файлы по папкам пакетов, ресурсы и файл <code>META-INF/MANIFEST.MF</code>: метаинформация о библиотеке — версия, автор и, если jar запускаемый, строка <code>Main-Class</code> с классом, где лежит <code>main</code>. Такой jar запускается командой <code>java -jar имя.jar</code>.</p>
+    </div>
     <details class="curious">
       <summary>🔎 Для любопытных: ещё два отличия Maven</summary>
       <p><b>Какие классы считаются тестами.</b> Gradle с JUnit 5 запускает все классы, где есть <code>@Test</code>. Maven по умолчанию — только классы с именами <code>*Test</code>, <code>*Tests</code>, <code>Test*</code>: назовёшь класс <code>LoginChecks</code> — <code>mvn test</code> его не заметит.</p>

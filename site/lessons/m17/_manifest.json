@@ -1,5 +1,5 @@
 { "id": "m17", "num": "17", "title": "Инструменты разработчика",
-  "summary": "Отладчик IDEA, Git в одиночку и в команде, сборка на Gradle (и Maven обзорно), тесты на JUnit 5 и AssertJ, тест-дизайн: классы и границы.",
+  "summary": "Отладчик IDEA, Git в одиночку и в команде, сборка на Gradle (и Maven обзорно), тесты на JUnit 5 и AssertJ, тест-дизайн: классы и границы. Чистый код, DRY/KISS/YAGNI, SOLID и паттерны проектирования.",
   "lessons": [
     { "id": "m17-01", "title": "Отладчик IntelliJ IDEA", "url": "/lessons/m17/01-debugger.html" },
     { "id": "m17-02", "title": "Git: машина времени для кода", "url": "/lessons/m17/02-git-basics.html" },
@@ -8,7 +8,11 @@
     { "id": "m17-05", "title": "Тестирование и JUnit 5", "url": "/lessons/m17/05-junit.html" },
     { "id": "m17-06", "title": "JUnit 5 глубже и AssertJ", "url": "/lessons/m17/06-junit-deeper.html" },
     { "id": "m17-07", "title": "Мастерская: какие тесты написать", "url": "/lessons/m17/07-workshop-tests.html" },
-    { "id": "m17-pz", "title": "Головоломки: тесты, Git и отладчик", "url": "/lessons/m17/08-puzzles.html" },
+    { "id": "m17-clean", "title": "Чистый код: стиль, DRY, KISS, YAGNI", "url": "/lessons/m17/07b-clean-code.html" },
+    { "id": "m17-solid", "title": "SOLID: пять принципов хорошего дизайна", "url": "/lessons/m17/07c-solid.html" },
+    { "id": "m17-patterns1", "title": "Паттерны: как создавать объекты", "url": "/lessons/m17/07d-patterns-creational.html" },
+    { "id": "m17-patterns2", "title": "Паттерны: структурные и поведенческие", "url": "/lessons/m17/07e-patterns-behavior.html" },
+    { "id": "m17-pz", "title": "Головоломки: тесты, Git, чистый код и паттерны", "url": "/lessons/m17/08-puzzles.html" },
     { "id": "m17-sum", "title": "Итоги и финал курса", "url": "/lessons/m17/09-summary.html" }
   ],
-  "taskCount": 7 }
+  "taskCount": 9 }

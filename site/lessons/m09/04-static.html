@@ -275,6 +275,36 @@ Cat.MAX_LIVES = 10;</code></pre>
     </div>
   </section>
 
+  <!-- ШАГ 7б -->
+  <section class="step">
+    <h2>static-блок: код при загрузке класса</h2>
+    <p>Иногда константу не получается задать одной строкой: например, таблицу цен надо собрать из нескольких шагов. Для этого есть <b>статический блок</b> (static-блок, блок статической инициализации) — фигурные скобки со словом <code>static</code> прямо внутри класса, вне всех методов:</p>
+<pre data-file="PriceList.java"><code class="java">public class PriceList {
+    static final int[] PRICES = new int[3];
+
+    static {
+        System.out.println("Загружаю прайс");
+        PRICES[0] = 100;
+        PRICES[1] = 250;
+        PRICES[2] = PRICES[0] + PRICES[1];
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Старт main");
+        System.out.println(PRICES[2]);
+    }
+}</code></pre>
+    <p>JVM выполняет static-блок <b>один раз</b> — когда класс загружается, то есть при первом обращении к нему. Раньше, чем создастся первый объект, и раньше, чем вызовется любой static-метод, даже <code>main</code>. Если static-блоков несколько, они выполняются сверху вниз.</p>
+    <details class="predict">
+      <summary>Что выведет программа?</summary>
+      <pre class="terminal"><span class="out">Загружаю прайс
+Старт main
+350</span></pre>
+      <p>Чтобы вызвать <code>main</code>, JVM сначала загружает класс <code>PriceList</code> — и в этот момент срабатывает static-блок. Поэтому «Загружаю прайс» идёт первой строкой, хотя в коде блок не вызывается нигде.</p>
+    </details>
+    <p>На практике static-блоки встречаются нечасто: обычно хватает инициализации в одну строку (<code>List.of(…)</code>, <code>Map.of(…)</code>). Но на собеседовании любят спросить, в каком порядке что выполняется.</p>
+  </section>
+
   <!-- ШАГ 8 -->
   <section class="step">
     <h2>Проверь себя</h2>

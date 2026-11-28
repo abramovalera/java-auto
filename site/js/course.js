@@ -938,7 +938,7 @@ window.COURSE = {
       "num": "17",
       "title": "Инструменты разработчика",
       "status": "open",
-      "summary": "Отладчик IDEA, Git в одиночку и в команде, сборка на Gradle (и Maven обзорно), тесты на JUnit 5 и AssertJ, тест-дизайн: классы и границы.",
+      "summary": "Отладчик IDEA, Git в одиночку и в команде, сборка на Gradle (и Maven обзорно), тесты на JUnit 5 и AssertJ, тест-дизайн: классы и границы. Чистый код, DRY/KISS/YAGNI, SOLID и паттерны проектирования.",
       "lessons": [
         {
           "id": "m17-01",
@@ -976,8 +976,28 @@ window.COURSE = {
           "url": "/lessons/m17/07-workshop-tests.html"
         },
         {
+          "id": "m17-clean",
+          "title": "Чистый код: стиль, DRY, KISS, YAGNI",
+          "url": "/lessons/m17/07b-clean-code.html"
+        },
+        {
+          "id": "m17-solid",
+          "title": "SOLID: пять принципов хорошего дизайна",
+          "url": "/lessons/m17/07c-solid.html"
+        },
+        {
+          "id": "m17-patterns1",
+          "title": "Паттерны: как создавать объекты",
+          "url": "/lessons/m17/07d-patterns-creational.html"
+        },
+        {
+          "id": "m17-patterns2",
+          "title": "Паттерны: структурные и поведенческие",
+          "url": "/lessons/m17/07e-patterns-behavior.html"
+        },
+        {
           "id": "m17-pz",
-          "title": "Головоломки: тесты, Git и отладчик",
+          "title": "Головоломки: тесты, Git, чистый код и паттерны",
           "url": "/lessons/m17/08-puzzles.html"
         },
         {
@@ -987,7 +1007,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m17",
-      "taskCount": 7
+      "taskCount": 9
     }
   ]
 };

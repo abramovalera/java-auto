@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Паттерны: структурные и поведенческие · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-patterns2">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 17 · Урок 11</div>
+    <h1>Паттерны: структурные и поведенческие</h1>
+    <p class="lead">В прошлом уроке паттерны отвечали на вопрос «как создать объект». Сегодня — два других вопроса: как <b>соединить</b> объекты между собой и как им <b>договориться</b>, кто что делает. Восемь паттернов, и почти каждый ты уже встречал в Java, просто не знал его имени.</p>
+    <div class="meta"><span>⏱ 45 минут</span><span>🧱 4 структурных</span><span>🤝 4 поведенческих</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-patterns2-review">
+      <script type="application/json">
+      { "title": "Вспомним порождающие паттерны", "icon": "🔁",
+        "items": [
+          { "type": "match", "q": "Соедини паттерн с его сутью",
+            "left": ["Singleton", "Factory Method", "Builder", "Prototype"],
+            "right": ["Ровно один объект на всю программу", "Метод решает, объект какого класса создать", "Собираем объект по шагам, а в конце вызываем build()", "Новый объект — копия готового образца"],
+            "why": "Все четыре — порождающие: отвечают на вопрос «как появляется объект»." },
+          { "type": "single", "q": "Какой паттерн в этой строке?",
+            "code": "Pizza pizza = new Pizza.Builder()\n        .size(30)\n        .cheese()\n        .build();",
+            "options": ["Singleton", "Builder", "Abstract Factory", "Prototype"], "answer": 1,
+            "why": "Цепочка методов-настроек и финальный build() — визитная карточка Строителя." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Паттерны GoF делят на три группы: порождающие, структурные и поведенческие", "a": true },
+              { "s": "Паттерн — это готовая библиотека, которую подключают в Gradle", "a": false, "why": "паттерн — это проверенная идея решения, а не код. Его каждый раз пишут под свою задачу." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Две новые группы</h2>
+    <p>Напомню: <b>паттерн</b> (шаблон проектирования) — проверенная идея, как решить частую задачу в устройстве программы. Не готовый код, а рецепт: «если у тебя вот такая проблема — сделай вот так».</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🧱</span><h4>Структурные</h4><p>Как <b>собрать</b> объекты в конструкцию: подключить чужой класс, нарастить способность, спрятать сложность за простой кнопкой. Адаптер, Декоратор, Фасад, Заместитель.</p></div>
+      <div class="card"><span class="emoji">🤝</span><h4>Поведенческие</h4><p>Как объекты <b>общаются</b> и делят работу: кто выбирает алгоритм, кто кого оповещает, кто кого обходит. Стратегия, Итератор, Посредник, Наблюдатель.</p></div>
+    </div>
+    <div class="say" data-mood="think"><p>Не пытайся вызубрить все восемь сразу. Для каждого запомни три вещи: <b>какую боль он лечит</b>, <b>на что похож в жизни</b> и <b>где ты его уже видел</b> в Java. Код запомнится сам.</p></div>
+    <div class="cheat">
+      <h3>Выпиши себе: восемь паттернов одной строкой</h3>
+      <p>Перепиши таблицу в тетрадь руками и дополняй её по ходу урока своими примерами. На собеседовании про паттерны спрашивают именно так: «что это и где встречал».</p>
+      <div class="table-wrap"><table>
+        <tr><th>Паттерн</th><th>Суть одной строкой</th><th>Где уже видел</th></tr>
+        <tr><td><b>Adapter</b> (Адаптер)</td><td>Переходник: подгоняет чужой интерфейс под тот, что ждёт твой код</td><td><code>Arrays.asList</code>, <code>InputStreamReader</code></td></tr>
+        <tr><td><b>Decorator</b> (Декоратор)</td><td>Обёртка добавляет способность, не меняя класс; обёртки можно вкладывать</td><td><code>BufferedReader(FileReader)</code></td></tr>
+        <tr><td><b>Facade</b> (Фасад)</td><td>Одна простая кнопка поверх сложной системы</td><td><code>Files.readString</code></td></tr>
+        <tr><td><b>Proxy</b> (Заместитель)</td><td>Объект-представитель с тем же интерфейсом: откладывает, кеширует, проверяет доступ</td><td><code>Collections.unmodifiableList</code></td></tr>
+        <tr><td><b>Strategy</b> (Стратегия)</td><td>Алгоритм вынесен в отдельный объект и подменяется на лету</td><td><code>Comparator</code> в <code>sort</code></td></tr>
+        <tr><td><b>Iterator</b> (Итератор)</td><td>Обходит коллекцию, не раскрывая её устройства</td><td><code>Iterator</code>, for-each</td></tr>
+        <tr><td><b>Mediator</b> (Посредник)</td><td>Объекты общаются не напрямую, а через один центр</td><td>чат-комната, диспетчер</td></tr>
+        <tr><td><b>Observer</b> (Наблюдатель)</td><td>Подписчики получают оповещение, когда что-то случилось</td><td>слушатели событий</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Adapter — переходник</h2>
+    <p><b>Проблема.</b> Твоя программа работает с интерфейсом <code>Thermometer</code>: метод <code>celsius()</code> отдаёт градусы Цельсия. А датчик достался от старой библиотеки: класс <code>OldThermometer</code> умеет только <code>fahrenheit()</code>. Чужой код менять нельзя, свой переписывать не хочется.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: переходник для розетки</span>
+      <p>Привёз из поездки зарядку с плоской вилкой, а розетка дома круглая. Ни зарядку, ни розетку не переделываешь — покупаешь <b>переходник</b>. С одной стороны он выглядит как то, что ждёт розетка, с другой — принимает то, что у тебя есть.</p>
+    </div>
+    <p><b>Адаптер</b> — класс, который <b>реализует нужный тебе интерфейс</b>, а внутри держит чужой объект и переводит вызовы на его язык:</p>
+<pre data-file="ThermometerAdapter.java"><code class="java">// Чужой класс из старой библиотеки — менять нельзя
+class OldThermometer {
+    double fahrenheit() {
+        return 104;
+    }
+}
+
+// Интерфейс, который ждёт наша программа
+interface Thermometer {
+    double celsius();
+}
+
+// Переходник: снаружи Thermometer, внутри — OldThermometer
+class ThermometerAdapter implements Thermometer {
+    private final OldThermometer old;
+
+    ThermometerAdapter(OldThermometer old) {
+        this.old = old;
+    }
+
+    @Override
+    public double celsius() {
+        return (old.fahrenheit() - 32) * 5 / 9;
+    }
+}</code></pre>
+<pre><code class="java">Thermometer t = new ThermometerAdapter(new OldThermometer());
+System.out.println("В комнате " + t.celsius() + " °C");</code></pre>
+<pre class="terminal"><span class="out">В комнате 40.0 °C</span></pre>
+    <p>Остальная программа знать не знает про Фаренгейты: она видит обычный <code>Thermometer</code>.</p>
+    <p><b>Где в JDK.</b> Ты уже пользовался двумя адаптерами:</p>
+    <ul>
+      <li><code>Arrays.asList(массив)</code> — массив «притворяется» списком <code>List</code>. Копии не делается: список смотрит прямо в массив.</li>
+      <li><code>InputStreamReader</code> — переходник «байты → символы» из <a href="/lessons/m15/04-streams.html">урока 15.4</a>: снаружи он <code>Reader</code> (читает символы), внутри держит <code>InputStream</code> (байты).</li>
+    </ul>
+<pre><code class="java">String[] drinks = {"чай", "кофе"};
+List&lt;String&gt; menu = Arrays.asList(drinks);
+drinks[0] = "какао";
+System.out.println(menu);
+menu.add("сок");</code></pre>
+    <details class="predict">
+      <summary>Что выведет этот код и что случится на последней строке?</summary>
+      <p>Напечатается <code>[какао, кофе]</code>: адаптер не копирует массив, а смотрит в него, поэтому замена в массиве видна и в списке. А <code>menu.add("сок")</code> бросит <b><code>UnsupportedOperationException</code></b>: у массива фиксированная длина, и переходник честно отказывается её менять. Нужен настоящий изменяемый список — <code>new ArrayList&lt;&gt;(Arrays.asList(drinks))</code>. Любимая ловушка собеседований.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Decorator — добавляем способность обёрткой</h2>
+    <p><b>Проблема.</b> Кофейня продаёт эспрессо. К нему можно добавить молоко, сироп, двойное молоко, молоко и сироп… Если на каждую комбинацию делать наследника (<code>EspressoWithMilk</code>, <code>EspressoWithMilkAndSyrup</code>, …), классов станет больше, чем пунктов в меню.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: стаканчик кофе</span>
+      <p>Бариста не варит отдельный «кофе-с-молоком-и-сиропом». Он берёт эспрессо и <b>добавляет</b> к нему молоко, потом сироп. Каждая добавка знает только свою цену и спрашивает остальное у того, что уже в стаканчике.</p>
+    </div>
+    <p><b>Декоратор</b> реализует <b>тот же интерфейс</b>, что и оборачиваемый объект, держит его внутри и добавляет свою часть работы. Сам класс эспрессо при этом не меняется:</p>
+<pre data-file="Beverage.java"><code class="java">interface Beverage {
+    String name();
+    int price();
+}
+
+class Espresso implements Beverage {
+    @Override public String name() { return "Эспрессо"; }
+    @Override public int price() { return 150; }
+}
+
+// Общая часть всех добавок: держим внутри другой напиток
+abstract class BeverageAddon implements Beverage {
+    protected final Beverage inner;
+
+    BeverageAddon(Beverage inner) {
+        this.inner = inner;
+    }
+}
+
+class WithMilk extends BeverageAddon {
+    WithMilk(Beverage inner) { super(inner); }
+    @Override public String name() { return inner.name() + " + молоко"; }
+    @Override public int price() { return inner.price() + 40; }
+}
+
+class WithSyrup extends BeverageAddon {
+    WithSyrup(Beverage inner) { super(inner); }
+    @Override public String name() { return inner.name() + " + сироп"; }
+    @Override public int price() { return inner.price() + 30; }
+}</code></pre>
+<pre><code class="java">Beverage order = new WithSyrup(new WithMilk(new Espresso()));
+System.out.println(order.name() + ": " + order.price() + " ₽");</code></pre>
+<pre class="terminal"><span class="out">Эспрессо + молоко + сироп: 220 ₽</span></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 250" role="img" aria-label="Декоратор как матрёшка: снаружи сироп, внутри молоко, в центре эспрессо. Вызов price идёт внутрь, а цена складывается на обратном пути: 150, 190, 220">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="16" y="16" width="440" height="218" rx="18" class="d-violet"/>
+        <text x="36" y="44" class="d-title">WithSyrup · +30 ₽</text>
+        <rect x="52" y="60" width="368" height="158" rx="16" class="d-blue"/>
+        <text x="72" y="88" class="d-title">WithMilk · +40 ₽</text>
+        <rect x="88" y="104" width="296" height="98" rx="14" class="d-soft"/>
+        <text x="236" y="148" text-anchor="middle" class="d-title">Espresso</text>
+        <text x="236" y="172" text-anchor="middle" class="d-small">150 ₽ — сам себе цена</text>
+
+        <text x="486" y="44" class="d-text">price() — вызов идёт внутрь:</text>
+        <text x="486" y="72" class="d-mono-ink">сироп → молоко → эспрессо</text>
+        <path d="M600 92 V128" class="d-arrow"/>
+        <text x="486" y="156" class="d-text">цена копится на обратном пути:</text>
+        <text x="486" y="184" class="d-mono-ink">150 → 190 → 220 ₽</text>
+        <text x="486" y="220" class="d-small">каждый слой добавил своё</text>
+      </svg>
+      <figcaption>Декоратор — матрёшка: каждая обёртка «такой же напиток», только с добавкой. Объекты создаются изнутри наружу.</figcaption>
+    </figure>
+    <p><b>Где в JDK.</b> Ровно так устроены потоки чтения из <a href="/lessons/m15/04-streams.html">урока 15.4</a>: <code>new BufferedReader(new FileReader("a.txt"))</code>. <code>FileReader</code> умеет читать символы из файла, а обёртка <code>BufferedReader</code> добавляет буфер и метод <code>readLine()</code>. Тогда мы назвали это «трубой с насадками» — теперь ты знаешь официальное имя.</p>
+    <details class="predict">
+      <summary>Что напечатает <code>Beverage x = new WithMilk(new WithMilk(new Espresso()));</code> и <code>System.out.println(x.name() + ": " + x.price() + " ₽");</code>?</summary>
+      <p><code>Эспрессо + молоко + молоко: 230 ₽</code>. Одну и ту же обёртку можно надеть дважды — двойное молоко без нового класса. С наследованием для этого понадобился бы ещё один класс <code>EspressoWithDoubleMilk</code>.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Facade — одна кнопка вместо десяти</h2>
+    <p><b>Проблема.</b> Чтобы посмотреть фильм дома, нужно приглушить свет, включить проектор, настроить звук, запустить фильм. Каждый раз — четыре объекта и правильный порядок вызовов. Ошибся в порядке — смотришь в темноте на выключенную стену.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кнопка «Кинотеатр» на пульте</span>
+      <p>Умный пульт с одной кнопкой «Кино» сам делает всё по списку. Сложная техника никуда не делась, просто тебе не нужно про неё думать. Захочешь — по-прежнему можешь крутить громкость отдельно.</p>
+    </div>
+    <p><b>Фасад</b> — класс с простым методом, который сам вызывает нужные части сложной системы в правильном порядке:</p>
+<pre data-file="HomeCinema.java"><code class="java">class Projector {
+    void on() { System.out.println("Проектор включён"); }
+    void play(String movie) { System.out.println("Показываем: " + movie); }
+}
+
+class SoundSystem {
+    void setVolume(int level) { System.out.println("Громкость " + level); }
+}
+
+class RoomLights {
+    void dim(int percent) { System.out.println("Свет приглушён до " + percent + "%"); }
+}
+
+// Фасад: одна кнопка поверх трёх устройств
+class HomeCinema {
+    private final Projector projector = new Projector();
+    private final SoundSystem sound = new SoundSystem();
+    private final RoomLights lights = new RoomLights();
+
+    void watchMovie(String movie) {
+        lights.dim(10);
+        projector.on();
+        sound.setVolume(30);
+        projector.play(movie);
+    }
+}</code></pre>
+<pre><code class="java">new HomeCinema().watchMovie("Интерстеллар");</code></pre>
+<pre class="terminal"><span class="out">Свет приглушён до 10%
+Проектор включён
+Громкость 30
+Показываем: Интерстеллар</span></pre>
+    <p><b>Где в JDK.</b> <code>Files.readString(путь)</code> из модуля 15 — фасад: одна строчка, а под ней открытие файла, поток байтов, перевод в символы по кодировке, буфер и закрытие. Всё это ты разбирал в <a href="/lessons/m15/04-streams.html">уроке 15.4</a>, а пользуешься одной кнопкой.</p>
+    <div class="callout tip">
+      <span class="callout-title">Фасад не запрещает «сложный путь»</span>
+      <p>Фасад — удобный вход, а не замок. Части системы остаются доступными: если нужен необычный сценарий, работай с ними напрямую.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Proxy — заместитель</h2>
+    <p><b>Проблема.</b> В фотоальбоме сто снимков, каждый грузится секунду. Если загружать все при открытии альбома, человек будет ждать почти две минуты, хотя посмотрит, может, три фотографии.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: секретарь начальника</span>
+      <p>Ты звонишь в компанию и попадаешь на секретаря. Он выглядит для тебя как «вход к начальнику»: принимает те же просьбы. Но сам решает — соединить сейчас, ответить по памяти («он уже говорил, что совещание в 15:00») или не пустить вовсе.</p>
+    </div>
+    <p><b>Заместитель</b> (proxy) реализует <b>тот же интерфейс</b>, что и настоящий объект, и стоит перед ним. Код, который им пользуется, разницы не замечает. Ленивый заместитель создаёт тяжёлый объект только при первом обращении:</p>
+<pre data-file="LazyPicture.java"><code class="java">interface Picture {
+    void show();
+}
+
+class HeavyPicture implements Picture {
+    private final String file;
+
+    HeavyPicture(String file) {
+        this.file = file;
+        System.out.println("Загружаю " + file + " (это долго)");
+    }
+
+    @Override
+    public void show() {
+        System.out.println("Показываю " + file);
+    }
+}
+
+// Заместитель: тот же интерфейс, а настоящая картинка — только по требованию
+class LazyPicture implements Picture {
+    private final String file;
+    private HeavyPicture real;   // пока null
+
+    LazyPicture(String file) {
+        this.file = file;
+    }
+
+    @Override
+    public void show() {
+        if (real == null) {
+            real = new HeavyPicture(file);
+        }
+        real.show();
+    }
+}</code></pre>
+<pre><code class="java">Picture[] album = {
+        new LazyPicture("море.jpg"),
+        new LazyPicture("горы.jpg"),
+        new LazyPicture("лес.jpg")
+};
+System.out.println("Альбом открыт");
+album[1].show();
+album[1].show();</code></pre>
+    <details class="predict">
+      <summary>Что напечатает этот код?</summary>
+<pre class="terminal"><span class="out">Альбом открыт
+Загружаю горы.jpg (это долго)
+Показываю горы.jpg
+Показываю горы.jpg</span></pre>
+      <p>Три заместителя создаются мгновенно — ничего не грузят. Загрузка случилась один раз и только для той картинки, которую попросили. Второй <code>show()</code> берёт уже загруженную.</p>
+    </details>
+    <p>Бывают и другие заместители: <b>кеширующий</b> запоминает ответ и не спрашивает настоящий объект второй раз; <b>защитный</b> проверяет права, прежде чем пропустить вызов. <b>Где в JDK:</b> <code>Collections.unmodifiableList(список)</code> возвращает защитного заместителя. Читать через него можно, а на <code>add</code> или <code>remove</code> он бросает <code>UnsupportedOperationException</code> и до настоящего списка не пускает.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Все трое — обёртки. Чем отличаются?</th><th>Интерфейс снаружи</th><th>Зачем</th></tr>
+        <tr><td><b>Адаптер</b></td><td><b>другой</b>, чем у того, кого обернул</td><td>подогнать чужое под своё</td></tr>
+        <tr><td><b>Декоратор</b></td><td>тот же</td><td>добавить способность</td></tr>
+        <tr><td><b>Заместитель</b></td><td>тот же</td><td>управлять доступом: отложить, закешировать, проверить</td></tr>
+      </table>
+    </div>
+    <div data-widget="check" id="check-m17-patterns2-mid">
+      <script type="application/json">
+      { "title": "Структурные паттерны", "icon": "🧱",
+        "items": [
+          { "type": "match", "q": "Соедини ситуацию с паттерном",
+            "left": ["Старая библиотека отдаёт XML, а твой код ждёт объект Order", "К уведомлению по почте нужно иногда добавлять SMS и звук, в любых сочетаниях", "Один метод «Оформить заказ» сам проверяет склад, списывает деньги и вызывает курьера", "Тяжёлый отчёт строится только при первом открытии и потом берётся из памяти"],
+            "right": ["Adapter", "Decorator", "Facade", "Proxy"],
+            "why": "Адаптер подгоняет интерфейс, декоратор наращивает способности слоями, фасад прячет сложность за одной кнопкой, заместитель откладывает и кеширует." },
+          { "type": "single", "q": "Какой паттерн в этом коде?",
+            "code": "Reader reader = new BufferedReader(new FileReader(\"menu.txt\"));",
+            "options": ["Adapter: FileReader переводит байты в символы", "Decorator: BufferedReader добавляет буфер и readLine()", "Facade: одна строка вместо многих", "Singleton: читатель один на программу"], "answer": 1,
+            "why": "BufferedReader — тоже Reader, он оборачивает другой Reader и добавляет способность. Тот же интерфейс + новая способность = декоратор." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Декоратор и заместитель реализуют тот же интерфейс, что и объект внутри", "a": true },
+              { "s": "Адаптер для работы требует переписать чужой класс", "a": false, "why": "наоборот: адаптер нужен именно тогда, когда чужой класс менять нельзя." },
+              { "s": "После появления фасада к частям системы больше нельзя обращаться напрямую", "a": false, "why": "фасад — удобный вход, а не замок: части остаются доступными." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Strategy — алгоритм подменяется на лету</h2>
+    <p>Переходим к поведенческим. <b>Проблема.</b> Касса считает итог по-разному: без скидки, со скидкой 10%, с промокодом на 300 ₽. Первое, что приходит в голову, — цепочка <code>if</code>:</p>
+<pre><code class="java">int total;
+if (discountType.equals("none")) {
+    total = price;
+} else if (discountType.equals("percent10")) {
+    total = price * 90 / 100;
+} else if (discountType.equals("promo300")) {
+    total = Math.max(0, price - 300);
+} else {
+    total = price;
+}</code></pre>
+    <p>Каждая новая акция — ещё одна ветка в том же методе. Метод растёт, а случайно сломать соседнюю скидку всё проще.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: навигатор</span>
+      <p>В навигаторе одна кнопка «Проложить маршрут», а способ — пешком, на машине, на автобусе — ты выбираешь переключателем. Навигатор не переписывают под каждый вид транспорта: он просто берёт выбранный способ и просит его посчитать путь.</p>
+    </div>
+    <p><b>Стратегия</b>: каждый вариант алгоритма — отдельный объект с общим интерфейсом. Тот, кто им пользуется, хранит стратегию в поле и просто вызывает её. Интерфейс с одним методом — функциональный, значит, стратегию можно передать <b>лямбдой</b> (<a href="/lessons/m14/01-lambdas.html">урок 14.1</a>):</p>
+<pre data-file="CashDesk.java"><code class="java">interface Discount {
+    int apply(int price);
+}
+
+class CashDesk {
+    private Discount discount = price -&gt; price;   // по умолчанию — без скидки
+
+    void setDiscount(Discount discount) {
+        this.discount = discount;
+    }
+
+    int total(int price) {
+        return discount.apply(price);   // ни одного if: что положили, то и считает
+    }
+}</code></pre>
+<pre><code class="java">CashDesk desk = new CashDesk();
+System.out.println(desk.total(1000));
+
+desk.setDiscount(price -&gt; price * 90 / 100);           // скидка 10%
+System.out.println(desk.total(1000));
+
+desk.setDiscount(price -&gt; Math.max(0, price - 300));   // промокод на 300 ₽
+System.out.println(desk.total(1000));</code></pre>
+<pre class="terminal"><span class="out">1000
+900
+700</span></pre>
+    <p>Новая акция — новая лямбда, класс <code>CashDesk</code> не меняется. Если стратегия выбирается по слову с клавиатуры, удобно сложить их в словарь <code>Map&lt;String, Discount&gt;</code>: ключ — название, значение — стратегия. Так ты сделаешь в задаче про доставку.</p>
+    <p><b>Где в JDK.</b> Ты пользуешься стратегией с <a href="/lessons/m11/04-callbacks.html">урока 11.4</a>: <code>Comparator</code> — это стратегия сравнения. Метод <code>sort</code> один и тот же, а порядок задаёшь ты:</p>
+<pre><code class="java">List&lt;String&gt; names = new ArrayList&lt;&gt;(List.of("Анна", "Ян", "Борис"));
+names.sort(Comparator.comparing(String::length));   // стратегия «по длине»
+System.out.println(names);
+names.sort((a, b) -&gt; b.compareTo(a));               // стратегия «по алфавиту наоборот»
+System.out.println(names);</code></pre>
+<pre class="terminal"><span class="out">[Ян, Анна, Борис]
+[Ян, Борис, Анна]</span></pre>
+    <div class="say" data-mood="wow"><p>Выходит, каждая лямбда, которую ты передавал в <code>sort</code>, <code>removeIf</code> или <code>filter</code>, — маленькая стратегия. Ты пользовался паттерном задолго до того, как узнал его имя.</p></div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Iterator — обход, не зная устройства</h2>
+    <p><b>Проблема.</b> Список хранит элементы в массиве, множество — в хеш-таблице, очередь — цепочкой узлов. Если бы для обхода каждой коллекции нужно было знать её устройство, любой цикл ломался бы при замене <code>ArrayList</code> на <code>HashSet</code>.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: контролёр в автобусе</span>
+      <p>Помнишь контролёра из <a href="/lessons/m13/03-iteration.html">урока 13.3</a>? Ему всё равно, как стоят пассажиры — рядами, кучкой или по одному. Он знает только «есть ещё кто-то впереди?» и «подойти к следующему».</p>
+    </div>
+    <p><b>Итератор</b> — отдельный объект, который знает, как ходить по коллекции, и выдаёт элементы по одному: <code>hasNext()</code> и <code>next()</code>. Коллекция только выдаёт итератор методом <code>iterator()</code> — это и есть интерфейс <code>Iterable</code>. А for-each — просто короткая запись цикла с итератором. Значит, for-each работает с <b>любым</b> классом, который реализует <code>Iterable</code>, в том числе с твоим:</p>
+<pre data-file="Playlist.java"><code class="java">import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+class Playlist implements Iterable&lt;String&gt; {
+    private final String[] songs;   // как устроено внутри — снаружи не видно
+
+    Playlist(String... songs) {
+        this.songs = songs;
+    }
+
+    @Override
+    public Iterator&lt;String&gt; iterator() {
+        return new Iterator&lt;&gt;() {
+            private int pos = 0;
+
+            @Override
+            public boolean hasNext() {
+                return pos &lt; songs.length;
+            }
+
+            @Override
+            public String next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return songs[pos++];
+            }
+        };
+    }
+}</code></pre>
+<pre><code class="java">Playlist playlist = new Playlist("Утро", "Дорога", "Вечер");
+for (String song : playlist) {
+    System.out.println("♪ " + song);
+}</code></pre>
+<pre class="terminal"><span class="out">♪ Утро
+♪ Дорога
+♪ Вечер</span></pre>
+    <p>Итератор здесь — анонимный класс (<a href="/lessons/m11/04-callbacks.html">урок 11.4</a>), он видит поле <code>songs</code> своего плейлиста. Завтра ты заменишь массив на <code>ArrayList</code> — и ни один цикл, который ходит по плейлисту, не заметит разницы.</p>
+    <p><b>Где в JDK:</b> у каждой коллекции из модуля 13 есть <code>iterator()</code>, поэтому все они работают в for-each.</p>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Mediator — посредник</h2>
+    <p><b>Проблема.</b> Пять участников, и каждый должен общаться с каждым. Если каждый хранит ссылки на всех остальных, получается паутина: 10 связей, а у шестерых — уже 15. Добавить нового участника — значит поправить всех старых.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: диспетчер аэропорта</span>
+      <p>Самолёты не договариваются между собой, кто садится первым: пилоты говорят только с вышкой. Диспетчер видит всю картину и решает: «вам посадка, вам ждать». Прилетел новый самолёт — ему нужна одна связь, с вышкой.</p>
+    </div>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 740 270" role="img" aria-label="Слева пять самолётов связаны каждый с каждым — десять линий-паутина. Справа те же пять самолётов связаны только с вышкой в центре — пять линий-звезда">
+        <text x="185" y="24" text-anchor="middle" class="d-title">Без посредника: паутина</text>
+        <path d="M185 60 L266 112 M185 60 L235 204 M185 60 L135 204 M185 60 L104 112 M266 112 L235 204 M266 112 L135 204 M266 112 L104 112 M235 204 L135 204 M235 204 L104 112 M135 204 L104 112" class="d-line"/>
+        <circle cx="185" cy="60" r="22" class="d-blue"/><text x="185" y="67" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="266" cy="112" r="22" class="d-blue"/><text x="266" y="119" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="235" cy="204" r="22" class="d-blue"/><text x="235" y="211" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="135" cy="204" r="22" class="d-blue"/><text x="135" y="211" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="104" cy="112" r="22" class="d-blue"/><text x="104" y="119" text-anchor="middle" font-size="18">✈</text>
+        <text x="185" y="256" text-anchor="middle" class="d-small">10 связей: каждый знает каждого</text>
+
+        <path d="M370 40 V240" class="d-dash"/>
+
+        <text x="555" y="24" text-anchor="middle" class="d-title">С посредником: звезда</text>
+        <path d="M555 136 L555 60 M555 136 L636 112 M555 136 L605 204 M555 136 L505 204 M555 136 L474 112" class="d-line"/>
+        <circle cx="555" cy="60" r="22" class="d-blue"/><text x="555" y="67" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="636" cy="112" r="22" class="d-blue"/><text x="636" y="119" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="605" cy="204" r="22" class="d-blue"/><text x="605" y="211" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="505" cy="204" r="22" class="d-blue"/><text x="505" y="211" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="474" cy="112" r="22" class="d-blue"/><text x="474" y="119" text-anchor="middle" font-size="18">✈</text>
+        <circle cx="555" cy="136" r="32" class="d-accent"/><text x="555" y="141" text-anchor="middle" class="d-small">вышка</text>
+        <text x="555" y="256" text-anchor="middle" class="d-small">5 связей: каждый знает только вышку</text>
+      </svg>
+      <figcaption>Посредник превращает «паутину» связей в «звезду»: новому участнику нужна одна связь, а не связь с каждым.</figcaption>
+    </figure>
+    <p><b>Посредник</b> — объект, через который другие общаются. Участники знают только его, а он знает всех. Пример — чат-комната: участник не рассылает сообщение каждому, он отдаёт его комнате, а та разносит остальным.</p>
+<pre data-file="ChatRoom.java"><code class="java">import java.util.ArrayList;
+import java.util.List;
+
+class ChatRoom {
+    private final List&lt;ChatMember&gt; members = new ArrayList&lt;&gt;();
+
+    void join(ChatMember member) {
+        members.add(member);
+    }
+
+    void send(ChatMember from, String text) {
+        for (ChatMember m : members) {
+            if (m != from) {
+                m.receive(from.name() + ": " + text);
+            }
+        }
+    }
+}
+
+class ChatMember {
+    private final String name;
+    private final ChatRoom room;   // знает только комнату, а не других участников
+
+    ChatMember(String name, ChatRoom room) {
+        this.name = name;
+        this.room = room;
+    }
+
+    String name() {
+        return name;
+    }
+
+    void say(String text) {
+        room.send(this, text);
+    }
+
+    void receive(String message) {
+        System.out.println("[" + name + "] " + message);
+    }
+}</code></pre>
+<pre><code class="java">ChatRoom room = new ChatRoom();
+ChatMember anna = new ChatMember("Анна", room);
+ChatMember boris = new ChatMember("Борис", room);
+ChatMember vika = new ChatMember("Вика", room);
+room.join(anna);
+room.join(boris);
+room.join(vika);
+anna.say("Кто идёт в кино?");</code></pre>
+<pre class="terminal"><span class="out">[Борис] Анна: Кто идёт в кино?
+[Вика] Анна: Кто идёт в кино?</span></pre>
+    <p>Захочешь добавить правило «не пересылать сообщения с бранью» — оно появится в одном месте, в <code>ChatRoom</code>, а не в каждом участнике. Обратная сторона: посредник легко разрастается в «объект, который знает всё», — за этим нужно следить.</p>
+  </section>
+
+  <!-- ШАГ 10 -->
+  <section class="step">
+    <h2>Observer — подписчики</h2>
+    <p><b>Проблема.</b> Посылка поменяла статус: «Прибыла в пункт выдачи». Об этом надо сообщить по SMS, в приложении и на почту, а завтра добавится ещё канал. Если посылка будет сама дёргать каждый канал, её код придётся менять при каждом новом способе оповещения.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: подписка на канал</span>
+      <p>Блогер не обзванивает зрителей. Он выкладывает видео, а уведомление получают все, кто нажал «Подписаться». Кто захотел — подписался, кто устал — отписался, блогер об этом даже не думает.</p>
+    </div>
+    <p><b>Наблюдатель</b>: объект хранит список подписчиков (слушателей) и, когда что-то случилось, оповещает каждого. Подписчики — снова объекты с общим интерфейсом, а значит, их удобно передавать лямбдами:</p>
+<pre data-file="Parcel.java"><code class="java">import java.util.ArrayList;
+import java.util.List;
+
+interface ParcelListener {
+    void statusChanged(String status);
+}
+
+class Parcel {
+    private final List&lt;ParcelListener&gt; listeners = new ArrayList&lt;&gt;();
+
+    void subscribe(ParcelListener listener) {
+        listeners.add(listener);
+    }
+
+    void setStatus(String status) {
+        for (ParcelListener l : listeners) {
+            l.statusChanged(status);
+        }
+    }
+}</code></pre>
+<pre><code class="java">Parcel parcel = new Parcel();
+parcel.subscribe(status -&gt; System.out.println("SMS: " + status));
+parcel.subscribe(status -&gt; System.out.println("Push: " + status));
+parcel.setStatus("Прибыла в пункт выдачи");</code></pre>
+<pre class="terminal"><span class="out">SMS: Прибыла в пункт выдачи
+Push: Прибыла в пункт выдачи</span></pre>
+    <p><b>Где встречается.</b> Так устроены <b>слушатели событий</b> в любых программах с окнами: кнопке говорят «когда тебя нажмут — вызови вот это» (в Java-окнах это метод <code>addActionListener(…)</code>). Это тот же обратный вызов из <a href="/lessons/m11/04-callbacks.html">урока 11.4</a>, только подписчиков может быть сколько угодно.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>Посредник</th><th>Наблюдатель</th></tr>
+        <tr><td>Кто с кем говорит</td><td>все — через центр, в обе стороны</td><td>один источник → много подписчиков</td></tr>
+        <tr><td>Знает ли источник получателей</td><td>да, посредник знает всех и решает, кому что</td><td>нет, только «у меня есть подписчики»</td></tr>
+        <tr><td>Пример</td><td>диспетчер, чат-комната</td><td>уведомления, слушатели кнопок</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 11 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-patterns2">
+      <script type="application/json">
+      { "title": "Структурные и поведенческие паттерны",
+        "items": [
+          { "type": "match", "q": "Соедини ситуацию с паттерном",
+            "left": ["Способ оплаты (карта, наличные, баллы) выбирают на кассе, расчёт один", "Любой класс можно обойти for-each, не зная, как он хранит данные", "Участники игры шлют ходы не друг другу, а через сервер-ведущего", "При поступлении товара на склад оповестить всех, кто нажал «Сообщить о поступлении»"],
+            "right": ["Strategy", "Iterator", "Mediator", "Observer"],
+            "why": "Стратегия — подменяемый алгоритм; итератор — обход без знания устройства; посредник — общение через центр; наблюдатель — оповещение подписчиков." },
+          { "type": "single", "q": "Какой паттерн в этом коде?",
+            "code": "tasks.sort(Comparator.comparing(Task::deadline));",
+            "options": ["Iterator", "Observer", "Strategy", "Adapter"], "answer": 2,
+            "why": "sort один, а способ сравнения передаётся объектом-Comparator. Подменяемый алгоритм — это Стратегия." },
+          { "type": "single", "q": "Какой паттерн в этом коде?",
+            "code": "List<String> safe = Collections.unmodifiableList(cities);\nSystem.out.println(safe.get(0));   // можно\nsafe.add(\"Тверь\");                 // UnsupportedOperationException",
+            "options": ["Proxy: стоит перед настоящим списком и не пускает изменения", "Decorator: добавляет списку новую способность", "Facade: упрощает работу со списком", "Builder: собирает список по шагам"], "answer": 0,
+            "why": "Интерфейс тот же (List), новой способности нет — наоборот, заместитель контролирует доступ к настоящему списку." },
+          { "type": "multi", "q": "Какие паттерны оборачивают другой объект и держат его в поле? Отметь все",
+            "options": ["Adapter", "Decorator", "Proxy", "Singleton", "Iterator"], "answer": [0, 1, 2],
+            "why": "Адаптер, декоратор и заместитель — обёртки. Отличаются целью: подогнать интерфейс, добавить способность, управлять доступом." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Стратегию с одним методом в интерфейсе можно передать лямбдой", "a": true },
+              { "s": "For-each работает с любым объектом, класс которого реализует Iterable", "a": true },
+              { "s": "В Наблюдателе источник события должен знать конкретные классы всех подписчиков", "a": false, "why": "источник знает только общий интерфейс слушателя — поэтому подписчиков можно добавлять, не трогая его код." },
+              { "s": "Новая стратегия требует добавить ещё одну ветку if в класс, который её использует", "a": false, "why": "в этом весь смысл: новая стратегия — новый объект, а код, который ею пользуется, не меняется." }
+            ] },
+          { "type": "single", "q": "В заказе <code>new WithSyrup(new WithMilk(new Espresso()))</code> чей метод <code>price()</code> вызовется первым?",
+            "options": ["Espresso — он внутри", "WithMilk — он в середине", "WithSyrup — он снаружи", "Все три сразу"], "answer": 2,
+            "why": "Снаружи мы держим ссылку на WithSyrup — его price() и вызывается. Он спрашивает WithMilk, тот — Espresso. Цена складывается на обратном пути." }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Спроси: <em>«Объясни на примере из жизни, чем Декоратор отличается от Заместителя, если у обоих тот же интерфейс»</em>. Или: <em>«Дай мне три описания ситуаций, а я угадаю паттерн и объясню почему»</em>. После задачи про доставку: <em>«Посмотри мой DeliveryCost: где у меня ещё остался выбор по типу через if?»</em></p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>Адаптер</b> — переходник: чужой интерфейс подгоняется под нужный (<code>Arrays.asList</code>, <code>InputStreamReader</code>).</li>
+        <li><b>Декоратор</b> — обёртка с тем же интерфейсом добавляет способность; обёртки вкладываются (<code>BufferedReader</code>).</li>
+        <li><b>Фасад</b> — одна простая кнопка поверх сложной системы (<code>Files.readString</code>).</li>
+        <li><b>Заместитель</b> — тот же интерфейс, но управляет доступом: лениво создаёт, кеширует, защищает (<code>Collections.unmodifiableList</code>).</li>
+        <li><b>Стратегия</b> — алгоритм в отдельном объекте, подменяется без <code>if</code>; часто это лямбда (<code>Comparator</code>).</li>
+        <li><b>Итератор</b> — обход без знания устройства; любой <code>Iterable</code> работает в for-each.</li>
+        <li><b>Посредник</b> — все общаются через центр: паутина связей превращается в звезду.</li>
+        <li><b>Наблюдатель</b> — подписчики получают оповещение о событии; источник знает только интерфейс слушателя.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

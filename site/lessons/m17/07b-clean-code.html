@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Чистый код: стиль, DRY, KISS, YAGNI · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-clean">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 17 · Урок 8</div>
+    <h1>Чистый код: стиль, DRY, KISS, YAGNI</h1>
+    <p class="lead">Программа работает — это половина дела. Вторая половина — чтобы её мог прочитать и поправить человек: коллега, ревьюер или ты сам через полгода. Сведём в одно правила оформления и разберём три принципа, которые знает каждый разработчик.</p>
+    <div class="meta"><span>⏱ 35 минут</span><span>🧹 код-стайл</span><span>🎯 DRY · KISS · YAGNI</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-clean-review">
+      <script type="application/json">
+      { "title": "Вспомним инструменты модуля", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Отладчик стоит на строке <code>int total = calculateTotal(cart);</code>. Хочешь посмотреть, что происходит <b>внутри</b> <code>calculateTotal</code>. Что нажать?",
+            "options": ["F8 — Step Over", "F7 — Step Into", "F9 — Resume"], "answer": 1,
+            "why": "Step Into (F7) заходит внутрь вызываемого метода. F8 выполнит строку целиком, F9 побежит до следующего брейкпоинта." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "git commit сразу отправляет изменения на сервер, коллегам", "a": false, "why": "commit сохраняет снимок в твоём локальном репозитории. На сервер изменения уходят командой push." },
+              { "s": "Для правила «бесплатная доставка от 2000 ₽» значения 1999 и 2000 — граничные", "a": true },
+              { "s": "Задача Gradle build включает в себя запуск тестов", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Код пишут для людей</h2>
+    <p>Компьютеру всё равно, как называются переменные и сколько стоит пробелов. Ему одинаково понятны оба метода ниже — они делают одно и то же: прибавляют к сумме заказа доставку, если заказ меньше 2000 ₽.</p>
+<pre><code class="java">static int calc(int s) {
+    return s &gt;= 2000 ? s : s + 199;
+}</code><span class="type-hint">🚫 так не надо — не набирай</span></pre>
+<pre><code class="java">static final int FREE_DELIVERY_FROM = 2000;
+static final int DELIVERY_PRICE = 199;
+
+static int addDelivery(int orderSum) {
+    if (orderSum &gt;= FREE_DELIVERY_FROM) {
+        return orderSum;
+    }
+    return orderSum + DELIVERY_PRICE;
+}</code><span class="type-hint">👀 просто прочитай</span></pre>
+    <p>Первый короче, но чтобы его понять, надо расшифровать: что такое <code>s</code>? что за 2000 и 199? Второй читается как текст: «добавь доставку; если сумма заказа от порога бесплатной доставки — верни как есть, иначе прибавь цену доставки».</p>
+    <p>Код читают гораздо чаще, чем пишут. Ты пишешь метод один раз, а читают его потом десятки раз: ты сам, когда ищешь баг, коллега на <b>код-ревью</b> (просмотр чужого кода перед тем, как его примут в общую ветку), новичок в команде через год. Роберт Мартин в книге «Чистый код» прикидывает: на чтение кода уходит больше чем в десять раз больше времени, чем на его написание. Поэтому сэкономить минуту при написании и потерять час при чтении — плохой обмен.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: коробки при переезде</span>
+      <p>Можно подписать коробки «1», «2», «3» — ты же помнишь, что где. Через неделю на новой квартире ты открываешь шесть коробок, чтобы найти чайник. А можно написать «Кухня: чайник, кружки». Пара секунд при упаковке — и никто не роется. <b>Хорошие имена и понятная структура — это подписи на коробках с кодом.</b></p>
+    </div>
+    <p>Мартин Фаулер, один из самых известных авторов книг о программировании, говорил примерно так: код, который понимает компьютер, напишет любой, а хороший программист пишет код, который понимают люди. Такой код называют <b>чистым</b>: понятные имена, единый стиль, нет повторов, нет лишнего, нет сюрпризов. Это не про красоту, а про деньги и нервы: чистый код быстрее читать, проще менять и в нём труднее спрятаться багу.</p>
+    <div class="say" data-mood="cool"><p>Ты уже знаешь почти всё, чтобы писать работающие программы. Сегодня — о том, как писать их так, чтобы за тебя не было стыдно на код-ревью. Хорошая новость: половину работы сделает IDEA.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Имена: все правила в одном месте</h2>
+    <p>Правила имён ты встречал по кусочкам в уроках 1.6 и 2.3. Вот они вместе. Это <b>код-стайл</b> (code style) — договорённость, как оформлять код. Компилятор их не проверяет, но их соблюдает весь мир Java, и код с другими именами сразу выглядит «чужим».</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Что</th><th>Правило</th><th>Плохо</th><th>Хорошо</th></tr>
+        <tr><td>Класс, интерфейс, record, enum</td><td><b>PascalCase</b>: каждое слово с большой буквы, обычно существительное</td><td><code>order_item</code>, <code>payable</code></td><td><code>OrderItem</code>, <code>Payable</code></td></tr>
+        <tr><td>Переменная, параметр, поле</td><td><b>camelCase</b>: первое слово с маленькой, остальные с большой</td><td><code>Count</code>, <code>total_sum</code></td><td><code>itemCount</code>, <code>totalSum</code></td></tr>
+        <tr><td>Метод</td><td>camelCase и <b>начинается с глагола</b>: метод что-то делает</td><td><code>Total()</code>, <code>discount()</code></td><td><code>calculateTotal()</code>, <code>applyDiscount()</code></td></tr>
+        <tr><td>Метод, который отвечает «да/нет»</td><td>начинается с <code>is</code>, <code>has</code>, <code>can</code></td><td><code>checkEmpty()</code></td><td><code>isEmpty()</code>, <code>hasDiscount()</code></td></tr>
+        <tr><td>Константа (<code>static final</code>)</td><td><b>UPPER_SNAKE_CASE</b>: большие буквы, слова через <code>_</code></td><td><code>maxSize</code></td><td><code>MAX_SIZE</code></td></tr>
+        <tr><td>Пакет</td><td>только маленькие буквы, слова через точку</td><td><code>com.Misha.Shop</code></td><td><code>com.misha.shop</code></td></tr>
+      </table>
+    </div>
+    <p>Кроме формы имени важен смысл. Имя должно говорить, <b>что</b> хранит переменная или <b>что</b> делает метод: <code>daysUntilDelivery</code> лучше, чем <code>d</code>, <code>days</code> или <code>temp</code>. Однобуквенные имена допустимы только там, где их смысл очевиден: счётчик цикла <code>i</code>, параметр короткой лямбды <code>o -&gt; o.total()</code>.</p>
+
+    <h3>Магические числа</h3>
+    <p><b>Магическое число</b> — число прямо посреди кода без объяснения, что оно значит. Помнишь <code>2000</code> и <code>199</code> из первого примера? Через месяц никто не вспомнит, что 199 — цена доставки, а не, скажем, номер склада. А если цена изменится, придётся искать все <code>199</code> по проекту и гадать, какие из них про доставку.</p>
+    <p>Лекарство — <b>именованная константа</b>: <code>static final int DELIVERY_PRICE = 199;</code>. Число записано один раз, у него есть имя, менять — в одном месте. В IDEA: поставь курсор на число и нажми <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> (<b>Extract Constant</b>) — IDEA сама создаст константу и подставит её вместо числа. Неудачное имя переименовывай через <kbd>Shift</kbd>+<kbd>F6</kbd> — оно поменяется везде сразу.</p>
+    <details class="predict">
+      <summary>В коде интернет-магазина встретилась строка <code>if (order.status() == 3) { … }</code>. Что делает эта проверка?</summary>
+      <p><b>Никто не знает</b> — и в этом проблема. 3 — это «оплачен»? «доставлен»? «отменён»? Придётся искать, где статусы раздаются. Чистый вариант — константа <code>STATUS_DELIVERED</code> или, ещё лучше, enum: <code>if (order.status() == Status.DELIVERED)</code>. Тогда строка объясняет сама себя.</p>
+    </details>
+
+    <h3>А комментарии?</h3>
+    <p>Если код понятен из имён, комментарий «что делает строка» не нужен: <code>// прибавляем доставку</code> над методом <code>addDelivery</code> только повторяет имя. Комментарий полезен, когда объясняет <b>почему</b> сделано так, а не иначе: <code>// склад закрыт по воскресеньям — переносим отправку на понедельник</code>. Хочется написать комментарий «что тут происходит» — сначала попробуй дать переменной или методу имя получше.</p>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Оформление и помощники: IDEA и Checkstyle</h2>
+    <p>Кроме имён код-стайл договаривается о том, как код <b>выглядит</b>:</p>
+    <ul>
+      <li><b>Отступ</b> — каждый уровень вложенности сдвигается вправо (в IDEA по умолчанию — 4 пробела).</li>
+      <li><b>Открывающая фигурная скобка — на той же строке</b>, что <code>if</code>, метод или класс. <b>Закрывающая — на своей строке</b>, под началом конструкции. <code>else</code> пишется сразу после закрывающей скобки: <code>} else {</code>.</li>
+      <li><b>Фигурные скобки — всегда</b>, даже если внутри <code>if</code> одна строка. Без них легко добавить вторую строку и думать, что она тоже внутри условия.</li>
+      <li><b>Длина строки</b> — не больше 100–120 символов (договаривается команда). Длинную строку переносят, а продолжение сдвигают дополнительным отступом. В IDEA справа в редакторе видна тонкая вертикальная линия — граница, за которую лучше не заходить.</li>
+      <li><b>Одна команда — одна строка</b>, между методами — пустая строка.</li>
+    </ul>
+<pre><code class="java">if (orderSum &gt;= FREE_DELIVERY_FROM)
+{
+    return orderSum;
+}
+else return orderSum + DELIVERY_PRICE;</code><span class="type-hint">🚫 не по стилю Java</span></pre>
+<pre><code class="java">if (orderSum &gt;= FREE_DELIVERY_FROM) {
+    return orderSum;
+} else {
+    return orderSum + DELIVERY_PRICE;
+}</code><span class="type-hint">👀 так принято в Java</span></pre>
+    <p>Длинная цепочка Stream переносится так, чтобы каждый шаг был на своей строке, — точка в начале строки:</p>
+<pre><code class="java">List&lt;String&gt; bigBuyers = orders.stream()
+        .filter(order -&gt; order.total() &gt; 10_000)
+        .map(Order::customer)
+        .distinct()
+        .toList();</code><span class="type-hint">👀 просто прочитай</span></pre>
+    <div class="callout fact">
+      <span class="callout-title">Стилей несколько — главное, один на проект</span>
+      <p>Самые известные своды правил — <b>Google Java Style</b> (отступ 2 пробела, строка до 100 символов) и правила, к которым по умолчанию настроена IDEA (отступ 4 пробела, строка до 120). Они отличаются в мелочах, а совпадают в главном: имена, скобки, переносы. В команде выбирают один стиль и держатся его во всём проекте. Смешанный стиль хуже любого из двух.</p>
+    </div>
+
+    <h3>Ctrl+Alt+L — форматирование одной клавишей</h3>
+    <p>Расставлять пробелы и отступы руками не нужно. <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> (<b>Code → Reformat Code</b>) приводит весь файл к стилю проекта: отступы, пробелы вокруг <code>=</code> и <code>+</code>, скобки, переносы. Ты знаешь эту клавишу с модуля 1 — теперь сделай её привычкой: нажимай перед каждым коммитом. А <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd> заодно уберёт неиспользуемые <code>import</code>.</p>
+
+    <h3>Инспекции IDEA: жёлтое и серое</h3>
+    <p>IDEA всё время читает твой код вместе с тобой. Красным она показывает ошибки компиляции, а жёлтым и серым — <b>инспекции</b> (inspections): код, который скомпилируется, но выглядит подозрительно или его можно упростить. Посмотри, сколько всего она нашла в шести строках:</p>
+    <div data-widget="ide" id="shot-clean-inspections">
+      <script type="application/json">
+      { "tree": false, "file": "Parcel.java", "statusPath": "training", "caretLine": 6,
+        "code": "public class Parcel {\n    private static final int MAX_WEIGHT = 30;\n\n    static boolean isHeavy(int weightKg) {\n        int limit = 20;\n        if (weightKg > 20) {\n            return true;\n        } else {\n            return false;\n        }\n    }\n}",
+        "unused": [ { "line": 2, "text": "MAX_WEIGHT", "msg": "Private field 'MAX_WEIGHT' is never used" },
+                    { "line": 5, "text": "limit", "msg": "Variable 'limit' is never used" } ],
+        "weak": [ { "line": 6, "text": "if", "msg": "'if' statement can be simplified", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-6", "side": "left", "text": "Серый фон под <code>if</code> — <b>слабое предупреждение</b>: «можно проще». Курсор на <code>if</code>, <kbd>Alt</kbd>+<kbd>Enter</kbd> — и IDEA сама перепишет всё на <code>return weightKg &gt; 20;</code>" },
+                   { "n": 2, "target": "err-5", "text": "Серое имя — переменную объявили, но нигде не используют. Это мусор: удалить" },
+                   { "n": 3, "target": "err-2", "text": "То же с полем: константу завели «на будущее», а она никому не нужна" },
+                   { "n": 4, "target": "problems", "text": "Счётчик замечаний файла. Щелчок — список всех замечаний, <kbd>F2</kbd> — прыжок к следующему" } ],
+        "caption": "Встроенные инспекции IDEA работают всегда, настраивать ничего не нужно. Жёлтое и серое — не ошибки, но повод присмотреться" }
+      </script>
+    </div>
+    <p>Правило простое: <b>перед коммитом в файле не должно остаться жёлтого и серого</b>, если ты не уверен, что подсказка неуместна. Подсказки IDEA — бесплатный ревьюер, который никогда не устаёт.</p>
+
+    <h3>Checkstyle — проверка стиля при сборке</h3>
+    <p>IDEA подсказывает, но не заставляет: можно проигнорировать жёлтое и закоммитить. В команде, где десять человек, стиль поплывёт за месяц. Поэтому стиль проверяют автоматически при каждой сборке. Самый известный инструмент для Java — <b>Checkstyle</b>: он читает исходники и сверяет их со списком правил — имена, длина строк, скобки, магические числа и ещё сотни других.</p>
+    <p>В Gradle он подключается одной строкой — плагином <code>checkstyle</code> в блоке <code>plugins</code>. Правила лежат в XML-файле <code>config/checkstyle/checkstyle.xml</code>. Писать его с нуля не нужно: в проекте его обычно уже положил кто-то из команды, а за основу часто берут готовый набор правил Google Java Style. Дальше обычная задача <code>check</code> (а значит, и <code>build</code>) сама запускает проверку стиля:</p>
+    <div data-widget="ide" id="shot-clean-checkstyle">
+      <script type="application/json">
+      { "project": "shop", "statusPath": "shop", "file": "build.gradle.kts", "caretLine": 3,
+        "tree": [ { "name": "shop", "type": "folder", "depth": 0, "open": true },
+                  { "name": "config", "type": "folder", "depth": 1, "open": true },
+                  { "name": "checkstyle", "type": "folder", "depth": 2, "open": true },
+                  { "name": "checkstyle.xml", "type": "file", "depth": 3 },
+                  { "name": "src", "type": "folder", "depth": 1 },
+                  { "name": "build.gradle.kts", "type": "file", "depth": 1, "selected": true } ],
+        "code": "plugins {\n    java\n    checkstyle\n}\n\nrepositories {\n    mavenCentral()\n}",
+        "console": { "tool": "Run", "title": "shop [check]",
+                     "lines": [ { "t": "cmd", "s": "> Task :checkstyleMain" },
+                                { "t": "out", "s": "[ant:checkstyle] [WARN] C:\\Users\\Misha\\IdeaProjects\\shop\\src\\main\\java\\Parcel.java:6:24: '20' is a magic number. [MagicNumber]" },
+                                { "t": "out", "s": "[ant:checkstyle] [WARN] C:\\Users\\Misha\\IdeaProjects\\shop\\src\\main\\java\\Shop.java:14: Line is longer than 100 characters (found 131). [LineLength]" },
+                                { "t": "out", "s": "Checkstyle rule violations were found. See the report at: file:///C:/Users/Misha/IdeaProjects/shop/build/reports/checkstyle/main.html" },
+                                { "t": "out", "s": "" },
+                                { "t": "out", "s": "BUILD SUCCESSFUL in 3s" } ] },
+        "marks": [ { "n": 1, "target": "line-3", "side": "top", "text": "Плагин <code>checkstyle</code> — вся настройка в build-файле" },
+                   { "n": 2, "target": "tree-checkstyle.xml", "text": "Файл с правилами. Обычно он уже есть в проекте команды" },
+                   { "n": 3, "target": "output", "text": "Замечание: файл, строка и столбец, что не так и в квадратных скобках — имя правила" },
+                   { "n": 4, "target": "output-3", "text": "Полный отчёт — HTML-страница, её открывают в браузере" } ],
+        "caption": "Окно Gradle → Tasks → verification → check. Вывод сокращён" }
+      </script>
+    </div>
+    <p>Здесь замечания — предупреждения, и сборка прошла. Многие команды настраивают Checkstyle строже: есть хоть одно замечание — сборка красная, как при упавшем тесте. Тогда код «не по стилю» просто не попадёт в общую ветку. Настраивать Checkstyle самому пока не нужно: достаточно понимать, что это такое и что делать, если сборка ругается на стиль, — открыть отчёт и поправить строки. Для IDEA есть ещё плагин <b>CheckStyle-IDEA</b>: он показывает те же замечания прямо в редакторе.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>DRY: не повторяйся</h2>
+    <p><b>DRY</b> — Don't Repeat Yourself, «не повторяйся». Каждое правило программы должно быть записано <b>в одном месте</b>. Звучит очевидно, но копипаста — самый быстрый способ написать код, и поэтому она повсюду. Вот магазин: скидка 10% на заказы от 5000 ₽ нужна в трёх местах — в чеке, в SMS и при оплате бонусами:</p>
+<pre><code class="java">static void printReceipt(int sum) {
+    int toPay = sum &gt;= 5000 ? sum - sum / 10 : sum;
+    System.out.println("К оплате: " + toPay);
+}
+
+static void sendSms(int sum) {
+    int toPay = sum &gt;= 5000 ? sum - sum / 10 : sum;
+    System.out.println("SMS: заказ на " + toPay + " ₽");
+}
+
+static boolean canPayByBonuses(int sum, int bonuses) {
+    int toPay = sum &gt;= 5000 ? sum - sum / 10 : sum;
+    return bonuses &gt;= toPay;
+}</code><span class="type-hint">🚫 так не надо — не набирай</span></pre>
+    <p>Пока правило не меняется, всё работает. Но правила меняются всегда.</p>
+    <details class="predict">
+      <summary>Маркетологи снизили порог скидки до 3000 ₽. Программист поправил <code>printReceipt</code> и <code>sendSms</code>, а про <code>canPayByBonuses</code> забыл. У покупателя заказ на 4000 ₽ и 3700 бонусов. Что он увидит?</summary>
+      <p>В чеке и в SMS — «к оплате 3600» (4000 минус 10%). А при попытке оплатить бонусами — отказ: третий метод всё ещё считает по старому правилу, скидки нет, нужно 4000, а бонусов 3700. Покупатель видит «3600», у него 3700 — и ему отказывают. Баг, жалоба в поддержку, и никакой ошибки компиляции: код же «работает».</p>
+    </details>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 290" role="img" aria-label="Слева правило скидки скопировано в три метода, при изменении поправили два из трёх, третий остался со старым порогом. Справа три метода вызывают один общий метод с правилом, его меняют в одном месте">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="178" y="26" text-anchor="middle" class="d-title">Было: правило в трёх местах</text>
+        <text x="578" y="26" text-anchor="middle" class="d-title">Стало: правило в одном месте</text>
+
+        <rect x="16" y="50" width="196" height="56" rx="10" class="d-soft"/>
+        <text x="30" y="83" class="d-mono-ink">printReceipt()</text>
+        <rect x="220" y="50" width="122" height="56" rx="10" class="d-yellow"/>
+        <text x="281" y="74" text-anchor="middle" class="d-small">≥ 3000 → −10%</text>
+        <text x="281" y="94" text-anchor="middle" class="d-small">поправили</text>
+
+        <rect x="16" y="120" width="196" height="56" rx="10" class="d-soft"/>
+        <text x="30" y="153" class="d-mono-ink">sendSms()</text>
+        <rect x="220" y="120" width="122" height="56" rx="10" class="d-yellow"/>
+        <text x="281" y="144" text-anchor="middle" class="d-small">≥ 3000 → −10%</text>
+        <text x="281" y="164" text-anchor="middle" class="d-small">поправили</text>
+
+        <rect x="16" y="190" width="196" height="56" rx="10" class="d-soft"/>
+        <text x="30" y="223" class="d-mono-ink">canPayByBonuses()</text>
+        <rect x="220" y="190" width="122" height="56" rx="10" class="d-red"/>
+        <text x="281" y="214" text-anchor="middle" class="d-small">≥ 5000 → −10%</text>
+        <text x="281" y="234" text-anchor="middle" class="d-small d-c-red">забыли!</text>
+
+        <path d="M354 148 H392" class="d-arrow"/>
+
+        <rect x="404" y="50" width="170" height="56" rx="10" class="d-soft"/>
+        <text x="416" y="83" class="d-mono-ink">printReceipt()</text>
+        <rect x="404" y="120" width="170" height="56" rx="10" class="d-soft"/>
+        <text x="416" y="153" class="d-mono-ink">sendSms()</text>
+        <rect x="404" y="190" width="170" height="56" rx="10" class="d-soft"/>
+        <text x="416" y="223" class="d-mono-ink">canPayByBonuses()</text>
+
+        <path d="M574 78 L598 126" class="d-arrow"/>
+        <path d="M574 148 H598" class="d-arrow"/>
+        <path d="M574 218 L598 170" class="d-arrow"/>
+        <rect x="600" y="100" width="150" height="96" rx="12" class="d-green"/>
+        <text x="675" y="130" text-anchor="middle" class="d-title">одно правило</text>
+        <text x="675" y="154" text-anchor="middle" class="d-small">≥ 3000 → −10%</text>
+        <text x="675" y="178" text-anchor="middle" class="d-small">priceWithDiscount()</text>
+
+        <text x="178" y="276" text-anchor="middle" class="d-small">поменяли в двух местах из трёх — баг</text>
+        <text x="578" y="276" text-anchor="middle" class="d-small">поменяли в одном месте — готово</text>
+      </svg>
+      <figcaption>Копипаста размножает не код, а будущие баги: каждую копию надо не забыть поменять.</figcaption>
+    </figure>
+    <p>Лечится выносом правила в <b>отдельный метод</b>, а чисел — в константы. Три метода теперь не считают скидку сами, а спрашивают у одного:</p>
+<pre data-file="DiscountShop.java"><code class="java">public class DiscountShop {
+    static final int DISCOUNT_FROM = 3000;
+    static final int DISCOUNT_PERCENT = 10;
+
+    public static void main(String[] args) {
+        printReceipt(4000);
+        sendSms(4000);
+        System.out.println(canPayByBonuses(4000, 3700));
+    }
+
+    static int priceWithDiscount(int sum) {
+        if (sum &gt;= DISCOUNT_FROM) {
+            return sum - sum * DISCOUNT_PERCENT / 100;
+        }
+        return sum;
+    }
+
+    static void printReceipt(int sum) {
+        System.out.println("К оплате: " + priceWithDiscount(sum));
+    }
+
+    static void sendSms(int sum) {
+        System.out.println("SMS: заказ на " + priceWithDiscount(sum) + " ₽");
+    }
+
+    static boolean canPayByBonuses(int sum, int bonuses) {
+        return bonuses &gt;= priceWithDiscount(sum);
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">К оплате: 3600
+SMS: заказ на 3600 ₽
+true</span></pre>
+    <p>Теперь порог скидки меняется в одной строке, и забыть «третье место» невозможно — его нет. Обрати внимание: метод <code>priceWithDiscount</code> назван не по глаголу. Так тоже можно, когда метод просто <b>вычисляет значение</b> и имя читается как ответ: «цена со скидкой». Главное — чтобы имя объясняло смысл.</p>
+    <p>Делать это руками не обязательно. Выдели повторяющийся кусок и нажми <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd> (<b>Refactor → Extract Method</b>): IDEA вынесет его в новый метод, спросит имя и — что особенно приятно — сама найдёт такие же куски в классе и предложит заменить и их.</p>
+    <p>Такая переделка кода без изменения его поведения называется <b>рефакторинг</b>. Программа делает то же самое, но устроена лучше. Делать рефакторинг спокойно позволяют тесты из прошлых уроков: зелёные до и после — значит, ничего не сломал.</p>
+    <div class="callout tip">
+      <span class="callout-title">Правило трёх</span>
+      <p>Написал кусок первый раз — просто пиши. Скопировал второй раз — поморщись, но можно. Тянешься скопировать в третий — останавливайся и выноси в метод.</p>
+    </div>
+    <div class="callout warn">
+      <span class="callout-title">Не перестарайся: похожее ≠ одинаковое</span>
+      <p>DRY — про <b>одно знание в одном месте</b>, а не про одинаковые буквы. Два метода ниже выглядят одинаково, но это два разных правила: цена доставки за килограмм и цена коробки. Склеишь их в один <code>multiplyBy50(int x)</code> — а потом курьерская служба поднимет тариф до 60 ₽, упаковка останется по 50, и склеенный метод придётся расклеивать. Похожий код с разным смыслом оставляй раздельным и дай числам разные имена: <code>PRICE_PER_KG</code> и <code>PRICE_PER_BOX</code>.</p>
+    </div>
+<pre><code class="java">static int calculateDeliveryPrice(int weightKg) {
+    return weightKg * PRICE_PER_KG;      // сейчас 50, но живёт своей жизнью
+}
+
+static int calculatePackagingPrice(int boxes) {
+    return boxes * PRICE_PER_BOX;        // тоже 50 — совпадение, а не правило
+}</code><span class="type-hint">👀 просто прочитай</span></pre>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>KISS: делай проще</h2>
+    <p><b>KISS</b> — Keep It Simple, Stupid, «делай проще, глупыш». Из двух решений, которые одинаково работают, выбирай то, которое проще прочитать. Программисты любят хитрые однострочники: написал — чувствуешь себя гением. Но читать их будет тот, кто не был у тебя в голове в момент написания. Есть известная мысль Брайана Кернигана: отлаживать код вдвое труднее, чем писать, — так что если ты написал код на пределе своей хитрости, отладить его ты уже не сможешь.</p>
+
+    <h3>Вложенные тернарники → if с ранним return</h3>
+    <p>Метод определяет размер посылки по весу:</p>
+<pre><code class="java">static String findSize(int weightKg) {
+    return weightKg &gt; 20 ? "большая"
+            : weightKg &gt; 5 ? "средняя"
+            : weightKg &gt; 0 ? "маленькая" : "ошибка";
+}</code><span class="type-hint">🚫 так не надо — не набирай</span></pre>
+    <p>Чтобы понять, что вернётся для 5 кг, нужно мысленно пройти всю цепочку <code>? :</code>. Перепишем через <code>if</code> — каждая ветка отдельной строкой и сразу <code>return</code>:</p>
+<pre><code class="java">static String findSize(int weightKg) {
+    if (weightKg &lt;= 0) {
+        return "ошибка";
+    }
+    if (weightKg &lt;= 5) {
+        return "маленькая";
+    }
+    if (weightKg &lt;= 20) {
+        return "средняя";
+    }
+    return "большая";
+}</code><span class="type-hint">👀 целиком наберёшь ниже</span></pre>
+    <p>Строк больше, а читать проще: сверху вниз, как список правил. Тернарный оператор хорош для одного простого выбора (<code>count == 1 ? "товар" : "товаров"</code>), но вложенный в другой тернарник — уже ребус. Если выбор идёт по конкретным значениям (зона 1, 2, 3…), а не по диапазонам, ещё лучше подойдёт <code>switch</code> со стрелками: <code>case 1 -&gt; "центр";</code>.</p>
+
+    <h3>Ранний return вместо «лесенки»</h3>
+    <p>Каждый вложенный <code>if</code> сдвигает код вправо, и скоро он превращается в лесенку, где непонятно, какой <code>else</code> к какому <code>if</code> относится:</p>
+<pre><code class="java">static String checkout(String address, int items, boolean paid) {
+    if (address != null) {
+        if (items &gt; 0) {
+            if (paid) {
+                return "Отправляем заказ";
+            } else {
+                return "Заказ не оплачен";
+            }
+        } else {
+            return "Корзина пуста";
+        }
+    } else {
+        return "Нет адреса";
+    }
+}</code><span class="type-hint">🚫 так не надо — не набирай</span></pre>
+    <p>Приём <b>ранний return</b> (его ещё называют guard clause — «условие-охранник»): сначала отсекаем все плохие случаи и сразу выходим из метода. Что осталось в конце — нормальный путь, без вложенности:</p>
+<pre><code class="java">static String checkout(String address, int items, boolean paid) {
+    if (address == null) {
+        return "Нет адреса";
+    }
+    if (items &lt;= 0) {
+        return "Корзина пуста";
+    }
+    if (!paid) {
+        return "Заказ не оплачен";
+    }
+    return "Отправляем заказ";
+}</code><span class="type-hint">👀 целиком наберёшь ниже</span></pre>
+
+    <h3>if, который возвращает true или false</h3>
+    <details class="predict">
+      <summary>Как записать короче, не меняя смысла?<br><code>if (age &gt;= 18) { return true; } else { return false; }</code></summary>
+      <p><code>return age &gt;= 18;</code> — сравнение <b>уже</b> даёт <code>boolean</code>: <code>true</code> или <code>false</code>. Обёртка из <code>if</code> просто переписывает этот ответ ещё раз. Это та самая серая подсветка «'if' statement can be simplified» со скрина в шаге про инспекции — <kbd>Alt</kbd>+<kbd>Enter</kbd> сделает замену сам.</p>
+    </details>
+    <p>Собери оба исправленных метода в один класс и проверь, что они работают так же, как старые:</p>
+<pre data-file="OrderDesk.java"><code class="java">public class OrderDesk {
+    public static void main(String[] args) {
+        System.out.println(findSize(5));
+        System.out.println(findSize(21));
+        System.out.println(checkout("Лесная, 5", 0, true));
+        System.out.println(checkout("Лесная, 5", 3, true));
+    }
+
+    static String findSize(int weightKg) {
+        if (weightKg &lt;= 0) {
+            return "ошибка";
+        }
+        if (weightKg &lt;= 5) {
+            return "маленькая";
+        }
+        if (weightKg &lt;= 20) {
+            return "средняя";
+        }
+        return "большая";
+    }
+
+    static String checkout(String address, int items, boolean paid) {
+        if (address == null) {
+            return "Нет адреса";
+        }
+        if (items &lt;= 0) {
+            return "Корзина пуста";
+        }
+        if (!paid) {
+            return "Заказ не оплачен";
+        }
+        return "Отправляем заказ";
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">маленькая
+большая
+Корзина пуста
+Отправляем заказ</span></pre>
+    <div class="say" data-mood="think"><p>KISS касается и Stream: цепочка из трёх шагов читается как фраза, а из десяти шагов с лямбдами внутри лямбд — уже нет. Если цепочку трудно прочитать вслух, разбей её на части с понятными именами или напиши обычный цикл. Простой цикл — не позор.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>YAGNI: тебе это не понадобится</h2>
+    <p><b>YAGNI</b> — You Aren't Gonna Need It, «тебе это не понадобится». Не пиши код «на будущее»: классы, настройки и параметры, которые никто не просил. Задача: <b>посчитать цену доставки курьером</b> — 300 ₽ плюс 50 ₽ за каждый килограмм. Начитавшийся про интерфейсы программист пишет так:</p>
+<pre><code class="java">// вызов: DeliveryFactory.create("courier").calculatePrice(3)
+
+interface DeliveryStrategy {
+    int calculatePrice(int weightKg);
+}
+
+class CourierDelivery implements DeliveryStrategy {
+    public int calculatePrice(int weightKg) {
+        return 300 + weightKg * 50;
+    }
+}
+
+class DeliveryFactory {
+    static DeliveryStrategy create(String type) {
+        return switch (type) {
+            case "courier" -&gt; new CourierDelivery();
+            // "drone", "teleport" — на будущее, вдруг пригодится
+            default -&gt; throw new IllegalArgumentException(type);
+        };
+    }
+}</code><span class="type-hint">🚫 так не надо — не набирай</span></pre>
+    <p>Три типа и фабрика, чтобы умножить и сложить. А вот что действительно нужно по задаче:</p>
+<pre><code class="java">static final int BASE_PRICE = 300;
+static final int PRICE_PER_KG = 50;
+
+static int calculateDeliveryPrice(int weightKg) {
+    return BASE_PRICE + weightKg * PRICE_PER_KG;
+}</code><span class="type-hint">👀 просто прочитай</span></pre>
+    <p>Почему «на будущее» — плохая идея:</p>
+    <ul>
+      <li><b>Будущее почти никогда не наступает таким, каким его представили.</b> Доставку дронами так и не сделают, а когда понадобится самовывоз, окажется, что заготовка под него не подходит: у самовывоза нет веса, зато есть адрес пункта выдачи.</li>
+      <li><b>Лишний код не бесплатный.</b> Его читают, поддерживают, обновляют, в нём живут баги — хотя он не делает ничего полезного.</li>
+      <li><b>Простой код легко расширить, когда придёт время.</b> Появится второй способ доставки по-настоящему — тогда и введёшь интерфейс. С тестами такой рефакторинг займёт полчаса.</li>
+    </ul>
+    <div class="callout warn">
+      <span class="callout-title">YAGNI — не оправдание для халтуры</span>
+      <p>YAGNI про <b>новые возможности</b>, которые никто не просил. Проверить входные данные, обработать ошибку, написать тесты, дать нормальные имена — это не «на будущее», это нужно уже сейчас. «Вес не может быть отрицательным» — часть задачи, а «вдруг понадобится телепорт» — нет.</p>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="emoji">✂️</span><h4>DRY</h4><p>Одно правило — в одном месте. Но похожий код с разным смыслом не склеивай.</p></div>
+      <div class="card"><span class="emoji">🪶</span><h4>KISS</h4><p>Из рабочих решений выбирай самое простое для чтения.</p></div>
+      <div class="card"><span class="emoji">🔮</span><h4>YAGNI</h4><p>Делай то, что нужно сейчас. «Вдруг пригодится» — не причина писать код.</p></div>
+    </div>
+    <div class="say" data-mood="happy"><p>Заметь: три принципа тянут в одну сторону — к коду, в котором <b>меньше лишнего</b>. Нет копий, нет хитростей, нет кода «про запас». Такой код проще всего читать — а ради этого всё и затевалось.</p></div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-clean">
+      <script type="application/json">
+      { "title": "Чистый код — главное",
+        "items": [
+          { "type": "bug", "q": "Найди строки, которые нарушают код-стайл Java",
+            "code": "public class delivery {\n    static final int FREE_FROM = 2000;\n    static final int PRICE = 199;\n\n    static int Cost(int sum) {\n        return sum >= FREE_FROM ? 0 : PRICE;\n    }\n}",
+            "answer": [1, 5],
+            "why": "Строка 1: класс пишется в PascalCase — Delivery. Строка 5: метод — camelCase и с глагола, например calculateCost. Константы на строках 2–3 оформлены верно." },
+          { "type": "match", "q": "Соедини принцип с примером",
+            "left": ["DRY", "KISS", "YAGNI", "Код-стайл"],
+            "right": ["Формулу скидки из трёх методов выносим в один метод", "Три вложенных тернарника переписываем на if с ранним return", "Удаляем класс для доставки дронами, которой нет в задаче", "Переименовываем класс order_item в OrderItem"],
+            "why": "DRY — убрать повтор, KISS — упростить, YAGNI — не писать ненужное, код-стайл — оформление и имена." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int weightKg = 5;\nString size = weightKg > 20 ? \"L\"\n        : weightKg > 5 ? \"M\" : \"S\";\nSystem.out.println(size);",
+            "answer": "S",
+            "why": "5 > 20 — ложь, 5 > 5 — тоже ложь, остаётся \"S\". Пришлось разбирать цепочку по шагам — вот почему вложенные тернарники нарушают KISS." },
+          { "type": "multi", "q": "Отметь имена, которые оформлены по код-стайлу Java",
+            "options": ["метод calculateTotal()", "константа MAX_ITEMS", "класс ShoppingCart", "метод Get_price()", "пакет com.misha.shop", "переменная Total_sum"],
+            "answer": [0, 1, 2, 4],
+            "why": "Методы и переменные — camelCase с маленькой буквы и без подчёркиваний: getPrice(), totalSum." },
+          { "type": "single", "q": "Что не так с этим методом?",
+            "code": "static int calculateFinalPrice(int sum) {\n    return sum * 87 / 100;\n}",
+            "options": ["Имя метода нарушает код-стайл", "87 — магическое число: непонятно, что оно значит", "Нужно было написать через тернарный оператор"], "answer": 1,
+            "why": "Скидка 13%? Налог? Комиссия? Константа с именем, например PERCENT_AFTER_DISCOUNT, объяснила бы смысл и собрала число в одном месте." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "DRY требует склеить любые два одинаковых по тексту куска кода", "a": false, "why": "DRY — про одно правило в одном месте. Одинаковые по буквам, но разные по смыслу куски склеивать вредно: меняться они будут порознь." },
+              { "s": "Ctrl+Alt+L приводит отступы и пробелы в файле к стилю проекта", "a": true },
+              { "s": "По YAGNI можно не проверять входные данные — вдруг не понадобится", "a": false, "why": "YAGNI — про новые возможности, которые никто не просил. Проверки и тесты нужны уже сейчас." },
+              { "s": "Checkstyle проверяет стиль кода автоматически, например при сборке Gradle", "a": true }
+            ] },
+          { "type": "single", "q": "Попросили метод, который считает цену доставки курьером. Как поступить по YAGNI?",
+            "options": ["Сразу сделать интерфейс и фабрику: вдруг появятся дроны", "Написать один простой метод, а расширять — когда появится новая задача", "Добавить заранее параметры валюты и языка"], "answer": 1,
+            "why": "Пиши то, что нужно сейчас. Простой метод с тестами легко переделать, когда новая задача появится по-настоящему." }
+        ] }
+      </script>
+    </div>
+
+    <div class="cheat">
+      <h3>Выпиши себе: чистый код</h3>
+      <p>Перепиши руками в тетрадь — три принципа и клавиши, которые убирают половину проблем.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что</th><th>Что значит / что делает</th><th>Когда вспомнить</th></tr>
+        <tr><td>DRY</td><td>Don't Repeat Yourself: одно правило — в одном месте</td><td>Тянешься скопировать кусок в третий раз</td></tr>
+        <tr><td>KISS</td><td>Keep It Simple, Stupid: из рабочих решений — самое простое для чтения</td><td>Хочется написать «хитро» в одну строку</td></tr>
+        <tr><td>YAGNI</td><td>You Aren't Gonna Need It: не писать то, что никто не просил</td><td>Хочется добавить «на будущее»</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd></td><td>Reformat Code: отформатировать файл по стилю проекта</td><td>Перед каждым коммитом</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></td><td>Extract Method: вынести выделенный код в метод</td><td>Убираешь копипасту (DRY)</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd></td><td>Extract Constant: вынести число в константу</td><td>Нашёл магическое число</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>F6</kbd></td><td>Rename: переименовать везде сразу</td><td>Имя не объясняет смысл</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd></td><td>Принять подсказку инспекции</td><td>Жёлтая или серая подсветка</td></tr>
+      </table></div>
+    </div>
+
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Возьми любое своё решение задачи из прошлых модулей и напиши: <em>«Вот мой код. Найди в нём нарушения код-стайла, DRY, KISS и YAGNI, но не переписывай — только назови, что не так, а исправлю я сам»</em>. Если граница между принципами пока размыта, спроси: <em>«Приведи пример из жизни магазина, где два куска кода похожи, но склеивать их по DRY нельзя»</em>.</p>
+    </div>
+
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Код читают намного чаще, чем пишут. Чистый код — понятный человеку: хорошие имена, единый стиль, ничего лишнего.</li>
+        <li>Имена: классы — PascalCase, переменные и методы — camelCase, методы — с глагола, константы — UPPER_SNAKE_CASE, пакеты — маленькими буквами. Магические числа — в именованные константы.</li>
+        <li>Оформление: скобка открывается на той же строке, закрывается на своей; строки до 100–120 символов; <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> перед коммитом.</li>
+        <li>Жёлтое и серое в IDEA — инспекции, их стоит убрать. Checkstyle проверяет стиль автоматически при сборке Gradle.</li>
+        <li><b>DRY</b> — одно правило в одном месте (но похожий код с разным смыслом не склеивать). <b>KISS</b> — самое простое решение: ранний return вместо лесенки, if вместо вложенных тернарников. <b>YAGNI</b> — не писать «на будущее».</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

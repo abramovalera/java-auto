@@ -69,6 +69,8 @@
     <details class="cheat-qa"><summary>Что такое var?</summary><p>Тип локальной переменной выводит компилятор по значению справа: <code>var age = 20;</code> — это <code>int</code>. Тип всё равно фиксирован, просто его не пишут.</p></details>
     <details class="cheat-qa"><summary>Как сделать константу?</summary><p><code>final</code>: <code>final int max = 100;</code> — второй раз присвоить нельзя. Настоящая константа класса — поле <code>static final</code> (модуль 9): <code>static final int MAX_SIZE = 100;</code> — такие пишут БОЛЬШИМИ_БУКВАМИ. Обычную локальную <code>final</code>-переменную называют, как всё остальное, в camelCase.</p></details>
     <details class="cheat-qa"><summary>Как принято называть переменные, классы и константы?</summary><p>Переменные и методы — <b>camelCase</b>: слова слитно, первое с маленькой (<code>userName</code>, <code>getBalance</code>). Классы — <b>PascalCase</b>, с большой (<code>BankAccount</code>). Константы — <b>UPPER_SNAKE_CASE</b> (<code>MAX_SIZE</code>). Компилятор не заставляет, но так пишут все — и на код-ревью за другое поправят.</p></details>
+    <details class="cheat-qa"><summary>Что значит «Java — язык со статической типизацией»?</summary><p>Тип переменной задаётся при объявлении и не меняется, а ошибки типов ловит компилятор ещё до запуска. В Python или JavaScript типизация динамическая: одна переменная может хранить то число, то строку.</p></details>
+    <details class="cheat-qa"><summary>Сколько памяти занимает boolean и какие значения по умолчанию у примитивов?</summary><p>Размер boolean спецификация не задаёт, обычно это 1 байт. По умолчанию поля и ячейки массива получают 0, <code>0L</code>, <code>0.0</code>, <code>'\u0000'</code>, <code>false</code> или <code>null</code>. Локальные переменные значения по умолчанию не получают: их надо инициализировать.</p></details>
     </div>
     <p class="cheat-more"><a href="/lessons/m02/08-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
   </section>
@@ -222,6 +224,7 @@
     <details class="cheat-qa"><summary>Что такое static? Почему из static-метода нельзя обратиться к обычному полю?</summary><p><code>static</code>-поле или метод принадлежат классу, а не объекту. У static-метода нет <code>this</code>: непонятно, поле какого объекта брать.</p></details>
     <details class="cheat-qa"><summary>Какие есть модификаторы доступа?</summary><p><code>private</code> — только внутри класса; без модификатора — внутри пакета; <code>protected</code> — пакет и наследники; <code>public</code> — всем.</p></details>
     <details class="cheat-qa"><summary>Что такое record?</summary><p>Класс для неизменяемых данных: <code>record Point(int x, int y)</code>. Сам создаёт конструктор, методы <code>x()</code>, <code>y()</code>, <code>equals</code>, <code>hashCode</code>, <code>toString</code>.</p></details>
+    <details class="cheat-qa"><summary>Что такое static-блок и когда он выполняется?</summary><p>Код в <code>static { … }</code> внутри класса. JVM выполняет его один раз при загрузке класса, раньше конструкторов и даже <code>main</code>. Нужен, чтобы подготовить сложные static-поля.</p></details>
     </div>
     <p class="cheat-more"><a href="/lessons/m09/10-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
   </section>
@@ -246,6 +249,7 @@
     <details class="cheat-qa"><summary>Что значит final у класса, метода, переменной?</summary><p>Класс — нельзя наследовать (так сделан <code>String</code>). Метод — нельзя переопределить. Переменная — нельзя присвоить второй раз.</p></details>
     <details class="cheat-qa"><summary>Есть ли в Java множественное наследование?</summary><p>Классов — нет, только один <code>extends</code>. Интерфейсов можно реализовать сколько угодно (модуль 11).</p></details>
     <details class="cheat-qa"><summary>Какие методы есть у Object?</summary><p>Главные: <code>toString</code>, <code>equals</code>, <code>hashCode</code>, <code>getClass</code>. Их наследует любой класс.</p></details>
+    <details class="cheat-qa"><summary>В каком порядке выполняются static-блоки, блоки инициализации и конструкторы родителя и наследника?</summary><p>Один раз при загрузке: static родителя → static наследника. При каждом <code>new</code>: поля и блоки <code>{ }</code> родителя → конструктор родителя → поля и блоки наследника → конструктор наследника.</p></details>
     </div>
     <p class="cheat-more"><a href="/lessons/m10/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
   </section>
@@ -317,6 +321,8 @@
     <details class="cheat-qa"><summary>Почему не Vector и не Stack?</summary><p>Оба — наследие Java 1.0 с лишней синхронизацией. Вместо Vector — <code>ArrayList</code>, вместо Stack — <code>ArrayDeque</code> через интерфейс <code>Deque</code> (те же push, pop, peek).</p></details>
     <details class="cheat-qa"><summary>Чем List.of отличается от Arrays.asList и new ArrayList?</summary><p><code>List.of</code> — неизменяемый список без null: add и set бросают <code>UnsupportedOperationException</code>. <code>Arrays.asList</code> — фиксированного размера: set можно, add и remove нельзя. <code>new ArrayList&lt;&gt;(…)</code> — обычный изменяемый список.</p></details>
     <details class="cheat-qa"><summary>Что такое O(1), O(log n), O(n)?</summary><p>Как растёт время операции с ростом числа элементов. O(1) — не зависит от размера (get у ArrayList, contains у HashSet). O(log n) — растёт очень медленно (TreeSet, TreeMap). O(n) — растёт вместе с размером (contains у List).</p></details>
+    <details class="cheat-qa"><summary>Какие структуры данных знаешь и где они в Java?</summary><p>Линейные: массив, связный список (<code>LinkedList</code>), стек и очередь, дек (<code>ArrayDeque</code>). Нелинейные: дерево (<code>TreeSet</code>, <code>TreeMap</code> — красно-чёрное дерево), куча (<code>PriorityQueue</code>), граф (готового класса нет). Ассоциативные: хеш-таблица (<code>HashMap</code>, <code>HashSet</code>).</p></details>
+    <details class="cheat-qa"><summary>Чем куча-структура отличается от кучи-памяти?</summary><p>Куча-память (heap) — область JVM, где живут объекты. Куча-структура — дерево, где родитель не больше потомков, поэтому минимум всегда сверху; на ней работает <code>PriorityQueue</code>.</p></details>
     </div>
     <p class="cheat-more"><a href="/lessons/m13/11-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
   </section>
@@ -395,6 +401,8 @@
       <li>Git: <code>commit</code> — сохранить у себя, <code>push</code> — отправить, <code>pull</code> — забрать. Работа — в своей ветке.</li>
       <li>Gradle (<code>build.gradle.kts</code>) скачивает зависимости и запускает тесты: <code>gradlew test</code>.</li>
       <li>JUnit 5: <code>@Test</code>, <code>@BeforeEach</code>, <code>@ParameterizedTest</code>; проверки — <code>assertEquals</code> / AssertJ <code>assertThat</code>.</li>
+      <li>Чистый код: понятные имена, константы вместо магических чисел, DRY, KISS, YAGNI; принципы SOLID.</li>
+      <li>Паттерны: Builder и Singleton создают объекты, Adapter и Decorator оборачивают, Strategy подменяет алгоритм.</li>
     </ul>
     <h3>Могут спросить на собеседовании</h3>
     <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
@@ -403,6 +411,16 @@
     <details class="cheat-qa"><summary>Maven или Gradle? Что такое зависимость?</summary><p>Оба — сборщики: скачивают библиотеки (зависимости), компилируют, запускают тесты. Зависимость — чужая библиотека (например, JUnit), которую сборщик подтягивает по имени и версии. У Gradle настройки — скрипт на Kotlin (<code>build.gradle.kts</code>) или Groovy (<code>build.gradle</code>), у Maven — XML (<code>pom.xml</code>).</p></details>
     <details class="cheat-qa"><summary>Какие аннотации JUnit 5 знаешь?</summary><p><code>@Test</code>, <code>@BeforeEach</code> / <code>@AfterEach</code> (до и после каждого теста), <code>@BeforeAll</code> / <code>@AfterAll</code> (один раз на класс), <code>@DisplayName</code>, <code>@Disabled</code>, <code>@ParameterizedTest</code> + <code>@ValueSource</code> / <code>@CsvSource</code>.</p></details>
     <details class="cheat-qa"><summary>Чем assertEquals отличается от assertThat (AssertJ)?</summary><p>Оба проверяют. AssertJ читается как фраза (<code>assertThat(list).hasSize(3).contains("a")</code>) и даёт понятные сообщения при падении.</p></details>
+    <details class="cheat-qa"><summary>Какие фазы жизненного цикла Maven знаешь?</summary><p><code>validate → compile → test → package → verify → install → deploy</code>. Вызов фазы запускает и все предыдущие. <code>clean</code> удаляет <code>target/</code>; частая команда — <code>mvn clean package</code>.</p></details>
+    <details class="cheat-qa"><summary>Что такое jar и что лежит в MANIFEST.MF?</summary><p>jar — zip-архив со скомпилированными <code>.class</code>-файлами и ресурсами. В <code>META-INF/MANIFEST.MF</code> — метаинформация: версия, а у запускаемого jar — <code>Main-Class</code> для <code>java -jar</code>.</p></details>
+    <details class="cheat-qa"><summary>Что такое DRY, KISS и YAGNI?</summary><p>DRY — каждое правило записано в одном месте (копипасту — в метод, числа — в константы). KISS — из рабочих решений выбирай самое простое. YAGNI — не пиши код «на будущее», которого никто не просил.</p></details>
+    <details class="cheat-qa"><summary>Расшифруй SOLID.</summary><p>S — у класса одна причина для изменения. O — новое добавляем новым классом, не правя старый. L — наследник работает везде, где родитель. I — маленькие интерфейсы вместо толстого. D — логика зависит от интерфейса, конкретную реализацию передают снаружи.</p></details>
+    <details class="cheat-qa"><summary>Чем Dependency Inversion отличается от Dependency Injection?</summary><p>Inversion — принцип: зависеть от абстракций, а не от конкретных классов. Injection — приём: зависимость передают снаружи, например через конструктор. Он помогает соблюдать принцип и подставлять фейки в тестах.</p></details>
+    <details class="cheat-qa"><summary>Что такое паттерн проектирования? Какие группы бывают?</summary><p>Проверенный рецепт решения типичной задачи (книга GoF, 1994). Порождающие: Singleton, Factory Method, Abstract Factory, Builder, Prototype. Структурные: Adapter, Decorator, Facade, Proxy. Поведенческие: Strategy, Iterator, Observer, Mediator.</p></details>
+    <details class="cheat-qa"><summary>Как сделать Singleton и какие у него минусы?</summary><p>Приватный конструктор, <code>private static final</code> поле и <code>getInstance()</code>, или enum с одним значением. Минусы: глобальное состояние, скрытые зависимости, мешает тестам; ленивый вариант без синхронизации в потоках может создать два объекта.</p></details>
+    <details class="cheat-qa"><summary>Чем Builder лучше конструктора с множеством параметров?</summary><p>Вызов читается (видно, что есть что), необязательные параметры можно пропустить, проверки собраны в <code>build()</code>, результат можно сделать неизменяемым. Для 2–3 полей хватит конструктора или record.</p></details>
+    <details class="cheat-qa"><summary>Чем Adapter, Decorator и Proxy отличаются?</summary><p>Все три — обёртки. Адаптер меняет интерфейс (<code>Arrays.asList</code>). Декоратор сохраняет интерфейс и добавляет способность (<code>BufferedReader</code>). Заместитель сохраняет интерфейс и управляет доступом: откладывает создание, кеширует, проверяет права.</p></details>
+    <details class="cheat-qa"><summary>Где в JDK паттерн Strategy?</summary><p><code>Comparator</code> в <code>sort</code> и <code>TreeSet</code>, лямбды в <code>filter</code> и <code>removeIf</code>: алгоритм передаётся объектом, вызывающий код не меняется.</p></details>
     </div>
     <p class="cheat-more"><a href="/lessons/m17/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
   </section>
@@ -438,6 +456,8 @@
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td><td>убрать лишние import</td><td><a href="/lessons/m09/05-packages-access.html" title="Пакеты, import и доступ">9.5</a></td></tr>
         <tr><td><kbd>Shift</kbd>+<kbd>F6</kbd></td><td>переименовать везде сразу</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd></td><td>вынести выражение в переменную</td><td><a href="/lessons/m08/01-string-object.html" title="String — это объект, и он не меняется">8.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></td><td>вынести выделенный код в метод (Extract Method)</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd></td><td>вынести число или строку в константу (Extract Constant)</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd></td><td>обернуть выделенное в try/catch, if, цикл</td><td><a href="/lessons/m12/03-try-catch.html" title="try/catch: поймать и обработать">12.3</a></td></tr>
         <tr><td><kbd>Alt</kbd>+<kbd>Insert</kbd></td><td>сгенерировать конструктор, геттеры, toString, equals/hashCode</td><td><a href="/lessons/m09/01-class-object.html" title="От чертежа к коду: класс и объект">9.1</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>переопределить метод родителя (Override Methods)</td><td><a href="/lessons/m10/03-overriding.html" title="Переопределение методов и final">10.3</a></td></tr>
@@ -545,6 +565,11 @@
         <tr><td><b>CSV</b></td><td>Comma-Separated Values</td><td>таблица в текстовом файле: значения через запятую, строка — запись</td><td><a href="/lessons/m15/06-csv-properties.html" title="Практика: CSV и properties">15.6</a></td></tr>
         <tr><td><b>HTML</b></td><td>HyperText Markup Language</td><td>язык разметки веб-страниц: теги &lt;div&gt;, &lt;button&gt;…</td><td><a href="/lessons/m07/06-recursion.html" title="Рекурсия">7.6</a></td></tr>
         <tr><td><b>DSL</b></td><td>Domain-Specific Language</td><td>мини-язык для одной задачи; build.gradle.kts написан на Kotlin DSL</td><td><a href="/lessons/m17/04-gradle.html" title="Сборка проекта: Gradle">17.4</a></td></tr>
+        <tr><td><b>DRY</b></td><td>Don't Repeat Yourself</td><td>не повторяйся: каждое правило — в одном месте</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
+        <tr><td><b>KISS</b></td><td>Keep It Simple, Stupid</td><td>делай проще: из рабочих решений бери самое простое</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
+        <tr><td><b>YAGNI</b></td><td>You Aren't Gonna Need It</td><td>тебе это не понадобится: не пиши код «на будущее»</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
+        <tr><td><b>SOLID</b></td><td>SRP, OCP, LSP, ISP, DIP</td><td>пять принципов дизайна классов: одна ответственность, расширение без правок, подстановка Лисков, маленькие интерфейсы, зависимость от абстракций</td><td><a href="/lessons/m10/07-composition.html" title="Композиция против наследования">10.7</a></td></tr>
+        <tr><td><b>GoF</b></td><td>Gang of Four</td><td>«банда четырёх» — авторы книги 1994 года о 23 паттернах проектирования</td><td><a href="/lessons/m17/07d-patterns-creational.html" title="Паттерны: как создавать объекты">17.10</a></td></tr>
         <tr><td><b>CI</b></td><td>Continuous Integration</td><td>сервер, который сам собирает проект и гоняет тесты после каждого push</td><td><a href="/lessons/m17/03-git-team.html" title="Git в команде: push, pull, конфликты">17.3</a></td></tr>
     </table></div>
     <p class="cheat-more"><a href="#toc">↑ к оглавлению</a></p>

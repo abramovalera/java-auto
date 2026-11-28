@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Паттерны проектирования: как создавать объекты · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m17-patterns1">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 17 · Урок 10</div>
+    <h1>Паттерны проектирования: как создавать объекты</h1>
+    <p class="lead">Многие задачи в программировании повторяются из проекта в проект: «нужен ровно один такой объект», «у объекта двадцать необязательных настроек», «сделай такой же, только чуть другой». Для них давно есть проверенные решения с именами. Сегодня — пять решений о том, как <b>создавать</b> объекты.</p>
+    <div class="meta"><span>⏱ 40 минут</span><span>🧩 Singleton, Factory, Builder, Prototype</span><span>🗣 словарь разработчика</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m17-patterns1-review">
+      <script type="application/json">
+      { "title": "Вспомним чистый код и SOLID", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Класс <code>OrderService</code> считает скидку, отправляет письма покупателю и пишет отчёт в файл. Какой принцип SOLID нарушен в первую очередь?",
+            "options": ["S — единственная ответственность", "L — подстановка Лисков", "I — разделение интерфейсов"], "answer": 0,
+            "why": "У класса три причины меняться: правила скидок, письма и формат отчёта. По принципу единственной ответственности это три разных класса." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "YAGNI советует написать код «на будущее» заранее: вдруг пригодится", "a": false, "why": "наоборот: «тебе это не понадобится» — не пиши то, что сейчас не нужно." },
+              { "s": "DRY — одно и то же знание должно жить в одном месте, а не копироваться", "a": true },
+              { "s": "По принципу открытости/закрытости новое поведение лучше добавить новым классом, чем дописывать ещё одну ветку в старый switch", "a": true }
+            ] },
+          { "type": "single", "q": "Класс получает интерфейс <code>Notifier</code> через конструктор и не знает, SMS это или письмо. Какой принцип здесь соблюдён?",
+            "options": ["O — открытость/закрытость", "D — инверсия зависимостей", "S — единственная ответственность"], "answer": 1,
+            "why": "Класс зависит от абстракции (интерфейса), а конкретную реализацию ему передают снаружи — это инверсия зависимостей." }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что такое паттерн проектирования</h2>
+    <p><b>Паттерн проектирования</b> (design pattern, шаблон проектирования) — это готовое проверенное решение типичной задачи в устройстве программы. Не кусок кода, который копируют, а <b>идея</b>: какие классы завести, кто кого создаёт и кто кого вызывает. Под каждую программу её пишут заново своими словами.</p>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кулинарные рецепты</span>
+      <p>«Бисквит», «заварной крем», «маринад» — у каждого рецепта есть имя, и повар понимает другого повара с одного слова. Рецепт не говорит, какой торт печь, — он говорит, как сделать часть, которая нужна во многих тортах. Паттерны — такие рецепты для программ: «здесь строитель», «тут одиночка» — и коллега сразу представляет, как устроен код.</p>
+    </div>
+    <p>Самые известные паттерны собрали в 1994 году четыре автора: Эрих Гамма, Ричард Хелм, Ральф Джонсон и Джон Влиссидес. Книга называется «Приёмы объектно-ориентированного проектирования. Паттерны проектирования», а авторов прозвали <b>«бандой четырёх»</b> (Gang of Four, <b>GoF</b>). В книге 23 паттерна, разложенных на три группы:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Три группы паттернов GoF: порождающие — как создать объект (5 штук, этот урок), структурные — как соединить объекты (7 штук), поведенческие — как объекты общаются (11 штук)">
+        <text x="380" y="20" text-anchor="middle" class="d-small">23 паттерна из книги «банды четырёх» (GoF, 1994)</text>
+
+        <rect x="10" y="32" width="236" height="64" rx="12" class="d-accent"/>
+        <text x="128" y="60" text-anchor="middle" class="d-title">Порождающие</text>
+        <text x="128" y="84" text-anchor="middle" class="d-small">как создать объект</text>
+        <rect x="10" y="104" width="236" height="186" rx="12" class="d-accent"/>
+        <text x="26" y="134" class="d-text">Singleton — одиночка</text>
+        <text x="26" y="162" class="d-text">Factory Method</text>
+        <text x="26" y="190" class="d-text">Abstract Factory</text>
+        <text x="26" y="218" class="d-text">Builder — строитель</text>
+        <text x="26" y="246" class="d-text">Prototype — прототип</text>
+        <text x="128" y="276" text-anchor="middle" class="d-small">5 штук · этот урок</text>
+
+        <rect x="262" y="32" width="236" height="64" rx="12" class="d-soft"/>
+        <text x="380" y="60" text-anchor="middle" class="d-title">Структурные</text>
+        <text x="380" y="84" text-anchor="middle" class="d-small">как соединить объекты</text>
+        <rect x="262" y="104" width="236" height="186" rx="12" class="d-soft"/>
+        <text x="278" y="134" class="d-text">Adapter — адаптер</text>
+        <text x="278" y="162" class="d-text">Decorator — декоратор</text>
+        <text x="278" y="190" class="d-text">Facade — фасад</text>
+        <text x="278" y="218" class="d-text">Proxy — заместитель</text>
+        <text x="278" y="246" class="d-small">…и ещё 3</text>
+        <text x="380" y="276" text-anchor="middle" class="d-small">7 штук</text>
+
+        <rect x="514" y="32" width="236" height="64" rx="12" class="d-soft"/>
+        <text x="632" y="60" text-anchor="middle" class="d-title">Поведенческие</text>
+        <text x="632" y="84" text-anchor="middle" class="d-small">как объекты общаются</text>
+        <rect x="514" y="104" width="236" height="186" rx="12" class="d-soft"/>
+        <text x="530" y="134" class="d-text">Strategy — стратегия</text>
+        <text x="530" y="162" class="d-text">Observer — наблюдатель</text>
+        <text x="530" y="190" class="d-text">Iterator — итератор</text>
+        <text x="530" y="218" class="d-text">Command — команда</text>
+        <text x="530" y="246" class="d-small">…и ещё 7</text>
+        <text x="632" y="276" text-anchor="middle" class="d-small">11 штук</text>
+      </svg>
+      <figcaption>Три группы паттернов. Сегодня — левая колонка: <b>порождающие</b> паттерны отвечают на вопрос «как и кем создаётся объект».</figcaption>
+    </figure>
+    <div class="say" data-mood="wow"><p>А ты уже пользовался паттернами, просто не знал их имён! <code>Iterator</code> из модуля 13 — это паттерн «Итератор». А когда ты передаёшь в <code>sort</code> лямбду-<code>Comparator</code>, ты подставляешь «Стратегию» — способ сравнения, который можно поменять.</p></div>
+    <div class="callout warn">
+      <span class="callout-title">Паттерн — не цель</span>
+      <p>Паттерны — это <b>словарь</b> для общения с коллегами и <b>подсказка</b>, когда задача похожа на типичную. Вставлять их «потому что модно» или «чтобы код выглядел профессионально» — плохая идея: простой код превращается в лабиринт из фабрик и интерфейсов. Помнишь KISS и YAGNI из урока 17.8? Сначала пиши просто. Паттерн нужен, когда без него уже больно.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Singleton — одиночка</h2>
+    <p>Иногда объект должен быть <b>ровно один</b> на всю программу: настройки приложения, журнал (лог), подключение к общему ресурсу. Если каждый класс создаст свои «настройки» через <code>new</code>, один поменяет тему на тёмную, а другой об этом не узнает. <b>Одиночка</b> (Singleton) гарантирует: объект один, и все получают именно его.</p>
+    <p>Рецепт из трёх деталей — все они тебе знакомы по урокам про <code>static</code> и конструкторы:</p>
+<pre data-file="AppSettings.java"><code class="java">public class AppSettings {
+    private static final AppSettings INSTANCE = new AppSettings();
+
+    private String theme = "светлая";
+
+    private AppSettings() {
+    }
+
+    public static AppSettings getInstance() {
+        return INSTANCE;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+}</code></pre>
+    <div class="annot">
+      <div class="annot-row"><code>private AppSettings() { }</code><div><p><b>Приватный конструктор.</b> Снаружи класса <code>new AppSettings()</code> не скомпилируется — второй объект просто не создать.</p></div></div>
+      <div class="annot-row"><code>private static final AppSettings INSTANCE = new AppSettings();</code><div><p>Единственный объект создаётся <b>внутри</b> класса и хранится в <code>static</code>-поле: оно одно на весь класс, а не своё у каждого объекта. <code>final</code> — подменить его нельзя.</p></div></div>
+      <div class="annot-row"><code>public static AppSettings getInstance()</code><div><p>Статический метод — единственный вход. Кто бы его ни вызвал, получит ссылку на один и тот же объект.</p></div></div>
+    </div>
+<pre data-file="Playground.java"><code class="java">AppSettings a = AppSettings.getInstance();
+AppSettings b = AppSettings.getInstance();
+a.setTheme("тёмная");
+System.out.println(b.getTheme());
+System.out.println(a == b);</code></pre>
+    <details class="predict">
+      <summary>Тему меняли через <code>a</code>, а спрашиваем у <code>b</code>. Что выведется?</summary>
+      <p><b>тёмная</b> и <b>true</b>. <code>a</code> и <code>b</code> — две переменные, но ссылаются они на один объект: <code>getInstance()</code> оба раза вернул <code>INSTANCE</code>. Поэтому <code>==</code> (сравнение ссылок) даёт <code>true</code>. Знакомый пример из JDK — <code>Runtime.getRuntime()</code>: объект «среда выполнения» на всю программу один.</p>
+    </details>
+    <p><b>Вариант через enum.</b> Ты знаешь: у enum каждое значение существует в одном экземпляре, и JVM сама следит, чтобы не появилось второго. Значит, enum с одним значением — готовый одиночка, самый короткий и самый надёжный:</p>
+<pre data-file="Clipboard.java"><code class="java">public enum Clipboard {
+    INSTANCE;
+
+    private String text = "";
+
+    public void copy(String text) {
+        this.text = text;
+    }
+
+    public String paste() {
+        return text;
+    }
+}</code></pre>
+    <p>Пользуются так: <code>Clipboard.INSTANCE.copy("привет");</code> — и в любом другом месте программы <code>Clipboard.INSTANCE.paste()</code> вернёт <code>"привет"</code>.</p>
+    <div class="callout warn">
+      <span class="callout-title">«Ленивый» одиночка и потоки</span>
+      <p>Иногда объект создают не сразу, а при первом вызове: <code>if (instance == null) instance = new AppSettings();</code>. В программе с несколькими потоками это ловушка из модуля 16: два потока одновременно увидят <code>null</code> — и создадут <b>два</b> объекта. Гонка (race condition) в чистом виде. Делать «ленивый» вариант надёжно умеют, но это отдельная тонкая тема. Тебе хватит правила: бери вариант со <code>static final</code>-полем (как выше) или enum — оба безопасны без лишних усилий.</p>
+    </div>
+    <p><b>Минусы одиночки</b> — их спрашивают на собеседованиях не реже, чем сам паттерн:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🌍</span><h4>Глобальное состояние</h4><p>Любой код в любом месте может поменять настройки. Кто именно испортил значение — ищи по всей программе.</p></div>
+      <div class="card"><span class="emoji">🙈</span><h4>Спрятанные зависимости</h4><p>Класс сам лезет в <code>AppSettings.getInstance()</code> внутри метода. По его конструктору не видно, что ему нужны настройки. Это против буквы D из SOLID.</p></div>
+      <div class="card"><span class="emoji">🧪</span><h4>Мешает тестам</h4><p>Один тест поставил тёмную тему, следующий ждёт светлую — и падает, если запустить их в другом порядке. Тесты перестают быть независимыми (помнишь FIRST?).</p></div>
+    </div>
+    <div class="say" data-mood="think"><p>Поэтому одиночку иногда даже называют <b>антипаттерном</b>. В больших программах обычно делают иначе: объект создают один раз в начале программы и <b>передают</b> через конструктор тем, кому он нужен. Объект по-прежнему один, но зависимость видна, а в тесте вместо него легко подставить другой.</p></div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Factory Method — фабричный метод</h2>
+    <p>Начнём с простого и очень частого приёма — <b>статического фабричного метода</b>. Это обычный <code>static</code>-метод, который создаёт и возвращает объект вместо того, чтобы ты писал <code>new</code> сам. Ты ими давно пользуешься:</p>
+<pre data-file="Playground.java"><code class="java">List&lt;String&gt; days = List.of("пн", "вт", "ср");   // а не new ArrayList&lt;&gt;()
+Integer price = Integer.valueOf(100);             // а не new Integer(100)</code></pre>
+    <p>Свой такой метод выглядит так. Магазину нужно уведомлять покупателя, а каналы бывают разные:</p>
+<pre data-file="Notifiers.java"><code class="java">interface Notifier {
+    void send(String text);
+}
+
+class SmsNotifier implements Notifier {
+    public void send(String text) {
+        System.out.println("SMS: " + text);
+    }
+}
+
+class EmailNotifier implements Notifier {
+    public void send(String text) {
+        System.out.println("Письмо: " + text);
+    }
+}
+
+public class Notifiers {
+    static Notifier of(String channel) {
+        return switch (channel) {
+            case "sms" -> new SmsNotifier();
+            case "email" -> new EmailNotifier();
+            default -> throw new IllegalArgumentException(
+                    "Нет канала: " + channel);
+        };
+    }
+}</code></pre>
+    <p>Тот, кто пользуется, пишет <code>Notifier n = Notifiers.of("sms"); n.send("Заказ готов");</code> и знает только интерфейс. Чем это лучше <code>new</code>:</p>
+    <ul>
+      <li><b>У метода есть имя.</b> <code>List.of</code>, <code>Integer.valueOf</code>, <code>Notifiers.of</code> — по имени понятно, что получишь. У конструктора имя всегда одно — как у класса.</li>
+      <li><b>Можно вернуть любой подкласс.</b> Вызывающий не знает про <code>SmsNotifier</code> — завтра его заменят другим классом, и чужой код не изменится.</li>
+      <li><b>Можно не создавать новый объект.</b> <code>new</code> всегда создаёт новый, а фабрика может вернуть готовый.</li>
+      <li><b>Выбор класса — в одном месте.</b> Новый канал — правка в одном методе, а не во всех местах, где были <code>new</code>.</li>
+    </ul>
+    <details class="predict">
+      <summary><code>Integer a = Integer.valueOf(100); Integer b = Integer.valueOf(100);</code> — чему равно <code>a == b</code>? А если вместо 100 взять 1000?</summary>
+      <p>Для 100 — <b>true</b>, для 1000 — <b>false</b>. Это та самая ловушка с кешем <code>Integer</code> от −128 до 127. Фабричный метод <code>valueOf</code> для маленьких чисел не создаёт новый объект, а <b>возвращает готовый</b> из кеша. Конструктор так бы не смог: <code>new</code> всегда даёт новый объект. Поэтому <code>==</code> с обёртками использовать нельзя — только <code>equals</code>.</p>
+    </details>
+    <p><b>Фабричный метод из книги GoF</b> — шаг дальше. Там метод создания <b>объявляет родитель</b>, а <b>что именно создать, решают наследники</b>. Служба доставки: порядок доставки у всех одинаковый, а транспорт разный.</p>
+<pre data-file="DeliveryDemo.java"><code class="java">interface Transport {
+    String name();
+}
+
+class Bike implements Transport {
+    public String name() {
+        return "Велокурьер";
+    }
+}
+
+class Truck implements Transport {
+    public String name() {
+        return "Грузовик";
+    }
+}
+
+abstract class Delivery {
+    abstract Transport createTransport();      // фабричный метод
+
+    void deliver(String parcel) {
+        Transport t = createTransport();       // кого создать — решит наследник
+        System.out.println(t.name() + " везёт: " + parcel);
+    }
+}
+
+class CityDelivery extends Delivery {
+    @Override
+    Transport createTransport() {
+        return new Bike();
+    }
+}
+
+class CountryDelivery extends Delivery {
+    @Override
+    Transport createTransport() {
+        return new Truck();
+    }
+}
+
+public class DeliveryDemo {
+    public static void main(String[] args) {
+        new CityDelivery().deliver("пицца");
+        new CountryDelivery().deliver("диван");
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">Велокурьер везёт: пицца
+Грузовик везёт: диван</span></pre>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 260" role="img" aria-label="Родитель Delivery вызывает в deliver абстрактный метод createTransport. Наследник CityDelivery создаёт Bike, наследник CountryDelivery создаёт Truck">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <rect x="220" y="12" width="320" height="90" rx="14" class="d-blue"/>
+        <text x="380" y="38" text-anchor="middle" class="d-title">Delivery — родитель</text>
+        <text x="240" y="64" class="d-mono-ink">deliver(): createTransport()</text>
+        <text x="240" y="88" class="d-mono-ink">abstract createTransport()</text>
+
+        <path d="M190 150 L320 106" class="d-arrow"/>
+        <path d="M570 150 L440 106" class="d-arrow"/>
+        <text x="215" y="122" text-anchor="middle" class="d-small">extends</text>
+        <text x="545" y="122" text-anchor="middle" class="d-small">extends</text>
+
+        <rect x="30" y="152" width="320" height="70" rx="14" class="d-teal"/>
+        <text x="190" y="178" text-anchor="middle" class="d-title">CityDelivery</text>
+        <text x="50" y="204" class="d-mono-ink">createTransport() → Bike</text>
+        <rect x="410" y="152" width="320" height="70" rx="14" class="d-teal"/>
+        <text x="570" y="178" text-anchor="middle" class="d-title">CountryDelivery</text>
+        <text x="430" y="204" class="d-mono-ink">createTransport() → Truck</text>
+
+        <text x="380" y="250" text-anchor="middle" class="d-small">родитель знает, КОГДА создать; наследник решает, ЧТО создать</text>
+      </svg>
+      <figcaption>Фабричный метод: создание объекта отдали наследникам. Код родителя работает с интерфейсом <code>Transport</code> и не знает про велосипеды и грузовики.</figcaption>
+    </figure>
+    <p>Нужна доставка дронами? Новый класс <code>DroneDelivery</code> со своим <code>createTransport()</code> — и ни строчки правки в <code>Delivery</code>. Это принцип открытости/закрытости из SOLID в действии. Пример из JDK: метод <code>iterator()</code> у коллекций — фабричный метод. <code>ArrayList</code> создаёт свой итератор, <code>HashSet</code> — свой, а цикл <code>for-each</code> работает с любым.</p>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>Abstract Factory — абстрактная фабрика</h2>
+    <p>Бывает, что объекты нужны не по одному, а <b>семейством</b>, и они должны подходить друг к другу. В приложении есть светлая и тёмная тема. Светлая кнопка в тёмном окне — некрасиво, значит, кнопку и окно всегда надо брать из одной темы. <b>Абстрактная фабрика</b> — интерфейс, который умеет создать всё семейство целиком:</p>
+<pre data-file="ThemeDemo.java"><code class="java">interface Button { String draw(); }
+interface Window { String draw(); }
+
+class LightButton implements Button {
+    public String draw() { return "[светлая кнопка]"; }
+}
+class LightWindow implements Window {
+    public String draw() { return "светлое окно"; }
+}
+class DarkButton implements Button {
+    public String draw() { return "[тёмная кнопка]"; }
+}
+class DarkWindow implements Window {
+    public String draw() { return "тёмное окно"; }
+}
+
+interface ThemeFactory {                // абстрактная фабрика: всё семейство
+    Button createButton();
+    Window createWindow();
+}
+
+class LightTheme implements ThemeFactory {
+    public Button createButton() { return new LightButton(); }
+    public Window createWindow() { return new LightWindow(); }
+}
+
+class DarkTheme implements ThemeFactory {
+    public Button createButton() { return new DarkButton(); }
+    public Window createWindow() { return new DarkWindow(); }
+}
+
+public class ThemeDemo {
+    static void showDialog(ThemeFactory theme) {
+        Window w = theme.createWindow();
+        Button b = theme.createButton();
+        System.out.println(w.draw() + " с кнопкой " + b.draw());
+    }
+
+    public static void main(String[] args) {
+        showDialog(new DarkTheme());
+    }
+}</code></pre>
+<pre class="terminal"><span class="out">тёмное окно с кнопкой [тёмная кнопка]</span></pre>
+    <p>Метод <code>showDialog</code> не знает ни одного конкретного класса кнопки. Перепутать темы он не может: всё берётся из одной фабрики. Сменить тему всего приложения — значит передать другой объект-фабрику.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>Фабричный метод</th><th>Абстрактная фабрика</th></tr>
+        <tr><td>Что создаёт</td><td>Один объект</td><td>Семейство связанных объектов</td></tr>
+        <tr><td>Как устроен</td><td>Метод в родителе, наследник переопределяет</td><td>Отдельный объект с несколькими методами <code>createX()</code></td></tr>
+        <tr><td>Как сменить</td><td>Создать другого наследника</td><td>Передать другую фабрику</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="cool"><p>Заметь: каждый метод абстрактной фабрики — это по сути фабричный метод. Паттерны часто живут вместе, как ингредиенты одного блюда.</p></div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>Builder — строитель</h2>
+    <p>Бутербродная: у бутерброда есть хлеб (обязательно), а ещё сыр, помидор, число котлет и соус — всё по желанию. Пусть сначала у класса <code>Sandwich</code> будет обычный конструктор на все пять полей. Вызов выглядит так:</p>
+<pre data-file="Playground.java"><code class="java">Sandwich s = new Sandwich("ржаной", true, false, 2, "горчица");</code></pre>
+    <p>Что значит <code>false</code>? Без помидора? Без лука? Через месяц не вспомнит никто. А если параметров семь и почти все необязательные, придётся писать кучу конструкторов на все сочетания — их называют «телескопическими». Сеттеры тоже не спасают: объект какое-то время живёт недособранным, и его можно поменять в любой момент.</p>
+    <p><b>Строитель</b> (Builder) — отдельный объект-помощник, который собирает настройки <b>по шагам</b>, а в конце одним вызовом <code>build()</code> выдаёт готовый объект:</p>
+<pre data-file="Sandwich.java"><code class="java">public class Sandwich {
+    private final String bread;
+    private final boolean cheese;
+    private final boolean tomato;
+    private final int cutlets;
+    private final String sauce;
+
+    private Sandwich(Builder b) {      // только через строителя
+        this.bread = b.bread;
+        this.cheese = b.cheese;
+        this.tomato = b.tomato;
+        this.cutlets = b.cutlets;
+        this.sauce = b.sauce;
+    }
+
+    @Override
+    public String toString() {
+        return "Бутерброд: хлеб " + bread + ", котлет " + cutlets
+                + (cheese ? ", сыр" : "") + (tomato ? ", помидор" : "")
+                + ", соус " + sauce;
+    }
+
+    public static class Builder {
+        private final String bread;            // обязательный — в конструкторе
+        private boolean cheese = false;        // необязательные
+        private boolean tomato = false;
+        private int cutlets = 1;
+        private String sauce = "без соуса";
+
+        public Builder(String bread) {
+            this.bread = bread;
+        }
+
+        public Builder cheese() {
+            this.cheese = true;
+            return this;                       // вернуть себя — секрет цепочки
+        }
+
+        public Builder tomato() {
+            this.tomato = true;
+            return this;
+        }
+
+        public Builder cutlets(int count) {
+            this.cutlets = count;
+            return this;
+        }
+
+        public Builder sauce(String sauce) {
+            this.sauce = sauce;
+            return this;
+        }
+
+        public Sandwich build() {
+            if (cutlets &lt; 1 || cutlets &gt; 3) {
+                throw new IllegalArgumentException(
+                        "Котлет можно от 1 до 3, а не " + cutlets);
+            }
+            return new Sandwich(this);
+        }
+    }
+}</code></pre>
+<pre data-file="Playground.java"><code class="java">Sandwich lunch = new Sandwich.Builder("ржаной")
+        .cutlets(2)
+        .cheese()
+        .sauce("горчица")
+        .build();
+System.out.println(lunch);</code></pre>
+<pre class="terminal"><span class="out">Бутерброд: хлеб ржаной, котлет 2, сыр, соус горчица</span></pre>
+    <div class="annot">
+      <div class="annot-row"><code>public static class Builder</code><div><p>Новое для тебя: <b>вложенный класс</b> — класс, объявленный внутри другого. Полное имя — <code>Sandwich.Builder</code>. Слово <code>static</code> значит, что для него не нужен объект <code>Sandwich</code>: строитель создаётся сам по себе. Вложенный и внешний классы — одна семья: они видят <code>private</code>-поля друг друга, поэтому конструктор <code>Sandwich</code> читает <code>b.bread</code>.</p></div></div>
+      <div class="annot-row"><code>return this;</code><div><p>Каждый метод настройки возвращает <b>тот же самый</b> строитель. Поэтому после <code>.cutlets(2)</code> можно сразу писать <code>.cheese()</code> — вызов применяется к результату предыдущего. Это и есть цепочка вызовов (fluent interface).</p></div></div>
+      <div class="annot-row"><code>private Sandwich(Builder b)</code><div><p>Приватный конструктор: недособранный бутерброд снаружи не создать. Все поля <code>final</code> — готовый объект уже не меняется.</p></div></div>
+      <div class="annot-row"><code>build()</code><div><p>Последний шаг: проверить, что набор параметров разумный, и создать объект. Все проверки — в одном месте, а не разбросаны по программе.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Что будет, если метод <code>cheese()</code> объявить как <code>public void cheese() { this.cheese = true; }</code>, а цепочку не трогать?</summary>
+      <p><b>Не скомпилируется.</b> <code>.cheese()</code> теперь возвращает <code>void</code> — «ничего». У «ничего» нельзя вызвать <code>.sauce(…)</code>, и IDEA подчеркнёт следующий вызов в цепочке красным. Без <code>return this</code> строитель всё ещё работает, но только отдельными строками: <code>b.cheese(); b.sauce("горчица");</code>.</p>
+    </details>
+    <p><b>Родственник, которого ты знаешь, — <code>StringBuilder</code>.</b> Его <code>append</code> тоже возвращает <code>this</code>, поэтому пишут <code>new StringBuilder().append("Привет, ").append(name).append("!").toString()</code>. Идея та же — собирать по шагам и в конце получить готовое. В JDK есть и «настоящие» строители, например <code>HttpRequest.newBuilder()…build()</code> для запросов к сайтам.</p>
+    <div class="callout tip">
+      <span class="callout-title">Когда строитель нужен, а когда нет</span>
+      <p>Строитель хорош, когда параметров много (примерно от четырёх) и большая часть — необязательные. Для двух-трёх обязательных полей хватит обычного конструктора или <code>record</code>: строитель там — лишние сорок строк. Снова KISS.</p>
+    </div>
+    <div class="callout try">
+      <span class="callout-title">Задача</span>
+      <p>В <a href="/tasks.html?module=m17">задачах модуля</a> тебя ждёт «Пиццерия»: заказ пиццы со строителем, проверка размера в <code>build()</code> и пицца дня одной цепочкой.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Prototype — прототип</h2>
+    <p>Иногда проще не собирать объект заново, а взять готовый и сделать <b>копию</b>. Плейлист «В дорогу» уже настроен — хочется такой же, только добавить пару песен. <b>Прототип</b> (Prototype): объект сам умеет создавать свою копию, а тот, кто копирует, не обязан знать, как он устроен внутри.</p>
+    <p>Ещё в модуле 10 ты видел: <code>Playlist copy = road;</code> — это не копия, а вторая ссылка на <b>тот же</b> объект. Настоящую копию в Java чаще всего делают <b>конструктором копирования</b>:</p>
+<pre data-file="Playlist.java"><code class="java">import java.util.ArrayList;
+import java.util.List;
+
+public class Playlist {
+    private final String title;
+    private final List&lt;String&gt; songs;
+
+    public Playlist(String title, List&lt;String&gt; songs) {
+        this.title = title;
+        this.songs = new ArrayList&lt;&gt;(songs);
+    }
+
+    // конструктор копирования: «сделай такой же, как этот»
+    public Playlist(Playlist other) {
+        this.title = other.title;                  // String не меняется
+        this.songs = new ArrayList&lt;&gt;(other.songs); // свой новый список
+    }
+
+    public Playlist copy() {
+        return new Playlist(this);
+    }
+
+    public void add(String song) {
+        songs.add(song);
+    }
+
+    @Override
+    public String toString() {
+        return title + " " + songs;
+    }
+}</code></pre>
+<pre data-file="Playground.java"><code class="java">Playlist road = new Playlist("В дорогу", List.of("Кино"));
+Playlist copy = road.copy();
+copy.add("Сплин");
+System.out.println(road);
+System.out.println(copy);</code></pre>
+<pre class="terminal"><span class="out">В дорогу [Кино]
+В дорогу [Кино, Сплин]</span></pre>
+    <p>Самое важное в копировании — <b>насколько глубоко</b> копировать. У объекта есть поля-ссылки (у нас — список песен). Можно скопировать ссылку, а можно создать новый список:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 270" role="img" aria-label="Поверхностная копия: оригинал и копия ссылаются на один список, добавил песню в копию — она появилась и в оригинале. Глубокая копия: у каждого свой список, копии независимы">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+        </defs>
+        <text x="185" y="22" text-anchor="middle" class="d-title">Поверхностная копия</text>
+        <rect x="20" y="40" width="150" height="56" rx="12" class="d-blue"/>
+        <text x="95" y="64" text-anchor="middle" class="d-text">оригинал</text>
+        <text x="95" y="86" text-anchor="middle" class="d-mono-ink">songs</text>
+        <rect x="200" y="40" width="150" height="56" rx="12" class="d-violet"/>
+        <text x="275" y="64" text-anchor="middle" class="d-text">копия</text>
+        <text x="275" y="86" text-anchor="middle" class="d-mono-ink">songs</text>
+        <path d="M95 96 L160 146" class="d-arrow"/>
+        <path d="M275 96 L210 146" class="d-arrow"/>
+        <rect x="85" y="150" width="200" height="60" rx="12" class="d-yellow"/>
+        <text x="185" y="174" text-anchor="middle" class="d-text">один список на двоих</text>
+        <text x="185" y="197" text-anchor="middle" class="d-mono-ink">[Кино, Сплин]</text>
+        <text x="185" y="242" text-anchor="middle" class="d-small">добавил в копию — изменился и оригинал</text>
+
+        <path d="M380 10 V260" class="d-dash"/>
+
+        <text x="575" y="22" text-anchor="middle" class="d-title">Глубокая копия</text>
+        <rect x="410" y="40" width="150" height="56" rx="12" class="d-blue"/>
+        <text x="485" y="64" text-anchor="middle" class="d-text">оригинал</text>
+        <text x="485" y="86" text-anchor="middle" class="d-mono-ink">songs</text>
+        <rect x="590" y="40" width="150" height="56" rx="12" class="d-violet"/>
+        <text x="665" y="64" text-anchor="middle" class="d-text">копия</text>
+        <text x="665" y="86" text-anchor="middle" class="d-mono-ink">songs</text>
+        <path d="M485 96 V146" class="d-arrow"/>
+        <path d="M665 96 V146" class="d-arrow"/>
+        <rect x="410" y="150" width="150" height="60" rx="12" class="d-yellow"/>
+        <text x="485" y="174" text-anchor="middle" class="d-text">свой список</text>
+        <text x="485" y="197" text-anchor="middle" class="d-mono-ink">[Кино]</text>
+        <rect x="590" y="150" width="150" height="60" rx="12" class="d-yellow"/>
+        <text x="665" y="174" text-anchor="middle" class="d-text">свой список</text>
+        <text x="665" y="197" text-anchor="middle" class="d-mono-ink">[Кино, Сплин]</text>
+        <text x="575" y="242" text-anchor="middle" class="d-small">у каждого свой — копии независимы</text>
+      </svg>
+      <figcaption>Слева в конструкторе копирования написано <code>this.songs = other.songs;</code>, справа — <code>new ArrayList&lt;&gt;(other.songs)</code>.</figcaption>
+    </figure>
+    <dl class="terms">
+      <dt>Поверхностная копия</dt><dd>(shallow copy) Новый объект, но поля-ссылки скопированы как ссылки: вложенные объекты общие у оригинала и копии.</dd>
+      <dt>Глубокая копия</dt><dd>(deep copy) Вложенные изменяемые объекты тоже скопированы — копия ни с кем ничего не делит.</dd>
+    </dl>
+    <details class="predict">
+      <summary>В конструкторе копирования поменяли строку на <code>this.songs = other.songs;</code>. Что теперь напечатает <code>System.out.println(road)</code> после <code>copy.add("Сплин")</code>?</summary>
+      <p><b>В дорогу [Кино, Сплин]</b>. Копия поверхностная: <code>road</code> и <code>copy</code> — разные объекты, но поле <code>songs</code> у обоих ссылается на один список. Песню добавили «в копию», а изменился общий список. Такие баги очень трудно искать: объект меняется, хотя его никто не трогал.</p>
+    </details>
+    <p><b>А как же <code>clone()</code>?</b> У массивов он удобный: <code>int[] backup = scores.clone();</code>. Но и он поверхностный: у массива объектов скопируются ссылки, а не сами объекты. Для своих классов <code>clone()</code> из <code>Object</code> капризный: нужен интерфейс <code>Cloneable</code>, исключение <code>CloneNotSupportedException</code>, приведение типа, и копия по умолчанию поверхностная. Поэтому в Java обычно пишут конструктор копирования или метод <code>copy()</code>, как выше. А неизменяемые объекты (<code>String</code>, <code>record</code> с неизменяемыми полями) копировать не нужно вовсе: испортить их через общую ссылку нельзя.</p>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Пять паттернов на одной странице</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Паттерн</th><th>Какую боль лечит</th><th>Как узнать в коде</th><th>Где ты его видел</th></tr>
+        <tr><td><b>Singleton</b></td><td>Нужен ровно один объект на программу</td><td><code>private</code>-конструктор + <code>getInstance()</code>, или enum с <code>INSTANCE</code></td><td><code>Runtime.getRuntime()</code></td></tr>
+        <tr><td><b>Factory Method</b></td><td>Спрятать <code>new</code> и выбор класса; дать наследнику решить, что создать</td><td><code>of</code>, <code>valueOf</code>, <code>create…</code>; абстрактный <code>createX()</code> в родителе</td><td><code>List.of</code>, <code>Integer.valueOf</code>, <code>iterator()</code></td></tr>
+        <tr><td><b>Abstract Factory</b></td><td>Нужно семейство объектов, которые подходят друг к другу</td><td>Интерфейс с несколькими методами <code>createX()</code></td><td>Темы оформления</td></tr>
+        <tr><td><b>Builder</b></td><td>Много параметров, большинство необязательные</td><td><code>new X.Builder(…).a(…).b(…).build()</code></td><td><code>StringBuilder</code> (родственник), <code>HttpRequest.newBuilder()</code></td></tr>
+        <tr><td><b>Prototype</b></td><td>Проще скопировать готовый объект, чем собрать заново</td><td><code>copy()</code>, конструктор копирования, <code>clone()</code></td><td><code>array.clone()</code>, <code>new ArrayList&lt;&gt;(list)</code></td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="happy"><p>На собеседовании редко просят написать паттерн целиком. Чаще спрашивают: «Какие паттерны знаешь? Где встречал? Какие минусы у одиночки? Чем строитель лучше конструктора?» Эта таблица — почти готовые ответы.</p></div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m17-patterns1">
+      <script type="application/json">
+      { "title": "Порождающие паттерны — главное",
+        "items": [
+          { "type": "match", "q": "Соедини паттерн и ситуацию, где он к месту",
+            "left": ["Singleton", "Builder", "Prototype", "Abstract Factory", "Factory Method"],
+            "right": ["Во всей программе должен быть ровно один журнал событий",
+                      "У заказа восемь параметров, почти все необязательные",
+                      "Нужен ещё один такой же персонаж игры, только с другим именем",
+                      "Кнопки, окна и меню должны быть одной темы: все светлые или все тёмные",
+                      "Родитель решает, когда создать транспорт, а наследник — какой"],
+            "why": "Одиночка — один объект; строитель — много необязательных настроек; прототип — копия готового; абстрактная фабрика — согласованное семейство; фабричный метод — создание отдано наследнику." },
+          { "type": "single", "q": "Зачем у одиночки конструктор объявлен <code>private</code>?",
+            "options": ["Чтобы объект создавался быстрее", "Чтобы снаружи класса нельзя было создать второй объект через new", "Чтобы поля объекта нельзя было менять"], "answer": 1,
+            "why": "Приватный конструктор вызывается только изнутри класса. Единственный объект создаёт сам класс, а остальные получают его через getInstance()." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "StringBuilder sb = new StringBuilder(\"a\");\nStringBuilder same = sb.append(\"b\");\nsame.append(\"c\");\nSystem.out.println(sb + \" \" + (sb == same));",
+            "answer": "abc true",
+            "why": "append меняет сам StringBuilder и возвращает this — ссылку на тот же объект. Поэтому sb и same — один объект, и в нём уже abc. На этом же и держится цепочка у строителя." },
+          { "type": "bug", "q": "Код не компилируется. В какой строке ошибка?",
+            "code": "Sandwich s = new Sandwich.Builder(\"белый\")\n        .cheese()\n        .sauce(\"кетчуп\");\nSystem.out.println(s);",
+            "answer": [3],
+            "why": "Цепочка закончилась на sauce(...), а он возвращает Builder, а не Sandwich. Забыли последний шаг .build() — его нужно дописать в строке 3." },
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "int[][] grid = {{1, 2}, {3, 4}};\nint[][] copy = grid.clone();\ncopy[0][0] = 99;\nSystem.out.println(grid[0][0]);",
+            "answer": "99",
+            "why": "clone() у массива поверхностный: создался новый внешний массив, но в нём ссылки на те же строки-массивы {1, 2} и {3, 4}. Меняем copy[0][0] — меняется общая строка." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Integer.valueOf — пример статического фабричного метода", "a": true },
+              { "s": "Поверхностная копия создаёт новые объекты для всех полей-ссылок", "a": false, "why": "это глубокая копия. Поверхностная копирует только ссылки — вложенные объекты остаются общими." },
+              { "s": "Чем больше паттернов в коде, тем он профессиональнее", "a": false, "why": "паттерн нужен, когда решает настоящую проблему. Иначе это лишняя сложность — вспомни KISS и YAGNI." },
+              { "s": "Enum с одним значением INSTANCE — надёжный способ сделать одиночку", "a": true }
+            ] },
+          { "type": "single", "q": "Чем абстрактная фабрика отличается от фабричного метода?",
+            "options": ["Абстрактная фабрика создаёт целое семейство согласованных объектов, фабричный метод — один объект", "Абстрактная фабрика всегда возвращает один и тот же объект", "Ничем, это два названия одного паттерна"], "answer": 0,
+            "why": "Фабричный метод — один метод создания, который переопределяет наследник. Абстрактная фабрика — объект с несколькими методами createX() для всего семейства." }
+        ] }
+      </script>
+    </div>
+    <div class="cheat">
+      <h3>Выпиши себе: порождающие паттерны</h3>
+      <p>Перепиши таблицу руками — так названия и признаки запомнятся быстрее. Пригодится и в работе, и на собеседовании.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Паттерн</th><th>Суть одной фразой</th><th>Признак в коде</th></tr>
+        <tr><td>Singleton — одиночка</td><td>Один объект на всю программу</td><td><code>private</code>-конструктор, <code>static getInstance()</code>; или <code>enum { INSTANCE }</code></td></tr>
+        <tr><td>Factory Method — фабричный метод</td><td>Создание спрятано в метод; в GoF — наследник решает, что создать</td><td><code>X.of(…)</code>, <code>valueOf</code>; <code>abstract createX()</code></td></tr>
+        <tr><td>Abstract Factory — абстрактная фабрика</td><td>Создаёт семейство совместимых объектов</td><td>Интерфейс с <code>createA()</code>, <code>createB()</code>…</td></tr>
+        <tr><td>Builder — строитель</td><td>Собирает объект с кучей необязательных параметров по шагам</td><td><code>new X.Builder(обязательное).a(…).b(…).build()</code>, методы возвращают <code>this</code></td></tr>
+        <tr><td>Prototype — прототип</td><td>Новый объект — копия готового</td><td><code>copy()</code>, конструктор копирования; помни про поверхностную и глубокую копию</td></tr>
+      </table></div>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Спроси: <em>«Объясни на примере из жизни разницу между фабричным методом и абстрактной фабрикой»</em>, <em>«Почему одиночку называют антипаттерном и чем его заменяют в больших программах?»</em> или <em>«У моего класса такие поля: …. Нужен ли тут строитель или хватит конструктора?»</em></p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Паттерн — проверенный рецепт для типичной задачи и общий словарь разработчиков. 23 паттерна GoF делятся на порождающие, структурные и поведенческие. Применяй, когда без него больно, а не «для красоты».</li>
+        <li><b>Singleton</b>: приватный конструктор + <code>static final</code>-поле + <code>getInstance()</code>, или enum. Минусы: глобальное состояние, спрятанные зависимости, мешает тестам. «Ленивый» вариант в многопоточной программе — ловушка.</li>
+        <li><b>Factory Method</b>: статическая фабрика (<code>List.of</code>, <code>Integer.valueOf</code>) прячет <code>new</code>; в GoF родитель объявляет <code>createX()</code>, наследник решает, что создать.</li>
+        <li><b>Abstract Factory</b>: один объект создаёт целое семейство совместимых объектов.</li>
+        <li><b>Builder</b>: обязательное — в конструктор строителя, необязательное — методами, которые возвращают <code>this</code>, в конце <code>build()</code> с проверками. Родственник — <code>StringBuilder</code>.</li>
+        <li><b>Prototype</b>: копия готового объекта через конструктор копирования или <code>copy()</code>. Поверхностная копия делит вложенные объекты, глубокая — нет. <code>clone()</code> у массивов поверхностный.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

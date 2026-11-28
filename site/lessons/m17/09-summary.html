@@ -89,7 +89,10 @@
         <li>написать тестовый метод с аннотацией <code>@Test</code> и правильным порядком аргументов в проверке <code>assertEquals</code> (сначала ожидаемое значение, потом фактическое), проверить исключение через <code>assertThrows</code> и лямбда-выражение, собрать несколько проверок в <code>assertAll</code>;</li>
         <li>использовать аннотации <code>@BeforeEach</code>, <code>@ParameterizedTest</code> с <code>@CsvSource</code>, <code>@DisplayName</code>, <code>@Disabled</code>;</li>
         <li>писать проверки на AssertJ — <code>assertThat(фактическое)</code> и метод-проверка после точки: <code>isEqualTo</code>, <code>containsExactly</code>, <code>hasSize</code>, <code>assertThatThrownBy</code>;</li>
-        <li>составить план тестов: классы эквивалентности, граничные значения, таблица «вход → ожидаем»; найти непроверенные строки через Run with Coverage.</li>
+        <li>составить план тестов: классы эквивалентности, граничные значения, таблица «вход → ожидаем»; найти непроверенные строки через Run with Coverage;</li>
+        <li>называть классы, методы, переменные, константы и пакеты по код-стайлу Java, заменять магические числа константами; объяснить DRY, KISS и YAGNI и найти их нарушения в своём коде;</li>
+        <li>назвать пять принципов SOLID и для каждого привести пример «плохо → хорошо»; передать зависимость через конструктор по интерфейсу, чтобы в тесте подставить фейк;</li>
+        <li>объяснить, что такое паттерн проектирования, назвать три группы и узнать в коде Singleton, фабрику, Builder, Prototype, Adapter, Decorator, Facade, Proxy, Strategy, Iterator, Mediator и Observer; написать строитель и заменить цепочку if стратегией.</li>
       </ul>
     </div>
   </section>
@@ -249,7 +252,7 @@
   <!-- ШАГ 4 -->
   <section class="step">
     <h2>Все задачи — зелёные</h2>
-    <p>Перед экзаменом на <a href="/tasks.html?module=m17">странице практики</a> должны быть решены все семь задач:</p>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m17">странице практики</a> должны быть решены все девять задач:</p>
     <div class="table-wrap">
       <table>
         <tr><th>Задача</th><th>Что тренирует</th></tr>
@@ -258,6 +261,8 @@
         <tr><td>5. Билеты в кино: параметризованный тест</td><td>классы и границы — <a href="/lessons/m17/07-workshop-tests.html">урок 17.7</a> (решай после него), <code>@ParameterizedTest</code> — <a href="/lessons/m17/06-junit-deeper.html">17.6</a></td></tr>
         <tr><td>6. Каталог книг: AssertJ и @BeforeEach ★★★</td><td>подготовка тестов, AssertJ — <a href="/lessons/m17/06-junit-deeper.html">урок 17.6</a></td></tr>
         <tr><td>7. Охота на баг: бонусы кофейни ★★★</td><td>всё вместе: требования → тесты → отладчик → исправление</td></tr>
+        <tr><td>8. Пиццерия: заказ через строителя</td><td>паттерн Строитель — <a href="/lessons/m17/07d-patterns-creational.html">урок 17.10</a></td></tr>
+        <tr><td>9. Стратегия: стоимость доставки</td><td>паттерн Стратегия вместо цепочки if — <a href="/lessons/m17/07e-patterns-behavior.html">урок 17.11</a></td></tr>
       </table>
     </div>
     <p><span class="ai-only">Плюс <b>практика Git и Gradle у наставника</b>: репозиторий с коммитами и ветками, специально устроенный конфликт, свой Gradle-проект с <code>gradle test</code>. Сайт это проверить не может — покажешь наставнику вывод <code>git log --oneline --graph --all</code> и результат <code>gradle test</code>.</span><span class="free-only">Плюс <b>практика Git и Gradle</b>: репозиторий с коммитами и ветками, специально устроенный конфликт, свой Gradle-проект с <code>gradle test</code>. Сайт это проверить не может — вставь в <span class="ai-name">DeepSeek</span> вывод <code>git log --oneline --graph --all</code> и результат <code>gradle test</code> и попроси разобрать, всё ли получилось.</span></p>
@@ -376,7 +381,7 @@
       <h2>Коротко</h2>
       <ul>
         <li>Пройди чек-лист «я умею…» честно.</li>
-        <li><span class="ai-only">Сделай все семь задач до зелёного, разбери их через <code>/check</code> и покажи наставнику Git- и Gradle-практику.</span><span class="free-only">Сделай все семь задач до зелёного, разбери их с <span class="ai-name">DeepSeek</span> (промпт «Проверь решение» (кнопка внизу страницы)) и покажи ему вывод Git- и Gradle-практики.</span></li>
+        <li><span class="ai-only">Сделай все девять задач до зелёного, разбери их через <code>/check</code> и покажи наставнику Git- и Gradle-практику.</span><span class="free-only">Сделай все девять задач до зелёного, разбери их с <span class="ai-name">DeepSeek</span> (промпт «Проверь решение» (кнопка внизу страницы)) и покажи ему вывод Git- и Gradle-практики.</span></li>
         <li><span class="ai-only">Напиши <code>/exam</code> — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span></li>
         <li>Оглянись на карту курса: все 18 модулей пройдены тобой.</li>
         <li>Дальше по порядку: SQL и базы данных → JDBC → HTTP и REST → Spring Boot. Параллельно — свой пет-проект на GitHub.</li>
