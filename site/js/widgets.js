@@ -1295,8 +1295,9 @@
   // =====================================================================
   const CR_ARROW = ["↑", "→", "↓", "←"];
 
-  JC.courierReplay = function (host, r) {
+  JC.courierReplay = function (host, r, opts = {}) {
     const replays = (r && r.replays) || [];
+    let dead = false;
     if (!replays.length) { host.innerHTML = ""; return; }
     const tests = r.tests || [];
     host.innerHTML = `<div class="cr">
@@ -1328,6 +1329,7 @@
       <div class="cr-out"></div>
     </div>`;
     const $ = (q) => host.querySelector(q);
+    if (opts.compact) $(".cr").classList.add("cr-compact"); // только поле: демо и карта уровня до запуска
     let cur = -1, states = [], fi = 0, timer = null, replay = null;
 
     function build(p) {
@@ -1356,7 +1358,7 @@
       }
       html += `<div class="cr-item depot" style="--x:${p.start[0]};--y:${p.start[1]}" title="Склад">🏁</div>`;
       for (const it of p.items || []) {
-        if (it.t) html += `<div class="cr-item target" data-k="${it.x}:${it.y}" style="--x:${it.x};--y:${it.y}" title="${esc(it.n || "Адрес доставки")}">🏠${it.n ? `<span class="cr-name">${esc(it.n)}</span>` : ""}</div>`;
+        if (it.t) html += `<div class="cr-item target" data-k="${it.x}:${it.y}" style="--x:${it.x};--y:${it.y}" title="${esc(it.n || "Адрес доставки")}">🏠${it.n ? `<span class="cr-name${it.x % 2 ? " below" : ""}">${esc(it.n)}</span>` : ""}</div>`;
         if (it.s) html += `<div class="cr-item sign" style="--x:${it.x};--y:${it.y}" title="Табличка: ${esc(it.s)}">${it.s === "LEFT" ? "⬅" : it.s === "RIGHT" ? "➡" : "⬆"}</div>`;
       }
       html += `<div class="cr-parcels"></div><div class="cr-robot"><div class="cr-bot">${JC.mascot("happy")}</div><div class="cr-dir"></div><div class="cr-load"></div></div>`;
@@ -1405,7 +1407,14 @@
       if (fi >= states.length - 1) show(0, true);
       $(".cr-play").textContent = "⏸ Пауза";
       clearInterval(timer);
-      timer = setInterval(() => { if (fi >= states.length - 1) return stop(); show(fi + 1); }, +$(".cr-speed").value);
+      timer = setInterval(() => {
+        if (dead) return clearInterval(timer);
+        if (fi >= states.length - 1) {
+          if (opts.loop) { clearInterval(timer); timer = null; setTimeout(() => { if (!dead && host.isConnected) { show(0, true); play(); } }, 1600); return; }
+          return stop();
+        }
+        show(fi + 1);
+      }, opts.speed || +$(".cr-speed").value);
     }
 
     function select(i) {
@@ -1437,6 +1446,108 @@
     new ResizeObserver(fit).observe($(".cr-board-wrap"));
     const firstBad = replays.findIndex((p) => !p || p.result !== "finish");
     select(firstBad >= 0 ? firstBad : 0);
+    return { stop() { dead = true; clearInterval(timer); timer = null; } };
+  };
+
+  /** Демо в начале урока: Джавик сам проезжает карту по кругу (только поле). Данные — JSON поездки внутри элемента. */
+  W.courierdemo = function (el) {
+    let data = null;
+    try { data = JSON.parse(el.querySelector("script").textContent); } catch (e) { el.textContent = "Не удалось загрузить демо"; return; }
+    el.classList.add("courier-demo");
+    el.innerHTML = '<div class="cd-host"></div>';
+    JC.courierReplay(el.querySelector(".cd-host"), { replays: [data] }, { compact: true, loop: true, speed: 330 });
+  };
+
+  /**
+   * Игровая панель: уровни части по одному, стрелки ◀ ▶, карта уровня видна сразу, кнопка запуска, три подсказки.
+   * Данные: { "levels": [ { "task": "m04-c1", "name": "★ Коридор", "goal": "html", "hints": ["html", "html", "html"] } ] }
+   */
+  W.couriergame = function (el) {
+    let data;
+    try { data = JSON.parse(el.querySelector("script").textContent); } catch (e) { el.textContent = "Не удалось загрузить игру"; return; }
+    const L = data.levels || [];
+    el.classList.add("courier-game");
+    el.innerHTML = `<div class="cg-nav">
+        <button class="cg-arrow cg-prev" aria-label="Предыдущий уровень">◀</button>
+        <div class="cg-head"><div class="cg-kicker"></div><div class="cg-title"></div><div class="cg-dots"></div></div>
+        <button class="cg-arrow cg-next" aria-label="Следующий уровень">▶</button>
+      </div>
+      <div class="cg-goal"></div>
+      <div class="cg-board"></div>
+      <div class="cg-run"><div class="cg-file"></div><button class="btn green cg-go">▶ Запустить мой код</button></div>
+      <div class="cg-result"></div>
+      <div class="cg-hints"></div>`;
+    const $ = (q) => el.querySelector(q);
+    let cur = 0, player = null, tasks = [], status = {};
+    const preview = {};
+    const passed = (id) => status[id] && status[id].status === "PASSED";
+    const fileOf = (id) => { const t = tasks.find((x) => x.id === id); return t ? (/^workspace\//.test(t.file) ? t.file : "workspace/" + t.file) : ""; };
+
+    function dots() {
+      $(".cg-dots").innerHTML = L.map((lv, i) => `<button class="cg-dot ${i === cur ? "on" : ""} ${passed(lv.task) ? "ok" : ""}" data-i="${i}" title="${esc(lv.name)}">${passed(lv.task) ? "✓" : i + 1}</button>`).join("");
+      el.querySelectorAll(".cg-dot").forEach((b) => b.addEventListener("click", () => go(+b.dataset.i)));
+    }
+    function showBoard(r, opts) {
+      if (player) player.stop();
+      player = JC.courierReplay($(".cg-board"), r, opts);
+    }
+    async function loadPreview(id) {
+      if (!preview[id]) preview[id] = fetch("/api/courier/preview/" + id).then((x) => x.json()).catch(() => null);
+      const p = await preview[id];
+      if (L[cur].task !== id) return;
+      if (p && p.grid) showBoard({ replays: [p] }, { compact: true });
+      else $(".cg-board").innerHTML = `<div class="result-banner bad">Карта не загрузилась — сервер курса запущен? (docker compose up -d)</div>`;
+    }
+    function go(i) {
+      cur = Math.max(0, Math.min(L.length - 1, i));
+      const lv = L[cur];
+      $(".cg-kicker").textContent = `Уровень ${cur + 1} из ${L.length}`;
+      $(".cg-title").textContent = lv.name;
+      $(".cg-prev").disabled = cur === 0;
+      $(".cg-next").disabled = cur === L.length - 1;
+      $(".cg-goal").innerHTML = lv.goal;
+      $(".cg-file").innerHTML = `📄 Пиши код в IntelliJ IDEA: <code>${esc(fileOf(lv.task) || "…")}</code> → сохрани (Ctrl+S) → жми кнопку`;
+      $(".cg-result").innerHTML = "";
+      $(".cg-go").textContent = "▶ Запустить мой код";
+      $(".cg-hints").innerHTML = (lv.hints || []).map((h, k) => `<details class="solution cg-hint"><summary>💡 Подсказка ${k + 1}${["  — с чего начать", "  — начало кода", "  — почти готовый код"][k] || ""}</summary><div>${h}</div></details>`).join("");
+      JC.highlightAll && JC.highlightAll($(".cg-hints"));
+      dots();
+      if (player) { player.stop(); player = null; }
+      $(".cg-board").innerHTML = `<div class="cg-loading">🗺 Загружаю карту уровня…</div>`;
+      loadPreview(lv.task);
+    }
+    $(".cg-prev").addEventListener("click", () => go(cur - 1));
+    $(".cg-next").addEventListener("click", () => go(cur + 1));
+    $(".cg-go").addEventListener("click", async () => {
+      const lv = L[cur], b = $(".cg-go");
+      b.disabled = true; b.textContent = "⏳ Джавик выезжает…";
+      try {
+        const r = await fetch("/api/check/" + lv.task, { method: "POST" }).then((x) => x.json());
+        let html = "";
+        if (r.status === "passed") {
+          status[lv.task] = { status: "PASSED" };
+          html = `<div class="result-banner ok">🎉 Уровень пройден на всех картах!${cur < L.length - 1 ? ' <button class="btn cg-next-level">Следующий уровень ▶</button>' : " Это последний уровень части."}</div>`;
+          try { JC.confetti(50); } catch (e) { /* без конфетти — не страшно */ }
+        } else if (r.status === "missing") html = `<div class="result-banner info">📄 ${esc(JC.msg(r.message))}</div>`;
+        else if (r.status === "compile_error") html = `<div class="result-banner bad">🛠 Код не компилируется — посмотри на первую ошибку (номер строки после имени файла):</div><pre class="terminal"><span class="err">${esc(r.compilerOutput || "")}</span></pre>`;
+        else if (!r.replays) html = `<div class="result-banner bad">${esc(JC.msg(r.message || "Не получилось"))}</div>`; // у поездки своё сообщение с причиной
+        const hints = [...(r.hints || []), ...(r.ruleFails || [])];
+        if (hints.length) html += `<ul class="hints">${hints.map((h) => `<li>💡 ${esc(h)}</li>`).join("")}</ul>`;
+        $(".cg-result").innerHTML = html;
+        const nx = el.querySelector(".cg-next-level");
+        if (nx) nx.addEventListener("click", () => { go(cur + 1); el.scrollIntoView({ behavior: "smooth", block: "start" }); });
+        if (r.replays) showBoard(r, {});
+        dots();
+      } catch (e) {
+        $(".cg-result").innerHTML = `<div class="result-banner bad">Сервер курса не отвечает. Запусти его: docker compose up -d</div>`;
+      }
+      b.disabled = false; b.textContent = "▶ Запустить ещё раз";
+    });
+    Promise.all([fetch("/api/tasks").then((x) => x.json()).catch(() => []), fetch("/api/status", { cache: "no-store" }).then((x) => x.json()).catch(() => ({}))])
+      .then(([t, st]) => { tasks = t; status = st || {}; go(cur); });
+    // карты всех уровней — заранее, чтобы стрелки переключали мгновенно
+    L.forEach((lv) => { if (!preview[lv.task]) preview[lv.task] = fetch("/api/courier/preview/" + lv.task).then((x) => x.json()).catch(() => null); });
+    go(0);
   };
 
   /** Блок в уроке: уровни части, файл и кнопка «▶ Запустить мой код». */

@@ -588,6 +588,10 @@ public class CourierGame {
         g.parcels0 = new int[g.h][];
         for (int i = 0; i < g.h; i++) g.parcels0[i] = g.parcels[i].clone();
         g.carry0 = g.carry;
+        if (args.length > 2 && "--preview".equals(args[2])) { // только карта уровня — показать до запуска кода ученика
+            System.out.println(g.json("preview", "", ""));
+            return;
+        }
         PrintStream realOut = System.out;
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         String result = "finish", message;

@@ -1472,3 +1472,29 @@ body:not(.mode-free) .free-only { display: none !important; }
 .cw-info { font-size: 14.5px; }
 .cw-run { justify-self: start; }
 @media (max-width: 760px) { .cr-main { grid-template-columns: minmax(0, 1fr); } }
+
+/* «Джавик-курьер»: компактный просмотр (демо, карта до запуска) и игровая панель уровней */
+.cr-compact .cr-tabs, .cr-compact .cr-side, .cr-compact .cr-ctrl, .cr-compact .cr-msg, .cr-compact .cr-out { display: none; }
+.cr-compact .cr-main { grid-template-columns: minmax(0, 1fr); }
+.courier-demo { margin: 14px 0; }
+.courier-game { margin: 18px 0; padding: 16px 18px 18px; border-radius: 20px; border: 3px solid var(--primary); background: var(--surface); display: grid; gap: 12px; box-shadow: var(--shadow); }
+.cg-nav { display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center; gap: 10px; }
+.cg-arrow { width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--primary); background: var(--primary-soft); color: var(--primary-2); font-size: 22px; font-weight: 900; cursor: pointer; }
+:root[data-theme="dark"] .cg-arrow { color: var(--primary); }
+.cg-arrow:disabled { opacity: .3; cursor: default; }
+.cg-head { text-align: center; display: grid; gap: 2px; }
+.cg-kicker { font: 800 13px var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.cg-title { font: 900 22px var(--font); color: var(--ink); }
+.cg-dots { display: flex; gap: 6px; justify-content: center; margin-top: 4px; }
+.cg-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface-2); color: var(--ink-2); font: 800 13px var(--font); cursor: pointer; }
+.cg-dot.on { border-color: var(--primary); color: var(--primary-2); }
+.cg-dot.ok { background: var(--green-soft); border-color: var(--green); color: var(--green-2); }
+.cg-goal { font-size: 16px; padding: 10px 14px; border-radius: 14px; background: var(--primary-soft); }
+.cg-goal p { margin: 4px 0; }
+.cg-run { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.cg-file { font-size: 14.5px; }
+.cg-hints { display: grid; gap: 8px; }
+.cg-hint summary { font-weight: 800; cursor: pointer; }
+.cg-next-level { margin-left: 10px; }
+.cg-loading { padding: 60px 0; text-align: center; color: var(--muted); font-weight: 800; }
+.cr-name.below { top: auto; bottom: -2px; transform: translate(-50%, 100%); } /* у соседних домов подписи чередуются: над и под */

@@ -564,13 +564,33 @@
       const isJava = !file || /\.java$/.test(file);
       const cls = (text.match(/\bclass\s+(\w+)/) || [])[1];
       const hasMain = /static\s+void\s+main/.test(text);
+      // в уроках игры «Джавик-курьер» примеры не набирают: код пишется в готовых файлах игры
+      if (/-courier$/.test(lid) && !(cls && /^Courier/.test(cls)) && !hasMain) {
+        const t = document.createElement("span"); t.className = "type-hint"; t.textContent = "👀 пример — набирать не нужно";
+        pre.appendChild(t);
+        return;
+      }
       if (!sandbox || !isJava) {
         const t = document.createElement("span"); t.className = "type-hint"; t.textContent = "✍️ набери руками";
         pre.appendChild(t);
         return;
       }
       let label, how;
-      if (!cls) {
+      // игра «Джавик-курьер»: файлы ученика уже лежат в папках модулей, создавать ничего не надо
+      const COURIER_FILES = { CourierPart1: "module-04", CourierPart2: "module-05", CourierPart3: "module-06", CourierShuttle: "module-07",
+        CourierHouses: "module-07", CourierMiddle: "module-07", CourierOrders: "module-13", CourierShift: "module-13" };
+      const courierLesson = /-courier$/.test(lid);
+      if (cls === "CourierRobot") {
+        label = "📄 Это робот — файл уже есть";
+        how = `<b>Это описание робота Джавика</b> — файл <code>workspace/courier/CourierRobot.java</code> уже лежит в IDEA. Его не меняй и не создавай заново: сам робот живёт на сайте.`;
+      } else if (cls && COURIER_FILES[cls]) {
+        label = `📄 Твой файл игры: ${cls}.java`;
+        how = `<b>Этот файл уже лежит в IDEA</b>: <code>workspace/${COURIER_FILES[cls]}/${esc(cls)}.java</code> (заготовка появляется сама). Пиши код в нём — новый класс не создавай, иначе IDEA найдёт два класса с одним именем.
+          Запускать в IDEA не нужно: сохрани файл и нажми «▶ Запустить мой код» в блоке «🚚 Запусти своего Джавика» на этой странице.`;
+      } else if (courierLesson && !cls) {
+        label = "👀 Пример — набирать не нужно";
+        how = `<b>Это кусочек для примера.</b> В песочнице он не запустится — там нет робота. Свой код пиши в файле игры (путь — в блоке «🚚 Запусти своего Джавика»), а проверяй кнопкой «▶ Запустить мой код».`;
+      } else if (!cls) {
         // кусочек без класса — это строчки для main песочницы; подпись файла не должна путать
         if (file) pre.dataset.file = "Playground.java · внутри main";
         label = "✍️ Куда набирать?";

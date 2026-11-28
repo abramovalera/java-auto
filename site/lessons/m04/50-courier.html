@@ -14,468 +14,503 @@
   <header class="lesson-head" data-mood="cool">
     <div class="kicker">Модуль 4 · Игра «Джавик-курьер», часть 1</div>
     <h1>Джавик-курьер, часть 1: ход за ходом</h1>
-    <p class="lead">Джавик устроился курьером. Он развозит посылки по коридорам склада, но сам не знает, куда ехать: на каждом ходу он спрашивает тебя. Твой ответ — программа из условий, которые ты выучил в этом модуле. Руль у Джавика один — твой код.</p>
-    <div class="meta"><span>⏱ 40 минут</span><span>🚚 3 уровня</span><span>💻 код — в IntelliJ IDEA</span></div>
+    <p class="lead">Время поиграть! Джавик устроился курьером, но пока не умеет доставлять посылки. Научишь его ты — своей программой.</p>
+    <div class="meta"><span>⏱ 30–40 минут</span><span>🚚 3 уровня</span><span>💻 код — в IntelliJ IDEA</span></div>
   </header>
 
   <!-- ШАГ 1 -->
   <section class="step">
-    <h2>Повторение</h2>
-    <div data-widget="check" id="check-m04-courier-review">
+    <h2>Вот как это выглядит</h2>
+    <div data-widget="courierdemo" id="courier-demo-m04">
       <script type="application/json">
-      { "title": "Вспомним уроки 4.2–4.5",
-        "items": [
-          { "type": "predict", "q": "Что выведет программа?", "code": "int t = 25;\nif (t > 10) {\n    System.out.println(\"Тепло\");\n} else if (t > 20) {\n    System.out.println(\"Жарко\");\n} else {\n    System.out.println(\"Холодно\");\n}", "answer": "Тепло",
-            "why": "В цепочке else if побеждает <b>первая</b> подходящая ветка: 25 &gt; 10 — true, и до проверки «&gt; 20» дело не доходит. Сегодня это правило решит, заберёт ли Джавик посылку." },
-          { "type": "single", "q": "В переменной <code>cmd</code> лежит строка. Какое условие надёжно проверит, что в ней текст «LEFT»?", "options": ["cmd == \"LEFT\"", "\"LEFT\".equals(cmd)", "cmd = \"LEFT\""], "answer": 1,
-            "why": "Текст строк сравнивают через <code>equals</code>. <code>==</code> сравнивает ссылки (один ли это объект в памяти), а <code>=</code> — вообще присваивание." },
-          { "type": "predict", "q": "Что выведет программа?", "code": "String key = \"Stop\";\nswitch (key) {\n    case \"start\" -> System.out.println(\"Поехали\");\n    case \"stop\" -> System.out.println(\"Стоп\");\n    default -> System.out.println(\"Не знаю такой\");\n}", "answer": "Не знаю такой",
-            "why": "switch по строке сравнивает текст с учётом регистра: <code>\"Stop\"</code> не равно <code>\"stop\"</code>. Запомни: команды Джавику пишутся строго БОЛЬШИМИ буквами." }
-        ] }
+      {
+       "result": "finish",
+       "message": "",
+       "w": 17,
+       "h": 11,
+       "grid": [
+        "#################",
+        "#.......#########",
+        "#.#####.#########",
+        "#.#####.#########",
+        "#..####.##.######",
+        "##.####.##.######",
+        "##.####.##.######",
+        "#######....######",
+        "#################",
+        "#################",
+        "#################"
+       ],
+       "items": [
+        {
+         "x": 3,
+         "y": 1,
+         "p": 1
+        },
+        {
+         "x": 10,
+         "y": 4,
+         "t": true
+        }
+       ],
+       "start": [
+        2,
+        6,
+        0
+       ],
+       "carry0": 0,
+       "maxTicks": 220,
+       "output": "",
+       "frames": [
+        {
+         "x": 2,
+         "y": 5,
+         "d": 0,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 4,
+         "d": 0,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 4,
+         "d": 3,
+         "c": 0,
+         "cmd": "LEFT",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 4,
+         "d": 3,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 4,
+         "d": 0,
+         "c": 0,
+         "cmd": "RIGHT",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 3,
+         "d": 0,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 2,
+         "d": 0,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 1,
+         "d": 0,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 1,
+         "d": 1,
+         "c": 0,
+         "cmd": "RIGHT",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 1,
+         "d": 1,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 1,
+         "c": 0,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 1,
+         "c": 1,
+         "cmd": "TAKE",
+         "ask": [],
+         "p": [
+          [
+           3,
+           1,
+           0
+          ]
+         ]
+        },
+        {
+         "x": 4,
+         "y": 1,
+         "d": 1,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 5,
+         "y": 1,
+         "d": 1,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 6,
+         "y": 1,
+         "d": 1,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 1,
+         "d": 1,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 1,
+         "d": 2,
+         "c": 1,
+         "cmd": "RIGHT",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 2,
+         "d": 2,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 3,
+         "d": 2,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 4,
+         "d": 2,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 5,
+         "d": 2,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 6,
+         "d": 2,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 7,
+         "d": 2,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 7,
+         "d": 1,
+         "c": 1,
+         "cmd": "LEFT",
+         "ask": []
+        },
+        {
+         "x": 8,
+         "y": 7,
+         "d": 1,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 9,
+         "y": 7,
+         "d": 1,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 7,
+         "d": 1,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 7,
+         "d": 0,
+         "c": 1,
+         "cmd": "LEFT",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 6,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 5,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 4,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 4,
+         "d": 0,
+         "c": 0,
+         "cmd": "DROP",
+         "ask": [],
+         "p": [
+          [
+           10,
+           4,
+           -1
+          ]
+         ]
+        }
+       ]
+      }
       </script>
     </div>
+    <p>Это Джавик 🤖 на складе 🏁. Он едет по коридору, по пути забирает посылку 📦 и привозит её на адрес 🏠. Здесь он едет по готовой программе — а в игре <b>эту программу пишешь ты</b>.</p>
+    <p>Карта каждый раз новая: другие повороты, посылка в другом месте. Поэтому маршрут наизусть не выучишь — нужно <b>правило</b>, по которому Джавик сам решает, что делать.</p>
   </section>
 
   <!-- ШАГ 2 -->
   <section class="step">
-    <h2>Что за игра</h2>
-    <p>Джавик работает курьером. Его смена начинается на <b>складе 🏁</b>. Дальше — <b>коридоры</b> с поворотами, где-то по дороге лежат <b>посылки 📦</b>, а в конце пути — <b>адрес 🏠</b>, куда посылку надо отдать. Карта каждый раз другая: длина коридоров, повороты и место посылки меняются. Поэтому маршрут наизусть не выучить — нужно <b>правило</b>, которое сработает на любой карте.</p>
+    <h2>Робот и ты: кто что делает</h2>
     <div class="cards">
-      <div class="card"><span class="emoji">💻</span><h4>Код — в IntelliJ IDEA</h4><p>Ты пишешь класс в своей папке модуля, как любую задачу курса.</p></div>
-      <div class="card"><span class="emoji">👀</span><h4>Смотришь — на сайте</h4><p>Жмёшь «▶ Запустить мой код», и сайт показывает поездку Джавика ход за ходом.</p></div>
-      <div class="card"><span class="emoji">🚫🕹</span><h4>Руками нельзя</h4><p>Ни стрелок, ни джойстика. Джавиком управляет только твоя программа — в этом и вся игра.</p></div>
+      <div class="card"><span class="emoji">🤖</span><h4>Робот умеет</h4>
+        <p><b>Смотреть:</b> стена впереди? слева? справа? тут посылка? я на адресе?</p>
+        <p><b>Делать:</b> проехать клетку, повернуться, взять посылку, отдать посылку.</p></div>
+      <div class="card"><span class="emoji">🧑‍💻</span><h4>Ты решаешь</h4>
+        <p><b>Когда что делать.</b> Робот на каждом ходу спрашивает твою программу: «что сейчас?» — и делает ровно то, что она ответила.</p></div>
     </div>
-    <div class="callout analogy">
-      <span class="callout-title">Аналогия: штурман по рации</span>
-      <p>Представь, что Джавик едет в тёмном складе, а ты сидишь в диспетчерской. Ты не видишь карту — только то, что Джавик сообщает по рации: «впереди стена», «тут посылка». И отвечаешь одним словом: «вперёд», «налево», «бери». Но отвечать будешь не ты сам, а записанная заранее инструкция — твой код.</p>
-    </div>
-    <p>Игра будет возвращаться: с каждым новым модулем у тебя появляется новый инструмент — и Джавик становится умнее.</p>
     <div class="table-wrap"><table>
-      <tr><th>Модуль</th><th>Что умеет Джавик</th></tr>
-      <tr><td>4 · Условия (сейчас)</td><td>На каждом ходу решает, что делать: ехать, повернуть, взять или отдать посылку</td></tr>
-      <tr><td>5 · Циклы</td><td>Сам себе водитель: едет, пока не доедет, собирает все посылки на улице</td></tr>
-      <tr><td>6 · Массивы</td><td>Записывает маршрут и возвращается по нему ночью, когда датчики не работают</td></tr>
-      <tr><td>7 · Методы</td><td>Придумывает собственные команды: «доехать до стены», «развернуться»</td></tr>
-      <tr><td>13 · Коллекции</td><td>Служба доставки: очередь заказов, адреса с названиями и автопилот</td></tr>
+      <tr><th>Команда (что вернуть)</th><th>Что сделает Джавик</th></tr>
+      <tr><td><code>"MOVE"</code></td><td>проедет одну клетку вперёд</td></tr>
+      <tr><td><code>"LEFT"</code> / <code>"RIGHT"</code></td><td>повернётся налево / направо на месте</td></tr>
+      <tr><td><code>"TAKE"</code> / <code>"DROP"</code></td><td>возьмёт посылку / отдаст посылку</td></tr>
     </table></div>
-    <div class="say" data-mood="happy"><p>Я буду честно делать всё, что ты скажешь. Даже если ты скажешь «вперёд» прямо в стену. Так что думай за двоих!</p></div>
+    <p><b>Ошибка — и поездка окончена</b>, если Джавик:</p>
+    <ul>
+      <li>💥 проехал в стену;</li>
+      <li>📦 взял посылку там, где её нет, или отдал не на адресе;</li>
+      <li>⏳ потратил все ходы (поворот — тоже ход): значит, ездит по кругу.</li>
+    </ul>
+    <p>«Впереди», «слева», «справа» — всегда относительно того, <b>куда смотрит Джавик</b>: над ним оранжевая стрелка.</p>
   </section>
 
   <!-- ШАГ 3 -->
   <section class="step">
-    <h2>Поле и правила</h2>
-    <p>Поле состоит из клеток. Клетка — либо <b>стена</b>, либо <b>дорога</b>. Джавик стоит на одной клетке дороги и смотрит в одну из четырёх сторон. Главное, что нужно понять: <b>«впереди», «слева» и «справа» считаются от взгляда Джавика</b>, а не от экрана.</p>
-    <figure class="fig">
-      <svg class="wide" viewBox="0 0 720 304" role="img" aria-label="Пример карты: склад, коридор с поворотами, посылка, адрес. Джавик стоит на углу и смотрит на восток: впереди стена, слева дорога, справа стена">
-        <defs>
-          <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker>
-        </defs>
-        <rect x="20" y="20" width="440" height="264" class="d-soft"/>
-        <rect x="64" y="196" width="44" height="44" class="d-box"/>
-        <rect x="108" y="196" width="44" height="44" class="d-box"/>
-        <rect x="152" y="196" width="44" height="44" class="d-box"/>
-        <rect x="196" y="196" width="44" height="44" class="d-box"/>
-        <rect x="196" y="152" width="44" height="44" class="d-box"/>
-        <rect x="196" y="108" width="44" height="44" class="d-box"/>
-        <rect x="196" y="64" width="44" height="44" class="d-box"/>
-        <rect x="240" y="64" width="44" height="44" class="d-box"/>
-        <rect x="284" y="64" width="44" height="44" class="d-box"/>
-        <rect x="328" y="64" width="44" height="44" class="d-box"/>
-        <rect x="328" y="108" width="44" height="44" class="d-box"/>
-        <rect x="328" y="152" width="44" height="44" class="d-box"/>
-        <rect x="372" y="152" width="44" height="44" class="d-box"/>
-        <text x="86" y="226" text-anchor="middle" class="d-text" style="font-size:20px">🏁</text>
-        <text x="306" y="94" text-anchor="middle" class="d-text" style="font-size:20px">📦</text>
-        <text x="394" y="182" text-anchor="middle" class="d-text" style="font-size:20px">🏠</text>
-        <circle cx="218" cy="218" r="15" class="d-accent"/>
-        <text x="218" y="223" text-anchor="middle" class="d-title">Д</text>
-        <path d="M234 218 H248" class="d-arrow-accent"/>
-        <text x="264" y="223" text-anchor="middle" class="d-title">В</text>
-        <text x="218" y="179" text-anchor="middle" class="d-title">Л</text>
-        <text x="218" y="267" text-anchor="middle" class="d-title">П</text>
-        <text x="486" y="44" class="d-text">Джавик (Д) смотрит на восток →</text>
-        <text x="486" y="76" class="d-small">В — впереди: стена</text>
-        <text x="486" y="96" class="d-mono-ink">wallAhead() = true</text>
-        <text x="486" y="126" class="d-small">Л — слева: дорога</text>
-        <text x="486" y="146" class="d-mono-ink">wallLeft() = false</text>
-        <text x="486" y="176" class="d-small">П — справа: стена</text>
-        <text x="486" y="196" class="d-mono-ink">wallRight() = true</text>
-        <rect x="486" y="222" width="18" height="18" class="d-box"/>
-        <text x="512" y="236" class="d-small">дорога</text>
-        <rect x="580" y="222" width="18" height="18" class="d-soft"/>
-        <text x="606" y="236" class="d-small">стена</text>
-        <text x="486" y="268" class="d-small">🏁 склад · 📦 посылка · 🏠 адрес</text>
-      </svg>
-      <figcaption>Джавик дошёл до угла. На экране «слева» от него — склад, но для Джавика «слева» — это клетка над ним: он ведь смотрит вправо.</figcaption>
-    </figure>
-    <h3>Что считается ошибкой</h3>
-    <p>Поездка заканчивается сразу, если Джавик:</p>
-    <ul>
-      <li>💥 <b>врезался</b> — получил команду ехать вперёд, а впереди стена;</li>
-      <li>📦 пытается <b>взять посылку</b> там, где её нет;</li>
-      <li>🏠 пытается <b>отдать посылку</b> не на адресе — или когда отдавать нечего;</li>
-      <li>❓ получил <b>непонятную команду</b>: <code>"move"</code> маленькими буквами, <code>"GO"</code>, <code>"AHEAD"</code> — игра таких не знает;</li>
-      <li>⏱ <b>истратил все ходы</b>: у каждой карты есть лимит. Обычно это значит, что Джавик ездит по кругу или крутится на месте.</li>
-    </ul>
-    <p>А когда цель выполнена (Джавик на адресе или все посылки доставлены), игра сама заканчивает поездку — команды «стоп» не нужно.</p>
+    <h2>Где писать программу</h2>
+    <ol class="steps">
+      <li>Открой IntelliJ IDEA и в проекте <code>workspace</code> файл <code>module-04/CourierPart1.java</code>. Там уже есть заготовка.</li>
+      <li>Пиши код внутри метода <code>decide</code>.</li>
+      <li>Сохрани (<kbd>Ctrl</kbd>+<kbd>S</kbd>) и нажми <b>«▶ Запустить мой код»</b> в игровой панели ниже. Сайт запустит Джавика на трёх разных картах и покажет поездку.</li>
+    </ol>
+    <div data-widget="ide" id="shot-courier-where">
+      <script type="application/json">
+      {
+       "file": "CourierPart1.java",
+       "statusPath": "module-04",
+       "caretLine": 4,
+       "tree": [
+        {
+         "name": "workspace",
+         "type": "folder",
+         "depth": 0,
+         "open": true
+        },
+        {
+         "name": "courier",
+         "type": "src",
+         "depth": 1,
+         "open": true
+        },
+        {
+         "name": "CourierRobot",
+         "type": "class",
+         "depth": 2
+        },
+        {
+         "name": "module-04",
+         "type": "src",
+         "depth": 1,
+         "open": true
+        },
+       {
+        "name": "README.md",
+        "type": "file",
+        "depth": 2
+       },
+        {
+         "name": "CourierPart1",
+         "type": "class",
+         "depth": 2,
+         "selected": true
+        }
+       ],
+       "code": "public class CourierPart1 {\n\n    public static String decide(CourierRobot robot) {\n        return \"MOVE\";\n    }\n}",
+       "marks": [
+        {
+         "n": 1,
+         "target": "tree-CourierPart1",
+         "text": "<b>Твой файл</b> — <code>module-04/CourierPart1.java</code>. Он уже лежит в проекте, создавать ничего не надо."
+        },
+        {
+         "n": 2,
+         "target": "line-3",
+         "side": "top",
+         "text": "Метод <code>decide</code>. Игра спрашивает его <b>на каждом ходу</b>: «что делать сейчас?»"
+        },
+        {
+         "n": 3,
+         "target": "line-4",
+         "side": "bottom",
+         "text": "Ответ — <b>одна команда</b> в кавычках через <code>return</code>. Сейчас Джавик всегда отвечает «ехать вперёд»."
+        },
+        {
+         "n": 4,
+         "target": "tree-CourierRobot",
+         "text": "Описание робота. Не меняй. Наведи мышку на любой метод робота в своём коде — IDEA покажет, что он делает."
+        }
+       ],
+       "caption": "Здесь ты пишешь программу. Запускаешь — на сайте, кнопкой в игровой панели ниже."
+      }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Шпаргалка рядом с кодом</span>
+      <p>Все команды этой части собраны в IDEA в файле <code>module-04/README.md</code> — он лежит в той же папке, что и твой код. Открой его второй вкладкой рядом с кодом: правой кнопкой по вкладке <b>README.md</b> → <b>Split Right</b>.</p>
+    </div>
+    <div class="say" data-mood="happy"><p>Не бойся ошибок: нажми «Запустить» прямо с заготовкой. Джавик врежется — и ты сразу увидишь, где именно и почему.</p></div>
   </section>
 
   <!-- ШАГ 4 -->
   <section class="step">
-    <h2>Датчики и команды</h2>
-    <p>Чтобы что-то узнать, Джавик опрашивает свои <b>датчики</b> — это вопросы, на которые робот отвечает. Почти все отвечают <code>true</code> («да») или <code>false</code> («нет»), поэтому их можно сразу ставить в условие <code>if</code>. Спрашивают так: <code>robot.wallAhead()</code> — «робот, впереди стена?». Это похоже на <code>scanner.nextInt()</code>: точка, имя, скобки.</p>
-    <dl class="terms">
-      <dt><code>robot.wallAhead()</code></dt><dd>Впереди стена? <code>true</code> — ехать вперёд нельзя.</dd>
-      <dt><code>robot.wallLeft()</code>, <code>robot.wallRight()</code></dt><dd>Стена слева / справа от Джавика (относительно его взгляда)?</dd>
-      <dt><code>robot.parcelHere()</code></dt><dd>На клетке, где стоит Джавик, лежит посылка?</dd>
-      <dt><code>robot.carrying()</code></dt><dd>Джавик сейчас везёт посылку?</dd>
-      <dt><code>robot.atTarget()</code></dt><dd>Джавик стоит на адресе доставки 🏠?</dd>
-      <dt><code>robot.sign()</code></dt><dd>Табличка на развилке. Отвечает не true/false, а <b>строкой</b>: <code>"LEFT"</code>, <code>"RIGHT"</code>, <code>"AHEAD"</code> (прямо) или пустой строкой <code>""</code>, если таблички нет. Понадобится на уровне ★★★.</dd>
-    </dl>
-    <p>Отвечает Джавику твой код — одной <b>командой-строкой</b>, всегда БОЛЬШИМИ буквами:</p>
-    <div class="table-wrap"><table>
-      <tr><th>Команда</th><th>Что делает Джавик</th></tr>
-      <tr><td><code>"MOVE"</code></td><td>проезжает одну клетку вперёд</td></tr>
-      <tr><td><code>"LEFT"</code> / <code>"RIGHT"</code></td><td>поворачивается налево / направо на месте (на 90°), клетка не меняется</td></tr>
-      <tr><td><code>"TAKE"</code></td><td>берёт посылку с клетки</td></tr>
-      <tr><td><code>"DROP"</code></td><td>отдаёт посылку (только на 🏠)</td></tr>
-    </table></div>
-    <h3>Откуда берутся файлы и где читать описание</h3>
-    <p>В IDEA у тебя будет два файла про игру:</p>
-    <ul>
-      <li><code>workspace/module-04/CourierPart1.java</code> — <b>твой файл</b>. Заготовка появляется в папке, когда ты открываешь «Практику» модуля 4. В нём ты и пишешь код.</li>
-      <li><code>workspace/courier/CourierRobot.java</code> — <b>описание робота</b>: какие у него датчики и команды. Его кладёт сервер курса. Читать можно, менять — нет: настоящий Джавик живёт на сайте, а этот файл нужен только чтобы IDEA знала про робота и не подчёркивала твой код красным.</li>
-    </ul>
-    <p>Забыл, что делает датчик? Не нужно возвращаться в урок: наведи мышку на имя метода (или поставь на него курсор и нажми <kbd>Ctrl</kbd>+<kbd>Q</kbd>) — IDEA покажет описание. Оно написано в <code>CourierRobot.java</code> в комментариях <code>/** … */</code> — это <b>Javadoc</b>, ты видел такие в уроке 1.6.</p>
-    <div data-widget="ide" id="shot-courier-javadoc">
+    <h2>Играем!</h2>
+    <p>Уровни переключаются стрелками ◀ ▶. Не получается — открой подсказки под кнопкой: первая подталкивает, третья почти решает.</p>
+    <div data-widget="couriergame" id="courier-game-m04">
       <script type="application/json">
-      { "file": "CourierPart1.java", "statusPath": "module-04", "caretLine": 4,
-        "tree": [
-          { "name": "workspace", "type": "folder", "depth": 0, "open": true },
-          { "name": "courier", "type": "src", "depth": 1, "open": true },
-          { "name": "CourierRobot", "type": "class", "depth": 2 },
-          { "name": "module-04", "type": "src", "depth": 1, "open": true },
-          { "name": "CourierPart1", "type": "class", "depth": 2, "selected": true }
-        ],
-        "code": "public class CourierPart1 {\n\n    public static String decide(CourierRobot robot) {\n        String s = robot.sign();\n        return \"MOVE\";\n    }\n}",
-        "weak": [ { "line": 4, "text": "sign", "tip": true, "fix": false,
-          "msg": "public String sign() — Табличка на развилке, где стоит Джавик: \"LEFT\" — сверни налево, \"RIGHT\" — направо, \"AHEAD\" — езжай прямо. Если таблички нет, вернёт пустую строку \"\". Табличку видно, пока Джавик на этой клетке не повернулся." } ],
-        "marks": [
-          { "n": 1, "target": "err-4", "side": "top", "text": "Навёл мышку на имя метода <code>sign</code> (или нажал <kbd>Ctrl</kbd>+<kbd>Q</kbd>, когда курсор стоит на нём)…" },
-          { "n": 2, "target": "tip", "text": "…и IDEA показала описание из Javadoc: что метод делает и что отвечает. Так можно «спросить» про любой датчик и любую команду." },
-          { "n": 3, "target": "tree-CourierRobot", "text": "<code>courier/CourierRobot.java</code> — описание робота. Его кладёт сервер курса. <b>Ничего в нём не меняй.</b>" },
-          { "n": 4, "target": "tree-CourierPart1", "text": "Твой файл <code>module-04/CourierPart1.java</code>. Заготовка появляется, когда открываешь «Практику» модуля 4." }
-        ],
-        "caption": "Строка <code>String s = robot.sign();</code> здесь только для примера — чтобы было на что навести мышку." }
+      {
+       "levels": [
+        {
+         "task": "m04-c1",
+         "name": "★ Коридор",
+         "goal": "<p><b>Цель:</b> довези Джавика до домика 🏠 в конце коридора и ни разу не врежься в стену.</p>\n<p>Коридор каждый раз другой: прямые участки и повороты налево и направо. Развилок нет.</p>\n<p>Понадобятся: <code>robot.wallAhead()</code>, <code>robot.wallLeft()</code>, <code>robot.wallRight()</code> и команды <code>\"MOVE\"</code>, <code>\"LEFT\"</code>, <code>\"RIGHT\"</code>.</p>",
+         "hints": [
+          "<p>Представь, что идёшь по тёмному коридору. На каждом шаге решаешь одно: <b>впереди свободно — шагаю вперёд</b>. Упёрся в стену — <b>поворачиваюсь туда, где стены нет</b>: налево или направо.</p><p>Вся программа — одно условие и два варианта поворота. Нажми «Запустить» прямо с заготовкой и посмотри, где Джавик врезается.</p>",
+          "<p>Начни так: если впереди нет стены — едем. Остальное пока заглушка:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (!robot.wallAhead()) {   // впереди НЕТ стены?\n        return \"MOVE\";          // тогда едем вперёд\n    }\n    // сюда попадаем, только если впереди стена: куда повернуть?\n    return \"LEFT\";\n}</code></pre><p>Запусти. На каких поворотах Джавик теперь ошибается? Когда нужен <code>\"RIGHT\"</code>?</p>",
+          "<p>Почти готово — осталось одно условие вместо <code>/* ??? */</code>:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else if (/* ??? слева нет стены */) {\n        return \"LEFT\";\n    } else {\n        return \"RIGHT\";\n    }\n}</code></pre><p>«Слева нет стены» — это «НЕ стена слева», так же, как в первом <code>if</code>. Если <code>else if</code> пока путается — повтори урок <a href=\"/lessons/m04/02-else-if.html\">4.2 «else, else if»</a>.</p>"
+         ]
+        },
+        {
+         "task": "m04-c2",
+         "name": "★★ Первая посылка",
+         "goal": "<p><b>Цель:</b> по дороге лежит посылка 📦. Возьми её (<code>\"TAKE\"</code>) и отдай на адресе 🏠 (<code>\"DROP\"</code>).</p>\n<p>Новые датчики: <code>robot.parcelHere()</code> — посылка на этой клетке, <code>robot.carrying()</code> — Джавик везёт посылку, <code>robot.atTarget()</code> — Джавик на адресе.</p>\n<p>Пиши в том же файле — он должен проходить и уровень 1.</p>",
+         "hints": [
+          "<p>Джавик проезжает мимо посылки? Значит, правило «ехать» срабатывает раньше вопроса «тут посылка?». Метод отдаёт команду на первом же <code>return</code> — поэтому <b>особые случаи проверяют первыми</b>, а обычное движение — в самом конце.</p>",
+          "<p>Поставь проверку посылки самой первой:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {  // посылка тут, а руки свободны\n        return \"TAKE\";\n    }\n    // здесь будет ещё одно особое условие — про адрес\n\n    // а ниже — твоё правило движения из уровня 1\n}</code></pre>",
+          "<p>Осталось условие для <code>\"DROP\"</code>:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {\n        return \"TAKE\";\n    }\n    if (/* ??? на адресе И везу посылку */) {\n        return \"DROP\";\n    }\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else if (!robot.wallLeft()) {\n        return \"LEFT\";\n    } else {\n        return \"RIGHT\";\n    }\n}</code></pre><p>Два датчика через <code>&amp;&amp;</code> — как в первом <code>if</code>. Если <code>&amp;&amp;</code> подзабылся — повтори урок <a href=\"/lessons/m03/04-logic.html\">3.4 «Логика»</a>.</p>"
+         ]
+        },
+        {
+         "task": "m04-c3",
+         "name": "★★★ Перекрёстки",
+         "goal": "<p><b>Цель:</b> в коридоре появились развилки и тупики. На каждой развилке висит табличка: <code>robot.sign()</code> отвечает, куда ехать — <code>\"LEFT\"</code>, <code>\"RIGHT\"</code>, <code>\"AHEAD\"</code> (прямо) или <code>\"\"</code> (таблички нет). Посылку по пути тоже нужно доставить.</p>\n<p>Ходов в обрез: заедешь в тупик — на возврат не хватит. Табличку сравнивай через <code>switch</code> или <code>equals</code>, а не через <code>==</code>.</p>",
+         "hints": [
+          "<p>На развилке правило «вперёд, иначе налево, иначе направо» может увести в тупик. Значит, <b>табличку надо читать раньше правила движения</b>, но после посылки и адреса. Есть табличка — делай, что она говорит.</p><p>Осторожно: «прямо» — это команда <code>\"MOVE\"</code>. Команды <code>\"AHEAD\"</code> у Джавика нет.</p>",
+          "<p>Табличку удобно разбирать через <code>switch</code>:</p><pre><code class=\"java\">switch (robot.sign()) {\n    case \"LEFT\":\n        return \"LEFT\";\n    // ещё два случая: \"RIGHT\" и \"AHEAD\"\n}\n// ни один case не подошёл — таблички нет, едем по обычному правилу</code></pre><p>Поставь этот <code>switch</code> в <code>decide</code> между проверками посылки и адреса и правилом движения.</p>",
+          "<p>Весь метод, осталась одна команда вместо <code>/* ??? */</code>:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {\n        return \"TAKE\";\n    }\n    if (robot.atTarget() &amp;&amp; robot.carrying()) {\n        return \"DROP\";\n    }\n    switch (robot.sign()) {\n        case \"LEFT\":\n            return \"LEFT\";\n        case \"RIGHT\":\n            return \"RIGHT\";\n        case \"AHEAD\":\n            return /* ??? какая команда едет прямо */;\n    }\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else if (!robot.wallLeft()) {\n        return \"LEFT\";\n    } else {\n        return \"RIGHT\";\n    }\n}</code></pre><p>Если <code>switch</code> по строкам забылся — повтори урок <a href=\"/lessons/m04/05-switch.html\">4.5 «switch»</a>.</p>"
+         ]
+        }
+       ]
+      }
       </script>
     </div>
-    <div class="callout warn">
-      <span class="callout-title">Команды — только через return</span>
-      <p>В описании робота ты увидишь и методы-команды: <code>move()</code>, <code>take()</code> и другие. Они для следующих частей игры. В части 1 Джавику <b>не командуют напрямую</b> — твой код только <b>возвращает</b> строку-команду, а выполняет её игра.</p>
-    </div>
+    <p><span class="ai-only">Прошёл уровень — разбери решение с наставником: <code>/check</code> и номер уровня (<code>m04-c1</code>, <code>m04-c2</code> или <code>m04-c3</code>).</span><span class="free-only">Прошёл уровень — разбери решение с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
   </section>
 
   <!-- ШАГ 5 -->
   <section class="step">
-    <h2>Как ходит игра</h2>
-    <p>Открой заготовку <code>CourierPart1.java</code>. Без комментариев она выглядит так:</p>
-<pre data-file="CourierPart1.java"><code class="java">public class CourierPart1 {
-    public static String decide(CourierRobot robot) {
-        return "MOVE";
-    }
-}</code></pre>
-    <p>Здесь три новых слова. Подробно их разберём в модуле 7 «Методы», а сейчас хватит такого объяснения:</p>
-    <div class="annot">
-      <div class="annot-row"><code>decide</code><div><p>Это <b>метод</b> — именованный кусок кода, как <code>main</code>. Только <code>main</code> запускаешь ты, а <code>decide</code> («решить») <b>вызывает игра — на каждом ходу</b>, один раз за ход.</p></div></div>
-      <div class="annot-row"><code>(CourierRobot robot)</code><div><p>Вызывая метод, игра <b>передаёт</b> тебе твоего робота. Внутри метода он доступен под именем <code>robot</code> — через него ты спрашиваешь датчики: <code>robot.wallAhead()</code>.</p></div></div>
-      <div class="annot-row"><code>String</code><div><p>Метод обязан <b>вернуть</b> игре строку — команду на этот ход.</p></div></div>
-      <div class="annot-row"><code>return "MOVE";</code><div><p><b>return</b> («вернуть») отдаёт команду игре и <b>сразу завершает метод</b>. Всё, что написано ниже, в этот ход уже не выполнится. Поэтому после <code>if</code>, внутри которого стоит <code>return</code>, часто не нужен <code>else</code>.</p></div></div>
-    </div>
-    <figure class="fig">
-      <svg class="wide" viewBox="0 0 720 270" role="img" aria-label="Цикл игры: игра вызывает decide, твой код спрашивает датчики и возвращает одну команду, игра делает ход и снова вызывает decide">
-        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
-        <rect x="20" y="30" width="200" height="72" rx="14" class="d-blue"/>
-        <text x="120" y="60" text-anchor="middle" class="d-title">🎮 Игра</text>
-        <text x="120" y="84" text-anchor="middle" class="d-small">«Джавик, твой ход!»</text>
-        <path d="M222 66 H256" class="d-arrow"/>
-        <rect x="260" y="30" width="200" height="72" rx="14" class="d-violet"/>
-        <text x="360" y="62" text-anchor="middle" class="d-mono-ink">decide(robot)</text>
-        <text x="360" y="86" text-anchor="middle" class="d-small">вызывает твой метод</text>
-        <path d="M462 66 H496" class="d-arrow"/>
-        <rect x="500" y="30" width="200" height="72" rx="14" class="d-teal"/>
-        <text x="600" y="60" text-anchor="middle" class="d-title">🤔 твой код</text>
-        <text x="600" y="84" text-anchor="middle" class="d-small">спрашивает датчики</text>
-        <path d="M600 104 V146" class="d-arrow"/>
-        <rect x="500" y="150" width="200" height="72" rx="14" class="d-accent"/>
-        <text x="600" y="182" text-anchor="middle" class="d-mono-ink">return "LEFT";</text>
-        <text x="600" y="206" text-anchor="middle" class="d-small">ровно одна команда</text>
-        <path d="M498 186 H464" class="d-arrow"/>
-        <rect x="260" y="150" width="200" height="72" rx="14" class="d-green"/>
-        <text x="360" y="182" text-anchor="middle" class="d-title">🚚 ход сделан</text>
-        <text x="360" y="206" text-anchor="middle" class="d-small">шаг или поворот</text>
-        <path d="M258 186 H120 V106" class="d-arrow"/>
-        <text x="132" y="150" class="d-small">и снова</text>
-        <text x="360" y="254" text-anchor="middle" class="d-small">Конец поездки: цель выполнена ✓ · врезался 💥 · ошибка ❓ · кончились ходы ⏱</text>
-      </svg>
-      <figcaption>Циклов в модуле 4 ещё нет — повторяет игра. Твоя задача — решить <b>один</b> ход, глядя на датчики.</figcaption>
-    </figure>
-    <p>Ещё два правила, которые легко упустить:</p>
-    <ul>
-      <li><b>Поворот — тоже ход.</b> Команда <code>"LEFT"</code> тратит один ход из лимита, хотя Джавик остаётся на той же клетке. На следующем ходу игра снова вызовет <code>decide</code> — уже с новым направлением взгляда.</li>
-      <li><b>Один файл на три уровня.</b> Ты не начинаешь заново, а улучшаешь тот же <code>decide</code>: решение уровня ★★ должно проходить и карты ★.</li>
-    </ul>
-    <details class="predict">
-      <summary>Предскажи: что будет, если запустить заготовку как есть — она всегда возвращает "MOVE"?</summary>
-      <p>Джавик поедет прямо со склада и <b>врежется в первую же стену</b> — на первом повороте коридора. В панели «Перед ходом Джавик спросил» будет написано «ничего»: заготовка не спрашивает ни одного датчика, она едет вслепую. Это и есть первое, что надо исправить.</p>
-    </details>
-  </section>
-
-  <!-- ШАГ 6 -->
-  <section class="step">
-    <h2>Уровень ★ «Коридор»</h2>
-    <p><b>Цель:</b> доехать со склада 🏁 до адреса 🏠 по извилистому коридору, ни разу не врезавшись. Развилок нет: коридор один, он просто поворачивает то налево, то направо. Доехал — игра сама закончит поездку.</p>
-    <h3>Идея</h3>
-    <p>Представь, что ты идёшь по тёмному коридору, касаясь стен руками. Что ты делаешь на каждом шаге? Если впереди свободно — идёшь вперёд. Если упёрся — поворачиваешься туда, где стены нет. В коридоре без развилок, когда впереди стена, свободна <b>ровно одна</b> сторона: левая или правая.</p>
-    <p>Составь таблицу случаев, как в Мастерской: какие ответы датчиков бывают и какую команду ты вернёшь.</p>
-    <div class="table-wrap"><table>
-      <tr><th>wallAhead()</th><th>wallLeft()</th><th>wallRight()</th><th>Что делать</th></tr>
-      <tr><td>false</td><td>неважно</td><td>неважно</td><td>ехать вперёд — <code>"MOVE"</code></td></tr>
-      <tr><td>true</td><td>false</td><td>true</td><td>?</td></tr>
-      <tr><td>true</td><td>true</td><td>false</td><td>?</td></tr>
-    </table></div>
-    <details class="predict">
-      <summary>Предскажи: Джавик спросил датчики и получил wallAhead() = true, wallLeft() = true, wallRight() = false. Какую команду должен вернуть decide?</summary>
-      <p><code>"RIGHT"</code>. Впереди и слева стены, свободно только справа — значит, коридор поворачивает направо. На этом ходу Джавик только повернётся, а на следующем впереди окажется дорога — и он поедет. Заметь: если впереди и слева стены, справа <b>обязательно</b> свободно (тупиков в этом коридоре нет). Значит, про правую стену можно даже не спрашивать — хватит ветки «иначе».</p>
-    </details>
-    <div class="say" data-mood="oops"><p>Однажды мне написали «если впереди стена — налево». На левом повороте я отлично повернул! А на правом повернулся носом в стену, потом ещё налево — и поехал обратно на склад. Туда-сюда, пока не кончились ходы. Проверяй <b>обе</b> стороны!</p></div>
-    <p>Слово «нет стены» в Java — это оператор <code>!</code> из модуля 3: «не стена впереди» записывается как <code>!</code> перед вызовом датчика. Код пиши сам: переведи свою таблицу в цепочку <code>if</code> / <code>else if</code> / <code>else</code>.</p>
-  </section>
-
-  <!-- ШАГ 7 -->
-  <section class="step">
-    <h2>Уровень ★★ «Первая посылка»</h2>
-    <p><b>Цель:</b> по дороге лежит посылка 📦. Джавик должен взять её (<code>"TAKE"</code>) и отдать на адресе 🏠 (<code>"DROP"</code>). Поездка закончится, когда посылка доставлена.</p>
-    <h3>Главное здесь — порядок условий</h3>
-    <p>У тебя уже есть правило движения. Теперь к нему добавятся проверки «тут посылка?» и «я на адресе?». Вопрос: <b>в каком месте цепочки</b> их поставить? Вспомни: <code>return</code> сразу завершает метод, а в цепочке побеждает первая подходящая ветка. Кто проверен первым — тот и решает.</p>
-    <div class="callout analogy">
-      <span class="callout-title">Аналогия: курьер у двери</span>
-      <p>Настоящий курьер, подойдя к пункту выдачи, сначала думает «тут моя посылка?», а уже потом «куда ехать дальше?». Если он первым делом спросит себя «дорога впереди свободна?» — ответ будет «да», и он уедет, так и не взяв посылку. Дорога-то свободна почти всегда!</p>
-    </div>
-    <p>И ещё одна деталь: отдать посылку можно, только если Джавик <b>на адресе</b> <i>и</i> <b>что-то везёт</b>. Это два условия сразу — вспомни <code>&amp;&amp;</code>. На адресе обычно тупик: впереди стена, и правило движения начнёт крутить Джавика на месте, если проверка адреса до него не дойдёт.</p>
-    <div data-widget="check" id="check-m04-courier-order">
-      <script type="application/json">
-      { "title": "Порядок условий",
-        "items": [
-          { "type": "single", "q": "План Миши (проверки сверху вниз, первая подходящая возвращает команду):<br>① впереди нет стены → MOVE<br>② слева нет стены → LEFT<br>③ иначе → RIGHT<br>④ на клетке посылка → TAKE<br>Джавик стоит на посылке, впереди свободно. Что вернёт decide?", "options": ["\"TAKE\"", "\"MOVE\"", "\"LEFT\""], "answer": 1,
-            "why": "Первым сработает ①, и <code>return</code> сразу завершит метод. Хуже того: ①–③ покрывают <b>все</b> случаи (в ③ стоит «иначе»), поэтому до ④ дело не дойдёт никогда. Проверка посылки должна стоять <b>выше</b> правила движения." },
-          { "type": "multi", "q": "Когда decide должен вернуть <code>\"DROP\"</code>? Отметь всё, что должно быть правдой одновременно.", "options": ["Джавик на адресе 🏠", "Джавик везёт посылку", "Впереди стена", "На клетке лежит посылка"], "answer": [0, 1],
-            "why": "Отдать можно только на адресе и только если есть что отдавать: <code>atTarget()</code> <b>и</b> <code>carrying()</code>. Стена впереди тут ни при чём — она бывает на каждом повороте." },
-          { "type": "tf", "q": "Верно или нет?", "statements": [
-            { "s": "Если проверка посылки стоит первой, на обычных клетках (без посылки) Джавик едет так же, как на уровне ★.", "a": true },
-            { "s": "После TAKE посылка остаётся на клетке, поэтому Джавик будет брать её снова и снова.", "a": false, "why": "TAKE забирает посылку с клетки: на следующем ходу <code>parcelHere()</code> ответит <code>false</code>, и Джавик поедет дальше." },
-            { "s": "На уровне ★★ можно написать новый файл, а решение уровня ★ выбросить.", "a": false, "why": "Файл один на все три уровня. Новые проверки добавляются к старому правилу движения, а не вместо него." }
-          ] }
-        ] }
-      </script>
-    </div>
-  </section>
-
-  <!-- ШАГ 8 -->
-  <section class="step">
-    <h2>Уровень ★★★ «Перекрёстки»</h2>
-    <p><b>Цель:</b> в коридоре появились <b>развилки</b>. Одна дорога ведёт к адресу, другие — в <b>тупики</b>. Посылку по пути тоже надо доставить. А ходов дают в обрез: на правильный путь хватит, на поездку в тупик и обратно — уже нет.</p>
-    <figure class="fig">
-      <svg class="wide" viewBox="0 0 720 250" role="img" aria-label="Развилка с табличкой: прямо тупик, налево дорога к адресу. Правило впереди свободно уводит в тупик, табличка показывает налево">
-        <defs>
-          <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker>
-        </defs>
-        <rect x="40" y="20" width="280" height="200" class="d-soft"/>
-        <rect x="160" y="180" width="40" height="40" class="d-box"/>
-        <rect x="160" y="140" width="40" height="40" class="d-box"/>
-        <rect x="160" y="100" width="40" height="40" class="d-box"/>
-        <rect x="160" y="60" width="40" height="40" class="d-box"/>
-        <rect x="160" y="20" width="40" height="40" class="d-box"/>
-        <rect x="120" y="100" width="40" height="40" class="d-box"/>
-        <rect x="80" y="100" width="40" height="40" class="d-box"/>
-        <rect x="40" y="100" width="40" height="40" class="d-box"/>
-        <text x="60" y="128" text-anchor="middle" class="d-text" style="font-size:18px">🏠</text>
-        <text x="180" y="47" text-anchor="middle" class="d-text" style="font-size:18px">⛔</text>
-        <path d="M180 104 V66" class="d-dash"/>
-        <path d="M166 120 H90" class="d-arrow-accent"/>
-        <circle cx="180" cy="120" r="13" class="d-accent"/>
-        <text x="180" y="126" text-anchor="middle" class="d-title">↑</text>
-        <rect x="205" y="106" width="30" height="28" rx="6" class="d-yellow"/>
-        <text x="220" y="126" text-anchor="middle" class="d-title">⬅</text>
-        <text x="350" y="44" class="d-text">Развилка, на ней табличка ⬅</text>
-        <text x="350" y="74" class="d-small">Без таблички: «впереди свободно — еду»</text>
-        <text x="350" y="92" class="d-small">везёт прямо, в тупик ⛔ (пунктир).</text>
-        <text x="350" y="110" class="d-small">Обратно — лишние ходы, а их в обрез ⏱</text>
-        <text x="350" y="146" class="d-small">С табличкой: sign() вернёт "LEFT" →</text>
-        <text x="350" y="164" class="d-small">Джавик поворачивает налево, а дальше</text>
-        <text x="350" y="182" class="d-small">едет по обычному правилу.</text>
-        <text x="350" y="214" class="d-small">Табличку видно, пока Джавик на этой</text>
-        <text x="350" y="232" class="d-small">клетке не повернулся.</text>
-      </svg>
-      <figcaption>Правило «вперёд, иначе налево, иначе направо» не знает, куда ведёт дорога. На развилке оно выбирает наугад — и карты специально сделаны так, что наугад попадаешь в тупик.</figcaption>
-    </figure>
-    <h3>Читаем табличку</h3>
-    <p>На каждой развилке правильного пути стоит табличка. <code>robot.sign()</code> отвечает строкой:</p>
-    <ul>
-      <li><code>"LEFT"</code> — сверни налево, <code>"RIGHT"</code> — направо, <code>"AHEAD"</code> — езжай прямо;</li>
-      <li><code>""</code> (пустая строка) — таблички нет: обычная клетка коридора.</li>
-    </ul>
-    <p>Заметь подвох: команды <code>"AHEAD"</code> у Джавика нет. Табличка «прямо» значит команду <code>"MOVE"</code>. Если вернуть игре <code>"AHEAD"</code>, она остановит поездку: «Нет такой команды».</p>
-    <p>Строку с табличкой нужно сравнить с вариантами — это работа для <code>switch</code> по строке (урок 4.5) или для <code>equals</code> (урок 4.3). <b>Не для <code>==</code>:</b> он сравнивает, один ли это объект в памяти, а не буквы. Иногда <code>==</code> случайно срабатывает, и от этого он ещё опаснее — сегодня работает, завтра нет. Проверка на сайте <code>==</code> со строками не пропустит.</p>
-    <div class="callout tip">
-      <span class="callout-title">Синтаксис: return внутри switch</span>
-      <p>В классическом <code>switch</code> с двоеточием после <code>return</code> не нужен <code>break</code> — <code>return</code> и так выходит из метода. В <code>switch</code> со стрелками <code>return</code> пишут в фигурных скобках: <code>case "X" -&gt; { return …; }</code>. А если табличка ни с чем не совпала, <code>switch</code> просто закончится, и выполнение пойдёт дальше — к следующей проверке.</p>
-    </div>
-    <details class="predict">
-      <summary>Предскажи: почему проверку таблички надо поставить выше правила движения, а не ниже?</summary>
-      <p>Если правило «впереди свободно → MOVE» стоит выше, на развилке с табличкой <code>"LEFT"</code> оно сработает первым (впереди-то свободно — там тупиковая ветка), и <code>return</code> завершит метод. До таблички дело не дойдёт. Это та же история, что с посылкой на уровне ★★: <b>особые случаи — раньше общего правила</b>.</p>
-    </details>
-    <div class="say" data-mood="think"><p>А что будет после поворота по табличке? Табличка «пропадёт» — <code>sign()</code> ответит <code>""</code>. И я поеду по обычному правилу: впереди теперь свободно — значит, вперёд. Иначе я бы так и крутился на развилке!</p></div>
-  </section>
-
-  <!-- ШАГ 9 -->
-  <section class="step">
-    <h2>Запусти и посмотри поездку</h2>
-    <p>Напиши код в IDEA, <b>сохрани файл</b> (<kbd>Ctrl</kbd>+<kbd>S</kbd>) и нажми кнопку ниже. Сайт скомпилирует твой класс, запустит Джавика на трёх разных картах уровня и покажет каждую поездку. Уровень засчитывается, когда пройдены все три карты. То же самое делает кнопка «▶ Проверить» на странице «Практики».</p>
-    <div data-widget="courier" data-tasks="m04-c1,m04-c2,m04-c3"></div>
-    <p><span class="ai-only">Прошёл уровень — разбери решение с наставником: <code>/check</code> и номер уровня (он написан под кнопкой «Проверить» в «Практике», например <code>m04-c1</code>).</span><span class="free-only">Прошёл уровень — разбери решение с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
-    <h3>Как читать поездку</h3>
-    <dl class="terms">
-      <dt>Вкладки карт ✓ / ✗</dt><dd>Три карты уровня. Если где-то не получилось, сразу откроется первая неудачная.</dd>
-      <dt>Ход N из M · команда</dt><dd>Номер хода и команда, которую на этом ходу вернул твой <code>decide</code>.</dd>
-      <dt>Везёт посылок / Руки свободны</dt><dd>Есть ли у Джавика посылка прямо сейчас.</dd>
-      <dt>Перед ходом Джавик спросил:</dt><dd>Какие датчики вызвал твой код на этом ходу — <b>в том порядке, в каком он их вызвал</b>, — и что они ответили. Это главная подсказка: по ней видно, по какой дорожке прошёл твой <code>decide</code>.</dd>
-      <dt>Красная строка</dt><dd>Что случилось: «Врезался в стену!», «Здесь нет посылки», «Нет такой команды»…</dd>
-      <dt>⏮ ◀ ▶ ⏭, ползунок, скорость</dt><dd>Смотреть поездку целиком или листать по одному ходу.</dd>
-    </dl>
-    <h3>Расследование: на каком ходу и почему</h3>
-    <ol class="steps">
-      <li><b>Прочитай баннер.</b> Он говорит, что случилось и на каком ходу: «Джавик врезался в стену на ходу 17».</li>
-      <li><b>Нажми ⏭</b> — окажешься на последнем ходу. Посмотри, где стоит Джавик и куда смотрит.</li>
-      <li><b>Прочитай «Перед ходом Джавик спросил».</b> Возьми эти ответы и пройди свой <code>decide</code> глазами сверху вниз: какое условие первым оказалось <code>true</code>? Его ветка и вернула команду.</li>
-      <li><b>Нужного датчика нет в списке?</b> Значит, код до этой проверки не дошёл — раньше сработала ветка выше. Например, перед <code>MOVE</code> в стену нет <code>wallAhead()</code>: команда вернулась без проверки стены.</li>
-      <li><b>Листай ◀ назад</b>, если ошибка случилась раньше: где Джавик свернул не туда или проехал мимо посылки.</li>
-    </ol>
-    <div class="callout try">
-      <span class="callout-title">Попробуй: печать в поездке</span>
-      <p>Если вставить в <code>decide</code> строку <code>System.out.println(…)</code>, напечатанное появится под поездкой в блоке «Программа напечатала». Можно печатать, например, ответ <code>robot.sign()</code>, чтобы увидеть таблички своими глазами. Только помни: <code>decide</code> вызывается на каждом ходу, строк будет много.</p>
-    </div>
-  </section>
-
-  <!-- ШАГ 10 -->
-  <section class="step">
-    <h2>Если не получается</h2>
-    <p>Открывай подсказки <b>по одной</b>: после каждой попробуй сам, запусти, посмотри поездку. Готового кода здесь нет — только направление.</p>
-    <h3>★ «Коридор»</h3>
-    <details class="curious">
-      <summary>💡 Подсказка 1 — с чего начать</summary>
-      <p>Начни с одного правила: вернуть <code>"MOVE"</code>, только если впереди <b>нет</b> стены (оператор <code>!</code>). Запусти и посмотри, где Джавик остановится или что сделает на первом повороте. Потом добавляй по одному случаю из таблицы.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 2</summary>
-      <p>Когда впереди стена, достаточно спросить про <b>одну</b> сторону: если там свободно — поворачивай туда, иначе — в другую. В коридоре без развилок другая сторона обязательно свободна. Если IDEA подчёркивает метод красным с <code>Missing return statement</code> — в нём есть дорожка, на которой ничего не возвращается: последняя ветка должна быть <code>else</code> (или <code>return</code> в самом конце метода).</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 3 — план на русском</summary>
-<pre data-file="план.txt"><code>если впереди нет стены → вернуть «вперёд»
-иначе если слева нет стены → вернуть «налево»
-иначе → вернуть «направо»</code></pre>
-      <p>Переведи каждую строку в Java сам: датчики и команды — в карточке выше.</p>
-    </details>
-    <h3>★★ «Первая посылка»</h3>
-    <details class="curious">
-      <summary>💡 Подсказка 1 — с чего начать</summary>
-      <p>Найди в поездке ход, когда Джавик стоит на клетке с 📦. Что он спросил на этом ходу? Есть ли в списке <code>parcelHere()</code> вообще? Если нет — твой код до этой проверки не дошёл.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 2</summary>
-      <p><code>return</code> завершает метод, поэтому порядок проверок решает всё. Особые случаи («тут посылка», «я на адресе с посылкой») — <b>выше</b> общего правила движения. Правило движения из уровня ★ оставь как есть, просто под новыми проверками. Для адреса нужны два датчика сразу — через <code>&amp;&amp;</code>.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 3 — план на русском</summary>
-<pre data-file="план.txt"><code>если на клетке посылка → вернуть «взять»
-если на адресе и везу посылку → вернуть «отдать»
-дальше — правило движения из уровня ★ без изменений</code></pre>
-    </details>
-    <h3>★★★ «Перекрёстки»</h3>
-    <details class="curious">
-      <summary>💡 Подсказка 1 — с чего начать</summary>
-      <p>Найди в поездке ход, где Джавик свернул в тупик. Что ответил <code>sign()</code> на этом ходу? Спросил ли его код про табличку вообще — есть ли <code>sign()</code> в списке «Перед ходом Джавик спросил»?</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 2</summary>
-      <p>Табличку читай после посылки и адреса, но <b>до</b> правила движения. Сравнивай через <code>switch</code> по строке или <code>equals</code>. Помни: «прямо» — это команда <code>"MOVE"</code>, а не <code>"AHEAD"</code>. Если таблички нет (пустая строка), ничего не возвращай — пусть выполнение дойдёт до правила движения.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 3 — план на русском</summary>
-<pre data-file="план.txt"><code>посылка и адрес — как на уровне ★★
-по табличке: «налево» → налево, «направо» → направо, «прямо» → вперёд
-таблички нет → правило движения из уровня ★</code></pre>
-    </details>
-  </section>
-
-  <!-- ШАГ 11 -->
-  <section class="step">
-    <h2>Проверь себя</h2>
-    <div class="cheat">
-      <h3>📝 Выпиши себе: датчики и команды Джавика</h3>
-      <p>Перепиши таблицу от руки в тетрадь — она понадобится во всех частях игры, до модуля 13.</p>
-      <div class="table-wrap"><table>
-        <tr><th>Что написать</th><th>Что значит</th><th>Когда</th></tr>
-        <tr><td><code>robot.wallAhead()</code> / <code>wallLeft()</code> / <code>wallRight()</code></td><td>стена впереди / слева / справа (от взгляда Джавика)</td><td>выбрать, куда ехать</td></tr>
-        <tr><td><code>robot.parcelHere()</code></td><td>на клетке посылка</td><td>пора брать</td></tr>
-        <tr><td><code>robot.carrying()</code></td><td>Джавик везёт посылку</td><td>есть что отдавать</td></tr>
-        <tr><td><code>robot.atTarget()</code></td><td>Джавик на адресе 🏠</td><td>пора отдавать</td></tr>
-        <tr><td><code>robot.sign()</code></td><td>табличка: <code>"LEFT"</code>, <code>"RIGHT"</code>, <code>"AHEAD"</code> или <code>""</code></td><td>на развилке; сравнивать через switch / equals</td></tr>
-        <tr><td><code>"MOVE"</code>, <code>"LEFT"</code>, <code>"RIGHT"</code></td><td>клетка вперёд, поворот на месте</td><td>каждый поворот — тоже ход</td></tr>
-        <tr><td><code>"TAKE"</code>, <code>"DROP"</code></td><td>взять посылку, отдать посылку</td><td>отдать — только на 🏠</td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>описание метода под курсором (Javadoc)</td><td>забыл, что делает датчик</td></tr>
-      </table></div>
-    </div>
-    <div data-widget="check" id="check-m04-courier">
-      <script type="application/json">
-      { "title": "Джавик-курьер — главное",
-        "items": [
-          { "type": "match", "q": "Соедини датчик с вопросом, который он задаёт",
-            "left": ["wallLeft()", "parcelHere()", "carrying()", "atTarget()", "sign()"],
-            "right": ["Слева от Джавика стена?", "На этой клетке посылка?", "Джавик везёт посылку?", "Джавик на адресе 🏠?", "Какая табличка на развилке?"],
-            "why": "Все датчики, кроме <code>sign()</code>, отвечают true/false. <code>sign()</code> отвечает строкой — её сравнивают через switch или equals." },
-          { "type": "single", "q": "Джавик смотрит на запад ← (влево по экрану). Про какую клетку спросит <code>wallRight()</code>?", "options": ["Ниже Джавика на экране", "Выше Джавика на экране", "Правее Джавика на экране"], "answer": 1,
-            "why": "«Справа» считается от взгляда. Встань лицом на запад — правая рука покажет на север, то есть вверх по экрану." },
-          { "type": "tf", "q": "Верно или нет?", "statements": [
-            { "s": "Поворот \"LEFT\" — тоже ход и тратит лимит ходов.", "a": true },
-            { "s": "Чтобы Джавик остановился на 🏠, decide должен вернуть команду \"STOP\".", "a": false, "why": "Такой команды нет. Когда цель выполнена, игра сама заканчивает поездку." },
-            { "s": "В части 1 команда отдаётся игре через return строкой.", "a": true },
-            { "s": "robot.sign() == \"LEFT\" — надёжный способ проверить табличку.", "a": false, "why": "<code>==</code> сравнивает ссылки, а не текст. Нужен <code>\"LEFT\".equals(…)</code> или switch по строке." }
-          ] },
-          { "type": "single", "q": "Джавик врезался в стену. В поездке на этом ходу: «Перед ходом Джавик спросил: <code>parcelHere() = false</code>, <code>atTarget() = false</code>», команда <code>MOVE</code>. Что произошло?", "options": ["Датчик стены сломался и соврал", "Код вернул MOVE, даже не спросив, есть ли стена впереди", "У Джавика кончились ходы"], "answer": 1,
-            "why": "В списке нет <code>wallAhead()</code> — значит, код до этой проверки не дошёл: сработала ветка, которая возвращает MOVE без проверки стены. Ищи её в своём decide." },
-          { "type": "bug", "q": "Поездка с этим кодом остановилась с ошибкой «Нет такой команды». Кликни строку, которая виновата.", "code": "public static String decide(CourierRobot robot) {\n    if (robot.wallAhead()) {\n        return \"RIGHT\";\n    }\n    return \"Move\";\n}", "answer": [5],
-            "why": "Команды пишутся БОЛЬШИМИ буквами: <code>\"MOVE\"</code>. Строка <code>\"Move\"</code> — другая строка, игра её не знает. Ошибка будет уже на первом ходу, если впереди свободно." },
-          { "type": "predict", "q": "Что выведет программа?", "code": "String sign = \"\";\nswitch (sign) {\n    case \"LEFT\" -> System.out.println(\"налево\");\n    case \"RIGHT\" -> System.out.println(\"направо\");\n    case \"AHEAD\" -> System.out.println(\"прямо\");\n    default -> System.out.println(\"таблички нет\");\n}", "answer": "таблички нет",
-            "why": "Пустая строка не совпала ни с одной меткой — сработал default. Ровно это и отвечает <code>sign()</code> на обычной клетке коридора." }
-        ] }
-      </script>
-    </div>
+    <h2>Если застрял</h2>
+    <p>Смотри поездку по шагам: справа написано, <b>что Джавик спросил перед ходом</b> и что ему ответили датчики. Найди ход, где всё пошло не так, и спроси себя: какая ветка моего <code>if</code> тут сработала?</p>
     <div class="callout ai">
       <span class="callout-title">Поговори с наставником</span>
-      <p>Застрял на уровне — опиши, что видишь в поездке, и покажи свой код. Например: <em>«Я прохожу уровень ★★ "Первая посылка" игры "Джавик-курьер", Джавик проезжает мимо посылки. Вот мой метод decide: … Не давай готовый код, подскажи, куда смотреть.»</em></p>
-      <p>Или: <em>«Игра "Джавик-курьер", уровень ★★★ "Перекрёстки": на развилке Джавик сворачивает в тупик. Перед этим ходом он спросил: … Почему сработала не та ветка? Объясни без готового кода.»</em></p>
-      <p>А если хочешь понять глубже: <em>«Объясни на примере таблички в игре "Джавик-курьер", почему строки в Java сравнивают через equals, а не через ==.»</em></p>
+      <p>Опиши, что видишь в поездке, и покажи код: <em>«Я прохожу уровень игры "Джавик-курьер" (напиши, какой). Вот мой метод decide: … Джавик ошибается на ходу …, перед этим он спросил: … Не давай готовый код, подскажи, куда смотреть.»</em></p>
     </div>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
-        <li>Код — в IntelliJ IDEA (<code>workspace/module-04/CourierPart1.java</code>), поездка — на сайте. Руками Джавиком не управляют.</li>
-        <li>Игра вызывает <code>decide</code> на каждом ходу; метод смотрит на датчики и через <code>return</code> отдаёт одну команду.</li>
-        <li>«Впереди / слева / справа» — от взгляда Джавика. Поворот — тоже ход.</li>
-        <li>Порядок условий решает всё: особые случаи (посылка, адрес, табличка) — выше общего правила движения.</li>
-        <li>Табличку из <code>sign()</code> сравнивают через <code>switch</code> или <code>equals</code>, не через <code>==</code>. «Прямо» — это <code>"MOVE"</code>.</li>
-        <li>Не получилось — читай поездку: что Джавик спросил перед ходом и какая ветка твоего <code>if</code> сработала.</li>
+        <li>Код — в IDEA, в <code>module-04/CourierPart1.java</code>; запуск — кнопкой на сайте.</li>
+        <li>Игра на каждом ходу спрашивает <code>decide</code>, а он через <code>return</code> отвечает одной командой.</li>
+        <li>Особые случаи (посылка, адрес, табличка) проверяй раньше обычного движения.</li>
+        <li>Игра вернётся в модуле 5 — там Джавик научится ездить сам, циклом.</li>
       </ul>
     </div>
   </section>

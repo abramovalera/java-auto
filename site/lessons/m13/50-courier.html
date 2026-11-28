@@ -14,445 +14,842 @@
   <header class="lesson-head" data-mood="cool">
     <div class="kicker">Модуль 13 · Игра «Джавик-курьер», часть 5</div>
     <h1>Джавик-курьер, часть 5: служба доставки</h1>
-    <p class="lead">Джавик вырос: теперь у него целый район с кольцевой дорогой, дома с названиями и автопилот. Рулить по клеткам больше не нужно. Нужно другое: держать в порядке заказы. И тут пригодится всё, что ты узнал в этом модуле, — очередь, словарь и TreeMap.</p>
-    <div class="meta"><span>⏱ 40 минут</span><span>🚚 3 уровня</span><span>🧺 Queue · Map · TreeMap</span></div>
+    <p class="lead">У Джавика теперь целый район, автопилот и много заказов. Управлять заказами помогут коллекции: очередь и словарь.</p>
+    <div class="meta"><span>⏱ 35–45 минут</span><span>🚚 3 уровня</span><span>💻 код — в IntelliJ IDEA</span></div>
   </header>
 
   <!-- ШАГ 1 -->
   <section class="step">
-    <h2>Повторение</h2>
-    <div data-widget="check" id="check-m13-courier-review">
+    <h2>Вот как это выглядит</h2>
+    <div data-widget="courierdemo" id="courier-demo-m13">
       <script type="application/json">
-      { "title": "Вспомним коллекции", "kind": "Повторение",
-        "items": [
-          { "type": "predict", "q": "Что выведет программа?",
-            "code": "Map<String, Integer> m = new HashMap<>();\nm.put(\"a\", 2);\nSystem.out.println(m.getOrDefault(\"a\", 0) + m.getOrDefault(\"b\", 10));",
-            "answer": "12", "why": "Ключ a есть — getOrDefault вернул 2. Ключа b нет — вернул запасное значение 10. 2 + 10 = 12." },
-          { "type": "single", "q": "В цикле for-each по списку <code>list</code> внутри вызывают <code>list.add(…)</code>. Что будет?",
-            "options": ["Новый элемент тоже обойдётся в этом же цикле", "ConcurrentModificationException на следующем шаге цикла", "Ошибка компиляции"], "answer": 1,
-            "why": "for-each — это скрытый итератор. Список поменяли в обход итератора, и он бросает ConcurrentModificationException при следующем next()." },
-          { "type": "single", "q": "Перебираем <code>for (Map.Entry&lt;String, Integer&gt; e : counts.entrySet())</code>. Как достать число из пары?",
-            "options": ["e.getKey()", "e.getValue()", "counts.getValue(e)"], "answer": 1,
-            "why": "У пары два метода: getKey() — ключ (здесь адрес), getValue() — значение (здесь число)." }
-        ] }
+      {
+       "result": "finish",
+       "message": "",
+       "w": 17,
+       "h": 11,
+       "grid": [
+        "#################",
+        "#...............#",
+        "#.#########.###.#",
+        "#.#########.###.#",
+        "#.#########.###.#",
+        "#.#########.###.#",
+        "#.#########.###.#",
+        "#.#########.###.#",
+        "#.#########.###.#",
+        "#...............#",
+        "#################"
+       ],
+       "items": [
+        {
+         "x": 2,
+         "y": 1,
+         "t": true,
+         "n": "Вокзал"
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "t": true,
+         "n": "Пекарня"
+        },
+        {
+         "x": 1,
+         "y": 6,
+         "t": true,
+         "n": "Аптека"
+        },
+        {
+         "x": 2,
+         "y": 9,
+         "t": true,
+         "n": "Библиотека"
+        },
+        {
+         "x": 13,
+         "y": 9,
+         "t": true,
+         "n": "Школа"
+        }
+       ],
+       "start": [
+        1,
+        9,
+        0
+       ],
+       "carry0": 6,
+       "maxTicks": 2000,
+       "output": "",
+       "frames": [
+        {
+         "x": 1,
+         "y": 9,
+         "d": 1,
+         "c": 6,
+         "cmd": "RIGHT · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 9,
+         "d": 1,
+         "c": 6,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 9,
+         "d": 1,
+         "c": 5,
+         "cmd": "DROP",
+         "ask": [],
+         "p": [
+          [
+           2,
+           9,
+           -1
+          ]
+         ]
+        },
+        {
+         "x": 2,
+         "y": 9,
+         "d": 2,
+         "c": 5,
+         "cmd": "RIGHT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 9,
+         "d": 3,
+         "c": 5,
+         "cmd": "RIGHT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 9,
+         "d": 3,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 9,
+         "d": 0,
+         "c": 5,
+         "cmd": "RIGHT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 8,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 7,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 6,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 5,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 4,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 3,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 2,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 1,
+         "d": 0,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 1,
+         "d": 1,
+         "c": 5,
+         "cmd": "RIGHT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 1,
+         "d": 1,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 1,
+         "c": 5,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 1,
+         "c": 4,
+         "cmd": "DROP",
+         "ask": [],
+         "p": [
+          [
+           3,
+           1,
+           -1
+          ]
+         ]
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 2,
+         "c": 4,
+         "cmd": "RIGHT · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 3,
+         "c": 4,
+         "cmd": "RIGHT · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 1,
+         "d": 3,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 1,
+         "d": 3,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 1,
+         "d": 2,
+         "c": 4,
+         "cmd": "LEFT · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 2,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 3,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 4,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 5,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 6,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 7,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 8,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 9,
+         "d": 2,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 1,
+         "y": 9,
+         "d": 1,
+         "c": 4,
+         "cmd": "LEFT · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 9,
+         "d": 1,
+         "c": 4,
+         "cmd": "MOVE · автопилот goTo(\"Библиотека\")",
+         "ask": []
+        },
+        {
+         "x": 2,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "DROP",
+         "ask": [],
+         "p": [
+          [
+           2,
+           9,
+           -1
+          ]
+         ]
+        },
+        {
+         "x": 3,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 4,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 5,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 6,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 8,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 9,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 12,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 13,
+         "y": 9,
+         "d": 1,
+         "c": 3,
+         "cmd": "MOVE · автопилот goTo(\"Школа\")",
+         "ask": []
+        },
+        {
+         "x": 13,
+         "y": 9,
+         "d": 1,
+         "c": 2,
+         "cmd": "DROP",
+         "ask": [],
+         "p": [
+          [
+           13,
+           9,
+           -1
+          ]
+         ]
+        },
+        {
+         "x": 13,
+         "y": 9,
+         "d": 1,
+         "c": 1,
+         "cmd": "DROP",
+         "ask": [],
+         "p": [
+          [
+           13,
+           9,
+           -1
+          ]
+         ]
+        },
+        {
+         "x": 13,
+         "y": 9,
+         "d": 2,
+         "c": 1,
+         "cmd": "RIGHT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 13,
+         "y": 9,
+         "d": 3,
+         "c": 1,
+         "cmd": "RIGHT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 12,
+         "y": 9,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 9,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 9,
+         "d": 0,
+         "c": 1,
+         "cmd": "RIGHT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 8,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 7,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 6,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 5,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 4,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 3,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 2,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 1,
+         "d": 0,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 11,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "LEFT · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 10,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 9,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 8,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 7,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 6,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 5,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 4,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 3,
+         "c": 1,
+         "cmd": "MOVE · автопилот goTo(\"Пекарня\")",
+         "ask": []
+        },
+        {
+         "x": 3,
+         "y": 1,
+         "d": 3,
+         "c": 0,
+         "cmd": "DROP",
+         "ask": [],
+         "p": [
+          [
+           3,
+           1,
+           -1
+          ]
+         ]
+        }
+       ]
+      }
       </script>
     </div>
+    <p>Джавик развозит заказы по району: сам находит дорогу к нужному дому по автопилоту и отдаёт посылку. Пока он ездит, приходят новые заказы. Твоя задача — <b>в каком порядке и куда</b> ехать.</p>
   </section>
 
   <!-- ШАГ 2 -->
   <section class="step">
-    <h2>Джавик переехал в район</h2>
-    <p>Напомню, как мы сюда пришли. В <a href="/lessons/m04/50-courier.html">части 1</a> Джавик на каждом ходу спрашивал датчики и выбирал одну команду. В <a href="/lessons/m05/50-courier.html">части 2</a> ты сам вёл его циклом. В <a href="/lessons/m06/50-courier.html">части 3</a> записывал маршрут в массив и возвращался «ночью». В <a href="/lessons/m07/50-courier.html">части 4</a> собрал свои команды-методы. Правило всё то же: <b>код — в IntelliJ IDEA, смотришь — на сайте</b>. Руками Джавиком управлять нельзя, только программой.</p>
-    <p>Что изменилось в части 5:</p>
-    <ul>
-      <li><b>Целый район.</b> Кольцевая дорога вокруг кварталов и поперечная улица посередине. Карту каждый раз генерирует сервер, так что дома стоят в разных местах.</li>
-      <li><b>Дома с названиями:</b> Аптека, Кафе, Почта, Школа, Пекарня, Вокзал, Библиотека. На карте их пять, какие именно — зависит от карты.</li>
-      <li><b>Автопилот.</b> <code>robot.goTo("Кафе")</code> — и Джавик сам находит самый короткий путь до Кафе. Повороты и <code>move()</code> он делает сам.</li>
-      <li><b>Заказы.</b> Список адресов, куда везти посылки. Все посылки Джавик уже везёт с собой — на месте нужно только <code>robot.drop()</code>.</li>
-    </ul>
-    <figure class="fig">
-      <svg class="wide" viewBox="0 0 720 330" role="img" aria-label="Район Джавика: кольцевая дорога, поперечная улица, пять домов с названиями и склад в левом нижнем углу; стрелка автопилота от склада до Кафе">
-        <defs>
-          <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker>
-        </defs>
-        <rect x="30" y="20" width="660" height="270" rx="14" class="d-soft"/>
-        <rect x="70" y="60" width="250" height="190" rx="10" class="d-green"/>
-        <rect x="360" y="60" width="290" height="190" rx="10" class="d-green"/>
-        <rect x="50" y="40" width="620" height="230" rx="6" class="d-dash"/>
-        <path d="M340 40 V270" class="d-dash"/>
-
-        <text x="150" y="46" text-anchor="middle" class="d-text">🏠</text>
-        <text x="150" y="86" text-anchor="middle" class="d-title">Аптека</text>
-        <text x="540" y="46" text-anchor="middle" class="d-text">🏠</text>
-        <text x="540" y="86" text-anchor="middle" class="d-title">Кафе</text>
-        <text x="670" y="160" text-anchor="middle" class="d-text">🏠</text>
-        <text x="636" y="160" text-anchor="end" class="d-title">Почта</text>
-        <text x="500" y="276" text-anchor="middle" class="d-text">🏠</text>
-        <text x="500" y="236" text-anchor="middle" class="d-title">Школа</text>
-        <text x="340" y="160" text-anchor="middle" class="d-text">🏠</text>
-        <text x="306" y="160" text-anchor="end" class="d-title">Библиотека</text>
-
-        <text x="50" y="276" text-anchor="middle" class="d-text">🏁</text>
-        <text x="70" y="314" class="d-small">🏁 склад — отсюда Джавик стартует</text>
-
-        <path d="M44 256 V30 H520" class="d-arrow-accent"/>
-        <text x="195" y="198" text-anchor="middle" class="d-mono">goTo("Кафе")</text>
-        <text x="195" y="218" text-anchor="middle" class="d-small">автопилот сам ищет</text>
-        <text x="195" y="236" text-anchor="middle" class="d-small">короткий путь</text>
-        <text x="480" y="140" text-anchor="middle" class="d-small">кварталы — стены,</text>
-        <text x="480" y="158" text-anchor="middle" class="d-small">ездить можно только</text>
-        <text x="480" y="176" text-anchor="middle" class="d-small">по дорогам</text>
-      </svg>
-      <figcaption>Одна из карт района. Названия домов подписаны прямо на поле — в просмотре поездки ты их тоже увидишь.</figcaption>
-    </figure>
-    <div class="say" data-mood="think"><p>Раньше главной трудностью был путь: где стена, куда свернуть. Теперь путь ищет автопилот, а трудность другая — <b>куда и в каком порядке ехать</b>. Это работа для коллекций.</p></div>
+    <h2>Что нового в части 5</h2>
+    <div class="table-wrap"><table>
+      <tr><th>Метод</th><th>Что делает</th></tr>
+      <tr><td><code>robot.orders()</code></td><td><code>List&lt;String&gt;</code> — заказы на начало смены (адреса)</td></tr>
+      <tr><td><code>robot.newOrders()</code></td><td><code>List&lt;String&gt;</code> — новые заказы с прошлого вызова (бывает пустой)</td></tr>
+      <tr><td><code>robot.goTo("Кафе")</code></td><td>автопилот: Джавик сам доедет до дома с этим названием</td></tr>
+      <tr><td><code>robot.drop()</code></td><td>отдать одну посылку на адресе</td></tr>
+    </table></div>
+    <p>Посылок у Джавика сколько угодно, датчики стен не понадобятся — дорогу знает автопилот. Твоя часть — порядок доставки и подсчёты.</p>
   </section>
 
   <!-- ШАГ 3 -->
   <section class="step">
-    <h2>Новые методы и где писать код</h2>
-    <p>Все три уровня — в папке <code>workspace/module-13</code>. Заготовки уже лежат там: сервер кладёт их, когда ты открываешь «Практику» модуля 13.</p>
-    <ul>
-      <li>★ «Очередь заказов» — файл <code>CourierOrders.java</code>.</li>
-      <li>★★ «Один заезд на дом» и ★★★ «Отчёт смены» — <b>один и тот же</b> файл <code>CourierShift.java</code>. Сначала решаешь ★★, потом улучшаешь тот же код до ★★★.</li>
-    </ul>
-    <div data-widget="ide" id="shot-courier5-files">
+    <h2>Где писать программу</h2>
+    <ol class="steps">
+      <li>Открой в IntelliJ IDEA файл из игровой панели. Уровень ★ — файл <code>module-13/CourierOrders.java</code>, уровни ★★ и ★★★ — <code>module-13/CourierShift.java</code>.</li>
+      <li>Пиши код внутри метода <code>run</code>.</li>
+      <li>Сохрани (<kbd>Ctrl</kbd>+<kbd>S</kbd>) и нажми <b>«▶ Запустить мой код»</b> ниже. Сайт запустит Джавика на трёх разных картах и покажет поездку.</li>
+    </ol>
+    <div data-widget="ide" id="shot-courier-where-m13">
       <script type="application/json">
-      { "project": "workspace", "statusPath": "module-13",
-        "tree": [ { "name": "workspace", "type": "folder", "depth": 0, "open": true },
-                  { "name": "courier", "type": "src", "depth": 1, "open": true },
-                  { "name": "CourierRobot", "type": "class", "depth": 2 },
-                  { "name": "module-13", "type": "src", "depth": 1, "open": true },
-                  { "name": "CourierOrders", "type": "class", "depth": 2, "selected": true },
-                  { "name": "CourierShift", "type": "class", "depth": 2 } ],
-        "file": "CourierOrders.java", "caretLine": 12,
-        "code": "import java.util.ArrayDeque;\nimport java.util.List;\nimport java.util.Queue;\n\npublic class CourierOrders {\n\n    // robot.orders()    — заказы на начало смены (список адресов)\n    // robot.newOrders() — новые заказы, пришедшие с прошлого вызова\n    // robot.goTo(адрес) — автопилот до дома;  robot.drop() — отдать посылку\n    public static void run(CourierRobot robot) {\n        List<String> orders = robot.orders();\n\n    }\n}",
-        "dimLines": [1, 3],
-        "marks": [ { "n": 1, "target": "tree-CourierRobot", "text": "<b>CourierRobot</b> — описание робота: наведи курсор на любой его метод в своём коде, и IDEA покажет подсказку. Сам файл не меняй" },
-                   { "n": 2, "target": "tree-CourierOrders", "text": "Уровень ★. Рядом — <b>CourierShift</b> для ★★ и ★★★" },
-                   { "n": 3, "target": "line-1", "side": "top", "text": "Импорты <code>ArrayDeque</code> и <code>Queue</code> уже есть — пока серые, потому что ещё не используются. Подсказка, что пригодится" },
-                   { "n": 4, "target": "line-12", "text": "Твой код — здесь. Метод <code>run</code> игра вызывает <b>один раз</b> на всю смену" } ],
-        "caption": "Заготовка уровня ★ в IDEA" }
+      {
+       "file": "CourierOrders.java",
+       "statusPath": "module-13",
+       "caretLine": 3,
+       "tree": [
+        {
+         "name": "workspace",
+         "type": "folder",
+         "depth": 0,
+         "open": true
+        },
+        {
+         "name": "courier",
+         "type": "src",
+         "depth": 1,
+         "open": true
+        },
+        {
+         "name": "CourierRobot",
+         "type": "class",
+         "depth": 2
+        },
+        {
+         "name": "module-13",
+         "type": "src",
+         "depth": 1,
+         "open": true
+        },
+       {
+        "name": "README.md",
+        "type": "file",
+        "depth": 2
+       },
+        {
+         "name": "CourierOrders",
+         "type": "class",
+         "depth": 2,
+         "selected": true
+        },
+        {
+         "name": "CourierShift",
+         "type": "class",
+         "depth": 2,
+         "selected": false
+        }
+       ],
+       "code": "import java.util.List;\n\npublic class CourierOrders {\n\n    public static void run(CourierRobot robot) {\n        List<String> orders = robot.orders();\n\n    }\n}",
+       "marks": [
+        {
+         "n": 1,
+         "target": "tree-CourierOrders",
+         "text": "<b>Твой файл</b> — <code>module-13/CourierOrders.java</code>. Он уже лежит в проекте, создавать ничего не надо."
+        },
+        {
+         "n": 2,
+         "target": "line-3",
+         "side": "top",
+         "text": "Заказы на начало смены — список адресов."
+        },
+        {
+         "n": 3,
+         "target": "line-4",
+         "side": "bottom",
+         "text": "Дальше решаешь ты: в каком порядке ехать и где хранить заказы."
+        }
+       ],
+       "caption": "Здесь ты пишешь программу. Запускаешь — на сайте, кнопкой в игровой панели ниже."
+      }
       </script>
     </div>
-    <div class="cheat">
-      <h3>📝 Выпиши себе: команды Джавика в части 5</h3>
-      <p>Перепиши таблицу в тетрадь руками — так запомнится быстрее, чем если просто прочитать.</p>
-      <div class="table-wrap"><table>
-        <tr><th>Что написать</th><th>Что делает</th><th>Когда</th></tr>
-        <tr><td><code>robot.orders()</code></td><td>возвращает <code>List&lt;String&gt;</code> — заказы на начало смены, по порядку поступления</td><td>один раз, в начале</td></tr>
-        <tr><td><code>robot.newOrders()</code></td><td>новые заказы, пришедшие с прошлого вызова; ничего не пришло — пустой список</td><td>после доставок (★)</td></tr>
-        <tr><td><code>robot.goTo("Кафе")</code></td><td>автопилот: доехать до дома с таким названием</td><td>перед доставкой; на ★★ и ★★★ — один раз на дом</td></tr>
-        <tr><td><code>robot.drop()</code></td><td>отдать <b>одну</b> посылку</td><td>когда Джавик у нужного дома</td></tr>
-        <tr><td><code>robot.houseName()</code></td><td>название дома, где стоит Джавик, или <code>""</code></td><td>если хочешь проверить, где он</td></tr>
-      </table></div>
+    <div class="callout tip">
+      <span class="callout-title">Шпаргалка рядом с кодом</span>
+      <p>Все команды этой части собраны в IDEA в файле <code>module-13/README.md</code> — он лежит в той же папке, что и твой код. Открой его второй вкладкой рядом с кодом: правой кнопкой по вкладке <b>README.md</b> → <b>Split Right</b>.</p>
     </div>
   </section>
 
   <!-- ШАГ 4 -->
   <section class="step">
-    <h2>★ Очередь заказов</h2>
-    <p>Правило службы доставки: <b>кто раньше заказал, тот раньше получил</b>. Это ровно очередь из урока <a href="/lessons/m13/06-queue-stack.html">«Очередь и стек»</a> — <b>FIFO</b>, «первым пришёл — первым ушёл». Сервер следит за порядком: отвёз не в том порядке — уровень не засчитан.</p>
-    <p>Подвох в том, что заказы приходят <b>по ходу смены</b>. В начале <code>robot.orders()</code> отдаёт только первые три. Пока Джавик развозит их, приходят новые — их отдаёт <code>robot.newOrders()</code>. Как в кафе: пока официант несёт первые блюда, люди продолжают заказывать.</p>
-
-    <h3>Почему не подходит простой for</h3>
-    <p>Первая мысль — перебрать список заказов:</p>
-<pre data-file="CourierOrders.java"><code class="java">for (String address : orders) {
-    robot.goTo(address);
-    robot.drop();
-}</code></pre>
-    <p>Джавик развезёт первые три заказа и остановится. А новые? Про них цикл ничего не знает: список <code>orders</code> взяли один раз, в начале. Сервер скажет: «Доставлено не всё: остались заказы».</p>
-    <p>Хорошо, тогда давай добавлять новые заказы прямо в этот список, внутри цикла:</p>
-<pre data-file="CourierOrders.java"><code class="java">for (String address : orders) {
-    robot.goTo(address);
-    robot.drop();
-    orders.addAll(robot.newOrders());   // 💥 ConcurrentModificationException
-}</code></pre>
-    <details class="predict">
-      <summary>Что случится на втором круге этого цикла?</summary>
-      <p>Программа упадёт с <b>ConcurrentModificationException</b> — ловушка из урока <a href="/lessons/m13/03-iteration.html">«Перебор»</a>. for-each — это скрытый итератор. Список поменяли в обход него, и на следующем шаге итератор это замечает и бросает исключение. Менять коллекцию, по которой идёт for-each, нельзя.</p>
-    </details>
-    <p>Нужна коллекция, которая и есть «очередь»: забираешь заказ из головы, новые встают в хвост, а цикл крутится, <b>пока очередь не пуста</b>. Это <code>Queue&lt;String&gt;</code> на <code>ArrayDeque</code>. Методы ты уже знаешь:</p>
-    <dl class="terms">
-      <dt>offer(x)</dt><dd>поставить один заказ в хвост.</dd>
-      <dt>addAll(список)</dt><dd>поставить в хвост все элементы списка, в том же порядке. Есть у любой коллекции, и у Queue тоже.</dd>
-      <dt>poll()</dt><dd>забрать заказ из головы (он удаляется из очереди). Очередь пуста — вернёт <code>null</code>.</dd>
-      <dt>isEmpty()</dt><dd>пуста ли очередь — удобное условие для <code>while</code>.</dd>
-    </dl>
-    <div class="callout analogy">
-      <span class="callout-title">Как на кухне кафе</span>
-      <p>Над окошком выдачи — планка с чеками. Новый чек повар цепляет справа, а готовить берёт самый левый. Сколько чеков придёт за вечер, заранее не знает никто — кухня просто работает, пока на планке что-то висит. Это и есть цикл «пока очередь не пуста».</p>
-    </div>
-    <details class="predict">
-      <summary>На старте <code>orders()</code> = [Кафе, Почта, Кафе]. После 1-й доставки <code>newOrders()</code> отдаёт [Аптека], после 3-й — [Школа, Кафе]. В каком порядке Джавик объедет дома, если всё делать по очереди?</summary>
-      <p><b>Кафе → Почта → Кафе → Аптека → Школа → Кафе.</b> Аптека пришла рано, после первой доставки, но это не повод везти её сразу: она встаёт <b>в хвост</b>, за Почтой и вторым Кафе. Посмотри, как меняется очередь:</p>
-      <div class="table-wrap"><table>
-        <tr><th>Что произошло</th><th>Очередь после этого</th></tr>
-        <tr><td>Старт: взяли заказы из <code>orders()</code></td><td>[Кафе, Почта, Кафе]</td></tr>
-        <tr><td>Отвёз в Кафе, пришёл заказ в Аптеку</td><td>[Почта, Кафе, Аптека]</td></tr>
-        <tr><td>Отвёз на Почту, новых нет</td><td>[Кафе, Аптека]</td></tr>
-        <tr><td>Отвёз в Кафе, пришли Школа и Кафе</td><td>[Аптека, Школа, Кафе]</td></tr>
-        <tr><td>Дальше — по одному из головы</td><td>[Школа, Кафе] → [Кафе] → []</td></tr>
-      </table></div>
-      <p>Очередь опустела — смена окончена. Обрати внимание: Кафе встречается три раза, и Джавик честно едет туда три раза. На уровне ★ это разрешено.</p>
-    </details>
-    <div data-widget="check" id="check-m13-courier-queue">
+    <h2>Играем!</h2>
+    <p>Уровни переключаются стрелками ◀ ▶. Не получается — открой подсказки под кнопкой: первая подталкивает, третья почти решает.</p>
+    <div data-widget="couriergame" id="courier-game-m13">
       <script type="application/json">
-      { "title": "Очередь заказов",
-        "items": [
-          { "type": "order", "q": "На старте <code>orders()</code> = [Почта, Вокзал, Пекарня]. После 1-й доставки пришёл заказ в Школу, после 3-й — в Аптеку и Библиотеку. Расставь дома в порядке объезда",
-            "lines": ["Почта", "Вокзал", "Пекарня", "Школа", "Аптека", "Библиотека"],
-            "why": "Школа пришла рано, но встала в хвост — за Вокзалом и Пекарней. Аптека и Библиотека пришли последними и встали за Школой." },
-          { "type": "single", "q": "Пришли новые заказы. Куда их поставить, чтобы не нарушить правило «кто раньше заказал — тот раньше получил»?",
-            "options": ["В голову очереди: они самые свежие", "В хвост очереди: offer или addAll", "Добавить и отсортировать всю очередь по алфавиту, чтобы было аккуратно"], "answer": 1,
-            "why": "Новые заказы — самые поздние, им место в хвосте. В голову — значит обслужить их раньше тех, кто ждёт дольше. А сортировка по алфавиту вообще забывает, кто когда заказал." }
-        ] }
+      {
+       "levels": [
+        {
+         "task": "m13-c1",
+         "name": "★ Очередь заказов",
+         "goal": "<p><b>Цель:</b> развези заказы <b>строго по очереди поступления</b>: кто раньше заказал — тот раньше получил. После доставок приходят новые заказы — <code>robot.newOrders()</code>, они встают в конец очереди.</p>",
+         "hints": [
+          "<p>Простой <code>for</code> по <code>orders()</code> не подойдёт: новые заказы появятся, когда список уже перебран. Нужна <b>очередь</b> <code>Queue</code>: берёшь из головы (<code>poll</code>), новые кладёшь в хвост (<code>addAll</code>). Урок <a href=\"/lessons/m13/06-queue-stack.html\">13.6</a>.</p>",
+          "<p>Каркас:</p><pre><code class=\"java\">Queue&lt;String&gt; queue = new ArrayDeque&lt;&gt;(robot.orders());\nwhile (!queue.isEmpty()) {\n    String address = queue.poll();\n    // доехать, отдать, добавить новые заказы в очередь\n}</code></pre>",
+          "<p>Внутри цикла:</p><pre><code class=\"java\">robot.goTo(address);\nrobot.drop();\nqueue.addAll(/* ??? новые заказы */);</code></pre>"
+         ]
+        },
+        {
+         "task": "m13-c2",
+         "name": "★★ Один заезд на дом",
+         "goal": "<p><b>Цель:</b> в заказах адреса повторяются: <code>[Кафе, Почта, Кафе, Аптека, Кафе]</code>. К каждому дому — <b>один</b> <code>goTo</code>, и там отдать сразу все его посылки.</p>",
+         "hints": [
+          "<p>Сначала посчитай, сколько посылок у каждого адреса, — словарь <code>Map&lt;String, Integer&gt;</code>: адрес → количество. Потом объезжай словарь: один заезд — и столько <code>drop()</code>, сколько насчитал. Урок <a href=\"/lessons/m13/05-map.html\">13.5</a>.</p>",
+          "<p>Подсчёт:</p><pre><code class=\"java\">Map&lt;String, Integer&gt; counts = new TreeMap&lt;&gt;();\nfor (String address : robot.orders()) {\n    counts.put(address, counts.getOrDefault(address, 0) + 1);\n}</code></pre>",
+          "<p>Объезд словаря:</p><pre><code class=\"java\">for (Map.Entry&lt;String, Integer&gt; entry : counts.entrySet()) {\n    robot.goTo(entry.getKey());\n    for (int i = 0; i &lt; /* ??? сколько посылок у адреса */; i++) {\n        robot.drop();\n    }\n}</code></pre>"
+         ]
+        },
+        {
+         "task": "m13-c3",
+         "name": "★★★ Отчёт смены",
+         "goal": "<p><b>Цель:</b> в конце смены напечатай отчёт — адреса <b>по алфавиту</b>, у каждого число посылок, и итог:</p><pre class=\"terminal\"><span class=\"out\">Аптека: 1\nКафе: 3\nПочта: 1\nВсего: 5</span></pre><p>Правило «один заезд на дом» по-прежнему действует. Пиши в том же файле, что уровень ★★.</p>",
+         "hints": [
+          "<p>Словарь из уровня ★★ уже знает всё нужное. Какая реализация <code>Map</code> сама хранит ключи по алфавиту? Если взял её — осталось пройти словарь и напечатать строки, а по дороге сложить итог.</p>",
+          "<p>Печать отчёта — после всех доставок:</p><pre><code class=\"java\">for (Map.Entry&lt;String, Integer&gt; entry : counts.entrySet()) {\n    System.out.println(entry.getKey() + \": \" + entry.getValue());\n}</code></pre>",
+          "<p>И итог:</p><pre><code class=\"java\">int total = 0;\nfor (Map.Entry&lt;String, Integer&gt; entry : counts.entrySet()) {\n    System.out.println(entry.getKey() + \": \" + entry.getValue());\n    total += /* ??? */;\n}\nSystem.out.println(\"Всего: \" + total);</code></pre>"
+         ]
+        }
+       ]
+      }
       </script>
     </div>
+    <p><span class="ai-only">Прошёл уровень — разбери решение с наставником: <code>/check</code> и номер уровня (<code>m13-c1</code>, <code>m13-c2</code>, <code>m13-c3</code>).</span><span class="free-only">Прошёл уровень — разбери решение с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
   </section>
 
   <!-- ШАГ 5 -->
   <section class="step">
-    <h2>★★ Один заезд на дом</h2>
-    <p>Смена посложнее. Новых заказов больше нет — всё в <code>orders()</code> сразу. Зато адреса <b>повторяются</b>: например, [Кафе, Почта, Кафе, Аптека, Кафе]. И бензин дорогой: на этом уровне к каждому дому можно ехать <b>один раз</b>. Сервер считает вызовы <code>goTo</code> — их можно сделать столько, сколько в заказах <b>разных</b> домов. Порядок доставки здесь не важен.</p>
-    <details class="predict">
-      <summary>Что будет, если ездить по списку как есть: для каждого адреса из [Кафе, Почта, Кафе, Аптека, Кафе] — goTo и drop?</summary>
-      <p>Разных домов три: Кафе, Почта, Аптека. Значит, лимит — 3 вызова <code>goTo</code>. Первый — Кафе, второй — Почта, третий — снова Кафе (лишний заезд, но в лимит пока влезли). <b>Четвёртый</b> вызов, в Аптеку, уже за лимитом: поездка остановится с сообщением «goTo вызван 4-й раз, а на этом уровне можно не больше 3». До Аптеки Джавик так и не доедет.</p>
-    </details>
-    <p>Значит, сначала нужно <b>посчитать</b>, сколько посылок у каждого дома, и только потом ехать. «Дом → сколько посылок» — это пары ключ → значение, то есть словарь <code>Map&lt;String, Integer&gt;</code>. Ключ — адрес, значение — число посылок.</p>
-    <figure class="fig">
-      <svg class="wide" viewBox="0 0 720 270" role="img" aria-label="Список заказов из пяти строк превращается в словарь из трёх пар, а он — в три заезда; езда по каждой строке списка дала бы пять вызовов goTo и превысила лимит">
-        <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
-        </defs>
-        <text x="90" y="26" text-anchor="middle" class="d-title">orders()</text>
-        <rect x="30" y="40" width="120" height="30" rx="6" class="d-box"/><text x="90" y="60" text-anchor="middle" class="d-mono-ink">Кафе</text>
-        <rect x="30" y="76" width="120" height="30" rx="6" class="d-box"/><text x="90" y="96" text-anchor="middle" class="d-mono-ink">Почта</text>
-        <rect x="30" y="112" width="120" height="30" rx="6" class="d-box"/><text x="90" y="132" text-anchor="middle" class="d-mono-ink">Кафе</text>
-        <rect x="30" y="148" width="120" height="30" rx="6" class="d-box"/><text x="90" y="168" text-anchor="middle" class="d-mono-ink">Аптека</text>
-        <rect x="30" y="184" width="120" height="30" rx="6" class="d-box"/><text x="90" y="204" text-anchor="middle" class="d-mono-ink">Кафе</text>
-        <text x="90" y="240" text-anchor="middle" class="d-small">по goTo на строку —</text>
-        <text x="90" y="258" text-anchor="middle" class="d-c-red d-small">5 заездов, лимит 3 ✗</text>
-
-        <path d="M160 127 H252" class="d-arrow"/>
-        <text x="206" y="116" text-anchor="middle" class="d-small">считаем</text>
-
-        <text x="355" y="26" text-anchor="middle" class="d-title">Map&lt;String, Integer&gt;</text>
-        <rect x="260" y="62" width="190" height="130" rx="12" class="d-violet"/>
-        <text x="355" y="100" text-anchor="middle" class="d-mono-ink">Кафе → 3</text>
-        <text x="355" y="134" text-anchor="middle" class="d-mono-ink">Почта → 1</text>
-        <text x="355" y="168" text-anchor="middle" class="d-mono-ink">Аптека → 1</text>
-
-        <path d="M460 127 H522" class="d-arrow"/>
-        <text x="491" y="116" text-anchor="middle" class="d-small">объезжаем</text>
-
-        <text x="612" y="26" text-anchor="middle" class="d-title">3 заезда ✓</text>
-        <rect x="530" y="62" width="170" height="130" rx="12" class="d-green"/>
-        <text x="615" y="100" text-anchor="middle" class="d-small">Кафе: drop × 3</text>
-        <text x="615" y="134" text-anchor="middle" class="d-small">Почта: drop × 1</text>
-        <text x="615" y="168" text-anchor="middle" class="d-small">Аптека: drop × 1</text>
-        <text x="615" y="230" text-anchor="middle" class="d-small">ключ — куда ехать,</text>
-        <text x="615" y="248" text-anchor="middle" class="d-small">значение — сколько отдать</text>
-      </svg>
-      <figcaption>Пять строк заказов сворачиваются в три пары словаря. Каждая пара — один заезд.</figcaption>
-    </figure>
-    <p>Как считать, ты уже делал в уроке <a href="/lessons/m13/05-map.html">«Map»</a> — частота слов. Тот же приём на другом примере, голосование за пиццу:</p>
-<pre data-file="PizzaVote.java"><code class="java">Map&lt;String, Integer&gt; votes = new HashMap&lt;&gt;();
-for (String pizza : List.of("Пепперони", "Маргарита", "Пепперони")) {
-    votes.put(pizza, votes.getOrDefault(pizza, 0) + 1);
-}
-System.out.println(votes);   // {Маргарита=1, Пепперони=2} — порядок у HashMap не гарантирован</code></pre>
-    <div class="annot">
-      <div class="annot-row"><code>votes.getOrDefault(pizza, 0) + 1</code><div><p>Сколько голосов у этой пиццы уже есть, плюс один новый. Если пиццы ещё не было в словаре — getOrDefault вернёт <code>0</code>, а не <code>null</code>. С простым <code>get</code> первая же новая пицца уронила бы программу: <code>null</code> не распаковать в <code>int</code>.</p></div></div>
-      <div class="annot-row"><code>votes.put(pizza, …)</code><div><p>Кладём новое число. Ключ уже был — старое значение заменится.</p></div></div>
-    </div>
-    <p>Когда словарь готов, объезжаешь <b>его</b>, а не исходный список: перебор пар через <code>entrySet()</code>. Ключ пары говорит, куда ехать, значение — сколько раз сделать <code>drop()</code>. «Сколько раз» — это обычный цикл со счётчиком из модуля 5.</p>
-    <div class="callout warn">
-      <span class="callout-title">Почему не Set</span>
-      <p>Можно сложить адреса в <code>HashSet</code> — повторы исчезнут, и заездов станет ровно столько, сколько нужно. Но множество помнит только <b>какие</b> дома есть, а не <b>сколько</b> посылок у каждого. Отдашь в Кафе одну посылку вместо трёх — сервер скажет, что доставлено не всё.</p>
-    </div>
-    <div data-widget="check" id="check-m13-courier-map">
-      <script type="application/json">
-      { "title": "Какая коллекция подойдёт",
-        "items": [
-          { "type": "single", "q": "Нужно знать, сколько посылок у каждого дома, и к каждому дому ехать один раз. Какая коллекция подойдёт лучше всего?",
-            "options": ["List&lt;String&gt; — список адресов", "Set&lt;String&gt; — адреса без повторов", "Map&lt;String, Integer&gt; — адрес → сколько посылок", "Queue&lt;String&gt; — очередь адресов"], "answer": 2,
-            "why": "Нужны пары «дом → число». List и Queue хранят повторы, Set теряет количество. Словарь даёт и то, и другое: ключи уникальны (один заезд), значение — сколько отдать." },
-          { "type": "match", "q": "Соедини задачу службы доставки с коллекцией",
-            "left": ["Развозить заказы по порядку поступления, новые — в конец", "Узнать, сколько посылок у каждого дома", "Только список разных домов, без количества", "Отчёт: адреса по алфавиту с количеством"],
-            "right": ["Queue на ArrayDeque", "HashMap", "HashSet", "TreeMap"],
-            "why": "Порядок поступления — очередь. Пары «дом → число» — словарь. Без количества хватит множества. По алфавиту ключи держит TreeMap." }
-        ] }
-      </script>
-    </div>
-  </section>
-
-  <!-- ШАГ 6 -->
-  <section class="step">
-    <h2>★★★ Отчёт смены</h2>
-    <p>Последний уровень: всё как на ★★ — один заезд на дом, — но в конце смены диспетчер ждёт отчёт. Адреса <b>по алфавиту</b>, у каждого — сколько посылок, и последней строкой — итог:</p>
-<pre class="terminal"><span class="out">Аптека: 1
-Кафе: 3
-Почта: 1
-Всего: 5</span></pre>
-    <p>Улучшай тот же файл <code>CourierShift.java</code>. Объезд у тебя уже есть, словарь с количествами тоже. Осталось два вопроса.</p>
-    <h3>Как получить алфавитный порядок</h3>
-    <p>Вспомни трёх «близнецов» словаря из урока <a href="/lessons/m13/05-map.html">«Map»</a>:</p>
-    <div class="table-wrap"><table>
-      <tr><th>Реализация</th><th>В каком порядке напечатает адреса</th><th>Для отчёта</th></tr>
-      <tr><td><code>HashMap</code></td><td>как получится: порядок не гарантирован</td><td>✗ сервер скажет «напечатала не то»</td></tr>
-      <tr><td><code>LinkedHashMap</code></td><td>в порядке первого появления в заказах</td><td>✗ это не алфавит</td></tr>
-      <tr><td><code>TreeMap</code></td><td>ключи всегда отсортированы</td><td>✓</td></tr>
-    </table></div>
-    <p>Ключи у нас — строки, а строки <code>TreeMap</code> сортирует по алфавиту сам. Значит, ничего сортировать руками не нужно: достаточно выбрать правильную реализацию справа от <code>=</code>. Слева тип остаётся <code>Map&lt;String, Integer&gt;</code> — программируем через интерфейс.</p>
-    <p>Заметь: если считать сразу в TreeMap, Джавик и объезжать дома будет по алфавиту — перебор <code>entrySet()</code> у TreeMap идёт по отсортированным ключам. На ★★ и ★★★ порядок объезда не важен, так что это никому не мешает. А раз ★★★ — тот же файл, готовое решение ★★★ проходит и ★★.</p>
-    <h3>Откуда взять «Всего»</h3>
-    <p>«Всего» — сколько посылок отдано за смену, то есть сумма всех значений словаря. Её удобно копить <b>переменной-накопителем</b>, пока перебираешь пары. Можно и проще: это же число — сколько всего было заказов.</p>
-    <div class="callout warn">
-      <span class="callout-title">Печатай только отчёт</span>
-      <p>Сервер сравнивает весь вывод программы с ожидаемым отчётом. Отладочный <code>System.out.println</code> вроде «еду в Кафе» сломает сравнение. Формат строк — точь-в-точь: <code>Аптека: 1</code> — имя, двоеточие, пробел, число.</p>
-    </div>
-    <div class="callout fact">
-      <span class="callout-title">Бонус: вернись после модуля 14</span>
-      <p>В модуле 14 будет <b>Stream API</b>. Там весь подсчёт «адрес → сколько раз» собирается одной цепочкой: группировка <code>groupingBy</code> со счётчиком прямо в <code>TreeMap</code>. Когда пройдёшь модуль 14 — вернись к этому уровню и перепиши отчёт стримом. Сравнишь: тот же результат, а строк в разы меньше.</p>
-    </div>
-  </section>
-
-  <!-- ШАГ 7 -->
-  <section class="step">
-    <h2>Запусти и посмотри поездку</h2>
-    <ol class="steps">
-      <li>Напиши код в IDEA, в нужном файле папки <code>module-13</code>, и сохрани (<kbd>Ctrl</kbd>+<kbd>S</kbd>).</li>
-      <li>В блоке ниже выбери уровень и нажми «▶ Запустить мой код». Сервер скомпилирует твой файл и прогонит Джавика на трёх разных картах.</li>
-      <li>Уровень засчитан, когда пройдены все три карты. Тот же запуск есть в «Практике» модуля — кнопка «▶ Проверить».</li>
-    </ol>
-    <div data-widget="courier" data-tasks="m13-c1,m13-c2,m13-c3"></div>
-    <p><span class="ai-only">Прошёл уровень — разбери решение с наставником: <code>/check</code> и номер уровня (он написан под кнопкой «Проверить» в «Практике», например <code>m13-c1</code>).</span><span class="free-only">Прошёл уровень — разбери решение с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
-    <h3>Как читать поездку</h3>
-    <ul>
-      <li><b>Вкладки «Карта 1, 2, 3»</b> — ✓ или ✗ у каждой. Если какая-то не прошла, сайт сразу откроет её.</li>
-      <li><b>Один <code>goTo</code> — много кадров.</b> Автопилот едет обычными ходами: повороты и <code>MOVE</code>. Поэтому после одного вызова в твоём коде в просмотре будет десяток ходов. Листай кнопками ◀ ▶ или ползунком.</li>
-      <li><b>«Перед ходом Джавик спросил»</b> — тут видно, что вызывал твой код: <code>orders() = [Кафе, Почта, Кафе]</code>, <code>goTo("Кафе")</code>, <code>newOrders() = [Аптека]</code>. Самое полезное место: здесь видно, какие заказы пришли и когда.</li>
-      <li><b>Домики</b>, куда уже доставили, отмечаются на поле. <code>DROP</code> — отдельный кадр.</li>
-      <li><b>Сообщение внизу</b> объясняет, что не так:
-        <ul>
-          <li>«Порядок доставки нарушен. Нужно по очереди поступления: […], а было: […]» — ★: сравни два списка, где разошлись;</li>
-          <li>«Доставлено не всё… Не забывай про newOrders()» — новые заказы так и не взяты;</li>
-          <li>«goTo вызван 4-й раз, а на этом уровне можно не больше 3» — ★★/★★★: ездишь по списку, а не по словарю;</li>
-          <li>«…больше ничего не заказывал» — <code>drop()</code> лишний раз: проверь, сколько раз крутится цикл отдачи.</li>
-        </ul>
-      </li>
-      <li><b>«Программа напечатала» и «Ожидалось»</b> (★★★) — два окошка рядом. Сравни их построчно: порядок адресов, двоеточие, пробел, строку «Всего».</li>
-    </ul>
-    <div class="say" data-mood="happy"><p>Не прошла карта — не переписывай всё сразу. Найди в просмотре первый кадр, где что-то пошло не так, и спроси себя: «какая строка моего кода сделала этот ход?»</p></div>
-  </section>
-
-  <!-- ШАГ 8 -->
-  <section class="step">
-    <h2>Если не получается</h2>
-    <p>Открывай подсказки по одной. Каждая следующая — конкретнее. Код за тебя они не пишут.</p>
-
-    <h3>★ Очередь заказов</h3>
-    <details class="curious">
-      <summary>💡 Подсказка 1 — с чего начать</summary>
-      <p>Перед циклом нужна очередь, в которой уже лежат заказы из <code>orders()</code>. Её можно создать пустой и сложить туда список через <code>addAll</code>, а можно передать список прямо в конструктор <code>ArrayDeque</code> — так же, как копировали <code>ArrayList</code>.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 2 — какой цикл</summary>
-      <p>Не for-each: сколько будет заказов, заранее неизвестно. Нужен <code>while</code> с условием «очередь не пуста». За один круг — ровно один заказ из головы.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 3 — план на русском</summary>
-      <ol>
-        <li>Создать очередь адресов и положить в неё заказы на начало смены.</li>
-        <li>Пока очередь не пуста:
-          <ol>
-            <li>забрать адрес из головы;</li>
-            <li>доехать туда автопилотом и отдать посылку;</li>
-            <li>спросить у робота новые заказы и поставить их все в хвост.</li>
-          </ol>
-        </li>
-      </ol>
-      <p>Новые заказы проверяй после <b>каждой</b> доставки: пустой список в хвост ничего не добавит, а пришедший заказ не потеряется.</p>
-    </details>
-
-    <h3>★★ Один заезд на дом</h3>
-    <details class="curious">
-      <summary>💡 Подсказка 1 — с чего начать</summary>
-      <p>Раздели работу на два цикла: <b>сначала посчитать</b>, потом <b>поехать</b>. Пока первый цикл не закончился, Джавик стоит на складе. Первый цикл — копия подсчёта из примера с пиццей, только по <code>orders()</code>.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 2 — по чему ехать</summary>
-      <p>Второй цикл идёт по парам словаря, <code>entrySet()</code>, а не по <code>orders()</code>. Внутри — ровно один <code>goTo</code>. Отдача посылок — вложенный цикл: столько раз, сколько говорит значение пары.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 3 — план на русском</summary>
-      <ol>
-        <li>Создать пустой словарь «адрес → число».</li>
-        <li>Для каждого адреса из заказов: взять старое число (или 0) и положить на 1 больше.</li>
-        <li>Для каждой пары словаря:
-          <ol>
-            <li>доехать до дома из ключа;</li>
-            <li>повторить «отдать посылку» столько раз, сколько в значении.</li>
-          </ol>
-        </li>
-      </ol>
-    </details>
-
-    <h3>★★★ Отчёт смены</h3>
-    <details class="curious">
-      <summary>💡 Подсказка 1 — с чего начать</summary>
-      <p>Код ★★ не выбрасывай — он уже развозит правильно. Поменять нужно одно слово при создании словаря и добавить печать в конце.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 2 — порядок и итог</summary>
-      <p>Какая из трёх реализаций Map держит ключи по алфавиту — смотри таблицу в шаге про отчёт. Для строки «Всего» заведи переменную-накопитель до цикла по парам и прибавляй к ней значение каждой пары.</p>
-    </details>
-    <details class="curious">
-      <summary>💡 Подсказка 3 — план на русском</summary>
-      <ol>
-        <li>Считать заказы в словарь, который сам сортирует ключи.</li>
-        <li>Объехать пары, как на ★★, и копить сумму значений.</li>
-        <li>Ещё раз пройти по парам и для каждой напечатать «адрес: число».</li>
-        <li>Последней строкой напечатать «Всего: » и сумму.</li>
-        <li>Убрать все отладочные печати.</li>
-      </ol>
-    </details>
-    <div class="callout ai">
-      <span class="callout-title">Застрял после трёх подсказок?</span>
-      <p>Попроси ещё одну подсказку — наводящий вопрос, а не решение. Например: <em>«Я на уровне игры "Джавик-курьер", часть 5 (напиши, какой: ★, ★★ или ★★★). Вот мой код: … Сайт пишет: … Задай мне один наводящий вопрос, решение не пиши.»</em></p>
-    </div>
-  </section>
-
-  <!-- ШАГ 9 -->
-  <section class="step">
-    <h2>Проверь себя</h2>
-    <div data-widget="check" id="check-m13-courier">
-      <script type="application/json">
-      { "title": "Служба доставки — главное",
-        "items": [
-          { "type": "predict", "q": "Что выведет программа?",
-            "code": "Queue<String> q = new ArrayDeque<>(List.of(\"Кафе\", \"Почта\"));\nq.offer(\"Школа\");\nq.poll();\nq.addAll(List.of(\"Аптека\", \"Кафе\"));\nSystem.out.println(q.poll() + \" \" + q);",
-            "answer": "Почта [Школа, Аптека, Кафе]",
-            "why": "Первый poll забрал Кафе. Школа, Аптека и Кафе встали в хвост по порядку. Второй poll забрал Почту, в очереди осталось три адреса." },
-          { "type": "predict", "q": "Что выведет программа?",
-            "code": "Map<String, Integer> m = new TreeMap<>();\nfor (String a : List.of(\"Почта\", \"Кафе\", \"Почта\", \"Аптека\")) {\n    m.put(a, m.getOrDefault(a, 0) + 1);\n}\nSystem.out.println(m);",
-            "answer": "{Аптека=1, Кафе=1, Почта=2}",
-            "why": "getOrDefault посчитал повторы: у Почты 2. TreeMap держит ключи по алфавиту, поэтому Аптека первая, хотя пришла последней." },
-          { "type": "bug", "q": "Подсчёт посылок по адресам. Найди строку, на которой программа упадёт",
-            "code": "Map<String, Integer> counts = new HashMap<>();\nfor (String a : robot.orders()) {\n    int old = counts.get(a);\n    counts.put(a, old + 1);\n}",
-            "answer": [3],
-            "why": "Для первого же нового адреса get вернёт null, а null в int не распаковать — NullPointerException. Нужно getOrDefault(a, 0)." },
-          { "type": "match", "q": "Соедини сообщение после поездки с его причиной",
-            "left": ["«Порядок доставки нарушен»", "«Доставлено не всё… не забывай про newOrders()»", "«goTo вызван 4-й раз…»", "«Программа напечатала не то»"],
-            "right": ["Новые заказы поставлены не в хвост очереди", "Новые заказы не взяли вообще", "goTo в цикле по исходному списку заказов", "Отчёт в HashMap или лишний println"],
-            "why": "Каждое сообщение подсказывает, где искать: порядок — очередь, newOrders — новые заказы, goTo — объезд по словарю, вывод — реализация Map и печать." },
-          { "type": "multi", "q": "Что из этого даст отчёт ★★★ с адресами по алфавиту? Отметь все верные",
-            "options": ["Считать сразу в TreeMap и печатать его пары", "Считать в HashMap, потом скопировать в new TreeMap&lt;&gt;(counts) и печатать копию", "Считать в LinkedHashMap и печатать его пары", "Считать в HashMap и печатать как есть"],
-            "answer": [0, 1],
-            "why": "TreeMap сортирует ключи, а конструктор new TreeMap&lt;&gt;(другойСловарь) копирует все пары и тоже их сортирует. LinkedHashMap помнит порядок появления, HashMap — никакого." },
-          { "type": "tf", "q": "Верно или нет?",
-            "statements": [
-              { "s": "Если вызывать orders.addAll(robot.newOrders()) внутри for-each по orders, программа упадёт с ConcurrentModificationException", "a": true },
-              { "s": "TreeMap сортирует пары по значениям — по количеству посылок", "a": false, "why": "TreeMap сортирует только по ключам. Здесь ключи — адреса, поэтому порядок алфавитный." },
-              { "s": "HashSet адресов хватит для уровня ★★", "a": false, "why": "Множество знает, какие дома есть, но не сколько посылок у каждого. Нужен словарь." }
-            ] }
-        ] }
-      </script>
-    </div>
+    <h2>Если застрял</h2>
+    <p>Смотри поездку по шагам: справа написано, <b>что Джавик спросил перед ходом</b> и какой командой ответил твой код. Найди ход, где всё пошло не так, и спроси себя: какая строка моего кода тут сработала?</p>
     <div class="callout ai">
       <span class="callout-title">Поговори с наставником</span>
-      <p>Спроси: <em>«Объясни на примере кухни кафе, почему заказы Джавика нужно держать в очереди Queue, а не перебирать список orders() циклом for-each»</em>. Потом: <em>«Почему ConcurrentModificationException возникает, если добавлять в список новые элементы прямо внутри for-each по этому же списку?»</em>. И ещё: <em>«Чем будет отличаться отчёт по адресам, если собрать его в HashMap, LinkedHashMap и TreeMap? Не давай мне код, задай наводящий вопрос»</em>.</p>
-    </div>
-    <div class="summary">
-      <h2>Коротко</h2>
-      <ul>
-        <li>В части 5 путь ищет автопилот <code>goTo</code>, а твоя задача — порядок и учёт заказов. Код — в IDEA: <code>CourierOrders</code> для ★, <code>CourierShift</code> для ★★ и ★★★.</li>
-        <li>★: заказы приходят по ходу смены, поэтому не for по списку, а очередь <code>Queue</code> на <code>ArrayDeque</code> и <code>while</code>, пока она не пуста. Из головы — <code>poll</code>, новые из <code>newOrders()</code> — в хвост.</li>
-        <li>Менять список внутри for-each по нему же нельзя — ConcurrentModificationException.</li>
-        <li>★★: сначала посчитать «адрес → сколько» в <code>Map&lt;String, Integer&gt;</code> через <code>getOrDefault</code>, потом объехать пары словаря: один <code>goTo</code> на пару и <code>drop</code> столько раз, сколько в значении.</li>
-        <li>★★★: ключи по алфавиту держит <code>TreeMap</code>; «Всего» — сумма значений. Печатать только отчёт, без отладочных строк.</li>
-      </ul>
+      <p>Опиши, что видишь в поездке, и покажи код: <em>«Я прохожу уровень игры "Джавик-курьер", часть 5 (напиши, какой). Вот мой код: … Сайт пишет: … Не давай готовое решение, подскажи, куда смотреть.»</em></p>
     </div>
   </section>
 

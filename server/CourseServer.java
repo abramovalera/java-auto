@@ -69,6 +69,7 @@ public class CourseServer {
         server.createContext("/api/profiles", ex -> safe(ex, CourseServer::handleProfiles));
         server.createContext("/api/setup", ex -> safe(ex, CourseServer::handleSetup));
         // «вышло обновление курса?» — сверка коммита папки курса с GitHub (UpdateCheck, кэш 30 минут)
+        server.createContext("/api/courier/preview/", ex -> safe(ex, CourseServer::handleCourierPreview));
         server.createContext("/api/update", ex -> safe(ex, e -> sendJson(e, 200, UpdateCheck.status(
                 Path.of(env("COURSE_DIR", "/app/course")), env("COURSE_REPO", "abramovalera/java-auto")))));
         server.createContext("/", ex -> safe(ex, CourseServer::handleStatic));
@@ -140,21 +141,39 @@ public class CourseServer {
     }
 
     /**
-     * Игра «Джавик-курьер»: workspace/courier/CourierRobot.java — заготовка робота с описанием методов, чтобы IDEA
+     * Игра «Джавик-курьер»: workspace/courier/ — заготовка робота CourierRobot.java с описанием методов и шпаргалка README.md, чтобы IDEA
      * понимала код ученика (сам робот работает на сайте, в движке tasks/courier/engine). Папка помечается как Sources Root.
-     * Заготовку ученик не меняет, поэтому её свежая версия из starter/ всегда записывается поверх.
+     * Эти файлы ученик не меняет, поэтому их свежие версии из starter/courier/ всегда записываются поверх.
      */
     private static void ensureCourierFolder() {
         try {
-            Path src = starterDir.resolve("courier").resolve("CourierRobot.java");
-            if (!Files.exists(src)) return;
-            Path dst = workspaceDir.resolve("courier").resolve("CourierRobot.java");
-            Files.createDirectories(dst.getParent());
-            String fresh = Files.readString(src, StandardCharsets.UTF_8);
-            if (!Files.exists(dst) || !Files.readString(dst, StandardCharsets.UTF_8).equals(fresh)) {
-                Files.writeString(dst, fresh, StandardCharsets.UTF_8);
-                System.out.println("Заготовка робота обновлена: courier/CourierRobot.java");
+            Path from = starterDir.resolve("courier");
+            if (!Files.isDirectory(from)) return;
+            Path to = workspaceDir.resolve("courier");
+            Files.createDirectories(to);
+            try (Stream<Path> files = Files.list(from)) {
+                for (Path src : files.filter(Files::isRegularFile).toList()) {
+                    Path dst = to.resolve(src.getFileName().toString());
+                    byte[] fresh = Files.readAllBytes(src);
+                    if (!Files.exists(dst) || !java.util.Arrays.equals(Files.readAllBytes(dst), fresh)) {
+                        Files.write(dst, fresh);
+                        System.out.println("Игра «Джавик-курьер»: обновлён courier/" + src.getFileName());
+                    }
+                }
             }
+            // шпаргалки частей игры лежат в папках модулей рядом с кодом ученика (module-04/README.md и т.д.)
+            for (String m : List.of("module-04", "module-05", "module-06", "module-07", "module-13")) {
+                Path readme = starterDir.resolve(m).resolve("README.md");
+                if (!Files.exists(readme)) continue;
+                Path dst = workspaceDir.resolve(m).resolve("README.md");
+                byte[] fresh = Files.readAllBytes(readme);
+                if (!Files.exists(dst) || !java.util.Arrays.equals(Files.readAllBytes(dst), fresh)) {
+                    Files.createDirectories(dst.getParent());
+                    Files.write(dst, fresh);
+                    System.out.println("Игра «Джавик-курьер»: обновлена шпаргалка " + m + "/README.md");
+                }
+            }
+            Files.deleteIfExists(to.resolve("README.md")); // общая шпаргалка была в courier/ — теперь своя в каждом модуле
             Path iml = workspaceDir.resolve("workspace.iml");
             if (!Files.exists(iml)) return;
             String xml = Files.readString(iml, StandardCharsets.UTF_8);
@@ -880,6 +899,47 @@ public class CourseServer {
         } finally {
             deleteRecursively(tmp);
         }
+    }
+
+    /** Скомпилированный движок «Джавик-курьера» для предпросмотра карт (без кода ученика); пересобирается при изменении исходников. */
+    private static Path previewEngine;
+    private static long previewEngineStamp = -1;
+    private static final Map<String, Object> PREVIEW_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** GET /api/courier/preview/{taskId} — карта уровня (первая из seeds задачи), чтобы показать её до запуска кода. */
+    private static void handleCourierPreview(HttpExchange ex) throws Exception {
+        String id = ex.getRequestURI().getPath().substring("/api/courier/preview/".length());
+        Task task = loadTasks().stream().filter(t -> t.id.equals(id)).findFirst().orElse(null);
+        if (task == null || !isGame(task)) { sendJson(ex, 404, Map.of("status", "not_found")); return; }
+        Path engineSrc = tasksDir.resolve("courier").resolve("engine");
+        Path classes;
+        synchronized (CourseServer.class) {
+            long stamp = 0;
+            List<String> javac = new ArrayList<>(List.of("javac", "-encoding", "UTF-8", "-nowarn", "-d"));
+            try (Stream<Path> eng = Files.list(engineSrc)) {
+                List<Path> srcs = eng.filter(p -> p.toString().endsWith(".java")).toList();
+                for (Path p : srcs) stamp = Math.max(stamp, Files.getLastModifiedTime(p).toMillis());
+                if (previewEngine == null || stamp != previewEngineStamp) {
+                    Path dir = Files.createTempDirectory("courier-preview");
+                    javac.add(dir.toString());
+                    srcs.forEach(p -> javac.add(p.toString()));
+                    ProcessResult c = run(javac, "", COMPILE_TIMEOUT_SEC);
+                    if (c.exitCode != 0) { sendJson(ex, 500, Map.of("status", "error", "message", c.stderr)); return; }
+                    previewEngine = dir;
+                    previewEngineStamp = stamp;
+                }
+            }
+            classes = previewEngine;
+        }
+        String cacheKey = task.id + "@" + previewEngineStamp;
+        Object cached = PREVIEW_CACHE.get(cacheKey);
+        if (cached != null) { sendJson(ex, 200, cached); return; }
+        String seed = (task.seeds == null ? "1" : task.seeds).split(",")[0].strip();
+        ProcessResult res = run(List.of("java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", classes.toString(),
+                "CourierGame", tasksDir.resolve(task.map).normalize().toString(), seed, "--preview"), "", RUN_TIMEOUT_SEC + 5);
+        Object map = Json.parse(res.stdout.strip());
+        PREVIEW_CACHE.put(cacheKey, map); // карта уровня по номеру всегда одна и та же
+        sendJson(ex, 200, map);
     }
 
     record ProcessResult(int exitCode, String stdout, String stderr, boolean timedOut) {
