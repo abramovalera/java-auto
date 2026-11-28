@@ -1426,7 +1426,12 @@ body:not(.mode-free) .free-only { display: none !important; }
 .cr-item { display: grid; place-items: center; font-size: calc(var(--c) * .62); line-height: 1; pointer-events: auto; }
 .cr-item.target.got { filter: drop-shadow(0 0 4px #1fb35a); }
 .cr-item.target.got::after { content: "✓"; position: absolute; right: 1px; bottom: 0; font: 900 calc(var(--c) * .34) var(--font); color: #158a44; }
-.cr-item.sign { font-size: calc(var(--c) * .5); color: #1d4ed8; font-weight: 900; text-shadow: 0 0 2px #fff; }
+.cr-item.pit::before { content: ""; width: 78%; height: 78%; border-radius: 50%; background: radial-gradient(circle at 50% 45%, #0b0c14 0 52%, #2a2233 70%, #6b5a44 100%); box-shadow: inset 0 3px 6px rgba(0,0,0,.6); }
+.cr-robot.hop .cr-bot { animation: cr-hop .45s ease-out; }
+@keyframes cr-hop { 0% { transform: translateY(0) scale(1); } 45% { transform: translateY(calc(var(--c) * -.55)) scale(1.25); } 100% { transform: translateY(0) scale(1); } }
+.cr-robot.hop { transition: left .45s ease-out, top .45s ease-out; }
+.cr-robot.fall .cr-bot { animation: cr-fall .7s ease-in forwards; filter: none; }
+@keyframes cr-fall { to { transform: scale(.25) rotate(200deg); opacity: .25; } }
 .cr-item.parcel b { position: absolute; right: 1px; bottom: 0; font: 900 calc(var(--c) * .34) var(--font); color: #7a3e00; }
 .cr-name { position: absolute; left: 50%; top: -2px; transform: translate(-50%, -100%); white-space: nowrap; font: 800 10px var(--font);
   background: rgba(30, 32, 51, .85); color: #fff; padding: 1px 5px; border-radius: 6px; }
@@ -1478,17 +1483,6 @@ body:not(.mode-free) .free-only { display: none !important; }
 .cr-compact .cr-main { grid-template-columns: minmax(0, 1fr); }
 .courier-demo { margin: 14px 0; }
 .courier-game { margin: 18px 0; padding: 16px 18px 18px; border-radius: 20px; border: 3px solid var(--primary); background: var(--surface); display: grid; gap: 12px; box-shadow: var(--shadow); }
-.cg-nav { display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center; gap: 10px; }
-.cg-arrow { width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--primary); background: var(--primary-soft); color: var(--primary-2); font-size: 22px; font-weight: 900; cursor: pointer; }
-:root[data-theme="dark"] .cg-arrow { color: var(--primary); }
-.cg-arrow:disabled { opacity: .3; cursor: default; }
-.cg-head { text-align: center; display: grid; gap: 2px; }
-.cg-kicker { font: 800 13px var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-.cg-title { font: 900 22px var(--font); color: var(--ink); }
-.cg-dots { display: flex; gap: 6px; justify-content: center; margin-top: 4px; }
-.cg-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface-2); color: var(--ink-2); font: 800 13px var(--font); cursor: pointer; }
-.cg-dot.on { border-color: var(--primary); color: var(--primary-2); }
-.cg-dot.ok { background: var(--green-soft); border-color: var(--green); color: var(--green-2); }
 .cg-goal { font-size: 16px; padding: 10px 14px; border-radius: 14px; background: var(--primary-soft); }
 .cg-goal p { margin: 4px 0; }
 .cg-run { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
@@ -1498,3 +1492,54 @@ body:not(.mode-free) .free-only { display: none !important; }
 .cg-next-level { margin-left: 10px; }
 .cg-loading { padding: 60px 0; text-align: center; color: var(--muted); font-weight: 800; }
 .cr-name.below { top: auto; bottom: -2px; transform: translate(-50%, 100%); } /* у соседних домов подписи чередуются: над и под */
+
+/* «Джавик-курьер»: код ученика рядом с картой — на каждом ходу строки загораются по очереди */
+/* с кодом — всё друг под другом: карта, кнопки плеера, строка хода, код, карты уровня */
+.cr.with-code .cr-main, .cr.with-code .cr-left, .cr.with-code .cr-codecol { display: contents; }
+.cr.with-code .cr-board-wrap { order: 1; } .cr.with-code .cr-ctrl { order: 2; } .cr.with-code .cr-side { order: 3; }
+.cr.with-code .cr-code-head { order: 4; } .cr.with-code .cr-code { order: 5; } .cr.with-code .cr-tabs { order: 6; }
+.cr.with-code .cr-msg { order: 7; } .cr.with-code .cr-out { order: 8; }
+.cr-left .cr-side { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.cr-left .cr-side .cr-ask-title, .cr-left .cr-side .cr-ask, .cr-left .cr-side .cr-note { flex-basis: 100%; }
+.cr.with-code .cr-code { max-height: 380px; }
+.cr.with-code .cr-line { font-size: 14px; }
+.cr.with-code .cr-code-head { margin-top: 0; font-size: 14px; }
+.cr-code-head { font-size: 13px; font-weight: 800; color: var(--muted); margin-top: 4px; }
+.cr-code { position: relative; background: var(--code-bg); border-radius: 12px; padding: 6px 0; max-height: 440px; overflow: auto; }
+.cr-line { display: grid; grid-template-columns: 30px auto 1fr; align-items: center; font: 13px/1.65 var(--mono); color: var(--code-ink);
+  border-left: 4px solid transparent; padding-right: 8px; transition: opacity .25s; }
+.cr-line .no { color: #6b6f8a; text-align: right; padding-right: 8px; }
+.cr-line code { white-space: pre; background: none; color: inherit; padding: 0; font: inherit; }
+.cr-badges { display: flex; gap: 4px; padding-left: 10px; white-space: nowrap; justify-self: end; position: sticky; right: 4px; }
+.cr.with-code .cr-board-wrap { align-self: start; }
+.cr-code.active .cr-line { opacity: .42; }
+.cr-code.active .cr-line.asked, .cr-code.active .cr-line.ran, .cr-code.active .cr-line.entry { opacity: 1; }
+.cr-line.entry { border-left-color: #8b91ff; }
+.cr-line.asked { background: rgba(255, 216, 102, .14); border-left-color: #ffd866; animation: cr-line-in .3s both; animation-delay: var(--d, 0ms); }
+.cr-line.ran { background: rgba(46, 204, 113, .26); border-left-color: #2ecc71; animation: cr-line-in .3s both; animation-delay: var(--d, 0ms); }
+.cr-b { font: 800 11.5px/1.4 var(--mono); padding: 1px 6px; border-radius: 6px; animation: cr-badge-in .3s both; animation-delay: var(--d, 0ms); }
+.cr-b.yes { background: #1f7a45; color: #dcffe9; }
+.cr-b.no { background: #4b4f6b; color: #e6e8f7; }
+.cr-b.val { background: #2c4f8a; color: #e2edff; }
+.cr-b.cmd { background: #2ecc71; color: #0b2a17; }
+.cr-b.go { background: #2ecc71; color: #0b2a17; }
+.cr-b.stop { background: #8a3b4a; color: #ffe3e8; }
+@keyframes cr-line-in { from { background: transparent; border-left-color: transparent; opacity: .42; } }
+@keyframes cr-badge-in { from { opacity: 0; transform: translateX(-6px); } }
+@media (prefers-reduced-motion: reduce) { .cr-line.asked, .cr-line.ran, .cr-b { animation: none; } }
+.prompt-task { display: block; margin-top: 8px; max-width: 100%; border: 2px solid var(--line); border-radius: 10px; padding: 6px 8px; background: var(--surface); color: var(--ink); font: 700 14px var(--font); }
+.cg-ask { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.cg-ask .muted { font-size: 13.5px; }
+
+/* «Джавик-курьер»: уровни — одна строка вкладок со звёздами; карты уровня — маленькая строка под плеером */
+.cg-levels { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.cg-level { border: 2px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 7px 16px; font: 800 15px var(--font); cursor: pointer; }
+.cg-level:hover { border-color: var(--primary); }
+.cg-level.on { border-color: var(--primary); background: var(--primary-soft); }
+.cg-stars { color: #f5a623; letter-spacing: 1px; }
+.cg-done { color: var(--green-2); font-weight: 900; }
+:root[data-theme="dark"] .cg-done { color: var(--green); }
+.cr-tabs { gap: 6px; align-items: center; }
+.cr-tabs-label { color: var(--muted); font-weight: 800; font-size: 13.5px; }
+.cr-tabs .cr-tab { padding: 3px 10px; font-size: 13.5px; border-radius: 999px; }
+@media (max-width: 520px) { .cg-level { padding: 6px 12px; font-size: 14px; } }

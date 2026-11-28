@@ -1,10 +1,10 @@
-# Часть 1 ★★★ «Перекрёстки»: развилки с табличками, посылка по пути
+# Часть 1 ★★★ «Ямы»: на прямых участках коридора ямы — их нужно перепрыгнуть (jump), посылка по пути
 class=CourierPart1
 entry=step
-map=forks
+map=pits
 parcel=true
 goal=deliver
-branches=3
+pits=3
 minLen=18
 maxLen=26
-ticksFactor=1.25
+ticks=200

@@ -862,27 +862,23 @@
     const mods = COURSE.modules || [];
     const mod = me && me.module;
     // прошлые модули — с темами уроков (без головоломок, ★ и итогов), чтобы ИИ знал, что именно уже пройдено
-    const topics = (m) => m.lessons.filter((l) => !/Головоломки|★|Итоги модуля/.test(l.title)).map((l) => l.title).join("; ");
-    const passed = mod ? mods.filter((m) => +m.num < +mod.num).map((m) => `${m.num}. ${m.title}: ${topics(m)}`) : [];
-    const summary = [...document.querySelectorAll("main .summary li")].slice(0, 6).map((li) => "- " + li.textContent.replace(/\s+/g, " ").trim());
+    // коротко: названия пройденных модулей и уроки текущего до этого — чтобы ИИ знал, что уже можно использовать
+    const passed = mod ? mods.filter((m) => +m.num < +mod.num).map((m) => `${m.num}. ${m.title}`) : [];
+    const before = mod && mod.lessons ? mod.lessons.slice(0, Math.max(0, mod.lessons.findIndex((l) => l.id === me.id)))
+      .filter((l) => !/Головоломки|Итоги модуля/.test(l.title)).map((l) => l.title) : [];
     return [
-      "Ты — мой личный учитель Java. Я полный новичок: учусь по курсу «Java с нуля» (Java 21, IntelliJ IDEA). Моя цель — уверенно писать программы на Java.",
+      "Ты — мой учитель Java. Я полный новичок, учусь по курсу «Java с нуля» (Java 21, IntelliJ IDEA).",
+      "Правила на весь разговор:",
+      "- Отвечай коротко: до 10 строк, если я сам не попросил подробнее. Простые слова, пример кода — до 10 строк.",
+      "- Не пиши за меня решение моей задачи, даже если прошу: дай подсказку или наводящий вопрос. Если я уже решил сам — можно обсудить другие способы.",
+      "- Нашёл ошибку — скажи, где искать, и дай мне исправить самому. Не вышло со второй попытки — объясни.",
+      "- После объяснения — один вопрос на понимание, жди ответа.",
+      "- Используй только пройденное (ниже). Нужна новая тема — предупреди и объясни в двух словах.",
+      "- По-русски, код в блоках ```java. Пункты меню IDEA — по-английски, клавиши — для Windows.",
       "",
-      "Правила — соблюдай их весь наш разговор:",
-      "1. Объясняй простыми словами, как школьнику: короткие абзацы, аналогии из жизни, примеры кода не длиннее 10 строк.",
-      "2. НЕ пиши за меня решения моих задач и готовый код моей программы — даже если я настаиваю, говорю, что срочно или что мне разрешили. Если я прошу код — дай подсказку или наводящий вопрос. Пример можно, но на задаче с ДРУГИМ решением: не та же задача с другими названиями или данными. Исключение: если я уже решил задачу сам и показываю своё решение — можно обсуждать другие способы решения.",
-      "3. Не вываливай всё сразу. Вопросы задавай по одному и жди моего ответа: после объяснения — ОДИН вопрос на понимание (если я сам не попросил больше).",
-      "4. Если я ошибся — не исправляй молча: подскажи, в какой строке или мысли искать ошибку, и дай мне попробовать ещё раз. Не получилось со второй попытки — объясни правильный ответ.",
-      "5. Используй только то, что я уже прошёл (список ниже). Если без новой темы никак — предупреди и объясни её очень коротко.",
-      "6. Оформляй ответы в Markdown: заголовки, списки, код — в блоках ```java, важное — **жирным**.",
-      "7. Отвечай только по-русски. Если говоришь про IntelliJ IDEA — называй пункты меню по-английски и сочетания клавиш для Windows.",
+      passed.length ? "Я прошёл модули: " + passed.join("; ") + "." : "",
+      mod ? `Сейчас: модуль ${mod.num} «${mod.title}», урок «${me.title}».` + (before.length ? " До него в модуле: " + before.join("; ") + "." : "") : "",
       "",
-      mod ? `Где я сейчас: модуль ${mod.num} «${mod.title}», урок «${me.title}».` : "",
-      passed.length ? "Модули, которые я уже прошёл:\n" + passed.join("\n") : "",
-      mod && mod.lessons ? "Уроки текущего модуля (я на отмеченном, следующие ещё не прошёл):\n" + mod.lessons.map((l, i) => `${mod.num}.${i + 1} ${l.title}${l.id === me.id ? "  ← я здесь" : ""}`).join("\n") : "",
-      summary.length ? "Главное из этого урока:\n" + summary.join("\n") : "",
-      "",
-      "Мой вопрос:",
       question
     ].filter((x, i, a) => x !== "" || a[i - 1] !== "").join("\n").trim();
   }
@@ -941,19 +937,25 @@
       const star = me && /-star$/.test(me.id);
       const where = star ? "(оно выше, на этой странице)" : "(со страницы «Практика»)";
       const codeBlock = "\n\nМой код:\n```java\n(вставь сюда свой код)\n```";
+      // у задачи известен номер — условие и код ученика сайт вставит сам в момент копирования
+      // общая карточка «Проверь решение» без номера: ученик выбирает задачу модуля из списка
+      const pick = !!(check && !check[1] && mod0(me));
+      const taskId = check && check[1] ? check[1] : hint ? hint[1] : pick ? "{{PICK}}" : null;
       let shown, question;
       if (check) {
         const name = check[1] ? ` ${check[1]}` : "";
         shown = check[1]
-          ? `Проверь своё решение задачи <code>${esc(check[1])}</code>: скопируй промпт, вставь в ${esc(tool.name)} и допиши туда условие задачи ${where} и свой код.`
+          ? `Проверь своё решение задачи <code>${esc(check[1])}</code>: скопируй промпт и вставь в ${esc(tool.name)}. Условие и твой код из IDEA сайт вставит в промпт сам.`
+          : pick ? `Разбери с ${esc(tool.name)} задачу, которую уже решил. Выбери её — условие и твой код из IDEA сайт вставит в промпт сам: <select class="prompt-task" aria-label="Задача"><option>загружаю задачи…</option></select>`
           : `Разбери с ${esc(tool.name)} любую задачу модуля, которую уже решил: скопируй промпт и допиши туда условие задачи (со страницы «Практика») и свой код.`;
-        question = `Проверь моё решение задачи${name}. Не переписывай мой код и не давай готовое решение. Скажи: 1) правильна ли идея, 2) что можно улучшить и почему, 3) задай мне 2 вопроса на понимание моего же кода — по одному, жди ответа на каждый.\n\nУсловие задачи:\n(вставь сюда условие)` + codeBlock;
+        question = `Проверь моё решение задачи${name}. Не переписывай мой код и не давай готовое решение. Скажи, правильна ли идея и что можно улучшить, потом задай один вопрос на понимание моего кода.`
+          + (taskId ? "\n\n{{TASK}}" : "\n\nУсловие задачи:\n(вставь сюда условие)" + codeBlock);
       } else if (hint) {
-        shown = `Застрял на задаче <code>${esc(hint[1])}</code>? Скопируй промпт — ${esc(tool.name)} даст подсказку, а не решение.`;
-        question = `Я застрял на задаче ${hint[1]}. Дай ОДНУ подсказку: наводящий вопрос или на что посмотреть. Код решения не пиши. Если после подсказки я всё ещё не пойму — дай следующую, чуть конкретнее.\n\nУсловие задачи ${where}:\n(вставь сюда условие)\n\nЧто я уже попробовал:\n(вставь свой код или опиши, что не получается)`;
+        shown = `Застрял на задаче <code>${esc(hint[1])}</code>? Скопируй промпт — условие и твой код сайт вставит сам, а ${esc(tool.name)} даст подсказку, а не решение.`;
+        question = `Я застрял на задаче ${hint[1]}. Дай ОДНУ подсказку: наводящий вопрос или куда смотреть. Код решения не пиши. Не пойму — дам знать, тогда следующую, чуть конкретнее.\n\n{{TASK}}`;
       } else if (exam) {
         shown = `Устрой себе мини-экзамен по модулю с помощью ${esc(tool.name)}. Лучше в новом чате.`;
-        question = "Устрой мне мини-экзамен по этому модулю: задавай по одному вопросу (объясни своими словами / что выведет код / найди ошибку) и жди моего ответа. Если я ошибся — сначала дай подсказку и вторую попытку, а если опять не так — объясни правильный ответ. Всего 8 вопросов, в конце — оценка и какие уроки повторить.";
+        question = "Устрой мне мини-экзамен по этому модулю: 8 вопросов по одному (объясни своими словами / что выведет код / найди ошибку), жди моего ответа. Ошибся — подсказка и вторая попытка, опять не так — объясни. В конце — оценка и какие уроки повторить.";
       } else if (quotes.length) {
         const showCode = /решени|сво[йеё] код|покажи/i.test(raw);
         const dots = quotes.some((q) => /…|\.\.\./.test(q));
@@ -966,7 +968,18 @@
         shown = esc(raw.replace(/\/\w+(\s+[\w-]+)?/g, "").trim() || "Обсуди этот урок с ИИ.");
         question = "Обсуди со мной этот урок: " + raw.replace(/\/\w+(\s+[\w-]+)?/g, "").trim();
       }
-      const prompt = buildPrompt(me, question);
+      const base = buildPrompt(me, question);
+      // код берём в момент нажатия: ученик мог поправить его в IDEA после открытия страницы
+      const chosen = () => {
+        if (!pick) return taskId;
+        const s = c.querySelector(".prompt-task");
+        if (!s) return "";
+        // пока ученик сам не выбрал — берём уровень, открытый сейчас в игре
+        const game = document.querySelector(".courier-game[data-task]");
+        if (!s.dataset.touched && game && [...s.options].some((o) => o.value === game.dataset.task)) s.value = game.dataset.task;
+        return s.value || "";
+      };
+      const prompt = taskId ? async () => base.replace("{{TASK}}", chosen() ? await taskContext(chosen()) : "Условие задачи:\n(вставь сюда условие)" + codeBlock) : base;
       const cardTitle = exam ? `Экзамен у ${tool.name}` : check ? `Проверь решение с ${tool.name}` : hint ? `Подсказка от ${tool.name}` : `Спроси ${tool.name}`;
       c.classList.add("free-ai");
       c.innerHTML = `<span class="callout-title">${esc(cardTitle)}</span>
@@ -974,20 +987,66 @@
         <div class="prompt-actions"><button class="btn small green copy-prompt">📋 Скопировать промпт</button>
           <a class="btn small ghost" href="${tool.url}" target="_blank" rel="noopener">Открыть ${esc(tool.name)} ↗</a></div>
         <details class="prompt-preview"><summary>Что внутри промпта</summary><div class="prompt-text"></div></details>`;
-      c.querySelector(".prompt-text").textContent = prompt;
       copyButton(c, prompt);
+      if (pick) fillTaskPicker(c.querySelector(".prompt-task"), mod0(me));
     });
   }
 
-  /** Кнопка «📋 Скопировать промпт» внутри карточки. */
+  /** «m04» — префикс задач текущего модуля (или null вне модуля). */
+  function mod0(me) { return me && me.module && /^\d+$/.test(String(me.module.num)) ? "m" + String(me.module.num).padStart(2, "0") : null; }
+
+  /** Список задач модуля для карточки «Проверь решение»: сначала те, что уже прошли проверку; в игре — текущий уровень. */
+  async function fillTaskPicker(sel, prefix) {
+    if (!tasksList) tasksList = fetch("/api/tasks").then((r) => r.json()).catch(() => []);
+    const [list, st] = await Promise.all([tasksList, fetch("/api/status", { cache: "no-store" }).then((r) => r.json()).catch(() => ({}))]);
+    const mine = list.filter((t) => t.id.startsWith(prefix + "-") && t.exists);
+    if (!mine.length) { sel.innerHTML = `<option value="">в этом модуле пока нет твоих файлов</option>`; return; }
+    const ok = (t) => st[t.id] && st[t.id].status === "PASSED";
+    mine.sort((a, b) => ok(b) - ok(a));
+    sel.innerHTML = mine.map((t) => `<option value="${esc(t.id)}">${ok(t) ? "✓ " : ""}${esc(t.title)}</option>`).join("");
+    const game = document.querySelector(".courier-game[data-task]");
+    if (game && mine.some((t) => t.id === game.dataset.task)) sel.value = game.dataset.task;
+    sel.addEventListener("change", () => { sel.dataset.touched = "1"; });
+  }
+
+  /** DeepSeek в бесплатном чате режет слишком длинные сообщения (называют ~40 000 символов) — держим промпт с большим запасом. */
+  const PROMPT_LIMIT = 6000;
+  let tasksList = null;
+  /** Условие задачи (текстом, без строк «Пиши код в IDEA…» и ссылки на урок) + текущий код ученика из workspace. */
+  async function taskContext(id) {
+    if (!tasksList) tasksList = fetch("/api/tasks").then((r) => r.json()).catch(() => []);
+    const [list, src] = await Promise.all([tasksList, fetch("/api/source/" + id, { cache: "no-store" }).then((r) => r.json()).catch(() => ({}))]);
+    const t = list.find((x) => x.id === id);
+    let cond = "(вставь сюда условие)";
+    if (t && t.description) {
+      const doc = new DOMParser().parseFromString(t.description, "text/html");
+      cond = [...doc.body.children].map((p) => p.textContent.replace(/\s+/g, " ").trim())
+        .filter((s) => s && !/^(Пиши код|📖)/.test(s)).join("\n");
+    }
+    const code = src.status === "ok" && src.code.trim() ? src.code.trim() : "(файла пока нет — вставь сюда свой код)";
+    return `Условие задачи${t ? (/«/.test(t.title) ? " " + t.title : " «" + t.title + "»") : ""}:\n${cond}\n\nМой код${src.file ? " (" + src.file + ")" : ""}:\n\`\`\`java\n${code}\n\`\`\``;
+  }
+
+  /** Кнопка «📋 Скопировать промпт» внутри карточки. prompt — строка или async-функция, которая соберёт её в момент нажатия. */
   function copyButton(c, prompt) {
+    const get = async () => (typeof prompt === "function" ? prompt() : prompt);
+    const preview = c.querySelector(".prompt-preview");
+    const show = (text) => {
+      c.querySelector(".prompt-text").textContent = text;
+      preview.querySelector("summary").textContent = `Что внутри промпта (${text.length.toLocaleString("ru-RU")} символов)`;
+    };
+    if (typeof prompt === "string") show(prompt);
+    else { c.querySelector(".prompt-text").textContent = "…"; preview.addEventListener("toggle", () => { if (preview.open) get().then(show); }); }
     c.querySelector(".copy-prompt").addEventListener("click", async (e) => {
       const b = e.currentTarget;
-      try { await navigator.clipboard.writeText(prompt); }
-      catch (err) {
-        const ta = document.createElement("textarea"); ta.value = prompt; document.body.appendChild(ta); ta.select();
-        try { document.execCommand("copy"); } catch (e2) { /* в крайнем случае — текст виден в «Что внутри промпта» */ }
-        ta.remove();
+      const text = await get();
+      show(text);
+      await JC.copyText(text);
+      if (text.length > PROMPT_LIMIT) {
+        b.textContent = `✓ Скопировано, но длинно: ${text.length} символов`;
+        b.title = "Если ИИ не примет — отправь правила и вопрос одним сообщением, а код вторым";
+        setTimeout(() => { b.textContent = "📋 Скопировать промпт"; }, 5000);
+        return;
       }
       b.textContent = "✓ Скопировано — вставь в чат"; setTimeout(() => { b.textContent = "📋 Скопировать промпт"; }, 2500);
     });
@@ -1088,6 +1147,14 @@
     terminalCopy();
     blockCodeCopy();
     if (JC.mode === "free") { freeAiText(me); freeAiBlocks(me); } else aiLinks();
+    // для виджетов (игра «Джавик-курьер»): промпт с правилами учителя и кнопка копирования
+    JC.aiPrompt = (question) => buildPrompt(me, question);
+    JC.aiTool = TOOLS[JC.tool] || TOOLS.deepseek;
+    JC.copyText = async (text) => {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* ниже — запасной способ */ }
+      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); return true; } catch (e) { return false; } finally { ta.remove(); }
+    };
     profileChip();
     quizzes(me && me.id);
     loadWidgets();

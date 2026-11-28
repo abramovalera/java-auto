@@ -20,7 +20,7 @@ public class CourierRobot {
     public boolean carrying() { return game.carrying(); }
     public boolean atTarget() { return game.atTarget(); }
     public boolean atDepot() { return game.atDepot(); }
-    public String sign() { return game.sign(); }
+    public boolean pitAhead() { return game.pitAhead(); }
 
     // ---------- команды ----------
     public void move() { game.act("MOVE"); }
@@ -28,6 +28,7 @@ public class CourierRobot {
     public void turnRight() { game.act("RIGHT"); }
     public void take() { game.act("TAKE"); }
     public void drop() { game.act("DROP"); }
+    public void jump() { game.act("JUMP"); }
 
     // ---------- район и заказы ----------
     public int[] houses() { return game.houses(); }

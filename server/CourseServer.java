@@ -72,6 +72,7 @@ public class CourseServer {
         server.createContext("/api/setup", ex -> safe(ex, CourseServer::handleSetup));
         // «вышло обновление курса?» — сверка коммита папки курса с GitHub (UpdateCheck, кэш 30 минут)
         server.createContext("/api/courier/preview/", ex -> safe(ex, CourseServer::handleCourierPreview));
+        server.createContext("/api/source/", ex -> safe(ex, CourseServer::handleSource));
         server.createContext("/api/update", ex -> safe(ex, e -> sendJson(e, 200, UpdateCheck.status(
                 Path.of(env("COURSE_DIR", "/app/course")), env("COURSE_REPO", "abramovalera/java-auto")))));
         server.createContext("/", ex -> safe(ex, CourseServer::handleStatic));
@@ -668,7 +669,7 @@ public class CourseServer {
         sendJson(ex, 200, out);
     }
 
-    /** GET /api/status — последний результат проверки по каждой задаче (из workspace/.history.log). */
+    /** GET /api/status — результат по каждой задаче (из workspace/.history.log): если задача хоть раз прошла — PASSED, иначе последний. */
     private static void handleStatus(HttpExchange ex) throws IOException {
         Map<String, Object> last = new LinkedHashMap<>();
         Path log = workspaceDir.resolve(".history.log");
@@ -681,7 +682,10 @@ public class CourseServer {
                 String owner = parts.length >= 5 && parts[parts.length - 1].startsWith("profile=") ? parts[parts.length - 1].substring(8).trim() : null;
                 if (profile != null && !(profile.equals(owner) || (owner == null && profile.equals(legacyOwner)))) continue;
                 if (parts.length >= 3) {
-                    last.put(parts[1].trim(), Map.of("time", parts[0].trim(), "status", parts[2].trim()));
+                    String id = parts[1].trim(), st = parts[2].trim();
+                    Object prev = last.get(id);
+                    if (prev instanceof Map<?, ?> pm && "PASSED".equals(pm.get("status")) && !"PASSED".equals(st)) continue; // решённое не «откатываем»
+                    last.put(id, Map.of("time", parts[0].trim(), "status", st));
                 }
             }
         }
@@ -934,6 +938,7 @@ public class CourseServer {
             } else {
                 javac.add(src.toString());
             }
+            if (isGame(task)) res.put("source", code.replace("\r\n", "\n")); // плеер показывает этот код рядом с картой и подсвечивает строки
             if (isGame(task)) { // игра «Джавик-курьер»: компилируем вместе с движком (tasks/courier/engine)
                 try (Stream<Path> eng = Files.list(tasksDir.resolve(task.mode).resolve("engine"))) {
                     eng.filter(p -> p.toString().endsWith(".java")).forEach(p -> javac.add(p.toString()));
@@ -1038,11 +1043,24 @@ public class CourseServer {
     private static long previewEngineStamp = -1;
     private static final Map<String, Object> PREVIEW_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
+    /** GET /api/source/{taskId} — текущий код ученика по задаче (для промпта «спроси ИИ»: вставляется сам). Только чтение. */
+    private static void handleSource(HttpExchange ex) throws Exception {
+        String id = ex.getRequestURI().getPath().substring("/api/source/".length());
+        Task task = loadTasks().stream().filter(t -> t.id.equals(id)).findFirst().orElse(null);
+        if (task == null) { sendJson(ex, 404, Map.of("status", "not_found")); return; }
+        Path file = baseDir(task).resolve(task.file).normalize();
+        if (!file.startsWith(baseDir(task).normalize()) || !Files.isRegularFile(file)) { sendJson(ex, 200, Map.of("status", "missing", "file", shownPath(task))); return; }
+        String code = Files.readString(file, StandardCharsets.UTF_8).replace("\r\n", "\n");
+        sendJson(ex, 200, Map.of("status", "ok", "file", shownPath(task), "code", code));
+    }
+
     /** GET /api/courier/preview/{taskId} — карта уровня (первая из seeds задачи), чтобы показать её до запуска кода. */
     private static void handleCourierPreview(HttpExchange ex) throws Exception {
         String id = ex.getRequestURI().getPath().substring("/api/courier/preview/".length());
         Task task = loadTasks().stream().filter(t -> t.id.equals(id)).findFirst().orElse(null);
         if (task == null || !isGame(task)) { sendJson(ex, 404, Map.of("status", "not_found")); return; }
+        // ученик открыл урок с игрой — заготовка в IDEA должна уже лежать (урок так и пишет)
+        if (task.file.contains("/")) copyStarters(task.file.substring(0, task.file.indexOf('/')));
         Path engineSrc = tasksDir.resolve("courier").resolve("engine");
         Path classes;
         synchronized (CourseServer.class) {
@@ -1284,6 +1302,8 @@ public class CourseServer {
     // ===================================================================
 
     private static final Object[][] COMPILE_HINTS = {
+            // «Джавик-курьер»: табличек больше нет (уровень ★★★ части 1 теперь про ямы)
+            {"method sign()", "Табличек в игре «Джавик-курьер» больше нет: уровень ★★★ теперь про ямы. Убери robot.sign() из кода — яму впереди проверяет robot.pitAhead(), прыгает через неё robot.jump()."},
             {"';' expected", "«';' expected» — пропущена точка с запятой. Каждая инструкция заканчивается на ;. Посмотри на указанную строку и строку перед ней."},
             {"cannot find symbol", "«cannot find symbol» — Java не знает это имя. Чаще всего это опечатка или неправильный регистр: System, а не system; println, а не printIn."},
             {"should be declared in a file named", "Имя public-класса должно совпадать с именем файла (вплоть до больших и маленьких букв)."},
@@ -1311,7 +1331,7 @@ public class CourseServer {
             hints.add("Ошибок несколько. Исправь первую и проверь снова — часть остальных часто исчезает сама.");
         }
         if (hints.isEmpty()) {
-            hints.add("Прочитай первую строку ошибки: там имя файла, номер строки и описание. Если непонятно — спроси наставника: /hint " + task.id);
+            hints.add("Прочитай первую строку ошибки: там имя файла, номер строки и описание. Если непонятно — спроси наставника.");
         }
         return hints;
     }

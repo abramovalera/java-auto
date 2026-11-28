@@ -1300,21 +1300,30 @@
     let dead = false;
     if (!replays.length) { host.innerHTML = ""; return; }
     const tests = r.tests || [];
-    host.innerHTML = `<div class="cr">
-      <div class="cr-tabs" role="tablist">${replays.map((p, i) => {
-        const ok = p && p.result === "finish";
-        return `<button class="cr-tab ${ok ? "ok" : "bad"}" data-i="${i}" role="tab">${ok ? "✓" : "✗"} ${esc((tests[i] && tests[i].name) || "Карта " + (i + 1))}</button>`;
-      }).join("")}</div>
-      <div class="cr-main">
-        <div class="cr-board-wrap"><div class="cr-board"></div></div>
-        <div class="cr-side">
+    // код ученика рядом с картой: на каждом ходу подсвечиваем, какие строки спросили датчики и какая дала команду
+    const code = opts.compact ? null : (opts.code || r.source || null);
+    const stepMode = !!code && /\bvoid\s+step\s*\(/.test(code);
+    const speeds = code ? [1100, 650, 250] : [500, 250, 90];
+    // карты уровня — маленькой строкой под плеером: «Карты: ✓1 ✓2 ✗3» (одна карта — строки нет)
+    const mapTabs = replays.length < 2 ? "" : `<div class="cr-tabs" role="tablist" aria-label="Карты уровня"><span class="cr-tabs-label">Карты:</span>${replays.map((p, i) => {
+      const ok = p && p.result === "finish";
+      return `<button class="cr-tab ${ok ? "ok" : "bad"}" data-i="${i}" role="tab" title="${esc((tests[i] && tests[i].name) || "Карта " + (i + 1))}${ok ? " — доехал" : " — не получилось"}">${ok ? "✓" : "✗"} ${i + 1}</button>`;
+    }).join("")}</div>`;
+    const info = `<div class="cr-side">
           <div class="cr-step"></div>
           <div class="cr-cmd"></div>
           <div class="cr-carry"></div>
           <div class="cr-ask-title">Перед ходом Джавик спросил:</div>
           <ul class="cr-ask"></ul>
           <div class="cr-note"></div>
-        </div>
+        </div>`;
+    host.innerHTML = `<div class="cr${code ? " with-code" : ""}">
+      <div class="cr-main">${code
+        // два равных экрана: слева поле и что происходит на ходу, справа — код ученика
+        ? `<div class="cr-left"><div class="cr-board-wrap"><div class="cr-board"></div></div>${info}</div>
+          <div class="cr-codecol"><div class="cr-code-head"></div><div class="cr-code">${code.replace(/\s+$/, "").split("\n").map((l, k) =>
+            `<div class="cr-line" data-l="${k + 1}"><span class="no">${k + 1}</span><code>${JC.highlightJava(l) || " "}</code><span class="cr-badges"></span></div>`).join("")}</div></div>`
+        : `<div class="cr-board-wrap"><div class="cr-board"></div></div>${info}`}
       </div>
       <div class="cr-ctrl">
         <button class="btn ghost cr-first" title="К началу">⏮</button>
@@ -1323,8 +1332,9 @@
         <button class="btn ghost cr-next" title="Ход вперёд">▶</button>
         <button class="btn ghost cr-last" title="К концу">⏭</button>
         <input class="cr-range" type="range" min="0" max="0" value="0" aria-label="Ход">
-        <select class="cr-speed" aria-label="Скорость"><option value="500">медленно</option><option value="250" selected>обычно</option><option value="90">быстро</option></select>
+        <select class="cr-speed" aria-label="Скорость"><option value="${speeds[0]}">медленно</option><option value="${speeds[1]}" selected>обычно</option><option value="${speeds[2]}">быстро</option></select>
       </div>
+      ${mapTabs}
       <div class="cr-msg"></div>
       <div class="cr-out"></div>
     </div>`;
@@ -1340,7 +1350,8 @@
       const list = [s0];
       let prev = s0;
       for (const f of p.frames || []) {
-        const st = { x: f.x, y: f.y, d: f.d, c: f.c, parcels: { ...prev.parcels }, done: { ...prev.done }, cmd: f.cmd, ask: f.ask || [], note: f.note || "", night: !!f.night };
+        const st = { x: f.x, y: f.y, d: f.d, c: f.c, parcels: { ...prev.parcels }, done: { ...prev.done }, cmd: f.cmd, ask: f.ask || [], note: f.note || "", night: !!f.night,
+          al: f.al || [], ln: f.ln == null ? -1 : f.ln };
         for (const [x, y, n] of f.p || []) {
           if (n < 0) st.done[x + ":" + y] = (st.done[x + ":" + y] || 0) + 1; else st.parcels[x + ":" + y] = n;
         }
@@ -1359,7 +1370,7 @@
       html += `<div class="cr-item depot" style="--x:${p.start[0]};--y:${p.start[1]}" title="Склад">🏁</div>`;
       for (const it of p.items || []) {
         if (it.t) html += `<div class="cr-item target" data-k="${it.x}:${it.y}" style="--x:${it.x};--y:${it.y}" title="${esc(it.n || "Адрес доставки")}">🏠${it.n ? `<span class="cr-name${it.x % 2 ? " below" : ""}">${esc(it.n)}</span>` : ""}</div>`;
-        if (it.s) html += `<div class="cr-item sign" style="--x:${it.x};--y:${it.y}" title="Табличка: ${esc(it.s)}">${it.s === "LEFT" ? "⬅" : it.s === "RIGHT" ? "➡" : "⬆"}</div>`;
+        if (it.pit) html += `<div class="cr-item pit" style="--x:${it.x};--y:${it.y}" title="Яма: move() сюда — падение, перепрыгнуть — jump()"></div>`;
       }
       html += `<div class="cr-parcels"></div><div class="cr-robot"><div class="cr-bot">${JC.mascot("happy")}</div><div class="cr-dir"></div><div class="cr-load"></div></div>`;
       board.innerHTML = html;
@@ -1369,7 +1380,7 @@
     function fit() {
       const wrap = $(".cr-board-wrap"), board = $(".cr-board");
       if (!replay || !wrap) return;
-      const c = Math.max(16, Math.min(40, Math.floor((wrap.clientWidth - 4) / replay.w)));
+      const c = Math.max(16, Math.min(code ? 38 : 40, Math.floor((wrap.clientWidth - 4) / replay.w)));
       board.style.setProperty("--c", c + "px");
     }
 
@@ -1384,6 +1395,10 @@
       const crashed = last && replay.result !== "finish";
       robot.classList.toggle("crash", crashed);
       robot.classList.toggle("win", last && replay.result === "finish");
+      // прыжок через яму — дугой; падение в яму — Джавик проваливается
+      robot.classList.remove("hop");
+      if (!instant && /^JUMP/.test(s.cmd || "")) { void robot.offsetWidth; robot.classList.add("hop"); }
+      robot.classList.toggle("fall", crashed && /яму/.test(s.note || ""));
       robot.querySelector(".cr-bot").innerHTML = JC.mascot(crashed ? "oops" : last && replay.result === "finish" ? "cool" : "happy");
       board.querySelector(".cr-parcels").innerHTML = Object.entries(s.parcels).filter(([, n]) => n > 0).map(([k, n]) => {
         const [x, y] = k.split(":");
@@ -1394,12 +1409,98 @@
       $(".cr-cmd").innerHTML = fi === 0 ? `<span class="muted">Джавик на складе, смотрит ${["на север", "на восток", "на юг", "на запад"][s.d]} ${CR_ARROW[s.d]}</span>` : `<code>${esc(s.cmd)}</code>`;
       board.classList.toggle("night", !!s.night);
       $(".cr-carry").textContent = (s.c ? `Везёт посылок: ${s.c}` : "Руки свободны") + (s.night ? " · 🌙 ночь: датчики стен не работают" : "");
-      $(".cr-ask").innerHTML = s.ask.length ? s.ask.map((a) => `<li><code>${esc(a)}</code></li>`).join("") : `<li class="muted">ничего</li>`;
-      $(".cr-ask-title").style.display = fi === 0 ? "none" : "";
-      $(".cr-ask").style.display = fi === 0 ? "none" : "";
+      // с кодом вопросы видны прямо у строк — в списке остаются только те, что задал не код ученика (автопилот)
+      const listed = code ? s.ask.filter((a, k) => !(s.al[k] > 0)) : s.ask;
+      $(".cr-ask").innerHTML = listed.length ? listed.map((a) => `<li><code>${esc(a)}</code></li>`).join("") : `<li class="muted">ничего</li>`;
+      const hideAsk = fi === 0 || (code && !listed.length);
+      $(".cr-ask-title").style.display = hideAsk ? "none" : "";
+      $(".cr-ask").style.display = hideAsk ? "none" : "";
+      if (code) paintCode(s, instant);
       $(".cr-note").textContent = s.note || (crashed ? replay.message : "");
       $(".cr-note").classList.toggle("bad", !!(s.note || crashed));
       $(".cr-range").value = fi;
+    }
+
+    const srcLines = code ? code.replace(/\s+$/, "").split("\n") : [];
+    const indent = (n) => (srcLines[n - 1] || "").match(/^\s*/)[0].length;
+    const blank = (n) => !(srcLines[n - 1] || "").trim() || /^\s*\/\//.test(srcLines[n - 1]);
+    /** Строки-условия цепочки if / else if / else над строкой n: [[номер, это ли сработавшая ветка], ...]. */
+    function chainOf(n) {
+      if (!(n > 0)) return [];
+      let c = n - 1;
+      while (c >= 1 && (blank(c) || indent(c) >= indent(n))) c--; // условие, в чьей ветке стоит команда
+      const isCond = (k) => /^\s*(}\s*)?(else\s+)?if\s*\(|^\s*}\s*else\s*\{?\s*$/.test(srcLines[k - 1] || "");
+      if (c < 1 || !isCond(c)) return [];
+      const out = [[c, true]], lvl = indent(c);
+      if (/^\s*if\s*\(/.test(srcLines[c - 1])) return out; // первое звено цепочки
+      for (let k = c - 1; k >= 1; k--) {
+        if (blank(k) || indent(k) > lvl) continue;
+        if (indent(k) < lvl) break;
+        if (/^\s*}\s*else\s+if\s*\(/.test(srcLines[k - 1])) out.push([k, false]);
+        else if (/^\s*if\s*\(/.test(srcLines[k - 1])) { out.push([k, false]); break; }
+        else if (!/^\s*}\s*$/.test(srcLines[k - 1])) break;
+      }
+      return out;
+    }
+    /** Задержка анимации строки цепочки: в момент вопроса на этой строке, иначе — между соседними вопросами. */
+    function chainDelay(n, events, gap) {
+      const k = events.findIndex((e) => e.n >= n);
+      return (k < 0 ? events.length : k) * gap;
+    }
+
+    /** Подсветка кода на ходу: строки загораются по очереди — в том порядке, в каком их выполнила программа. */
+    function paintCode(s, instant) {
+      const box = $(".cr-code"), head = $(".cr-code-head");
+      const line = (n) => (n > 0 ? box.querySelector(`.cr-line[data-l="${n}"]`) : null);
+      box.querySelectorAll(".cr-line").forEach((l) => { l.className = "cr-line"; l.style.removeProperty("--d"); l.querySelector(".cr-badges").innerHTML = ""; });
+      void box.offsetWidth; // перезапуск анимации у тех же строк на следующем ходу
+      if (fi === 0) {
+        box.classList.remove("active");
+        head.textContent = stepMode ? "Твой код. На каждом ходу игра вызывает step — и код выполняется сверху вниз." : "Твой код. Жми «Смотреть» — строки будут загораться по ходу программы.";
+        return;
+      }
+      box.classList.add("active");
+      const entry = stepMode ? [...box.querySelectorAll(".cr-line")].find((l) => /\bvoid\s+step\s*\(/.test(l.textContent)) : null;
+      if (entry) entry.classList.add("entry");
+      const events = s.ask.map((a, k) => ({ n: s.al[k], a })).filter((e) => e.n > 0);
+      const speed = opts.speed || +$(".cr-speed").value;
+      const gap = instant ? 0 : Math.min(160, (speed * 0.55) / (events.length + 1));
+      const perLine = {};
+      events.forEach((e) => { perLine[e.n] = (perLine[e.n] || 0) + 1; });
+      events.forEach((e, k) => {
+        const L = line(e.n); if (!L) return;
+        if (!L.classList.contains("asked")) { L.classList.add("asked"); L.style.setProperty("--d", Math.round(k * gap) + "ms"); }
+        const i = e.a.lastIndexOf(" = "), call = i > 0 ? e.a.slice(0, i) : e.a, val = i > 0 ? e.a.slice(i + 3) : "";
+        const cls = val === "true" ? "yes" : val === "false" ? "no" : "val";
+        // коротко: сам вызов и так виден в строке; если вызовов в строке несколько — с именем
+        const label = !val ? call : perLine[e.n] > 1 ? call.replace(/\(\)$/, "") + ": " + val : val;
+        L.querySelector(".cr-badges").insertAdjacentHTML("beforeend", `<span class="cr-b ${cls}" title="${esc(e.a)}" style="--d:${Math.round(k * gap)}ms">${esc(label)}</span>`);
+      });
+      const R = line(s.ln);
+      // цепочка if / else if, по которой программа дошла до сработавшей ветки: условия выше — «не подошло», своё — «подошло».
+      // Так видны и проверки без робота (sign.equals("RIGHT"), sign == "LEFT").
+      for (const [n, okHere] of chainOf(s.ln)) {
+        const L = line(n); if (!L) continue;
+        if (!L.classList.contains("asked")) { L.classList.add("asked"); L.style.setProperty("--d", Math.round(chainDelay(n, events, gap)) + "ms"); }
+        const bare = !L.querySelector(".cr-b"); // в строке не спрашивали робота — пишем словом, иначе хватит значка
+        if (/\bif\s*\(/.test(L.textContent)) L.querySelector(".cr-badges").insertAdjacentHTML("beforeend",
+          `<span class="cr-b ${okHere ? "go" : "stop"}" title="${okHere ? "условие подошло — выполняется эта ветка" : "условие не подошло — идём к следующему"}" style="--d:${Math.round(chainDelay(n, events, gap))}ms">${okHere ? "✓" : "✗"}${bare ? (okHere ? " да" : " нет") : ""}</span>`);
+      }
+      if (R) {
+        R.classList.remove("asked"); R.classList.add("ran");
+        const d = Math.round(events.length * gap) + "ms";
+        R.style.setProperty("--d", d);
+        R.querySelector(".cr-badges").insertAdjacentHTML("beforeend", `<span class="cr-b cmd" style="--d:${d}">▶ ${esc(s.cmd)}</span>`);
+      }
+      head.textContent = stepMode
+        ? (R ? `Ход ${fi}: игра вызвала step. Жёлтым — что проверил код (✓ условие подошло, ✗ нет), зелёным — команда хода.` : `Ход ${fi}: игра вызвала step, но ни одна строка не дала команду.`)
+        : (R ? `Ход ${fi}: жёлтым — проверки перед ходом (✓ подошло, ✗ нет), зелёным — строка, откуда пришла команда.` : `Ход ${fi}`);
+      const target = R || line(events.length ? events[events.length - 1].n : -1);
+      if (target) {
+        const top = target.offsetTop - box.clientHeight / 2 + target.offsetHeight / 2;
+        const out = target.offsetTop < box.scrollTop || target.offsetTop + target.offsetHeight > box.scrollTop + box.clientHeight;
+        if (out) box.scrollTo({ top: Math.max(0, top), behavior: instant ? "auto" : "smooth" });
+      }
     }
 
     function stop() { clearInterval(timer); timer = null; $(".cr-play").textContent = fi >= states.length - 1 ? "↻ Ещё раз" : "▶ Смотреть"; }
@@ -1459,7 +1560,7 @@
   };
 
   /**
-   * Игровая панель: уровни части по одному, стрелки ◀ ▶, карта уровня видна сразу, кнопка запуска, три подсказки.
+   * Игровая панель: вкладки уровней со звёздами (★ … ★★★), карта уровня видна сразу, кнопка запуска, три подсказки.
    * Данные: { "levels": [ { "task": "m04-c1", "name": "★ Коридор", "goal": "html", "hints": ["html", "html", "html"] } ] }
    */
   W.couriergame = function (el) {
@@ -1467,11 +1568,7 @@
     try { data = JSON.parse(el.querySelector("script").textContent); } catch (e) { el.textContent = "Не удалось загрузить игру"; return; }
     const L = data.levels || [];
     el.classList.add("courier-game");
-    el.innerHTML = `<div class="cg-nav">
-        <button class="cg-arrow cg-prev" aria-label="Предыдущий уровень">◀</button>
-        <div class="cg-head"><div class="cg-kicker"></div><div class="cg-title"></div><div class="cg-dots"></div></div>
-        <button class="cg-arrow cg-next" aria-label="Следующий уровень">▶</button>
-      </div>
+    el.innerHTML = `<div class="cg-levels" role="tablist" aria-label="Уровни"></div>
       <div class="cg-goal"></div>
       <div class="cg-board"></div>
       <div class="cg-run"><div class="cg-file"></div><button class="btn green cg-go">▶ Запустить мой код</button></div>
@@ -1483,9 +1580,14 @@
     const passed = (id) => status[id] && status[id].status === "PASSED";
     const fileOf = (id) => { const t = tasks.find((x) => x.id === id); return t ? (/^workspace\//.test(t.file) ? t.file : "workspace/" + t.file) : ""; };
 
+    // вкладка уровня: звёзды = сложность, затем название; пройденный — с ✓
     function dots() {
-      $(".cg-dots").innerHTML = L.map((lv, i) => `<button class="cg-dot ${i === cur ? "on" : ""} ${passed(lv.task) ? "ok" : ""}" data-i="${i}" title="${esc(lv.name)}">${passed(lv.task) ? "✓" : i + 1}</button>`).join("");
-      el.querySelectorAll(".cg-dot").forEach((b) => b.addEventListener("click", () => go(+b.dataset.i)));
+      $(".cg-levels").innerHTML = L.map((lv, i) => {
+        const m = lv.name.match(/^(★+)s*(.*)$/), stars = m ? m[1] : "★".repeat(i + 1), name = m ? m[2] : lv.name;
+        return `<button class="cg-level ${i === cur ? "on" : ""} ${passed(lv.task) ? "ok" : ""}" role="tab" aria-selected="${i === cur}" data-i="${i}">`
+          + `<span class="cg-stars">${stars}</span> ${esc(name)}${passed(lv.task) ? ' <span class="cg-done">✓</span>' : ""}</button>`;
+      }).join("");
+      el.querySelectorAll(".cg-level").forEach((b) => b.addEventListener("click", () => go(+b.dataset.i)));
     }
     function showBoard(r, opts) {
       if (player) player.stop();
@@ -1501,10 +1603,7 @@
     function go(i) {
       cur = Math.max(0, Math.min(L.length - 1, i));
       const lv = L[cur];
-      $(".cg-kicker").textContent = `Уровень ${cur + 1} из ${L.length}`;
-      $(".cg-title").textContent = lv.name;
-      $(".cg-prev").disabled = cur === 0;
-      $(".cg-next").disabled = cur === L.length - 1;
+      el.dataset.task = lv.task; // карточка «Проверь решение» внизу урока берёт текущий уровень
       $(".cg-goal").innerHTML = lv.goal;
       $(".cg-file").innerHTML = `📄 Пиши код в IntelliJ IDEA: <code>${esc(fileOf(lv.task) || "…")}</code> → сохрани (Ctrl+S) → жми кнопку`;
       $(".cg-result").innerHTML = "";
@@ -1516,8 +1615,58 @@
       $(".cg-board").innerHTML = `<div class="cg-loading">🗺 Загружаю карту уровня…</div>`;
       loadPreview(lv.task);
     }
-    $(".cg-prev").addEventListener("click", () => go(cur - 1));
-    $(".cg-next").addEventListener("click", () => go(cur + 1));
+    /** Под неудачным запуском — «🤖 Спросить ИИ»: промпт собирается сам (правила игры, цель, что случилось, код ученика). */
+    function askAi(lv, r) {
+      const box = document.createElement("div");
+      box.className = "cg-ask";
+      if (JC.mode !== "free") {
+        box.innerHTML = `🤖 Застрял? Спроси наставника в Claude Code: <code>/hint ${esc(lv.task)}</code> — он сам посмотрит твой код.`;
+        $(".cg-result").appendChild(box);
+        return;
+      }
+      const tool = JC.aiTool || { name: "ИИ", url: "#" };
+      box.innerHTML = `<button class="btn small green cg-ask-copy">🤖 Скопировать вопрос для ${esc(tool.name)}</button>
+        <a class="btn small ghost" href="${esc(tool.url)}" target="_blank" rel="noopener">Открыть ${esc(tool.name)} ↗</a>
+        <span class="muted">цель уровня, что пошло не так и твой код уже внутри — просто вставь в чат</span>`;
+      $(".cg-result").appendChild(box);
+      box.querySelector(".cg-ask-copy").addEventListener("click", async (e) => {
+        const b = e.currentTarget;
+        const text = JC.aiPrompt ? JC.aiPrompt(await gameQuestion(lv, r)) : await gameQuestion(lv, r);
+        await JC.copyText(text);
+        b.textContent = text.length > 6000 ? `✓ Скопировано, но длинно: ${text.length} символов` : "✓ Скопировано — вставь в чат";
+        setTimeout(() => { b.textContent = `🤖 Скопировать вопрос для ${tool.name}`; }, 3000);
+      });
+    }
+    const PART_OF = { m04: 1, m05: 2, m06: 3, m07: 4, m13: 5 };
+    async function gameQuestion(lv, r) {
+      const part = PART_OF[lv.task.slice(0, 3)] || 1;
+      const text = (h) => { const d = document.createElement("div"); d.innerHTML = String(h || "").replace(/<\/p>/g, " </p>"); return d.textContent.replace(/\s+/g, " ").trim().replace(/^Цель:\s*/, ""); };
+      const src = await fetch("/api/source/" + lv.task, { cache: "no-store" }).then((x) => x.json()).catch(() => ({}));
+      const lines = [`Я прохожу игру «Джавик-курьер» из курса, часть ${part}, уровень «${lv.name}».`,
+        "Как устроена игра: робот Джавик ездит по клеточной карте, я пишу для него код в IntelliJ IDEA, сайт запускает его на нескольких картах.",
+        part === 1 ? "Игра на каждом ходу сама вызывает мой метод step(robot). За один вызов должна сработать ровно одна команда — один ход."
+          : "Игра один раз вызывает мой метод run(robot), дальше я сам веду Джавика циклами до конца уровня.",
+        "Датчики робота: wallAhead(), wallLeft(), wallRight() — стена впереди / слева / справа от Джавика; parcelHere() — тут лежит посылка; carrying() — везёт посылку; atTarget() — стоит у адреса; atDepot() — на складе."
+          + (part === 1 ? " pitAhead() — прямо впереди яма (яма — не стена: wallAhead() перед ней false)." : ""),
+        "Команды: move() — клетка вперёд, turnLeft() и turnRight() — поворот на месте, take() — взять посылку, drop() — отдать."
+          + (part === 1 ? " jump() — перепрыгнуть яму впереди (move() в яму — падение, jump() без ямы — ошибка)." : "")];
+      if (part >= 4) lines.push("Ещё: houses() — массив, на скольких клетках от склада стоит каждый дом.");
+      if (part === 5) lines.push("Ещё: orders() — список адресов заказов, newOrders() — новые заказы (приходят после доставок), houseName() — адрес дома, у которого стоит Джавик, goTo(адрес) — автопилот до дома.");
+      lines.push("", "Цель уровня: " + text(lv.goal));
+      if (r.status === "compile_error") lines.push("", "Что случилось: код не компилируется. Ошибка javac:", (r.compilerOutput || "").split("\n").slice(0, 8).join("\n"));
+      else {
+        const bad = (r.replays || []).find((x) => x && x.result !== "finish");
+        const why = bad ? bad.message : r.message;
+        lines.push("", "Что случилось: " + (why || "уровень не засчитан"));
+        const fr = bad && bad.frames && bad.frames[bad.frames.length - 1];
+        if (fr && bad.frames.length > 1) lines.push(`Последний ход (${bad.frames.length}):Джавик спросил ${(fr.ask || []).join(", ") || "ничего"} и сделал ${fr.cmd}.`);
+        const rf = (r.ruleFails || []).concat(r.hints || []);
+        if (rf.length) lines.push("Сайт подсказывает: " + rf.join(" "));
+      }
+      lines.push("", "Подскажи, куда смотреть в моём коде. Готовый код не пиши.", "",
+        `Мой код${src.file ? " (" + src.file + ")" : ""}:`, "```java", src.status === "ok" ? src.code.trim() : "(не удалось прочитать файл — вставь код сам)", "```");
+      return lines.join("\n");
+    }
     $(".cg-go").addEventListener("click", async () => {
       const lv = L[cur], b = $(".cg-go");
       b.disabled = true; b.textContent = "⏳ Джавик выезжает…";
@@ -1531,12 +1680,16 @@
         } else if (r.status === "missing") html = `<div class="result-banner info">📄 ${esc(JC.msg(r.message))}</div>`;
         else if (r.status === "compile_error") html = `<div class="result-banner bad">🛠 Код не компилируется — посмотри на первую ошибку (номер строки после имени файла):</div><pre class="terminal"><span class="err">${esc(r.compilerOutput || "")}</span></pre>`;
         else if (!r.replays) html = `<div class="result-banner bad">${esc(JC.msg(r.message || "Не получилось"))}</div>`; // у поездки своё сообщение с причиной
+        else if ((r.ruleFails || []).length && r.replays.every((x) => x && x.result === "finish"))
+          html = `<div class="result-banner bad">🚚 Джавик доехал, но уровень не засчитан — код не выполнил условие задания:</div>`;
         const hints = [...(r.hints || []), ...(r.ruleFails || [])];
         if (hints.length) html += `<ul class="hints">${hints.map((h) => `<li>💡 ${esc(h)}</li>`).join("")}</ul>`;
         $(".cg-result").innerHTML = html;
+        if (r.status !== "passed" && r.status !== "missing") askAi(lv, r);
         const nx = el.querySelector(".cg-next-level");
         if (nx) nx.addEventListener("click", () => { go(cur + 1); el.scrollIntoView({ behavior: "smooth", block: "start" }); });
         if (r.replays) showBoard(r, {});
+        else loadPreview(lv.task); // код не запустился — на доске снова чистая карта, а не прошлая поездка
         dots();
       } catch (e) {
         $(".cg-result").innerHTML = `<div class="result-banner bad">Сервер курса не отвечает. Запусти его: docker compose up -d</div>`;
@@ -1544,7 +1697,11 @@
       b.disabled = false; b.textContent = "▶ Запустить ещё раз";
     });
     Promise.all([fetch("/api/tasks").then((x) => x.json()).catch(() => []), fetch("/api/status", { cache: "no-store" }).then((x) => x.json()).catch(() => ({}))])
-      .then(([t, st]) => { tasks = t; status = st || {}; go(cur); });
+      .then(([t, st]) => {
+        tasks = t; status = st || {};
+        const open = L.findIndex((lv) => !passed(lv.task)); // открываем первый нерешённый уровень
+        go(open < 0 ? cur : open);
+      });
     // карты всех уровней — заранее, чтобы стрелки переключали мгновенно
     L.forEach((lv) => { if (!preview[lv.task]) preview[lv.task] = fetch("/api/courier/preview/" + lv.task).then((x) => x.json()).catch(() => null); });
     go(0);

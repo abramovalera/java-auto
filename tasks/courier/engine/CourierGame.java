@@ -15,7 +15,7 @@ import java.util.*;
  *  - entry=run:    static void run(CourierRobot robot) — вызывается один раз, команды — методами робота.
  *
  * Параметры уровня (ключ=значение):
- *  class, entry, map (corridor|forks|street|stairs|parcels|shuttle|houses|middle|town),
+ *  class, entry, map (corridor|pits|street|stairs|parcels|shuttle|houses|middle|town), pits (сколько ям на карте pits),
  *  goal (reach|deliver), home (true — после доставки вернуться на склад), night (true — после DROP датчики стен выключены),
  *  capacity (сколько посылок везёт за раз), output (route|compressed|delivered|report), noTarget (true — atTarget не работает),
  *  orders (fifo|repeats), goToLimit (unique), ticks (лимит ходов), minLen, maxLen.
@@ -38,12 +38,12 @@ public class CourierGame {
     boolean[][] road;
     int[][] parcels;
     boolean[][] target;
-    String[][] sign;
+    boolean[][] pit;               // ямы на дороге (карта pits): move() в яму — падение, через яму — jump()
     String[][] house;
     int[][] accepts;          // сколько посылок примет адрес (-1 — сколько угодно)
     int depotX, depotY, startDir;
     int x, y, dir, carry, capacity, ticks, maxTicks, totalParcels, delivered;
-    boolean night, noTarget, turnedHere, dropped;
+    boolean night, noTarget, dropped;
     int[] housesArr = new int[0];
     final List<String> log = new ArrayList<>();          // команды движения до первой доставки — для output=route
     final List<String> deliveredTo = new ArrayList<>();
@@ -74,7 +74,7 @@ public class CourierGame {
     // ============================ построение карт ============================
     void alloc() {
         road = new boolean[h][w]; parcels = new int[h][w]; target = new boolean[h][w];
-        sign = new String[h][w]; house = new String[h][w]; accepts = new int[h][w];
+        pit = new boolean[h][w]; house = new String[h][w]; accepts = new int[h][w];
         for (int[] row : accepts) Arrays.fill(row, -1);
     }
 
@@ -84,7 +84,7 @@ public class CourierGame {
             alloc();
             boolean ok = switch (map) {
                 case "corridor" -> corridor(false);
-                case "forks" -> corridor(true);
+                case "pits" -> corridor(true);
                 case "street" -> street(num("minLen", 5), num("maxLen", 15));
                 case "stairs" -> stairs();
                 case "parcels" -> parcelStreet();
@@ -105,8 +105,8 @@ public class CourierGame {
 
     List<int[]> mainPath = new ArrayList<>();
 
-    /** Извилистый коридор без развилок; с forks=true — с тупиковыми ответвлениями и табличками на развилках. */
-    boolean corridor(boolean forks) {
+    /** Извилистый коридор без развилок; с withPits=true — с ямами на прямых участках (перепрыгнуть: jump()). */
+    boolean corridor(boolean withPits) {
         int minLen = num("minLen", 14), maxLen = num("maxLen", 26);
         int len = minLen + rnd.nextInt(maxLen - minLen + 1);
         int cx = 1 + rnd.nextInt(w - 2), cy = 1 + rnd.nextInt(h - 2);
@@ -141,39 +141,28 @@ public class CourierGame {
             parcels[p[1]][p[0]] = 1;
         }
         if (bool("carryStart")) carry = 1;
-        if (forks) {
-            int made = 0, traps = 0;
-            for (int tries = 0; tries < 60 && made < num("branches", 3); tries++) {
-                int i = 2 + rnd.nextInt(mainPath.size() - 4);
-                int[] j = mainPath.get(i);
-                int bd = rnd.nextInt(4);
-                int bl = 2 + rnd.nextInt(3);
-                List<int[]> cells = new ArrayList<>();
-                int bx = j[0], by = j[1];
-                boolean good = true;
-                for (int k = 0; k < bl; k++) {
-                    int nx = bx + DX[bd], ny = by + DY[bd];
-                    if (!canDig(nx, ny, bx, by)) { good = false; break; }
-                    cells.add(new int[]{nx, ny}); road[ny][nx] = true; bx = nx; by = ny;
-                }
-                if (!good || cells.size() < 2) { for (int[] c : cells) road[c[1]][c[0]] = false; continue; }
-                made++;
-            }
-            if (made < num("branches", 3)) return false;
-            // таблички на всех развилках главного пути: куда ехать дальше относительно того, как Джавик въехал
-            for (int i = 1; i < mainPath.size() - 1; i++) {
+        if (withPits) {
+            // яма — клетка прямого участка: перед ней и после неё дорога в ту же сторону, чтобы прыжок приземлился на дорогу.
+            // Не у склада, не у адреса, не на посылке и не вплотную к другой яме.
+            List<Integer> spots = new ArrayList<>();
+            for (int i = 2; i < mainPath.size() - 2; i++) {
                 int[] c = mainPath.get(i);
-                int exits = 0;
-                for (int k = 0; k < 4; k++) if (isRoad(c[0] + DX[k], c[1] + DY[k])) exits++;
-                if (exits >= 3) {
-                    int in = dirBetween(mainPath.get(i - 1), c), out = dirBetween(c, mainPath.get(i + 1));
-                    sign[c[1]][c[0]] = out == in ? "AHEAD" : out == (in + 3) % 4 ? "LEFT" : "RIGHT";
-                    // «ловушка»: без таблички правило «вперёд, иначе налево, иначе направо» увело бы в тупик
-                    int naive = isRoad(c[0] + DX[in], c[1] + DY[in]) ? in : isRoad(c[0] + DX[(in + 3) % 4], c[1] + DY[(in + 3) % 4]) ? (in + 3) % 4 : (in + 1) % 4;
-                    if (naive != out) traps++;
-                }
+                if (dirBetween(mainPath.get(i - 1), c) != dirBetween(c, mainPath.get(i + 1))) continue;
+                if (parcels[c[1]][c[0]] > 0 || target[c[1]][c[0]]) continue;
+                int[] land = mainPath.get(i + 1);
+                if (parcels[land[1]][land[0]] > 0 || target[land[1]][land[0]]) continue;
+                spots.add(i);
             }
-            if (traps < num("traps", 2)) return false;
+            Collections.shuffle(spots, rnd);
+            List<Integer> chosen = new ArrayList<>();
+            for (int i : spots) {
+                if (chosen.size() >= num("pits", 3)) break;
+                boolean near = false;
+                for (int j : chosen) if (Math.abs(i - j) < 3) near = true;
+                if (!near) chosen.add(i);
+            }
+            if (chosen.size() < num("pits", 3)) return false;
+            for (int i : chosen) { int[] c = mainPath.get(i); pit[c[1]][c[0]] = true; }
         }
         return true;
     }
@@ -347,10 +336,12 @@ public class CourierGame {
         return v;
     }
 
-    String sign() {
-        String v = turnedHere || sign[y][x] == null ? "" : sign[y][x];
-        note("sign() = \"" + v + "\"");
-        return new String(v); // новый объект: строки сравнивают через equals, а == здесь честно не сработает
+    boolean pitAhead() {
+        if (night && dropped) throw new Stop("error", "Ночью датчики не работают: возвращайся на склад по записанному маршруту.");
+        int nx = x + DX[dir], ny = y + DY[dir];
+        boolean v = isRoad(nx, ny) && pit[ny][nx];
+        note("pitAhead() = " + v);
+        return v;
     }
 
     int[] houses() { note("houses() = " + Arrays.toString(housesArr)); return housesArr.clone(); }
@@ -365,10 +356,28 @@ public class CourierGame {
         return v;
     }
 
-    void note(String s) { if (ask.size() < 12) ask.add(s); }
+    void note(String s) { if (ask.size() < 12) { ask.add(s); askLn.add(userLine()); } }
+
+    // ---- строки кода ученика: откуда спросили датчик и откуда пришла команда ----
+    String userClass = "";
+    final List<Integer> askLn = new ArrayList<>();
+    int cmdLn = -1;
+    /** Номер строки в классе ученика, из которой сейчас вызван робот (-1 — не из кода ученика, например автопилот). */
+    int userLine() {
+        for (StackTraceElement e : new Throwable().getStackTrace()) {
+            String c = e.getClassName();
+            if (c.equals(userClass) || c.startsWith(userClass + "$")) return e.getLineNumber();
+        }
+        return -1;
+    }
 
     // ============================ команды ============================
     synchronized void act(String cmd) {
+        cmdLn = autopilot == null ? userLine() : cmdLn;
+        if (stepMode && ++stepCmds > 1) {
+            throw new Stop("many", "За один ход — одна команда: на ходу " + stepNo + " в step сработали две команды подряд (сначала " + stepFirst + ", потом " + cmd + "). Оставь в каждой ветке if ровно один вызов робота.");
+        }
+        stepFirst = cmd;
         if (++ticks > maxTicks) throw new Stop("timeout", "Ходы кончились (лимит " + maxTicks + "). Похоже, Джавик ездит по кругу или заехал не туда.");
         switch (cmd) {
             case "MOVE" -> {
@@ -378,12 +387,24 @@ public class CourierGame {
                     if (night && dropped) throw new Stop("crash", "Джавик врезался в стену на обратном пути (ход " + ticks + "). Ночью датчики не работают — проверь сам маршрут обратно: разворот в начале, обход массива с конца и замену LEFT ↔ RIGHT.");
                     throw new Stop("crash", "Джавик врезался в стену на ходу " + ticks + ". Перед MOVE проверь wallAhead().");
                 }
-                x = nx; y = ny; turnedHere = false;
+                x = nx; y = ny;
+                if (pit[y][x]) {
+                    frame(cmd, "🕳 Упал в яму!");
+                    throw new Stop("crash", "Джавик упал в яму на ходу " + ticks + ". Перед move() проверь pitAhead(): через яму нужно прыгать — robot.jump().");
+                }
+                if (!dropped) log.add(cmd);
+            }
+            case "JUMP" -> {
+                int nx = x + DX[dir], ny = y + DY[dir];
+                if (!isRoad(nx, ny) || !pit[ny][nx]) {
+                    frame(cmd, "Прыжок, а ямы нет");
+                    throw new Stop("error", "Джавик прыгнул на ходу " + ticks + ", а впереди нет ямы. Прыгай, только когда pitAhead() = true, а по ровной дороге езжай move().");
+                }
+                x = nx + DX[dir]; y = ny + DY[dir]; // перелетел яму и приземлился на клетку за ней
                 if (!dropped) log.add(cmd);
             }
             case "LEFT", "RIGHT" -> {
                 dir = (dir + (cmd.equals("LEFT") ? 3 : 1)) % 4;
-                turnedHere = true;
                 if (!dropped) log.add(cmd);
             }
             case "TAKE" -> {
@@ -435,6 +456,7 @@ public class CourierGame {
         }
         LinkedList<int[]> path = new LinkedList<>();
         for (int[] c = {tx, ty}; !(c[0] == x && c[1] == y); c = prev[c[1] * w + c[0]]) path.addFirst(c);
+        cmdLn = userLine(); // все ходы автопилота подсвечивают строку с goTo
         autopilot = address;
         try {
             for (int[] c : path) {
@@ -456,7 +478,7 @@ public class CourierGame {
         if (night && dropped) frames.append(",\"night\":true");
         frames.append(",\"ask\":[");
         for (int i = 0; i < ask.size(); i++) frames.append(i > 0 ? "," : "").append(q(ask.get(i)));
-        frames.append("]");
+        frames.append("],\"al\":").append(askLn.toString().replace(" ", "")).append(",\"ln\":").append(cmdLn);
         if (!changed.isEmpty()) {
             frames.append(",\"p\":[");
             for (int i = 0; i < changed.size(); i++) { int[] c = changed.get(i); frames.append(i > 0 ? "," : "").append('[').append(c[0]).append(',').append(c[1]).append(',').append(c[2]).append(']'); }
@@ -465,6 +487,8 @@ public class CourierGame {
         if (noteText != null) frames.append(",\"note\":").append(q(noteText));
         frames.append('}');
         ask.clear();
+        askLn.clear();
+        if (autopilot == null) cmdLn = -1;
         changed.clear();
     }
 
@@ -484,7 +508,7 @@ public class CourierGame {
         String got = normalize(output);
         if ("route".equals(lv.get("output"))) got = got.split("\n", 2)[0]; // на уровнях с полным маршрутом важна только первая строка
         if (exp != null && !got.equals(normalize(exp))) outputMismatch = true;
-        if (outputMismatch) return "Программа напечатала не то. Ожидалось:\n" + exp + "\nА было:\n" + (output.isBlank() ? "(ничего)" : output.strip());
+        if (outputMismatch) return "Программа напечатала не то — сравни блоки «Программа напечатала» и «Ожидалось» под картой.";
         return null;
     }
 
@@ -532,11 +556,11 @@ public class CourierGame {
         StringBuilder items = new StringBuilder("[");
         boolean first = true;
         for (int cy = 0; cy < h; cy++) for (int cx = 0; cx < w; cx++) {
-            if (!target[cy][cx] && parcels0[cy][cx] == 0 && sign[cy][cx] == null && house[cy][cx] == null) continue;
+            if (!target[cy][cx] && parcels0[cy][cx] == 0 && !pit[cy][cx] && house[cy][cx] == null) continue;
             items.append(first ? "" : ",").append("{\"x\":").append(cx).append(",\"y\":").append(cy);
             if (target[cy][cx]) items.append(",\"t\":true");
             if (parcels0[cy][cx] > 0) items.append(",\"p\":").append(parcels0[cy][cx]);
-            if (sign[cy][cx] != null) items.append(",\"s\":").append(q(sign[cy][cx]));
+            if (pit[cy][cx]) items.append(",\"pit\":true");
             if (house[cy][cx] != null) items.append(",\"n\":").append(q(house[cy][cx]));
             items.append('}');
             first = false;
@@ -552,6 +576,9 @@ public class CourierGame {
     int[][] parcels0;
     int carry0;
     boolean outputMismatch;
+    boolean stepMode;              // часть 1: игра зовёт step на каждом ходу
+    int stepNo, stepCmds;          // номер вызова step и сколько команд в нём сработало
+    String stepFirst;
     String autopilot;
 
     static String q(String s) {
@@ -596,6 +623,7 @@ public class CourierGame {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         String result = "finish", message;
         String cls = lv.getOrDefault("class", "CourierPart1"), entry = lv.getOrDefault("entry", "step");
+        g.userClass = cls;
         Method m;
         Object self = null;
         try {
@@ -623,16 +651,17 @@ public class CourierGame {
         Thread player = new Thread(() -> {
             try {
                 if (entry.equals("step")) {
+                    g.stepMode = true;
                     // часть 1: игра зовёт step на каждом ходу, за вызов — ровно одна команда роботу
                     while (!g.goalReachedForStep()) {
                         int before;
-                        synchronized (g) { before = g.ticks; }
+                        synchronized (g) { before = g.ticks; g.stepNo++; g.stepCmds = 0; }
                         method.invoke(target, robot);
                         int made;
                         synchronized (g) { made = g.ticks - before; }
                         if (made == 0) {
                             synchronized (g) { g.frame("—", "Нет команды за этот ход"); }
-                            throw new Stop("nocmd", "За этот ход Джавик не получил команду (ход " + (before + 1) + "): в step должна сработать ровно одна команда. Посмотри, какая ветка if сработала — в ней нет ни robot.move(), ни поворота.");
+                            throw new Stop("nocmd", "На ходу " + g.stepNo + " Джавик не получил команду: в step не сработал ни один вызов робота. Либо ни одно условие if не подошло (сделай последнюю ветку просто else), либо в сработавшей ветке нет команды.");
                         }
                         if (made > 1) {
                             throw new Stop("many", "За один ход — одна команда: на ходу " + (before + 1) + " в step сработало " + made + " команды подряд. Оставь в каждой ветке if ровно один вызов робота.");
@@ -658,7 +687,7 @@ public class CourierGame {
         try {
             if (player.isAlive()) {
                 synchronized (g) { g.frame("⏳", "Завис: команд роботу больше нет"); }
-                throw new Stop("hang", "Программа зависла после хода " + g.ticks + ": цикл крутится, а команд роботу нет (ни move, ни поворотов). Посмотри на последний ход — какое условие цикла так и не стало ложным и какой ветки с командой не хватает?");
+                throw new Stop("hang", (g.ticks == 0 ? "Программа зависла сразу, ещё до первого хода" : "Программа зависла после хода " + g.ticks) + ": цикл крутится, а команд роботу нет (ни move, ни поворотов). Посмотри на последний ход — какое условие цикла так и не стало ложным и какой ветки с командой не хватает?");
             }
             if (failure[0] != null) throw failure[0];
             message = null;

@@ -8,11 +8,11 @@ public class CourierPart1 {
     //   robot.move()       — проехать клетку вперёд
     //   robot.turnLeft()   — повернуться налево     robot.turnRight() — направо
     //   robot.take()       — взять посылку          robot.drop()      — отдать посылку
+    //   robot.jump()       — перепрыгнуть яму впереди
     //
-    // Датчики (true / false): robot.wallAhead(), robot.wallLeft(), robot.wallRight(),
+    // Датчики (true / false): robot.wallAhead(), robot.wallLeft(), robot.wallRight(), robot.pitAhead(),
     //   robot.parcelHere(), robot.carrying(), robot.atTarget(), robot.atDepot()
     // Наведи курсор на любой метод робота — IntelliJ IDEA покажет его описание.
-    // Табличка на развилке: robot.sign() — "LEFT", "RIGHT", "AHEAD" или "" (таблички нет).
     public static void step(CourierRobot robot) {
         robot.move();
     }

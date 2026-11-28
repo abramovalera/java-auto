@@ -6,12 +6,8 @@ public class CourierPart1 {
             robot.take();
         } else if (robot.atTarget() && robot.carrying()) {
             robot.drop();
-        } else if (robot.sign().equals("LEFT")) {
-            robot.turnLeft();
-        } else if (robot.sign().equals("RIGHT")) {
-            robot.turnRight();
-        } else if (robot.sign().equals("AHEAD")) {
-            robot.move();
+        } else if (robot.pitAhead()) {
+            robot.jump();
         } else if (!robot.wallAhead()) {
             robot.move();
         } else if (!robot.wallLeft()) {

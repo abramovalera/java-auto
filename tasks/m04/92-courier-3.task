@@ -1,5 +1,5 @@
 ## id: m04-c3
-## title: «Джавик-курьер» ★★★: перекрёстки
+## title: «Джавик-курьер» ★★★: ямы
 ## file: module-04/CourierPart1.java
 ## class: CourierPart1
 ## level: 3
@@ -7,9 +7,9 @@
 ## map: courier/levels/p1-3.txt
 ## seeds: 31,32,33
 @@ description
-<p>В коридоре появились развилки и тупики. На каждой развилке висит табличка: <code>robot.sign()</code> вернёт <code>"LEFT"</code>, <code>"RIGHT"</code> или <code>"AHEAD"</code> (прямо), а там, где таблички нет, — пустую строку <code>""</code>.</p>
-<p>Ходов в обрез: если заехать в тупик, на возврат не хватит. Читай табличку и сравнивай её через <code>equals</code> или <code>switch</code> (не <code>==</code>!). «Прямо» — это <code>robot.move()</code>. Посылку по пути тоже нужно доставить.</p>
+<p>На дороге появились ямы 🕳. Въедешь в яму командой <code>robot.move()</code> — Джавик упадёт. Датчик <code>robot.pitAhead()</code> отвечает <code>true</code>, если яма прямо впереди, а команда <code>robot.jump()</code> перепрыгивает её: Джавик приземляется на клетку за ямой. Прыгать, когда ямы нет, нельзя.</p>
+<p>Яма — не стена: <code>wallAhead()</code> перед ней ответит <code>false</code>. Подумай, в каком месте цепочки <code>if / else if</code> проверять яму. Посылку по пути тоже нужно доставить.</p>
 <p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-04/CourierPart1.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
 <p>📖 Урок <a href="/lessons/m04/50-courier.html">«Джавик-курьер, часть 1»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
-@@ require: sign\s*\(\s*\) | Читай табличку на развилке: robot.sign()
-@@ forbid: sign\s*\(\s*\)\s*==|==\s*robot\.sign | Строки сравнивают через equals или switch, а не через ==
+@@ require: pitAhead\s*\(\s*\) | Проверяй яму впереди: robot.pitAhead()
+@@ require: jump\s*\(\s*\) | Через яму нужно прыгать: robot.jump()
