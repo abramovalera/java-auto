@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Итоги модуля 17 и финал курса · Java с нуля</title>
+  <title>Итоги модуля 17 и экзамен · Java с нуля</title>
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/course.js"></script>
   <script src="/js/app.js" defer></script>
@@ -12,9 +12,9 @@
 <main class="content" data-lesson="m17-sum">
 
   <header class="lesson-head" data-mood="wow">
-    <div class="kicker">Модуль 17 · Итоги и финал курса</div>
-    <h1>Итоги модуля 17 и финал курса</h1>
-    <p class="lead"><span class="ai-only">Теперь у тебя рабочее место Java-разработчика: отладчик, Git, Gradle и JUnit с AssertJ. С этим набором приходят на первую работу. Это финал курса: проверим модуль, сдадим последний экзамен, оглянемся на весь пройденный путь и составим план, что учить дальше.</span><span class="free-only">Теперь у тебя рабочее место Java-разработчика: отладчик, Git, Gradle и JUnit с AssertJ. С этим набором приходят на первую работу. Это финал курса: проверим модуль, сдадим последний экзамен у <span class="ai-name">DeepSeek</span>, оглянемся на весь пройденный путь и составим план, что учить дальше.</span></p>
+    <div class="kicker">Модуль 17 · Итоги модуля</div>
+    <h1>Итоги модуля 17 и экзамен</h1>
+    <p class="lead"><span class="ai-only">Теперь у тебя рабочее место Java-разработчика: отладчик, Git, Gradle и JUnit с AssertJ. С этим набором приходят на первую работу. Проверим модуль и сдадим экзамен.</span><span class="free-only">Теперь у тебя рабочее место Java-разработчика: отладчик, Git, Gradle и JUnit с AssertJ. С этим набором приходят на первую работу. Проверим модуль и сдадим экзамен у <span class="ai-name">DeepSeek</span>.</span></p>
     <div class="meta"><span>⏱ 25 минут + экзамен</span><span>🏁 финиш курса</span></div>
   </header>
 
@@ -89,10 +89,7 @@
         <li>написать тестовый метод с аннотацией <code>@Test</code> и правильным порядком аргументов в проверке <code>assertEquals</code> (сначала ожидаемое значение, потом фактическое), проверить исключение через <code>assertThrows</code> и лямбда-выражение, собрать несколько проверок в <code>assertAll</code>;</li>
         <li>использовать аннотации <code>@BeforeEach</code>, <code>@ParameterizedTest</code> с <code>@CsvSource</code>, <code>@DisplayName</code>, <code>@Disabled</code>;</li>
         <li>писать проверки на AssertJ — <code>assertThat(фактическое)</code> и метод-проверка после точки: <code>isEqualTo</code>, <code>containsExactly</code>, <code>hasSize</code>, <code>assertThatThrownBy</code>;</li>
-        <li>составить план тестов: классы эквивалентности, граничные значения, таблица «вход → ожидаем»; найти непроверенные строки через Run with Coverage;</li>
-        <li>называть классы, методы, переменные, константы и пакеты по код-стайлу Java, заменять магические числа константами; объяснить DRY, KISS и YAGNI и найти их нарушения в своём коде;</li>
-        <li>назвать пять принципов SOLID и для каждого привести пример «плохо → хорошо»; передать зависимость через конструктор по интерфейсу, чтобы в тесте подставить фейк;</li>
-        <li>объяснить, что такое паттерн проектирования, назвать три группы и узнать в коде Singleton, фабрику, Builder, Prototype, Adapter, Decorator, Facade, Proxy, Strategy, Iterator, Mediator и Observer; написать строитель и заменить цепочку if стратегией.</li>
+        <li>составить план тестов: классы эквивалентности, граничные значения, таблица «вход → ожидаем»; найти непроверенные строки через Run with Coverage.</li>
       </ul>
     </div>
   </section>
@@ -252,7 +249,7 @@
   <!-- ШАГ 4 -->
   <section class="step">
     <h2>Все задачи — зелёные</h2>
-    <p>Перед экзаменом на <a href="/tasks.html?module=m17">странице практики</a> должны быть решены все девять задач:</p>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m17">странице практики</a> должны быть решены все семь задач:</p>
     <div class="table-wrap">
       <table>
         <tr><th>Задача</th><th>Что тренирует</th></tr>
@@ -261,8 +258,6 @@
         <tr><td>5. Билеты в кино: параметризованный тест</td><td>классы и границы — <a href="/lessons/m17/07-workshop-tests.html">урок 17.7</a> (решай после него), <code>@ParameterizedTest</code> — <a href="/lessons/m17/06-junit-deeper.html">17.6</a></td></tr>
         <tr><td>6. Каталог книг: AssertJ и @BeforeEach ★★★</td><td>подготовка тестов, AssertJ — <a href="/lessons/m17/06-junit-deeper.html">урок 17.6</a></td></tr>
         <tr><td>7. Охота на баг: бонусы кофейни ★★★</td><td>всё вместе: требования → тесты → отладчик → исправление</td></tr>
-        <tr><td>8. Пиццерия: заказ через строителя</td><td>паттерн Строитель — <a href="/lessons/m17/07d-patterns-creational.html">урок 17.10</a></td></tr>
-        <tr><td>9. Стратегия: стоимость доставки</td><td>паттерн Стратегия вместо цепочки if — <a href="/lessons/m17/07e-patterns-behavior.html">урок 17.11</a></td></tr>
       </table>
     </div>
     <p><span class="ai-only">Плюс <b>практика Git и Gradle у наставника</b>: репозиторий с коммитами и ветками, специально устроенный конфликт, свой Gradle-проект с <code>gradle test</code>. Сайт это проверить не может — покажешь наставнику вывод <code>git log --oneline --graph --all</code> и результат <code>gradle test</code>.</span><span class="free-only">Плюс <b>практика Git и Gradle</b>: репозиторий с коммитами и ветками, специально устроенный конфликт, свой Gradle-проект с <code>gradle test</code>. Сайт это проверить не может — вставь в <span class="ai-name">DeepSeek</span> вывод <code>git log --oneline --graph --all</code> и результат <code>gradle test</code> и попроси разобрать, всё ли получилось.</span></p>
@@ -289,103 +284,15 @@
 
   <!-- ШАГ 6 -->
   <section class="step">
-    <h2>Весь курс на одной карте</h2>
-    <p>Остановись на минуту и посмотри назад. Ты начинал с вопроса «что такое программа», а заканчиваешь отладчиком, Git и тестами. Вот что теперь умеешь — по модулям. Щёлкни по названию, если хочешь освежить модуль.</p>
-    <div class="table-wrap">
-      <table>
-        <tr><th>№</th><th>Модуль</th><th>Что ты теперь умеешь</th></tr>
-        <tr><td>0</td><td><a href="/lessons/m00/01-how-it-works.html">Вводная</a></td><td>понимаешь, что такое программа и алгоритм; поставил IntelliJ IDEA и JDK</td></tr>
-        <tr><td>1</td><td><a href="/lessons/m01/01-what-is-java.html">Знакомство с Java</a></td><td>знаешь путь от <code>.java</code> до работающей программы (компилятор, байткод, JVM), пишешь и запускаешь программы, читаешь ошибки компиляции</td></tr>
-        <tr><td>2</td><td><a href="/lessons/m02/01-variables.html">Переменные и типы</a></td><td>объявляешь переменные <code>int</code>, <code>long</code>, <code>double</code>, <code>boolean</code>, <code>char</code>, <code>String</code>; читаешь ввод через <code>Scanner</code>; понимаешь стек и кучу</td></tr>
-        <tr><td>3</td><td><a href="/lessons/m03/01-arithmetic.html">Операторы и выражения</a></td><td>считаешь с <code>/</code> и <code>%</code>, не попадаешься на целочисленное деление и переполнение, пишешь логику <code>&amp;&amp;</code>, <code>||</code>, <code>!</code></td></tr>
-        <tr><td>4</td><td><a href="/lessons/m04/01-if.html">Условия</a></td><td>принимаешь решения через <code>if</code>/<code>else</code>, <code>switch</code> и тернарный оператор</td></tr>
-        <tr><td>5</td><td><a href="/lessons/m05/01-while.html">Циклы</a></td><td>повторяешь действия через <code>while</code>, <code>for</code>, <code>do-while</code>; знаешь роли переменных: счётчик, накопитель, флаг</td></tr>
-        <tr><td>6</td><td><a href="/lessons/m06/01-why-arrays.html">Массивы</a></td><td>хранишь много значений, обходишь их, ищешь максимум, разворачиваешь, сдвигаешь; работаешь с двумерными массивами</td></tr>
-        <tr><td>7</td><td><a href="/lessons/m07/01-why-methods.html">Методы</a></td><td>разбиваешь программу на методы с параметрами и <code>return</code>, понимаешь стек вызовов, перегрузку и рекурсию</td></tr>
-        <tr><td>8</td><td><a href="/lessons/m08/01-string-object.html">Строки</a></td><td>сравниваешь строки через <code>equals</code>, пользуешься методами <code>String</code>, <code>StringBuilder</code> и <code>printf</code></td></tr>
-        <tr><td>9</td><td><a href="/lessons/m09/01-class-object.html">Классы и объекты</a></td><td>создаёшь свои классы: поля, конструкторы, <code>this</code>, <code>static</code>, <code>private</code>, пакеты, <code>record</code></td></tr>
-        <tr><td>10</td><td><a href="/lessons/m10/01-encapsulation.html">ООП</a></td><td>применяешь инкапсуляцию, наследование и полиморфизм; переопределяешь <code>equals</code> и <code>hashCode</code></td></tr>
-        <tr><td>11</td><td><a href="/lessons/m11/01-abstract-classes.html">Интерфейсы, enum, record</a></td><td>проектируешь через интерфейсы и абстрактные классы, используешь <code>Comparator</code>, <code>enum</code> и <code>record</code></td></tr>
-        <tr><td>12</td><td><a href="/lessons/m12/01-what-is-exception.html">Исключения</a></td><td>читаешь stack trace, ловишь ошибки <code>try</code>/<code>catch</code>/<code>finally</code>, бросаешь свои исключения</td></tr>
-        <tr><td>13</td><td><a href="/lessons/m13/01-why-list.html">Коллекции и generics</a></td><td>выбираешь между <code>ArrayList</code>, <code>HashMap</code>, <code>HashSet</code>, <code>TreeSet</code>, очередью; сортируешь и пишешь свои generic-классы</td></tr>
-        <tr><td>14</td><td><a href="/lessons/m14/01-lambdas.html">Лямбды и Stream API</a></td><td>пишешь лямбды и конвейеры <code>filter</code> → <code>map</code> → <code>collect</code>, пользуешься <code>Optional</code></td></tr>
-        <tr><td>15</td><td><a href="/lessons/m15/01-paths.html">Файлы и ввод-вывод</a></td><td>читаешь и пишешь файлы через <code>Files</code>, разбираешь CSV и настройки <code>.properties</code></td></tr>
-        <tr><td>16</td><td><a href="/lessons/m16/01-threads.html">Многопоточность</a></td><td>запускаешь потоки, защищаешь общие данные (<code>synchronized</code>, <code>AtomicInteger</code>), пользуешься пулом потоков — и отвечаешь на это на собеседовании</td></tr>
-        <tr><td>17</td><td><a href="/lessons/m17/01-debugger.html">Инструменты разработчика</a></td><td>ищешь баги отладчиком, ведёшь историю в Git и на GitHub, собираешь проект на Gradle, пишешь тесты на JUnit 5 и AssertJ</td></tr>
-      </table>
-    </div>
-    <div class="say" data-mood="wow"><p>Это и есть Java Core — фундамент, который спрашивают на собеседовании Java junior и на котором стоит всё остальное: базы данных, веб, Spring. Дальше ты не начинаешь с нуля, а <b>достраиваешь</b> этажи.</p></div>
-  </section>
-
-  <!-- ШАГ 7 -->
-  <section class="step">
-    <h2>Что дальше: план на 2–3 месяца</h2>
-    <p>Почти любая вакансия Java junior — это бэкенд: программа на сервере, которая хранит данные в базе и отвечает другим программам по сети. Чтобы до неё дорасти, учи темы <b>именно в этом порядке</b> — каждая опирается на предыдущую. Темп — около часа в день; быстрее — отлично, медленнее — тоже нормально.</p>
-    <ol class="steps">
-      <li><b>Недели 1–3. SQL и базы данных.</b> Как хранят данные по-настоящему: таблицы, <code>SELECT</code>, <code>WHERE</code>, <code>ORDER BY</code>, <code>JOIN</code>, <code>GROUP BY</code>, <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code>, первичный и внешний ключ. Бери <b>PostgreSQL</b> — её чаще всего встречают в вакансиях.<br>
-        Бесплатно: <a href="https://stepik.org/course/63054" target="_blank" rel="noopener">«Интерактивный тренажёр по SQL»</a> на Stepik (задачи с автопроверкой прямо в браузере) · <a href="https://metanit.com/sql/postgresql/" target="_blank" rel="noopener">руководство по PostgreSQL на metanit</a> (установка, pgAdmin, все запросы по порядку) · <a href="https://sqlbolt.com" target="_blank" rel="noopener">SQLBolt</a> (то же на английском, очень коротко).<br>
-        Практика: придумай таблицы для своего пет-проекта (например, <code>clients</code> и <code>accounts</code> для мини-банка) и напиши к ним 10 запросов: «все счета клиента», «сумма по всем счетам», «клиенты без счетов».</li>
-      <li><b>Недели 4–5. JDBC: Java разговаривает с базой.</b> Подключение к базе из своей программы: <code>Connection</code>, <code>PreparedStatement</code>, <code>ResultSet</code>. Драйвер базы подключаешь как зависимость в Gradle — урок 17.4 тебе здесь уже пригодится.<br>
-        Бесплатно: <a href="https://metanit.com/java/database/" target="_blank" rel="noopener">«Работа с базами данных» на metanit</a> (там MySQL, для PostgreSQL меняется только драйвер и адрес подключения) · <a href="https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html" target="_blank" rel="noopener">JDBC Basics от Oracle</a> (английский).<br>
-        Практика: твой пет-проект хранит данные в PostgreSQL вместо файла.</li>
-      <li><b>Недели 6–7. HTTP и REST.</b> Как программы общаются по сети: запрос и ответ, методы <code>GET</code>/<code>POST</code>/<code>PUT</code>/<code>DELETE</code>, коды ответа <code>200</code>, <code>404</code>, <code>500</code>, формат JSON. REST — договорённость, как по этим правилам устроить API.<br>
-        Бесплатно: <a href="https://developer.mozilla.org/ru/docs/Web/HTTP/Guides/Overview" target="_blank" rel="noopener">«Обзор протокола HTTP» на MDN</a> (на русском) · встроенный в Java <code>HttpClient</code> (пакет <code>java.net.http</code>) — найди пример в документации JDK или спроси ИИ «объясни по шагам».<br>
-        Практика: из Java-программы получи JSON у любого открытого API (погода, курсы валют) и выведи пару полей.</li>
-      <li><b>Недели 8–12. Spring Boot.</b> Главный фреймворк Java-бэкенда. Собираешь проект на <a href="https://start.spring.io" target="_blank" rel="noopener">start.spring.io</a> (выбираешь Gradle — он тебе знаком), пишешь контроллер с <code>@RestController</code>, подключаешь базу через Spring Data JPA, тестируешь на JUnit — тех же, что в этом модуле.<br>
-        Бесплатно: официальные пошаговые гайды <a href="https://spring.io/guides/gs/rest-service/" target="_blank" rel="noopener">«Building a RESTful Web Service»</a> и <a href="https://spring.io/guides/gs/accessing-data-jpa/" target="_blank" rel="noopener">«Accessing Data with JPA»</a> (английский, каждый — на вечер).<br>
-        Практика: пет-проект как REST-сервис — например, у мини-банка <code>GET /accounts</code> отдаёт счета, а <code>POST /transfers</code> делает перевод.</li>
-    </ol>
-    <div class="callout tip">
-      <span class="callout-title">Git — заодно и глубже</span>
-      <p>Всё, что делаешь по плану, сразу храни в Git и выкладывай на GitHub. Захочешь разобраться в Git глубже — бесплатная книга <a href="https://git-scm.com/book/ru/v2" target="_blank" rel="noopener">Pro Git на русском</a> и игра-тренажёр <a href="https://learngitbranching.js.org/?locale=ru_RU" target="_blank" rel="noopener">Learn Git Branching</a> с ветками на картинках.</p>
-    </div>
-    <details class="predict">
-      <summary>Почему не начать сразу со Spring Boot — он же главный в вакансиях?</summary>
-      <p>Spring Boot прячет под собой и SQL, и JDBC, и HTTP. Пока работает — кажется магией, а когда сломается, ты не поймёшь, что именно: запрос к базе, код ответа или твой класс. Знаешь, что «под капотом», — чинишь за минуты. Это тот же принцип, что в курсе: сначала <code>println</code> изнутри, потом удобные обёртки.</p>
-    </details>
-  </section>
-
-  <!-- ШАГ 8 -->
-  <section class="step">
-    <h2>Идеи пет-проектов</h2>
-    <p><b>Пет-проект</b> (pet project, «домашний проект») — программа, которую пишешь для себя, без заказчика. Именно такие проекты показывают на собеседовании, когда опыта работы ещё нет. Выбери одну идею и развивай её вместе с планом выше: сначала консоль и файлы, потом база данных, потом REST на Spring Boot.</p>
-    <div class="cards">
-      <div class="card"><span class="emoji">💰</span><h4>Трекер расходов</h4><p>Записываешь траты с категорией и датой, смотришь итоги за месяц и «куда ушли деньги». Пригодятся <code>record</code>, коллекции, стримы (группировка по категориям), файл CSV, тесты на подсчёт сумм.</p></div>
-      <div class="card"><span class="emoji">📚</span><h4>Домашняя библиотека</h4><p>Книги, авторы, отметка «прочитано», поиск по автору и названию, статистика за год. Хороший первый проект для таблиц с <code>JOIN</code>: книги ↔ авторы.</p></div>
-      <div class="card"><span class="emoji">✅</span><h4>Список дел со сроками</h4><p>Задачи с приоритетом и датой (<code>LocalDate</code>), сортировка, «что горит сегодня». Позже — REST API: добавить, отметить выполненной, удалить.</p></div>
-      <div class="card"><span class="emoji">🏦</span><h4>Мини-банк</h4><p>Клиенты, счета, пополнение с комиссией, переводы с проверками, история операций. Всё, что было в курсе, ложится сюда: классы и инкапсуляция, исключения для «не хватает денег», коллекции, файлы, тесты на переводы.</p></div>
-      <div class="card"><span class="emoji">🌦️</span><h4>Погодный помощник</h4><p>Программа спрашивает город, запрашивает открытый API погоды по HTTP, разбирает JSON и советует, брать ли зонт. Тренирует HTTP, Gradle-зависимости (библиотека для JSON) и обработку ошибок сети.</p></div>
-    </div>
-    <div class="callout tip">
-      <span class="callout-title">Как сделать проект «показательным»</span>
-      <p>Маленькие коммиты с понятными сообщениями, ветка под каждую фичу, тесты на главную логику, файл <code>README.md</code>: что умеет программа, как её запустить, пример работы. Работодатель смотрит не на размер, а на то, как проект сделан.</p>
-    </div>
-  </section>
-
-  <!-- ШАГ 9 -->
-  <section class="step">
-    <h2>Свой проект — на GitHub, «Тренинг код» — каждый день</h2>
-    <p>Выбрал идею из списка выше? Заведи под неё проект и сразу выложи на GitHub — это первая строчка твоего портфолио:</p>
-    <ol class="steps">
-      <li>Создай проект в IDEA с галочкой <b>Create Git repository</b> (урок 1.3) и проверь <code>.gitignore</code>: <code>out/</code>, <code>.idea/workspace.xml</code> — в истории им не место (урок 17.2).</li>
-      <li>Добавь в корень файл <code>README.md</code>: пара строк о том, что умеет программа и как её запустить. Закоммить.</li>
-      <li>☰ → <b>Git → GitHub → Share Project on GitHub</b> (урок 17.3) — и проект на GitHub.</li>
-      <li>Дальше развивай: тесты на JUnit для главной логики, перевод на Gradle, хранение в базе по плану выше. Каждый шаг — коммит и push.</li>
-    </ol>
-    <div class="cards">
-      <div class="card"><span class="emoji">🏋️</span><h4>«Тренинг код» каждый день</h4><p>Раздел <a href="/training.html">«Тренинг код»</a> никуда не делся. Решай 2–3 задачи в день, 20–30 минут. <b>Каждый день понемногу</b> работает лучше, чем три часа раз в неделю: синтаксис перестаёт быть препятствием, и голова свободна для новых тем.</p></div>
-      <div class="card"><span class="emoji">🗣️</span><h4>Объясняй вслух</h4><p>Перед собеседованием пройдись по <a href="/cheatsheet.html">шпаргалке</a> всех модулей и отвечай на вопросы вслух, своими словами. Не можешь объяснить — вернись к уроку.</p></div>
-    </div>
-    <div class="say" data-mood="happy"><p>Поздравляю — курс «Java с нуля» позади! Ты прошёл длинный путь от первого <code>println</code> до тестов и Git. Дальше — по плану, понемногу каждый день. Всё получится.</p></div>
+    <h2>Дальше — модуль 18</h2>
+    <p>Инструменты разработчика у тебя в руках. Остался последний модуль: <a href="/lessons/m18/01-clean-code.html">«Чистый код и паттерны»</a> — как писать код, который легко читать и менять, и какие готовые решения знает каждый разработчик. А после него — финал курса.</p>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
         <li>Пройди чек-лист «я умею…» честно.</li>
-        <li><span class="ai-only">Сделай все девять задач до зелёного, разбери их через <code>/check</code> и покажи наставнику Git- и Gradle-практику.</span><span class="free-only">Сделай все девять задач до зелёного, разбери их с <span class="ai-name">DeepSeek</span> (промпт «Проверь решение» (кнопка внизу страницы)) и покажи ему вывод Git- и Gradle-практики.</span></li>
-        <li><span class="ai-only">Напиши <code>/exam</code> — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — это последний экзамен курса. Сдашь — курс «Java с нуля» пройден!</span></li>
-        <li>Оглянись на карту курса: все 18 модулей пройдены тобой.</li>
-        <li>Дальше по порядку: SQL и базы данных → JDBC → HTTP и REST → Spring Boot. Параллельно — свой пет-проект на GitHub.</li>
-        <li>Каждый день понемногу: 20–30 минут <a href="/training.html">«Тренинг код»</a>.</li>
+        <li><span class="ai-only">Сделай все семь задач до зелёного, разбери их через <code>/check</code> и покажи наставнику Git- и Gradle-практику.</span><span class="free-only">Сделай все семь задач до зелёного, разбери их с <span class="ai-name">DeepSeek</span> (промпт «Проверь решение» (кнопка внизу страницы)) и покажи ему вывод Git- и Gradle-практики.</span></li>
+        <li><span class="ai-only">Напиши <code>/exam</code> — экзамен модуля 17.</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — экзамен модуля 17.</span></li>
+        <li>Дальше — модуль 18 «Чистый код и паттерны» и финал курса.</li>
       </ul>
     </div>
       <div class="callout fact ask-ai-advice">

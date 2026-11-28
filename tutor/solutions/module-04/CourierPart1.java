@@ -1,27 +1,23 @@
 public class CourierPart1 {
 
-    // Игра вызывает этот метод на каждом ходу: смотрим на датчики и возвращаем одну команду.
-    public static String decide(CourierRobot robot) {
+    // Игра вызывает этот метод на каждом ходу: смотрим на датчики и даём роботу ровно одну команду.
+    public static void step(CourierRobot robot) {
         if (robot.parcelHere() && !robot.carrying()) {
-            return "TAKE";
-        }
-        if (robot.atTarget() && robot.carrying()) {
-            return "DROP";
-        }
-        switch (robot.sign()) {
-            case "LEFT":
-                return "LEFT";
-            case "RIGHT":
-                return "RIGHT";
-            case "AHEAD":
-                return "MOVE";
-        }
-        if (!robot.wallAhead()) {
-            return "MOVE";
+            robot.take();
+        } else if (robot.atTarget() && robot.carrying()) {
+            robot.drop();
+        } else if (robot.sign().equals("LEFT")) {
+            robot.turnLeft();
+        } else if (robot.sign().equals("RIGHT")) {
+            robot.turnRight();
+        } else if (robot.sign().equals("AHEAD")) {
+            robot.move();
+        } else if (!robot.wallAhead()) {
+            robot.move();
         } else if (!robot.wallLeft()) {
-            return "LEFT";
+            robot.turnLeft();
         } else {
-            return "RIGHT";
+            robot.turnRight();
         }
     }
 }

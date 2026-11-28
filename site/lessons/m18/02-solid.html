@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SOLID: пять принципов хорошего дизайна · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-02">
+
+  <header class="lesson-head" data-mood="think">
+    <div class="kicker">Модуль 18 · Урок 2</div>
+    <h1>SOLID: пять принципов хорошего дизайна</h1>
+    <p class="lead">Программа работает — это половина дела. Вторая половина: через месяц добавить в неё новую фичу и не сломать старые. Пять коротких правил SOLID подсказывают, как разложить код по классам, чтобы изменения были маленькими и безопасными.</p>
+    <div class="meta"><span>⏱ 25 минут</span><span>🧱 дизайн классов</span><span>💼 любимая тема собеседований</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m18-02-review">
+      <script type="application/json">
+      { "title": "Вспомним хорошие привычки и интерфейсы", "icon": "🔁",
+        "items": [
+          { "type": "single", "q": "Ты скопировал одни и те же 10 строк подсчёта скидки в три разных метода. Какой принцип нарушен?",
+            "options": ["KISS — делай проще", "DRY — не повторяйся", "YAGNI — тебе это не понадобится"], "answer": 1,
+            "why": "DRY (Don't Repeat Yourself): одна и та же логика должна жить в одном месте. Найдут ошибку в скидке — придётся чинить её трижды, и одно место обязательно забудут." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Переменная типа интерфейса может ссылаться на объект любого класса, который реализует этот интерфейс", "a": true },
+              { "s": "YAGNI советует заранее написать код «на будущее», вдруг пригодится", "a": false, "why": "наоборот: YAGNI — не пиши то, что сейчас не нужно. Код «на всякий случай» чаще всего так и не понадобится, а поддерживать его придётся." },
+              { "s": "Объект интерфейса можно создать напрямую: new Comparable()", "a": false, "why": "интерфейс — это обещание, а не готовый класс. Создают объект класса, который его реализует (или лямбду)." }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Что такое SOLID и зачем он нужен</h2>
+    <p><b>Дизайн кода</b> — это то, как код разложен по классам и кто от кого зависит. Компилятору всё равно, а разница видна, когда код нужно <b>менять</b>: новый способ оплаты, другой вид чека, найденный баг. Хороший дизайн — когда каждое изменение затрагивает <b>одно место</b> и не ломает соседей. Как в хорошей квартире: чтобы поменять люстру, не нужно долбить стену и отключать воду.</p>
+    <p><b>SOLID</b> — пять принципов объектно-ориентированного дизайна. Их собрал программист Роберт Мартин («дядя Боб»), а из первых букв сложилось слово <i>solid</i> — «прочный»:</p>
+    <div class="cards">
+      <div class="card"><span class="emoji">🎯</span><h4>S — Single Responsibility</h4><p>Принцип единственной ответственности: одна причина для изменения.</p></div>
+      <div class="card"><span class="emoji">🔌</span><h4>O — Open/Closed</h4><p>Открыт для расширения, закрыт для изменения.</p></div>
+      <div class="card"><span class="emoji">🔁</span><h4>L — Liskov Substitution</h4><p>Наследник подставляется вместо родителя без сюрпризов.</p></div>
+      <div class="card"><span class="emoji">✂️</span><h4>I — Interface Segregation</h4><p>Маленькие интерфейсы лучше одного толстого.</p></div>
+      <div class="card"><span class="emoji">🔃</span><h4>D — Dependency Inversion</h4><p>Зависеть от интерфейса, а не от конкретного класса.</p></div>
+    </div>
+    <div class="say" data-mood="cool"><p>Сразу честно: это <b>ориентиры, а не законы</b>, компилятор за их нарушение не ругается. Новичку важнее всего <b>S</b> и <b>D</b> — их разберём подробно. Остальные три — коротко: они часто вырастают из первых двух сами.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>S — одна причина для изменения</h2>
+    <p><b>Принцип единственной ответственности</b> (Single Responsibility Principle, SRP): у класса должна быть <b>одна причина для изменения</b>. Не «один метод», а одна <b>забота</b> — одна группа людей, которая может прийти и попросить его поменять.</p>
+    <p>Вот класс заказа, который умеет всё:</p>
+<pre data-file="Order.java"><code class="java">class Order {                              // ❌ три заботы сразу
+    int price;
+    int count;
+    int total() { return price * count; }  // 1. считает сумму
+
+    void printReceipt() {                  // 2. печатает чек
+        System.out.println("Итого: " + total() + " ₽");
+    }
+
+    void sendEmail(String to) {            // 3. отправляет письмо
+        System.out.println(to + ": заказ оформлен");
+    }
+}</code></pre>
+    <p>Кто может попросить его изменить? Маркетологи — подсчёт суммы (скидки, акции). Бухгалтерия — вид чека. Отдел рассылок — текст письма. Три причины — три ответственности, и правка чека может случайно задеть подсчёт денег.</p>
+    <p>Делим по заботам — каждому классу одна:</p>
+<pre data-file="Order.java"><code class="java">class Order {                              // ✅ только заказ и сумма
+    int price;
+    int count;
+    int total() { return price * count; }
+}
+
+class ReceiptPrinter {                     // ✅ только вид чека
+    void print(Order order) {
+        System.out.println("Итого: " + order.total() + " ₽");
+    }
+}</code></pre>
+    <p>Письма точно так же уезжают в свой класс <code>OrderMailer</code>.</p>
+    <details class="predict">
+      <summary>Бухгалтерия попросила добавить в чек дату. Какие классы из второго варианта придётся открыть?</summary>
+      <p><b>Только <code>ReceiptPrinter</code>.</b> <code>Order</code> и <code>OrderMailer</code> не трогаем, а значит, и сломать их не можем. В первом варианте правка шла бы в тот же класс, где считаются деньги.</p>
+    </details>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: кафе</span>
+      <p>В кафе повар, кассир и уборщик — разные люди. Поменяли кассовый аппарат — переучивается только кассир, повар готовит как готовил.</p>
+    </div>
+    <p>Класс пора делить, если его трудно назвать без «и» (<i>«заказ, и чек, и письма»</i>) или в нём сотни строк.</p>
+    <div class="callout fact">
+      <span class="callout-title">Как спросят на собеседовании</span>
+      <p><b>«Что такое Single Responsibility? Приведи пример нарушения».</b> Ответ: у класса одна причина для изменения. Пример: класс заказа и считает сумму, и печатает чек, и шлёт письма — делим на три класса. Ловушка: SRP <b>не</b> значит «один метод в классе».</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>O — открыт для расширения, закрыт для изменения</h2>
+    <p><b>Принцип открытости/закрытости</b> (Open/Closed Principle, OCP): новое поведение добавляют <b>новым кодом</b>, а не правкой старого, уже проверенного.</p>
+    <p>Магазин считает доставку через <code>switch</code>, и каждый новый способ (дрон, постамат, экспресс) — ещё одна ветка в том же методе:</p>
+<pre data-file="DeliveryCalculator.java"><code class="java">class DeliveryCalculator {                 // ❌ новая доставка — правка здесь
+    int cost(String type, int kg) {
+        return switch (type) {
+            case "courier" -&gt; 300 + 50 * kg;
+            case "pickup" -&gt; 0;
+            default -&gt; throw new IllegalArgumentException(type);
+        };
+    }
+}</code></pre>
+    <p>Решение — полиморфизм из модуля 10: каждый способ доставки сам знает свою цену.</p>
+<pre data-file="Delivery.java"><code class="java">interface Delivery { int cost(int kg); }   // ✅
+
+class Courier implements Delivery {
+    @Override public int cost(int kg) { return 300 + 50 * kg; }
+}
+
+class Drone implements Delivery {          // новая доставка = новый класс
+    @Override public int cost(int kg) { return 500; }
+}</code></pre>
+    <p>Код оформления заказа вызывает <code>delivery.cost(kg)</code> и не знает, какая доставка ему пришла. Дрон добавили — старые классы не открывали. Как сменный объектив: фотоаппарат не разбирают, а прикручивают объектив к стандартному креплению.</p>
+    <div class="callout warn">
+      <span class="callout-title">switch — не преступление</span>
+      <p>Если вариантов мало и новых не предвидится (дни недели, «да/нет»), <code>switch</code> проще пачки классов — это KISS и YAGNI из прошлого урока. Интерфейс нужен, когда варианты <b>реально</b> добавляются.</p>
+    </div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: после появления Drone совсем ничего не надо менять?</summary>
+      <p>Одно место всё-таки поменяется — то, где по выбору покупателя создают объект: <code>new Drone()</code> кто-то должен написать. Но это одна строчка в одном месте, а не правка логики расчёта. OCP не обещает «ноль изменений», он обещает, что старый проверенный код останется нетронутым.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>L — наследник без сюрпризов</h2>
+    <p><b>Принцип подстановки Лисков</b> (Liskov Substitution Principle, LSP; Барбара Лисков — учёная, которая его сформулировала): объект наследника должен работать <b>везде</b>, где работает объект родителя, и не ломать ожиданий.</p>
+    <p>Пример с квадратом и прямоугольником ты уже видел в <a href="/lessons/m10/07-composition.html">уроке 10.7</a>. Вот ещё один, попроще:</p>
+<pre data-file="Birds.java"><code class="java">class Bird {
+    void fly() { System.out.println("Лечу!"); }
+}
+
+class Penguin extends Bird {               // ❌ обещал летать, а не может
+    @Override
+    void fly() { throw new UnsupportedOperationException("Не летаю"); }
+}</code></pre>
+    <p>Код, который перебирает список птиц и у каждой вызывает <code>fly()</code>, скомпилируется без единого предупреждения — а на пингвине упадёт с исключением. Ошибку увидит пользователь, а не компилятор. Решение — не обещать лишнего: умение летать выносим в отдельный интерфейс.</p>
+<pre data-file="Birds.java"><code class="java">interface Flying { void fly(); }           // ✅ летает не каждая птица
+
+class Bird { }
+
+class Sparrow extends Bird implements Flying {
+    @Override public void fly() { System.out.println("Лечу!"); }
+}
+
+class Penguin extends Bird { }             // летать не обещает</code></pre>
+    <p>Теперь пингвина в <code>List&lt;Flying&gt;</code> не положишь — ошибку поймает компилятор. Тревожные звонки, что L нарушен: наследник бросает «не поддерживается», метод пустой «для галочки», перед вызовом приходится проверять <code>instanceof Penguin</code>.</p>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>I — маленькие интерфейсы лучше толстого</h2>
+    <p><b>Принцип разделения интерфейсов</b> (Interface Segregation Principle, ISP): класс не должен зависеть от методов, которыми не пользуется.</p>
+<pre data-file="OfficeMachine.java"><code class="java">interface OfficeMachine {                  // ❌ один интерфейс на всё
+    void print(String doc);
+    void scan(String doc);
+    void fax(String doc, String number);
+}</code></pre>
+    <p>Обычный принтер, реализуя такой интерфейс, вынужден писать заглушки <code>scan</code> и <code>fax</code> с исключением — тот же тревожный звонок, что в букве L. Режем по умениям:</p>
+<pre data-file="Office.java"><code class="java">interface Printer { void print(String doc); }     // ✅ по умению
+interface DocScanner { void scan(String doc); }
+interface Fax { void fax(String doc, String number); }
+
+class SimplePrinter implements Printer {
+    @Override public void print(String doc) { System.out.println(doc); }
+}</code></pre>
+    <p>Комбайн реализует сразу все три: <code>implements Printer, DocScanner, Fax</code>. А бухгалтеру, которому нужна только печать, передают <code>Printer</code> — про факс он ничего не знает. Как пульт для бабушки: пять нужных кнопок вместо шестидесяти. В Java так устроены <code>Comparable</code> и <code>Runnable</code> — по одному методу.</p>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>D — зависеть от интерфейса, а не от конкретного класса</h2>
+    <p><b>Принцип инверсии зависимостей</b> (Dependency Inversion Principle, DIP): классы <b>высокого уровня</b> (главная логика: «оформить заказ») не должны зависеть от классов <b>низкого уровня</b> (детали: «как именно отправить письмо»). Оба должны зависеть от <b>абстракции</b> — интерфейса.</p>
+    <p>Как обычно пишут в первый раз (<code>EmailSender</code> — класс, который отправляет письмо):</p>
+<pre data-file="OrderService.java"><code class="java">class OrderService {
+    // ❌ сам выбрал и сам создал
+    private final EmailSender sender = new EmailSender();
+
+    void placeOrder(String customer) {
+        // ... оформляем заказ ...
+        sender.send(customer, "Заказ оформлен");
+    }
+}</code></pre>
+    <p><code>OrderService</code> намертво приварен к почте. Захотели SMS — переписываем его. Хотим проверить тестом — при каждом запуске «уходит письмо», и что именно ушло, не проверить.</p>
+    <p>Переворачиваем: <code>OrderService</code> говорит «мне нужен кто-то, кто умеет отправлять уведомления», а <b>кто именно</b> — решают снаружи и передают через конструктор:</p>
+<pre data-file="OrderService.java"><code class="java">interface Notifier {
+    void send(String to, String text);
+}
+
+class OrderService {
+    private final Notifier notifier;
+
+    OrderService(Notifier notifier) {      // ✅ зависимость передают снаружи
+        this.notifier = notifier;
+    }
+
+    void placeOrder(String customer) {
+        notifier.send(customer, "Заказ оформлен");
+    }
+}</code></pre>
+    <p>Почта и SMS — классы <code>EmailNotifier</code> и <code>SmsNotifier</code>, оба реализуют <code>Notifier</code>. Какой взять, решают в одном месте, на входе в программу: <code>new OrderService(new SmsNotifier())</code>.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="До: OrderService указывает стрелкой прямо на EmailSender. После: OrderService указывает на интерфейс Notifier, а EmailNotifier, SmsNotifier и FakeNotifier указывают на Notifier снизу вверх">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="185" y="30" text-anchor="middle" class="d-title">До</text>
+        <rect x="85" y="52" width="200" height="56" rx="12" class="d-accent"/>
+        <text x="185" y="78" text-anchor="middle" class="d-text">OrderService</text>
+        <text x="185" y="98" text-anchor="middle" class="d-small">главная логика</text>
+        <path d="M185 108 V184" class="d-arrow"/>
+        <text x="197" y="144" class="d-mono-ink">new EmailSender()</text>
+        <rect x="85" y="190" width="200" height="56" rx="12" class="d-red"/>
+        <text x="185" y="216" text-anchor="middle" class="d-text">EmailSender</text>
+        <text x="185" y="236" text-anchor="middle" class="d-small">деталь: как отправить</text>
+        <text x="185" y="282" text-anchor="middle" class="d-small">логика приварена к детали</text>
+
+        <path d="M378 16 V290" class="d-dash"/>
+
+        <text x="575" y="30" text-anchor="middle" class="d-title">После</text>
+        <rect x="475" y="46" width="200" height="46" rx="12" class="d-accent"/>
+        <text x="575" y="75" text-anchor="middle" class="d-text">OrderService</text>
+        <path d="M575 92 V128" class="d-arrow"/>
+        <text x="587" y="115" class="d-small">знает только интерфейс</text>
+        <rect x="465" y="132" width="220" height="50" rx="12" class="d-teal"/>
+        <text x="575" y="162" text-anchor="middle" class="d-text">«interface» Notifier</text>
+        <rect x="396" y="232" width="114" height="40" rx="10" class="d-soft"/>
+        <text x="453" y="257" text-anchor="middle" class="d-small">EmailNotifier</text>
+        <rect x="518" y="232" width="114" height="40" rx="10" class="d-soft"/>
+        <text x="575" y="257" text-anchor="middle" class="d-small">SmsNotifier</text>
+        <rect x="640" y="232" width="114" height="40" rx="10" class="d-yellow"/>
+        <text x="697" y="257" text-anchor="middle" class="d-small">FakeNotifier</text>
+        <path d="M453 232 L530 186" class="d-arrow"/>
+        <path d="M575 232 V186" class="d-arrow"/>
+        <path d="M697 232 L620 186" class="d-arrow"/>
+        <text x="575" y="292" text-anchor="middle" class="d-small">детали реализуют интерфейс: стрелки идут вверх</text>
+      </svg>
+      <figcaption>«Инверсия» — это разворот стрелки: раньше логика зависела от детали, теперь деталь зависит от интерфейса, который нужен логике.</figcaption>
+    </figure>
+    <p>Самый приятный бонус — <b>тесты</b>. В тест можно передать <b>фейк</b> (поддельную реализацию), который никуда ничего не отправляет, а только запоминает, что его попросили отправить.</p>
+    <details class="predict">
+      <summary>Можно ли написать такой тест для <em>первой</em> версии <code>OrderService</code>, где внутри <code>new EmailSender()</code>?</summary>
+      <p><b>Нормально — нет.</b> Объект создаётся внутри класса, и снаружи его не подменить: тест всегда будет работать с настоящим <code>EmailSender</code>. Как только зависимость приходит через конструктор, тест сам решает, что подставить.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: как выглядит тест с фейком</summary>
+<pre data-file="OrderServiceTest.java"><code class="java">import org.junit.jupiter.api.Test;
+import java.util.ArrayList;
+import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class FakeNotifier implements Notifier {
+    final List&lt;String&gt; sent = new ArrayList&lt;&gt;();
+
+    @Override
+    public void send(String to, String text) {
+        sent.add(to + ": " + text);        // ничего не отправляем, только запоминаем
+    }
+}
+
+class OrderServiceTest {
+    @Test
+    void notifiesCustomerAfterOrder() {
+        FakeNotifier fake = new FakeNotifier();
+        new OrderService(fake).placeOrder("anna@example.com");
+        assertThat(fake.sent).containsExactly("anna@example.com: Заказ оформлен");
+    }
+}</code></pre>
+    </details>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: розетка</span>
+      <p>Лампу не припаивают к проводке в стене — у неё вилка, а в стене стандартная розетка. В неё можно включить лампу, зарядку или тестер электрика. Розетка — интерфейс, приборы — реализации, тестер — тот самый фейк.</p>
+    </div>
+    <div class="say" data-mood="think"><p>Заметь: <code>new SmsNotifier()</code> не исчез, а переехал в <code>main</code> — в <b>одно место</b>. Классы с логикой получают готовое через конструктор. Этот приём называют <b>внедрением зависимости через конструктор</b> (constructor injection).</p></div>
+    <div class="callout fact">
+      <span class="callout-title">Как спросят на собеседовании</span>
+      <p><b>«Чем Dependency Inversion отличается от Dependency Injection?»</b> Ответ: Inversion — <b>принцип</b>: логика зависит от абстракций, а не от конкретных классов. Injection — <b>приём</b>: зависимость передают снаружи, например через конструктор. Приём помогает соблюдать принцип.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Ориентиры, а не законы</h2>
+    <p>SOLID легко довести до абсурда: интерфейс на каждый класс, десять файлов ради «Привет, мир» — это нарушает KISS и YAGNI. Применяй принципы там, где изменения правда случаются:</p>
+    <ul>
+      <li>Класс разросся и меняется по разным причинам — дели (S).</li>
+      <li>Класс сам создаёт свои «инструменты» через <code>new</code>, и его не протестировать — передай их через конструктор, тип поля — интерфейс (D).</li>
+      <li>Варианты поведения реально добавляются — интерфейс и новые классы вместо растущего <code>switch</code> (O).</li>
+      <li>Наследник бросает «не поддерживается» — пересмотри иерархию (L), часто вместе с толстым интерфейсом (I).</li>
+    </ul>
+    <div class="say" data-mood="happy"><p>Если запомнишь из урока только две вещи — пусть это будут <b>S</b> («у класса одна забота») и <b>D</b> («нужные объекты передай через конструктор, тип поля — интерфейс»).</p></div>
+    <details class="curious">
+      <summary>🔎 Для любопытных: как спросят про O, L и I на собеседовании</summary>
+      <p><b>«Как понимать “открыт для расширения, закрыт для изменения”?»</b> Новое поведение добавляем новым классом, который реализует интерфейс; старый код, который с этим интерфейсом работает, не меняем. Пример: <code>switch</code> по типу доставки заменяем интерфейсом <code>Delivery</code>.</p>
+      <p><b>«Что такое принцип подстановки Лисков?»</b> Наследника можно передать везде, где ждут родителя, и программа продолжит работать правильно. Нарушения: квадрат-наследник прямоугольника с сеттерами; пингвин, который бросает исключение в <code>fly()</code>. Аналогия — прокат машин: в любой машине тормоз слева, иначе на неё нельзя «подставиться».</p>
+      <p><b>«Чем плох толстый интерфейс?»</b> Реализациям приходится писать заглушки (часто с исключением — привет, L), а клиенты зависят от методов, которыми не пользуются. Лечится разделением на маленькие интерфейсы; один класс может реализовать сразу несколько.</p>
+    </details>
+    <div class="cheat">
+      <h3>📝 Выпиши себе: SOLID</h3>
+      <p>Перепиши руками в тетрадь или заметки. В правой колонке — вопрос, который можно задать своему коду.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Буква</th><th>Принцип</th><th>Спроси себя</th></tr>
+        <tr><td><b>S</b></td><td>Single Responsibility — одна причина для изменения</td><td>Могу ли я описать класс одной фразой без «и»?</td></tr>
+        <tr><td><b>O</b></td><td>Open/Closed — расширяй новым кодом, не правкой старого</td><td>Новый вариант — это новый класс или очередная ветка в старом switch?</td></tr>
+        <tr><td><b>L</b></td><td>Liskov Substitution — наследник работает везде, где родитель</td><td>Нет ли у наследника исключений «не поддерживается» и пустых заглушек?</td></tr>
+        <tr><td><b>I</b></td><td>Interface Segregation — маленькие интерфейсы лучше толстого</td><td>Не заставляю ли я класс реализовать ненужные ему методы?</td></tr>
+        <tr><td><b>D</b></td><td>Dependency Inversion — зависеть от интерфейса, а не от конкретного класса</td><td>Не создаёт ли класс свои инструменты через new? Можно ли подставить фейк в тесте?</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m18-02">
+      <script type="application/json">
+      { "title": "SOLID — главное",
+        "items": [
+          { "type": "match", "q": "Соедини букву с её смыслом",
+            "left": ["S", "O", "L", "I", "D"],
+            "right": ["Одна причина для изменения класса", "Новое поведение — новым классом, без правки старого", "Наследник работает везде, где работает родитель", "Несколько маленьких интерфейсов лучше одного толстого", "Зависеть от интерфейса, а не от конкретного класса"],
+            "why": "S — одна забота, O — расширяй, не переписывай, L — подставляй без сюрпризов, I — не навязывай лишнего, D — зависимость через интерфейс и конструктор." },
+          { "type": "single", "q": "Какой принцип нарушен в этом классе?",
+            "code": "class Report {\n    String build(List<Sale> sales) { ... }      // собирает текст отчёта\n    void sendByEmail(String to) { ... }        // отправляет письмо\n    void saveAsPdf(Path file) { ... }          // сохраняет PDF\n}",
+            "options": ["S — у класса несколько причин для изменения", "O — нельзя добавить новый отчёт", "L — наследник ломает родителя"], "answer": 0,
+            "why": "Формат отчёта, способ отправки и формат файла меняются по разным причинам и по просьбе разных людей. Это три ответственности в одном классе." },
+          { "type": "bug", "q": "Какая строка нарушает принцип D и мешает подставить фейк в тесте?",
+            "code": "class Thermostat {\n    private final Heater heater = new GasHeater();\n\n    void keep(int target, int current) {\n        if (current < target) {\n            heater.turnOn();\n        }\n    }\n}",
+            "answer": [2],
+            "why": "Термостат сам выбирает и создаёт конкретный GasHeater. Лучше принять Heater через конструктор: Thermostat(Heater heater) — тогда в тест можно передать фейковый обогреватель." },
+          { "type": "multi", "q": "Что даёт передача зависимости через конструктор? Отметь всё верное",
+            "options": ["В тесте можно подставить фейк вместо настоящего объекта", "Класс начинает работать быстрее", "Поменять почту на SMS можно без правки класса с логикой", "Пропадает необходимость создавать объекты через new"], "answer": [0, 2],
+            "why": "Скорость не меняется, а new никуда не исчезает — он переезжает в одно место (например, в main). Зато класс с логикой больше не привязан к конкретной реализации." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "SOLID — строгие законы: код, который нарушает хоть один принцип, не скомпилируется", "a": false, "why": "это ориентиры для людей, компилятор о них не знает. Их сознательно нарушают, когда так проще и изменений не предвидится." },
+              { "s": "Single Responsibility значит, что в классе должен быть ровно один метод", "a": false, "why": "одна причина для изменения, а не один метод. У Order несколько методов, но все про заказ." },
+              { "s": "Интерфейс, из-за которого класс пишет пустые заглушки ненужных методов, нарушает принцип I", "a": true },
+              { "s": "Dependency Injection — это приём, а Dependency Inversion — принцип", "a": true },
+              { "s": "Квадрат, унаследованный от прямоугольника с сеттерами ширины и высоты, — пример нарушения O", "a": false, "why": "это классический пример нарушения L: квадрат нельзя подставить вместо прямоугольника, не сломав ожиданий." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Напиши: <em>«Я прошёл урок про SOLID. Дай мне три небольших класса с нарушениями разных принципов, а я сам скажу, какая буква нарушена и как это исправить»</em>. А потом: <em>«Возьми мою последнюю задачу и скажи, где в ней нарушен S или D — только укажи место, исправлю я сам»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li><b>S</b> — у класса одна причина для изменения: заказ, печать чека и рассылка писем — разные классы.</li>
+        <li><b>O</b> — новый вариант поведения добавляем новым классом с интерфейсом, а не новой веткой в старом <code>switch</code>.</li>
+        <li><b>L</b> — наследник работает везде, где родитель; исключение «не поддерживается» в наследнике — тревожный звонок.</li>
+        <li><b>I</b> — несколько маленьких интерфейсов вместо одного толстого; класс реализует только то, что умеет.</li>
+        <li><b>D</b> — логика зависит от интерфейса, конкретную реализацию передают через конструктор; в тест — фейк.</li>
+        <li>Это ориентиры, а не законы. Главное для начала — S и D; не плоди интерфейсы «на всякий случай» (KISS, YAGNI).</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

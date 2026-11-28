@@ -7,10 +7,10 @@
 ## map: courier/levels/p1-2.txt
 ## seeds: 21,22,23
 @@ description
-<p>Теперь в коридоре лежит посылка 📦. Джавик должен взять её (<code>"TAKE"</code>) и отдать на адресе 🏠 (<code>"DROP"</code>).</p>
+<p>Теперь в коридоре лежит посылка 📦. Джавик должен взять её (<code>robot.take()</code>) и отдать на адресе 🏠 (<code>robot.drop()</code>).</p>
 <p>Главное здесь — <b>порядок условий</b>: что проверить первым? Если сначала спросить «свободно ли впереди?», Джавик проедет мимо посылки. Улучшай тот же файл, что в прошлом уровне: он должен проходить и коридор без посылки.</p>
 <p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-04/CourierPart1.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
 <p>📖 Урок <a href="/lessons/m04/50-courier.html">«Джавик-курьер, часть 1»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
-@@ require: String\s+decide\s*\(\s*CourierRobot | Нужен метод public static String decide(CourierRobot robot)
-@@ require: "TAKE" | Посылку берут командой "TAKE"
-@@ require: "DROP" | Посылку отдают командой "DROP"
+@@ require: void\s+step\s*\(\s*CourierRobot | Нужен метод public static void step(CourierRobot robot)
+@@ require: robot\.take\s*\( | Посылку берут командой robot.take()
+@@ require: robot\.drop\s*\( | Посылку отдают командой robot.drop()

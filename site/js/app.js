@@ -249,13 +249,16 @@
     return read.size ? "/cheatsheet.html" : "/lessons/m00/01-how-it-works.html";
   }
 
+  // «Практика» модуля стоит перед итоговым уроком (id …-sum); если его нет — перед последним уроком
+  function practiceAt(m) { const k = m.lessons.findIndex((l) => /-sum$/.test(l.id)); return k >= 0 ? k : m.lessons.length - 1; }
+
   // ---------------- поиск текущего урока ----------------
   function flatLessons() {
     const list = [];
     for (const m of COURSE.modules) {
       if (m.status !== "open") continue;
       m.lessons.forEach((l, i) => {
-        if (m.tasks && i === m.lessons.length - 1) list.push({ id: "tasks-" + m.id, title: "Практика: задачи модуля " + m.num, url: m.tasks, module: m });
+        if (m.tasks && i === practiceAt(m)) list.push({ id: "tasks-" + m.id, title: "Практика: задачи модуля " + m.num, url: m.tasks, module: m });
         list.push({ ...l, module: m, index: i });
       });
     }
@@ -310,7 +313,7 @@
           <span class="chev">▶</span>
         </button><div class="mod-body">`;
       m.lessons.forEach((l, i) => {
-        if (m.tasks && i === m.lessons.length - 1) {
+        if (m.tasks && i === practiceAt(m)) {
           const allDone = m.taskCount && p.tasksDone >= m.taskCount;
           html += `<a class="node task ${allDone ? "done" : ""} ${current === "tasks-" + m.id ? "active" : ""}" href="${m.tasks}"><span class="dot">${allDone ? "✓" : "⚑"}</span><span>Практика: задачи <small>(${p.tasksDone}/${m.taskCount || "?"})</small></span></a>`;
         }
@@ -582,7 +585,7 @@
       const courierLesson = /-courier$/.test(lid);
       if (cls === "CourierRobot") {
         label = "📄 Это робот — файл уже есть";
-        how = `<b>Это описание робота Джавика</b> — файл <code>workspace/courier/CourierRobot.java</code> уже лежит в IDEA. Его не меняй и не создавай заново: сам робот живёт на сайте.`;
+        how = `<b>Это описание робота Джавика</b> — файл <code>workspace/system/CourierRobot.java</code> уже лежит в IDEA. Его не меняй и не создавай заново: сам робот живёт на сайте.`;
       } else if (cls && COURIER_FILES[cls]) {
         label = `📄 Твой файл игры: ${cls}.java`;
         how = `<b>Этот файл уже лежит в IDEA</b>: <code>workspace/${COURIER_FILES[cls]}/${esc(cls)}.java</code> (заготовка появляется сама). Пиши код в нём — новый класс не создавай, иначе IDEA найдёт два класса с одним именем.

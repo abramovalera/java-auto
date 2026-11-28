@@ -1,6 +1,6 @@
 # Часть 1 ★★★ «Перекрёстки»: развилки с табличками, посылка по пути
 class=CourierPart1
-entry=decide
+entry=step
 map=forks
 parcel=true
 goal=deliver

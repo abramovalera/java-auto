@@ -958,7 +958,7 @@ window.COURSE = {
       "num": "17",
       "title": "Инструменты разработчика",
       "status": "open",
-      "summary": "Отладчик IDEA, Git в одиночку и в команде, сборка на Gradle (и Maven обзорно), тесты на JUnit 5 и AssertJ, тест-дизайн: классы и границы. Чистый код, DRY/KISS/YAGNI, SOLID и паттерны проектирования.",
+      "summary": "Отладчик IDEA, Git в одиночку и в команде, сборка на Gradle (и Maven обзорно), тесты на JUnit 5 и AssertJ, тест-дизайн: классы и границы.",
       "lessons": [
         {
           "id": "m17-01",
@@ -996,38 +996,64 @@ window.COURSE = {
           "url": "/lessons/m17/07-workshop-tests.html"
         },
         {
-          "id": "m17-clean",
-          "title": "Чистый код: стиль, DRY, KISS, YAGNI",
-          "url": "/lessons/m17/07b-clean-code.html"
-        },
-        {
-          "id": "m17-solid",
-          "title": "SOLID: пять принципов хорошего дизайна",
-          "url": "/lessons/m17/07c-solid.html"
-        },
-        {
-          "id": "m17-patterns1",
-          "title": "Паттерны: как создавать объекты",
-          "url": "/lessons/m17/07d-patterns-creational.html"
-        },
-        {
-          "id": "m17-patterns2",
-          "title": "Паттерны: структурные и поведенческие",
-          "url": "/lessons/m17/07e-patterns-behavior.html"
-        },
-        {
           "id": "m17-pz",
-          "title": "Головоломки: тесты, Git, чистый код и паттерны",
+          "title": "Головоломки: тесты, Git и отладчик",
           "url": "/lessons/m17/08-puzzles.html"
         },
         {
           "id": "m17-sum",
-          "title": "Итоги и финал курса",
+          "title": "Итоги модуля и экзамен",
           "url": "/lessons/m17/09-summary.html"
         }
       ],
       "tasks": "/tasks.html?module=m17",
-      "taskCount": 9
+      "taskCount": 7
+    },
+    {
+      "id": "m18",
+      "num": "18",
+      "title": "Чистый код и паттерны",
+      "status": "open",
+      "summary": "Как писать код, который легко читать и менять: код-стайл, DRY, KISS, YAGNI, принципы SOLID и паттерны проектирования — строитель, стратегия, декоратор и другие. В конце — финал курса.",
+      "lessons": [
+        {
+          "id": "m18-01",
+          "title": "Чистый код: стиль, DRY, KISS, YAGNI",
+          "url": "/lessons/m18/01-clean-code.html"
+        },
+        {
+          "id": "m18-02",
+          "title": "SOLID: пять принципов хорошего дизайна",
+          "url": "/lessons/m18/02-solid.html"
+        },
+        {
+          "id": "m18-03",
+          "title": "Паттерны: как создавать объекты",
+          "url": "/lessons/m18/03-patterns-creational.html"
+        },
+        {
+          "id": "m18-04",
+          "title": "Паттерны: структурные и поведенческие",
+          "url": "/lessons/m18/04-patterns-behavior.html"
+        },
+        {
+          "id": "m18-pz",
+          "title": "Головоломки: чистый код и паттерны",
+          "url": "/lessons/m18/05-puzzles.html"
+        },
+        {
+          "id": "m18-sum",
+          "title": "Итоги модуля и экзамен",
+          "url": "/lessons/m18/06-summary.html"
+        },
+        {
+          "id": "m18-final",
+          "title": "Финал курса: что дальше",
+          "url": "/lessons/m18/07-finale.html"
+        }
+      ],
+      "tasks": "/tasks.html?module=m18",
+      "taskCount": 2
     }
   ]
 };

@@ -1,61 +1,44 @@
 {
   "id": "m18",
   "num": "18",
-  "title": "Мост в автотесты",
-  "summary": "Профессия автоматизатора: пирамида тестов, HTML и DevTools, локаторы CSS и XPath руками, Selenide и умные ожидания, Page Object, структура тестового проекта, API-тесты, итоговый проект и финал курса.",
+  "title": "Чистый код и паттерны",
+  "summary": "Как писать код, который легко читать и менять: код-стайл, DRY, KISS, YAGNI, принципы SOLID и паттерны проектирования — строитель, стратегия, декоратор и другие. В конце — финал курса.",
   "lessons": [
     {
       "id": "m18-01",
-      "title": "Что такое автотесты и кто такой автоматизатор",
-      "url": "/lessons/m18/01-what-is-autotest.html"
+      "title": "Чистый код: стиль, DRY, KISS, YAGNI",
+      "url": "/lessons/m18/01-clean-code.html"
     },
     {
       "id": "m18-02",
-      "title": "Как устроена веб-страница: HTML и DevTools",
-      "url": "/lessons/m18/02-web-page.html"
+      "title": "SOLID: пять принципов хорошего дизайна",
+      "url": "/lessons/m18/02-solid.html"
     },
     {
       "id": "m18-03",
-      "title": "Локаторы: CSS и XPath",
-      "url": "/lessons/m18/03-locators.html"
+      "title": "Паттерны: как создавать объекты",
+      "url": "/lessons/m18/03-patterns-creational.html"
     },
     {
       "id": "m18-04",
-      "title": "Selenide: первый UI-тест",
-      "url": "/lessons/m18/04-selenide.html"
-    },
-    {
-      "id": "m18-05",
-      "title": "Page Object",
-      "url": "/lessons/m18/05-page-object.html"
-    },
-    {
-      "id": "m18-06",
-      "title": "Структура тестового проекта",
-      "url": "/lessons/m18/06-test-project.html"
-    },
-    {
-      "id": "m18-07",
-      "title": "API-тесты кратко",
-      "url": "/lessons/m18/07-api-tests.html"
-    },
-    {
-      "id": "m18-08",
-      "title": "Итоговый проект и что дальше",
-      "url": "/lessons/m18/08-final-project.html"
+      "title": "Паттерны: структурные и поведенческие",
+      "url": "/lessons/m18/04-patterns-behavior.html"
     },
     {
       "id": "m18-pz",
-      "title": "Головоломки: локаторы, ожидания, JUnit",
-      "url": "/lessons/m18/09-puzzles.html"
+      "title": "Головоломки: чистый код и паттерны",
+      "url": "/lessons/m18/05-puzzles.html"
     },
     {
       "id": "m18-sum",
-      "title": "Финал курса: итоги и экзамен",
-      "url": "/lessons/m18/10-summary.html"
+      "title": "Итоги модуля и экзамен",
+      "url": "/lessons/m18/06-summary.html"
+    },
+    {
+      "id": "m18-final",
+      "title": "Финал курса: что дальше",
+      "url": "/lessons/m18/07-finale.html"
     }
   ],
-  "taskCount": 7,
-  "hidden": true,
-  "hiddenReason": "Автотесты отложены: будут отдельным курсом. Файлы сохранены."
+  "taskCount": 2
 }

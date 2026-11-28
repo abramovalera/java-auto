@@ -1,6 +1,6 @@
 // Прогоняет все задачи курса на эталонных решениях: node tools/check-tasks.js [mXX ...]
-// Для каждой задачи: эталон tutor/solutions/module-XX/<Класс>.java копируется в workspace, сервер проверяет,
-// ожидается "passed". Файлы ученика при этом не портятся: если в workspace уже был файл — он сохраняется и возвращается.
+// Для каждой задачи сервер проверяет эталон tutor/solutions/module-XX/<Класс>.java прямо на месте (?reference=1),
+// ожидается "passed". workspace ученика и журнал проверок не трогаются — прогонять можно, даже пока ученик решает.
 const fs = require("fs"), path = require("path");
 const root = path.resolve(__dirname, "..");
 const only = process.argv.slice(2);
@@ -46,19 +46,13 @@ for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(sig, () => { if (p
         ? path.join(root, "tutor", "solutions", "minibank", mod, path.basename(file))
         : path.join(root, "tutor", "solutions", path.dirname(file), path.basename(file));
       if (!fs.existsSync(solution)) { results.push([id, "НЕТ ЭТАЛОНА", file]); continue; }
-      const target = isProject ? path.join(root, "MiniBank", file) : path.join(root, "workspace", file);
-      const backup = fs.existsSync(target) ? fs.readFileSync(target) : null;
-      fs.mkdirSync(path.dirname(target), { recursive: true });
-      fs.copyFileSync(solution, target);
-      // если скрипт прервут посреди проверки — всё равно вернуть файл ученика / убрать эталон
-      pending = () => { try { if (backup) fs.writeFileSync(target, backup); else fs.unlinkSync(target); } catch (e) {} };
+      // эталон проверяется прямо из tutor/solutions (?reference=1): workspace ученика не трогается, журнал не пишется
       let status;
       checkedIds.add(id);
       try {
-        const r = await fetch(`http://localhost:7070/api/check/${id}`, { method: "POST" }).then((x) => x.json());
-        status = r.status + (r.status !== "passed" ? " " + JSON.stringify((r.tests || []).filter((t) => !t.passed).map((t) => t.name + ": " + (t.error || t.diff || "")).concat(r.ruleFails || []).concat(r.compilerOutput ? [r.compilerOutput.slice(0, 200)] : [])) : "");
+        const r = await fetch(`http://localhost:7070/api/check/${id}?reference=1`, { method: "POST" }).then((x) => x.json());
+        status = r.status + (r.status !== "passed" ? " " + JSON.stringify((r.tests || []).filter((t) => !t.passed).map((t) => t.name + ": " + (t.error || t.diff || "")).concat(r.ruleFails || []).concat(r.compilerOutput ? [r.compilerOutput.slice(0, 200)] : []).concat(r.message && r.status !== "failed" ? [r.message] : [])) : "");
       } catch (e) { status = "ошибка запроса: " + e.message; }
-      pending(); pending = null;
       results.push([id, status, cls]);
     }
   }

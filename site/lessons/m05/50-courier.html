@@ -300,8 +300,8 @@
   <section class="step">
     <h2>Что изменилось с части 1</h2>
     <div class="cards">
-      <div class="card"><span class="emoji">🔁</span><h4>Было (часть 1)</h4><p>Игра сама вызывала <code>decide</code> на каждом ходу. Ты возвращал <b>одну команду строкой</b>: <code>"MOVE"</code>.</p></div>
-      <div class="card"><span class="emoji">🚗</span><h4>Стало (часть 2)</h4><p>Метод <code>run</code> вызывается <b>один раз</b>. Командуешь сам, вызывая методы робота: <code>robot.move()</code>. Повторять действия теперь должен <b>твой цикл</b>.</p></div>
+      <div class="card"><span class="emoji">🔁</span><h4>Было (часть 1)</h4><p>Игра сама вызывала <code>step</code> на каждом ходу, и за ход ты давал <b>одну команду</b>: <code>robot.move()</code>.</p></div>
+      <div class="card"><span class="emoji">🚗</span><h4>Стало (часть 2)</h4><p>Метод <code>run</code> вызывается <b>один раз</b>. Команды те же — <code>robot.move()</code>, повороты, — но повторять их теперь должен <b>твой цикл</b>.</p></div>
     </div>
     <div class="table-wrap"><table>
       <tr><th>Команда</th><th>Что сделает Джавик</th></tr>
@@ -335,7 +335,7 @@
          "open": true
         },
         {
-         "name": "courier",
+         "name": "system",
          "type": "src",
          "depth": 1,
          "open": true

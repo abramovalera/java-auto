@@ -57,8 +57,10 @@ public class CourseServer {
         ensureModuleFolders();
         ensureIdeaProject();
         ensureTrainerFolders();
-        ensureCourierFolder();
+        moveOldArchive();
+        ensureSystemFolder();
         retireRunner();
+        migrateStarters();
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/api/tasks", ex -> safe(ex, CourseServer::handleTasks));
@@ -125,43 +127,44 @@ public class CourseServer {
 
     /**
      * Игру «Раннер» убрали (28.11.2026). Её файл ученика module-04/Javik.java ссылается на класс Radar, которого больше нет,
-     * и ломал бы сборку проекта в IDEA. Переносим его в workspace/.old/runner/ — код ученика не теряется.
+     * и ломал бы сборку проекта в IDEA. Переносим его в workspace/old/runner/ — код ученика не теряется.
      */
     private static void retireRunner() {
         try {
             Path old = workspaceDir.resolve("module-04").resolve("Javik.java");
             if (!Files.exists(old) || !Files.readString(old, StandardCharsets.UTF_8).contains("Radar")) return;
-            Path dst = workspaceDir.resolve(".old").resolve("runner").resolve("Javik.java");
+            Path dst = workspaceDir.resolve("old").resolve("runner").resolve("Javik.java");
             Files.createDirectories(dst.getParent());
             Files.move(old, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("Игра «Раннер» убрана: module-04/Javik.java перенесён в .old/runner/");
+            System.out.println("Игра «Раннер» убрана: module-04/Javik.java перенесён в old/runner/");
         } catch (IOException e) {
             System.err.println("Не удалось перенести Javik.java: " + e);
         }
     }
 
     /**
-     * Игра «Джавик-курьер»: workspace/courier/ — заготовка робота CourierRobot.java с описанием методов и шпаргалка README.md, чтобы IDEA
-     * понимала код ученика (сам робот работает на сайте, в движке tasks/courier/engine). Папка помечается как Sources Root.
-     * Эти файлы ученик не меняет, поэтому их свежие версии из starter/courier/ всегда записываются поверх.
+     * Служебные файлы курса — workspace/system/ (Sources Root): заготовка робота CourierRobot.java для игры «Джавик-курьер»
+     * и другие файлы, которые нужны IDEA, но которые ученик не пишет. Их свежие версии из starter/system/ всегда записываются поверх.
+     * Шпаргалки частей игры (README.md) лежат в папках модулей рядом с кодом ученика.
+     * Раньше робот лежал в workspace/courier/ — папка убирается, её записи в проекте IDEA тоже.
      */
-    private static void ensureCourierFolder() {
+    private static void ensureSystemFolder() {
         try {
-            Path from = starterDir.resolve("courier");
-            if (!Files.isDirectory(from)) return;
-            Path to = workspaceDir.resolve("courier");
-            Files.createDirectories(to);
-            try (Stream<Path> files = Files.list(from)) {
-                for (Path src : files.filter(Files::isRegularFile).toList()) {
-                    Path dst = to.resolve(src.getFileName().toString());
-                    byte[] fresh = Files.readAllBytes(src);
-                    if (!Files.exists(dst) || !java.util.Arrays.equals(Files.readAllBytes(dst), fresh)) {
-                        Files.write(dst, fresh);
-                        System.out.println("Игра «Джавик-курьер»: обновлён courier/" + src.getFileName());
+            Path from = starterDir.resolve("system");
+            Path to = workspaceDir.resolve("system");
+            if (Files.isDirectory(from)) {
+                Files.createDirectories(to);
+                try (Stream<Path> files = Files.list(from)) {
+                    for (Path src : files.filter(Files::isRegularFile).toList()) {
+                        Path dst = to.resolve(src.getFileName().toString());
+                        byte[] fresh = Files.readAllBytes(src);
+                        if (!Files.exists(dst) || !java.util.Arrays.equals(Files.readAllBytes(dst), fresh)) {
+                            Files.write(dst, fresh);
+                            System.out.println("Служебные файлы: обновлён system/" + src.getFileName());
+                        }
                     }
                 }
             }
-            // шпаргалки частей игры лежат в папках модулей рядом с кодом ученика (module-04/README.md и т.д.)
             for (String m : List.of("module-04", "module-05", "module-06", "module-07", "module-13")) {
                 Path readme = starterDir.resolve(m).resolve("README.md");
                 if (!Files.exists(readme)) continue;
@@ -173,18 +176,133 @@ public class CourseServer {
                     System.out.println("Игра «Джавик-курьер»: обновлена шпаргалка " + m + "/README.md");
                 }
             }
-            Files.deleteIfExists(to.resolve("README.md")); // общая шпаргалка была в courier/ — теперь своя в каждом модуле
+            // старая папка courier/: наши файлы удаляем, чужие (если ученик что-то туда положил) — в архив old/
+            Path oldCourier = workspaceDir.resolve("courier");
+            if (Files.isDirectory(oldCourier)) {
+                try (Stream<Path> files = Files.list(oldCourier)) {
+                    for (Path p : files.toList()) {
+                        String n = p.getFileName().toString();
+                        if (n.equals("CourierRobot.java") || n.equals("README.md")) Files.deleteIfExists(p);
+                        else { Path dst = workspaceDir.resolve("old").resolve("courier").resolve(n); Files.createDirectories(dst.getParent()); Files.move(p, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+                    }
+                }
+                Files.deleteIfExists(oldCourier);
+                System.out.println("Служебные файлы переехали: courier/ → system/");
+            }
             Path iml = workspaceDir.resolve("workspace.iml");
             if (!Files.exists(iml)) return;
             String xml = Files.readString(iml, StandardCharsets.UTF_8);
-            String url = "file://$MODULE_DIR$/courier";
+            String before = xml;
+            xml = xml.replaceAll("\\s*<sourceFolder url=\"file://\\$MODULE_DIR\\$/courier\"[^>]*/>", "");
+            String url = "file://$MODULE_DIR$/system";
             int at = xml.indexOf("    </content>");
-            if (!xml.contains("\"" + url + "\"") && at > 0) {
-                Files.writeString(iml, xml.substring(0, at) + "      <sourceFolder url=\"" + url + "\" isTestSource=\"false\" />\n" + xml.substring(at), StandardCharsets.UTF_8);
-                System.out.println("В проект IDEA добавлена папка courier (робот для игры «Джавик-курьер»)");
+            if (!xml.contains("\"" + url + "\"") && at > 0)
+                xml = xml.substring(0, at) + "      <sourceFolder url=\"" + url + "\" isTestSource=\"false\" />\n" + xml.substring(at);
+            if (!xml.equals(before)) {
+                Files.writeString(iml, xml, StandardCharsets.UTF_8);
+                System.out.println("Проект IDEA: служебная папка system отмечена как Sources Root");
             }
         } catch (IOException e) {
-            System.err.println("Не удалось подготовить папку courier: " + e);
+            System.err.println("Не удалось подготовить папку system: " + e);
+        }
+    }
+
+    /** Архив старого кода ученика раньше назывался .old (скрытая папка) — теперь видимая old/. */
+    private static void moveOldArchive() {
+        Path dot = workspaceDir.resolve(".old");
+        if (!Files.isDirectory(dot)) return;
+        try (Stream<Path> walk = Files.walk(dot)) {
+            for (Path p : walk.filter(Files::isRegularFile).toList()) {
+                Path dst = workspaceDir.resolve("old").resolve(dot.relativize(p).toString());
+                Files.createDirectories(dst.getParent());
+                if (!Files.exists(dst)) Files.move(p, dst);
+            }
+            try (Stream<Path> dirs = Files.walk(dot)) {
+                for (Path d : dirs.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                    try { Files.deleteIfExists(d); } catch (IOException e) { /* непустая — остаётся */ }
+                }
+            }
+            System.out.println("Архив старого кода: .old/ → old/");
+        } catch (IOException e) {
+            System.err.println("Не удалось перенести .old: " + e);
+        }
+    }
+
+    // ===================================================================
+    // Обновление заготовок в workspace ученика
+    // ===================================================================
+
+    /** Отпечаток текста: не зависит от переводов строк и пробелов в конце строк (как в tools/build-starter-history.js). */
+    static String fingerprint(String text) {
+        String norm = text.replace("\r", "").lines().map(String::stripTrailing).collect(java.util.stream.Collectors.joining("\n")).strip();
+        try {
+            byte[] d = java.security.MessageDigest.getInstance("SHA-256").digest(norm.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte x : d) sb.append(String.format("%02x", x));
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+    }
+
+    /**
+     * При каждом запуске: 1) несовместимые изменения заготовок (starter/_meta/breaking.json) — файл ученика заменяется
+     * свежей заготовкой, его код переезжает в workspace/old/<дата> модуль N/ (об этом пишем в описании обновления — окно «Что нового»);
+     * 2) заготовка, которую ученик не трогал (совпадает с одной из прошлых версий, starter/_meta/versions.json),
+     * тихо заменяется на свежую. Код, который ученик писал, без несовместимого изменения не трогается.
+     */
+    @SuppressWarnings("unchecked")
+    private static void migrateStarters() {
+        try {
+            Path meta = starterDir.resolve("_meta");
+            Map<String, Object> versions = Files.exists(meta.resolve("versions.json"))
+                    ? (Map<String, Object>) Json.parse(Files.readString(meta.resolve("versions.json"), StandardCharsets.UTF_8)) : Map.of();
+            List<Object> breaking = Files.exists(meta.resolve("breaking.json"))
+                    ? (List<Object>) Json.parse(Files.readString(meta.resolve("breaking.json"), StandardCharsets.UTF_8)) : List.of();
+            Path appliedFile = workspaceDir.resolve(".progress").resolve("migrations.json");
+            List<Object> applied = new ArrayList<>(Files.exists(appliedFile)
+                    ? (List<Object>) Json.parse(Files.readString(appliedFile, StandardCharsets.UTF_8)) : List.of());
+            boolean changed = false;
+            for (Object o : breaking) {
+                Map<String, Object> b = (Map<String, Object>) o;
+                String id = String.valueOf(b.get("id"));
+                if (applied.contains(id)) continue;
+                List<String> moved = new ArrayList<>();
+                String folder = "old/" + b.get("date") + " модуль " + b.get("module");
+                for (Object fo : (List<Object>) b.get("files")) {
+                    String rel = String.valueOf(fo);
+                    Path ws = workspaceDir.resolve(rel).normalize(), st = starterDir.resolve(rel).normalize();
+                    if (!ws.startsWith(workspaceDir) || !Files.exists(ws) || !Files.exists(st)) continue;
+                    String cur = fingerprint(Files.readString(ws, StandardCharsets.UTF_8));
+                    if (cur.equals(fingerprint(Files.readString(st, StandardCharsets.UTF_8)))) continue;
+                    List<Object> known = (List<Object>) versions.getOrDefault(rel, List.of());
+                    if (!known.contains(cur)) { // ученик писал код — бережём его в архиве
+                        Path dst = workspaceDir.resolve(folder).resolve(ws.getFileName().toString());
+                        Files.createDirectories(dst.getParent());
+                        Files.copy(ws, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        moved.add("workspace/" + folder + "/" + ws.getFileName());
+                    }
+                    Files.copy(st, ws, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("Заготовка заменена (" + id + "): " + rel);
+                }
+                applied.add(id);
+                changed = true;
+                if (!moved.isEmpty()) System.out.println("Прежний код ученика сохранён: " + moved);
+            }
+            for (Map.Entry<String, Object> e : versions.entrySet()) { // нетронутые заготовки — тихо до свежей версии
+                Path ws = workspaceDir.resolve(e.getKey()).normalize(), st = starterDir.resolve(e.getKey()).normalize();
+                if (!ws.startsWith(workspaceDir) || !Files.exists(ws) || !Files.exists(st)) continue;
+                String cur = fingerprint(Files.readString(ws, StandardCharsets.UTF_8));
+                if (cur.equals(fingerprint(Files.readString(st, StandardCharsets.UTF_8)))) continue;
+                if (((List<Object>) e.getValue()).contains(cur)) {
+                    Files.copy(st, ws, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("Заготовка обновлена (ученик её не менял): " + e.getKey());
+                }
+            }
+            if (changed) {
+                Files.createDirectories(appliedFile.getParent());
+                Files.writeString(appliedFile, Json.stringify(applied), StandardCharsets.UTF_8);
+            }
+        } catch (IOException | RuntimeException e) {
+            System.err.println("Не удалось обновить заготовки: " + e);
         }
     }
 
@@ -254,7 +372,7 @@ public class CourseServer {
                 roots.append(String.format("      <sourceFolder url=\"file://$MODULE_DIR$/module-%02d\" isTestSource=\"false\" />%n", i));
             }
             roots.append("      <sourceFolder url=\"file://$MODULE_DIR$/training\" isTestSource=\"false\" />\n");
-            roots.append("      <sourceFolder url=\"file://$MODULE_DIR$/courier\" isTestSource=\"false\" />\n");
+            roots.append("      <sourceFolder url=\"file://$MODULE_DIR$/system\" isTestSource=\"false\" />\n");
             Files.writeString(workspaceDir.resolve("workspace.iml"), """
                     <?xml version="1.0" encoding="UTF-8"?>
                     <module type="JAVA_MODULE" version="4">
@@ -707,6 +825,15 @@ public class CourseServer {
             sendJson(ex, 404, Map.of("status", "not_found", "message", "Нет такой задачи: " + id));
             return;
         }
+        if ("1".equals(queryParam(ex, "reference"))) {
+            // проверка эталона для автора курса (tools/check-tasks.js): файл берётся из tutor/solutions,
+            // workspace ученика не трогается, в журнал проверок ничего не пишется
+            Path solutions = Path.of(env("COURSE_DIR", "/app/course")).resolve("tutor").resolve("solutions");
+            Path ref = solutions.resolve(task.project ? "minibank/" + id.substring(0, 3) + "/" + Path.of(task.file).getFileName() : task.file).normalize();
+            if (!ref.startsWith(solutions) || !Files.exists(ref)) { sendJson(ex, 404, Map.of("status", "no_reference", "message", "Нет эталона: " + ref)); return; }
+            sendJson(ex, 200, check(task, ref));
+            return;
+        }
         if (!task.project && task.file.contains("/")) copyStarters(task.file.substring(0, task.file.indexOf('/')));
         Map<String, Object> result = check(task);
         appendHistory(task, result, validProfile(queryParam(ex, "profile")));
@@ -765,11 +892,16 @@ public class CourseServer {
     static String shownPath(Task t) { return (t.project ? "MiniBank/" : "workspace/") + t.file; }
 
     static Map<String, Object> check(Task task) throws Exception {
+        return check(task, null);
+    }
+
+    /** reference — проверить вместо файла ученика этот файл (эталон из tutor/solutions). */
+    static Map<String, Object> check(Task task, Path reference) throws Exception {
         Map<String, Object> res = new LinkedHashMap<>();
         res.put("id", task.id);
         res.put("file", shownPath(task));
-        Path base = baseDir(task);
-        Path source = base.resolve(task.file).normalize();
+        Path base = reference != null ? reference.getParent() : baseDir(task);
+        Path source = reference != null ? reference : base.resolve(task.file).normalize();
 
         if (!source.startsWith(base) || !Files.exists(source)) {
             res.put("status", "missing");

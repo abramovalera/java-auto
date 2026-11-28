@@ -153,34 +153,39 @@
        "items": [
         {
          "type": "single",
-         "q": "Скомпилируется ли такой decide?",
-         "code": "public static String decide(CourierRobot robot) {\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else {\n        return \"RIGHT\";\n    }\n    if (robot.parcelHere()) {\n        return \"TAKE\";\n    }\n}",
+         "q": "Что будет на первом же ходу, где впереди свободно?",
+         "code": "public static void step(CourierRobot robot) {\n    if (!robot.wallAhead()) {\n        robot.move();\n    }\n    robot.turnLeft();\n}",
          "options": [
-          "Да, на клетке с посылкой вернёт TAKE",
-          "Да, но посылку никогда не возьмёт",
-          "Нет, ошибка компиляции"
+          "Джавик проедет вперёд",
+          "Джавик повернётся налево",
+          "Ошибка: за один ход — одна команда"
          ],
          "answer": 2,
-         "why": "Обе ветки if/else заканчиваются return — до кода ниже выполнение дойти не может, компилятор пишет unreachable statement. Проверку посылки ставят выше правила движения."
+         "why": "turnLeft стоит вне if и срабатывает всегда. Когда впереди свободно, за один вызов step срабатывают две команды — move и turnLeft, а игра разрешает ровно одну. Нужна цепочка if / else: тогда сработает только одна ветка."
         },
         {
          "type": "single",
-         "q": "Что будет на развилке с табличкой «AHEAD»?",
-         "code": "switch (robot.sign()) {\n    case \"LEFT\" -> { return \"LEFT\"; }\n    case \"RIGHT\" -> { return \"RIGHT\"; }\n    case \"AHEAD\" -> { return \"AHEAD\"; }\n}",
+         "q": "Табличка на развилке — «AHEAD». Что сделает Джавик?",
+         "code": "String sign = robot.sign();\nif (sign.equals(\"LEFT\")) {\n    robot.turnLeft();\n} else if (sign.equals(\"RIGHT\")) {\n    robot.turnRight();\n}",
          "options": [
-          "Джавик поедет прямо",
-          "Поездка остановится: «Нет такой команды»",
+          "Поедет прямо",
+          "Поездка остановится: за этот ход нет команды",
           "Не скомпилируется"
          ],
          "answer": 1,
-         "why": "Компилируется: метод возвращает строку. Но команды \"AHEAD\" у Джавика нет — «прямо» это \"MOVE\". Компилятор проверяет типы, а не смысл строки."
+         "why": "Для \"AHEAD\" ветки нет: ни одно условие не сработало, и за этот ход Джавик не получил ни одной команды — игра остановит поездку. «Прямо» — это ветка с robot.move()."
         },
         {
-         "type": "predict",
-         "q": "Табличка на развилке — «LEFT». Что напечатает программа?",
-         "code": "switch (robot.sign()) {\n    case \"LEFT\": System.out.println(\"налево\");\n    case \"RIGHT\": System.out.println(\"направо\");\n    case \"AHEAD\": System.out.println(\"прямо\");\n}",
-         "answer": "налево\nнаправо\nпрямо",
-         "why": "В классическом switch без break выполнение «проваливается» во все следующие ветки. Помогают break, return или switch со стрелками."
+         "type": "single",
+         "q": "Табличка — «LEFT». Что будет?",
+         "code": "switch (robot.sign()) {\n    case \"LEFT\": robot.turnLeft();\n    case \"RIGHT\": robot.turnRight();\n    case \"AHEAD\": robot.move();\n}",
+         "options": [
+          "Джавик повернёт налево",
+          "Ошибка: за один ход — одна команда",
+          "Не скомпилируется"
+         ],
+         "answer": 1,
+         "why": "В классическом switch без break выполнение «проваливается» во все следующие ветки: turnLeft, turnRight и move — три команды за один ход. Помогают break после каждой команды или цепочка if / else if."
         }
        ]
       }

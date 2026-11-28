@@ -2,7 +2,7 @@ import java.util.List;
 
 /**
  * Робот-курьер Джавик (настоящая версия, работает на сайте курса вместе с движком CourierGame).
- * Копия с тем же набором методов лежит у ученика в workspace/courier/CourierRobot.java.
+ * Копия с тем же набором методов лежит у ученика в workspace/system/CourierRobot.java.
  */
 public class CourierRobot {
 

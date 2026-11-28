@@ -348,13 +348,13 @@
         <p><b>Смотреть:</b> стена впереди? слева? справа? тут посылка? я на адресе?</p>
         <p><b>Делать:</b> проехать клетку, повернуться, взять посылку, отдать посылку.</p></div>
       <div class="card"><span class="emoji">🧑‍💻</span><h4>Ты решаешь</h4>
-        <p><b>Когда что делать.</b> Робот на каждом ходу спрашивает твою программу: «что сейчас?» — и делает ровно то, что она ответила.</p></div>
+        <p><b>Когда что делать.</b> Игра на каждом ходу вызывает твою программу, а она даёт роботу <b>одну команду</b> — и он её выполняет.</p></div>
     </div>
     <div class="table-wrap"><table>
-      <tr><th>Команда (что вернуть)</th><th>Что сделает Джавик</th></tr>
-      <tr><td><code>"MOVE"</code></td><td>проедет одну клетку вперёд</td></tr>
-      <tr><td><code>"LEFT"</code> / <code>"RIGHT"</code></td><td>повернётся налево / направо на месте</td></tr>
-      <tr><td><code>"TAKE"</code> / <code>"DROP"</code></td><td>возьмёт посылку / отдаст посылку</td></tr>
+      <tr><th>Команда</th><th>Что сделает Джавик</th></tr>
+      <tr><td><code>robot.move()</code></td><td>проедет одну клетку вперёд</td></tr>
+      <tr><td><code>robot.turnLeft()</code> / <code>robot.turnRight()</code></td><td>повернётся налево / направо на месте</td></tr>
+      <tr><td><code>robot.take()</code> / <code>robot.drop()</code></td><td>возьмёт посылку / отдаст посылку</td></tr>
     </table></div>
     <p><b>Ошибка — и поездка окончена</b>, если Джавик:</p>
     <ul>
@@ -370,7 +370,7 @@
     <h2>Где писать программу</h2>
     <ol class="steps">
       <li>Открой IntelliJ IDEA и в проекте <code>workspace</code> файл <code>module-04/CourierPart1.java</code>. Там уже есть заготовка.</li>
-      <li>Пиши код внутри метода <code>decide</code>.</li>
+      <li>Пиши код внутри метода <code>step</code>: за один его вызов — ровно одна команда роботу.</li>
       <li>Сохрани (<kbd>Ctrl</kbd>+<kbd>S</kbd>) и нажми <b>«▶ Запустить мой код»</b> в игровой панели ниже. Сайт запустит Джавика на трёх разных картах и покажет поездку.</li>
     </ol>
     <div data-widget="ide" id="shot-courier-where">
@@ -387,7 +387,7 @@
          "open": true
         },
         {
-         "name": "courier",
+         "name": "system",
          "type": "src",
          "depth": 1,
          "open": true
@@ -403,11 +403,11 @@
          "depth": 1,
          "open": true
         },
-       {
-        "name": "README.md",
-        "type": "file",
-        "depth": 2
-       },
+        {
+         "name": "README.md",
+         "type": "file",
+         "depth": 2
+        },
         {
          "name": "CourierPart1",
          "type": "class",
@@ -415,7 +415,7 @@
          "selected": true
         }
        ],
-       "code": "public class CourierPart1 {\n\n    public static String decide(CourierRobot robot) {\n        return \"MOVE\";\n    }\n}",
+       "code": "public class CourierPart1 {\n\n    public static void step(CourierRobot robot) {\n        robot.move();\n    }\n}",
        "marks": [
         {
          "n": 1,
@@ -426,13 +426,13 @@
          "n": 2,
          "target": "line-3",
          "side": "top",
-         "text": "Метод <code>decide</code>. Игра спрашивает его <b>на каждом ходу</b>: «что делать сейчас?»"
+         "text": "Метод <code>step</code> — «один ход». Игра вызывает его <b>на каждом ходу</b>."
         },
         {
          "n": 3,
          "target": "line-4",
          "side": "bottom",
-         "text": "Ответ — <b>одна команда</b> в кавычках через <code>return</code>. Сейчас Джавик всегда отвечает «ехать вперёд»."
+         "text": "Здесь ты даёшь роботу <b>одну команду</b>. Сейчас Джавик на каждом ходу едет вперёд."
         },
         {
          "n": 4,
@@ -462,31 +462,31 @@
         {
          "task": "m04-c1",
          "name": "★ Коридор",
-         "goal": "<p><b>Цель:</b> довези Джавика до домика 🏠 в конце коридора и ни разу не врежься в стену.</p>\n<p>Коридор каждый раз другой: прямые участки и повороты налево и направо. Развилок нет.</p>\n<p>Понадобятся: <code>robot.wallAhead()</code>, <code>robot.wallLeft()</code>, <code>robot.wallRight()</code> и команды <code>\"MOVE\"</code>, <code>\"LEFT\"</code>, <code>\"RIGHT\"</code>.</p>",
+         "goal": "<p><b>Цель:</b> довези Джавика до домика 🏠 в конце коридора и ни разу не врежься в стену.</p>\n<p>Коридор каждый раз другой: прямые участки и повороты налево и направо. Развилок нет.</p>\n<p>Понадобятся датчики <code>robot.wallAhead()</code>, <code>robot.wallLeft()</code>, <code>robot.wallRight()</code> и команды <code>robot.move()</code>, <code>robot.turnLeft()</code>, <code>robot.turnRight()</code>.</p>",
          "hints": [
-          "<p>Представь, что идёшь по тёмному коридору. На каждом шаге решаешь одно: <b>впереди свободно — шагаю вперёд</b>. Упёрся в стену — <b>поворачиваюсь туда, где стены нет</b>: налево или направо.</p><p>Вся программа — одно условие и два варианта поворота. Нажми «Запустить» прямо с заготовкой и посмотри, где Джавик врезается.</p>",
-          "<p>Начни так: если впереди нет стены — едем. Остальное пока заглушка:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (!robot.wallAhead()) {   // впереди НЕТ стены?\n        return \"MOVE\";          // тогда едем вперёд\n    }\n    // сюда попадаем, только если впереди стена: куда повернуть?\n    return \"LEFT\";\n}</code></pre><p>Запусти. На каких поворотах Джавик теперь ошибается? Когда нужен <code>\"RIGHT\"</code>?</p>",
-          "<p>Почти готово — осталось одно условие вместо <code>/* ??? */</code>:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else if (/* ??? слева нет стены */) {\n        return \"LEFT\";\n    } else {\n        return \"RIGHT\";\n    }\n}</code></pre><p>«Слева нет стены» — это «НЕ стена слева», так же, как в первом <code>if</code>. Если <code>else if</code> пока путается — повтори урок <a href=\"/lessons/m04/02-else-if.html\">4.2 «else, else if»</a>.</p>"
+          "<p>Представь, что идёшь по тёмному коридору. На каждом шаге решаешь одно: <b>впереди свободно — шагаю вперёд</b>. Упёрся в стену — <b>поворачиваюсь туда, где стены нет</b>: налево или направо.</p><p>Вся программа — цепочка <code>if</code> / <code>else</code>, и в каждой ветке ровно одна команда роботу. Нажми «Запустить» прямо с заготовкой и посмотри, где Джавик врезается.</p>",
+          "<p>Начни так: если впереди нет стены — едем, иначе пока всегда поворачиваем налево:</p><pre><code class=\"java\">public static void step(CourierRobot robot) {\n    if (!robot.wallAhead()) {   // впереди НЕТ стены?\n        robot.move();           // тогда едем вперёд\n    } else {\n        robot.turnLeft();       // впереди стена: пока всегда налево\n    }\n}</code></pre><p>Запусти. На каких поворотах Джавик теперь ошибается? Когда нужен <code>robot.turnRight()</code>?</p>",
+          "<p>Почти готово — осталось одно условие вместо <code>/* ??? */</code>:</p><pre><code class=\"java\">public static void step(CourierRobot robot) {\n    if (!robot.wallAhead()) {\n        robot.move();\n    } else if (/* ??? слева нет стены */) {\n        robot.turnLeft();\n    } else {\n        robot.turnRight();\n    }\n}</code></pre><p>«Слева нет стены» — это «НЕ стена слева», так же, как в первом <code>if</code>. Если <code>else if</code> пока путается — повтори урок <a href=\"/lessons/m04/02-else-if.html\">4.2 «else, else if»</a>.</p>"
          ]
         },
         {
          "task": "m04-c2",
          "name": "★★ Первая посылка",
-         "goal": "<p><b>Цель:</b> по дороге лежит посылка 📦. Возьми её (<code>\"TAKE\"</code>) и отдай на адресе 🏠 (<code>\"DROP\"</code>).</p>\n<p>Новые датчики: <code>robot.parcelHere()</code> — посылка на этой клетке, <code>robot.carrying()</code> — Джавик везёт посылку, <code>robot.atTarget()</code> — Джавик на адресе.</p>\n<p>Пиши в том же файле — он должен проходить и уровень 1.</p>",
+         "goal": "<p><b>Цель:</b> по дороге лежит посылка 📦. Возьми её (<code>robot.take()</code>) и отдай на адресе 🏠 (<code>robot.drop()</code>).</p>\n<p>Новые датчики: <code>robot.parcelHere()</code> — посылка на этой клетке, <code>robot.carrying()</code> — Джавик везёт посылку, <code>robot.atTarget()</code> — Джавик на адресе.</p>\n<p>Пиши в том же файле — он должен проходить и уровень 1.</p>",
          "hints": [
-          "<p>Джавик проезжает мимо посылки? Значит, правило «ехать» срабатывает раньше вопроса «тут посылка?». Метод отдаёт команду на первом же <code>return</code> — поэтому <b>особые случаи проверяют первыми</b>, а обычное движение — в самом конце.</p>",
-          "<p>Поставь проверку посылки самой первой:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {  // посылка тут, а руки свободны\n        return \"TAKE\";\n    }\n    // здесь будет ещё одно особое условие — про адрес\n\n    // а ниже — твоё правило движения из уровня 1\n}</code></pre>",
-          "<p>Осталось условие для <code>\"DROP\"</code>:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {\n        return \"TAKE\";\n    }\n    if (/* ??? на адресе И везу посылку */) {\n        return \"DROP\";\n    }\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else if (!robot.wallLeft()) {\n        return \"LEFT\";\n    } else {\n        return \"RIGHT\";\n    }\n}</code></pre><p>Два датчика через <code>&amp;&amp;</code> — как в первом <code>if</code>. Если <code>&amp;&amp;</code> подзабылся — повтори урок <a href=\"/lessons/m03/04-logic.html\">3.4 «Логика»</a>.</p>"
+          "<p>Джавик проезжает мимо посылки? Значит, правило «ехать» стоит раньше вопроса «тут посылка?». В цепочке <code>if</code> / <code>else if</code> срабатывает только <b>первая подходящая ветка</b> — поэтому особые случаи ставят первыми, а обычное движение — в самый конец.</p>",
+          "<p>Поставь проверку посылки самой первой веткой:</p><pre><code class=\"java\">public static void step(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {  // посылка тут, а руки свободны\n        robot.take();\n    } else if (!robot.wallAhead()) {\n        robot.move();\n    } else if (!robot.wallLeft()) {\n        robot.turnLeft();\n    } else {\n        robot.turnRight();\n    }\n}</code></pre><p>Осталась ещё одна ветка — про адрес. Куда её поставить: до движения или после?</p>",
+          "<p>Осталось условие для отдачи посылки:</p><pre><code class=\"java\">public static void step(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {\n        robot.take();\n    } else if (/* ??? на адресе И везу посылку */) {\n        robot.drop();\n    } else if (!robot.wallAhead()) {\n        robot.move();\n    } else if (!robot.wallLeft()) {\n        robot.turnLeft();\n    } else {\n        robot.turnRight();\n    }\n}</code></pre><p>Два датчика через <code>&amp;&amp;</code> — как в первой ветке. Если <code>&amp;&amp;</code> подзабылся — повтори урок <a href=\"/lessons/m03/04-logic.html\">3.4 «Логика»</a>.</p>"
          ]
         },
         {
          "task": "m04-c3",
          "name": "★★★ Перекрёстки",
-         "goal": "<p><b>Цель:</b> в коридоре появились развилки и тупики. На каждой развилке висит табличка: <code>robot.sign()</code> отвечает, куда ехать — <code>\"LEFT\"</code>, <code>\"RIGHT\"</code>, <code>\"AHEAD\"</code> (прямо) или <code>\"\"</code> (таблички нет). Посылку по пути тоже нужно доставить.</p>\n<p>Ходов в обрез: заедешь в тупик — на возврат не хватит. Табличку сравнивай через <code>switch</code> или <code>equals</code>, а не через <code>==</code>.</p>",
+         "goal": "<p><b>Цель:</b> в коридоре появились развилки и тупики. На каждой развилке висит табличка: <code>robot.sign()</code> отвечает, куда ехать — <code>\"LEFT\"</code>, <code>\"RIGHT\"</code>, <code>\"AHEAD\"</code> (прямо) или <code>\"\"</code> (таблички нет). Посылку по пути тоже нужно доставить.</p>\n<p>Ходов в обрез: заедешь в тупик — на возврат не хватит. Табличку сравнивай через <code>equals</code>, а не через <code>==</code>.</p>",
          "hints": [
-          "<p>На развилке правило «вперёд, иначе налево, иначе направо» может увести в тупик. Значит, <b>табличку надо читать раньше правила движения</b>, но после посылки и адреса. Есть табличка — делай, что она говорит.</p><p>Осторожно: «прямо» — это команда <code>\"MOVE\"</code>. Команды <code>\"AHEAD\"</code> у Джавика нет.</p>",
-          "<p>Табличку удобно разбирать через <code>switch</code>:</p><pre><code class=\"java\">switch (robot.sign()) {\n    case \"LEFT\":\n        return \"LEFT\";\n    // ещё два случая: \"RIGHT\" и \"AHEAD\"\n}\n// ни один case не подошёл — таблички нет, едем по обычному правилу</code></pre><p>Поставь этот <code>switch</code> в <code>decide</code> между проверками посылки и адреса и правилом движения.</p>",
-          "<p>Весь метод, осталась одна команда вместо <code>/* ??? */</code>:</p><pre><code class=\"java\">public static String decide(CourierRobot robot) {\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {\n        return \"TAKE\";\n    }\n    if (robot.atTarget() &amp;&amp; robot.carrying()) {\n        return \"DROP\";\n    }\n    switch (robot.sign()) {\n        case \"LEFT\":\n            return \"LEFT\";\n        case \"RIGHT\":\n            return \"RIGHT\";\n        case \"AHEAD\":\n            return /* ??? какая команда едет прямо */;\n    }\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else if (!robot.wallLeft()) {\n        return \"LEFT\";\n    } else {\n        return \"RIGHT\";\n    }\n}</code></pre><p>Если <code>switch</code> по строкам забылся — повтори урок <a href=\"/lessons/m04/05-switch.html\">4.5 «switch»</a>.</p>"
+          "<p>На развилке правило «вперёд, иначе налево, иначе направо» может увести в тупик. Значит, <b>табличку надо читать раньше правила движения</b>, но после посылки и адреса. Есть табличка — делай, что она говорит: <code>\"LEFT\"</code> → <code>robot.turnLeft()</code>, <code>\"RIGHT\"</code> → <code>robot.turnRight()</code>, <code>\"AHEAD\"</code> → <code>robot.move()</code>.</p>",
+          "<p>Запомни табличку в переменную в начале метода и добавь ветки после посылки и адреса:</p><pre><code class=\"java\">String sign = robot.sign();\nif (robot.parcelHere() &amp;&amp; !robot.carrying()) {\n    robot.take();\n} else if (sign.equals(\"LEFT\")) {   // табличка «налево»\n    robot.turnLeft();\n}\n// ... ещё ветки: адрес, \"RIGHT\", \"AHEAD\" и обычное движение</code></pre><p>Строки сравнивают через <code>equals</code> — урок <a href=\"/lessons/m03/03-comparison.html\">3.3</a>.</p>",
+          "<p>Весь метод, осталась одна команда вместо <code>/* ??? */</code>:</p><pre><code class=\"java\">public static void step(CourierRobot robot) {\n    String sign = robot.sign();\n    if (robot.parcelHere() &amp;&amp; !robot.carrying()) {\n        robot.take();\n    } else if (robot.atTarget() &amp;&amp; robot.carrying()) {\n        robot.drop();\n    } else if (sign.equals(\"LEFT\")) {\n        robot.turnLeft();\n    } else if (sign.equals(\"RIGHT\")) {\n        robot.turnRight();\n    } else if (sign.equals(\"AHEAD\")) {\n        /* ??? какая команда едет прямо */\n    } else if (!robot.wallAhead()) {\n        robot.move();\n    } else if (!robot.wallLeft()) {\n        robot.turnLeft();\n    } else {\n        robot.turnRight();\n    }\n}</code></pre><p>Если сравнение строк забылось — повтори урок <a href=\"/lessons/m03/03-comparison.html\">3.3 «Сравнение»</a>.</p>"
          ]
         }
        ]
@@ -502,14 +502,14 @@
     <p>Смотри поездку по шагам: справа написано, <b>что Джавик спросил перед ходом</b> и что ему ответили датчики. Найди ход, где всё пошло не так, и спроси себя: какая ветка моего <code>if</code> тут сработала?</p>
     <div class="callout ai">
       <span class="callout-title">Поговори с наставником</span>
-      <p>Опиши, что видишь в поездке, и покажи код: <em>«Я прохожу уровень игры "Джавик-курьер" (напиши, какой). Вот мой метод decide: … Джавик ошибается на ходу …, перед этим он спросил: … Не давай готовый код, подскажи, куда смотреть.»</em></p>
+      <p>Опиши, что видишь в поездке, и покажи код: <em>«Я прохожу уровень игры "Джавик-курьер" (напиши, какой). Вот мой метод step: … Джавик ошибается на ходу …, перед этим он спросил: … Не давай готовый код, подскажи, куда смотреть.»</em></p>
     </div>
     <div class="summary">
       <h2>Коротко</h2>
       <ul>
         <li>Код — в IDEA, в <code>module-04/CourierPart1.java</code>; запуск — кнопкой на сайте.</li>
-        <li>Игра на каждом ходу спрашивает <code>decide</code>, а он через <code>return</code> отвечает одной командой.</li>
-        <li>Особые случаи (посылка, адрес, табличка) проверяй раньше обычного движения.</li>
+        <li>Игра на каждом ходу вызывает <code>step</code>, а в нём срабатывает ровно одна команда: <code>robot.move()</code>, поворот, <code>take()</code> или <code>drop()</code>.</li>
+        <li>Особые случаи (посылка, адрес, табличка) — первыми ветками цепочки <code>if</code> / <code>else if</code>, обычное движение — последней.</li>
         <li>Игра вернётся в модуле 5 — там Джавик научится ездить сам, циклом.</li>
       </ul>
     </div>

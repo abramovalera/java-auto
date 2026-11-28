@@ -1,0 +1,90 @@
+{
+ "module-01/FixMe.java": [
+  "f7687440502aafb87de2c8d84df6980338ac2d572a1375352044be8dad50a3f5"
+ ],
+ "module-02/FixTypes.java": [
+  "b0dce21599cde34e68f55005df637e5891f2aad6910d62759e29708dcac0a2ec"
+ ],
+ "module-03/BrokenAverage.java": [
+  "06418d42d494b4e4a54a953a2caa70016d713baa2338937f33d7c04b0b1c9bbb"
+ ],
+ "module-04/CourierPart1.java": [
+  "28cbda5659aca715688f10b0ee001397711250f281f9b3d87fb7474c5080d5fe",
+  "560b459d949dc329f726eb6a15857ec7ad575659a07e49344851a859fc40972b",
+  "a3afadbda71efcb087f4a20e85f5dd007b2aa853c7214e5b6001683a513fa7dc"
+ ],
+ "module-04/FixTicketPrice.java": [
+  "e2cd6777bf77fa1a930b8639e6892f487ae10ab27a8c795f67cb6d982f55e73f"
+ ],
+ "module-05/CountdownFix.java": [
+  "bf38f36711da7054640adad8165413b606efa468433ab9609c4927552f04b465"
+ ],
+ "module-05/CourierPart2.java": [
+  "cdf3becb2259e9613e80892d112da5764fc36e6a69f4de16df38f456ffb060f2",
+  "d18c80ed8ef2cddf731ca21c8c52148a80c1687061453e682b69602503adf2a2"
+ ],
+ "module-06/CourierPart3.java": [
+  "e0ba7a225d9bc5e8368e456a391c12576fd11fc3994cebf21cd08737f4295179",
+  "fbdd8e93b889bfc90bd88bae2dfcdc38ee0695520f1fcf3a05841361f96658e0"
+ ],
+ "module-06/FixArrayTemperatures.java": [
+  "ef6c8a747b8876c32647d31c9a86fcb8b63aec21d847dfc882f5accba228b0d7"
+ ],
+ "module-07/BrokenMethods.java": [
+  "ac79eea318be6ad3a624b1ccecd65d10fa63937ec3a77f098b17636ecdfef7c8"
+ ],
+ "module-07/CourierHouses.java": [
+  "73613ce8a145adb33b74d1948e814a1c83b9b8e0f1503a65fdf07765c01857be",
+  "dfe2e71cd21e4778c83df7fda77600e2f13709477f578fea6c79d2c3a938423d"
+ ],
+ "module-07/CourierMiddle.java": [
+  "2ea172efdfc4241bd224cad40eef8db78c6ff66063d4625783ff5668b51108c1",
+  "438e0b7cbfb82a40e8acbe28cddb425fc85626682fbe52cb74b1207129219680"
+ ],
+ "module-07/CourierShuttle.java": [
+  "07189f72791eb473cf00bd1f620fad4fd3706db7a83dd587bb3bb79cd1622414",
+  "0f6ac5e02f9d1f6904a05ebc559df9a0703c6333da7e307cff6a66e17a67a4c8"
+ ],
+ "module-08/FixYesAnswerCompare.java": [
+  "ebc74b2cd28cd8bca7f8081b48e37172760e2db6293b84e38c00bf75a5d9421d"
+ ],
+ "module-09/PetClinicFix.java": [
+  "66d6be5eaf649daa8fd4214f2facb11addd5adb28b1de8401f414afc6a0a8823"
+ ],
+ "module-10/HotelRoomsFix.java": [
+  "618c77bd72c55db123cea74f31ef679a76da44a43bc53433e9f67720540ada59"
+ ],
+ "module-12/SensorReadingsFix.java": [
+  "7a91be1b09b3ab322bf665260715cfcfd02a761f32c8d67c9fe0c19e273bb837"
+ ],
+ "module-13/BrowsersFix.java": [
+  "9324d79910dfd7b7db052614cbf766c637d7b3abd66e407560a9cedac2dc7ed1"
+ ],
+ "module-13/CourierOrders.java": [
+  "b8ec8d0ebe3073c9533e71767892f278faa1287cf40658cbed0b03dc83aa2dac",
+  "e828bbed1292f8748efefe4cc256d3c0b4f2103edeaf5f4989eb662753d0ec24"
+ ],
+ "module-13/CourierShift.java": [
+  "3347a8ebb5b3766424b89c2ba2939a2fe5c80efce876a742877f01c818df7b45",
+  "a0a3eae72a67da1896854825296e4cd3030b84f5fdd8780c597aceaff0d393f2"
+ ],
+ "module-13/NegativeRemoverFix.java": [
+  "98756f26750c15e8c26ebfcbd641e30206811b2de8d13a6552db8e2ee6767a41"
+ ],
+ "module-15/OrderLogAppendFix.java": [
+  "2f9e9b9dbf19a755aefe5ce0108ef844280a85fcf2bbe7b9e8b991074b16eff7"
+ ],
+ "module-16/TicketSalesCounterFix.java": [
+  "7d4722da87fc7c2197443975cae38b0122ee3342386f4b50328b03fff3303704"
+ ],
+ "module-16/TwoCooksDeadlockFix.java": [
+  "5e021b2067bd40847a241be8522a3d0b56a2949cf5271b13f428f228f05c3cef",
+  "fba4e3fe58c5e10f14ce335821a58780f505b55985d0857a46c65843042ef749"
+ ],
+ "module-17/DebugGradeAverage.java": [
+  "609fd624b10e920fe29017429ff03a878c080a57448f89b2ef7a85b6aba9809d"
+ ],
+ "module-17/DebugShoppingCart.java": [
+  "0e51c6c3136602ef473f5ef9fad67641f7fb39572d6b301118b95e010504a05f"
+ ]
+}

@@ -22,7 +22,7 @@ const BASE = [
   ["m15", "15", "Файлы и ввод-вывод", "Читаем и пишем файлы, try-with-resources, папки."],
   ["m16", "16", "Многопоточность: основы", "Потоки, синхронизация, ExecutorService — на уровне собеседования."],
   ["m17", "17", "Инструменты разработчика", "Git, Gradle, отладчик, тесты на JUnit 5."],
-  ["m18", "18", "Мост в автотесты", "AssertJ, Page Object, локаторы, первые UI-тесты на Selenide. Итоговый проект."]
+  ["m18", "18", "Чистый код и паттерны", "Как писать код, который легко читать и менять: код-стайл, DRY, KISS, YAGNI, принципы SOLID и паттерны проектирования — строитель, стратегия, декоратор и другие. В конце — финал курса."]
 ];
 const problems = [], seenIds = new Set();
 // "hidden": true в манифесте модуля или у урока — спрятать из курса, не удаляя файлы (например, модуль 18 про автотесты:
@@ -72,3 +72,6 @@ console.log(`Открыто модулей: ${open.length} из ${modules.length
 if (problems.length) { console.log("Проблемы:\n- " + problems.join("\n- ")); process.exitCode = 1; }
 // шпаргалка берёт названия модулей и номера уроков из course.js — пересобираем её сразу
 require("child_process").execFileSync(process.execPath, [path.join(__dirname, "build-cheatsheet.js")], { stdio: "inherit" });
+
+// история версий заготовок — по ней сервер тихо обновляет нетронутые заготовки у ученика
+try { require("child_process").execSync("node " + JSON.stringify(require("path").join(__dirname, "build-starter-history.js")), { stdio: "inherit" }); } catch (e) { console.error("build-starter-history:", e.message); }

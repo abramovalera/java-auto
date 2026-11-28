@@ -1,6 +1,6 @@
 # Часть 1 ★ «Коридор»: доехать до адреса по коридору без развилок
 class=CourierPart1
-entry=decide
+entry=step
 map=corridor
 goal=reach
 ticks=200

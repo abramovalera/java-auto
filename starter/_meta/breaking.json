@@ -1,0 +1,11 @@
+[
+  {
+    "id": "2026-11-28-courier-step",
+    "date": "2026-11-28",
+    "module": "4",
+    "files": [
+      "module-04/CourierPart1.java"
+    ],
+    "why": "Часть 1 игры перешла с decide на step и команды robot.move()"
+  }
+]

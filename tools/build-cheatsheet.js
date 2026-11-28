@@ -305,8 +305,6 @@ const MODS = [
       "Git: <code>commit</code> — сохранить у себя, <code>push</code> — отправить, <code>pull</code> — забрать. Работа — в своей ветке.",
       "Gradle (<code>build.gradle.kts</code>) скачивает зависимости и запускает тесты: <code>gradlew test</code>.",
       "JUnit 5: <code>@Test</code>, <code>@BeforeEach</code>, <code>@ParameterizedTest</code>; проверки — <code>assertEquals</code> / AssertJ <code>assertThat</code>.",
-      "Чистый код: понятные имена, константы вместо магических чисел, DRY, KISS, YAGNI; принципы SOLID.",
-      "Паттерны: Builder и Singleton создают объекты, Adapter и Decorator оборачивают, Strategy подменяет алгоритм.",
     ], qa: [
       ["Чем git fetch отличается от git pull?", "<code>fetch</code> только скачивает чужие изменения, не трогая твою ветку. <code>pull</code> = <code>fetch</code> + влить их в твою ветку."],
       ["Что такое merge conflict и как его решать?", "Два человека поменяли одни и те же строки. Git не знает, что оставить: открываешь файл (в IDEA — окно Merge), выбираешь или совмещаешь правки, коммитишь."],
@@ -315,6 +313,11 @@ const MODS = [
       ["Чем assertEquals отличается от assertThat (AssertJ)?", "Оба проверяют. AssertJ читается как фраза (<code>assertThat(list).hasSize(3).contains(\"a\")</code>) и даёт понятные сообщения при падении."],
       ["Какие фазы жизненного цикла Maven знаешь?", "<code>validate → compile → test → package → verify → install → deploy</code>. Вызов фазы запускает и все предыдущие. <code>clean</code> удаляет <code>target/</code>; частая команда — <code>mvn clean package</code>."],
       ["Что такое jar и что лежит в MANIFEST.MF?", "jar — zip-архив со скомпилированными <code>.class</code>-файлами и ресурсами. В <code>META-INF/MANIFEST.MF</code> — метаинформация: версия, а у запускаемого jar — <code>Main-Class</code> для <code>java -jar</code>."],
+    ] },
+  { id: "m18", main: [
+      "Чистый код: понятные имена, константы вместо магических чисел, DRY, KISS, YAGNI; принципы SOLID.",
+      "Паттерны: Builder и Singleton создают объекты, Adapter и Decorator оборачивают, Strategy подменяет алгоритм.",
+    ], qa: [
       ["Что такое DRY, KISS и YAGNI?", "DRY — каждое правило записано в одном месте (копипасту — в метод, числа — в константы). KISS — из рабочих решений выбирай самое простое. YAGNI — не пиши код «на будущее», которого никто не просил."],
       ["Расшифруй SOLID.", "S — у класса одна причина для изменения. O — новое добавляем новым классом, не правя старый. L — наследник работает везде, где родитель. I — маленькие интерфейсы вместо толстого. D — логика зависит от интерфейса, конкретную реализацию передают снаружи."],
       ["Чем Dependency Inversion отличается от Dependency Injection?", "Inversion — принцип: зависеть от абстракций, а не от конкретных классов. Injection — приём: зависимость передают снаружи, например через конструктор. Он помогает соблюдать принцип и подставлять фейки в тестах."],

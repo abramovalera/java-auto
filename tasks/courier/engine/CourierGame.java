@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Движок игры «Джавик-курьер». Запуск: java CourierGame <файл-уровня> <seed>
  * Печатает в stdout JSON: карта, кадры поездки, итог. Код ученика — класс из параметра class уровня:
- *  - entry=decide: static String decide(CourierRobot robot) — вызывается на каждом ходу, возвращает команду;
+ *  - entry=step:   static void step(CourierRobot robot) — вызывается на каждом ходу, ровно одна команда методом робота;
  *  - entry=run:    static void run(CourierRobot robot) — вызывается один раз, команды — методами робота.
  *
  * Параметры уровня (ключ=значение):
@@ -409,7 +409,7 @@ public class CourierGame {
             }
             default -> {
                 frame(String.valueOf(cmd), "Нет такой команды");
-                throw new Stop("error", "Команда " + (cmd == null ? "null" : "\"" + cmd + "\"") + " на ходу " + (ticks) + " — такой нет. Можно: MOVE, LEFT, RIGHT, TAKE, DROP.");
+                throw new Stop("error", "Неизвестная команда на ходу " + ticks + ".");
             }
         }
         frame(cmd, null);
@@ -595,7 +595,7 @@ public class CourierGame {
         PrintStream realOut = System.out;
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         String result = "finish", message;
-        String cls = lv.getOrDefault("class", "CourierPart1"), entry = lv.getOrDefault("entry", "decide");
+        String cls = lv.getOrDefault("class", "CourierPart1"), entry = lv.getOrDefault("entry", "step");
         Method m;
         Object self = null;
         try {
@@ -611,7 +611,7 @@ public class CourierGame {
             realOut.println(g.json("error", "Класс " + cls + " не найден.", ""));
             return;
         } catch (NoSuchMethodException e) {
-            String sig = entry.equals("decide") ? "public static String decide(CourierRobot robot)" : "public static void run(CourierRobot robot)";
+            String sig = entry.equals("step") ? "public static void step(CourierRobot robot)" : "public static void run(CourierRobot robot)";
             realOut.println(g.json("error", "В классе " + cls + " нет метода " + sig + ".", ""));
             return;
         }
@@ -622,11 +622,21 @@ public class CourierGame {
         final Throwable[] failure = new Throwable[1];
         Thread player = new Thread(() -> {
             try {
-                if (entry.equals("decide")) {
-                    while (true) {
-                        if (g.goalReachedForDecide()) break;
-                        Object cmd = method.invoke(target, robot);
-                        g.act(cmd == null ? null : cmd.toString().strip());
+                if (entry.equals("step")) {
+                    // часть 1: игра зовёт step на каждом ходу, за вызов — ровно одна команда роботу
+                    while (!g.goalReachedForStep()) {
+                        int before;
+                        synchronized (g) { before = g.ticks; }
+                        method.invoke(target, robot);
+                        int made;
+                        synchronized (g) { made = g.ticks - before; }
+                        if (made == 0) {
+                            synchronized (g) { g.frame("—", "Нет команды за этот ход"); }
+                            throw new Stop("nocmd", "За этот ход Джавик не получил команду (ход " + (before + 1) + "): в step должна сработать ровно одна команда. Посмотри, какая ветка if сработала — в ней нет ни robot.move(), ни поворота.");
+                        }
+                        if (made > 1) {
+                            throw new Stop("many", "За один ход — одна команда: на ходу " + (before + 1) + " в step сработало " + made + " команды подряд. Оставь в каждой ветке if ровно один вызов робота.");
+                        }
                     }
                 } else {
                     method.invoke(target, robot);
@@ -680,8 +690,8 @@ public class CourierGame {
         System.exit(0); // поток с зависшим кодом ученика не даст JVM закончиться сама
     }
 
-    /** Для режима decide: поездка закончена, когда цель выполнена (без возврата домой — в части 1 его нет). */
-    boolean goalReachedForDecide() {
+    /** Для режима step: поездка закончена, когда цель выполнена (без возврата домой — в части 1 его нет). */
+    boolean goalReachedForStep() {
         String goal = lv.getOrDefault("goal", "reach");
         if (goal.equals("reach")) return target[y][x];
         return delivered >= totalParcels;

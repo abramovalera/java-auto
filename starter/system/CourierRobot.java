@@ -52,8 +52,9 @@ public class CourierRobot {
     public boolean atDepot() { throw new UnsupportedOperationException(RUN_ON_SITE); }
 
     /**
-     * Табличка на развилке, где стоит Джавик: {@code "LEFT"} — сверни налево, {@code "RIGHT"} — направо,
-     * {@code "AHEAD"} — езжай прямо. Если таблички нет, вернёт пустую строку {@code ""}.
+     * Табличка на развилке, где стоит Джавик: {@code "LEFT"} — сверни налево ({@code turnLeft()}),
+     * {@code "RIGHT"} — направо ({@code turnRight()}), {@code "AHEAD"} — езжай прямо ({@code move()}).
+     * Если таблички нет, вернёт пустую строку {@code ""}.
      * Табличку видно, пока Джавик на этой клетке не повернулся.
      * Строки сравнивай через {@code equals} или в {@code switch}, а не через {@code ==}.
      */

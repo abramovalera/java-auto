@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Итоги модуля 18 и экзамен · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m18-sum">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 18 · Итоги модуля</div>
+    <h1>Итоги модуля 18 и экзамен</h1>
+    <p class="lead">Теперь ты не только пишешь работающий код, но и умеешь сделать его понятным: знаешь принципы чистого кода, SOLID и главные паттерны. Проверим модуль и сдадим последний экзамен курса.</p>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Карта модуля</h2>
+    <div class="cards">
+      <div class="card"><span class="emoji">🧹</span><h4>Чистый код</h4><p>имена по код-стайлу, константы вместо магических чисел, DRY, KISS, YAGNI — <a href="/lessons/m18/01-clean-code.html">урок 18.1</a></p></div>
+      <div class="card"><span class="emoji">🏛️</span><h4>SOLID</h4><p>одна ответственность, расширение без правок, подстановка Лисков, маленькие интерфейсы, зависимость от абстракций — <a href="/lessons/m18/02-solid.html">урок 18.2</a></p></div>
+      <div class="card"><span class="emoji">🏗️</span><h4>Как создавать объекты</h4><p>Singleton, фабрики, Builder, Prototype — <a href="/lessons/m18/03-patterns-creational.html">урок 18.3</a></p></div>
+      <div class="card"><span class="emoji">🔌</span><h4>Обёртки и поведение</h4><p>Adapter, Decorator, Facade, Proxy, Strategy, Iterator — <a href="/lessons/m18/04-patterns-behavior.html">урок 18.4</a></p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Чек-лист: я умею…</h2>
+    <div class="goals">
+      <h3>Отметь про себя каждый пункт</h3>
+      <ul>
+        <li>называть классы, методы, переменные, константы и пакеты по код-стайлу Java, заменять магические числа константами; объяснить DRY, KISS и YAGNI и найти их нарушения в своём коде;</li>
+        <li>назвать пять принципов SOLID и для каждого привести пример «плохо → хорошо»; передать зависимость через конструктор по интерфейсу, чтобы в тесте подставить фейк;</li>
+        <li>объяснить, что такое паттерн проектирования, и узнать в коде Singleton, фабрику, Builder, Adapter, Decorator, Proxy, Strategy и Iterator;</li>
+        <li>написать строитель и заменить цепочку <code>if</code> по типу стратегией.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Большая быстрая проверка</h2>
+    <div data-widget="check" id="check-m18-sum">
+      <script type="application/json">
+      {
+       "title": "Модуль 18 — главное",
+       "icon": "🧩",
+       "items": [
+        {
+         "type": "match",
+         "q": "Соедини принцип с его смыслом",
+         "left": [
+          "DRY",
+          "KISS",
+          "YAGNI",
+          "S из SOLID",
+          "D из SOLID"
+         ],
+         "right": [
+          "Каждое правило — в одном месте",
+          "Из рабочих решений — самое простое",
+          "Не писать код «на будущее»",
+          "У класса одна причина для изменения",
+          "Зависеть от интерфейса, а конкретику передавать снаружи"
+         ],
+         "why": "DRY, KISS, YAGNI — про код в целом; S и D — два принципа SOLID, которые новичку нужнее всего."
+        },
+        {
+         "type": "match",
+         "q": "Соедини паттерн с ситуацией",
+         "left": [
+          "Builder",
+          "Singleton",
+          "Decorator",
+          "Strategy",
+          "Adapter"
+         ],
+         "right": [
+          "Объект с кучей необязательных параметров",
+          "Ровно один объект на всю программу",
+          "Добавить способность обёрткой, не меняя класс",
+          "Подменять алгоритм на лету",
+          "Подружить несовместимые интерфейсы"
+         ],
+         "why": "Паттерн называют по задаче, которую он решает, — так их и запоминают."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          {
+           "s": "Паттерн — готовая библиотека, её подключают через Gradle",
+           "a": false,
+           "why": "Паттерн — идея, рецепт. Код каждый раз пишется заново под свою задачу."
+          },
+          {
+           "s": "Comparator в sort — пример паттерна Стратегия",
+           "a": true
+          },
+          {
+           "s": "Чтобы следовать DRY, нужно склеить все методы с одинаковыми строчками",
+           "a": false,
+           "why": "DRY — про одно знание в одном месте. Два разных правила с похожим кодом склеивать не надо."
+          },
+          {
+           "s": "Свой метод turnAround(robot) вызывают как robot.turnAround()",
+           "a": false,
+           "why": "Метод объявлен в твоём классе, а не в роботе: turnAround(robot)."
+          }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "В классе Order есть методы: посчитать сумму, напечатать чек, сохранить заказ в файл. Что нарушено?",
+         "options": [
+          "DRY",
+          "S — у класса три причины меняться",
+          "L — подстановка Лисков",
+          "Ничего"
+         ],
+         "answer": 1,
+         "why": "Изменится формат чека, файл или правила подсчёта — каждый раз правим один и тот же класс. Делим на три класса."
+        },
+        {
+         "type": "single",
+         "q": "Чем Decorator отличается от Adapter?",
+         "options": [
+          "Ничем",
+          "Декоратор сохраняет интерфейс и добавляет способность, адаптер меняет интерфейс",
+          "Адаптер всегда быстрее",
+          "Декоратор — порождающий паттерн"
+         ],
+         "answer": 1,
+         "why": "BufferedReader остаётся Reader-ом с новой способностью; Arrays.asList превращает массив в List — другой интерфейс."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>Все задачи — зелёные</h2>
+    <p>Перед экзаменом на <a href="/tasks.html?module=m18">странице практики</a> должны быть решены обе задачи:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Задача</th><th>Что тренирует</th></tr>
+        <tr><td>1. Пиццерия: заказ через строителя</td><td>паттерн Строитель — <a href="/lessons/m18/03-patterns-creational.html">урок 18.3</a></td></tr>
+        <tr><td>2. Стратегия: стоимость доставки</td><td>паттерн Стратегия вместо цепочки <code>if</code> — <a href="/lessons/m18/04-patterns-behavior.html">урок 18.4</a></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2><span class="ai-only">Экзамен у наставника</span><span class="free-only">Экзамен у <span class="ai-name">DeepSeek</span></span></h2>
+    <ol class="steps">
+      <li><span class="ai-only"><strong>Открой наставника</strong> в папке курса и напиши <code>/exam</code>.</span><span class="free-only"><strong>Открой <span class="ai-name">DeepSeek</span></strong> (лучше новый чат) и вставь туда промпт «Экзамен» (кнопка внизу страницы).</span></li>
+      <li><strong>Пройди экзамен.</strong> Будут вопросы «какой принцип нарушен», «какой это паттерн», «как переписать этот код, чтобы новое добавлялось без правок старого».</li>
+      <li><span class="ai-only"><strong>Не получилось — не страшно.</strong> Наставник скажет, что повторить.</span><span class="free-only"><strong>Не получилось — не страшно.</strong> <span class="ai-name">DeepSeek</span> скажет, что повторить.</span></li>
+      <li><span class="ai-only"><strong>Модуль засчитан</strong>, когда наставник отметит его в <code>progress.md</code>.</span><span class="free-only"><strong>Модуль засчитан</strong>, когда обе задачи зелёные и мини-экзамен у <span class="ai-name">DeepSeek</span> пройден.</span></li>
+    </ol>
+    <div class="callout ai">
+      <span class="callout-title">Перед экзаменом</span>
+      <p>Размяться: <em>«Давай пробный экзамен по модулю 18 без отметок в progress.md»</em>. Готов — <code>/exam</code>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Пройди чек-лист «я умею…» честно.</li>
+        <li><span class="ai-only">Сделай обе задачи до зелёного и разбери их через <code>/check</code>.</span><span class="free-only">Сделай обе задачи до зелёного и разбери их с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></li>
+        <li><span class="ai-only">Напиши <code>/exam</code> — это последний экзамен курса.</span><span class="free-only">Пройди мини-экзамен у <span class="ai-name">DeepSeek</span>: промпт «Экзамен» (кнопка внизу страницы) — это последний экзамен курса.</span></li>
+        <li>Дальше — <a href="/lessons/m18/07-finale.html">финал курса</a>: карта всего пути, план и идеи пет-проектов.</li>
+      </ul>
+    </div>
+    <div class="callout fact ask-ai-advice">
+      <span class="callout-title">Совет: спрашивай ИИ, пока не станет понятно</span>
+      <p><span class="ai-only">Если хоть один пункт выше не можешь объяснить своими словами — спроси наставника или любой бесплатный ИИ. Проси разжевать и привести пример из жизни. Решение задач за тебя не проси.</span><span class="free-only">Если хоть один пункт выше не можешь объяснить своими словами — спроси <span class="ai-name">DeepSeek</span>. Проси разжевать и привести пример из жизни. Решение задач за тебя не проси.</span></p>
+    </div>
+    <div class="callout tip cheat-link">
+      <span class="callout-title">📌 Шпаргалка и вопросы с собеседований</span>
+      <p>Главное из модуля коротко и вопросы с ответами: <a href="/cheatsheet.html#m18">шпаргалка модуля</a>. Попробуй ответить вслух, прежде чем открыть ответ.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

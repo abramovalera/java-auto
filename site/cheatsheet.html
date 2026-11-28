@@ -17,7 +17,7 @@
     <p class="lead">Всё главное из курса на одной странице: коротко по каждому модулю, вопросы, которые задают на собеседовании Java junior, горячие клавиши IDEA и сокращения.</p>
   </header>
 
-  <nav class="cheat-toc" id="toc"><a href="#keys" class="cheat-toc-extra">⌨️ Горячие клавиши</a><a href="#abbr" class="cheat-toc-extra">🔤 Сокращения</a><a href="#reading" class="cheat-toc-extra">🗣 Как читать код</a><a href="#m01" data-mod="m01">1 · Знакомство с Java</a><a href="#m02" data-mod="m02">2 · Переменные и типы данных</a><a href="#m03" data-mod="m03">3 · Операторы и выражения</a><a href="#m04" data-mod="m04">4 · Условия: if и switch</a><a href="#m05" data-mod="m05">5 · Циклы</a><a href="#m06" data-mod="m06">6 · Массивы</a><a href="#m07" data-mod="m07">7 · Методы</a><a href="#m08" data-mod="m08">8 · Строки</a><a href="#m09" data-mod="m09">9 · Классы и объекты</a><a href="#m10" data-mod="m10">10 · ООП: инкапсуляция, наследование, полиморфизм</a><a href="#m11" data-mod="m11">11 · Интерфейсы, абстрактные классы, enum, record</a><a href="#m12" data-mod="m12">12 · Исключения</a><a href="#m13" data-mod="m13">13 · Коллекции и generics</a><a href="#m14" data-mod="m14">14 · Лямбды и Stream API</a><a href="#m15" data-mod="m15">15 · Файлы и ввод-вывод</a><a href="#m16" data-mod="m16">16 · Многопоточность: основы</a><a href="#m17" data-mod="m17">17 · Инструменты разработчика</a></nav>
+  <nav class="cheat-toc" id="toc"><a href="#keys" class="cheat-toc-extra">⌨️ Горячие клавиши</a><a href="#abbr" class="cheat-toc-extra">🔤 Сокращения</a><a href="#reading" class="cheat-toc-extra">🗣 Как читать код</a><a href="#m01" data-mod="m01">1 · Знакомство с Java</a><a href="#m02" data-mod="m02">2 · Переменные и типы данных</a><a href="#m03" data-mod="m03">3 · Операторы и выражения</a><a href="#m04" data-mod="m04">4 · Условия: if и switch</a><a href="#m05" data-mod="m05">5 · Циклы</a><a href="#m06" data-mod="m06">6 · Массивы</a><a href="#m07" data-mod="m07">7 · Методы</a><a href="#m08" data-mod="m08">8 · Строки</a><a href="#m09" data-mod="m09">9 · Классы и объекты</a><a href="#m10" data-mod="m10">10 · ООП: инкапсуляция, наследование, полиморфизм</a><a href="#m11" data-mod="m11">11 · Интерфейсы, абстрактные классы, enum, record</a><a href="#m12" data-mod="m12">12 · Исключения</a><a href="#m13" data-mod="m13">13 · Коллекции и generics</a><a href="#m14" data-mod="m14">14 · Лямбды и Stream API</a><a href="#m15" data-mod="m15">15 · Файлы и ввод-вывод</a><a href="#m16" data-mod="m16">16 · Многопоточность: основы</a><a href="#m17" data-mod="m17">17 · Инструменты разработчика</a><a href="#m18" data-mod="m18">18 · Чистый код и паттерны</a></nav>
   <p class="cheat-legend">✓ — модуль пройден, бледные — ещё впереди.</p>
 
   <div class="callout tip">
@@ -401,8 +401,6 @@
       <li>Git: <code>commit</code> — сохранить у себя, <code>push</code> — отправить, <code>pull</code> — забрать. Работа — в своей ветке.</li>
       <li>Gradle (<code>build.gradle.kts</code>) скачивает зависимости и запускает тесты: <code>gradlew test</code>.</li>
       <li>JUnit 5: <code>@Test</code>, <code>@BeforeEach</code>, <code>@ParameterizedTest</code>; проверки — <code>assertEquals</code> / AssertJ <code>assertThat</code>.</li>
-      <li>Чистый код: понятные имена, константы вместо магических чисел, DRY, KISS, YAGNI; принципы SOLID.</li>
-      <li>Паттерны: Builder и Singleton создают объекты, Adapter и Decorator оборачивают, Strategy подменяет алгоритм.</li>
     </ul>
     <h3>Могут спросить на собеседовании</h3>
     <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
@@ -413,6 +411,21 @@
     <details class="cheat-qa"><summary>Чем assertEquals отличается от assertThat (AssertJ)?</summary><p>Оба проверяют. AssertJ читается как фраза (<code>assertThat(list).hasSize(3).contains("a")</code>) и даёт понятные сообщения при падении.</p></details>
     <details class="cheat-qa"><summary>Какие фазы жизненного цикла Maven знаешь?</summary><p><code>validate → compile → test → package → verify → install → deploy</code>. Вызов фазы запускает и все предыдущие. <code>clean</code> удаляет <code>target/</code>; частая команда — <code>mvn clean package</code>.</p></details>
     <details class="cheat-qa"><summary>Что такое jar и что лежит в MANIFEST.MF?</summary><p>jar — zip-архив со скомпилированными <code>.class</code>-файлами и ресурсами. В <code>META-INF/MANIFEST.MF</code> — метаинформация: версия, а у запускаемого jar — <code>Main-Class</code> для <code>java -jar</code>.</p></details>
+    </div>
+    <p class="cheat-more"><a href="/lessons/m17/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+  </section>
+
+  <section class="step cheat-mod" id="m18" data-mod="m18">
+    <h2>Модуль 18 · Чистый код и паттерны</h2>
+    <div class="cheat-future-note"><p>Этот модуль ещё впереди. Ответы лучше открывать, когда пройдёшь его уроки, — иначе они просто запомнятся без понимания.</p><button class="btn small ghost cheat-show">Показать всё равно</button></div>
+    <div class="cheat-body">
+    <h3>Главное</h3>
+    <ul>
+      <li>Чистый код: понятные имена, константы вместо магических чисел, DRY, KISS, YAGNI; принципы SOLID.</li>
+      <li>Паттерны: Builder и Singleton создают объекты, Adapter и Decorator оборачивают, Strategy подменяет алгоритм.</li>
+    </ul>
+    <h3>Могут спросить на собеседовании</h3>
+    <p class="cheat-hint">Сначала ответь вслух сам, потом открой ответ.</p>
     <details class="cheat-qa"><summary>Что такое DRY, KISS и YAGNI?</summary><p>DRY — каждое правило записано в одном месте (копипасту — в метод, числа — в константы). KISS — из рабочих решений выбирай самое простое. YAGNI — не пиши код «на будущее», которого никто не просил.</p></details>
     <details class="cheat-qa"><summary>Расшифруй SOLID.</summary><p>S — у класса одна причина для изменения. O — новое добавляем новым классом, не правя старый. L — наследник работает везде, где родитель. I — маленькие интерфейсы вместо толстого. D — логика зависит от интерфейса, конкретную реализацию передают снаружи.</p></details>
     <details class="cheat-qa"><summary>Чем Dependency Inversion отличается от Dependency Injection?</summary><p>Inversion — принцип: зависеть от абстракций, а не от конкретных классов. Injection — приём: зависимость передают снаружи, например через конструктор. Он помогает соблюдать принцип и подставлять фейки в тестах.</p></details>
@@ -422,7 +435,7 @@
     <details class="cheat-qa"><summary>Чем Adapter, Decorator и Proxy отличаются?</summary><p>Все три — обёртки. Адаптер меняет интерфейс (<code>Arrays.asList</code>). Декоратор сохраняет интерфейс и добавляет способность (<code>BufferedReader</code>). Заместитель сохраняет интерфейс и управляет доступом: откладывает создание, кеширует, проверяет права.</p></details>
     <details class="cheat-qa"><summary>Где в JDK паттерн Strategy?</summary><p><code>Comparator</code> в <code>sort</code> и <code>TreeSet</code>, лямбды в <code>filter</code> и <code>removeIf</code>: алгоритм передаётся объектом, вызывающий код не меняется.</p></details>
     </div>
-    <p class="cheat-more"><a href="/lessons/m17/09-summary.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
+    <p class="cheat-more"><a href="/lessons/m18/07-finale.html">Итоги модуля и экзамен →</a> · <a href="#toc">↑ к оглавлению</a></p>
   </section>
 
   <section class="step" id="keys">
@@ -456,8 +469,8 @@
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd></td><td>убрать лишние import</td><td><a href="/lessons/m09/05-packages-access.html" title="Пакеты, import и доступ">9.5</a></td></tr>
         <tr><td><kbd>Shift</kbd>+<kbd>F6</kbd></td><td>переименовать везде сразу</td><td><a href="/lessons/m01/06-anatomy.html" title="Анатомия программы">1.5</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd></td><td>вынести выражение в переменную</td><td><a href="/lessons/m08/01-string-object.html" title="String — это объект, и он не меняется">8.1</a></td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></td><td>вынести выделенный код в метод (Extract Method)</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd></td><td>вынести число или строку в константу (Extract Constant)</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></td><td>вынести выделенный код в метод (Extract Method)</td><td><a href="/lessons/m18/01-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">18.1</a></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd></td><td>вынести число или строку в константу (Extract Constant)</td><td><a href="/lessons/m18/01-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">18.1</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd></td><td>обернуть выделенное в try/catch, if, цикл</td><td><a href="/lessons/m12/03-try-catch.html" title="try/catch: поймать и обработать">12.3</a></td></tr>
         <tr><td><kbd>Alt</kbd>+<kbd>Insert</kbd></td><td>сгенерировать конструктор, геттеры, toString, equals/hashCode</td><td><a href="/lessons/m09/01-class-object.html" title="От чертежа к коду: класс и объект">9.1</a></td></tr>
         <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>переопределить метод родителя (Override Methods)</td><td><a href="/lessons/m10/03-overriding.html" title="Переопределение методов и final">10.3</a></td></tr>
@@ -565,11 +578,11 @@
         <tr><td><b>CSV</b></td><td>Comma-Separated Values</td><td>таблица в текстовом файле: значения через запятую, строка — запись</td><td><a href="/lessons/m15/06-csv-properties.html" title="Практика: CSV и properties">15.6</a></td></tr>
         <tr><td><b>HTML</b></td><td>HyperText Markup Language</td><td>язык разметки веб-страниц: теги &lt;div&gt;, &lt;button&gt;…</td><td><a href="/lessons/m07/06-recursion.html" title="Рекурсия">7.6</a></td></tr>
         <tr><td><b>DSL</b></td><td>Domain-Specific Language</td><td>мини-язык для одной задачи; build.gradle.kts написан на Kotlin DSL</td><td><a href="/lessons/m17/04-gradle.html" title="Сборка проекта: Gradle">17.4</a></td></tr>
-        <tr><td><b>DRY</b></td><td>Don't Repeat Yourself</td><td>не повторяйся: каждое правило — в одном месте</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
-        <tr><td><b>KISS</b></td><td>Keep It Simple, Stupid</td><td>делай проще: из рабочих решений бери самое простое</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
-        <tr><td><b>YAGNI</b></td><td>You Aren't Gonna Need It</td><td>тебе это не понадобится: не пиши код «на будущее»</td><td><a href="/lessons/m17/07b-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">17.8</a></td></tr>
+        <tr><td><b>DRY</b></td><td>Don't Repeat Yourself</td><td>не повторяйся: каждое правило — в одном месте</td><td><a href="/lessons/m18/01-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">18.1</a></td></tr>
+        <tr><td><b>KISS</b></td><td>Keep It Simple, Stupid</td><td>делай проще: из рабочих решений бери самое простое</td><td><a href="/lessons/m18/01-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">18.1</a></td></tr>
+        <tr><td><b>YAGNI</b></td><td>You Aren't Gonna Need It</td><td>тебе это не понадобится: не пиши код «на будущее»</td><td><a href="/lessons/m18/01-clean-code.html" title="Чистый код: стиль, DRY, KISS, YAGNI">18.1</a></td></tr>
         <tr><td><b>SOLID</b></td><td>SRP, OCP, LSP, ISP, DIP</td><td>пять принципов дизайна классов: одна ответственность, расширение без правок, подстановка Лисков, маленькие интерфейсы, зависимость от абстракций</td><td><a href="/lessons/m10/07-composition.html" title="Композиция против наследования">10.7</a></td></tr>
-        <tr><td><b>GoF</b></td><td>Gang of Four</td><td>«банда четырёх» — авторы книги 1994 года о 23 паттернах проектирования</td><td><a href="/lessons/m17/07d-patterns-creational.html" title="Паттерны: как создавать объекты">17.10</a></td></tr>
+        <tr><td><b>GoF</b></td><td>Gang of Four</td><td>«банда четырёх» — авторы книги 1994 года о 23 паттернах проектирования</td><td><a href="/lessons/m18/03-patterns-creational.html" title="Паттерны: как создавать объекты">18.3</a></td></tr>
         <tr><td><b>CI</b></td><td>Continuous Integration</td><td>сервер, который сам собирает проект и гоняет тесты после каждого push</td><td><a href="/lessons/m17/03-git-team.html" title="Git в команде: push, pull, конфликты">17.3</a></td></tr>
     </table></div>
     <p class="cheat-more"><a href="#toc">↑ к оглавлению</a></p>

@@ -1,6 +1,6 @@
-## id: m17-t08
+## id: m18-t01
 ## title: Пиццерия: заказ через строителя
-## file: module-17/PizzaOrder.java
+## file: module-18/PizzaOrder.java
 ## class: PizzaOrder
 ## level: 2
 @@ description
@@ -31,7 +31,7 @@
 <p>Если размер неверный: <code>Заказ 1 не принят: размера 50 см нет</code>.</p>
 <p>⚠️ Выведи только то, что в примере, — без «Введите…».</p>
 <p>Наставнику при <code>/check</code> расскажи: почему методы строителя возвращают <code>this</code> и почему проверка размера стоит в <code>build()</code>, а не в <code>main</code>.</p>
-<p>📖 <a href="/lessons/m17/07d-patterns-creational.html">Паттерны проектирования: как создавать объекты</a> (урок 17.10)</p>
+<p>📖 <a href="/lessons/m18/03-patterns-creational.html">Паттерны проектирования: как создавать объекты</a> (урок 18.3)</p>
 @@ test: Три заказа из примера
 @@ input
 3

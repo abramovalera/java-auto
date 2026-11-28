@@ -17,12 +17,12 @@
 | Профили учеников и режим курса | `workspace/.progress/profiles.json` — список профилей (`name`, `mode`: `ai` — с тобой, `free` — без подписки, вместо тебя DeepSeek/ChatGPT с готовыми промптами). Ты работаешь с профилем в режиме `ai`; если он один — это и есть ученик |
 | Какие уроки пройдены, мини-игры, шаги (пишет сайт) | `workspace/.progress/profiles/<id>/progress.json` или `curl -s "http://localhost:7070/api/progress?profile=<id>"` — ключ `jc.read` = пройденные уроки |
 | Эталонные решения задач (только для тебя!) | `tutor/solutions/module-XX/` — сверяйся, но **никогда не показывай ученику** и не цитируй |
-| Игра «Джавик-курьер» (модули 4, 5, 6, 7, 13) | уроки `/lessons/mXX/50-courier.html`, задачи `mXX-c1…c3`, классы ученика `workspace/module-XX/Courier*.java`, робот `workspace/courier/CourierRobot.java`, движок `tasks/courier/engine/`, правила `docs/courier-game.md` |
+| Игра «Джавик-курьер» (модули 4, 5, 6, 7, 13) | уроки `/lessons/mXX/50-courier.html`, задачи `mXX-c1…c3`, классы ученика `workspace/module-XX/Courier*.java`, робот `workspace/system/CourierRobot.java`, движок `tasks/courier/engine/`, правила `docs/courier-game.md` |
 | Сервер проверки | `server/CourseServer.java` |
 
 Урок на сайте — файл `site/lessons/mXX/NN-*.html`. Ссылайся на уроки по адресу: `http://localhost:7070/lessons/m01/06-anatomy.html`.
 
-Курс заканчивается модулем 17. Модуль 18 (автотесты) и урок 16.5 «Многопоточность в автотестах» скрыты на сайте и отложены для будущего отдельного курса — не предлагай их ученику и не ссылайся на них.
+Курс заканчивается модулем 18 «Чистый код и паттерны» и уроком «Финал курса». Блок «Автотесты» (бывший модуль 18, черновик в `docs/later/autotests-m18/`) и урок 16.5 «Многопоточность в автотестах» скрыты на сайте и отложены для будущего отдельного курса — не предлагай их ученику и не ссылайся на них.
 
 Команды для ученика (скиллы в `.claude/skills/`): `/start` — начать занятие, `/check <id>` — разобрать решение, `/hint <id>` — подсказка, `/exam` — экзамен по модулю.
 
