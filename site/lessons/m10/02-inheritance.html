@@ -283,7 +283,15 @@ class Cat extends Animal {
   <section class="step">
     <h2>Кто запускается первым: порядок инициализации</h2>
     <p>Любимый вопрос на собеседовании: «Что напечатает программа?», а в классах родителя и наследника есть static-блоки (урок 9.4), конструкторы и ещё один вид блоков — <b>блок инициализации</b> объекта. Это фигурные скобки прямо в классе, <b>без</b> слова <code>static</code>. Он выполняется при создании <b>каждого</b> объекта, перед телом конструктора. В обычном коде его почти не пишут, а на собеседованиях спрашивают постоянно.</p>
-<pre data-file="InitOrder.java"><code class="java">class Parent {
+<pre data-file="InitOrder.java"><code class="java">public class InitOrder {
+    public static void main(String[] args) {
+        new Child();
+        System.out.println("---");
+        new Child();
+    }
+}
+
+class Parent {
     static { System.out.println("1. static Parent"); }
     { System.out.println("блок Parent"); }
     Parent() { System.out.println("конструктор Parent"); }
@@ -293,14 +301,6 @@ class Child extends Parent {
     static { System.out.println("2. static Child"); }
     { System.out.println("блок Child"); }
     Child() { System.out.println("конструктор Child"); }
-}
-
-public class InitOrder {
-    public static void main(String[] args) {
-        new Child();
-        System.out.println("---");
-        new Child();
-    }
 }</code></pre>
     <details class="predict">
       <summary>Предскажи вывод, прежде чем открыть</summary>
