@@ -586,6 +586,29 @@ public class CourseServer {
             sendJson(ex, 200, list);
             return;
         }
+        if ("DELETE".equals(ex.getRequestMethod())) { // DELETE /api/profiles/{id} — «мягкое» удаление
+            String id = path.length() > "/api/profiles/".length() ? validProfile(path.substring("/api/profiles/".length())) : null;
+            Map<String, Object> found = null;
+            for (Object o : list) if (id != null && id.equals(((Map<String, Object>) o).get("id"))) found = (Map<String, Object>) o;
+            if (found == null) {
+                sendJson(ex, 404, Map.of("status", "not_found"));
+                return;
+            }
+            list.remove(found);
+            // строки журнала без профиля раньше засчитывались этому профилю — теперь никому
+            if (id.equals(reg.get("legacyOwner"))) reg.remove("legacyOwner");
+            writeProfiles(reg);
+            STORES.remove(id);
+            // прогресс не стираем: переносим в .progress/deleted/<id>-<время> вместе с карточкой профиля — можно вернуть руками
+            Path deleted = workspaceDir.resolve(".progress").resolve("deleted")
+                    .resolve(id + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")));
+            Files.createDirectories(deleted);
+            Path dir = workspaceDir.resolve(".progress").resolve("profiles").resolve(id);
+            if (Files.isDirectory(dir)) Files.move(dir, deleted.resolve("progress"));
+            Files.writeString(deleted.resolve("profile.json"), Json.stringify(found), StandardCharsets.UTF_8);
+            sendJson(ex, 200, Map.of("status", "deleted", "id", id, "archivedTo", workspaceDir.relativize(deleted).toString().replace('\\', '/')));
+            return;
+        }
         if (!"POST".equals(ex.getRequestMethod())) {
             sendJson(ex, 405, Map.of("status", "method_not_allowed"));
             return;

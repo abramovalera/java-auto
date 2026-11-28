@@ -294,7 +294,7 @@
     if (!side) return;
     if (current === "training") return renderTrainingSidebar(side);
     const read = readSet(), ts = taskStatus(), openState = store.get("jc.open", {});
-    let html = `<a class="side-cheat ${current === "cheatsheet" ? "active" : ""}" href="/cheatsheet.html">📌 Шпаргалка и собеседование</a>`;
+    let html = ""; // шпаргалка — вкладка «📌 Шпаргалка» в шапке
     for (const m of COURSE.modules) {
       if (m.status !== "open") continue;
       const p = moduleProgress(m);
@@ -346,10 +346,11 @@
     top.innerHTML = `
       <button class="icon-btn menu-btn" aria-label="Меню курса">☰</button>
       <a class="brand" href="/">${JC.mascot("happy")}</a>
-      ${(window.TRAINING || []).length ? `<nav class="sect-switch" aria-label="Раздел">
-        <a class="${current === "training" ? "" : "on"}" href="/">☕ <span>${esc(COURSE.title)}</span></a>
-        <a class="${current === "training" ? "on" : ""}" href="/training.html" title="Задачи, чтобы набить руку">🏋️ <span>Тренинг код</span></a>
-      </nav>` : `<a class="brand-title" href="/">${esc(COURSE.title)}</a>`}
+      <nav class="sect-switch" aria-label="Раздел">
+        <a class="${current !== "training" && current !== "cheatsheet" ? "on" : ""}" href="/">☕ <span>${esc(COURSE.title)}</span></a>
+        ${(window.TRAINING || []).length ? `<a class="${current === "training" ? "on" : ""}" href="/training.html" title="Задачи, чтобы набить руку">🏋️ <span>Тренинг код</span></a>` : ""}
+        <a class="${current === "cheatsheet" ? "on" : ""}" href="/cheatsheet.html" title="Шпаргалка и вопросы с собеседований по всем модулям">📌 <span>Шпаргалка</span></a>
+      </nav>
       <div class="top-center"><div class="top-crumb">${esc(crumb)}</div><div class="top-progress"></div></div>
       <div class="stats">
         <button class="upd-btn" hidden title="Вышла новая версия курса">🔄 <span>Обновление</span></button>
@@ -727,10 +728,36 @@
     const go = (st) => {
       if (st === "pick") {
         body.innerHTML = `<h2>С возвращением! Кто учится?</h2>
-          <div class="welcome-list">${profiles.map((p) => `<button class="welcome-pick" data-id="${esc(p.id)}"><b>${esc(p.name)}</b><small>${esc(modeLabel(p))}</small></button>`).join("")}</div>
+          <div class="welcome-list">${profiles.map((p) => `<div class="welcome-row" data-id="${esc(p.id)}">
+              <button class="welcome-pick" data-id="${esc(p.id)}"><b>${esc(p.name)}</b><small>${esc(modeLabel(p))}</small></button>
+              <button class="welcome-del" data-id="${esc(p.id)}" title="Удалить профиль «${esc(p.name)}»" aria-label="Удалить профиль «${esc(p.name)}»">🗑</button>
+            </div>`).join("")}</div>
           <button class="btn ghost welcome-new">＋ Новый профиль</button>`;
         body.querySelectorAll(".welcome-pick").forEach((b) => b.addEventListener("click", () => setActive(b.dataset.id)));
         body.querySelector(".welcome-new").addEventListener("click", () => go("name"));
+        // 🗑 → в строке появляется подтверждение; прогресс сервер не стирает, а переносит в workspace/.progress/deleted/
+        body.querySelectorAll(".welcome-del").forEach((b) => b.addEventListener("click", () => {
+          const row = b.closest(".welcome-row"), p = profiles.find((x) => x.id === b.dataset.id);
+          if (!p) return;
+          row.innerHTML = `<div class="welcome-confirm">
+              <p>Удалить профиль <b>«${esc(p.name)}»</b>? Пропадут его пройденные уроки и задачи. Код в папке <code>workspace</code> останется.</p>
+              <div class="w-row"><button class="btn small red welcome-yes">Удалить</button><button class="btn small ghost welcome-no">Отмена</button></div>
+            </div>`;
+          row.querySelector(".welcome-no").addEventListener("click", () => go("pick"));
+          row.querySelector(".welcome-yes").addEventListener("click", async (e) => {
+            e.target.disabled = true;
+            try {
+              const r = await nativeFetch("/api/profiles/" + encodeURIComponent(p.id), { method: "DELETE" });
+              if (!r.ok && r.status !== 404) throw new Error("HTTP " + r.status);
+              profiles = profiles.filter((x) => x.id !== p.id);
+              if (profileId === p.id) { try { localStorage.removeItem(PROFILE_KEY); } catch (err) { /* ignore */ } profileId = null; }
+              go(profiles.length ? "pick" : "name");
+            } catch (err) {
+              e.target.disabled = false;
+              row.insertAdjacentHTML("beforeend", `<p class="welcome-err">Не получилось удалить: сервер курса не отвечает.</p>`);
+            }
+          });
+        }));
       } else if (st === "name") {
         body.innerHTML = `<h2>👋 Привет! Как тебя зовут?</h2>
           <p>Под этим именем будет сохраняться твой прогресс: пройденные уроки, задачи, ответы в проверках.</p>
@@ -1007,7 +1034,7 @@
     box.className = "callout tip tr-remind";
     box.innerHTML = `<span class="callout-title">🏋️ Не забудь про «Тренинг код»</span>
       <p>Модуль позади — самое время закрепить его руками. Нажми кнопку <b>«🏋️ Тренинг код»</b> в шапке сайта:</p>
-      <img src="/img/training-button.png" alt="Кнопка «Тренинг код» в шапке сайта, справа от «Java с нуля»" width="474" height="64">
+      <img src="/img/training-button.png" alt="Кнопка «Тренинг код» в шапке сайта, между «Java с нуля» и «Шпаргалка»" width="635" height="64">
       <p>${where}</p>
       <p><b>Лучше каждый день по 20–30 минут, чем раз в неделю 5 часов подряд.</b> Язык программирования забывается очень быстро, как иностранный: без практики через пару недель синтаксис вылетает из головы. Пара задач в день — и всё держится в памяти.</p>`;
     const steps = main.querySelectorAll("section.step");
