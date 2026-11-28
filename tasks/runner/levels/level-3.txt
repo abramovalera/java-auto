@@ -1,8 +1,0 @@
-# Уровень 3: с середины трассы скорость 2 — расстояние убывает через одну клетку
-types=both
-lowWidths=1,2
-length=110
-speedUpAt=40
-gapMin=4
-gapMax=8
-gapMinFast=7

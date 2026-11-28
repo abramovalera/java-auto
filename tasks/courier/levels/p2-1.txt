@@ -1,0 +1,8 @@
+# Часть 2 ★ «Длинная улица»: прямая улица случайной длины
+class=CourierPart2
+entry=run
+map=street
+minLen=5
+maxLen=15
+goal=reach
+ticks=100

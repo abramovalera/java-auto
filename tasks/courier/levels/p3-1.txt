@@ -1,0 +1,8 @@
+# Часть 3 ★ «Запиши маршрут»: доставить и напечатать маршрут
+class=CourierPart3
+entry=run
+map=corridor
+carryStart=true
+goal=deliver
+output=route
+ticks=200

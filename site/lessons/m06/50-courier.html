@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Джавик-курьер, часть 3: маршрут в массиве · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m06-courier">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 6 · Игра «Джавик-курьер», часть 3</div>
+    <h1>Джавик-курьер, часть 3: маршрут в массиве</h1>
+    <p class="lead">Джавик научится запоминать дорогу. Каждый ход — в массив, после доставки — печать маршрута, а ночью, когда датчики стен гаснут, — дорога домой по памяти. На закуску — сжатый маршрут «MOVE x3, LEFT», настоящая задача Мастерской.</p>
+    <div class="meta"><span>⏱ 40 минут</span><span>🚚 три уровня игры</span><span>🗂 массив + счётчик</span><span>⏪ обход с конца</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m06-courier-review">
+      <script type="application/json">
+      {
+       "title": "Массивы: то, что понадобится Джавику",
+       "icon": "🔁",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String[] words = new String[4];\nint count = 0;\nwords[count] = \"кот\";\ncount++;\nwords[count] = \"пёс\";\ncount++;\nSystem.out.println(count + \" \" + words[count]);",
+         "answer": "2 null",
+         "why": "Два элемента записаны в ячейки 0 и 1, count стал 2. Ячейка с индексом 2 ещё пустая: в новом массиве String[] по умолчанию лежит null. Счётчик всегда показывает на первую свободную ячейку."
+        },
+        {
+         "type": "single",
+         "q": "Какой заголовок цикла пройдёт массив <code>a</code> с конца, не пропустив ни одного элемента и не вылетев за край?",
+         "options": [
+          "for (int i = a.length; i >= 0; i--)",
+          "for (int i = a.length - 1; i >= 0; i--)",
+          "for (int i = a.length - 1; i > 0; i--)"
+         ],
+         "answer": 1,
+         "why": "Последний индекс — length - 1, первый — 0, значит условие i >= 0. С a.length сразу будет ArrayIndexOutOfBoundsException, а с i > 0 цикл не дойдёт до элемента с индексом 0."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          { "s": "Строки сравнивают методом equals: s.equals(\"LEFT\")", "a": true },
+          { "s": "Новый массив new String[3] заполнен пустыми строками \"\"", "a": false, "why": "Элементы нового массива ссылочного типа равны null — «ссылки никуда». Пустая строка \"\" — это уже настоящий объект." }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Джавик снова в деле</h2>
+    <p>Напомню, как устроена игра. Джавик — робот-курьер на клеточном поле: стены, дорога, 🏁 склад, 🏠 адрес клиента. В <a href="/lessons/m04/50-courier.html">части 1</a> ты писал метод <code>decide</code>, который игра вызывала на каждом ходу. В <a href="/lessons/m05/50-courier.html">части 2</a> появился метод <code>run</code>: игра вызывает его <b>один раз</b>, а ты сам командуешь роботом в цикле — <code>robot.move()</code>, <code>robot.turnLeft()</code> и так далее.</p>
+    <p>Часть 3 — снова метод <code>run</code>, класс <code>CourierPart3</code>. Что нового:</p>
+    <ul>
+      <li>Джавик <b>стартует уже с посылкой</b>: брать ничего не нужно, только довезти до 🏠 и отдать (<code>robot.drop()</code>).</li>
+      <li>Дорога — извилистый коридор без развилок. Правило «впереди свободно — еду, иначе поворачиваю туда, где нет стены» ты уже писал в части 2 на уровне «Лестница».</li>
+      <li>Главное — <b>память</b>: Джавик должен записывать каждый свой ход в массив. Зачем — станет ясно на втором уровне.</li>
+    </ul>
+    <div class="callout warn">
+      <span class="callout-title">Код — в IDEA, смотрим — на сайте</span>
+      <p>Код ты пишешь в IntelliJ IDEA, в файле <code>workspace/module-06/CourierPart3.java</code> — заготовка уже лежит в папке. Сохраняешь и жмёшь «▶ Запустить мой код» в конце этого урока (или «▶ Проверить» в «Практике»). Сайт запустит Джавика на трёх разных картах и покажет поездку по шагам. Управлять Джавиком руками нельзя — только программой. Карты каждый раз другие, поэтому маршрут наизусть не зашьёшь.</p>
+    </div>
+    <div data-widget="ide" id="shot-m06-courier-starter">
+      <script type="application/json">
+      { "file": "CourierPart3.java", "statusPath": "module-06", "caretLine": 11,
+        "tree": [ { "name": "courier", "type": "src", "depth": 0, "open": true },
+                  { "name": "CourierRobot", "type": "class", "depth": 1, "note": "не трогать" },
+                  { "name": "module-06", "type": "src", "depth": 0, "open": true },
+                  { "name": "CourierPart3", "type": "class", "depth": 1, "selected": true } ],
+        "code": "public class CourierPart3 {\n\n    // Команды: robot.move(), robot.turnLeft(), robot.turnRight(), robot.drop()\n    // Датчики (true / false): robot.wallAhead(), robot.wallLeft(), robot.wallRight(),\n    //   robot.parcelHere(), robot.carrying(), robot.atTarget(), robot.atDepot()\n    // Наведи курсор на любой метод робота — IntelliJ IDEA покажет его описание.\n    // После drop() на уровнях 2 и 3 наступает ночь: датчики стен перестают работать.\n    public static void run(CourierRobot robot) {\n        String[] route = new String[300]; // сюда записывай ходы: \"MOVE\", \"LEFT\", \"RIGHT\"\n        int count = 0;                    // сколько ходов уже записано\n\n    }\n}",
+        "marks": [
+          { "n": 1, "target": "tree-CourierPart3", "text": "Твой файл. Один на все три уровня: ты его постепенно улучшаешь" },
+          { "n": 2, "target": "tree-CourierRobot", "text": "Описание робота. Его положил сервер курса, чтобы IDEA знала методы Джавика и не подчёркивала их красным. Не меняй его" },
+          { "n": 3, "target": "line-9", "side": "top", "text": "Массив для маршрута — уже объявлен и создан на 300 ячеек" },
+          { "n": 4, "target": "line-10", "side": "top", "text": "Счётчик записанных ходов. Пока 0 — ничего не записано" } ],
+        "caption": "Заготовка части 3 в IDEA: массив и счётчик уже есть, остальное пишешь ты" }
+      </script>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Датчики (возвращают true / false)</th><th>Команды</th></tr>
+        <tr><td><code>wallAhead()</code>, <code>wallLeft()</code>, <code>wallRight()</code> — стена впереди / слева / справа</td><td><code>move()</code> — клетка вперёд</td></tr>
+        <tr><td><code>atTarget()</code> — Джавик на адресе 🏠</td><td><code>turnLeft()</code>, <code>turnRight()</code> — поворот на месте (тоже ход)</td></tr>
+        <tr><td><code>atDepot()</code> — Джавик на складе 🏁</td><td><code>drop()</code> — отдать посылку (только на 🏠)</td></tr>
+      </table>
+    </div>
+    <div class="say" data-mood="happy"><p>Свой цикл из части 2 можешь смело перенести в новый файл — это твой код, не чужое решение. А дальше научим меня его запоминать.</p></div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>★ «Запиши маршрут»: бортовой журнал в массиве</h2>
+    <p><b>Задача уровня:</b> довезти посылку и после доставки напечатать все ходы одной строкой:</p>
+<pre class="terminal"><span class="out">Маршрут: MOVE MOVE LEFT MOVE MOVE MOVE RIGHT MOVE</span></pre>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: бортовой журнал</span>
+      <p>Капитан корабля после каждого манёвра делает запись в журнал: «прямо», «лево руля», «прямо». Страницы в журнале пронумерованы, и записи идут подряд — без пропусков. По такому журналу можно потом восстановить весь путь. Массив <code>route</code> — это журнал, а <code>count</code> — закладка: сколько страниц уже исписано.</p>
+    </div>
+    <p><b>Почему массив «с запасом»?</b> Размер массива задаётся один раз при создании и потом не меняется. А сколько ходов понадобится, заранее неизвестно: каждая карта своя. Поэтому берём заведомо больше, чем нужно (300 ячеек — с огромным запасом для коридора), и рядом держим счётчик <code>count</code> — сколько ячеек <b>заполнено</b>. Этот приём — «массив + счётчик заполненных» — ты видел в уроке 6.5 про удаление и вставку.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 700 175" role="img" aria-label="Массив route на 300 ячеек: первые четыре заполнены ходами, count равен 4 и показывает на первую свободную ячейку">
+        <defs><marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head-accent"/></marker></defs>
+        <text x="69" y="38" text-anchor="middle" class="d-mono-ink">0</text>
+        <text x="151" y="38" text-anchor="middle" class="d-mono-ink">1</text>
+        <text x="233" y="38" text-anchor="middle" class="d-mono-ink">2</text>
+        <text x="315" y="38" text-anchor="middle" class="d-mono-ink">3</text>
+        <text x="397" y="38" text-anchor="middle" class="d-mono-ink">4</text>
+        <text x="479" y="38" text-anchor="middle" class="d-mono-ink">5</text>
+        <text x="619" y="38" text-anchor="middle" class="d-mono-ink">299</text>
+        <rect x="30" y="48" width="78" height="44" rx="6" class="d-teal"/><text x="69" y="75" text-anchor="middle" class="d-mono-ink">MOVE</text>
+        <rect x="112" y="48" width="78" height="44" rx="6" class="d-teal"/><text x="151" y="75" text-anchor="middle" class="d-mono-ink">MOVE</text>
+        <rect x="194" y="48" width="78" height="44" rx="6" class="d-teal"/><text x="233" y="75" text-anchor="middle" class="d-mono-ink">LEFT</text>
+        <rect x="276" y="48" width="78" height="44" rx="6" class="d-teal"/><text x="315" y="75" text-anchor="middle" class="d-mono-ink">MOVE</text>
+        <rect x="358" y="48" width="78" height="44" rx="6" class="d-soft"/><text x="397" y="75" text-anchor="middle" class="d-small">null</text>
+        <rect x="440" y="48" width="78" height="44" rx="6" class="d-soft"/><text x="479" y="75" text-anchor="middle" class="d-small">null</text>
+        <text x="549" y="75" text-anchor="middle" class="d-title">…</text>
+        <rect x="580" y="48" width="78" height="44" rx="6" class="d-soft"/><text x="619" y="75" text-anchor="middle" class="d-small">null</text>
+        <path d="M30 100 v8 h324 v-8" class="d-line"/>
+        <text x="192" y="130" text-anchor="middle" class="d-text">заполнено 4 ячейки: count = 4</text>
+        <path d="M397 150 V100" class="d-arrow-accent"/>
+        <text x="412" y="140" class="d-small">следующий ход ляжет</text>
+        <text x="412" y="158" class="d-small">в ячейку route[count]</text>
+      </svg>
+      <figcaption>Заполненная часть — индексы от 0 до count − 1. Всё, что дальше, — пустые ячейки со значением null.</figcaption>
+    </figure>
+    <p>Запись нового хода — две строки, которые всегда идут парой: <b>присвоить</b> элементу <code>route[count]</code> строку с командой и <b>увеличить</b> <code>count</code> инкрементом. Пройди трассировку: она на «кухонном» примере, но с теми же строками, что будут у Джавика.</p>
+    <div data-widget="trace" id="trace-m06-courier-log">
+      <script type="application/json">
+      { "title": "Журнал на три записи",
+        "intro": "Следи за count: он одновременно и «сколько записано», и «куда писать следующее». Впиши значения сам.",
+        "code": "String[] log = new String[5];\nint count = 0;\nlog[count] = \"MOVE\";\ncount++;\nlog[count] = \"LEFT\";\ncount++;\nlog[count] = \"MOVE\";\ncount++;\nSystem.out.println(count + \" \" + log[count - 1] + \" \" + log[count]);",
+        "steps": [
+          { "line": 1, "vars": { "log": "[null, null, null, null, null]" }, "note": "Создаём массив на 5 ячеек. Все элементы — null." },
+          { "line": 2, "vars": { "log": "[null, null, null, null, null]", "count": "0" }, "note": "Счётчик инициализируем нулём: ничего не записано, первая свободная ячейка — 0." },
+          { "line": 3, "vars": { "log": "[MOVE, null, null, null, null]", "count": "0" }, "note": "Присваиваем элементу log[count], то есть log[0], строку \"MOVE\"." },
+          { "line": 4, "vars": { "log": "[MOVE, null, null, null, null]", "count": "1" }, "ask": ["count"], "note": "Инкремент: count = 1. Запись сделана, закладка сдвинулась." },
+          { "line": 5, "vars": { "log": "[MOVE, LEFT, null, null, null]", "count": "1" }, "note": "Теперь log[count] — это log[1]. Старая запись не затёрта." },
+          { "line": 6, "vars": { "log": "[MOVE, LEFT, null, null, null]", "count": "2" }, "ask": ["count"], "note": "count = 2." },
+          { "line": 7, "vars": { "log": "[MOVE, LEFT, MOVE, null, null]", "count": "2" }, "note": "log[2] = \"MOVE\"." },
+          { "line": 8, "vars": { "log": "[MOVE, LEFT, MOVE, null, null]", "count": "3" }, "ask": ["count"], "note": "count = 3: три записи, индексы 0, 1, 2." },
+          { "line": 9, "vars": { "log": "[MOVE, LEFT, MOVE, null, null]", "count": "3" }, "out": "3 MOVE null\n", "note": "log[count - 1] — последняя запись (MOVE), а log[count] — первая свободная ячейка, там null." }
+        ] }
+      </script>
+    </div>
+    <details class="predict">
+      <summary>Джавик проехал так: MOVE, MOVE, RIGHT, MOVE, MOVE и доставил посылку. Чему равны count, route[2] и route[5]?</summary>
+      <p><b>count = 5</b> — пять ходов записаны в ячейки с индексами 0…4. <b>route[2] = "RIGHT"</b> — третий ход (индексы с нуля!). <b>route[5] = null</b> — шестой ячейки никто не заполнял. <code>drop()</code> в журнал не пишем: в маршруте только движение — MOVE, LEFT и RIGHT.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>★ Где записывать ход и как напечатать маршрут</h2>
+    <h3>Записывай сразу после команды</h3>
+    <p>В твоём цикле три ветки: ехать вперёд, повернуть налево, повернуть направо. Записывать нужно <b>в каждой ветке, сразу после команды роботу</b>, — ту самую команду, которую Джавик только что выполнил. Тогда журнал точно совпадёт с тем, что было на самом деле.</p>
+    <div class="callout warn">
+      <span class="callout-title">Куда записывать НЕ надо</span>
+      <p><b>До <code>if</code></b>, в начале итерации: ты ещё не знаешь, какая ветка сработает, — что писать? <b>После цикла</b>: к этому моменту ход был не один, а запишется только один. <b>Только в ветке с <code>move()</code></b>: повороты пропадут, и маршрут превратится в «MOVE MOVE MOVE…» — по такому домой не вернёшься.</p>
+    </div>
+    <p>Увеличивать <code>count</code> можно в каждой ветке сразу после записи, а можно один раз в конце тела цикла, после всего <code>if</code>, — ведь какая-то ветка точно сработала. Оба варианта верные, выбери тот, что понятнее.</p>
+    <h3>Печать одной строкой</h3>
+    <p>После доставки собери строку <b>накопителем</b>: начни со слова <code>"Маршрут:"</code> и в цикле по заполненной части дописывай к ней пробел и очередной ход — конкатенацией, оператором <code>+=</code>. Потом один раз напечатай строку через <code>println</code>. При таком порядке «пробел, потом ход» лишнего пробела в конце не будет.</p>
+    <details class="predict">
+      <summary>Что напечатается, если в цикле печати написать условие i &lt; route.length вместо i &lt; count?</summary>
+      <p>После настоящих ходов добавятся ещё почти три сотни слов <b>null</b>: «Маршрут: MOVE MOVE LEFT null null null…». <code>route.length</code> — это 300, размер всего массива, а заполнено только <code>count</code> ячеек. В массиве «с запасом» граница цикла — всегда счётчик, а не длина.</p>
+    </details>
+    <div class="callout tip">
+      <span class="callout-title">Что проверяет сайт</span>
+      <p>На уровне ★ сайт сравнивает <b>первую строку</b> вывода с тем, что Джавик сделал на самом деле. Поэтому до строки «Маршрут:» ничего не печатай: отладочный вывод вроде «еду!» сломает проверку.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>★★ «Дорога домой»: ночью датчики не работают</h2>
+    <p>Посылку отдали, а на улице стемнело. На уровнях ★★ и ★★★ <b>после <code>drop()</code> датчики стен выключаются</b>: вызов <code>wallAhead()</code>, <code>wallLeft()</code> или <code>wallRight()</code> сразу заканчивает поездку с ошибкой «Ночью датчики стен не работают: возвращайся на склад по записанному маршруту». Нужно вернуть Джавика на 🏁, пользуясь только журналом.</p>
+    <p>План возвращения из трёх частей:</p>
+    <ol class="steps">
+      <li><b>Развернуться.</b> Джавик стоит у клиента лицом туда, куда ехал. Два поворота налево — и он смотрит назад. Этот разворот в журнал не записываем: журнал — это дорога <i>туда</i>.</li>
+      <li><b>Читать журнал с конца.</b> Последний ход туда — первый ход обратно. Цикл по заполненной части с конца: <code>for (int i = count - 1; i &gt;= 0; i--)</code>, как в уроке 6.4 про сортировку по убыванию.</li>
+      <li><b>Менять повороты местами.</b> MOVE остаётся MOVE, а LEFT и RIGHT меняются друг на друга. Почему — смотри схему.</li>
+    </ol>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 720 410" role="img" aria-label="Туда Джавик едет вверх и на перекрёстке поворачивает налево. Обратно он едет по тем же клеткам и на том же месте поворачивает направо. Внизу массив маршрута читается с конца, LEFT заменяется на RIGHT">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <rect x="10" y="10" width="340" height="290" rx="14" class="d-soft"/>
+        <text x="180" y="40" text-anchor="middle" class="d-title">Туда</text>
+        <text x="180" y="62" text-anchor="middle" class="d-mono-ink">MOVE, LEFT, MOVE</text>
+        <rect x="198" y="123" width="64" height="64" rx="6" class="d-box"/>
+        <rect x="198" y="203" width="64" height="64" rx="6" class="d-box"/>
+        <rect x="118" y="123" width="64" height="64" rx="6" class="d-box"/>
+        <path d="M230 245 V170" class="d-arrow"/>
+        <path d="M218 155 H170" class="d-arrow"/>
+        <text x="272" y="160" class="d-mono-ink">LEFT ↰</text>
+        <text x="230" y="288" text-anchor="middle" class="d-small">🏁 склад</text>
+        <text x="30" y="160" class="d-small">🏠 клиент</text>
+        <text x="30" y="240" class="d-small">смотрит ↑</text>
+
+        <rect x="370" y="10" width="340" height="290" rx="14" class="d-soft"/>
+        <text x="540" y="40" text-anchor="middle" class="d-title">Обратно</text>
+        <text x="540" y="62" text-anchor="middle" class="d-mono-ink">разворот, MOVE, RIGHT, MOVE</text>
+        <rect x="558" y="123" width="64" height="64" rx="6" class="d-box"/>
+        <rect x="558" y="203" width="64" height="64" rx="6" class="d-box"/>
+        <rect x="478" y="123" width="64" height="64" rx="6" class="d-box"/>
+        <path d="M500 155 H578" class="d-arrow"/>
+        <path d="M590 167 V245" class="d-arrow"/>
+        <text x="632" y="160" class="d-mono-ink">RIGHT ↱</text>
+        <text x="510" y="110" text-anchor="middle" class="d-small">разворот: LEFT, LEFT</text>
+        <text x="590" y="288" text-anchor="middle" class="d-small">🏁 дома</text>
+        <text x="392" y="160" class="d-small">🏠 старт</text>
+
+        <text x="20" y="361" class="d-small">route:</text>
+        <text x="110" y="332" text-anchor="middle" class="d-mono-ink">[0]</text>
+        <text x="190" y="332" text-anchor="middle" class="d-mono-ink">[1]</text>
+        <text x="270" y="332" text-anchor="middle" class="d-mono-ink">[2]</text>
+        <rect x="74" y="340" width="72" height="36" rx="6" class="d-box"/><text x="110" y="363" text-anchor="middle" class="d-mono-ink">MOVE</text>
+        <rect x="154" y="340" width="72" height="36" rx="6" class="d-blue"/><text x="190" y="363" text-anchor="middle" class="d-mono-ink">LEFT</text>
+        <rect x="234" y="340" width="72" height="36" rx="6" class="d-box"/><text x="270" y="363" text-anchor="middle" class="d-mono-ink">MOVE</text>
+        <path d="M318 358 H420" class="d-arrow"/>
+        <text x="369" y="345" text-anchor="middle" class="d-small">с конца</text>
+        <text x="369" y="392" text-anchor="middle" class="d-small">LEFT ↔ RIGHT</text>
+        <text x="470" y="332" text-anchor="middle" class="d-mono-ink">i = 2</text>
+        <text x="550" y="332" text-anchor="middle" class="d-mono-ink">i = 1</text>
+        <text x="630" y="332" text-anchor="middle" class="d-mono-ink">i = 0</text>
+        <rect x="434" y="340" width="72" height="36" rx="6" class="d-box"/><text x="470" y="363" text-anchor="middle" class="d-mono-ink">MOVE</text>
+        <rect x="514" y="340" width="72" height="36" rx="6" class="d-violet"/><text x="550" y="363" text-anchor="middle" class="d-mono-ink">RIGHT</text>
+        <rect x="594" y="340" width="72" height="36" rx="6" class="d-box"/><text x="630" y="363" text-anchor="middle" class="d-mono-ink">MOVE</text>
+      </svg>
+      <figcaption>Туда на перекрёстке был поворот налево. Обратно Джавик приезжает на ту же клетку с другой стороны — и чтобы попасть на дорогу к складу, поворачивает направо.</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: дорога из магазина</span>
+      <p>По дороге в магазин ты на углу у аптеки свернул <b>налево</b>. Возвращаешься той же дорогой — на том же углу сворачиваешь <b>направо</b>. Улицы те же, но идёшь ты им навстречу, и «лево» с «право» меняются местами. А «прямо» так и остаётся «прямо».</p>
+    </div>
+    <details class="predict">
+      <summary>Туда на каком-то месте Джавик повернул направо (RIGHT). Что ему скомандовать, когда обратно он дойдёт до этого места в журнале?</summary>
+      <p><b>turnLeft()</b>. Правый поворот, пройденный «навстречу», становится левым. Если оставить RIGHT как есть, Джавик повернётся не к своей дороге, а в стену, — и следующий MOVE закончится аварией. Ночью стену не проверить: датчики выключены, ошибиться нельзя.</p>
+    </details>
+    <div class="say" data-mood="think"><p>Ночью я ничего не спрашиваю — еду по памяти. В просмотре поездки это видно: в строке «Перед ходом Джавик спросил» на обратном пути будет «ничего».</p></div>
+    <div data-widget="check" id="check-m06-courier-mid">
+      <script type="application/json">
+      {
+       "title": "Журнал и дорога домой",
+       "items": [
+        {
+         "type": "single",
+         "q": "Где записывать ход Джавика в массив route?",
+         "options": [
+          "В начале каждой итерации цикла, до if",
+          "В каждой ветке, сразу после команды роботу",
+          "После цикла, когда Джавик доехал до 🏠",
+          "Только в ветке, где вызывается move()"
+         ],
+         "answer": 1,
+         "why": "Только в ветке известно, какая команда на самом деле выполнилась. До if команда ещё не выбрана, после цикла запишется один ход вместо всех, а без поворотов обратный путь не восстановить."
+        },
+        {
+         "type": "single",
+         "q": "Маршрут туда: MOVE MOVE RIGHT MOVE LEFT MOVE. Какие команды Джавик должен выполнить после разворота, чтобы вернуться на склад?",
+         "options": [
+          "MOVE LEFT MOVE RIGHT MOVE MOVE",
+          "MOVE MOVE LEFT MOVE RIGHT MOVE",
+          "MOVE RIGHT MOVE LEFT MOVE MOVE"
+         ],
+         "answer": 2,
+         "why": "Сначала читаем с конца: MOVE LEFT MOVE RIGHT MOVE MOVE. Потом меняем повороты местами: MOVE RIGHT MOVE LEFT MOVE MOVE. Первый вариант — только с конца, без замены; второй — только замена, без обхода с конца."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          { "s": "Два поворота разворота нужно тоже записать в массив route", "a": false, "why": "Журнал — это дорога туда. Разворот делается уже ночью, перед обходом с конца; если записать его в журнал, ничего хорошего не выйдет, а сайт сравнивает напечатанный маршрут с дорогой до клиента." },
+          { "s": "При возврате в цикле с конца можно вызывать wallAhead(), чтобы перестраховаться", "a": false, "why": "После drop() на уровнях ★★ и ★★★ любой датчик стен заканчивает поездку с ошибкой. Вся информация уже в журнале." },
+          { "s": "MOVE в журнале обратно остаётся MOVE", "a": true }
+         ]
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>★★★ «Сжатый маршрут». Мастерская, шаги 1–3</h2>
+    <p>Длинный маршрут читать неудобно: «MOVE MOVE MOVE MOVE MOVE LEFT…». Под полной строкой нужна краткая: одинаковые ходы подряд сжать в «команда xN», одиночные оставить как есть, части разделить запятой с пробелом. И, как на уровне ★★, вернуться домой.</p>
+<pre class="terminal"><span class="out">Маршрут: MOVE MOVE MOVE LEFT MOVE MOVE
+Кратко: MOVE x3, LEFT, MOVE x2</span></pre>
+    <p>Это задача Мастерской. Не открывай IDEA, пока не пройдёшь шаблон из урока 6.5: <b>пойми задачу → реши руками → роли переменных → псевдокод → код → трассировка</b>.</p>
+
+    <h3>Шаг 1. Пойми задачу</h3>
+    <p><b>На входе</b> — массив <code>route</code> и счётчик <code>count</code>. <b>На выходе</b> — одна строка, начинается с «Кратко: ». Примеры, включая граничные:</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Маршрут</th><th>Кратко</th><th>Зачем пример</th></tr>
+        <tr><td><code>MOVE MOVE MOVE LEFT MOVE MOVE</code></td><td><code>MOVE x3, LEFT, MOVE x2</code></td><td>обычный</td></tr>
+        <tr><td><code>MOVE</code></td><td><code>MOVE</code></td><td>граничный: один ход — ни «x1», ни запятой</td></tr>
+        <tr><td><code>MOVE MOVE MOVE MOVE</code></td><td><code>MOVE x4</code></td><td>граничный: все одинаковые — одна часть</td></tr>
+        <tr><td><code>LEFT MOVE RIGHT</code></td><td><code>LEFT, MOVE, RIGHT</code></td><td>граничный: соседи все разные — ничего не сжимается</td></tr>
+        <tr><td><code>LEFT MOVE MOVE</code></td><td><code>LEFT, MOVE x2</code></td><td>последняя часть — серия: её легко потерять</td></tr>
+      </table>
+    </div>
+    <p>Обрати внимание: «x» — <b>латинская</b> буква x, перед ней пробел, после неё сразу число. Не русская «х» и не знак умножения ×: для компьютера это три разных символа.</p>
+
+    <h3>Шаг 2. Реши руками</h3>
+    <p>Положи палец на первый ход и веди вправо. Назовём <b>серией</b> несколько одинаковых ходов подряд. Проговаривай вслух:</p>
+    <ol class="steps">
+      <li>MOVE — началась серия MOVE, длина 1.</li>
+      <li>MOVE — такой же, длина 2. MOVE — такой же, длина 3.</li>
+      <li>LEFT — <b>другой!</b> Серия MOVE закончилась: записываю «MOVE x3». Новая серия LEFT, длина 1.</li>
+      <li>MOVE — другой: записываю «LEFT» (длина 1, без «x»). Новая серия MOVE, длина 1.</li>
+      <li>MOVE — такой же, длина 2.</li>
+      <li>Ходы кончились. Но серия MOVE x2 <b>ещё не записана</b> — записываю её тоже.</li>
+    </ol>
+    <p>Что повторялось? Сравнение «такой же, как серия, или другой?». Серия записывается в двух случаях: когда пришёл другой ход и когда ходы закончились.</p>
+    <div class="say" data-mood="oops"><p>Шаг 6 — тот, который все забывают. Внутри цикла серия записывается только тогда, когда её «перебил» другой ход. А последнюю серию никто не перебивает!</p></div>
+
+    <h3>Шаг 3. Роли переменных</h3>
+    <dl class="terms">
+      <dt>i</dt><dd><b>Шагающая</b>: идёт по заполненной части журнала, от 1 до <code>count - 1</code> (ход с индексом 0 сразу начинает первую серию).</dd>
+      <dt>серия</dt><dd><b>Временная</b>: какая команда сейчас повторяется. Меняется, когда пришёл другой ход.</dd>
+      <dt>длина</dt><dd><b>Счётчик</b>: сколько раз подряд повторилась команда. Новая серия — снова 1.</dd>
+      <dt>итог</dt><dd><b>Накопитель</b>-строка: в неё дописываются готовые части «MOVE x3», «LEFT»…</dd>
+    </dl>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>★★★ Мастерская, шаги 4–6: псевдокод, код, трассировка</h2>
+    <p><b>Шаг 4. Псевдокод</b> — тот же план, что руками, только записанный по шагам:</p>
+<pre class="terminal"><span class="out">серия ← route[0], длина ← 1, итог ← пустая строка
+для i от 1 до count − 1:
+    если route[i] такой же, как серия:
+        длина ← длина + 1
+    иначе:
+        дописать серию в итог
+        серия ← route[i], длина ← 1
+дописать серию в итог          ← последняя серия!
+напечатать «Кратко: » + итог
+
+«дописать серию в итог»:
+    если итог уже не пустой — сначала дописать ", "
+    если длина = 1 — дописать саму команду
+    иначе — дописать команду, " x" и длину</span></pre>
+    <p><b>Шаг 5. Код</b> — переводишь сам, строка в строку, в IDEA. Словарик перевода:</p>
+    <ul>
+      <li>«такой же, как серия» — сравнение строк методом <code>equals</code>, не <code>==</code>;</li>
+      <li>«дописать» — конкатенация <code>+=</code>; число к строке приклеится само: <code>" x" + длина</code>;</li>
+      <li>«итог не пустой» — отрицание <code>!</code> перед сравнением итога с пустой строкой <code>""</code> через <code>equals</code> (или заведи флаг «первая часть»);</li>
+      <li>«дописать серию» встречается в псевдокоде дважды — пока это две одинаковые кучки строк. В модуле 7 ты научишься выносить такое в свой метод.</li>
+    </ul>
+    <p><b>Шаг 6. Трассировка.</b> Заполни таблицу для маршрута <code>MOVE MOVE MOVE LEFT MOVE MOVE</code> (count = 6) — на бумаге, потом сверь.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>i</th><th>route[i]</th><th>такой же?</th><th>серия</th><th>длина</th><th>итог</th></tr>
+        <tr><td>до цикла</td><td>—</td><td>—</td><td>MOVE</td><td>1</td><td>""</td></tr>
+        <tr><td>1</td><td>MOVE</td><td>да</td><td>MOVE</td><td>2</td><td>""</td></tr>
+        <tr><td>2</td><td>MOVE</td><td>да</td><td>MOVE</td><td>3</td><td>""</td></tr>
+        <tr><td>3</td><td>LEFT</td><td>нет → дописать</td><td>LEFT</td><td>1</td><td>"MOVE x3"</td></tr>
+        <tr><td>4</td><td>MOVE</td><td>нет → дописать</td><td>MOVE</td><td>1</td><td>?</td></tr>
+        <tr><td>5</td><td>MOVE</td><td>да</td><td>MOVE</td><td>2</td><td>?</td></tr>
+        <tr><td>после цикла</td><td>—</td><td>дописать последнюю</td><td>—</td><td>—</td><td>?</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Что будет в итоге на строках i = 4, i = 5 и после цикла? А что напечатается, если забыть строку «дописать серию» после цикла?</summary>
+      <p>i = 4: <b>"MOVE x3, LEFT"</b> — серию LEFT перебил MOVE, и она дописалась вместе с запятой. i = 5: итог не меняется, растёт только длина. После цикла: <b>"MOVE x3, LEFT, MOVE x2"</b>.</p>
+      <p>Без последней строки напечатается «Кратко: MOVE x3, LEFT» — хвост «MOVE x2» потерян. А маршрут из одного хода «MOVE» дал бы пустой итог: цикл от 1 до 0 не выполнится ни разу.</p>
+    </details>
+    <details class="curious">
+      <summary>🔎 Для любопытных: второй способ — «бегунок»</summary>
+      <p>Можно думать иначе: встал на начало серии и пустил второй индекс вперёд, пока ходы такие же. Разница индексов — длина серии, а следующая серия начинается там, где бегунок остановился. Это вложенный цикл внутри внешнего. Оба способа правильные; первый проще трассировать, второй не требует «дописать последнюю после цикла». Попробуй оба — хорошая тренировка.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Запускаем и читаем поездку</h2>
+    <p>Выбери уровень, сохрани файл в IDEA (<kbd>Ctrl</kbd>+<kbd>S</kbd>) и нажми «▶ Запустить мой код». Один и тот же файл проходит все три уровня: сначала добейся ★, потом допиши возвращение для ★★, потом краткий маршрут для ★★★.</p>
+    <div data-widget="courier" data-tasks="m06-c1,m06-c2,m06-c3"></div>
+    <p><span class="ai-only">Прошёл уровень — разбери решение с наставником: <code>/check</code> и номер уровня (он написан под кнопкой «Проверить» в «Практике», например <code>m06-c1</code>).</span><span class="free-only">Прошёл уровень — разбери решение с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+    <p><b>Как читать результат:</b></p>
+    <ul>
+      <li><b>Вкладки карт</b> сверху — ✓ или ✗ на каждой из трёх карт. Уровень засчитан, когда зелёные все три. Сайт сам открывает первую неудачную.</li>
+      <li><b>Поле и Джавик.</b> Кнопки ⏮ ◀ ▶ ⏭ и ползунок — ход за ходом, вперёд и назад; скорость — справа. Найди ход, где всё пошло не так.</li>
+      <li><b>Справа</b> — номер хода, команда и «Перед ходом Джавик спросил»: какие датчики он вызвал и что они ответили. Красная заметка — что случилось.</li>
+      <li><b>Внизу</b> — «Программа напечатала» и, если не совпало, «Ожидалось». Сравни строки слово за словом.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="callout-title">Сколько строк проверяется</span>
+      <p>На уровнях ★ и ★★ сайт сверяет только первую строку — «Маршрут: …». На ★★★ — обе: «Маршрут:» и «Кратко:». Поэтому, когда допишешь краткий маршрут, ★ и ★★ не сломаются. Но больше ничего не печатай.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Сообщение</th><th>Что случилось</th><th>Где искать</th></tr>
+        <tr><td>«Программа напечатала не то. Ожидалось: …»</td><td>Маршрут в строке не совпал с настоящим</td><td>Запись хода не в той ветке; граница цикла печати; лишний пробел или нет слова «Маршрут:»</td></tr>
+        <tr><td>«Ночью датчики стен не работают…»</td><td>После <code>drop()</code> вызван <code>wallAhead()</code>, <code>wallLeft()</code> или <code>wallRight()</code></td><td>Обратный путь — только по массиву</td></tr>
+        <tr><td>«Джавик врезался в стену на ходу N»</td><td>На обратном пути повернул не туда</td><td>Замена LEFT ↔ RIGHT; разворот перед циклом</td></tr>
+        <tr><td>«Посылка доставлена, но Джавик не вернулся на склад 🏁»</td><td>Обратный путь короче, чем нужно</td><td>Цикл с конца не дошёл до индекса 0: условие <code>i &gt; 0</code> вместо <code>i &gt;= 0</code></td></tr>
+        <tr><td>«Твой код упал с исключением ArrayIndexOutOfBoundsException: Index 10 out of bounds for length 10 (строка 14)»</td><td>Массив маленький — ходов больше, чем ячеек</td><td>Размер массива при создании: бери с запасом</td></tr>
+        <tr><td>«… NullPointerException …»</td><td>Вызвали <code>equals</code> у пустой ячейки (null)</td><td>Цикл с конца начат с <code>count</code>, а не с <code>count - 1</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Если не получается</h2>
+    <p>Открывай подсказки по одной: часто хватает первой. Готового кода здесь нет — только направление.</p>
+    <h3>★ «Запиши маршрут»</h3>
+    <details class="curious">
+      <summary>💡 Подсказка 1 — с чего начать</summary>
+      <p>Сначала добейся, чтобы Джавик просто доставлял посылку: перенеси свой цикл «пока не на адресе» из части 2, после цикла — <code>robot.drop()</code>. Запусти: на всех картах он должен доехать. Только потом добавляй журнал.</p>
+    </details>
+    <details class="curious">
+      <summary>💡 Подсказка 2</summary>
+      <p>В каждой из трёх веток после команды роботу запиши в <code>route[count]</code> строку с этой же командой. Увеличивай <code>count</code> после каждой записи. Для печати — строка-накопитель, которая начинается с <code>"Маршрут:"</code>, и цикл от 0, пока <code>i &lt; count</code>.</p>
+    </details>
+    <details class="curious">
+      <summary>💡 Подсказка 3 — план на русском</summary>
+      <p>пока Джавик не на адресе: если впереди нет стены — ехать вперёд и записать MOVE; иначе если слева нет стены — повернуть налево и записать LEFT; иначе — повернуть направо и записать RIGHT; счётчик + 1.<br>отдать посылку.<br>строка ← «Маршрут:»; для каждого записанного хода: дописать пробел и ход; напечатать строку.</p>
+    </details>
+    <h3>★★ «Дорога домой»</h3>
+    <details class="curious">
+      <summary>💡 Подсказка 1 — с чего начать</summary>
+      <p>После <code>drop()</code> всё, что нужно знать о дороге, уже лежит в массиве. Датчики стен больше не трогай. Начни с разворота и проверь в просмотре поездки, что после него Джавик смотрит туда, откуда приехал.</p>
+    </details>
+    <details class="curious">
+      <summary>💡 Подсказка 2</summary>
+      <p>Разворот — два <code>turnLeft()</code>. Дальше цикл с конца: от <code>count - 1</code> до 0 включительно. На каждом шаге сравни <code>route[i]</code> через <code>equals</code> с тремя командами и выполни нужную — с учётом замены поворотов.</p>
+    </details>
+    <details class="curious">
+      <summary>💡 Подсказка 3 — план на русском</summary>
+      <p>повернуться налево, ещё раз налево.<br>для i от последнего записанного хода до первого: если ход MOVE — ехать вперёд; если LEFT — повернуть направо; если RIGHT — повернуть налево.</p>
+    </details>
+    <h3>★★★ «Сжатый маршрут»</h3>
+    <details class="curious">
+      <summary>💡 Подсказка 1 — с чего начать</summary>
+      <p>Возьми бумагу и сожми руками «MOVE MOVE MOVE LEFT MOVE MOVE», потом «MOVE» и «LEFT MOVE RIGHT». Отметь моменты, когда ты <b>записываешь</b> кусок в ответ. Их два вида — это и есть весь алгоритм.</p>
+    </details>
+    <details class="curious">
+      <summary>💡 Подсказка 2</summary>
+      <p>Тебе нужны четыре переменные: шагающая <code>i</code>, текущая команда серии, длина серии (счётчик) и строка-итог (накопитель). Кусок дописывается, когда очередной ход не равен серии, — и ещё один раз после цикла. Запятая ставится перед каждым куском, кроме первого.</p>
+    </details>
+    <details class="curious">
+      <summary>💡 Подсказка 3 — план на русском</summary>
+      <p>Возьми псевдокод из шага «Мастерская, шаги 4–6» и переводи по одной строке, проверяя запуском. Если «Кратко» не совпало — заполни таблицу трассировки для своего маршрута из «Ожидалось» и найди строку, где твой итог разошёлся с таблицей. Чаще всего это потерянная последняя серия, лишняя запятая в начале или русская «х».</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 10 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div class="cheat">
+      <h3>📝 Выпиши себе: приёмы части 3</h3>
+      <p>Это не про Джавика, а про массивы вообще: эти четыре приёма будут встречаться постоянно. Перепиши таблицу в тетрадь своими словами.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Приём</th><th>Как</th><th>Когда</th></tr>
+        <tr><td>Массив с запасом + счётчик</td><td>Создать побольше, <code>count</code> = сколько заполнено; добавить: записать в <code>[count]</code>, потом <code>count++</code></td><td>Сколько будет элементов, заранее неизвестно</td></tr>
+        <tr><td>Обход заполненной части</td><td>Граница — <code>i &lt; count</code>, не <code>length</code></td><td>Печать, поиск, подсчёт в массиве с запасом</td></tr>
+        <tr><td>Обход с конца</td><td><code>for (int i = count - 1; i &gt;= 0; i--)</code></td><td>Отменить действия, вернуться, развернуть порядок</td></tr>
+        <tr><td>Сжатие серий</td><td>Серия + длина; дописать, когда ход сменился, и последнюю — после цикла</td><td>«aaabb» → «a3b2», отчёты «x3», подсчёт подряд</td></tr>
+      </table></div>
+    </div>
+    <div data-widget="check" id="check-m06-courier">
+      <script type="application/json">
+      {
+       "title": "Джавик-курьер, часть 3",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String[] route = new String[10];\nroute[0] = \"MOVE\";\nroute[1] = \"LEFT\";\nroute[2] = \"MOVE\";\nroute[3] = \"RIGHT\";\nint count = 4;\nfor (int i = count - 1; i >= 0; i--) {\n    System.out.print(route[i] + \" \");\n}",
+         "answer": "RIGHT MOVE LEFT MOVE",
+         "why": "Счётчик цикла инициализируется последним заполненным индексом 3 и уменьшается до 0. Пустые ячейки 4…9 цикл не трогает."
+        },
+        {
+         "type": "match",
+         "q": "Соедини ход в журнале с тем, что делать на обратном пути",
+         "left": ["MOVE", "LEFT", "RIGHT", "Перед циклом с конца"],
+         "right": ["robot.move()", "robot.turnRight()", "robot.turnLeft()", "Два раза robot.turnLeft()"],
+         "why": "Вперёд остаётся вперёд, повороты меняются местами, а перед всем этим — разворот на 180°."
+        },
+        {
+         "type": "bug",
+         "q": "Программа должна напечатать журнал с конца, но печатает лишнее. Найди строку с ошибкой",
+         "code": "String[] route = new String[300];\nint count = 3;\nroute[0] = \"MOVE\"; route[1] = \"LEFT\"; route[2] = \"MOVE\";\nfor (int i = count; i >= 0; i--) {\n    System.out.print(route[i] + \" \");\n}",
+         "answer": [4],
+         "why": "route[count] — первая свободная ячейка, там null: напечатается «null MOVE LEFT MOVE». У Джавика вызов equals у null уронит программу с NullPointerException. Начинать нужно с count - 1."
+        },
+        {
+         "type": "predict",
+         "q": "Первая строка вывода — ниже. Что должна напечатать вторая строка на уровне ★★★?",
+         "code": "Маршрут: LEFT MOVE MOVE RIGHT RIGHT MOVE",
+         "answer": "Кратко: LEFT, MOVE x2, RIGHT x2, MOVE",
+         "why": "Четыре серии: LEFT (одна — без x), MOVE x2, RIGHT x2 и последняя MOVE, которую дописывают уже после цикла."
+        },
+        {
+         "type": "order",
+         "q": "Расставь план уровня ★★ по порядку",
+         "lines": [
+          "ехать до 🏠, записывая каждый ход в route[count] и увеличивая count",
+          "robot.drop() — наступает ночь",
+          "напечатать «Маршрут: …» по ячейкам от 0 до count − 1",
+          "развернуться: два поворота налево",
+          "для i от count − 1 до 0: выполнить route[i], меняя LEFT ↔ RIGHT"
+         ],
+         "why": "Сначала дорога туда с журналом, потом доставка. Печать можно делать до или после возвращения — она берёт данные из массива, а не у датчиков. Разворот — строго перед обходом с конца."
+        },
+        {
+         "type": "tf",
+         "q": "Верно или нет?",
+         "statements": [
+          { "s": "Массив route на 10 ячеек может уронить программу с ArrayIndexOutOfBoundsException", "a": true },
+          { "s": "Чтобы напечатать маршрут, цикл должен идти до route.length", "a": false, "why": "route.length — 300, а заполнено только count ячеек: напечатаются сотни null. Граница — count." },
+          { "s": "В «Кратко» вместо «MOVE x3» можно написать «MOVE х3» с русской буквой — сайт их не различает", "a": false, "why": "Латинская x и русская х — разные символы, строки не совпадут." }
+         ]
+        },
+        {
+         "type": "single",
+         "q": "Зачем нужна переменная count, если у массива есть length?",
+         "options": [
+          "length показывает, сколько ячеек заполнено, а count — размер массива",
+          "count показывает, сколько ходов записано, а length — размер всего массива вместе с пустыми ячейками",
+          "Это одно и то же, count нужен для красоты"
+         ],
+         "answer": 1,
+         "why": "Массив создан с запасом, length всегда 300. Сколько ячеек реально занято, знает только наш счётчик — и он же показывает, куда писать следующий ход."
+        }
+       ]
+      }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Спроси: <em>«Почему при возвращении по записанному маршруту LEFT превращается в RIGHT? Объясни на примере с перекрёстком и нарисуй стрелками»</em>.</p>
+      <p>Или: <em>«Чем заполненная часть массива отличается от его длины? Дай мне три коротких кода с массивом и счётчиком — я скажу, что они напечатают»</em>.</p>
+      <p>Для ★★★: <em>«Я напишу псевдокод сжатия одинаковых ходов подряд. Задай мне вопросы про граничные случаи — один ход, все одинаковые, последняя серия, — но код за меня не пиши»</em>.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Размер массива заранее неизвестен — создаём с запасом и держим счётчик <code>count</code>: сколько заполнено и куда писать следующий элемент.</li>
+        <li>Добавить в журнал: присвоить элементу <code>route[count]</code> команду, потом <code>count++</code>. Записываем в каждой ветке сразу после команды роботу.</li>
+        <li>Печатать и обходить — до <code>count</code>, не до <code>length</code>, иначе вылезут <code>null</code>.</li>
+        <li>Ночью датчиков нет: разворот (два <code>turnLeft()</code>), журнал с конца от <code>count - 1</code> до 0, MOVE остаётся, LEFT ↔ RIGHT меняются.</li>
+        <li>Сжатие серий: серия + длина + итог; часть дописывается, когда ход сменился, и последняя — после цикла. «x» — латинская.</li>
+        <li>Один файл <code>CourierPart3</code> проходит все три уровня: ★ и ★★ проверяют первую строку вывода, ★★★ — обе.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

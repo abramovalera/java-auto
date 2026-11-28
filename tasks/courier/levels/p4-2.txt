@@ -1,0 +1,6 @@
+# Часть 4 ★★ «Квартал»: дома в нишах слева, номера — robot.houses()
+class=CourierHouses
+entry=run
+map=houses
+goal=deliver
+ticks=200

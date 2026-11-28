@@ -1,0 +1,15 @@
+## id: m05-c1
+## title: «Джавик-курьер» ★: длинная улица
+## file: module-05/CourierPart2.java
+## class: CourierPart2
+## level: 1
+## mode: courier
+## map: courier/levels/p2-1.txt
+## seeds: 11,12,13
+@@ description
+<p>Теперь Джавиком командуешь ты сам: метод <code>run</code> вызывается <b>один раз</b>, а внутри ты вызываешь команды робота — <code>robot.move()</code>, <code>robot.turnLeft()</code>… Каждая команда — один ход.</p>
+<p>Джавик стоит в начале прямой улицы, адрес 🏠 — в её конце. Длина улицы на каждой карте своя (от 5 до 15 клеток), поэтому нужен <b>цикл</b>: ехать, пока не доедешь.</p>
+<p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-05/CourierPart2.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
+<p>📖 Урок <a href="/lessons/m05/50-courier.html">«Джавик-курьер, часть 2»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
+@@ require: void\s+run\s*\(\s*CourierRobot | Нужен метод public static void run(CourierRobot robot)
+@@ require: \bwhile\b|\bfor\b | Длина улицы каждый раз разная — нужен цикл

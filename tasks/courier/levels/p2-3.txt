@@ -1,0 +1,7 @@
+# Часть 2 ★★★ «Все посылки»: собрать все посылки на улице, отдать на адресе, напечатать, сколько
+class=CourierPart2
+entry=run
+map=parcels
+goal=deliver
+output=delivered
+ticks=150

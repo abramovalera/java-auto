@@ -1,0 +1,15 @@
+## id: m04-c1
+## title: «Джавик-курьер» ★: коридор
+## file: module-04/CourierPart1.java
+## class: CourierPart1
+## level: 1
+## mode: courier
+## map: courier/levels/p1-1.txt
+## seeds: 11,12,13
+@@ description
+<p>Джавик стоит на складе 🏁 в начале извилистого коридора. Доведи его до адреса 🏠 в конце коридора, ни разу не врезавшись в стену.</p>
+<p>Метод <code>decide</code> вызывается <b>на каждом ходу</b> и возвращает одну команду: <code>"MOVE"</code>, <code>"LEFT"</code> или <code>"RIGHT"</code>. Коридор каждый раз другой, поэтому маршрут наизусть не выучить — нужно правило: если впереди свободно — ехать, иначе повернуть туда, где нет стены.</p>
+<p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-04/CourierPart1.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
+<p>📖 Урок <a href="/lessons/m04/50-courier.html">«Джавик-курьер, часть 1»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
+@@ require: String\s+decide\s*\(\s*CourierRobot | Нужен метод public static String decide(CourierRobot robot)
+@@ require: \bif\b | Без if Джавик не сможет решать, куда ехать

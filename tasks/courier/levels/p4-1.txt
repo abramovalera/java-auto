@@ -1,0 +1,7 @@
+# Часть 4 ★ «Челнок»: три посылки со склада на адрес, за раз — одна
+class=CourierShuttle
+entry=run
+map=shuttle
+capacity=1
+goal=deliver
+ticks=200

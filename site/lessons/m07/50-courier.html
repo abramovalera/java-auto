@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Джавик-курьер, часть 4: свои команды · Java с нуля</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/course.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+<main class="content" data-lesson="m07-courier">
+
+  <header class="lesson-head" data-mood="cool">
+    <div class="kicker">Модуль 7 · Игра «Джавик-курьер», часть 4</div>
+    <h1>Джавик-курьер, часть 4: свои команды</h1>
+    <p class="lead">У Джавика всего пять команд: шаг, два поворота, взять и отдать. Сегодня ты научишь его новым — «развернись», «доедь до стены», «проедь N клеток». Это будут твои методы, а <code>run</code> превратится в короткий план, который читается как текст.</p>
+    <div class="meta"><span>⏱ 40 минут</span><span>🚚 3 уровня: ★ ★★ ★★★</span><span>⚡ 2 проверки</span></div>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <section class="step">
+    <h2>Повторение</h2>
+    <div data-widget="check" id="check-m07-courier-review">
+      <script type="application/json">
+      { "title": "Вспомним методы", "kind": "Повторение",
+        "items": [
+          { "type": "predict", "q": "Что выведет программа?",
+            "code": "static int twice(int n) {\n    return n * 2;\n}\n\n// в main:\nint a = 3;\nSystem.out.println(twice(a) + twice(1));",
+            "answer": "8", "why": "twice(a) получает аргумент 3 и возвращает 6, twice(1) возвращает 2. Вызовы заменяются возвращёнными значениями: 6 + 2 = 8." },
+          { "type": "single", "q": "Метод static void reset(int[] arr) делает arr[0] = 0. В main: int[] a = {5, 6}; reset(a); Чему теперь равен a[0]?",
+            "options": ["5 — метод менял свою копию", "0 — в метод попала копия ссылки на тот же массив", "Не скомпилируется: void-метод не может менять массив"], "answer": 1,
+            "why": "Java передаёт копию значения переменной. У переменной-массива значение — ссылка, поэтому метод и main смотрят на один и тот же массив в куче (урок 7.4). Сегодня так же будет с Джавиком." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Метод видит локальную переменную, объявленную в main того же класса", "a": false, "why": "локальная переменная живёт только в своём блоке и своём фрейме. Нужна в другом методе — передай её аргументом." },
+              { "s": "Аргументы раскладываются по параметрам по порядку", "a": true },
+              { "s": "return сразу заканчивает выполнение метода", "a": true }
+            ] }
+        ] }
+      </script>
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="step">
+    <h2>Игра: что уже было и что нового</h2>
+    <p>Напомню правила «Джавика-курьера». Поле из клеток: стены, дорога, 📦 посылки, 🏠 адреса, 🏁 склад, откуда Джавик стартует. Он смотрит в одну из четырёх сторон, «слева» и «справа» — относительно его взгляда. Врезался в стену, отдал посылку не там или кончились ходы — поездка окончена.</p>
+    <ul>
+      <li><a href="/lessons/m04/50-courier.html">Часть 1</a> (модуль 4): метод <code>decide</code> на каждом ходу выбирал одну команду.</li>
+      <li><a href="/lessons/m05/50-courier.html">Часть 2</a> (модуль 5): метод <code>run</code> вызывается один раз, а Джавиком командуют циклы.</li>
+      <li><a href="/lessons/m06/50-courier.html">Часть 3</a> (модуль 6): маршрут в массиве и дорога домой без датчиков.</li>
+    </ul>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Датчики (спросить)</th><th>Команды (сделать)</th></tr>
+        <tr><td><code>wallAhead()</code>, <code>wallLeft()</code>, <code>wallRight()</code> — стена впереди / слева / справа?</td><td><code>move()</code> — клетка вперёд</td></tr>
+        <tr><td><code>parcelHere()</code> — на клетке посылка? <code>carrying()</code> — что-то везёт?</td><td><code>turnLeft()</code>, <code>turnRight()</code> — поворот на месте на 90°</td></tr>
+        <tr><td><code>atTarget()</code> — на адресе? <code>atDepot()</code> — на складе?</td><td><code>take()</code> — взять посылку, <code>drop()</code> — отдать одну</td></tr>
+        <tr><td><b>Новое:</b> <code>houses()</code> — массив <code>int[]</code>: на скольких клетках от склада стоят дома</td><td></td></tr>
+      </table>
+    </div>
+    <p>Правило то же, что и раньше: <b>код пишешь в IntelliJ IDEA</b>, на сайте только смотришь поездку. Управлять Джавиком руками нельзя — только программой. В части 4 у каждого уровня <b>свой класс</b> и свой файл в папке <code>module-07</code>; заготовки уже там.</p>
+    <div data-widget="ide" id="shot-m07-courier-files">
+      <script type="application/json">
+      { "file": "CourierShuttle.java", "statusPath": "module-07", "caretLine": 8,
+        "tree": [ { "name": "courier", "type": "src", "depth": 0, "open": true },
+                  { "name": "CourierRobot", "type": "class", "depth": 1, "note": "робот" },
+                  { "name": "module-07", "type": "src", "depth": 0, "open": true },
+                  { "name": "CourierHouses", "type": "class", "depth": 1, "note": "★★" },
+                  { "name": "CourierMiddle", "type": "class", "depth": 1, "note": "★★★" },
+                  { "name": "CourierShuttle", "type": "class", "depth": 1, "selected": true, "note": "★" } ],
+        "code": "public class CourierShuttle {\n\n    // Команды: robot.move(), robot.turnLeft(), robot.turnRight(), robot.take(), robot.drop()\n    // Датчики (true / false): robot.wallAhead(), robot.wallLeft(), robot.wallRight(),\n    //   robot.parcelHere(), robot.carrying(), robot.atTarget(), robot.atDepot()\n    // Наведи курсор на любой метод робота — IntelliJ IDEA покажет его описание.\n    public static void run(CourierRobot robot) {\n\n    }\n\n    // Ниже напиши свои методы, например:\n    // static void turnAround(CourierRobot robot) { ... }\n}",
+        "marks": [ { "n": 1, "target": "tree-CourierShuttle", "text": "Три уровня — три класса: <b>CourierShuttle</b> ★, <b>CourierHouses</b> ★★, <b>CourierMiddle</b> ★★★. Заготовки появятся в <code>module-07</code>, когда откроешь «Практику» модуля" },
+                   { "n": 2, "target": "tree-CourierRobot", "text": "Сам робот. <b>Ничего здесь не меняй</b>: по этому файлу IDEA знает команды Джавика, подсказывает их и не подчёркивает твой код красным" },
+                   { "n": 3, "target": "line-7", "side": "top", "text": "Метод <code>run</code> игра вызывает один раз и передаёт ему Джавика — параметр <code>robot</code>" },
+                   { "n": 4, "target": "line-12", "side": "top", "text": "Свои методы объявляй <b>ниже run</b>, рядом с ним внутри класса — со словом <code>static</code>, как в уроке 7.1" } ],
+        "caption": "Файлы части 4 в IntelliJ IDEA" }
+      </script>
+    </div>
+    <div class="say" data-mood="happy"><p>Главная мысль части 4: из готовых команд робота собираем <b>свои команды</b> — <code>turnAround</code>, <code>driveToWall</code>, <code>driveSteps</code>. Внутри каждой — пара строк. Зато <code>run</code> становится планом, который читается как текст: «взять, доехать до стены, отдать, развернуться…». Это та же декомпозиция, что в Мастерской 7.7, только на роботе.</p></div>
+    <div class="cheat">
+      <h3>Выпиши себе: IDEA помогает собирать свои методы</h3>
+      <p>Перепиши в свою шпаргалку руками — это пригодится в каждой задаче на методы, не только в игре:</p>
+      <div class="table-wrap"><table>
+        <tr><th>Что нажать</th><th>Что делает</th><th>Когда</th></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Enter</kbd> на красном имени → <b>Create method</b></td><td>Создаёт заготовку метода по вызову</td><td>Написал в <code>run</code> вызов метода, которого ещё нет</td></tr>
+        <tr><td>Выделить строки → <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd></td><td>Extract Method: выносит выделенный кусок в новый метод и сам добавляет нужные параметры</td><td>Увидел, что одни и те же строки повторяются</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd> (курсор внутри скобок вызова)</td><td>Показывает, какие параметры ждёт метод и в каком порядке</td><td>Забыл, что первым: <code>robot</code> или число</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd> или навести мышку</td><td>Описание метода робота</td><td>Забыл, что делает <code>houses()</code> или <code>wallAhead()</code></td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>B</kbd> или <kbd>Ctrl</kbd>+клик</td><td>Переход к объявлению метода</td><td>Хочешь заглянуть внутрь своего метода из <code>run</code></td></tr>
+      </table></div>
+      <p style="margin-top:10px">На macOS: <kbd>Option</kbd>+<kbd>Enter</kbd>, <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>M</kbd>, <kbd>Cmd</kbd>+<kbd>P</kbd>, <kbd>F1</kbd>, <kbd>Cmd</kbd>+<kbd>B</kbd>. Слово <code>private</code>, которое IDEA добавит к новому методу, пока можно стереть — о нём в модуле 9.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="step">
+    <h2>Почему метод получает robot параметром</h2>
+    <p>Посмотри на заголовок: <code>public static void run(CourierRobot robot)</code>. Здесь <code>CourierRobot</code> — <b>тип</b> параметра (имя класса робота, как <code>String</code> или <code>Scanner</code>), а <code>robot</code> — имя параметра. Игра создаёт Джавика — <b>объект</b> — и при вызове <code>run</code> передаёт его аргументом.</p>
+    <p>Теперь ты объявляешь свой метод «развернуться». Ему тоже нужен Джавик: кого разворачивать? Но переменная <code>robot</code> — параметр <code>run</code>, то есть локальная переменная его фрейма. Другой метод её <b>не видит</b> — это область видимости из урока 7.5. Значит, Джавика надо передать: при вызове пишешь аргумент <code>robot</code>, а в объявлении своего метода — параметр <code>CourierRobot robot</code>.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 680 220" role="img" aria-label="Стек: фреймы run и turnAround, в каждом своя переменная robot; обе ссылки ведут на один объект Джавик в куче">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="30" y="26" class="d-title">Стек</text>
+        <rect x="30" y="40" width="250" height="66" rx="12" class="d-teal"/>
+        <text x="46" y="66" class="d-mono-ink">turnAround</text>
+        <text x="46" y="92" class="d-mono-ink">robot</text>
+        <text x="148" y="66" class="d-small">сверху — работает</text>
+        <rect x="30" y="118" width="250" height="66" rx="12" class="d-blue"/>
+        <text x="46" y="144" class="d-mono-ink">run</text>
+        <text x="46" y="170" class="d-mono-ink">robot</text>
+        <text x="148" y="144" class="d-small">ждёт возврата</text>
+        <text x="420" y="26" class="d-title">Куча</text>
+        <rect x="420" y="72" width="230" height="84" rx="14" class="d-accent"/>
+        <text x="535" y="106" text-anchor="middle" class="d-title">🤖 Джавик</text>
+        <text x="535" y="132" text-anchor="middle" class="d-small">объект CourierRobot</text>
+        <path d="M100 88 L416 100" class="d-arrow"/>
+        <path d="M100 166 L416 130" class="d-arrow"/>
+        <text x="340" y="206" text-anchor="middle" class="d-small">две переменные robot — две копии ссылки, а Джавик один</text>
+      </svg>
+      <figcaption>Вызов turnAround(robot): в новый фрейм копируется ссылка на того же Джавика — как с массивом в уроке 7.4</figcaption>
+    </figure>
+    <div class="callout analogy">
+      <span class="callout-title">Аналогия: дубликат ключа</span>
+      <p>Ты даёшь другу дубликат ключа от своей машины и просишь перепарковать её. Ключей два, а машина одна. Друг переставил машину — и ты, выйдя во двор, видишь её на новом месте. Параметр <code>robot</code> — такой дубликат: метод получает копию ссылки и двигает того самого Джавика.</p>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: метод <code>turnAround(robot)</code> развернул Джавика. Куда тот смотрит, когда <code>run</code> продолжит со следующей строки?</summary>
+      <p>Развёрнутым. Объект один: метод работал с ним через копию ссылки, поэтому все повороты и шаги видны и в <code>run</code>. Сравни с числом: если бы метод получил <code>int</code> и изменил его, в вызывающем методе ничего бы не поменялось — менялась бы копия числа.</p>
+    </details>
+    <p>Имя параметра может быть любым (<code>CourierRobot r</code> тоже работает), но удобно называть его так же — <code>robot</code>. Две частые ошибки новичка выглядят в IDEA так:</p>
+    <div data-widget="ide" id="shot-m07-courier-errors">
+      <script type="application/json">
+      { "tree": false, "file": "CourierShuttle.java", "statusPath": "module-07",
+        "code": "public class CourierShuttle {\n    public static void run(CourierRobot robot) {\n        turnAround();\n        robot.driveToWall();\n    }\n\n    static void turnAround(CourierRobot robot) {\n        // твой код\n    }\n\n    static void driveToWall(CourierRobot robot) {\n        // твой код\n    }\n}",
+        "errors": [ { "line": 3, "text": "()", "msg": "Expected 1 argument but found 0" },
+                    { "line": 4, "text": "driveToWall", "msg": "Cannot resolve method 'driveToWall' in 'CourierRobot'", "tip": true } ],
+        "marks": [ { "n": 1, "target": "err-3", "side": "left", "text": "Забыл аргумент. Метод объявлен с параметром, значит, вызывать его надо с Джавиком: <code>turnAround(robot)</code>. <b>Expected 1 argument but found 0</b> — «ждал один аргумент, а получил ноль»" },
+                   { "n": 2, "target": "tip", "text": "Вызвал свой метод «у робота». <code>robot.</code> перед именем значит «ищи метод в классе CourierRobot», а там его нет: метод твой, он в классе <code>CourierShuttle</code>. Свой метод вызывается без точки, а Джавик уходит в скобки аргументом" } ],
+        "caption": "Свой метод вызываем по имени и передаём Джавика аргументом" }
+      </script>
+    </div>
+    <div class="callout tip">
+      <span class="callout-title">Не забудь static</span>
+      <p><code>run</code> объявлен со словом <code>static</code>, поэтому и твои методы пока пиши со <code>static</code>. Без него IDEA подчеркнёт вызов и скажет <b>Non-static method … cannot be referenced from a static context</b>. Что это значит подробно — в модуле 9, а пока просто добавь <code>static</code>.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="step">
+    <h2>★ «Челнок»: одно и то же три раза</h2>
+    <p>На складе 🏁 лежат три посылки, адрес 🏠 — в конце прямой улицы. Руки у Джавика маленькие: за раз он берёт <b>только одну</b> посылку. Значит, ездить придётся три раза: туда с посылкой, обратно пустым. Длина улицы на каждой карте своя.</p>
+    <p>Если писать без своих методов, получится длинная простыня. Посмотри на неё схемой — каждый прямоугольник это одно действие, а за многими из них стоит несколько строк кода:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 300" role="img" aria-label="Челнок: улица от склада до адреса и три одинаковые поездки из шести действий: взять, до стены, отдать, разворот, до стены, разворот">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker></defs>
+        <text x="136" y="44" text-anchor="end" class="d-text">склад, 3 📦</text>
+        <path d="M146 12 V64" class="d-line"/>
+        <rect x="150" y="16" width="56" height="44" class="d-soft"/>
+        <rect x="206" y="16" width="56" height="44" class="d-soft"/>
+        <rect x="262" y="16" width="56" height="44" class="d-soft"/>
+        <rect x="318" y="16" width="56" height="44" class="d-soft"/>
+        <rect x="374" y="16" width="56" height="44" class="d-soft"/>
+        <rect x="430" y="16" width="56" height="44" class="d-soft"/>
+        <rect x="486" y="16" width="56" height="44" class="d-soft"/>
+        <rect x="542" y="16" width="56" height="44" class="d-yellow"/>
+        <text x="178" y="45" text-anchor="middle" class="d-text">🏁</text>
+        <text x="570" y="45" text-anchor="middle" class="d-text">🏠</text>
+        <path d="M602 12 V64" class="d-line"/>
+        <text x="612" y="44" class="d-small">стена</text>
+        <path d="M180 76 H566" class="d-arrow"/>
+        <text x="374" y="94" text-anchor="middle" class="d-small">туда — с посылкой, обратно — пустым</text>
+        <path d="M566 104 H180" class="d-arrow"/>
+
+        <text x="20" y="153" class="d-text">Поездка 1</text>
+        <rect x="120" y="130" width="98" height="36" rx="8" class="d-soft"/><text x="169" y="153" text-anchor="middle" class="d-text">взять</text>
+        <rect x="226" y="130" width="98" height="36" rx="8" class="d-blue"/><text x="275" y="153" text-anchor="middle" class="d-text">до стены</text>
+        <rect x="332" y="130" width="98" height="36" rx="8" class="d-soft"/><text x="381" y="153" text-anchor="middle" class="d-text">отдать</text>
+        <rect x="438" y="130" width="98" height="36" rx="8" class="d-teal"/><text x="487" y="153" text-anchor="middle" class="d-text">разворот</text>
+        <rect x="544" y="130" width="98" height="36" rx="8" class="d-blue"/><text x="593" y="153" text-anchor="middle" class="d-text">до стены</text>
+        <rect x="650" y="130" width="98" height="36" rx="8" class="d-teal"/><text x="699" y="153" text-anchor="middle" class="d-text">разворот</text>
+
+        <text x="20" y="201" class="d-text">Поездка 2</text>
+        <rect x="120" y="178" width="98" height="36" rx="8" class="d-soft"/><text x="169" y="201" text-anchor="middle" class="d-text">взять</text>
+        <rect x="226" y="178" width="98" height="36" rx="8" class="d-blue"/><text x="275" y="201" text-anchor="middle" class="d-text">до стены</text>
+        <rect x="332" y="178" width="98" height="36" rx="8" class="d-soft"/><text x="381" y="201" text-anchor="middle" class="d-text">отдать</text>
+        <rect x="438" y="178" width="98" height="36" rx="8" class="d-teal"/><text x="487" y="201" text-anchor="middle" class="d-text">разворот</text>
+        <rect x="544" y="178" width="98" height="36" rx="8" class="d-blue"/><text x="593" y="201" text-anchor="middle" class="d-text">до стены</text>
+        <rect x="650" y="178" width="98" height="36" rx="8" class="d-teal"/><text x="699" y="201" text-anchor="middle" class="d-text">разворот</text>
+
+        <text x="20" y="249" class="d-text">Поездка 3</text>
+        <rect x="120" y="226" width="98" height="36" rx="8" class="d-soft"/><text x="169" y="249" text-anchor="middle" class="d-text">взять</text>
+        <rect x="226" y="226" width="98" height="36" rx="8" class="d-blue"/><text x="275" y="249" text-anchor="middle" class="d-text">до стены</text>
+        <rect x="332" y="226" width="98" height="36" rx="8" class="d-soft"/><text x="381" y="249" text-anchor="middle" class="d-text">отдать</text>
+        <rect x="438" y="226" width="98" height="36" rx="8" class="d-teal"/><text x="487" y="249" text-anchor="middle" class="d-text">разворот</text>
+        <rect x="544" y="226" width="98" height="36" rx="8" class="d-blue"/><text x="593" y="249" text-anchor="middle" class="d-text">до стены</text>
+        <rect x="650" y="226" width="98" height="36" rx="8" class="d-teal"/><text x="699" y="249" text-anchor="middle" class="d-text">разворот</text>
+
+        <text x="380" y="288" text-anchor="middle" class="d-small">«до стены» — 6 раз, «разворот» — 6 раз. Каждый — несколько строк. Это кандидаты в методы</text>
+      </svg>
+      <figcaption>Без методов: три одинаковые поездки, внутри каждой два раза повторяются одни и те же куски</figcaption>
+    </figure>
+    <p>Узнаёшь признак из урока 7.1? <b>Одно и то же много раз</b>. Без методов «до стены» и «разворот» пришлось бы набрать по шесть раз — и в каждой копии можно ошибиться. Даже если обернуть поездку в цикл, внутри одной поездки эти куски всё равно повторяются дважды.</p>
+    <p>Идея: дадим каждому повторяющемуся куску имя. Объяви два своих метода — вот их <b>заголовки</b>, а тела напишешь сам:</p>
+    <div class="annot">
+      <div class="annot-row"><code>static void driveToWall(CourierRobot robot)</code><div><p>«Доехать до стены»: ехать вперёд, пока впереди свободно. Ничего не возвращает — только двигает Джавика, поэтому <code>void</code>. Сколько клеток ехать, метод узнаёт сам, датчиком: длина улицы ему не нужна.</p></div></div>
+      <div class="annot-row"><code>static void turnAround(CourierRobot robot)</code><div><p>«Развернуться»: повернуться на месте лицом в обратную сторону. Подумай, из каких команд робота это собрать и сколько их нужно.</p></div></div>
+    </div>
+    <p>Когда оба метода готовы, <code>run</code> пишется почти словами из условия: взял — доехал — отдал — развернулся — вернулся — развернулся. Кто читает такой <code>run</code>, понимает план, даже не заглядывая в методы. А заглянуть всегда можно: <kbd>Ctrl</kbd>+<kbd>B</kbd>.</p>
+    <details class="predict">
+      <summary>Предскажи: что будет, если в конце поездки забыть второй разворот — тот, что на складе?</summary>
+      <p>Джавик вернётся на склад и будет стоять <b>лицом к стене</b> за складом. Следующую посылку он возьмёт, но «до стены» не сделает ни шага — стена уже впереди. И <code>drop()</code> случится прямо на складе — ошибка: отдать посылку можно только на адресе. В поездке это хорошо видно: Джавик взял посылку и не сдвинулся.</p>
+    </details>
+    <details class="predict">
+      <summary>Предскажи: как узнать, сколько раз повторить поездку?</summary>
+      <p>Два честных способа. Посылок ровно три — можно повторить поездку счётчиком три раза. А можно спросить датчик: пока на складе есть посылка (<code>parcelHere()</code>) — везём. Второй способ лучше: он не сломается, если посылок станет пять.</p>
+    </details>
+    <div class="say" data-mood="think"><p>Заметь: <code>driveToWall</code> из этого уровня сработает на любой длине улицы — он смотрит на датчик, а не считает. Хороший метод не знает лишнего: делает одну работу и не зависит от того, кто и где его вызвал.</p></div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="step">
+    <h2>★★ «Квартал»: метод с параметром</h2>
+    <p>Новая улица идёт на восток, а дома стоят в <b>нишах слева</b> от дороги. Джавик уже везёт по посылке на каждый дом. Где дома, подскажет новый метод робота <code>robot.houses()</code>: он возвращает массив <code>int[]</code> — на скольких клетках от склада стоит каждый дом, по возрастанию. Например, <code>[2, 5, 9]</code>. На каждой карте числа свои.</p>
+    <p>Здесь «доехать до стены» не поможет: надо остановиться ровно напротив дома. Нужна команда «проехать N клеток» — и N каждый раз разное. Значит, это <b>метод с параметром</b>:</p>
+    <div class="annot">
+      <div class="annot-row"><code>static void driveSteps(CourierRobot robot, int steps)</code><div><p>Два параметра: <b>кого</b> везти и <b>сколько</b> клеток. При вызове <code>driveSteps(robot, 3)</code> аргументы раскладываются по порядку: <code>robot</code> → в <code>robot</code>, <code>3</code> → в <code>steps</code>. Внутри — цикл из модуля 5, который делает <code>steps</code> шагов.</p></div></div>
+    </div>
+    <details class="predict">
+      <summary>Предскажи: <code>houses()</code> вернул <code>[2, 5, 9]</code>. Сколько клеток проехать перед каждым домом?</summary>
+      <p><b>2, 3 и 4</b> — а не 2, 5 и 9. Номера в массиве считаются <b>от склада</b>, а Джавик после первого дома стоит уже на клетке 2. До второго дома ему 5 − 2 = 3 клетки, до третьего 9 − 5 = 4. Всего 2 + 3 + 4 = 9 — ровно номер последнего дома. Если ехать «от склада» каждый раз, после первого дома Джавик проедет 5 и окажется на клетке 7, свернёт налево — а там стена: врезался. Значит, в <code>run</code> нужно помнить, <b>где Джавик сейчас</b>.</p>
+    </details>
+    <p>У каждого дома одно и то же: заехать в нишу, отдать посылку и вернуться на улицу <b>лицом на восток</b>, чтобы ехать дальше. Это второй кандидат в метод — например, <code>static void deliverLeft(CourierRobot robot)</code>. Вот что должен сделать Джавик у дома:</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 170" role="img" aria-label="Заезд в нишу слева по шагам: старт лицом на восток, налево, вперёд в нишу, отдать, разворот, вперёд на улицу, последний поворот — вопрос">
+        <rect x="39" y="16" width="34" height="34" class="d-yellow"/>
+        <rect x="5" y="50" width="34" height="34" class="d-soft"/><rect x="39" y="50" width="34" height="34" class="d-soft"/><rect x="73" y="50" width="34" height="34" class="d-soft"/>
+        <text x="56" y="39" text-anchor="middle" class="d-small">🏠</text>
+        <circle cx="56" cy="67" r="13" class="d-accent"/><text x="56" y="72" text-anchor="middle" class="d-text">→</text>
+        <text x="56" y="110" text-anchor="middle" class="d-text">старт</text>
+        <text x="56" y="128" text-anchor="middle" class="d-small">напротив дома</text>
+
+        <rect x="147" y="16" width="34" height="34" class="d-yellow"/>
+        <rect x="113" y="50" width="34" height="34" class="d-soft"/><rect x="147" y="50" width="34" height="34" class="d-soft"/><rect x="181" y="50" width="34" height="34" class="d-soft"/>
+        <text x="164" y="39" text-anchor="middle" class="d-small">🏠</text>
+        <circle cx="164" cy="67" r="13" class="d-accent"/><text x="164" y="72" text-anchor="middle" class="d-text">↑</text>
+        <text x="164" y="110" text-anchor="middle" class="d-text">1. налево</text>
+        <text x="164" y="128" text-anchor="middle" class="d-small">лицом к дому</text>
+
+        <rect x="255" y="16" width="34" height="34" class="d-yellow"/>
+        <rect x="221" y="50" width="34" height="34" class="d-soft"/><rect x="255" y="50" width="34" height="34" class="d-soft"/><rect x="289" y="50" width="34" height="34" class="d-soft"/>
+        <circle cx="272" cy="33" r="13" class="d-accent"/><text x="272" y="38" text-anchor="middle" class="d-text">↑</text>
+        <text x="272" y="110" text-anchor="middle" class="d-text">2. вперёд</text>
+        <text x="272" y="128" text-anchor="middle" class="d-small">в нише</text>
+
+        <rect x="363" y="16" width="34" height="34" class="d-green"/>
+        <rect x="329" y="50" width="34" height="34" class="d-soft"/><rect x="363" y="50" width="34" height="34" class="d-soft"/><rect x="397" y="50" width="34" height="34" class="d-soft"/>
+        <circle cx="380" cy="33" r="13" class="d-accent"/><text x="380" y="38" text-anchor="middle" class="d-text">↑</text>
+        <text x="410" y="30" class="d-small">📦</text>
+        <text x="380" y="110" text-anchor="middle" class="d-text">3. отдать</text>
+        <text x="380" y="128" text-anchor="middle" class="d-small">посылка дома</text>
+
+        <rect x="471" y="16" width="34" height="34" class="d-green"/>
+        <rect x="437" y="50" width="34" height="34" class="d-soft"/><rect x="471" y="50" width="34" height="34" class="d-soft"/><rect x="505" y="50" width="34" height="34" class="d-soft"/>
+        <circle cx="488" cy="33" r="13" class="d-accent"/><text x="488" y="38" text-anchor="middle" class="d-text">↓</text>
+        <text x="488" y="110" text-anchor="middle" class="d-text">4. разворот</text>
+        <text x="488" y="128" text-anchor="middle" class="d-small">свой метод!</text>
+
+        <rect x="579" y="16" width="34" height="34" class="d-green"/>
+        <rect x="545" y="50" width="34" height="34" class="d-soft"/><rect x="579" y="50" width="34" height="34" class="d-soft"/><rect x="613" y="50" width="34" height="34" class="d-soft"/>
+        <circle cx="596" cy="67" r="13" class="d-accent"/><text x="596" y="72" text-anchor="middle" class="d-text">↓</text>
+        <text x="596" y="110" text-anchor="middle" class="d-text">5. вперёд</text>
+        <text x="596" y="128" text-anchor="middle" class="d-small">снова на улице</text>
+
+        <rect x="687" y="16" width="34" height="34" class="d-green"/>
+        <rect x="653" y="50" width="34" height="34" class="d-soft"/><rect x="687" y="50" width="34" height="34" class="d-soft"/><rect x="721" y="50" width="34" height="34" class="d-soft"/>
+        <circle cx="704" cy="67" r="13" class="d-violet"/><text x="704" y="72" text-anchor="middle" class="d-text">→</text>
+        <text x="704" y="110" text-anchor="middle" class="d-text">6. ?</text>
+        <text x="704" y="128" text-anchor="middle" class="d-small">как снова →</text>
+        <text x="380" y="160" text-anchor="middle" class="d-small">жёлтое — ниша с домом, зелёное — посылка доставлена, стрелка — куда смотрит Джавик</text>
+      </svg>
+      <figcaption>Заезд в нишу слева: шесть действий, и в конце Джавик снова стоит на улице лицом на восток</figcaption>
+    </figure>
+    <details class="predict">
+      <summary>Предскажи: на шаге 6 Джавик смотрит на юг ↓. Каким поворотом вернуть его лицом на восток →?</summary>
+      <p>Одним <b>поворотом налево</b>. Представь, что ты стоишь лицом на юг: твоя левая рука показывает на восток. Три поворота направо тоже приведут туда же, но это три хода вместо одного, а ходы на карте ограничены. А на шаге 4 пригодился твой <code>turnAround</code> из «Челнока» — свои методы переиспользуются.</p>
+    </details>
+    <div class="callout warn">
+      <span class="callout-title">Каждый уровень — свой класс</span>
+      <p><code>turnAround</code> из <code>CourierShuttle</code> в <code>CourierHouses</code> сам не появится: метод живёт в своём классе. Объяви его заново в новом файле — пара строк.</p>
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="step">
+    <h2>★★★ «Середина улицы»: метод возвращает число</h2>
+    <p>Посылку ждут <b>ровно посередине</b> прямой улицы. Но табличек с адресом здесь нет: <code>atTarget()</code> на этой карте не работает, а проверка на сайте не пропустит код, где он вызывается. Длина улицы каждый раз своя, и заранее её никто не скажет.</p>
+    <p>Как найти середину? Так же, как ты сделал бы в тёмном коридоре: дойти до конца, <b>считая шаги</b>, развернуться и пройти назад нужное число. Значит, «доехать до стены» теперь должен не только ехать, но и <b>доложить</b>, сколько проехал:</p>
+    <div class="annot">
+      <div class="annot-row"><code>static int driveToWall(CourierRobot robot)</code><div><p>Тип возвращаемого значения <code>int</code>: метод двигает Джавика до стены и через <code>return</code> отдаёт число проеханных клеток. Внутри появится переменная-<b>счётчик</b>. Вызов можно поставить справа от <code>=</code> и сохранить ответ в переменную.</p></div></div>
+    </div>
+    <p>Имя то же, что в «Челноке», но там метод был <code>void</code>. Это не перегрузка: тип возвращаемого значения в сигнатуру не входит (урок 7.5), и в одном классе два таких метода не ужились бы. Здесь проблемы нет — у «Середины» свой класс. Пригодится и <code>driveSteps</code> из «Квартала»: обратно ехать как раз нужное число клеток.</p>
+    <p>Самое хитрое — посчитать, сколько ехать назад. Посчитай <b>на бумаге</b>. Клетки нумеруем от склада: склад — клетка 0. Если клеток чётное число, середин две — адрес на той, что <b>ближе к складу</b>.</p>
+    <figure class="fig">
+      <svg class="wide" viewBox="0 0 760 172" role="img" aria-label="Две улицы: из 7 клеток с номерами 0–6 и из 8 клеток с номерами 0–7, склад на клетке 0, в конце стена">
+        <text x="20" y="42" class="d-text">7 клеток</text>
+        <rect x="110" y="18" width="52" height="40" class="d-soft"/><rect x="162" y="18" width="52" height="40" class="d-soft"/><rect x="214" y="18" width="52" height="40" class="d-soft"/><rect x="266" y="18" width="52" height="40" class="d-soft"/><rect x="318" y="18" width="52" height="40" class="d-soft"/><rect x="370" y="18" width="52" height="40" class="d-soft"/><rect x="422" y="18" width="52" height="40" class="d-soft"/>
+        <text x="136" y="44" text-anchor="middle" class="d-text">🏁</text>
+        <path d="M478 12 V64" class="d-line"/>
+        <text x="488" y="44" class="d-small">стена</text>
+        <text x="136" y="76" text-anchor="middle" class="d-mono-ink">0</text><text x="188" y="76" text-anchor="middle" class="d-mono-ink">1</text><text x="240" y="76" text-anchor="middle" class="d-mono-ink">2</text><text x="292" y="76" text-anchor="middle" class="d-mono-ink">3</text><text x="344" y="76" text-anchor="middle" class="d-mono-ink">4</text><text x="396" y="76" text-anchor="middle" class="d-mono-ink">5</text><text x="448" y="76" text-anchor="middle" class="d-mono-ink">6</text>
+        <text x="600" y="44" class="d-small">driveToWall вернёт ?</text>
+
+        <text x="20" y="122" class="d-text">8 клеток</text>
+        <rect x="110" y="98" width="52" height="40" class="d-soft"/><rect x="162" y="98" width="52" height="40" class="d-soft"/><rect x="214" y="98" width="52" height="40" class="d-soft"/><rect x="266" y="98" width="52" height="40" class="d-soft"/><rect x="318" y="98" width="52" height="40" class="d-soft"/><rect x="370" y="98" width="52" height="40" class="d-soft"/><rect x="422" y="98" width="52" height="40" class="d-soft"/><rect x="474" y="98" width="52" height="40" class="d-soft"/>
+        <text x="136" y="124" text-anchor="middle" class="d-text">🏁</text>
+        <path d="M530 92 V144" class="d-line"/>
+        <text x="540" y="124" class="d-small">стена</text>
+        <text x="136" y="156" text-anchor="middle" class="d-mono-ink">0</text><text x="188" y="156" text-anchor="middle" class="d-mono-ink">1</text><text x="240" y="156" text-anchor="middle" class="d-mono-ink">2</text><text x="292" y="156" text-anchor="middle" class="d-mono-ink">3</text><text x="344" y="156" text-anchor="middle" class="d-mono-ink">4</text><text x="396" y="156" text-anchor="middle" class="d-mono-ink">5</text><text x="448" y="156" text-anchor="middle" class="d-mono-ink">6</text><text x="500" y="156" text-anchor="middle" class="d-mono-ink">7</text>
+        <text x="600" y="124" class="d-small">driveToWall вернёт ?</text>
+      </svg>
+      <figcaption>Джавик стартует на складе (клетка 0) лицом к стене в конце улицы</figcaption>
+    </figure>
+    <p>Перерисуй таблицу в тетрадь и заполни три пустых столбца, глядя на схему. Потом открой ответ.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Клеток на улице</th><th>Что вернёт driveToWall</th><th>Номер клетки с адресом</th><th>Сколько ехать назад от стены</th></tr>
+        <tr><td>7</td><td>?</td><td>?</td><td>?</td></tr>
+        <tr><td>8</td><td>?</td><td>?</td><td>?</td></tr>
+      </table>
+    </div>
+    <details class="predict">
+      <summary>Проверь таблицу: что получилось для 7 и 8 клеток?</summary>
+      <p><b>7 клеток:</b> метод вернёт <b>6</b>, не 7 — склад уже клетка, на которой Джавик стоит, шагов на один меньше, чем клеток. Середина — клетка <b>3</b>, назад от клетки 6 ехать <b>3</b>.</p>
+      <p><b>8 клеток:</b> метод вернёт <b>7</b>. Середин две — 3 и 4, адрес на клетке <b>3</b>. Назад от клетки 7 ехать <b>4</b>.</p>
+      <p>Вот подвох. Правило «назад — половину того, что проехал» для 7 клеток даёт <code>6 / 2</code> = 3 — верно. А для 8 клеток <code>7 / 2</code> тоже 3 (целочисленное деление из модуля 3 отбрасывает дробь), хотя нужно 4: Джавик промахнётся на клетку. Найди своё правило, которое даёт верное число для <b>обеих</b> строк, — и проверь его ещё на улицах из 6 и 9 клеток.</p>
+    </details>
+    <div class="say" data-mood="wow"><p>Метод, который и действует, и возвращает ответ, — обычное дело. <code>driveToWall</code> «проехал и доложил»: <code>run</code> получает число и решает, что делать дальше. Возвращённое значение можно и не сохранять — тогда метод просто проедет, а число пропадёт. Но здесь оно нам очень нужно.</p></div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="step">
+    <h2>Запускаем и читаем поездку</h2>
+    <ol class="steps">
+      <li>Напиши класс уровня в IntelliJ IDEA и сохрани файл (<kbd>Ctrl</kbd>+<kbd>S</kbd>). Красных подчёркиваний быть не должно.</li>
+      <li>Ниже выбери уровень и нажми «▶ Запустить мой код». Сайт скомпилирует твой файл и запустит Джавика на трёх разных картах.</li>
+      <li>То же самое — кнопка «▶ Проверить» на странице «Практика»: там уровень засчитается, когда пройдены все три карты.</li>
+    </ol>
+    <div data-widget="courier" data-tasks="m07-c1,m07-c2,m07-c3"></div>
+    <p><span class="ai-only">Прошёл уровень — разбери решение с наставником: <code>/check</code> и номер уровня (он написан под кнопкой «Проверить» в «Практике», например <code>m07-c1</code>).</span><span class="free-only">Прошёл уровень — разбери решение с <span class="ai-name">DeepSeek</span>: промпт «Проверь решение» (кнопка внизу страницы).</span></p>
+    <p>Как читать поездку:</p>
+    <ul>
+      <li><b>Вкладки «Карта 1–3»</b> с ✓ и ✗. Сайт сам открывает первую карту, где что-то пошло не так.</li>
+      <li><b>▶ Смотреть / ⏸</b> — проиграть поездку; ◀ и ▶ — ход назад и вперёд; ползунок — перемотка; можно выбрать скорость.</li>
+      <li>Справа: <b>номер хода</b>, <b>команда</b>, сколько посылок везёт, и список «<b>Перед ходом Джавик спросил</b>» — какие датчики он опросил и что они ответили. Там же видно, что вернул <code>houses()</code>.</li>
+      <li>Красная надпись — что случилось: врезался, отдал не там, кончились ходы. Внизу — «<b>Программа напечатала</b>», если ты что-то выводил через <code>System.out.println</code>. Отличный способ подсмотреть, что вернул твой <code>driveToWall</code>.</li>
+      <li>Не компилируется — сайт покажет ошибку компилятора 🛠. Нет своих методов, которых ждёт уровень, — появится подсказка 💡, например «Нужно минимум два своих метода с параметром CourierRobot».</li>
+    </ul>
+    <div class="say" data-mood="cool"><p>Присмотрись к столбцу «команда»: там только <code>move</code>, <code>turnLeft</code>, <code>take</code>… Твоих <code>turnAround</code> и <code>driveSteps</code> в поездке нет. Свои методы — для людей, которые читают код. Робот видит только свои пять команд, а твой метод просто вызывает их по очереди: <code>run</code> → твой метод → команда робота. Это и есть стек вызовов из урока 7.3.</p></div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="step">
+    <h2>Если не получается</h2>
+    <p>Открывай подсказки по одной: сначала первую, подумай, попробуй — и только потом следующую.</p>
+
+    <h3>★ «Челнок»</h3>
+    <details class="solution">
+      <summary>💡 Подсказка 1 — с чего начать</summary>
+      <p>Забудь пока про три посылки. Научи Джавика одной поездке: взять, доехать до адреса, отдать. Запусти и посмотри поездку. Потом верни его на склад. Когда одна поездка работает от начала до конца, повторить её — дело техники.</p>
+      <p>Удобно начать с <code>run</code> и сразу писать вызовы <code>driveToWall(robot)</code> и <code>turnAround(robot)</code>, будто методы уже есть. IDEA подчеркнёт их красным — <kbd>Alt</kbd>+<kbd>Enter</kbd> → Create method.</p>
+    </details>
+    <details class="solution">
+      <summary>💡 Подсказка 2 — тела методов</summary>
+      <p>Разворот — это поворот на 180°, а одна команда поворачивает на 90°. «До стены» — цикл из модуля 5: повторяй шаг, пока впереди нет стены. В цикле обязательно должна быть команда, которая двигает Джавика, иначе условие никогда не изменится.</p>
+    </details>
+    <details class="solution">
+      <summary>💡 Подсказка 3 — план на русском</summary>
+      <p>Пока на складе есть посылка: взять её; доехать до стены; отдать; развернуться; доехать до стены; развернуться. Переведи каждую строку плана в одну строку <code>run</code>.</p>
+    </details>
+
+    <h3>★★ «Квартал»</h3>
+    <details class="solution">
+      <summary>💡 Подсказка 1 — с чего начать</summary>
+      <p>Запусти пустую заготовку и посмотри в поездке, что вернул <code>houses()</code>. Сначала доставь посылку только в <b>первый</b> дом: проехать нужное число клеток, заехать в нишу, отдать. Работает — переходи к остальным.</p>
+    </details>
+    <details class="solution">
+      <summary>💡 Подсказка 2 — откуда ехать</summary>
+      <p>Заведи в <code>run</code> переменную «где Джавик сейчас» — на складе это 0. Сколько ехать до дома — разница между номером дома и тем, где Джавик сейчас. После доставки не забудь обновить эту переменную. Заезд в нишу — по схеме из урока, а последний поворот — в ответе к предсказанию под ней.</p>
+    </details>
+    <details class="solution">
+      <summary>💡 Подсказка 3 — план на русском</summary>
+      <p>Где я сейчас = 0. Для каждого номера дома из массива: проехать (номер дома − где я сейчас) клеток; теперь я у этого дома; заехать в нишу слева, отдать посылку и вернуться на улицу лицом на восток. «Проехать N клеток» — метод <code>driveSteps</code>, «заехать в нишу» — второй свой метод.</p>
+    </details>
+
+    <h3>★★★ «Середина улицы»</h3>
+    <details class="solution">
+      <summary>💡 Подсказка 1 — с чего начать</summary>
+      <p>Напиши только <code>driveToWall</code>, который возвращает число, и в <code>run</code> напечатай его результат через <code>System.out.println</code>. Запусти: в «Программа напечатала» на каждой карте будет длина пути. Проверь по поездке, что число совпадает с числом шагов.</p>
+    </details>
+    <details class="solution">
+      <summary>💡 Подсказка 2 — сколько назад</summary>
+      <p>Заполни таблицу из урока для улиц из 6, 7, 8 и 9 клеток: что вернул метод, номер клетки с адресом, сколько ехать назад. Посмотри на столбец «номер клетки с адресом»: каким действием с числом шагов он получается во всех четырёх строках? Целочисленное деление тебе в помощь.</p>
+    </details>
+    <details class="solution">
+      <summary>💡 Подсказка 3 — план на русском</summary>
+      <p>Доехать до стены и запомнить, сколько проехал. Развернуться. Узнать номер клетки с адресом (правило из таблицы). Проехать назад столько клеток, сколько от стены до этой клетки. Отдать посылку. Про <code>atTarget()</code> забудь — только счёт.</p>
+    </details>
+  </section>
+
+  <!-- ШАГ 9 -->
+  <section class="step">
+    <h2>Проверь себя</h2>
+    <div data-widget="check" id="check-m07-courier">
+      <script type="application/json">
+      { "title": "Свои команды Джавика",
+        "items": [
+          { "type": "single", "q": "Зачем методу turnAround параметр CourierRobot robot?",
+            "options": ["Чтобы создать нового робота специально для разворота", "Переменная robot — локальная в run, другой метод её не видит; через параметр он получает копию ссылки на того же Джавика", "Так требует слово static", "Параметр не нужен: robot виден во всём классе"], "answer": 1,
+            "why": "robot — параметр run, то есть локальная переменная его фрейма. Другим методам её передают аргументом, и в параметр копируется ссылка на тот же объект." },
+          { "type": "multi", "q": "Объявлен метод static void driveSteps(CourierRobot robot, int steps). В run уже есть int[] houses = robot.houses(). Какие вызовы скомпилируются?",
+            "options": ["driveSteps(robot, 5);", "driveSteps(5, robot);", "driveSteps(robot, houses[0]);", "robot.driveSteps(5);", "driveSteps(robot, 2 + 3);", "driveSteps(robot);"], "answer": [0, 2, 4],
+            "why": "Аргументы — по порядку и нужного типа: сначала робот, потом int. houses[0] и 2 + 3 — тоже int. Число на первом месте и пропущенный аргумент — ошибки. robot.driveSteps ищет метод в классе робота, а метод твой." },
+          { "type": "match", "q": "Соедини заголовок метода с тем, что о нём верно",
+            "left": ["static void turnAround(CourierRobot robot)", "static void driveSteps(CourierRobot robot, int steps)", "static int driveToWall(CourierRobot robot)", "int[] houses()"],
+            "right": ["только двигает Джавика, ничего не возвращает", "два параметра: кого везти и сколько клеток", "двигает и возвращает число проеханных клеток", "метод самого робота, возвращает массив"],
+            "why": "void — ничего не возвращает; параметры — что метод получает; тип возвращаемого значения — что он отдаёт. houses() вызывается через robot., потому что это метод робота." },
+          { "type": "bug", "q": "Найди строку, которая не скомпилируется",
+            "code": "static void turnAround(CourierRobot robot) { … }\nstatic int driveToWall(CourierRobot robot) { … }\n\npublic static void run(CourierRobot robot) {\n    int length = driveToWall(robot);\n    int turns = turnAround(robot);\n}",
+            "answer": [6], "why": "turnAround объявлен с void — он ничего не возвращает, и сохранить «ничего» в int нельзя: incompatible types. А driveToWall возвращает int — его результат в переменную положить можно." },
+          { "type": "predict", "q": "Повторим целочисленное деление. Что выведет?",
+            "code": "static int half(int n) {\n    return n / 2;\n}\n\n// в main:\nSystem.out.println(half(7) + \" \" + half(6));",
+            "answer": "3 3", "why": "Деление int на int отбрасывает дробную часть: 7 / 2 = 3, 6 / 2 = 3. Вот почему в «Середине улицы» для улиц разной длины половина может оказаться одинаковой." },
+          { "type": "order", "q": "Расставь по порядку, что происходит при вызове driveSteps(robot, 4) из run",
+            "lines": ["run доходит до строки с вызовом", "На стек кладётся фрейм driveSteps: robot — копия ссылки на Джавика, steps = 4", "Выполняется тело метода: Джавик проезжает 4 клетки", "Фрейм driveSteps снимается со стека", "run продолжает со следующей строки"],
+            "why": "Обычный путь любого вызова: новый фрейм с параметрами, тело, возврат и снятие фрейма. Джавик при этом остался там, куда приехал: объект один." },
+          { "type": "tf", "q": "Верно или нет?",
+            "statements": [
+              { "s": "Если turnAround развернул Джавика, в run он тоже развёрнут", "a": true },
+              { "s": "В одном классе можно объявить и void driveToWall(CourierRobot robot), и int driveToWall(CourierRobot robot)", "a": false, "why": "тип возвращаемого значения в сигнатуру не входит: компилятор скажет already defined." },
+              { "s": "В поездке на сайте видны вызовы моих методов turnAround и driveSteps", "a": false, "why": "в поездке только команды робота. Твои методы вызывают их по очереди, а сами в журнал не попадают." }
+            ] }
+        ] }
+      </script>
+    </div>
+    <div class="callout ai">
+      <span class="callout-title">Поговори с наставником</span>
+      <p>Спроси, если что-то осталось непонятным: <em>«Почему мой метод не видит переменную robot из run, если они в одном классе?»</em>, <em>«Почему, когда метод поворачивает робота, в run робот тоже повёрнут, а int, изменённый внутри метода, снаружи не меняется?»</em>, <em>«Объясни на примере робота-курьера, чем параметр отличается от аргумента»</em>. Готовое решение уровня не проси: лучше расскажи свой план словами и попроси найти в нём дыру.</p>
+    </div>
+    <div class="summary">
+      <h2>Коротко</h2>
+      <ul>
+        <li>Из готовых команд робота собираем свои методы: <code>turnAround</code>, <code>driveToWall</code>, <code>driveSteps</code>. Тогда <code>run</code> читается как план.</li>
+        <li>Джавик — объект. Свой метод получает его параметром <code>CourierRobot robot</code>: переменная из <code>run</code> локальная, а в параметр копируется ссылка на того же Джавика.</li>
+        <li>Свой метод вызываем по имени и с аргументом: <code>turnAround(robot)</code>, а не <code>robot.turnAround()</code> и не <code>turnAround()</code>.</li>
+        <li>Параметр делает метод гибким: <code>driveSteps(robot, steps)</code> проедет столько, сколько попросят. В «Квартале» едем от предыдущего дома, а не от склада.</li>
+        <li>Метод может и действовать, и возвращать результат: <code>int driveToWall</code> «проехал и доложил». В «Середине улицы» число шагов на 1 меньше числа клеток, а целочисленное деление требует проверки на чётной и нечётной длине.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

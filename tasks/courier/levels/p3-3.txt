@@ -1,0 +1,10 @@
+# Часть 3 ★★★ «Сжатый маршрут»: напечатать маршрут кратко и вернуться на склад
+class=CourierPart3
+entry=run
+map=corridor
+carryStart=true
+goal=deliver
+home=true
+night=true
+output=compressed
+ticks=300

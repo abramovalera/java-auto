@@ -126,7 +126,7 @@
     }
     const hints = [...(r.hints || []), ...(r.ruleFails || [])];
     if (hints.length) html += `<ul class="hints">${hints.map((h) => `<li>💡 ${esc(h)}</li>`).join("")}</ul>`;
-    for (const t of r.tests || []) {
+    for (const t of r.replays ? [] : r.tests || []) { // у игры вместо тестов — просмотр поездки
       html += `<div class="test-row ${t.passed ? "ok" : "bad"}">
         <div>${t.passed ? "✓" : "✗"} ${esc(t.name)}</div>`;
       if (!t.passed) {
@@ -142,6 +142,13 @@
     return html;
   }
 
+  // просмотр поездки «Джавика-курьера» живёт в widgets.js — подгружаем его, когда понадобится
+  let widgetsLoading = null;
+  function widgetsReady() {
+    if (JC.courierReplay) return Promise.resolve();
+    return widgetsLoading || (widgetsLoading = new Promise((ok, fail) => { const s = document.createElement("script"); s.src = "/js/widgets.js"; s.onload = ok; s.onerror = fail; document.head.appendChild(s); }));
+  }
+
   async function runCheck(t, el) {
     const btn = el.querySelector(".check-btn");
     const out = el.querySelector(".result");
@@ -150,6 +157,7 @@
       const resp = await fetch("/api/check/" + encodeURIComponent(t.id), { method: "POST" });
       const r = await resp.json();
       out.innerHTML = renderResult(r);
+      if (r.replays) { out.insertAdjacentHTML("beforeend", "<div class=\"task-replay\"></div>"); widgetsReady().then(() => JC.courierReplay(out.querySelector(".task-replay"), r)); }
       statuses[t.id] = { status: String(r.status).toUpperCase() };
       el.classList.toggle("passed", r.status === "passed");
       el.querySelector(".badge-slot").innerHTML = badgeFor(t);

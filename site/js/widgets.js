@@ -1288,337 +1288,198 @@
   };
 
   // =====================================================================
-  // 13. «Раннер»: Джавик бежит, перепрыгивает жуков и пригибается под летучими ошибками.
-  //     runnerhand — играешь сам (пробел/↑ — прыжок, ↓ — присесть), runnercode — пишешь decide на Java,
-  //     сервер компилирует и прогоняет забег (правила — tasks/runner/engine/RunnerGame.java, здесь их копия для ручной игры).
+  // 13. «Джавик-курьер» — сквозная игра (модули 4, 5, 6, 7, 13). Код ученик пишет в IDEA,
+  //     сервер прогоняет его на картах уровня (движок tasks/courier/engine) и отдаёт журнал ходов.
+  //     JC.courierReplay(host, result) — просмотр поездки; его же зовут страница «Практики» и taskcheck.
+  //     <div data-widget="courier" data-tasks="m04-c1,m04-c2,m04-c3"></div> — блок «запусти свой код» в уроке.
   // =====================================================================
-  const RUN_JUMP = 4, RUN_DUCK = 3, RUN_VIEW = 12;
-  /**
-   * Экран «Раннера» на canvas: плавный бег, прыжок по дуге, присед, параллакс-фон, пыль, звёздочки при ударе.
-   * show(x, state, mood, opts): x — клетка после хода, state — run/jump/duck/crash, opts.phase — номер хода
-   * внутри прыжка/приседа (0…), opts.ms — сколько длится анимация хода, opts.instant — без анимации.
-   */
-  function runnerView(host) {
-    host.innerHTML = `<div class="rn-track"><canvas class="rn-canvas"></canvas></div>`;
-    const track = host.querySelector(".rn-track"), cv = host.querySelector("canvas"), ctx = cv.getContext("2d");
-    const COLS = 10, AT = 2;                    // сколько клеток видно, где стоит Джавик (в клетках от левого края)
-    let W = 0, H = 0, cell = 40, groundY = 0, dpr = 1;
-    let obs = [], len = 0;
-    // анимация: из какого состояния в какое
-    let from = { x: 0 }, to = { x: 0, state: "run", phase: 0 }, t0 = 0, dur = 1, mood = "happy";
-    let dust = [], stars = [], flash = 0, finished = false;
-    const imgs = {};
-    function mascotImg(m) {
-      if (!imgs[m]) { const i = new Image(); i.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(JC.mascot(m).replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"')); imgs[m] = i; }
-      return imgs[m];
-    }
-    ["happy", "oops", "wow"].forEach(mascotImg);
-    function size() {
-      dpr = window.devicePixelRatio || 1;
-      W = track.clientWidth; cell = Math.max(26, W / COLS); H = Math.round(cell * 3.4);
-      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); groundY = H - cell * 0.45;
-    }
-    size(); new ResizeObserver(size).observe(track);
-    const ease = (k) => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-    // высота прыжка: непрерывная дуга через все ходы прыжка (4 хода — как в движке)
-    const jumpH = (phase, k) => Math.sin(Math.PI * Math.min(1, (phase + k) / RUN_JUMP)) * cell * 1.25;
-    // присед: быстро вниз в начале, быстро вверх в конце
-    const duckK = (phase, k) => { const p = (phase + k) / RUN_DUCK; return p < 0.12 ? p / 0.12 : p > 0.88 ? (1 - p) / 0.12 : 1; };
+  const CR_ARROW = ["↑", "→", "↓", "←"];
 
-    function drawBg(camX, now) {
-      const sky = ctx.createLinearGradient(0, 0, 0, H);
-      sky.addColorStop(0, "#1b2150"); sky.addColorStop(1, "#3a3f7a");
-      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-      // звёзды и облака (дальний план движется медленно)
-      ctx.fillStyle = "rgba(255,255,255,.55)";
-      for (let i = 0; i < 18; i++) { const sx = ((i * 97 - camX * cell * 0.08) % W + W) % W, sy = (i * 53) % (H * 0.45); ctx.fillRect(sx, sy, 2, 2); }
-      ctx.fillStyle = "rgba(255,255,255,.12)";
-      for (let i = 0; i < 4; i++) { const cx = ((i * 260 - camX * cell * 0.2) % (W + 200) + W + 200) % (W + 200) - 100, cy = H * 0.18 + (i % 2) * 18; ctx.beginPath(); ctx.ellipse(cx, cy, 46, 12, 0, 0, 7); ctx.ellipse(cx + 30, cy - 8, 30, 12, 0, 0, 7); ctx.fill(); }
-      // холмы (средний план)
-      ctx.fillStyle = "#2b3170";
-      ctx.beginPath(); ctx.moveTo(0, groundY);
-      for (let px = 0; px <= W; px += 8) { const wx = px + camX * cell * 0.45; ctx.lineTo(px, groundY - 18 - Math.sin(wx / 90) * 14 - Math.sin(wx / 37) * 6); }
-      ctx.lineTo(W, groundY); ctx.fill();
-      // земля
-      ctx.fillStyle = "#5a4326"; ctx.fillRect(0, groundY, W, H - groundY);
-      ctx.fillStyle = "#6f5531";
-      const off = (camX * cell) % 28;
-      for (let px = -off; px < W; px += 28) ctx.fillRect(px, groundY + 6, 14, 4);
-      ctx.fillStyle = "#3d8b3d"; ctx.fillRect(0, groundY - 3, W, 4);
-    }
-    function drawObstacles(camX, now) {
-      const base = (wx) => (wx - camX + AT) * cell;
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      for (const o of obs) {
-        const sx = base(o[0]);
-        if (sx > W + cell * 2 || sx + o[1] * cell < -cell) continue;
-        if (o[2] === 0) {
-          for (let k = 0; k < o[1]; k++) {
-            const wig = Math.sin(now / 120 + k + o[0]) * 2;
-            ctx.font = `${cell * 0.78}px serif`;
-            ctx.fillText("🐛", sx + (k + 0.5) * cell + wig, groundY - cell * 0.38);
-          }
-        } else {
-          const bob = Math.sin(now / 160 + o[0]) * cell * 0.08;
-          ctx.save(); ctx.translate(sx + cell * 0.5, groundY - cell * 1.45 + bob);
-          ctx.scale(1, 0.85 + Math.abs(Math.sin(now / 90)) * 0.25); // машет крыльями
-          ctx.font = `${cell * 0.8}px serif`; ctx.fillText("🦇", 0, 0); ctx.restore();
+  JC.courierReplay = function (host, r) {
+    const replays = (r && r.replays) || [];
+    if (!replays.length) { host.innerHTML = ""; return; }
+    const tests = r.tests || [];
+    host.innerHTML = `<div class="cr">
+      <div class="cr-tabs" role="tablist">${replays.map((p, i) => {
+        const ok = p && p.result === "finish";
+        return `<button class="cr-tab ${ok ? "ok" : "bad"}" data-i="${i}" role="tab">${ok ? "✓" : "✗"} ${esc((tests[i] && tests[i].name) || "Карта " + (i + 1))}</button>`;
+      }).join("")}</div>
+      <div class="cr-main">
+        <div class="cr-board-wrap"><div class="cr-board"></div></div>
+        <div class="cr-side">
+          <div class="cr-step"></div>
+          <div class="cr-cmd"></div>
+          <div class="cr-carry"></div>
+          <div class="cr-ask-title">Перед ходом Джавик спросил:</div>
+          <ul class="cr-ask"></ul>
+          <div class="cr-note"></div>
+        </div>
+      </div>
+      <div class="cr-ctrl">
+        <button class="btn ghost cr-first" title="К началу">⏮</button>
+        <button class="btn ghost cr-prev" title="Ход назад">◀</button>
+        <button class="btn cr-play">▶ Смотреть</button>
+        <button class="btn ghost cr-next" title="Ход вперёд">▶</button>
+        <button class="btn ghost cr-last" title="К концу">⏭</button>
+        <input class="cr-range" type="range" min="0" max="0" value="0" aria-label="Ход">
+        <select class="cr-speed" aria-label="Скорость"><option value="500">медленно</option><option value="250" selected>обычно</option><option value="90">быстро</option></select>
+      </div>
+      <div class="cr-msg"></div>
+      <div class="cr-out"></div>
+    </div>`;
+    const $ = (q) => host.querySelector(q);
+    let cur = -1, states = [], fi = 0, timer = null, replay = null;
+
+    function build(p) {
+      // состояния до кадра 0 и после каждого кадра
+      const parcels = {}, done = {};
+      for (const it of p.items || []) if (it.p) parcels[it.x + ":" + it.y] = it.p;
+      const s0 = { x: p.start[0], y: p.start[1], d: p.start[2], c: p.carry0 || 0, parcels: { ...parcels }, done: {}, cmd: "", ask: [], note: "" };
+      const list = [s0];
+      let prev = s0;
+      for (const f of p.frames || []) {
+        const st = { x: f.x, y: f.y, d: f.d, c: f.c, parcels: { ...prev.parcels }, done: { ...prev.done }, cmd: f.cmd, ask: f.ask || [], note: f.note || "", night: !!f.night };
+        for (const [x, y, n] of f.p || []) {
+          if (n < 0) st.done[x + ":" + y] = (st.done[x + ":" + y] || 0) + 1; else st.parcels[x + ":" + y] = n;
         }
+        list.push(st); prev = st;
       }
-      const fx = base(len);
-      if (fx < W + cell) { ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.fillRect(fx, groundY - cell * 2.6, 3, cell * 2.6); ctx.font = `${cell * 0.9}px serif`; ctx.fillText("🏁", fx + cell * 0.4, groundY - cell * 2.3); }
+      return list;
     }
-    function drawJavik(x, lift, squash, run, now) {
-      const cx = AT * cell + cell * 0.5, bottom = groundY - lift;
-      // тень
-      ctx.fillStyle = `rgba(0,0,0,${0.35 - Math.min(0.25, lift / cell * 0.18)})`;
-      ctx.beginPath(); ctx.ellipse(cx, groundY + 2, cell * (0.42 - Math.min(0.2, lift / cell * 0.12)), cell * 0.09, 0, 0, 7); ctx.fill();
-      const w = cell * 1.2 * (1 + (1 - squash) * 0.35), h = cell * 1.35 * squash;
-      const bob = run ? Math.abs(Math.sin(now / 90)) * cell * 0.07 : 0;
-      // ножки (бег — перебирает, в воздухе — поджаты)
-      ctx.strokeStyle = "#e9e6ff"; ctx.lineWidth = Math.max(2, cell * 0.07); ctx.lineCap = "round";
-      const legY = bottom - bob, swing = run ? Math.sin(now / 70) * cell * 0.16 : 0, tuck = lift > 4 ? cell * 0.08 : 0;
-      if (squash > 0.75) {
-        ctx.beginPath();
-        ctx.moveTo(cx - cell * 0.15, legY - cell * 0.18); ctx.lineTo(cx - cell * 0.15 + swing, legY - tuck);
-        ctx.moveTo(cx + cell * 0.15, legY - cell * 0.18); ctx.lineTo(cx + cell * 0.15 - swing, legY - tuck);
-        ctx.stroke();
-      }
-      const img = mascotImg(mood);
-      const top = bottom - bob - (squash > 0.75 ? cell * 0.14 : 0) - h;
-      if (img.complete && img.naturalWidth) ctx.drawImage(img, cx - w / 2, top, w, h);
-      else { ctx.fillStyle = "#ff7a1a"; ctx.fillRect(cx - w / 2, top, w, h); }
-    }
-    function frame(now) {
-      const k = Math.min(1, (now - t0) / dur), e = ease(k);
-      const camX = from.x + (to.x - from.x) * (to.state === "crash" ? Math.min(1, e * 1.4) * 0.85 : k);
-      const shake = to.state === "crash" && k < 1 ? Math.sin(now / 25) * cell * 0.08 * (1 - k) : 0;
-      ctx.save(); ctx.translate(shake, 0);
-      drawBg(camX, now); drawObstacles(camX, now);
-      let lift = 0, squash = 1;
-      if (to.state === "jump") lift = jumpH(to.phase, k);
-      if (to.state === "duck") squash = 1 - 0.45 * duckK(to.phase, k);
-      if (to.state === "crash" && to.was === "jump") lift = jumpH(to.phase, Math.min(k, 0.5));
-      // приземление — пружинка и пыль
-      if (to.landed && k < 0.35) squash = Math.min(squash, 1 - Math.sin(k / 0.35 * Math.PI) * 0.18);
-      drawJavik(camX, lift, squash, to.state === "run" || to.state === "duck", now);
-      track.dataset.lift = Math.round(lift); track.dataset.state = to.state; // для проверки анимации
-      // частицы
-      dust = dust.filter((p) => (p.life -= 1 / 40) > 0);
-      for (const p of dust) { p.x += p.vx; p.y += p.vy; ctx.fillStyle = `rgba(230,210,170,${p.life * 0.7})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (1.5 - p.life), 0, 7); ctx.fill(); }
-      stars = stars.filter((p) => (p.life -= 1 / 60) > 0);
-      ctx.font = `${cell * 0.4}px serif`;
-      for (const p of stars) { p.a += 0.08; ctx.fillText("⭐", AT * cell + cell * 0.5 + Math.cos(p.a) * cell * 0.55, groundY - cell * 1.6 + Math.sin(p.a) * cell * 0.25 - lift); }
-      if (flash > 0) { ctx.fillStyle = `rgba(255,80,80,${flash})`; ctx.fillRect(0, 0, W, H); flash -= 0.04; }
-      ctx.restore();
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-    function puff() { const cx = AT * cell + cell * 0.5; for (let i = 0; i < 8; i++) dust.push({ x: cx + (Math.random() - 0.5) * cell * 0.6, y: groundY - 2, vx: (Math.random() - 0.7) * 1.6, vy: -Math.random() * 1.1, r: 2 + Math.random() * 3, life: 1 }); }
-    return {
-      setTrack(obstacles, length) { obs = obstacles; len = length; finished = false; },
-      show(x, state, m, opts = {}) {
-        const now = performance.now();
-        const prev = to;
-        from = { x: opts.instant ? x : (prev.x !== undefined ? prev.x : x) };
-        if (opts.instant) from.x = x;
-        to = { x, state, phase: opts.phase || 0, was: opts.was, landed: prev.state === "jump" && state !== "jump" && !opts.instant };
-        t0 = now; dur = opts.instant ? 1 : (opts.ms || 300);
-        mood = m || "happy";
-        if (to.landed) puff();
-        if (state === "crash" && !opts.instant) { flash = 0.35; stars = [0, 2.1, 4.2].map((a) => ({ a, life: 1.6 })); }
-        if (state === "jump" && (opts.phase || 0) === 0 && !opts.instant) puff();
-        if (m === "wow" && !finished && !opts.instant) { finished = true; if (JC.confetti) JC.confetti(40); }
-      }
-    };
-  }
-  /** Ручная игра — те же правила, что у сервера. */
-  function runnerSim(obstacles, length, speedUpAt) {
-    const g = { x: 0, tick: 0, air: 0, duck: 0, over: null };
-    const at = (c, type) => obstacles.some((o) => o[2] === type && c >= o[0] && c <= o[0] + o[1] - 1);
-    g.next = () => obstacles.find((o) => o[0] + o[1] - 1 > g.x);
-    g.radar = () => { const o = g.next(); const d = !o || o[0] - g.x > RUN_VIEW ? 99 : Math.max(0, o[0] - g.x); return { d, low: d !== 99 && o[2] === 0, speed: g.x >= speedUpAt ? 2 : 1 }; };
-    g.state = () => g.air > 0 ? "jump" : g.duck > 0 ? "duck" : "run";
-    g.step = (cmd) => {
-      if (g.over) return;
-      const busy = g.air > 0 || g.duck > 0;
-      if (!busy && cmd === "JUMP") g.air = RUN_JUMP;
-      if (!busy && cmd === "DUCK") g.duck = RUN_DUCK;
-      g.during = g.state();
-      const s = g.x >= speedUpAt ? 2 : 1;
-      for (let k = 0; k < s; k++) {
-        g.x++;
-        if (at(g.x, 0) && g.air === 0) { g.over = "crash"; g.why = "врезался в жука"; return; }
-        if (at(g.x, 1) && g.duck === 0) { g.over = "crash"; g.why = g.air > 0 ? "в прыжке врезался в летучую ошибку" : "врезался в летучую ошибку"; return; }
-        if (g.x >= length) break;
-      }
-      g.tick++;
-      if (g.air > 0 && --g.air === 0 && at(g.x, 0)) { g.over = "crash"; g.why = "приземлился прямо на жука — прыгнул слишком рано"; return; }
-      if (g.duck > 0 && --g.duck === 0 && at(g.x, 1)) { g.over = "crash"; g.why = "выпрямился под летучей ошибкой — пригнулся слишком рано"; return; }
-      if (g.x >= length) g.over = "finish";
-    };
-    return g;
-  }
 
-  W.runnerhand = function (el) {
-    const { body, goal } = frame(el, { icon: "🏃", kind: "Мини-игра", title: "Беги сам: пробел — прыжок, ↓ — присесть", goals: ["Добеги до финиша", "Посмотри, на каком расстоянии ты прыгаешь"], xp: 20 });
-    // фиксированная трасса для ручной игры
-    const OBS = [[10, 1, 0], [18, 2, 0], [26, 1, 1], [33, 1, 0], [40, 1, 1], [47, 2, 0], [55, 1, 1], [61, 1, 0]], LEN = 68;
-    body.innerHTML = `
-      <p class="pd-help">Джавик бежит сам — ты только жмёшь: <kbd>Пробел</kbd> или <kbd>↑</kbd> — прыжок через жука 🐛, <kbd>↓</kbd> — присесть под летучей ошибкой 🦇. Справа — что видит радар. Следи, <b>на каком расстоянии</b> ты нажимаешь.</p>
-      <div class="rn-main"><div class="rn-view"></div>
-        <div class="pd-radar"><small>Радар</small><div class="rn-rv"></div></div></div>
-      <div class="pd-keys"><button class="btn small green rn-start">▶ Старт</button><button class="btn small ghost" data-c="JUMP">⬆ Прыжок</button><button class="btn small ghost" data-c="DUCK">⬇ Присесть</button>
-        <label class="rn-slow"><input type="checkbox" checked> медленно</label></div>
-      <div class="pd-log" aria-live="polite">Нажми «Старт». Кнопки работают и мышкой.</div>
-      <div class="rn-hist"></div>`;
-    const $ = (s) => body.querySelector(s);
-    const view = runnerView($(".rn-view"));
-    view.setTrack(OBS, LEN);
-    let g, timer = null, queued = "RUN";
-    const presses = [];
-    function radarHtml() {
-      const r = g ? g.radar() : { d: OBS[0][0], low: true, speed: 1 };
-      $(".rn-rv").innerHTML = `<div><code>distance()</code> <b>${r.d}</b></div><div><code>isLow()</code> <b class="${r.low ? "y" : "n"}">${r.low}</b></div><div><code>speed()</code> <b>${r.speed}</b></div>`;
-    }
-    function reset() { clearInterval(timer); timer = null; g = runnerSim(OBS, LEN, 999); queued = "RUN"; presses.length = 0; view.show(0, "run", "happy", { instant: true }); radarHtml(); $(".rn-hist").textContent = ""; }
-    function tick() {
-      const r = g.radar();
-      if (queued !== "RUN" && g.air === 0 && g.duck === 0) presses.push(`${queued === "JUMP" ? "прыжок" : "присел"} при distance = ${r.d}`);
-      g.step(queued); queued = "RUN";
-      const ms = $(".rn-slow input").checked ? 420 : 260;
-      const phase = g.over === "crash" ? (g.during === "jump" ? RUN_JUMP - g.air : g.during === "duck" ? RUN_DUCK - g.duck : 0)
-        : g.during === "jump" ? RUN_JUMP - g.air - 1 : g.during === "duck" ? RUN_DUCK - g.duck - 1 : 0;
-      view.show(g.x, g.over === "crash" ? "crash" : g.during, g.over === "crash" ? "oops" : g.over === "finish" ? "wow" : "happy", { phase, ms, was: g.during });
-      radarHtml();
-      $(".rn-hist").textContent = presses.length ? "Твои нажатия: " + presses.slice(-6).join(" · ") : "";
-      if (g.over) {
-        clearInterval(timer); timer = null;
-        $(".pd-log").textContent = g.over === "finish"
-          ? "🏁 Добежал! Посмотри на свои нажатия ниже: при каком distance ты прыгал? Это число и пригодится в коде."
-          : `💥 Ой: ${g.why}. Жми «Старт» — ещё раз.`;
-        if (g.over === "finish") { goal(0); if (presses.length) goal(1); }
+    function drawBoard(p) {
+      const board = $(".cr-board");
+      board.style.setProperty("--cw", p.w); board.style.setProperty("--ch", p.h);
+      let html = "";
+      for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) {
+        html += `<div class="cr-cell ${p.grid[y][x] === "#" ? "wall" : "road"}" style="--x:${x};--y:${y}"></div>`;
       }
+      html += `<div class="cr-item depot" style="--x:${p.start[0]};--y:${p.start[1]}" title="Склад">🏁</div>`;
+      for (const it of p.items || []) {
+        if (it.t) html += `<div class="cr-item target" data-k="${it.x}:${it.y}" style="--x:${it.x};--y:${it.y}" title="${esc(it.n || "Адрес доставки")}">🏠${it.n ? `<span class="cr-name">${esc(it.n)}</span>` : ""}</div>`;
+        if (it.s) html += `<div class="cr-item sign" style="--x:${it.x};--y:${it.y}" title="Табличка: ${esc(it.s)}">${it.s === "LEFT" ? "⬅" : it.s === "RIGHT" ? "➡" : "⬆"}</div>`;
+      }
+      html += `<div class="cr-parcels"></div><div class="cr-robot"><div class="cr-bot">${JC.mascot("happy")}</div><div class="cr-dir"></div><div class="cr-load"></div></div>`;
+      board.innerHTML = html;
+      fit();
     }
-    function start() { reset(); $(".pd-log").textContent = "Беги! Пробел/↑ — прыжок, ↓ — присесть."; timer = setInterval(tick, $(".rn-slow input").checked ? 420 : 260); el.focus({ preventScroll: true }); }
-    $(".rn-start").addEventListener("click", start);
-    body.querySelectorAll("[data-c]").forEach((b) => b.addEventListener("click", () => { queued = b.dataset.c; }));
-    el.tabIndex = 0;
-    el.addEventListener("keydown", (e) => {
-      if (!timer) return;
-      if (e.key === " " || e.key === "ArrowUp") { e.preventDefault(); queued = "JUMP"; }
-      if (e.key === "ArrowDown") { e.preventDefault(); queued = "DUCK"; }
-    });
-    reset();
+
+    function fit() {
+      const wrap = $(".cr-board-wrap"), board = $(".cr-board");
+      if (!replay || !wrap) return;
+      const c = Math.max(16, Math.min(40, Math.floor((wrap.clientWidth - 4) / replay.w)));
+      board.style.setProperty("--c", c + "px");
+    }
+
+    function show(i, instant) {
+      fi = Math.max(0, Math.min(states.length - 1, i));
+      const s = states[fi], board = $(".cr-board"), robot = board.querySelector(".cr-robot");
+      robot.classList.toggle("instant", !!instant);
+      robot.style.setProperty("--x", s.x); robot.style.setProperty("--y", s.y);
+      robot.querySelector(".cr-dir").style.transform = `rotate(${s.d * 90}deg)`;
+      robot.querySelector(".cr-load").textContent = s.c ? "📦" + (s.c > 1 ? s.c : "") : "";
+      const last = fi === states.length - 1;
+      const crashed = last && replay.result !== "finish";
+      robot.classList.toggle("crash", crashed);
+      robot.classList.toggle("win", last && replay.result === "finish");
+      robot.querySelector(".cr-bot").innerHTML = JC.mascot(crashed ? "oops" : last && replay.result === "finish" ? "cool" : "happy");
+      board.querySelector(".cr-parcels").innerHTML = Object.entries(s.parcels).filter(([, n]) => n > 0).map(([k, n]) => {
+        const [x, y] = k.split(":");
+        return `<div class="cr-item parcel" style="--x:${x};--y:${y}">📦${n > 1 ? `<b>${n}</b>` : ""}</div>`;
+      }).join("");
+      board.querySelectorAll(".cr-item.target").forEach((t) => t.classList.toggle("got", !!s.done[t.dataset.k]));
+      $(".cr-step").textContent = fi === 0 ? "Старт" : `Ход ${fi} из ${states.length - 1}`;
+      $(".cr-cmd").innerHTML = fi === 0 ? `<span class="muted">Джавик на складе, смотрит ${["на север", "на восток", "на юг", "на запад"][s.d]} ${CR_ARROW[s.d]}</span>` : `<code>${esc(s.cmd)}</code>`;
+      board.classList.toggle("night", !!s.night);
+      $(".cr-carry").textContent = (s.c ? `Везёт посылок: ${s.c}` : "Руки свободны") + (s.night ? " · 🌙 ночь: датчики стен не работают" : "");
+      $(".cr-ask").innerHTML = s.ask.length ? s.ask.map((a) => `<li><code>${esc(a)}</code></li>`).join("") : `<li class="muted">ничего</li>`;
+      $(".cr-ask-title").style.display = fi === 0 ? "none" : "";
+      $(".cr-ask").style.display = fi === 0 ? "none" : "";
+      $(".cr-note").textContent = s.note || (crashed ? replay.message : "");
+      $(".cr-note").classList.toggle("bad", !!(s.note || crashed));
+      $(".cr-range").value = fi;
+    }
+
+    function stop() { clearInterval(timer); timer = null; $(".cr-play").textContent = fi >= states.length - 1 ? "↻ Ещё раз" : "▶ Смотреть"; }
+    function play() {
+      if (fi >= states.length - 1) show(0, true);
+      $(".cr-play").textContent = "⏸ Пауза";
+      clearInterval(timer);
+      timer = setInterval(() => { if (fi >= states.length - 1) return stop(); show(fi + 1); }, +$(".cr-speed").value);
+    }
+
+    function select(i) {
+      stop();
+      cur = i; replay = replays[i];
+      host.querySelectorAll(".cr-tab").forEach((b) => b.classList.toggle("on", +b.dataset.i === i));
+      if (!replay) { $(".cr-board").innerHTML = ""; $(".cr-msg").innerHTML = `<div class="result-banner bad">${esc((tests[i] && tests[i].error) || "Поездки нет")}</div>`; return; }
+      states = build(replay);
+      drawBoard(replay);
+      $(".cr-range").max = states.length - 1;
+      const ok = replay.result === "finish";
+      $(".cr-msg").innerHTML = `<div class="result-banner ${ok ? "ok" : "bad"}">${ok ? "✓ " : ""}${esc(replay.message || "")}</div>`;
+      const out = (replay.output || "").trim();
+      $(".cr-out").innerHTML = out || replay.expected
+        ? `<div class="cr-printed"><small>Программа напечатала</small><pre>${esc(out) || "(ничего)"}</pre></div>${replay.expected ? `<div class="cr-printed"><small>Ожидалось</small><pre>${esc(replay.expected)}</pre></div>` : ""}`
+        : "";
+      show(0, true);
+      if (states.length > 1) setTimeout(play, 350);
+    }
+
+    host.querySelectorAll(".cr-tab").forEach((b) => b.addEventListener("click", () => select(+b.dataset.i)));
+    $(".cr-play").addEventListener("click", () => (timer ? stop() : play()));
+    $(".cr-prev").addEventListener("click", () => { stop(); show(fi - 1); });
+    $(".cr-next").addEventListener("click", () => { stop(); show(fi + 1); });
+    $(".cr-first").addEventListener("click", () => { stop(); show(0, true); });
+    $(".cr-last").addEventListener("click", () => { stop(); show(states.length - 1, true); });
+    $(".cr-range").addEventListener("input", (e) => { stop(); show(+e.target.value, true); });
+    $(".cr-speed").addEventListener("change", () => { if (timer) play(); });
+    new ResizeObserver(fit).observe($(".cr-board-wrap"));
+    const firstBad = replays.findIndex((p) => !p || p.result !== "finish");
+    select(firstBad >= 0 ? firstBad : 0);
   };
 
-  W.runnercode = function (el) {
-    const LEVELS = [
-      { id: "m04-r1", name: "1. Жуки", tip: "Только жуки 🐛. Подбери, за сколько клеток прыгать." },
-      { id: "m04-r2", name: "2. Жуки и летучие", tip: "Добавились летучие ошибки 🦇 — под ними пригибайся (DUCK)." },
-      { id: "m04-r3", name: "3. Ускорение ★★★", tip: "С середины трассы скорость 2. Выведи distance() на каждом ходу и посмотри, какие числа видит радар." }
-    ];
-    const { body } = frame(el, { icon: "🧑‍💻", kind: "Пишешь код", title: "Научи Джавика: метод decide" });
-    body.innerHTML = `
-      <div class="pd-vars rn-levels">${LEVELS.map((l, i) => `<button class="pd-var ${i ? "" : "on"}" data-i="${i}">${l.name} <span class="rn-st"></span></button>`).join("")}</div>
-      <p class="pd-help rn-tip"></p>
-      <div class="rn-editor"><div class="rn-file">Javik.java <span>— сохраняется в workspace/module-04, его можно открыть и в IDEA</span></div>
-        <textarea class="rn-code" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Код класса Javik"></textarea></div>
-      <div class="pd-keys"><button class="btn green rn-run">▶ Запустить</button><span class="rn-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> — тоже запуск · <kbd>Tab</kbd> — отступ</span></div>
-      <div class="rn-result"></div>
-      <div class="rn-replay" hidden>
-        <div class="rn-maps"></div>
-        <div class="rn-view"></div>
-        <div class="pd-keys"><button class="btn small ghost rn-prev">◀ Ход</button><button class="btn small indigo rn-play">▶ Смотреть</button><button class="btn small ghost rn-next">Ход ▶</button><input type="range" class="rn-slider" min="0" value="0"></div>
-        <div class="rn-frame"></div>
-      </div>`;
-    const $ = (s) => body.querySelector(s);
-    const ta = $(".rn-code");
-    let level = 0, replays = [], cur = 0, fi = 0, timer = null;
-    const view = runnerView($(".rn-view"));
-    function setLevel(i) { level = i; body.querySelectorAll(".rn-levels .pd-var").forEach((b) => b.classList.toggle("on", +b.dataset.i === i)); $(".rn-tip").innerHTML = LEVELS[i].tip; }
-    body.querySelectorAll(".rn-levels .pd-var").forEach((b) => b.addEventListener("click", () => setLevel(+b.dataset.i)));
-    setLevel(0);
-    fetch("/api/code/" + LEVELS[0].id).then((r) => r.json()).then((j) => { ta.value = j.code || ""; }).catch(() => { $(".rn-result").innerHTML = `<div class="result-banner bad">Сервер курса не отвечает. Запусти его: docker compose up -d</div>`; });
-    // редактор: Tab — 4 пробела, Enter — тот же отступ, что у строки выше
-    ta.addEventListener("keydown", (e) => {
-      if (e.key === "Tab") { e.preventDefault(); ta.setRangeText("    ", ta.selectionStart, ta.selectionEnd, "end"); }
-      else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
-      else if (e.key === "Enter") {
-        const before = ta.value.slice(0, ta.selectionStart), line = before.slice(before.lastIndexOf("\n") + 1);
-        let ind = (line.match(/^\s*/) || [""])[0]; if (/\{\s*$/.test(line)) ind += "    ";
-        e.preventDefault(); ta.setRangeText("\n" + ind, ta.selectionStart, ta.selectionEnd, "end");
-      }
-    });
-    async function run() {
-      const L = LEVELS[level];
-      $(".rn-run").disabled = true; $(".rn-result").innerHTML = `<div class="result-banner info">⏳ Компилирую и запускаю забег на трёх трассах…</div>`; $(".rn-replay").hidden = true;
+  /** Блок в уроке: уровни части, файл и кнопка «▶ Запустить мой код». */
+  W.courier = function (el) {
+    const ids = (el.dataset.tasks || "").split(",").map((s) => s.trim()).filter(Boolean);
+    el.classList.add("courier-run");
+    el.innerHTML = `<div class="cw-head"><b>🚚 Запусти своего Джавика</b><span class="muted">код пишешь в IntelliJ IDEA, смотришь здесь</span></div>
+      <div class="cw-levels"></div><div class="cw-info"></div>
+      <button class="btn green cw-run">▶ Запустить мой код</button><div class="cw-result"></div>`;
+    const $ = (q) => el.querySelector(q);
+    const stars = ["★", "★★", "★★★"];
+    let tasks = [], sel = 0;
+    function paint() {
+      $(".cw-levels").innerHTML = ids.map((id, i) => {
+        const t = tasks.find((x) => x.id === id);
+        return `<button class="cw-level ${i === sel ? "on" : ""}" data-i="${i}">${stars[i] || ""} ${esc(t ? t.title.replace(/^.*?:\s*/, "") : "уровень " + (i + 1))}</button>`;
+      }).join("");
+      const t = tasks.find((x) => x.id === ids[sel]);
+      $(".cw-info").innerHTML = t ? `📄 Файл: <code>${esc(/^workspace\//.test(t.file) ? t.file : "workspace/" + t.file)}</code> · класс <code>${esc(t.className)}</code> · <a href="/tasks.html?module=${esc(ids[sel].slice(0, 3))}#${esc(ids[sel])}">условие в «Практике»</a>` : "";
+      el.querySelectorAll(".cw-level").forEach((b) => b.addEventListener("click", () => { sel = +b.dataset.i; $(".cw-result").innerHTML = ""; paint(); }));
+    }
+    fetch("/api/tasks").then((r) => r.json()).then((list) => { tasks = list; paint(); })
+      .catch(() => { $(".cw-info").innerHTML = `<div class="result-banner bad">Сервер курса не отвечает. Запусти его: docker compose up -d</div>`; });
+    paint();
+    $(".cw-run").addEventListener("click", async () => {
+      const b = $(".cw-run");
+      b.disabled = true; b.textContent = "⏳ Компилирую и запускаю…";
       try {
-        await fetch("/api/code/" + L.id, { method: "POST", body: ta.value });
-        const r = await fetch("/api/check/" + L.id, { method: "POST" }).then((x) => x.json());
-        show(r);
-      } catch (e) { $(".rn-result").innerHTML = `<div class="result-banner bad">Сервер курса не отвечает. Запусти его: docker compose up -d</div>`; }
-      $(".rn-run").disabled = false;
-    }
-    $(".rn-run").addEventListener("click", run);
-    function show(r) {
-      let html = "";
-      const st = body.querySelector(`.rn-levels .pd-var[data-i="${level}"] .rn-st`);
-      if (r.status === "compile_error") {
-        html += `<div class="result-banner bad">🛠 Код не компилируется — javac нашёл ошибки. Начни с первой: номер строки после «Javik.java:».</div><pre class="terminal"><span class="err">${esc(r.compilerOutput || "")}</span></pre>`;
-      } else {
-        html += `<div class="result-banner ${r.status === "passed" ? "ok" : "bad"}">${r.status === "passed" ? "🎉 " : ""}${esc(JC.msg(r.message || ""))}</div>`;
-        if (st) st.textContent = r.status === "passed" ? "✓" : "";
+        const r = await fetch("/api/check/" + ids[sel], { method: "POST" }).then((x) => x.json());
+        let html = "";
+        if (r.status === "passed") html = `<div class="result-banner ok">🎉 ${esc(JC.msg(r.message))}</div>`;
+        else if (r.status === "missing") html = `<div class="result-banner info">📄 ${esc(JC.msg(r.message))}</div>`;
+        else if (r.status === "compile_error") html = `<div class="result-banner bad">🛠 ${esc(JC.msg(r.message))}</div><pre class="terminal"><span class="err">${esc(r.compilerOutput || "")}</span></pre>`;
+        else html = `<div class="result-banner bad">${esc(JC.msg(r.message || "Что-то пошло не так"))}</div>`;
+        const hints = [...(r.hints || []), ...(r.ruleFails || [])];
+        if (hints.length) html += `<ul class="hints">${hints.map((h) => `<li>💡 ${esc(h)}</li>`).join("")}</ul>`;
+        $(".cw-result").innerHTML = html + `<div class="cw-replay"></div>`;
+        JC.courierReplay($(".cw-replay"), r);
+        if (r.status === "passed") { try { JC.confetti(50); } catch (e) { /* без конфетти — не страшно */ } }
+      } catch (e) {
+        $(".cw-result").innerHTML = `<div class="result-banner bad">Сервер курса не отвечает. Запусти его: docker compose up -d</div>`;
       }
-      const hints = [...(r.hints || []), ...(r.ruleFails || [])];
-      if (hints.length) html += `<ul class="hints">${hints.map((h) => `<li>💡 ${esc(h)}</li>`).join("")}</ul>`;
-      $(".rn-result").innerHTML = html;
-      replays = r.replays || [];
-      if (!replays.length) return;
-      $(".rn-replay").hidden = false;
-      $(".rn-maps").innerHTML = replays.map((p, i) => `<button class="pd-var ${i ? "" : "on"}" data-i="${i}">Трасса ${i + 1} ${p && p.result === "finish" ? "✅" : "❌"}</button>`).join("");
-      body.querySelectorAll(".rn-maps .pd-var").forEach((b) => b.addEventListener("click", () => pick(+b.dataset.i)));
-      const firstBad = replays.findIndex((p) => !p || p.result !== "finish");
-      pick(firstBad >= 0 ? firstBad : 0);
-    }
-    function pick(i) {
-      cur = i; stop();
-      body.querySelectorAll(".rn-maps .pd-var").forEach((b) => b.classList.toggle("on", +b.dataset.i === i));
-      const p = replays[i]; if (!p) { $(".rn-frame").textContent = "Эту трассу запустить не удалось."; return; }
-      view.setTrack(p.obstacles, p.length);
-      $(".rn-slider").max = p.frames.length;
-      // трасса с ошибкой — сразу к моменту за 3 хода до столкновения
-      go(p.result === "finish" ? 0 : Math.max(0, p.frames.length - 4), true);
-    }
-    function go(k, instant) {
-      const p = replays[cur]; if (!p) return;
-      const n = p.frames.length;
-      fi = Math.max(0, Math.min(n, k));
-      $(".rn-slider").value = fi;
-      if (fi === 0) {
-        view.show(0, "run", "happy", { instant: true });
-        $(".rn-frame").innerHTML = "Старт. Жми «▶ Смотреть» или «Ход ▶».";
-        return;
-      }
-      const f = p.frames[fi - 1];
-      let phase = 0; for (let j = fi - 2; j >= 0 && p.frames[j].state === f.state; j--) phase++;
-      const end = fi === n && p.result !== "finish";
-      view.show(f.to, end ? "crash" : f.state, end ? "oops" : fi === n ? "wow" : "happy", { phase, ms: timer ? 330 : 280, instant, was: f.state });
-      $(".rn-frame").innerHTML = `<b>Ход ${fi}.</b> Радар: <code>distance()</code> = <b>${f.d}</b>, <code>isLow()</code> = <b>${f.low}</b>, <code>speed()</code> = <b>${f.speed}</b> → твой <code>decide</code> вернул <span class="pg-action">${esc(f.action)}</span>`
-        + (f.log && f.log.length ? `<div class="rn-log"><small>Вывод и подсказки:</small>${f.log.map((l) => `<div>${esc(l)}</div>`).join("")}</div>` : "")
-        + (fi === n ? `<div style="margin-top:6px"><b>${esc(p.message)}</b></div>` : "");
-    }
-    function stop() { clearInterval(timer); timer = null; $(".rn-play").textContent = "▶ Смотреть"; }
-    $(".rn-prev").addEventListener("click", () => { stop(); go(fi - 1); });
-    $(".rn-next").addEventListener("click", () => { stop(); go(fi + 1); });
-    $(".rn-slider").addEventListener("input", (e) => { stop(); go(+e.target.value); });
-    $(".rn-play").addEventListener("click", () => {
-      if (timer) return stop();
-      const p = replays[cur]; if (!p) return;
-      if (fi >= p.frames.length) go(0, true);
-      $(".rn-play").textContent = "⏸ Пауза";
-      timer = setInterval(() => { if (fi >= replays[cur].frames.length) return stop(); go(fi + 1); }, 330);
+      b.disabled = false; b.textContent = "▶ Запустить ещё раз";
     });
   };
 
@@ -1745,7 +1606,7 @@
       else html += `<div class="result-banner bad">${esc(JC.msg(r.message || "Что-то пошло не так"))}</div>`;
       const hints = [...(r.hints || []), ...(r.ruleFails || [])];
       if (hints.length) html += `<ul class="hints">${hints.map((h) => `<li>💡 ${esc(h)}</li>`).join("")}</ul>`;
-      for (const t of r.tests || []) {
+      for (const t of r.replays ? [] : r.tests || []) {
         html += `<div class="test-row ${t.passed ? "ok" : "bad"}"><div>${t.passed ? "✓" : "✗"} ${esc(t.name)}${t.input ? ` <small>(ввод: ${esc(inputLine(t.input))})</small>` : ""}</div>`;
         if (!t.passed) {
           if (t.error) html += `<div style="padding:8px 14px">⚠️ ${esc(t.error)}</div>`;
@@ -1762,6 +1623,7 @@
       try {
         const r = await fetch("/api/check/" + id, { method: "POST" }).then((x) => x.json());
         $(".tc-result").innerHTML = render(r);
+        if (r.replays) { $(".tc-result").insertAdjacentHTML("beforeend", "<div class=\"tc-replay\"></div>"); JC.courierReplay($(".tc-replay"), r); }
         if (r.status === "passed") { try { if (JC.confetti) JC.confetti(50); } catch (e) { /* без конфетти — не страшно */ } }
       } catch (e) {
         $(".tc-result").innerHTML = `<div class="result-banner bad">Сервер курса не отвечает. Запусти его: docker compose up -d</div>`;

@@ -1,0 +1,7 @@
+# Часть 1 ★★ «Первая посылка»: взять посылку по пути и отдать на адресе
+class=CourierPart1
+entry=decide
+map=corridor
+parcel=true
+goal=deliver
+ticks=220

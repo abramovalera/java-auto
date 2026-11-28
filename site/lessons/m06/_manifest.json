@@ -1,14 +1,59 @@
-{ "id": "m06", "num": "6", "title": "Массивы",
-  "summary": "Много значений в одной переменной: создание, обход, массив в памяти и ссылки, класс Arrays, алгоритмы (поиск, максимум, массив-счётчик, разворот, сдвиг, удаление и вставка), двумерные массивы.",
+{
+  "id": "m06",
+  "num": "6",
+  "title": "Массивы",
+  "summary": "Много значений в одной переменной: создание, обход, массив в памяти и ссылки, класс Arrays, алгоритмы (поиск, максимум, массив-счётчик, разворот, сдвиг, удаление и вставка), двумерные массивы. Игра «Джавик-курьер», часть 3.",
   "lessons": [
-    { "id": "m06-01", "title": "Зачем нужны массивы", "url": "/lessons/m06/01-why-arrays.html" },
-    { "id": "m06-02", "title": "Обход массива: for и for-each", "url": "/lessons/m06/02-traversal.html" },
-    { "id": "m06-03", "title": "Массив в памяти: ссылки", "url": "/lessons/m06/03-arrays-in-memory.html" },
-    { "id": "m06-04", "title": "Класс Arrays", "url": "/lessons/m06/04-arrays-class.html" },
-    { "id": "m06-05", "title": "Мастерская: алгоритмы на массивах", "url": "/lessons/m06/05-algorithms-workshop.html" },
-    { "id": "m06-06", "title": "Двумерные массивы", "url": "/lessons/m06/06-two-dimensional.html" },
-    { "id": "m06-07", "title": "char[], String и String[] args", "url": "/lessons/m06/07-chars-and-args.html" },
-    { "id": "m06-pz", "title": "Головоломки: что выведется?", "url": "/lessons/m06/08-puzzles.html" },
-    { "id": "m06-sum", "title": "Итоги модуля и экзамен", "url": "/lessons/m06/09-summary.html" }
+    {
+      "id": "m06-01",
+      "title": "Зачем нужны массивы",
+      "url": "/lessons/m06/01-why-arrays.html"
+    },
+    {
+      "id": "m06-02",
+      "title": "Обход массива: for и for-each",
+      "url": "/lessons/m06/02-traversal.html"
+    },
+    {
+      "id": "m06-03",
+      "title": "Массив в памяти: ссылки",
+      "url": "/lessons/m06/03-arrays-in-memory.html"
+    },
+    {
+      "id": "m06-04",
+      "title": "Класс Arrays",
+      "url": "/lessons/m06/04-arrays-class.html"
+    },
+    {
+      "id": "m06-05",
+      "title": "Мастерская: алгоритмы на массивах",
+      "url": "/lessons/m06/05-algorithms-workshop.html"
+    },
+    {
+      "id": "m06-06",
+      "title": "Двумерные массивы",
+      "url": "/lessons/m06/06-two-dimensional.html"
+    },
+    {
+      "id": "m06-07",
+      "title": "char[], String и String[] args",
+      "url": "/lessons/m06/07-chars-and-args.html"
+    },
+    {
+      "id": "m06-courier",
+      "title": "Игра «Джавик-курьер», часть 3: маршрут в массиве",
+      "url": "/lessons/m06/50-courier.html"
+    },
+    {
+      "id": "m06-pz",
+      "title": "Головоломки: что выведется?",
+      "url": "/lessons/m06/08-puzzles.html"
+    },
+    {
+      "id": "m06-sum",
+      "title": "Итоги модуля и экзамен",
+      "url": "/lessons/m06/09-summary.html"
+    }
   ],
-  "taskCount": 11 }
+  "taskCount": 14
+}

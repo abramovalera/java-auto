@@ -1,0 +1,6 @@
+# Часть 2 ★★ «Лестница»
+class=CourierPart2
+entry=run
+map=stairs
+goal=reach
+ticks=150

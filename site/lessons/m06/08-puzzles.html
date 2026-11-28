@@ -236,6 +236,52 @@ System.out.println(sum);</code></pre>
     <p>Напиши наставнику: <em>«Дай мне 3 головоломки по массивам и ссылкам, по одной. Ответ не говори, пока я не нарисую стек и кучу»</em>.</p>
   </div>
 
+  <section class="pz-reading">
+    <h2>Джавик-курьер: что будет?</h2>
+    <p>Задачки по <a href="/lessons/m06/50-courier.html">части 3 игры</a>: здесь код не пишем, а предсказываем, что сделает Джавик или компилятор.</p>
+    <div data-widget="check" id="check-m06-pz-courier">
+      <script type="application/json">
+      {
+       "title": "«Джавик-курьер»: что будет?",
+       "icon": "🚚",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "String[] route = new String[300];\nint count = 0;\nroute[count] = \"MOVE\"; count++;\nroute[count] = \"LEFT\"; count++;\nString s = \"Маршрут:\";\nfor (int i = 0; i <= count; i++) {\n    s += \" \" + route[i];\n}\nSystem.out.println(s);",
+         "answer": "Маршрут: MOVE LEFT null",
+         "why": "Из-за <= цикл делает лишний круг с i = 2. Ячейка есть (массив с запасом), но пустая — к строке приклеивается null. Исключения нет как раз из-за запаса."
+        },
+        {
+         "type": "single",
+         "q": "Что будет при запуске?",
+         "code": "String[] route = {\"MOVE\", \"LEFT\", \"MOVE\"};\nint count = 3;\nfor (int i = count; i >= 0; i--) {\n    if (route[i].equals(\"MOVE\")) System.out.print(\"M\");\n}",
+         "options": [
+          "MM",
+          "ArrayIndexOutOfBoundsException",
+          "NullPointerException",
+          "MLM"
+         ],
+         "answer": 1,
+         "why": "Обход с конца начат с count, а не с count - 1. Массив ровно на 3 ячейки — route[3] за краем. Будь массив с запасом, там лежал бы null и equals дал бы NullPointerException."
+        },
+        {
+         "type": "single",
+         "q": "Дорога туда: MOVE RIGHT MOVE MOVE LEFT MOVE. Какие команды Джавик выполнит после разворота, чтобы вернуться?",
+         "options": [
+          "MOVE LEFT MOVE MOVE RIGHT MOVE",
+          "MOVE RIGHT MOVE MOVE LEFT MOVE",
+          "MOVE MOVE LEFT MOVE RIGHT MOVE"
+         ],
+         "answer": 1,
+         "why": "С конца: MOVE LEFT MOVE MOVE RIGHT MOVE, а после замены LEFT ↔ RIGHT — MOVE RIGHT MOVE MOVE LEFT MOVE. Совпало с дорогой туда, потому что маршрут «зеркальный», — разворачивать журнал всё равно нужно."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
   <section class="summary">
     <h2>Что тренирует этот набор</h2>
     <ul>

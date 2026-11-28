@@ -1,6 +1,0 @@
-# Уровень 1: только жуки на земле — прыгай вовремя
-types=low
-lowWidths=1,2
-length=60
-gapMin=4
-gapMax=9

@@ -1,0 +1,16 @@
+## id: m06-c1
+## title: «Джавик-курьер» ★: запиши маршрут
+## file: module-06/CourierPart3.java
+## class: CourierPart3
+## level: 1
+## mode: courier
+## map: courier/levels/p3-1.txt
+## seeds: 11,12,13
+@@ description
+<p>Джавик везёт посылку со склада к клиенту по извилистому коридору. Доставь её (<code>robot.drop()</code> на 🏠) и запиши каждый свой ход в <b>массив</b> <code>String[]</code>: <code>"MOVE"</code>, <code>"LEFT"</code> или <code>"RIGHT"</code>. После доставки напечатай маршрут одной строкой:</p>
+<pre class="terminal"><span class="out">Маршрут: MOVE MOVE LEFT MOVE MOVE MOVE RIGHT MOVE</span></pre>
+<p>Массив сделай с запасом, например на 300 ячеек, и считай, сколько ходов записано.</p>
+<p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-06/CourierPart3.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
+<p>📖 Урок <a href="/lessons/m06/50-courier.html">«Джавик-курьер, часть 3»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
+@@ require: String\s*\[\s*\] | Записывай маршрут в массив String[]
+@@ require: println | Напечатай маршрут: Маршрут: MOVE ...

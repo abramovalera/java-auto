@@ -252,6 +252,48 @@ System.out.println(nums);</code></pre>
     </div>
   </section>
 
+  <section class="pz-reading">
+    <h2>Джавик-курьер: что будет?</h2>
+    <p>Задачки по <a href="/lessons/m13/50-courier.html">части 5 игры</a>: здесь код не пишем, а предсказываем, что сделает Джавик или компилятор.</p>
+    <div data-widget="check" id="check-m13-pz-courier">
+      <script type="application/json">
+      {
+       "title": "«Джавик-курьер»: что будет?",
+       "icon": "🚚",
+       "items": [
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Queue<String> q = new ArrayDeque<>(List.of(\"Кафе\", \"Почта\"));\nq.addAll(List.of(\"Школа\"));\nq.poll();\nSystem.out.println(q.peek() + \" \" + q.size());",
+         "answer": "Почта 2",
+         "why": "addAll ставит Школу в хвост, poll забирает голову (Кафе). peek только смотрит на новую голову — Почту — и ничего не удаляет."
+        },
+        {
+         "type": "single",
+         "q": "Что будет при запуске?",
+         "code": "List<String> orders = new ArrayList<>(List.of(\"Кафе\", \"Почта\"));\nfor (String a : orders) {\n    orders.addAll(List.of(\"Аптека\"));\n}",
+         "options": [
+          "Цикл обойдёт и добавленные заказы",
+          "ConcurrentModificationException",
+          "Ошибка компиляции",
+          "Бесконечный цикл"
+         ],
+         "answer": 1,
+         "why": "for-each — скрытый итератор. Список изменили в обход него, и на следующем next() он бросает исключение. Поэтому новые заказы держат в Queue и крутят while (!queue.isEmpty())."
+        },
+        {
+         "type": "predict",
+         "q": "Что выведет программа?",
+         "code": "Map<String, Integer> m = new LinkedHashMap<>();\nfor (String a : List.of(\"Почта\", \"Аптека\", \"Почта\")) {\n    m.put(a, m.getOrDefault(a, 0) + 1);\n}\nSystem.out.println(m);",
+         "answer": "{Почта=2, Аптека=1}",
+         "why": "Ключи уникальны — повтор увеличивает счётчик. LinkedHashMap хранит порядок первого появления, а не алфавит: для отчёта по алфавиту нужен TreeMap."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
   <section class="summary">
     <h2>Что тренирует этот набор</h2>
     <ul>

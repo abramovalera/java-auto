@@ -2,7 +2,7 @@
   "id": "m13",
   "num": "13",
   "title": "Коллекции и generics",
-  "summary": "ArrayList, обёртки и кэш Integer, перебор и Iterator, HashSet/TreeSet, HashMap, очередь и стек, Comparable и Comparator, свои generics.",
+  "summary": "ArrayList, обёртки и кэш Integer, перебор и Iterator, HashSet/TreeSet, HashMap, очередь и стек, Comparable и Comparator, свои generics. Игра «Джавик-курьер», часть 5.",
   "lessons": [
     {
       "id": "m13-01",
@@ -60,6 +60,11 @@
       "url": "/lessons/m13/09-choose-collection.html"
     },
     {
+      "id": "m13-courier",
+      "title": "Игра «Джавик-курьер», часть 5: служба доставки",
+      "url": "/lessons/m13/50-courier.html"
+    },
+    {
       "id": "m13-pz",
       "title": "Головоломки: что выведется?",
       "url": "/lessons/m13/10-puzzles.html"
@@ -70,5 +75,5 @@
       "url": "/lessons/m13/11-summary.html"
     }
   ],
-  "taskCount": 15
+  "taskCount": 18
 }

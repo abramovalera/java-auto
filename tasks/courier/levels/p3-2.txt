@@ -1,0 +1,10 @@
+# Часть 3 ★★ «Дорога домой»: после доставки датчики стен выключены, вернуться на склад
+class=CourierPart3
+entry=run
+map=corridor
+carryStart=true
+goal=deliver
+home=true
+night=true
+ticks=300
+output=route

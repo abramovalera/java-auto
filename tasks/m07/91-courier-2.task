@@ -1,0 +1,15 @@
+## id: m07-c2
+## title: «Джавик-курьер» ★★: квартал
+## file: module-07/CourierHouses.java
+## class: CourierHouses
+## level: 2
+## mode: courier
+## map: courier/levels/p4-2.txt
+## seeds: 21,22,23
+@@ description
+<p>Джавик едет по улице на восток, дома — ниши слева от дороги. <code>robot.houses()</code> возвращает массив: на скольких клетках от склада стоит каждый дом, например <code>[2, 5, 9]</code>. В каждый дом — по одной посылке.</p>
+<p>Напиши метод <b>с параметром</b>: <code>static void driveSteps(CourierRobot robot, int steps)</code> — проехать ровно <code>steps</code> клеток, и метод «заехать в нишу слева, отдать посылку, вернуться на улицу». Ехать до следующего дома нужно не от склада, а от предыдущего дома.</p>
+<p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-07/CourierHouses.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
+<p>📖 Урок <a href="/lessons/m07/50-courier.html">«Джавик-курьер, часть 4»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
+@@ require: static\s+\w+\s+\w+\s*\(\s*CourierRobot\s+\w+\s*,\s*int\s+\w+\s*\) | Нужен свой метод с параметрами (CourierRobot robot, int steps)
+@@ require: houses\s*\(\s*\) | Номера домов дают robot.houses()

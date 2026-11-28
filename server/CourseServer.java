@@ -57,6 +57,8 @@ public class CourseServer {
         ensureModuleFolders();
         ensureIdeaProject();
         ensureTrainerFolders();
+        ensureCourierFolder();
+        retireRunner();
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/api/tasks", ex -> safe(ex, CourseServer::handleTasks));
@@ -65,7 +67,6 @@ public class CourseServer {
         server.createContext("/api/check/", ex -> safe(ex, e -> { CHECK_SLOTS.acquire(); try { handleCheck(e); } finally { CHECK_SLOTS.release(); } }));
         server.createContext("/api/progress", ex -> safe(ex, CourseServer::handleProgress));
         server.createContext("/api/profiles", ex -> safe(ex, CourseServer::handleProfiles));
-        server.createContext("/api/code/", ex -> safe(ex, CourseServer::handleCode));
         server.createContext("/api/setup", ex -> safe(ex, CourseServer::handleSetup));
         // «вышло обновление курса?» — сверка коммита папки курса с GitHub (UpdateCheck, кэш 30 минут)
         server.createContext("/api/update", ex -> safe(ex, e -> sendJson(e, 200, UpdateCheck.status(
@@ -118,6 +119,53 @@ public class CourseServer {
             }
         } catch (IOException e) {
             System.err.println("Не удалось подготовить папки «Тренинг код»: " + e);
+        }
+    }
+
+    /**
+     * Игру «Раннер» убрали (28.11.2026). Её файл ученика module-04/Javik.java ссылается на класс Radar, которого больше нет,
+     * и ломал бы сборку проекта в IDEA. Переносим его в workspace/.old/runner/ — код ученика не теряется.
+     */
+    private static void retireRunner() {
+        try {
+            Path old = workspaceDir.resolve("module-04").resolve("Javik.java");
+            if (!Files.exists(old) || !Files.readString(old, StandardCharsets.UTF_8).contains("Radar")) return;
+            Path dst = workspaceDir.resolve(".old").resolve("runner").resolve("Javik.java");
+            Files.createDirectories(dst.getParent());
+            Files.move(old, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Игра «Раннер» убрана: module-04/Javik.java перенесён в .old/runner/");
+        } catch (IOException e) {
+            System.err.println("Не удалось перенести Javik.java: " + e);
+        }
+    }
+
+    /**
+     * Игра «Джавик-курьер»: workspace/courier/CourierRobot.java — заготовка робота с описанием методов, чтобы IDEA
+     * понимала код ученика (сам робот работает на сайте, в движке tasks/courier/engine). Папка помечается как Sources Root.
+     * Заготовку ученик не меняет, поэтому её свежая версия из starter/ всегда записывается поверх.
+     */
+    private static void ensureCourierFolder() {
+        try {
+            Path src = starterDir.resolve("courier").resolve("CourierRobot.java");
+            if (!Files.exists(src)) return;
+            Path dst = workspaceDir.resolve("courier").resolve("CourierRobot.java");
+            Files.createDirectories(dst.getParent());
+            String fresh = Files.readString(src, StandardCharsets.UTF_8);
+            if (!Files.exists(dst) || !Files.readString(dst, StandardCharsets.UTF_8).equals(fresh)) {
+                Files.writeString(dst, fresh, StandardCharsets.UTF_8);
+                System.out.println("Заготовка робота обновлена: courier/CourierRobot.java");
+            }
+            Path iml = workspaceDir.resolve("workspace.iml");
+            if (!Files.exists(iml)) return;
+            String xml = Files.readString(iml, StandardCharsets.UTF_8);
+            String url = "file://$MODULE_DIR$/courier";
+            int at = xml.indexOf("    </content>");
+            if (!xml.contains("\"" + url + "\"") && at > 0) {
+                Files.writeString(iml, xml.substring(0, at) + "      <sourceFolder url=\"" + url + "\" isTestSource=\"false\" />\n" + xml.substring(at), StandardCharsets.UTF_8);
+                System.out.println("В проект IDEA добавлена папка courier (робот для игры «Джавик-курьер»)");
+            }
+        } catch (IOException e) {
+            System.err.println("Не удалось подготовить папку courier: " + e);
         }
     }
 
@@ -187,6 +235,7 @@ public class CourseServer {
                 roots.append(String.format("      <sourceFolder url=\"file://$MODULE_DIR$/module-%02d\" isTestSource=\"false\" />%n", i));
             }
             roots.append("      <sourceFolder url=\"file://$MODULE_DIR$/training\" isTestSource=\"false\" />\n");
+            roots.append("      <sourceFolder url=\"file://$MODULE_DIR$/courier\" isTestSource=\"false\" />\n");
             Files.writeString(workspaceDir.resolve("workspace.iml"), """
                     <?xml version="1.0" encoding="UTF-8"?>
                     <module type="JAVA_MODULE" version="4">
@@ -259,9 +308,9 @@ public class CourseServer {
         String className;
         String level = "1";
         String category = "";  // «Тренинг код»: категория внутри темы
-        String mode = "output";   // output — сравнить вывод; junit — запустить тесты ученика; pilot — игра «Пилот»
-        String map;               // pilot: путь к файлу уровня внутри tasks/
-        String seeds;             // pilot: номера карт через запятую
+        String mode = "output";   // output — сравнить вывод; junit — запустить тесты ученика; courier — игра «Джавик-курьер»
+        String map;               // courier: путь к файлу уровня внутри tasks/
+        String seeds;             // courier: номера карт через запятую
         String description = "";
         final List<TestCase> tests = new ArrayList<>();
         final List<Rule> require = new ArrayList<>();
@@ -502,36 +551,6 @@ public class CourseServer {
         sendJson(ex, 200, last);
     }
 
-    /**
-     * GET /api/code/{id} — текст файла ученика для задачи (или заготовка из starter/), POST — сохранить его.
-     * Только для задач-игр, где код пишут прямо на странице урока («Раннер»). Файл ложится туда же,
-     * где его ждёт обычная проверка, — workspace/<file>, так что открыть его можно и в IDEA.
-     */
-    private static void handleCode(HttpExchange ex) throws Exception {
-        String id = ex.getRequestURI().getPath().substring("/api/code/".length());
-        Task task = loadTasks().stream().filter(t -> t.id.equals(id)).findFirst().orElse(null);
-        if (task == null || !"runner".equals(task.mode)) {
-            sendJson(ex, 404, Map.of("status", "not_found", "message", "Для этой задачи код на странице не пишут: " + id));
-            return;
-        }
-        Path file = workspaceDir.resolve(task.file).normalize();
-        if (!file.startsWith(workspaceDir)) { sendJson(ex, 400, Map.of("status", "bad_path")); return; }
-        if ("POST".equals(ex.getRequestMethod())) {
-            byte[] body = ex.getRequestBody().readNBytes(64 * 1024 + 1);
-            if (body.length > 64 * 1024) { sendJson(ex, 413, Map.of("status", "too_big", "message", "Слишком длинный код (больше 64 КБ).")); return; }
-            Files.createDirectories(file.getParent());
-            Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
-            Files.write(tmp, body);
-            Files.move(tmp, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
-            sendJson(ex, 200, Map.of("status", "saved", "file", "workspace/" + task.file));
-            return;
-        }
-        Path starter = starterDir.resolve(task.file).normalize();
-        String code = Files.exists(file) ? Files.readString(file, StandardCharsets.UTF_8)
-                : Files.exists(starter) ? Files.readString(starter, StandardCharsets.UTF_8) : "";
-        sendJson(ex, 200, Map.of("code", code, "saved", Files.exists(file), "file", "workspace/" + task.file));
-    }
-
     // ===================================================================
     // Профили: у каждого свой прогресс уроков, история проверок и режим курса
     // ===================================================================
@@ -764,7 +783,7 @@ public class CourseServer {
             } else {
                 javac.add(src.toString());
             }
-            if (isGame(task)) { // игры «Пилот» и «Раннер»: компилируем вместе с движком (tasks/<режим>/engine)
+            if (isGame(task)) { // игра «Джавик-курьер»: компилируем вместе с движком (tasks/courier/engine)
                 try (Stream<Path> eng = Files.list(tasksDir.resolve(task.mode).resolve("engine"))) {
                     eng.filter(p -> p.toString().endsWith(".java")).forEach(p -> javac.add(p.toString()));
                 }
@@ -798,7 +817,7 @@ public class CourseServer {
 
             // 2б. Режим JUnit: запускаем тесты ученика консольным запускателем JUnit 5
             if ("junit".equals(task.mode)) return checkJunit(task, res, classes, ruleFails);
-            // 2в. Игра «Пилот»: прогоняем полёт на нескольких картах
+            // 2в. Игра «Джавик-курьер»: прогоняем поездку на нескольких картах
             if (isGame(task)) return checkGame(task, res, classes, ruleFails);
 
             // 3. Запуск тестов
@@ -878,25 +897,23 @@ public class CourseServer {
         return lib + File.separator + "*";
     }
 
-    static boolean isGame(Task task) { return "pilot".equals(task.mode) || "runner".equals(task.mode); }
+    static boolean isGame(Task task) { return "courier".equals(task.mode); }
 
-    /** Игры: код ученика проходит карты уровня («Пилот» — полёт, «Раннер» — забег); задача решена, если прошёл все. */
+    /** Игра «Джавик-курьер»: код ученика проезжает несколько карт уровня; задача решена, если пройдены все. */
     private static Map<String, Object> checkGame(Task task, Map<String, Object> res, Path classes, List<String> ruleFails) throws Exception {
-        boolean runner = "runner".equals(task.mode);
-        String main = runner ? "RunnerGame" : "PilotGame";
-        Path map = tasksDir.resolve(task.map == null ? task.mode + "/levels/level-1.txt" : task.map).normalize();
+        Path map = tasksDir.resolve(task.map).normalize();
         List<Object> tests = new ArrayList<>();
         List<Object> replays = new ArrayList<>();
         int passed = 0;
         String[] seeds = (task.seeds == null ? "1,2,3" : task.seeds).split(",");
         for (int i = 0; i < seeds.length; i++) {
             ProcessResult run = run(List.of("java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", classes.toString(),
-                    main, map.toString(), seeds[i].strip()), "", RUN_TIMEOUT_SEC + 5);
+                    "CourierGame", map.toString(), seeds[i].strip()), "", RUN_TIMEOUT_SEC + 5);
             Map<String, Object> t = new LinkedHashMap<>();
-            t.put("name", (runner ? "Трасса " : "Карта ") + (i + 1));
+            t.put("name", "Карта " + (i + 1));
             Object replay = null;
             if (run.timedOut) {
-                t.put("error", (runner ? "Забег" : "Полёт") + " длился слишком долго — похоже, в методе decide бесконечный цикл.");
+                t.put("error", "Программа работала слишком долго — похоже, бесконечный цикл, в котором Джавик ничего не делает (нет move/turnLeft/…).");
             } else {
                 try {
                     replay = Json.parse(run.stdout.strip());
@@ -913,7 +930,7 @@ public class CourseServer {
             } else {
                 replays.add(null);
             }
-            t.put("expected", runner ? "добежать до финиша без столкновений" : "долететь до финиша без аварий");
+            t.put("expected", "доставить без аварий");
             t.put("passed", ok);
             if (ok) passed++;
             tests.add(t);
@@ -925,9 +942,8 @@ public class CourseServer {
         res.put("tests", tests);
         res.put("ruleFails", ruleFails);
         res.put("replays", replays);
-        res.put("message", allOk ? (runner ? "Джавик добежал на всех трассах! Покажи код наставнику: /check " : "Корабль долетел на всех картах! Покажи код наставнику: /check ") + task.id
-                : runner ? "Не на всех трассах получилось. Посмотри забег по ходам: что показывал радар перед столкновением?"
-                : "Не на всех картах получилось. Посмотри полёт по шагам на странице игры.");
+        res.put("message", allOk ? "Джавик справился на всех картах! Покажи код наставнику: /check " + task.id
+                : "Не на всех картах получилось. Посмотри поездку по шагам: что показывали датчики перед ошибкой?");
         return res;
     }
 

@@ -1,0 +1,15 @@
+## id: m13-c1
+## title: «Джавик-курьер» ★: очередь заказов
+## file: module-13/CourierOrders.java
+## class: CourierOrders
+## level: 1
+## mode: courier
+## map: courier/levels/p5-1.txt
+## seeds: 11,12,13
+@@ description
+<p>У Джавика теперь целый район и автопилот: <code>robot.goTo("Кафе")</code> сам довезёт до дома с таким названием. Заказы на начало смены — <code>robot.orders()</code> (список адресов), а по ходу смены приходят новые: после доставок вызывай <code>robot.newOrders()</code>.</p>
+<p>Развози строго <b>по очереди поступления</b>: кто раньше заказал, тот раньше получил. На адресе — <code>robot.drop()</code>. Подходящая коллекция — <code>Queue&lt;String&gt;</code>: <code>offer</code>/<code>addAll</code> в хвост, <code>poll</code> из головы.</p>
+<p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-13/CourierOrders.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
+<p>📖 Урок <a href="/lessons/m13/50-courier.html">«Джавик-курьер, часть 5»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
+@@ require: Queue\s*< | Держи заказы в очереди Queue<String>
+@@ require: newOrders\s*\( | Новые заказы приходят по ходу смены: robot.newOrders()

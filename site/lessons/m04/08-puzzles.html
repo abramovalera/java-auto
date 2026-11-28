@@ -143,6 +143,52 @@
 
   <!-- ШАГ 4 -->
   <section class="step">
+    <h2>Джавик-курьер: что будет?</h2>
+    <p>Задачки по <a href="/lessons/m04/50-courier.html">части 1 игры</a>: здесь код не пишем, а предсказываем, что сделает Джавик или компилятор.</p>
+    <div data-widget="check" id="check-m04-pz-courier">
+      <script type="application/json">
+      {
+       "title": "«Джавик-курьер»: что будет?",
+       "icon": "🚚",
+       "items": [
+        {
+         "type": "single",
+         "q": "Скомпилируется ли такой decide?",
+         "code": "public static String decide(CourierRobot robot) {\n    if (!robot.wallAhead()) {\n        return \"MOVE\";\n    } else {\n        return \"RIGHT\";\n    }\n    if (robot.parcelHere()) {\n        return \"TAKE\";\n    }\n}",
+         "options": [
+          "Да, на клетке с посылкой вернёт TAKE",
+          "Да, но посылку никогда не возьмёт",
+          "Нет, ошибка компиляции"
+         ],
+         "answer": 2,
+         "why": "Обе ветки if/else заканчиваются return — до кода ниже выполнение дойти не может, компилятор пишет unreachable statement. Проверку посылки ставят выше правила движения."
+        },
+        {
+         "type": "single",
+         "q": "Что будет на развилке с табличкой «AHEAD»?",
+         "code": "switch (robot.sign()) {\n    case \"LEFT\" -> { return \"LEFT\"; }\n    case \"RIGHT\" -> { return \"RIGHT\"; }\n    case \"AHEAD\" -> { return \"AHEAD\"; }\n}",
+         "options": [
+          "Джавик поедет прямо",
+          "Поездка остановится: «Нет такой команды»",
+          "Не скомпилируется"
+         ],
+         "answer": 1,
+         "why": "Компилируется: метод возвращает строку. Но команды \"AHEAD\" у Джавика нет — «прямо» это \"MOVE\". Компилятор проверяет типы, а не смысл строки."
+        },
+        {
+         "type": "predict",
+         "q": "Табличка на развилке — «LEFT». Что напечатает программа?",
+         "code": "switch (robot.sign()) {\n    case \"LEFT\": System.out.println(\"налево\");\n    case \"RIGHT\": System.out.println(\"направо\");\n    case \"AHEAD\": System.out.println(\"прямо\");\n}",
+         "answer": "налево\nнаправо\nпрямо",
+         "why": "В классическом switch без break выполнение «проваливается» во все следующие ветки. Помогают break, return или switch со стрелками."
+        }
+       ]
+      }
+      </script>
+    </div>
+  </section>
+
+  <section class="step">
     <h2>Скомпилируется ли? Что при запуске? Найди ошибку</h2>
     <div data-widget="check" id="check-m04-pz-compile">
       <script type="application/json">

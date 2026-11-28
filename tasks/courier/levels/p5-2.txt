@@ -1,0 +1,8 @@
+# Часть 5 ★★ «Один заезд на дом»: заказы повторяются, к каждому дому — один goTo
+class=CourierShift
+entry=run
+map=town
+orders=repeats
+goToLimit=unique
+goal=deliver
+ticks=2000

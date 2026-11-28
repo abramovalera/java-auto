@@ -1,0 +1,10 @@
+# Часть 1 ★★★ «Перекрёстки»: развилки с табличками, посылка по пути
+class=CourierPart1
+entry=decide
+map=forks
+parcel=true
+goal=deliver
+branches=3
+minLen=18
+maxLen=26
+ticksFactor=1.25

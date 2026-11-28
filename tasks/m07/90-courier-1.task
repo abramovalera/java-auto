@@ -1,0 +1,14 @@
+## id: m07-c1
+## title: «Джавик-курьер» ★: челнок
+## file: module-07/CourierShuttle.java
+## class: CourierShuttle
+## level: 1
+## mode: courier
+## map: courier/levels/p4-1.txt
+## seeds: 11,12,13
+@@ description
+<p>На складе лежат три посылки, а Джавик за раз берёт только одну. Адрес 🏠 — в конце прямого коридора. Вози посылки по одной: взял — доехал до конца — отдал — вернулся — развернулся.</p>
+<p>Одни и те же действия повторяются много раз — вынеси их в <b>свои методы</b>: например, <code>static void driveToWall(CourierRobot robot)</code> и <code>static void turnAround(CourierRobot robot)</code>. Тогда <code>run</code> читается как план.</p>
+<p>Пиши код в IntelliJ IDEA, в файле <code>workspace/module-07/CourierShuttle.java</code> (заготовка уже лежит в папке). Сохрани и нажми «▶ Проверить»: сайт запустит Джавика на 3 разных картах и покажет поездку по шагам.</p>
+<p>📖 Урок <a href="/lessons/m07/50-courier.html">«Джавик-курьер, часть 4»</a> — там правила игры, разбор уровней и подсказки, если не получается.</p>
+@@ require: ((static\s+\w+\s+(?!run\b)\w+\s*\(\s*CourierRobot)[\s\S]*){2} | Нужно минимум два своих метода с параметром CourierRobot, например driveToWall и turnAround

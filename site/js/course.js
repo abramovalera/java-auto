@@ -195,7 +195,7 @@ window.COURSE = {
       "num": "4",
       "title": "Условия: if и switch",
       "status": "open",
-      "summary": "Учим программу принимать решения: if, else if, вложенные условия, частые ловушки, тернарный оператор, switch старый и новый, мастерская условий и игра «Раннер».",
+      "summary": "Учим программу принимать решения: if, else if, вложенные условия, частые ловушки, тернарный оператор, switch старый и новый, мастерская условий и игра «Джавик-курьер».",
       "lessons": [
         {
           "id": "m04-01",
@@ -228,9 +228,9 @@ window.COURSE = {
           "url": "/lessons/m04/06-workshop.html"
         },
         {
-          "id": "m04-runner",
-          "title": "Игра «Раннер»: научи Джавика прыгать",
-          "url": "/lessons/m04/50-runner.html"
+          "id": "m04-courier",
+          "title": "Игра «Джавик-курьер», часть 1: ход за ходом",
+          "url": "/lessons/m04/50-courier.html"
         },
         {
           "id": "m04-pz",
@@ -251,7 +251,7 @@ window.COURSE = {
       "num": "5",
       "title": "Циклы",
       "status": "open",
-      "summary": "while, for, do-while, break и continue; вложенные циклы и ёлочка любой высоты; Мастерская: роли переменных и работа с цифрами числа.",
+      "summary": "while, for, do-while, break и continue; вложенные циклы и ёлочка любой высоты; Мастерская: роли переменных и работа с цифрами числа. Игра «Джавик-курьер», часть 2.",
       "lessons": [
         {
           "id": "m05-01",
@@ -289,6 +289,11 @@ window.COURSE = {
           "url": "/lessons/m05/07-loop-mistakes.html"
         },
         {
+          "id": "m05-courier",
+          "title": "Игра «Джавик-курьер», часть 2: сам себе водитель",
+          "url": "/lessons/m05/50-courier.html"
+        },
+        {
           "id": "m05-pz",
           "title": "Головоломки: сколько раз и что выведется?",
           "url": "/lessons/m05/08-puzzles.html"
@@ -300,14 +305,14 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m05",
-      "taskCount": 11
+      "taskCount": 14
     },
     {
       "id": "m06",
       "num": "6",
       "title": "Массивы",
       "status": "open",
-      "summary": "Много значений в одной переменной: создание, обход, массив в памяти и ссылки, класс Arrays, алгоритмы (поиск, максимум, массив-счётчик, разворот, сдвиг, удаление и вставка), двумерные массивы.",
+      "summary": "Много значений в одной переменной: создание, обход, массив в памяти и ссылки, класс Arrays, алгоритмы (поиск, максимум, массив-счётчик, разворот, сдвиг, удаление и вставка), двумерные массивы. Игра «Джавик-курьер», часть 3.",
       "lessons": [
         {
           "id": "m06-01",
@@ -345,6 +350,11 @@ window.COURSE = {
           "url": "/lessons/m06/07-chars-and-args.html"
         },
         {
+          "id": "m06-courier",
+          "title": "Игра «Джавик-курьер», часть 3: маршрут в массиве",
+          "url": "/lessons/m06/50-courier.html"
+        },
+        {
           "id": "m06-pz",
           "title": "Головоломки: что выведется?",
           "url": "/lessons/m06/08-puzzles.html"
@@ -356,14 +366,14 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m06",
-      "taskCount": 11
+      "taskCount": 14
     },
     {
       "id": "m07",
       "num": "7",
       "title": "Методы",
       "status": "open",
-      "summary": "Разбиваем программу на кусочки: параметры и return, стек вызовов, передача аргументов, перегрузка, область видимости, рекурсия.",
+      "summary": "Разбиваем программу на кусочки: параметры и return, стек вызовов, передача аргументов, перегрузка, область видимости, рекурсия. Игра «Джавик-курьер», часть 4.",
       "lessons": [
         {
           "id": "m07-01",
@@ -401,6 +411,11 @@ window.COURSE = {
           "url": "/lessons/m07/07-workshop.html"
         },
         {
+          "id": "m07-courier",
+          "title": "Игра «Джавик-курьер», часть 4: свои команды",
+          "url": "/lessons/m07/50-courier.html"
+        },
+        {
           "id": "m07-pz",
           "title": "Головоломки: что выведется?",
           "url": "/lessons/m07/08-puzzles.html"
@@ -412,7 +427,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m07",
-      "taskCount": 10
+      "taskCount": 13
     },
     {
       "id": "m08",
@@ -709,7 +724,7 @@ window.COURSE = {
       "num": "13",
       "title": "Коллекции и generics",
       "status": "open",
-      "summary": "ArrayList, обёртки и кэш Integer, перебор и Iterator, HashSet/TreeSet, HashMap, очередь и стек, Comparable и Comparator, свои generics.",
+      "summary": "ArrayList, обёртки и кэш Integer, перебор и Iterator, HashSet/TreeSet, HashMap, очередь и стек, Comparable и Comparator, свои generics. Игра «Джавик-курьер», часть 5.",
       "lessons": [
         {
           "id": "m13-01",
@@ -767,6 +782,11 @@ window.COURSE = {
           "url": "/lessons/m13/09-choose-collection.html"
         },
         {
+          "id": "m13-courier",
+          "title": "Игра «Джавик-курьер», часть 5: служба доставки",
+          "url": "/lessons/m13/50-courier.html"
+        },
+        {
           "id": "m13-pz",
           "title": "Головоломки: что выведется?",
           "url": "/lessons/m13/10-puzzles.html"
@@ -778,7 +798,7 @@ window.COURSE = {
         }
       ],
       "tasks": "/tasks.html?module=m13",
-      "taskCount": 15
+      "taskCount": 18
     },
     {
       "id": "m14",

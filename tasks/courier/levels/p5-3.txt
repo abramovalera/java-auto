@@ -1,0 +1,9 @@
+# Часть 5 ★★★ «Отчёт смены»: один заезд на дом и отчёт по адресам в алфавитном порядке
+class=CourierShift
+entry=run
+map=town
+orders=repeats
+goToLimit=unique
+goal=deliver
+output=report
+ticks=2000
